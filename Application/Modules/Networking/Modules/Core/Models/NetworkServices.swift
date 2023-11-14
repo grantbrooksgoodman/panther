@@ -1,9 +1,8 @@
 //
 //  NetworkServices.swift
-//  Delta
 //
-//  Created by Grant Brooks Goodman on 26/10/2023.
-//  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */

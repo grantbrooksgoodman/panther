@@ -1147,8 +1147,8 @@
 		B91A0E242AFF2F8600E3C1A0 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				B9D0D9172B03019E00078A93 /* Networking */,
 				B91A10F82AFF362000E3C1A0 /* Content */,
+				B9D0D9172B03019E00078A93 /* Networking */,
 			);
 			path = Modules;
 			sourceTree = "<group>";

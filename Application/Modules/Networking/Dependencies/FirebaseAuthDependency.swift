@@ -1,9 +1,8 @@
 //
 //  FirebaseAuthDependency.swift
-//  Delta
 //
-//  Created by Grant Brooks Goodman on 11/9/23.
-//  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */
