@@ -9,5 +9,8 @@
 import Foundation
 
 public extension Array where Element == String {
-    static var singleValueEmpty: [String] { ["!"] }
+    /// An empty array qualified by a single value of "!".
+    static var bangQualifiedEmpty: [String] { ["!"] }
+
+    var isBangQualifiedEmpty: Bool { self == .bangQualifiedEmpty || isEmpty }
 }

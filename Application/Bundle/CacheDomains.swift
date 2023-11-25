@@ -15,18 +15,18 @@ import Foundation
 public enum CacheDomain: Equatable, Hashable {
     // MARK: - Cases
 
-    case `default`(DefaultCacheDomainKey)
+    case commonPropertyLists(CommonPropertyListsCacheDomainKey)
+    case regionDetailService(RegionDetailServiceCacheDomainKey)
 
     // MARK: - Properties
 
     public var rawValue: String {
         switch self {
-        case let .default(key):
+        case let .commonPropertyLists(key):
+            return key.rawValue
+
+        case let .regionDetailService(key):
             return key.rawValue
         }
     }
-}
-
-public enum DefaultCacheDomainKey: String {
-    case cacheableValueKey
 }

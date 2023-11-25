@@ -21,6 +21,8 @@ public enum LocalizedStringKey: String {
     case dismiss
     case done
 
+    case multiple
+
     case noEmail
     case noInternetMessage
     case noInternetTitle

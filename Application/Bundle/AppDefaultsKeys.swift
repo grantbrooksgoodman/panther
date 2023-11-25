@@ -13,6 +13,6 @@ public extension UserDefaultsKeyDomain {
     enum AppDefaultsKey: String {
         /* Add cases here for each new defaults key. */
 
-        case `default`
+        case mismatchedHashes
     }
 }
