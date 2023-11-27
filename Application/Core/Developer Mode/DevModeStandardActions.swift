@@ -19,13 +19,19 @@ public extension DevModeAction {
 
         public static var available: [DevModeAction] {
             var availableActions: [DevModeAction] = [.Standard.toggleBuildInfoOverlayAction,
-                                                     .Standard.navigateToPageAction,
                                                      .Standard.overrideLanguageCodeAction,
                                                      .Standard.resetUserDefaultsAction,
                                                      .Standard.toggleBreadcrumbsAction,
                                                      .Standard.disableDeveloperModeAction]
-            guard AppTheme.allCases.count > 1 else { return availableActions }
-            availableActions.insert(.Standard.changeThemeAction, at: 0)
+
+            if RootPage.allCases.count > 1 {
+                availableActions.insert(.Standard.navigateToPageAction, at: 0)
+            }
+
+            if AppTheme.allCases.count > 1 {
+                availableActions.insert(.Standard.changeThemeAction, at: 0)
+            }
+
             return availableActions
         }
 
@@ -70,9 +76,9 @@ public extension DevModeAction {
 
                 var actions = [AKAction]()
                 actions = RootPage.allCases.map { .init(
-                    title: $0.rawValue.camelCaseToHumanReadable.firstUppercase,
+                    title: $0.rawValue.camelCaseToHumanReadable.capitalizingWords,
                     style: .default,
-                    isEnabled: $0 != rootNavigationCoordinator.page
+                    isEnabled: $0.rawValue != rootNavigationCoordinator.page.rawValue
                 ) }
 
                 AKActionSheet(
@@ -80,7 +86,7 @@ public extension DevModeAction {
                     actions: actions,
                     shouldTranslate: [.none]
                 ).present { actionID in
-                    func format(_ pageName: String) -> String { pageName.camelCaseToHumanReadable.firstUppercase }
+                    func format(_ pageName: String) -> String { pageName.camelCaseToHumanReadable.capitalizingWords }
                     guard actionID != -1,
                           let pageName = actions.first(where: { $0.identifier == actionID })?.title,
                           let correspondingCase = RootPage.allCases.first(where: { format($0.rawValue) == pageName }) else { return }
@@ -295,5 +301,11 @@ private extension String {
                 partialResult.append(" \(component)")
             }
         }.joined()
+    }
+
+    var capitalizingWords: String {
+        let components = components(separatedBy: ": ")
+        guard components.count > 1 else { return firstUppercase }
+        return "\(components[0].firstUppercase): \(components[1].firstUppercase)"
     }
 }

@@ -3007,80 +3007,80 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>ಏನೋ ತಪ್ಪಾಗಿದೆ, ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
 		<key>ko</key>
 		<string>문제가 발생했습니다. 나중에 다시 시도해 주세요.</string>
-        <key>ky</key>
-        <string>Бир жерден ката кетти, бир аздан кийин кайталап көрүңүз.</string>
-        <key>lt</key>
-        <string>Kažkas ne taip, bandykite dar kartą vėliau.</string>
-        <key>mg</key>
-        <string>Nisy tsy nety, andramo indray rahatrizay.</string>
-        <key>mi</key>
-        <string>Kua he, me ngana ano i muri mai.</string>
-        <key>mk</key>
-        <string>Нешто тргна наопаку, обидете се повторно подоцна.</string>
-        <key>ml</key>
-        <string>എന്തോ കുഴപ്പം സംഭവിച്ചു, ദയവായി പിന്നീട് വീണ്ടും ശ്രമിക്കുക.</string>
-        <key>mn</key>
-        <string>Алдаа гарлаа, дараа дахин оролдоно уу.</string>
-        <key>mt</key>
-        <string>Xi ħaġa marret ħażin, jekk jogħġbok erġa' pprova aktar tard.</string>
-        <key>ne</key>
-        <string>केही गडबड भयो, कृपया पछि फेरि प्रयास गर्नुहोस्।</string>
-        <key>nl</key>
-        <string>Er is iets misgegaan. Probeer het later opnieuw.</string>
-        <key>no</key>
-        <string>Noe gikk galt. Prøv igjen senere.</string>
-        <key>pa</key>
-        <string>ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ, ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
-        <key>pl</key>
-        <string>Coś poszło nie tak. proszę spróbować później.</string>
-        <key>pt</key>
-        <string>Algo deu errado. tente novamente mais tarde.</string>
-        <key>ro</key>
-        <string>Vă rugăm să încercați din nou mai târziu.</string>
-        <key>ru</key>
-        <string>Что-то пошло не так. Пожалуйста, повторите попытку позже.</string>
-        <key>si</key>
-        <string>යම් දෙයක් වැරදී ඇත, කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
-        <key>sk</key>
-        <string>Niečo sa pokazilo. Prosím skús to znovu neskôr.</string>
-        <key>sl</key>
-        <string>Nekaj je šlo narobe, poskusite znova pozneje.</string>
-        <key>sq</key>
-        <string>Ndodhi një gabim. provo sërish më vonë.</string>
-        <key>sr</key>
-        <string>Нешто није у реду. молимо покушајте касније.</string>
-        <key>su</key>
-        <string>Aya nu lepat, mangga cobian deui engké.</string>
-        <key>sv</key>
-        <string>Försök igen senare.</string>
-        <key>sw</key>
-        <string>Hitilafu fulani imetokea, tafadhali jaribu tena baadaye.</string>
-        <key>ta</key>
-        <string>ஏதோ தவறு நடந்துவிட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.</string>
-        <key>te</key>
-        <string>ఏదో తప్పు జరిగినది. దయచేసి కాసేపు ఆగక ప్రయత్నించండి.</string>
-        <key>tg</key>
-        <string>Чизе хато кард, лутфан дертар аз нав кӯшиш кунед.</string>
-        <key>th</key>
-        <string>มีข้อผิดพลาดเกิดขึ้น โปรดลองอีกครั้งในภายหลัง</string>
-        <key>tl</key>
-        <string>Nagkaproblema, pakisubukang muli sa ibang pagkakataon.</string>
-        <key>tr</key>
-        <string>Bir şeyler yanlış oldu. Lütfen sonra tekrar deneyiniz.</string>
-        <key>tt</key>
-        <string>Нәрсәдер дөрес булмаган, соңрак кабатлап карагыз.</string>
-        <key>uk</key>
-        <string>Щось пішло не так, спробуйте пізніше.</string>
-        <key>ur</key>
-        <string>کچھ غلط ہو گیا. براہ کرم کچھ دیر بعد کوشش کریں.</string>
-        <key>uz</key>
-        <string>Nimadir xato ketdi, keyinroq qayta urinib ko‘ring.</string>
-        <key>vi</key>
-        <string>Đã xảy ra lỗi, vui lòng thử lại sau.</string>
-        <key>yi</key>
-        <string>עפּעס איז פאַלש, ביטע פּרובירן ווידער שפּעטער.</string>
-        <key>zh</key>
-        <string>发生错误。请稍后再试。</string>
+		<key>ky</key>
+		<string>Бир жерден ката кетти, бир аздан кийин кайталап көрүңүз.</string>
+		<key>lt</key>
+		<string>Kažkas ne taip, bandykite dar kartą vėliau.</string>
+		<key>mg</key>
+		<string>Nisy tsy nety, andramo indray rahatrizay.</string>
+		<key>mi</key>
+		<string>Kua he, me ngana ano i muri mai.</string>
+		<key>mk</key>
+		<string>Нешто тргна наопаку, обидете се повторно подоцна.</string>
+		<key>ml</key>
+		<string>എന്തോ കുഴപ്പം സംഭവിച്ചു, ദയവായി പിന്നീട് വീണ്ടും ശ്രമിക്കുക.</string>
+		<key>mn</key>
+		<string>Алдаа гарлаа, дараа дахин оролдоно уу.</string>
+		<key>mt</key>
+		<string>Xi ħaġa marret ħażin, jekk jogħġbok erġa&apos; pprova aktar tard.</string>
+		<key>ne</key>
+		<string>केही गडबड भयो, कृपया पछि फेरि प्रयास गर्नुहोस्।</string>
+		<key>nl</key>
+		<string>Er is iets misgegaan. Probeer het later opnieuw.</string>
+		<key>no</key>
+		<string>Noe gikk galt. Prøv igjen senere.</string>
+		<key>pa</key>
+		<string>ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ, ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
+		<key>pl</key>
+		<string>Coś poszło nie tak. proszę spróbować później.</string>
+		<key>pt</key>
+		<string>Algo deu errado. tente novamente mais tarde.</string>
+		<key>ro</key>
+		<string>Vă rugăm să încercați din nou mai târziu.</string>
+		<key>ru</key>
+		<string>Что-то пошло не так. Пожалуйста, повторите попытку позже.</string>
+		<key>si</key>
+		<string>යම් දෙයක් වැරදී ඇත, කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
+		<key>sk</key>
+		<string>Niečo sa pokazilo. Prosím skús to znovu neskôr.</string>
+		<key>sl</key>
+		<string>Nekaj je šlo narobe, poskusite znova pozneje.</string>
+		<key>sq</key>
+		<string>Ndodhi një gabim. provo sërish më vonë.</string>
+		<key>sr</key>
+		<string>Нешто није у реду. молимо покушајте касније.</string>
+		<key>su</key>
+		<string>Aya nu lepat, mangga cobian deui engké.</string>
+		<key>sv</key>
+		<string>Försök igen senare.</string>
+		<key>sw</key>
+		<string>Hitilafu fulani imetokea, tafadhali jaribu tena baadaye.</string>
+		<key>ta</key>
+		<string>ஏதோ தவறு நடந்துவிட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.</string>
+		<key>te</key>
+		<string>ఏదో తప్పు జరిగినది. దయచేసి కాసేపు ఆగక ప్రయత్నించండి.</string>
+		<key>tg</key>
+		<string>Чизе хато кард, лутфан дертар аз нав кӯшиш кунед.</string>
+		<key>th</key>
+		<string>มีข้อผิดพลาดเกิดขึ้น โปรดลองอีกครั้งในภายหลัง</string>
+		<key>tl</key>
+		<string>Nagkaproblema, pakisubukang muli sa ibang pagkakataon.</string>
+		<key>tr</key>
+		<string>Bir şeyler yanlış oldu. Lütfen sonra tekrar deneyiniz.</string>
+		<key>tt</key>
+		<string>Нәрсәдер дөрес булмаган, соңрак кабатлап карагыз.</string>
+		<key>uk</key>
+		<string>Щось пішло не так, спробуйте пізніше.</string>
+		<key>ur</key>
+		<string>کچھ غلط ہو گیا. براہ کرم کچھ دیر بعد کوشش کریں.</string>
+		<key>uz</key>
+		<string>Nimadir xato ketdi, keyinroq qayta urinib ko‘ring.</string>
+		<key>vi</key>
+		<string>Đã xảy ra lỗi, vui lòng thử lại sau.</string>
+		<key>yi</key>
+		<string>עפּעס איז פאַלש, ביטע פּרובירן ווידער שפּעטער.</string>
+		<key>zh</key>
+		<string>发生错误。请稍后再试。</string>
 	</dict>
 	<key>sunday</key>
 	<dict>
@@ -3461,7 +3461,7 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>is</key>
 		<string>Aðgerðin rann út á tíma. Vinsamlegast reyndu aftur síðar.</string>
 		<key>it</key>
-		<string>L&apos;operazione è scaduta. per Favore riprova più tardi.</string>
+		<string>L&apos;operazione è scaduta. Per favore riprova più tardi.</string>
 		<key>ja</key>
 		<string>操作がタイムアウトしました。 後でもう一度やり直してください。</string>
 		<key>ka</key>

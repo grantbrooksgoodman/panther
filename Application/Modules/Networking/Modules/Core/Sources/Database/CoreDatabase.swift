@@ -16,8 +16,8 @@ public struct CoreDatabase {
     // MARK: - Types
 
     public enum QueryStrategy {
-        case first
-        case last
+        case first(Int)
+        case last(Int)
     }
 
     // MARK: - Dependencies
@@ -29,7 +29,7 @@ public struct CoreDatabase {
     /**
      Gets values on the server for a given path.
 
-     - Parameter atPath: The server path at which to retrieve values.
+     - Parameter paht: The server path at which to retrieve values.
      - Parameter timeout: An optional timeout `Duration` for the operation; defaults to 10 seconds.
      - Parameter completion: Returns the Firebase snapshot value.
      */
@@ -56,6 +56,16 @@ public struct CoreDatabase {
         firebaseDatabase.child(path.prepended).observeSingleEvent(of: .value) { snapshot in
             timeout.cancel()
             guard canComplete else { return }
+
+            guard !isEmpty(snapshot.value) else {
+                completion(nil, .init(
+                    "No value exists at the specified key path.",
+                    extraParams: ["Path": path.prepended],
+                    metadata: [self, #file, #function, #line]
+                ))
+                return
+            }
+
             completion(snapshot.value, nil)
         } withCancel: { error in
             timeout.cancel()
@@ -66,8 +76,7 @@ public struct CoreDatabase {
 
     public func queryValues(
         at path: String,
-        limit: Int,
-        strategy: QueryStrategy = .first,
+        strategy: QueryStrategy = .first(10),
         timeout duration: Duration = .seconds(10),
         completion: @escaping (
             _ values: Any?,
@@ -90,24 +99,32 @@ public struct CoreDatabase {
             timeout.cancel()
             guard canComplete else { return }
 
-            guard let snapshot,
-                  let value = snapshot.value else {
+            guard let snapshot else {
                 completion(nil, .init(error, metadata: [self, #file, #function, #line]))
                 return
             }
 
-            completion(value, nil)
+            guard !isEmpty(snapshot.value) else {
+                completion(nil, .init(
+                    "No value exists at the specified key path.",
+                    extraParams: ["Path": path.prepended],
+                    metadata: [self, #file, #function, #line]
+                ))
+                return
+            }
+
+            completion(snapshot.value, nil)
         }
 
         let reference = firebaseDatabase.child(path.prepended)
 
         switch strategy {
-        case .first:
+        case let .first(limit):
             reference.queryLimited(toFirst: .init(limit)).getData { error, snapshot in
                 processReturnValues(error, snapshot)
             }
 
-        case .last:
+        case let .last(limit):
             reference.queryLimited(toLast: .init(limit)).getData { error, snapshot in
                 processReturnValues(error, snapshot)
             }
@@ -159,12 +176,16 @@ public struct CoreDatabase {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
-        firebaseDatabase.child(key).updateChildValues(data) { error, _ in
+        firebaseDatabase.child(key.prepended).updateChildValues(data) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
             completion(error == nil ? nil : .init(error, metadata: [self, #file, #function, #line]))
         }
     }
+
+    // MARK: - Auxiliary
+
+    private func isEmpty(_ value: Any?) -> Bool { value as? NSNull != nil }
 }
 
 private extension String {

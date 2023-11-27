@@ -1,0 +1,172 @@
+//
+//  HostedTranslationArchiver.swift
+//
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+/* 3rd-party */
+import Redux
+import Translator
+
+public struct HostedTranslationArchiver {
+    // MARK: - Dependencies
+
+    @Dependency(\.networking.database) private var database: Database
+
+    // MARK: - Archive Recent Translations
+
+    @discardableResult
+    public func addRecentlyUploadedLocalizedTranslationsToLocalArchive() async -> Exception? {
+        let languagePair: LanguagePair = .system
+        let commonParams = ["LanguagePair": languagePair.asString()]
+
+        if let exception = TranslationValidator.validate(
+            languagePair: languagePair,
+            metadata: [self, #file, #function, #line]
+        ) {
+            return exception.appending(extraParams: commonParams)
+        }
+
+        let queryValuesResult = await database.queryValues(
+            at: "translations/\(languagePair.asString())",
+            strategy: .last(100)
+        )
+
+        switch queryValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: String] else {
+                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
+            }
+
+            for value in dictionary.values {
+                guard let decoded = value.decodedTranslationComponents else {
+                    let exception = Exception(
+                        "Failed to decode translation.",
+                        extraParams: ["Value": value],
+                        metadata: [self, #file, #function, #line]
+                    )
+                    return exception.appending(extraParams: commonParams)
+                }
+
+                TranslationArchiver.addToArchive(
+                    .init(
+                        input: .init(decoded.input),
+                        output: decoded.output.sanitized,
+                        languagePair: languagePair
+                    )
+                )
+
+                Logger.log(
+                    .init(
+                        "Added uploaded translation to archive.",
+                        extraParams: ["Input": decoded.input,
+                                      "Output": decoded.output.sanitized,
+                                      "LanguagePair": languagePair.asString()],
+                        metadata: [self, #file, #function, #line]
+                    ),
+                    domain: .hostedTranslation
+                )
+            }
+
+            return nil
+
+        case let .failure(exception):
+            return exception.appending(extraParams: commonParams)
+        }
+    }
+
+    // MARK: - Find Archived Translations
+
+    public func findArchivedTranslation(for input: TranslationInput, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
+        await findArchivedTranslation(id: input.value().compressedHash, languagePair: languagePair)
+    }
+
+    private func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
+        let path = "translations/\(languagePair.asString())/\(id)"
+        let commonParams = ["Path": path]
+
+        if let exception = TranslationValidator.validate(
+            languagePair: languagePair,
+            metadata: [self, #file, #function, #line]
+        ) {
+            return .failure(exception)
+        }
+
+        let getValuesResult = await database.getValues(at: path)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let value = values as? String else {
+                let exception = Exception(
+                    "Failed to typecast values to string.",
+                    extraParams: ["Value": values],
+                    metadata: [self, #file, #function, #line]
+                )
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
+            guard let decoded = value.decodedTranslationComponents else {
+                let exception = Exception(
+                    "Failed to decode translation.",
+                    extraParams: ["Value": value],
+                    metadata: [self, #file, #function, #line]
+                )
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
+            return .success(
+                .init(
+                    input: .init(decoded.input),
+                    output: decoded.output.sanitized,
+                    languagePair: languagePair
+                )
+            )
+
+        case let .failure(exception):
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+    }
+
+    // MARK: - Remove Archived Translations
+
+    @discardableResult
+    public func removeArchivedTranslation(
+        for input: TranslationInput,
+        languagePair: LanguagePair
+    ) async -> Exception? {
+        let path = "translations/\(languagePair.asString())"
+
+        if let exception = await database.updateChildValues(forKey: path, with: [input.value().compressedHash: NSNull()]) {
+            return exception
+        }
+
+        return nil
+    }
+
+    // MARK: - Upload Translations to Archive
+
+    @discardableResult
+    public func addToHostedArchive(_ translation: Translation) async -> Exception? {
+        if let exception = TranslationValidator.validate(
+            translation: translation,
+            metadata: [self, #file, #function, #line]
+        ) {
+            return exception
+        }
+
+        let languagePairString = translation.languagePair.asString()
+        let serializedTranslation = translation.serialized
+        let dictionary = [serializedTranslation.key: serializedTranslation.value]
+
+        if let exception = await database.updateChildValues(forKey: "translations/\(languagePairString)", with: dictionary) {
+            return exception
+        }
+
+        return nil
+    }
+}

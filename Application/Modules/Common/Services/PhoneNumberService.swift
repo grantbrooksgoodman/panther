@@ -20,6 +20,7 @@ public struct PhoneNumberService {
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.regionDetailService) private var regionDetailService: RegionDetailService
     @Dependency(\.commonPropertyLists) private var commonPropertyLists: CommonPropertyLists
+    @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit
 
     // MARK: - Computed Properties
 
@@ -30,7 +31,6 @@ public struct PhoneNumberService {
 
     private func callingCodes(for numberLength: Int) -> [String]? {
         guard !lookupTables.isEmpty,
-              lookupTables.count > numberLength,
               let callingCodesForNumberLength = lookupTables[.init(numberLength)] else { return nil }
         return callingCodesForNumberLength
     }
@@ -133,7 +133,6 @@ public struct PhoneNumberService {
             return fallbackFormatted
         }
 
-        let phoneNumberKit = PhoneNumberKit()
         let formattedNumber: String?
 
         do {

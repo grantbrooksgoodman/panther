@@ -8,9 +8,23 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import Translator
+
 public extension Array where Element == String {
     /// An empty array qualified by a single value of "!".
     static var bangQualifiedEmpty: [String] { ["!"] }
-
     var isBangQualifiedEmpty: Bool { self == .bangQualifiedEmpty || isEmpty }
+}
+
+public extension Array where Element == Translation {
+    var isWellFormed: Bool {
+        !isEmpty && allSatisfy(\.isWellFormed)
+    }
+}
+
+public extension Array where Element == TranslationInput {
+    var isWellFormed: Bool {
+        !isEmpty && allSatisfy(\.isWellFormed)
+    }
 }

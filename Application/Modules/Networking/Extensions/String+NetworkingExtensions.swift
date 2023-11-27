@@ -18,6 +18,18 @@ extension String: CompressedHashable {
 }
 
 public extension String {
+    var alphaEncoded: String {
+        addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? self
+    }
+
+    var decodedTranslationComponents: (input: String, output: String)? {
+        let components = components(separatedBy: "–")
+        guard components.count == 2,
+              let inputString = components[0].removingPercentEncoding,
+              let outputString = components[1].removingPercentEncoding else { return nil }
+        return (inputString, outputString)
+    }
+
     var digits: String {
         components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
     }

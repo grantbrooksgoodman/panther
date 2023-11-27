@@ -20,6 +20,16 @@ public struct UserService {
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
     @Dependency(\.phoneNumberService) private var phoneNumberService: PhoneNumberService
 
+    // MARK: - Properties
+
+    public let legacy: LegacyUserService
+
+    // MARK: - Init
+
+    public init(_ legacy: LegacyUserService) {
+        self.legacy = legacy
+    }
+
     // MARK: - User Creation
 
     public func createUser(_ metadata: NewUserMetadata) async -> Callback<User, Exception> {
@@ -84,6 +94,10 @@ public struct UserService {
     }
 
     private func getUserIDs(hashes: [String]) async -> Callback<[String: [String]], Exception> {
+        guard !hashes.isEmpty else {
+            return .failure(.init("No hashes provided.", metadata: [self, #file, #function, #line]))
+        }
+
         let getUserHashesResult = await getUserHashes()
 
         switch getUserHashesResult {
@@ -147,6 +161,10 @@ public struct UserService {
     }
 
     public func getUsers(ids: [String]) async -> Callback<[User], Exception> {
+        guard !ids.isEmpty else {
+            return .failure(.init("No IDs provided.", metadata: [self, #file, #function, #line]))
+        }
+
         var users = [User]()
 
         for id in ids {
@@ -220,6 +238,10 @@ public struct UserService {
     }
 
     public func getUsers(phoneNumbers: [String]) async -> Callback<[String: [User]], Exception> {
+        guard !phoneNumbers.isEmpty else {
+            return .failure(.init("No phone numbers provided.", metadata: [self, #file, #function, #line]))
+        }
+
         var matches = [String: [User]]()
 
         for number in phoneNumbers {
@@ -243,5 +265,20 @@ public struct UserService {
         }
 
         return .success(matches)
+    }
+}
+
+/* MARK: LegacyUserService Dependency */
+
+private enum LegacyUserServiceDependency: DependencyKey {
+    public static func resolve(_: DependencyValues) -> LegacyUserService {
+        .init()
+    }
+}
+
+private extension DependencyValues {
+    var legacyUserService: LegacyUserService {
+        get { self[LegacyUserServiceDependency.self] }
+        set { self[LegacyUserServiceDependency.self] = newValue }
     }
 }

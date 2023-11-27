@@ -18,6 +18,7 @@ import Redux
 public enum AppException: String {
     /* Add new cases here. */
 
+    case noValueExists = "7CD4"
     case timedOut = "DE75"
 }
 

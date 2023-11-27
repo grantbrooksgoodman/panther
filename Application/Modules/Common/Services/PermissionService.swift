@@ -1,0 +1,264 @@
+//
+//  PermissionService.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import AVFoundation
+import Contacts
+import Foundation
+import Speech
+import UIKit
+import UserNotifications
+
+/* 3rd-party */
+import AlertKit
+import Redux
+
+public struct PermissionService {
+    // MARK: - Types
+
+    public enum PermissionStatus {
+        case denied
+        case granted
+        case unknown
+    }
+
+    public enum PermissionType {
+        case contacts
+        case notifications
+        case recording
+        case transcription
+    }
+
+    // MARK: - Dependencies
+
+    @Dependency(\.avAudioSession) private var avAudioSession: AVAudioSession
+    @Dependency(\.build) private var build: Build
+    @Dependency(\.cnContactStore) private var contactStore: CNContactStore
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
+
+    // MARK: - Computed Properties
+
+    public var contactPermissionStatus: PermissionStatus { getContactPermissionStatus() }
+    public var notificationPermissionStatus: PermissionStatus {
+        get async {
+            await getNotificationPermissionStatus()
+        }
+    }
+
+    public var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
+
+    // MARK: - Permissions Requesting
+
+    public func requestPermission(for type: PermissionType) async -> Callback<PermissionStatus, Exception> {
+        switch type {
+        case .contacts:
+            return await requestContactPermission()
+
+        case .notifications:
+            return await requestNotificationPermission()
+
+        case .recording:
+            return await requestRecordPermission()
+
+        case .transcription:
+            return await requestTranscribePermission()
+        }
+    }
+
+    private func requestContactPermission() async -> Callback<PermissionStatus, Exception> {
+        do {
+            let requestAccessResult = try await contactStore.requestAccess(for: .contacts)
+            return .success(requestAccessResult ? .granted : .denied)
+
+        } catch {
+            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+        }
+    }
+
+    private func requestNotificationPermission() async -> Callback<PermissionStatus, Exception> {
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        do {
+            let requestAuthorizationResult = try await userNotificationCenter.requestAuthorization(options: authOptions)
+            return .success(requestAuthorizationResult ? .granted : .denied)
+        } catch {
+            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+        }
+    }
+
+    private func requestRecordPermission() async -> Callback<PermissionStatus, Exception> {
+        do {
+            try avAudioSession.setCategory(
+                .playAndRecord,
+                mode: .default,
+                options: [.allowBluetooth, .defaultToSpeaker]
+            )
+            try avAudioSession.setActive(true)
+
+            return await withCheckedContinuation { continuation in
+                avAudioSession.requestRecordPermission { granted in
+                    continuation.resume(returning: .success(granted ? .granted : .denied))
+                }
+            }
+        } catch {
+            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+        }
+    }
+
+    private func requestTranscribePermission() async -> Callback<PermissionStatus, Exception> {
+        return await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                switch status {
+                case .authorized:
+                    continuation.resume(returning: .success(.granted))
+
+                case .denied,
+                     .restricted:
+                    continuation.resume(returning: .success(.denied))
+
+                case .notDetermined:
+                    continuation.resume(returning: .success(.unknown))
+
+                @unknown default:
+                    continuation.resume(returning: .failure(.init("Failed to get transcription permission.", metadata: [self, #file, #function, #line])))
+                }
+            }
+        }
+    }
+
+    // MARK: - Call to Action Methods
+
+    @discardableResult
+    public func presentCTA(for type: PermissionType) async -> Bool {
+        switch type {
+        case .contacts:
+            return await presentContactCTA()
+
+        case .notifications:
+            return await presentNotificationCTA()
+
+        case .recording:
+            return await presentRecordingCTA()
+
+        case .transcription:
+            return await presentTranscriptionCTA()
+        }
+    }
+
+    private func presentContactCTA() async -> Bool {
+        await presentCTA(with: "*\(build.finalName)* has not been granted permission to access your contact list.\n\nYou can change this in Settings.")
+    }
+
+    private func presentNotificationCTA() async -> Bool {
+        await presentCTA(with: "*\(build.finalName)* has not been granted permission to send and receive notifications.\n\nYou can change this in Settings.")
+    }
+
+    private func presentRecordingCTA() async -> Bool {
+        await presentCTA(with: "*\(build.finalName)* needs access to your microphone to record audio messages.\n\nYou can grant this permission in Settings.")
+    }
+
+    private func presentTranscriptionCTA() async -> Bool {
+        await presentCTA(
+            with: "*\(build.finalName)* needs speech recognition access to translate audio messages.\n\nYou can grant this permission in Settings."
+        )
+    }
+
+    /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
+    private func presentCTA(with message: String) async -> Bool {
+        @Localized(.settings) var settingsString: String
+        let settingsURL = await URL(string: UIApplication.openSettingsURLString)
+
+        var actions = [AKAction]()
+        if let settingsURL,
+           await uiApplication.canOpenURL(settingsURL) {
+            actions.append(AKAction(title: settingsString, style: .default))
+        }
+
+        let ctaAlert = AKAlert(
+            message: message,
+            actions: actions.isEmpty ? nil : actions,
+            cancelButtonTitle: Localized(.dismiss).wrappedValue,
+            shouldTranslate: [.message]
+        )
+
+        return await withCheckedContinuation { continuation in
+            ctaAlert.present { actionID in
+                guard actionID != -1 else { continuation.resume(returning: true); return }
+                guard actionID == ctaAlert.actions.first(where: { $0.title == settingsString })?.identifier,
+                      let settingsURL else { continuation.resume(returning: false); return }
+
+                Task { @MainActor in
+                    uiApplication.open(settingsURL)
+                    continuation.resume(returning: false)
+                }
+            }
+        }
+    }
+
+    // MARK: - Computed Property Getters
+
+    private func getContactPermissionStatus() -> PermissionStatus {
+        switch CNContactStore.authorizationStatus(for: .contacts) {
+        case .authorized:
+            return .granted
+        case .denied,
+             .restricted:
+            return .denied
+        case .notDetermined:
+            return .unknown
+        @unknown default:
+            return .unknown
+        }
+    }
+
+    private func getNotificationPermissionStatus() async -> PermissionStatus {
+        await withCheckedContinuation { continuation in
+            userNotificationCenter.getNotificationSettings { settings in
+                switch settings.authorizationStatus {
+                case .authorized,
+                     .ephemeral,
+                     .provisional:
+                    continuation.resume(returning: .granted)
+                case .denied:
+                    continuation.resume(returning: .denied)
+                case .notDetermined:
+                    continuation.resume(returning: .unknown)
+                @unknown default:
+                    continuation.resume(returning: .unknown)
+                }
+            }
+        }
+    }
+
+    private func getRecordPermissionStatus() -> PermissionStatus {
+        switch avAudioSession.recordPermission {
+        case .granted:
+            return .granted
+        case .denied:
+            return .denied
+        case .undetermined:
+            return .unknown
+        @unknown default:
+            return .unknown
+        }
+    }
+
+    private static func getTranscribePermissionStatus() -> PermissionStatus {
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized:
+            return .granted
+        case .denied,
+             .restricted:
+            return .denied
+        case .notDetermined:
+            return .unknown
+        @unknown default:
+            return .unknown
+        }
+    }
+}

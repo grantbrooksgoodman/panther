@@ -16,10 +16,18 @@ import Redux
 
 @main
 public final class AppDelegate: UIResponder, UIApplicationDelegate {
+    // MARK: - Dependencies
+
+    @Dependency(\.alertKitCore) private var akCore: AKCore
+    @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
+    @Dependency(\.build) private var build: Build
+    @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
+
     // MARK: - UIApplication
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         preInitialize()
+        setUpAlertKitTranslationDelegate()
         setUpFirebase()
 
         /* Encapsulate further work here into setup functions. */
@@ -32,12 +40,6 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Initialization + Setup
 
     private func preInitialize() {
-        /* MARK: Dependencies */
-
-        @Dependency(\.alertKitCore) var akCore: AKCore
-        @Dependency(\.breadcrumbs) var breadcrumbs: Breadcrumbs
-        @Dependency(\.build) var build: Build
-
         /* MARK: Defaults Keys & Logging Setup */
 
         RuntimeStorage.store(BuildConfig.languageCode, as: .languageCode)
@@ -125,6 +127,12 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
             )
             return
         }
+    }
+
+    // MARK: - AlertKit Translation Delegate Setup
+
+    private func setUpAlertKitTranslationDelegate() {
+        akCore.register(translationDelegate: hostedTranslationService)
     }
 
     // MARK: - Firebase Setup

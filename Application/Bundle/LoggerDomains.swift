@@ -13,5 +13,6 @@ public enum LoggerDomain: String, CaseIterable {
     /* Add cases here to expose new domains to the logger. */
 
     case general
+    case hostedTranslation
     case observer
 }

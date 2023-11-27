@@ -13,4 +13,5 @@ public enum TranslatedLabelStringCollection: Equatable {
     /* Add cases here to expose new strings for on-the-fly translation. */
 
     case sampleView(SampleViewStringKey)
+    case welcomePageView(WelcomePageViewStringKey)
 }

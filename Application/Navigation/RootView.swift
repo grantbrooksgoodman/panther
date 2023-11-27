@@ -26,6 +26,9 @@ public struct RootView: View {
                 switch navigationCoordinator.page {
                 case .sample:
                     withTransition { SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer())) }
+
+                case .onboarding(.welcome):
+                    withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
                 }
             }
             .environment(\.keyWindowSize, proxy.size)

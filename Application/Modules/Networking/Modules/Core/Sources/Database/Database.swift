@@ -40,13 +40,13 @@ public struct Database {
 
     public func queryValues(
         at path: String,
-        limit: Int,
-        strategy: CoreDatabase.QueryStrategy = .first,
+        strategy: CoreDatabase.QueryStrategy = .first(10),
         timeout duration: Duration? = nil
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
-            coreDatabase.getValues(
+            coreDatabase.queryValues(
                 at: path,
+                strategy: strategy,
                 timeout: duration ?? .seconds(10)
             ) { values, exception in
                 guard let values else {
