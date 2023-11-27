@@ -267,18 +267,3 @@ public struct UserService {
         return .success(matches)
     }
 }
-
-/* MARK: LegacyUserService Dependency */
-
-private enum LegacyUserServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> LegacyUserService {
-        .init()
-    }
-}
-
-private extension DependencyValues {
-    var legacyUserService: LegacyUserService {
-        get { self[LegacyUserServiceDependency.self] }
-        set { self[LegacyUserServiceDependency.self] = newValue }
-    }
-}
