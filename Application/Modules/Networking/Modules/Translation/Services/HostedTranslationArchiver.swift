@@ -160,10 +160,8 @@ public struct HostedTranslationArchiver {
         }
 
         let languagePairString = translation.languagePair.asString()
-        let serializedTranslation = translation.serialized
-        let dictionary = [serializedTranslation.key: serializedTranslation.value]
 
-        if let exception = await database.updateChildValues(forKey: "translations/\(languagePairString)", with: dictionary) {
+        if let exception = await database.updateChildValues(forKey: "translations/\(languagePairString)", with: translation.serialized) {
             return exception
         }
 
