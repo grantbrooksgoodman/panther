@@ -28,7 +28,7 @@ public enum BuildConfig {
 
     // MARK: - Other
 
-    public static let languageCode = "ko" // Locale.systemLanguageCode
+    public static let languageCode = Locale.systemLanguageCode
     public static let loggerDomainSubscriptions: [LoggerDomain] = [.general]
     public static let networkEnvironment: NetworkEnvironment = .development
 }

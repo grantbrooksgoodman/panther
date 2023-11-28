@@ -21,6 +21,10 @@ public struct HostedTranslationService {
     // MARK: - Label String Resolution
 
     public func resolve(_ strings: TranslatedLabelStrings.Type) async -> Callback<[TranslationOutputMap], Exception> {
+        guard LanguagePair.system.isWellFormed else {
+            return .success(strings.defaultOutputMap)
+        }
+
         let getTranslationsResult = await getTranslations(for: strings.keyPairs.map(\.input), languagePair: .system)
 
         switch getTranslationsResult {
@@ -162,7 +166,21 @@ public struct HostedTranslationService {
                 return .success(sanitizedTranslation)
 
             case let .failure(exception):
-                return .failure(exception)
+                guard exception.isEqual(toAny: [.exhaustedAvailablePlatforms,
+                                                .sameTranslationInputOutput]) else {
+                    return .failure(exception)
+                }
+
+                let translation: Translation = .init(
+                    input: input,
+                    output: input.value().sanitized,
+                    languagePair: languagePair
+                )
+
+                await hostedArchiver.addToHostedArchive(translation)
+                TranslationArchiver.addToArchive(translation)
+
+                return .success(translation)
             }
         }
     }
