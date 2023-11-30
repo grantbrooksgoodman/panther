@@ -35,6 +35,7 @@ public struct CoreDatabase {
      */
     public func getValues(
         at path: String,
+        prependingEnvironment: Bool,
         timeout duration: Duration = .seconds(10),
         completion: @escaping (
             _ values: Any?,
@@ -53,14 +54,15 @@ public struct CoreDatabase {
             completion(nil, .timedOut([self, #file, #function, #line]))
         }
 
-        firebaseDatabase.child(path.prepended).observeSingleEvent(of: .value) { snapshot in
+        let path = prependingEnvironment ? path.prepended : path
+        firebaseDatabase.child(path).observeSingleEvent(of: .value) { snapshot in
             timeout.cancel()
             guard canComplete else { return }
 
             guard !isEmpty(snapshot.value) else {
                 completion(nil, .init(
                     "No value exists at the specified key path.",
-                    extraParams: ["Path": path.prepended],
+                    extraParams: ["Path": path],
                     metadata: [self, #file, #function, #line]
                 ))
                 return
@@ -77,6 +79,7 @@ public struct CoreDatabase {
     public func queryValues(
         at path: String,
         strategy: QueryStrategy = .first(10),
+        prependingEnvironment: Bool,
         timeout duration: Duration = .seconds(10),
         completion: @escaping (
             _ values: Any?,
@@ -95,6 +98,8 @@ public struct CoreDatabase {
             completion(nil, .timedOut([self, #file, #function, #line]))
         }
 
+        let path = prependingEnvironment ? path.prepended : path
+
         func processReturnValues(_ error: Error?, _ snapshot: DataSnapshot?) {
             timeout.cancel()
             guard canComplete else { return }
@@ -107,7 +112,7 @@ public struct CoreDatabase {
             guard !isEmpty(snapshot.value) else {
                 completion(nil, .init(
                     "No value exists at the specified key path.",
-                    extraParams: ["Path": path.prepended],
+                    extraParams: ["Path": path],
                     metadata: [self, #file, #function, #line]
                 ))
                 return
@@ -116,7 +121,7 @@ public struct CoreDatabase {
             completion(snapshot.value, nil)
         }
 
-        let reference = firebaseDatabase.child(path.prepended)
+        let reference = firebaseDatabase.child(path)
 
         switch strategy {
         case let .first(limit):
@@ -136,6 +141,7 @@ public struct CoreDatabase {
     public func setValue(
         _ value: Any,
         forKey key: String,
+        prependingEnvironment: Bool,
         timeout duration: Duration = .seconds(10),
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
@@ -151,7 +157,8 @@ public struct CoreDatabase {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
-        firebaseDatabase.child(key.prepended).setValue(value) { error, _ in
+        let key = prependingEnvironment ? key.prepended : key
+        firebaseDatabase.child(key).setValue(value) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
             completion(error == nil ? nil : .init(error, metadata: [self, #file, #function, #line]))
@@ -161,6 +168,7 @@ public struct CoreDatabase {
     public func updateChildValues(
         forKey key: String,
         with data: [String: Any],
+        prependingEnvironment: Bool,
         timeout duration: Duration = .seconds(10),
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
@@ -176,7 +184,8 @@ public struct CoreDatabase {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
-        firebaseDatabase.child(key.prepended).updateChildValues(data) { error, _ in
+        let key = prependingEnvironment ? key.prepended : key
+        firebaseDatabase.child(key).updateChildValues(data) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
             completion(error == nil ? nil : .init(error, metadata: [self, #file, #function, #line]))

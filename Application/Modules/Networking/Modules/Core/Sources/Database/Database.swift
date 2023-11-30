@@ -20,11 +20,13 @@ public struct Database {
 
     public func getValues(
         at path: String,
+        prependingEnvironment: Bool = true,
         timeout duration: Duration? = nil
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
             coreDatabase.getValues(
                 at: path,
+                prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
             ) { values, exception in
                 guard let values else {
@@ -41,12 +43,14 @@ public struct Database {
     public func queryValues(
         at path: String,
         strategy: CoreDatabase.QueryStrategy = .first(10),
+        prependingEnvironment: Bool = true,
         timeout duration: Duration? = nil
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
             coreDatabase.queryValues(
                 at: path,
                 strategy: strategy,
+                prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
             ) { values, exception in
                 guard let values else {
@@ -66,12 +70,14 @@ public struct Database {
     public func setValue(
         _ value: Any,
         forKey key: String,
+        prependingEnvironment: Bool = true,
         timeout duration: Duration? = nil
     ) async -> Exception? {
         return await withCheckedContinuation { continuation in
             coreDatabase.setValue(
                 value,
                 forKey: key,
+                prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
             ) { exception in
                 continuation.resume(returning: exception)
@@ -83,12 +89,14 @@ public struct Database {
     public func updateChildValues(
         forKey key: String,
         with data: [String: Any],
+        prependingEnvironment: Bool = true,
         timeout duration: Duration? = nil
     ) async -> Exception? {
         return await withCheckedContinuation { continuation in
             coreDatabase.updateChildValues(
                 forKey: key,
                 with: data,
+                prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
             ) { exception in
                 continuation.resume(returning: exception)

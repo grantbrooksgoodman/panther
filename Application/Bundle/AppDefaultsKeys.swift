@@ -10,9 +10,20 @@
 import Foundation
 
 public extension UserDefaultsKeyDomain {
-    enum AppDefaultsKey: String {
+    enum AppDefaultsKey {
         /* Add cases here for each new defaults key. */
 
-        case mismatchedHashes
+        case general(GeneralAppDefaultsKey)
+        case updateService(UpdateServiceDefaultsKey)
+
+        public var rawValue: String {
+            switch self {
+            case let .general(key):
+                return key.rawValue
+
+            case let .updateService(key):
+                return key.rawValue
+            }
+        }
     }
 }

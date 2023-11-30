@@ -17,6 +17,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
     // MARK: - Dependencies
 
     @Dependency(\.appIconService) private var appIconService: AppIconService
+    @Dependency(\.updateService) private var updateService: UpdateService
 
     // MARK: - Properties
 
@@ -114,6 +115,11 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         appIconService.stopDismissingAlerts()
+        if updateService.isPersistingForcedUpdateCTA {
+            Task {
+                await updateService.promptToUpdateIfNeeded()
+            }
+        }
     }
 
     public func sceneWillResignActive(_ scene: UIScene) {

@@ -55,6 +55,7 @@
 		B92409832AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409822AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift */; };
 		B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */; };
 		B9260BBA2AC4105C00824A7C /* BuildDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9260BB92AC4105C00824A7C /* BuildDependency.swift */; };
+		B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B928F3CD2B17FE5700006BFD /* MetadataService.swift */; };
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B93457072AABF9F200944602 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457062AABF9F200944602 /* Localization.swift */; };
 		B93457092AABFB3700944602 /* Localized.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457082AABFB3700944602 /* Localized.swift */; };
@@ -98,6 +99,11 @@
 		B964465C2B157DFB008E674A /* RootReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B964465B2B157DFB008E674A /* RootReducer.swift */; };
 		B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B964465D2B157E1A008E674A /* RootViewObserver.swift */; };
 		B96446602B157E3E008E674A /* RootNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B964465F2B157E3E008E674A /* RootNavigationView.swift */; };
+		B969691B2B18259400ADA875 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B969691A2B18259400ADA875 /* UpdateService.swift */; };
+		B969691D2B1825E800ADA875 /* MetadataServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B969691C2B1825E800ADA875 /* MetadataServiceDependency.swift */; };
+		B969691F2B18268B00ADA875 /* UpdateServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B969691E2B18268B00ADA875 /* UpdateServiceDependency.swift */; };
+		B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */; };
+		B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */; };
 		B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */; };
 		B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97381082ACE8A2000ADB173 /* Persistent.swift */; };
 		B97DB56D2AF45F11002C2679 /* SwipeViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB56C2AF45F11002C2679 /* SwipeViewModifier.swift */; };
@@ -612,6 +618,7 @@
 		B92409822AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbsDependency.swift; sourceTree = "<group>"; };
 		B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerDomains.swift; sourceTree = "<group>"; };
 		B9260BB92AC4105C00824A7C /* BuildDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDependency.swift; sourceTree = "<group>"; };
+		B928F3CD2B17FE5700006BFD /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataService.swift; sourceTree = "<group>"; };
 		B92949382AC525AD00BAF8C9 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B93457062AABF9F200944602 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
@@ -656,6 +663,11 @@
 		B964465B2B157DFB008E674A /* RootReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootReducer.swift; sourceTree = "<group>"; };
 		B964465D2B157E1A008E674A /* RootViewObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewObserver.swift; sourceTree = "<group>"; };
 		B964465F2B157E3E008E674A /* RootNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootNavigationView.swift; sourceTree = "<group>"; };
+		B969691A2B18259400ADA875 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
+		B969691C2B1825E800ADA875 /* MetadataServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataServiceDependency.swift; sourceTree = "<group>"; };
+		B969691E2B18268B00ADA875 /* UpdateServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateServiceDependency.swift; sourceTree = "<group>"; };
+		B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+CommonExtensions.swift"; sourceTree = "<group>"; };
+		B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPageView.swift; sourceTree = "<group>"; };
 		B97381082ACE8A2000ADB173 /* Persistent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistent.swift; sourceTree = "<group>"; };
 		B97DB56C2AF45F11002C2679 /* SwipeViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeViewModifier.swift; sourceTree = "<group>"; };
@@ -1915,9 +1927,11 @@
 			isa = PBXGroup;
 			children = (
 				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
+				B928F3CD2B17FE5700006BFD /* MetadataService.swift */,
 				B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */,
 				B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */,
 				B9E6D7B32B126188000BC88D /* RegionDetailService.swift */,
+				B969691A2B18259400ADA875 /* UpdateService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1928,11 +1942,13 @@
 				B9E6D7CF2B12850D000BC88D /* AVAudioSessionDependency.swift */,
 				B9E6D7D02B12850D000BC88D /* CNContactStoreDependency.swift */,
 				B9E6D7BA2B126338000BC88D /* CommonPropertyListsDependency.swift */,
+				B969691C2B1825E800ADA875 /* MetadataServiceDependency.swift */,
 				B9E6D7CD2B12850D000BC88D /* PermissionServiceDependency.swift */,
 				B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */,
 				B9E6D7BC2B126338000BC88D /* PhoneNumberServiceDependency.swift */,
 				B9E6D7BB2B126338000BC88D /* RegionDetailServiceDependency.swift */,
 				B9E6D7C32B126917000BC88D /* SystemLocalizedLocaleDependency.swift */,
+				B969691E2B18268B00ADA875 /* UpdateServiceDependency.swift */,
 				B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */,
 			);
 			path = Dependencies;
@@ -1941,7 +1957,9 @@
 		B9E6D7C02B126385000BC88D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
 				B9E6D7C12B126390000BC88D /* String+CommonExtensions.swift */,
+				B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2660,6 +2678,7 @@
 				B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */,
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
 				B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */,
+				B969691D2B1825E800ADA875 /* MetadataServiceDependency.swift in Sources */,
 				B9E7D43F2AAC223700FAF2A9 /* Observables.swift in Sources */,
 				B91688EB290490CD004C80A2 /* Exception.swift in Sources */,
 				B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */,
@@ -2668,12 +2687,14 @@
 				B9D0D93B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift in Sources */,
 				B9D0D9452B03019E00078A93 /* NetworkConfig.swift in Sources */,
 				B9CC83192AB0F4BB00255116 /* QuickViewer.swift in Sources */,
+				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
 				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
 				B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */,
 				B9E7D4292AAC1F0400FAF2A9 /* CoreConstants+FailureView.swift in Sources */,
 				B9D0D9462B03019E00078A93 /* CoreDatabase.swift in Sources */,
 				B9E7D41A2AAC0FC500FAF2A9 /* FileManagerDependency.swift in Sources */,
+				B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */,
 				B9D0D93A2B03019E00078A93 /* FirebaseDatabaseDependency.swift in Sources */,
 				B9E7D4742AAD359000FAF2A9 /* Array+CoreExtensions.swift in Sources */,
 				B93CAEAC2AF4622500C03BF4 /* Toast+Style.swift in Sources */,
@@ -2703,6 +2724,7 @@
 				B9BB3CF72AC1486D0077D1BC /* AKTranslationDelegate.swift in Sources */,
 				B93457072AABF9F200944602 /* Localization.swift in Sources */,
 				B9E6D7BD2B126338000BC88D /* CommonPropertyListsDependency.swift in Sources */,
+				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
 				B9D0D93F2B03019E00078A93 /* String+NetworkingExtensions.swift in Sources */,
 				B9E7D43D2AAC222600FAF2A9 /* Observable.swift in Sources */,
 				B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */,
@@ -2726,6 +2748,7 @@
 				B920F1892AD7C243002FC1C2 /* Locale+CoreExtensions.swift in Sources */,
 				B91688DA28FE0E4C004C80A2 /* ExceptionCatalog.swift in Sources */,
 				B99B1DBE29E4C43400117D42 /* ThemeService.swift in Sources */,
+				B969691F2B18268B00ADA875 /* UpdateServiceDependency.swift in Sources */,
 				B93CAEAA2AF4621C00C03BF4 /* Toast+PerpetuationStrategy.swift in Sources */,
 				B946D87E2ACC966E001D2424 /* Duration+CoreExtensions.swift in Sources */,
 				B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */,
@@ -2802,6 +2825,7 @@
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,
 				B9E7D4322AAC20E100FAF2A9 /* BuildInfoOverlayReducer.swift in Sources */,
 				B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */,
+				B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */,
 				B95798382AE4DE4800B9FFF9 /* CoreConstants+HeaderView.swift in Sources */,
 				B93BCDE92AAD9B5300AA16FE /* Callback.swift in Sources */,
 				B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */,

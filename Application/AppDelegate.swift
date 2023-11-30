@@ -22,13 +22,14 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
+    @Dependency(\.metadataService) private var metadataService: MetadataService
+    @Dependency(\.updateService) private var updateService: UpdateService
 
     // MARK: - UIApplication
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         preInitialize()
-        setUpAlertKitTranslationDelegate()
-        setUpFirebase()
+        initializeBundle()
 
         /* Encapsulate further work here into setup functions. */
 
@@ -129,16 +130,28 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    // MARK: - AlertKit Translation Delegate Setup
+    // MARK: - Bundle Initialization
 
-    private func setUpAlertKitTranslationDelegate() {
-        akCore.register(translationDelegate: hostedTranslationService)
-    }
+    private func initializeBundle() {
+        /* MARK: Firebase Setup */
 
-    // MARK: - Firebase Setup
-
-    private func setUpFirebase() {
         FirebaseApp.configure()
+
+        /* MARK: AKTranslationDelegate Setup */
+
+        akCore.register(translationDelegate: hostedTranslationService)
+
+        /* MARK: MetadataService Key Resolution */
+
+        Task {
+            if let exception = await metadataService.resolveValues() {
+                Logger.log(exception)
+            }
+        }
+
+        /* MARK: UpdateService Setup */
+
+        updateService.incrementRelaunchCountIfNeeded()
     }
 
     // MARK: - UISceneSession
