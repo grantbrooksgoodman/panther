@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1701319054</string>
+	<string>1701546246</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,15 +17,17 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleReleaseVersion</key>
-	<string>343</string>
+	<string>420</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.6</string>
+	<string>0.2.8</string>
 	<key>CFBundleVersion</key>
-	<string>343</string>
+	<string>420</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>Hello needs access to your contacts to find friends with accounts. Your contacts' information never leaves your device.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is requested to save images.</string>
 	<key>UIAppFonts</key>

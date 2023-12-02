@@ -14,7 +14,7 @@ public struct NewUserMetadata: Codable, Equatable {
 
     public let id: String
     public let languageCode: String
-    public let numberData: PhoneNumberMetadata
+    public let numberData: PhoneNumber
     public let pushTokens: [String]
 
     // MARK: - Init
@@ -22,7 +22,7 @@ public struct NewUserMetadata: Codable, Equatable {
     public init(
         id: String,
         languageCode: String,
-        numberData: PhoneNumberMetadata,
+        numberData: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id

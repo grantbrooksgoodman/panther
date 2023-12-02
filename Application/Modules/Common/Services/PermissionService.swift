@@ -52,6 +52,7 @@ public struct PermissionService {
     }
 
     public var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
+    public var transcribePermissionStatus: PermissionStatus { getTranscribePermissionStatus() }
 
     // MARK: - Permissions Requesting
 
@@ -248,7 +249,7 @@ public struct PermissionService {
         }
     }
 
-    private static func getTranscribePermissionStatus() -> PermissionStatus {
+    private func getTranscribePermissionStatus() -> PermissionStatus {
         switch SFSpeechRecognizer.authorizationStatus() {
         case .authorized:
             return .granted

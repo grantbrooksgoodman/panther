@@ -17,6 +17,7 @@ import Redux
 public struct PhoneNumberService {
     // MARK: - Dependencies
 
+    @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.regionDetailService) private var regionDetailService: RegionDetailService
     @Dependency(\.commonPropertyLists) private var commonPropertyLists: CommonPropertyLists
@@ -24,10 +25,21 @@ public struct PhoneNumberService {
 
     // MARK: - Computed Properties
 
+    public var deviceCallingCode: String {
+        guard let regionCode = currentLocale.region?.identifier,
+              let callingCode = callingCodes[regionCode] else { return "1" }
+        return callingCode
+    }
+
     private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
     private var lookupTables: [String: [String]] { commonPropertyLists.lookupTables }
 
     // MARK: - Calling Code Determination
+
+    public func possibleCallingCodes(for number: String) -> [String]? {
+        guard let countryCodes = matchingCountryCodes(for: number) else { return callingCodes(for: number.count) }
+        return countryCodes
+    }
 
     private func callingCodes(for numberLength: Int) -> [String]? {
         guard !lookupTables.isEmpty,
@@ -50,11 +62,6 @@ public struct PhoneNumberService {
         }
 
         return matches.isEmpty ? nil : matches
-    }
-
-    public func possibleCallingCodes(for number: String) -> [String]? {
-        guard let countryCodes = matchingCountryCodes(for: number) else { return callingCodes(for: number.count) }
-        return countryCodes
     }
 
     // MARK: - Hash Generation

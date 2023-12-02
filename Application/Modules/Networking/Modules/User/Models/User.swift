@@ -21,7 +21,7 @@ public struct User: Codable, Equatable {
     public let languageCode: String
 
     // Models
-    public let numberData: PhoneNumberMetadata
+    public let numberData: PhoneNumber
 
     // MARK: - Init
 
@@ -29,7 +29,7 @@ public struct User: Codable, Equatable {
         _ id: String,
         conversationIDs: [ConversationID]?,
         languageCode: String,
-        numberData: PhoneNumberMetadata,
+        numberData: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id

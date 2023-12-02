@@ -16,6 +16,10 @@ import Redux
 public extension String {
     // MARK: - Properties
 
+    var isBlank: Bool {
+        lowercasedTrimmingWhitespace == ""
+    }
+
     var phoneNumberFormatted: String {
         @Dependency(\.phoneNumberService) var phoneNumberService: PhoneNumberService
         guard digits != "" else { return self }

@@ -125,6 +125,7 @@ public extension String {
         return name.trimmingBorderedWhitespace
     }
 
+    // TODO: RENAME TO INCLUDE NEWLINES, THIS IS CATEGORICALLY DIFFERENT
     var lowercasedTrimmingWhitespace: String {
         trimmingCharacters(in: .whitespacesAndNewlines).lowercased().trimmingWhitespace
     }

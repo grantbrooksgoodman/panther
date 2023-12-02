@@ -23,6 +23,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     @Dependency(\.build) private var build: Build
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
     @Dependency(\.metadataService) private var metadataService: MetadataService
+    @Dependency(\.reviewService) private var reviewService: ReviewService
     @Dependency(\.updateService) private var updateService: UpdateService
 
     // MARK: - UIApplication
@@ -148,6 +149,10 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
                 Logger.log(exception)
             }
         }
+
+        /* MARK: ReviewService Setup */
+
+        reviewService.incrementAppOpenCount()
 
         /* MARK: UpdateService Setup */
 

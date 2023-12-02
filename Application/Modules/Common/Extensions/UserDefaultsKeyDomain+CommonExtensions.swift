@@ -14,6 +14,15 @@ public extension UserDefaultsKeyDomain {
         case mismatchedHashes
     }
 
+    enum ContactPairArchiveServiceDefaultsKey: String {
+        case contactPairArchive
+    }
+
+    enum ReviewServiceDefaultsKey: String {
+        case appOpenCount
+        case lastRequestedReviewForBuildNumber
+    }
+
     enum UpdateServiceDefaultsKey: String {
         case buildNumberWhenLastForcedToUpdate
         case firstPostponedUpdate

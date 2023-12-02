@@ -14,6 +14,14 @@ public extension Persistent {
         self.init(.app(.general(generalKey)))
     }
 
+    convenience init(_ contactPairArchiveServiceKey: UserDefaultsKeyDomain.ContactPairArchiveServiceDefaultsKey) {
+        self.init(.app(.contactPairArchiveService(contactPairArchiveServiceKey)))
+    }
+
+    convenience init(_ reviewServiceKey: UserDefaultsKeyDomain.ReviewServiceDefaultsKey) {
+        self.init(.app(.reviewService(reviewServiceKey)))
+    }
+
     convenience init(_ updateServiceKey: UserDefaultsKeyDomain.UpdateServiceDefaultsKey) {
         self.init(.app(.updateService(updateServiceKey)))
     }

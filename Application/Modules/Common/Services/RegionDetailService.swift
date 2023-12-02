@@ -29,6 +29,7 @@ public final class RegionDetailService: Cacheable {
 
     // MARK: - Dependencies
 
+    @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.systemLocalizedLocale) private var localizedLocale: Locale
     @Dependency(\.commonPropertyLists) private var commonPropertyLists: CommonPropertyLists
 
@@ -39,7 +40,9 @@ public final class RegionDetailService: Cacheable {
 
     // MARK: - Computed Properties
 
+    public var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
     public var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
+
     private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
 
     // MARK: - Init
@@ -205,7 +208,7 @@ public final class RegionDetailService: Cacheable {
             return title
         }
 
-        if let title = regionTitle(by: .regionCode(regions[0])) {
+        if let title = regionTitle(by: .regionCode(regions[0]), titleFormat: titleFormat) {
             setCacheValue(callingCode, title)
             return title
         }
