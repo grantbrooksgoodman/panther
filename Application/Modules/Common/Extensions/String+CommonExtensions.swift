@@ -17,7 +17,7 @@ public extension String {
     // MARK: - Properties
 
     var isBlank: Bool {
-        lowercasedTrimmingWhitespace == ""
+        lowercasedTrimmingWhitespaceAndNewlines == ""
     }
 
     var phoneNumberFormatted: String {
