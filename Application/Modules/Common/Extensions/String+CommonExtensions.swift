@@ -17,11 +17,11 @@ public extension String {
     // MARK: - Properties
 
     var isBlank: Bool {
-        lowercasedTrimmingWhitespaceAndNewlines == ""
+        lowercasedTrimmingWhitespaceAndNewlines.isEmpty
     }
 
     var phoneNumberFormatted: String {
-        @Dependency(\.phoneNumberService) var phoneNumberService: PhoneNumberService
+        @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
         guard digits != "" else { return self }
         return phoneNumberService.format(self)
     }
@@ -29,15 +29,14 @@ public extension String {
     // MARK: - Methods
 
     func partiallyFormatted(for region: String) -> String {
-        @Dependency(\.phoneNumberService) var phoneNumberService: PhoneNumberService
-        @Dependency(\.regionDetailService) var regionDetailService: RegionDetailService
+        @Dependency(\.commonServices) var services: CommonServices
 
         guard digits != "" else { return self }
 
-        var fullFormatAttempt = phoneNumberService.format(self)
-        guard let callingCode = regionDetailService.callingCode(regionCode: region) else { return fullFormatAttempt }
+        var fullFormatAttempt = services.phoneNumber.format(self)
+        guard let callingCode = services.regionDetail.callingCode(regionCode: region) else { return fullFormatAttempt }
 
-        guard fullFormatAttempt == phoneNumberService.failsafeFormat(self) else {
+        guard fullFormatAttempt == services.phoneNumber.failsafeFormat(self) else {
             guard fullFormatAttempt.hasPrefix("+\(callingCode)") else {
                 let partialFormatter = PartialFormatter(defaultRegion: region.uppercased(), withPrefix: true)
                 return partialFormatter.formatPartial(digits)

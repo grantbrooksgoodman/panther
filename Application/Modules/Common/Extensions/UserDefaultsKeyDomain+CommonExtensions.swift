@@ -11,11 +11,17 @@ import Foundation
 
 public extension UserDefaultsKeyDomain {
     enum GeneralAppDefaultsKey: String {
-        case mismatchedHashes
+        case `default`
     }
 
     enum ContactPairArchiveServiceDefaultsKey: String {
         case contactPairArchive
+    }
+
+    enum ContactSyncServiceDefaultsKey: String {
+        case localUserHashes
+        case mismatchedHashes
+        case serverUserHashes
     }
 
     enum ReviewServiceDefaultsKey: String {

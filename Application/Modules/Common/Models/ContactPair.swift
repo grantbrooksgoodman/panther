@@ -13,11 +13,12 @@ public struct ContactPair: Codable, Equatable {
     // MARK: - Properties
 
     public let contact: Contact
-    public let numberPairs: [NumberPair]?
+    public let numberPairs: [NumberPair]
 
     // MARK: - Init
 
-    public init(contact: Contact, numberPairs: [NumberPair]?) {
+    public init(contact: Contact, numberPairs: [NumberPair]) {
+        assert(!numberPairs.isEmpty, "Initialized ContactPair with empty NumberPair array")
         self.contact = contact
         self.numberPairs = numberPairs
     }

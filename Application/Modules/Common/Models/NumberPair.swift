@@ -18,6 +18,7 @@ public struct NumberPair: Codable, Equatable {
     // MARK: - Init
 
     public init(phoneNumber: PhoneNumber, users: [User]) {
+        assert(!users.isEmpty, "Initialized NumberPair with empty User array")
         self.phoneNumber = phoneNumber
         self.users = users
     }

@@ -12,14 +12,26 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct ContactPairArchiveService {
+public final class ContactPairArchiveService {
     // MARK: - Dependencies
 
-    @Dependency(\.phoneNumberService) private var phoneNumberService: PhoneNumberService
+    @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
 
-    @Persistent(.contactPairArchive) private var archive: [ContactPair]?
+    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
+
+    // MARK: - Computed Properties
+
+    private var archive: [ContactPair]? {
+        didSet { persistedArchive = archive }
+    }
+
+    // MARK: - Init
+
+    public init() {
+        archive = persistedArchive
+    }
 
     // MARK: - Addition
 
@@ -30,12 +42,15 @@ public struct ContactPairArchiveService {
         values.append(contactPair)
         archive = values
 
-        Logger.log(.init(
-            "Added contact pair to local archive.",
-            extraParams: ["FullName": contactPair.contact.fullName,
-                          "PhoneNumber": contactPair.numberPairs?.first?.phoneNumber.compiledNumberString.phoneNumberFormatted ?? ""],
-            metadata: [self, #file, #function, #line]
-        ))
+        Logger.log(
+            .init(
+                "Added contact pair to local archive.",
+                extraParams: ["FullName": contactPair.contact.fullName,
+                              "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.compiledNumberString.phoneNumberFormatted ?? ""],
+                metadata: [self, #file, #function, #line]
+            ),
+            domain: .contacts
+        )
     }
 
     // MARK: - Retrieval
@@ -51,8 +66,8 @@ public struct ContactPairArchiveService {
     }
 
     public func getValue(userHash: String) -> ContactPair? {
-        archive?
-            .filter { phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique).contains(userHash) }
+        return archive?
+            .filter { (phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique) ?? []).contains(userHash) }
             .first
     }
 }

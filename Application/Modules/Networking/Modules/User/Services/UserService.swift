@@ -12,17 +12,19 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct UserService {
+public final class UserService {
     // MARK: - Dependencies
 
     @Dependency(\.networking.database) private var database: Database
     @Dependency(\.jsonDecoder) private var jsonDecoder: JSONDecoder
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-    @Dependency(\.phoneNumberService) private var phoneNumberService: PhoneNumberService
+    @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
 
     public let legacy: LegacyUserService
+
+    private var cachedHashes = [String: [String]]()
 
     // MARK: - Init
 
@@ -33,7 +35,7 @@ public struct UserService {
     // MARK: - User Creation
 
     public func createUser(_ metadata: NewUserMetadata) async -> Callback<User, Exception> {
-        let userHashesPath = "userHashes/\(metadata.numberData.nationalNumberString.digits.compressedHash)"
+        let userHashesPath = "userHashes/\(metadata.phoneNumber.nationalNumberString.digits.compressedHash)"
         var newValues = [metadata.id]
 
         let getValuesResult = await database.getValues(at: userHashesPath)
@@ -79,13 +81,18 @@ public struct UserService {
     // MARK: - Retrieval by Hash
 
     private func getUserHashes() async -> Callback<[String: [String]], Exception> {
+        guard cachedHashes.isEmpty else {
+            return .success(cachedHashes)
+        }
+
         let getValuesResult = await database.getValues(at: "userHashes")
 
         switch getValuesResult {
         case let .success(values):
             guard let hashes = values as? [String: [String]] else {
-                return .failure(.init("Couldn't get user hashes.", metadata: [self, #file, #function, #line]))
+                return .failure(.init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line]))
             }
+            cachedHashes = hashes
             return .success(hashes)
 
         case let .failure(exception):
@@ -184,18 +191,10 @@ public struct UserService {
 
     // MARK: - Retrieval by Phone Number
 
-    public func getUsers(phoneNumber: String) async -> Callback<[User], Exception> {
+    public func getUsers(phoneNumber: PhoneNumber) async -> Callback<[User], Exception> {
         var matches = [User]()
 
-        guard let possibleCallingCodes = phoneNumberService.possibleCallingCodes(for: phoneNumber) else {
-            return .failure(.init(
-                "No possible calling codes for this number.",
-                extraParams: ["PhoneNumber": phoneNumber],
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber) else {
+        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
             return .failure(.init(
                 "No possible hashes for this number.",
                 extraParams: ["PhoneNumber": phoneNumber],
@@ -212,7 +211,7 @@ public struct UserService {
 
             switch getUsersResult {
             case let .success(users):
-                matches = users.filter { possibleCallingCodes.contains($0.numberData.callingCode) }
+                matches = users.filter { $0.phoneNumber.callingCode == phoneNumber.callingCode }
                 guard !matches.isEmpty else {
                     @Persistent(.mismatchedHashes) var mismatchedHashes: [String]?
                     mismatchedHashes = mismatchedHashes == nil ? .init() : mismatchedHashes
@@ -237,23 +236,19 @@ public struct UserService {
         }
     }
 
-    public func getUsers(phoneNumbers: [String]) async -> Callback<[String: [User]], Exception> {
+    public func getUsers(phoneNumbers: [PhoneNumber]) async -> Callback<[NumberPair], Exception> {
         guard !phoneNumbers.isEmpty else {
             return .failure(.init("No phone numbers provided.", metadata: [self, #file, #function, #line]))
         }
 
-        var matches = [String: [User]]()
+        var matches = [NumberPair]()
 
         for number in phoneNumbers {
             let getUsersResult = await getUsers(phoneNumber: number)
 
             switch getUsersResult {
             case let .success(users):
-                if var matches = matches[number] {
-                    matches.append(contentsOf: users)
-                } else {
-                    matches[number] = users
-                }
+                matches.append(.init(phoneNumber: number, users: users))
 
             case let .failure(exception):
                 return .failure(exception)

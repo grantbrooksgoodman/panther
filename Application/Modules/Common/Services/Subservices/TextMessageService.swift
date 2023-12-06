@@ -21,7 +21,10 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
     // MARK: - Compose Text Message
 
     @discardableResult
-    public func composeTextMessage(_ text: String) -> Exception? {
+    public func composeTextMessage(
+        _ text: String,
+        recipient phoneNumber: PhoneNumber? = nil
+    ) -> Exception? {
         guard MFMessageComposeViewController.canSendText() else {
             return .init("Device is unable to send text messages.", metadata: [self, #file, #function, #line])
         }
@@ -30,6 +33,10 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
             let composeVC = MFMessageComposeViewController()
             composeVC.messageComposeDelegate = self
             composeVC.body = text
+
+            if let phoneNumber {
+                composeVC.recipients = ["+\(phoneNumber.compiledNumberString)"]
+            }
 
             coreUI.present(composeVC)
         }

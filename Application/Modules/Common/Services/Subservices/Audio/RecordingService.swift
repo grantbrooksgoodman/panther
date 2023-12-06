@@ -20,7 +20,7 @@ public final class RecordingService: NSObject {
 
     // MARK: - Dependencies
 
-    @Dependency(\.audioService) private var audioService: AudioService
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avAudioSession) private var avAudioSession: AVAudioSession
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter

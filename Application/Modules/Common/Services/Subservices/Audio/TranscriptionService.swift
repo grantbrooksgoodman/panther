@@ -16,7 +16,7 @@ import Redux
 public struct TranscriptionService {
     // MARK: - Dependencies
 
-    @Dependency(\.permissionService) private var permissionService: PermissionService
+    @Dependency(\.commonServices.permission) private var permissionService: PermissionService
 
     // MARK: - Transcribe Audio File
 

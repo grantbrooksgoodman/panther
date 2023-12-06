@@ -16,7 +16,7 @@ import Redux
 public struct PlaybackService {
     // MARK: - Dependencies
 
-    @Dependency(\.audioService) private var audioService: AudioService
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avQueuePlayer) private var avQueuePlayer: AVQueuePlayer
 
     // MARK: - Properties

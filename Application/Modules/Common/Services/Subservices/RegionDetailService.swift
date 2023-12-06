@@ -31,7 +31,7 @@ public final class RegionDetailService: Cacheable {
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.systemLocalizedLocale) private var localizedLocale: Locale
-    @Dependency(\.commonPropertyLists) private var commonPropertyLists: CommonPropertyLists
+    @Dependency(\.commonServices.propertyLists) private var commonPropertyLists: CommonPropertyLists
 
     // MARK: - Properties
 

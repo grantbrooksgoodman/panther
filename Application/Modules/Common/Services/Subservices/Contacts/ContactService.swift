@@ -25,18 +25,28 @@ public final class ContactService: Cacheable {
     // MARK: - Dependencies
 
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
-    @Dependency(\.contactNameService) private var contactNameService: ContactNameService
-    @Dependency(\.permissionService) private var permissionService: PermissionService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.userInteractiveQOSQueue) private var userInteractiveQOSQueue: DispatchQueue
 
     // MARK: - Properties
 
+    // Cache
     public let emptyCache: Cache
     public var cache: Cache
 
+    // Other
+    public let contactPairArchive: ContactPairArchiveService
+    public let sync: ContactSyncService
+
     // MARK: - Init
 
-    public init() {
+    public init(
+        contactPairArchive: ContactPairArchiveService,
+        sync: ContactSyncService
+    ) {
+        self.contactPairArchive = contactPairArchive
+        self.sync = sync
+
         emptyCache = .init(
             [
                 .contacts: [Contact](),
@@ -45,7 +55,7 @@ public final class ContactService: Cacheable {
         cache = emptyCache
     }
 
-    // MARK: - Methods
+    // MARK: - Fetch All Contacts
 
     public func fetchAllContacts(cacheStrategy: CacheStrategy = .returnCacheFirst) async -> Callback<[Contact], Exception> {
         return await withCheckedContinuation { continuation in
@@ -77,7 +87,7 @@ public final class ContactService: Cacheable {
             completeWithCacheIfPresent()
         }
 
-        guard permissionService.contactPermissionStatus == .granted else {
+        guard services.permission.contactPermissionStatus == .granted else {
             if cacheStrategy == .returnCacheOnFailure {
                 completeWithCacheIfPresent()
             }
@@ -114,13 +124,7 @@ public final class ContactService: Cacheable {
             do {
                 try self.cnContactStore.enumerateContacts(with: fetchRequest) { contact, _ in
                     if !contact.phoneNumbers.isEmpty {
-                        let compiledName = self.contactNameService.name(for: contact)
-                        contacts.append(.init(
-                            firstName: compiledName.firstName,
-                            lastName: compiledName.lastName,
-                            phoneNumbers: contact.phoneNumbers.asPhoneNumbers,
-                            imageData: contact.thumbnailImageData
-                        ))
+                        contacts.append(.init(contact))
                     }
                 }
             } catch {
@@ -148,6 +152,43 @@ public final class ContactService: Cacheable {
             guard canComplete else { return }
             completion(.success(contacts))
         }
+    }
+
+    // MARK: - Fetch Contacts by Phone Number
+
+    public func fetchContacts(by phoneNumber: PhoneNumber) async -> Callback<[Contact], Exception> {
+        guard let cachedValue = cache.value(forKey: .contacts) as? [Contact],
+              !cachedValue.isEmpty else {
+            let fetchAllContactsResult = await fetchAllContacts()
+
+            switch fetchAllContactsResult {
+            case .success:
+                return await fetchContacts(by: phoneNumber)
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        func satisfiesConstraints(_ contact: Contact) -> Bool {
+            let numberStrings = contact.phoneNumbers.compiledNumberStrings
+            guard let callingCodes = services.phoneNumber.possibleCallingCodes(for: numberStrings),
+                  let hashes = services.phoneNumber.possibleHashes(for: numberStrings),
+                  callingCodes.contains(phoneNumber.callingCode),
+                  hashes.contains(phoneNumber.compiledNumberString.compressedHash) else { return false }
+            return true
+        }
+
+        let matches = cachedValue.filter { satisfiesConstraints($0) }
+        guard !matches.isEmpty else {
+            return .failure(.init(
+                "No contacts match the given phone number.",
+                extraParams: ["Contacts": cachedValue,
+                              "PhoneNumber": phoneNumber.compiledNumberString],
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        return .success(matches)
     }
 
     // MARK: - Clear Cache
@@ -180,20 +221,5 @@ private extension Cache {
 
     func value(forKey key: CacheDomain.ContactServiceCacheDomainKey) -> Any? {
         value(forKey: .contactService(key))
-    }
-}
-
-/* MARK: ContactNameService Dependency */
-
-private enum ContactNameServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ContactNameService {
-        .init()
-    }
-}
-
-private extension DependencyValues {
-    var contactNameService: ContactNameService {
-        get { self[ContactNameServiceDependency.self] }
-        set { self[ContactNameServiceDependency.self] = newValue }
     }
 }

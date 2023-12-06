@@ -7,9 +7,13 @@
 //
 
 /* Native */
+import Contacts
 import Foundation
 
-public struct Contact: Codable, CompressedHashable, Equatable, Identifiable {
+/* 3rd-party */
+import Redux
+
+public struct Contact: Codable, CompressedHashable, Equatable {
     // MARK: - Properties
 
     // Array
@@ -20,7 +24,6 @@ public struct Contact: Codable, CompressedHashable, Equatable, Identifiable {
             lastName,
             phoneNumbers.map(\.compressedHash).joined(),
             imageData?.base64EncodedString() ?? "",
-            id.uuidString,
         ]
     }
 
@@ -30,7 +33,6 @@ public struct Contact: Codable, CompressedHashable, Equatable, Identifiable {
 
     // Other
     public let imageData: Data?
-    public var id = UUID()
 
     // MARK: - Computed Properties
 
@@ -59,5 +61,31 @@ public struct Contact: Codable, CompressedHashable, Equatable, Identifiable {
         self.lastName = lastName
         self.phoneNumbers = phoneNumbers
         self.imageData = imageData
+    }
+
+    public init(_ contact: CNContact) {
+        @Dependency(\.contactNameService) var contactNameService: ContactNameService
+        let compiledName = contactNameService.name(for: contact)
+        self.init(
+            firstName: compiledName.firstName,
+            lastName: compiledName.lastName,
+            phoneNumbers: contact.phoneNumbers.asPhoneNumbers.unique,
+            imageData: contact.thumbnailImageData
+        )
+    }
+}
+
+/* MARK: ContactNameService Dependency */
+
+private enum ContactNameServiceDependency: DependencyKey {
+    public static func resolve(_: DependencyValues) -> ContactNameService {
+        .init()
+    }
+}
+
+private extension DependencyValues {
+    var contactNameService: ContactNameService {
+        get { self[ContactNameServiceDependency.self] }
+        set { self[ContactNameServiceDependency.self] = newValue }
     }
 }

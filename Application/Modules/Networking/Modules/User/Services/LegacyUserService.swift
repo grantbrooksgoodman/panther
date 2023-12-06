@@ -37,7 +37,8 @@ public struct LegacyUserService {
             guard let callingCode = dictionary["callingCode"] as? String,
                   let nationalNumberString = dictionary["phoneNumber"] as? String,
                   let regionCode = dictionary["region"] as? String else {
-                return .init("Couldn't decode number information.", metadata: [self, #file, #function, #line])
+                let exception = Exception("Failed to decode number information.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
             }
 
             let newDictionary = [
@@ -46,7 +47,7 @@ public struct LegacyUserService {
                 "regionCode": regionCode,
             ]
 
-            if let exception = await database.setValue(newDictionary, forKey: "\(userPath)/numberData") {
+            if let exception = await database.setValue(newDictionary, forKey: "\(userPath)/phoneNumber") {
                 return exception.appending(extraParams: commonParams)
             }
 
@@ -119,6 +120,44 @@ public struct LegacyUserService {
             case let .failure(exception):
                 return exception.appending(extraParams: commonParams)
             }
+
+        case let .failure(exception):
+            return exception.appending(extraParams: commonParams)
+        }
+
+        return nil
+    }
+
+    public func renameNumberData(forUser id: String) async -> Exception? {
+        let commonParams = ["UserID": id]
+
+        let userPath = "users/\(id)"
+        let getValuesResult = await database.getValues(at: userPath)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
+            }
+
+            guard let numberData = dictionary["numberData"] as? [String: Any] else {
+                let exception = Exception("Failed to decode number information.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
+            }
+
+            if let exception = await database.setValue(NSNull(), forKey: "\(userPath)/numberData") {
+                return exception.appending(extraParams: commonParams)
+            }
+
+            if let exception = await database.setValue(numberData, forKey: "\(userPath)/phoneNumber") {
+                return exception.appending(extraParams: commonParams)
+            }
+
+            Logger.log(
+                "Successfully renamed number data for user with ID «\(id)».",
+                metadata: [self, #file, #function, #line]
+            )
 
         case let .failure(exception):
             return exception.appending(extraParams: commonParams)

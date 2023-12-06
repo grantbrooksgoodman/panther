@@ -17,7 +17,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
     // MARK: - Dependencies
 
     @Dependency(\.appIconService) private var appIconService: AppIconService
-    @Dependency(\.updateService) private var updateService: UpdateService
+    @Dependency(\.commonServices.update) private var updateService: UpdateService
 
     // MARK: - Properties
 

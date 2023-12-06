@@ -13,8 +13,8 @@ import Translator
 
 extension TranslationInput: Validatable {
     public var isWellFormed: Bool {
-        let notEmpty = !(value().isEmpty || value().lowercasedTrimmingWhitespaceAndNewlines.isEmpty)
+        let notBlank = !value().isBlank
         let hasUnicodeLetters = value().rangeOfCharacter(from: .letters) != nil
-        return notEmpty && hasUnicodeLetters
+        return notBlank && hasUnicodeLetters
     }
 }

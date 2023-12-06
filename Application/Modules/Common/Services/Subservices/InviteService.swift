@@ -16,17 +16,15 @@ import Redux
 public struct InviteService {
     // MARK: - Dependencies
 
-    @Dependency(\.analyticsService) private var analyticsService: AnalyticsService
     @Dependency(\.build) private var build: Build
-    @Dependency(\.metadataService) private var metadataService: MetadataService
-    @Dependency(\.textMessageService) private var textMessageService: TextMessageService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
 
     // MARK: - Compose Invitation
 
     public func composeInvitation(languageCode: String?) async -> Exception? {
-        guard let appShareLink = metadataService.appShareLink else {
-            if let exception = await metadataService.resolveValues() {
+        guard let appShareLink = services.metadata.appShareLink else {
+            if let exception = await services.metadata.resolveValues() {
                 return exception
             }
 
@@ -36,11 +34,11 @@ public struct InviteService {
         // swiftlint:disable:next line_length
         let promptMessage = "Hey, let's chat on *\(build.finalName)*! It's a simple messaging app that allows us to easily talk to each other in our native languages!"
 
-        analyticsService.logEvent(.invite)
+        services.analytics.logEvent(.invite)
 
         guard languageCode != "en" else {
             let textMessage = "\(promptMessage.sanitized)\n\n\(appShareLink.absoluteString)"
-            return textMessageService.composeTextMessage(textMessage)
+            return services.textMessage.composeTextMessage(textMessage)
         }
 
         let translateResult = await translator.translate(
@@ -52,7 +50,7 @@ public struct InviteService {
         switch translateResult {
         case let .success(translation):
             let textMessage = "\(translation.output)\n\n\(appShareLink.absoluteString)"
-            textMessageService.composeTextMessage(textMessage)
+            services.textMessage.composeTextMessage(textMessage)
 
         case let .failure(exception):
             return exception
@@ -84,20 +82,5 @@ public struct InviteService {
         let actionID = await alert.present()
         guard actionID != -1 else { return nil }
         return actionID == actions[0].identifier
-    }
-}
-
-/* MARK: TextMessageService Dependency */
-
-public enum TextMessageServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> TextMessageService {
-        .init()
-    }
-}
-
-public extension DependencyValues {
-    var textMessageService: TextMessageService {
-        get { self[TextMessageServiceDependency.self] }
-        set { self[TextMessageServiceDependency.self] = newValue }
     }
 }

@@ -32,7 +32,7 @@ public final class UpdateService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.currentCalendar) private var calendar: Calendar
-    @Dependency(\.metadataService) private var metadataService: MetadataService
+    @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties

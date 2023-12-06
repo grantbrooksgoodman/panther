@@ -20,7 +20,7 @@ public struct TextToSpeechService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.audioService) private var audioService: AudioService
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager

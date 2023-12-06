@@ -22,9 +22,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
-    @Dependency(\.metadataService) private var metadataService: MetadataService
-    @Dependency(\.reviewService) private var reviewService: ReviewService
-    @Dependency(\.updateService) private var updateService: UpdateService
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - UIApplication
 
@@ -145,18 +143,18 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         /* MARK: MetadataService Key Resolution */
 
         Task {
-            if let exception = await metadataService.resolveValues() {
+            if let exception = await services.metadata.resolveValues() {
                 Logger.log(exception)
             }
         }
 
         /* MARK: ReviewService Setup */
 
-        reviewService.incrementAppOpenCount()
+        services.review.incrementAppOpenCount()
 
         /* MARK: UpdateService Setup */
 
-        updateService.incrementRelaunchCountIfNeeded()
+        services.update.incrementRelaunchCountIfNeeded()
     }
 
     // MARK: - UISceneSession
