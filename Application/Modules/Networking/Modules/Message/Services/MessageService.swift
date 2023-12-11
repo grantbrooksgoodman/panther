@@ -47,7 +47,7 @@ public struct MessageService {
             ))
         }
 
-        guard let id = networking.database.generateKey(for: "messages") else {
+        guard let id = networking.database.generateKey(for: networking.config.paths.messages) else {
             return .failure(.init(
                 "Failed to generate key for new message.",
                 metadata: [self, #file, #function, #line]
@@ -86,7 +86,10 @@ public struct MessageService {
             return await audio.uploadAudioComponent(for: mockMessage, audioComponent: audioComponent)
         }
 
-        if let exception = await networking.database.updateChildValues(forKey: "messages/\(id)", with: data) {
+        if let exception = await networking.database.updateChildValues(
+            forKey: "\(networking.config.paths.messages)/\(id)",
+            with: data
+        ) {
             return .failure(exception)
         }
 
@@ -103,7 +106,7 @@ public struct MessageService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "messages/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.messages)/\(id)")
 
         switch getValuesResult {
         case let .success(values):
@@ -173,7 +176,10 @@ public struct MessageService {
                 return exception
             }
 
-            if let exception = await networking.database.setValue(NSNull(), forKey: "messages/\(message.id)") {
+            if let exception = await networking.database.setValue(
+                NSNull(),
+                forKey: "\(networking.config.paths.messages)/\(message.id)"
+            ) {
                 return exception
             }
 
@@ -188,7 +194,7 @@ public struct MessageService {
             return exception
         }
 
-        let path = "conversations/\(conversation.id.key)/messages"
+        let path = "\(networking.config.paths.conversations)/\(conversation.id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {

@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public final class UserService {
+public final class UserService: Cacheable {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: Networking
@@ -21,14 +21,24 @@ public final class UserService {
 
     // MARK: - Properties
 
+    // Instance
     public let legacy: LegacyUserService
 
-//    private var cachedHashes = [String: [String]]()
+    // Cache
+    public let emptyCache: Cache
+    public var cache: Cache
 
     // MARK: - Init
 
     public init(_ legacy: LegacyUserService) {
         self.legacy = legacy
+
+        emptyCache = .init(
+            [
+                .userHashSnapshot: UserHashSnapshot.empty,
+            ]
+        )
+        cache = emptyCache
     }
 
     // MARK: - User Creation
@@ -39,7 +49,7 @@ public final class UserService {
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) async -> Callback<User, Exception> {
-        let userHashesPath = "userHashes/\(phoneNumber.nationalNumberString.digits.compressedHash)"
+        let userHashesPath = "\(networking.config.paths.userHashes)/\(phoneNumber.nationalNumberString.digits.compressedHash)"
         var newValues = [id]
 
         let getValuesResult = await networking.database.getValues(at: userHashesPath)
@@ -60,17 +70,23 @@ public final class UserService {
             return .failure(exception)
         }
 
+        var resolvedPushTokens = Array.bangQualifiedEmpty
+        if let pushTokens,
+           !pushTokens.isBangQualifiedEmpty {
+            resolvedPushTokens = pushTokens
+        }
+
         typealias Keys = User.SerializationKeys
         let data: [String: Any] = [
             Keys.conversations.rawValue: Array.bangQualifiedEmpty,
             Keys.languageCode.rawValue: languageCode,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
-            Keys.pushTokens.rawValue: Array.bangQualifiedEmpty,
+            Keys.pushTokens.rawValue: resolvedPushTokens,
         ]
 
         if let exception = await networking.database.setValue(
             data,
-            forKey: "users/\(id)"
+            forKey: "\(networking.config.paths.users)/\(id)"
         ) {
             return .failure(exception)
         }
@@ -80,25 +96,36 @@ public final class UserService {
             conversations: nil,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
-            pushTokens: nil
+            pushTokens: resolvedPushTokens
         ))
     }
 
     // MARK: - Retrieval by Hash
 
     private func getUserHashes() async -> Callback<[String: [String]], Exception> {
-//        guard cachedHashes.isEmpty else {
-//            return .success(cachedHashes)
-//        }
+        if let cachedValue = cache.value(forKey: .userHashSnapshot) as? UserHashSnapshot,
+           !cachedValue.hashes.isEmpty,
+           !Array(cachedValue.hashes.keys).isBangQualifiedEmpty,
+           !cachedValue.hashes.values.allSatisfy(\.isBangQualifiedEmpty),
+           !cachedValue.isExpired {
+            return .success(cachedValue.hashes)
+        }
 
-        let getValuesResult = await networking.database.getValues(at: "userHashes")
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userHashes)
 
         switch getValuesResult {
         case let .success(values):
             guard let hashes = values as? [String: [String]] else {
                 return .failure(.init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line]))
             }
-//            cachedHashes = hashes
+            cache.set(
+                UserHashSnapshot(
+                    date: Date(),
+                    hashes: hashes,
+                    expiryThreshold: .seconds(60)
+                ),
+                forKey: .userHashSnapshot
+            )
             return .success(hashes)
 
         case let .failure(exception):
@@ -146,7 +173,7 @@ public final class UserService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "users/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.users)/\(id)")
 
         switch getValuesResult {
         case let .success(values):
@@ -297,5 +324,37 @@ public final class UserService {
         case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
         }
+    }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        cache = emptyCache
+    }
+}
+
+/* MARK: Cache */
+
+public extension CacheDomain {
+    enum UserServiceCacheDomainKey: String, Equatable {
+        case userHashSnapshot
+    }
+}
+
+private extension Cache {
+    convenience init(_ objects: [CacheDomain.UserServiceCacheDomainKey: Any]) {
+        var mappedObjects = [CacheDomain: Any]()
+        objects.forEach { object in
+            mappedObjects[.userService(object.key)] = object.value
+        }
+        self.init(mappedObjects)
+    }
+
+    func set(_ value: Any, forKey key: CacheDomain.UserServiceCacheDomainKey) {
+        set(value, forKey: .userService(key))
+    }
+
+    func value(forKey key: CacheDomain.UserServiceCacheDomainKey) -> Any? {
+        value(forKey: .userService(key))
     }
 }

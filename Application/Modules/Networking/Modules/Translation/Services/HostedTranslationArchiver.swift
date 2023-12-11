@@ -16,7 +16,7 @@ import Translator
 public struct HostedTranslationArchiver {
     // MARK: - Dependencies
 
-    @Dependency(\.networking.database) private var database: Database
+    @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Archive Recent Translations
 
@@ -32,8 +32,8 @@ public struct HostedTranslationArchiver {
             return exception.appending(extraParams: commonParams)
         }
 
-        let queryValuesResult = await database.queryValues(
-            at: "translations/\(languagePair.asString())",
+        let queryValuesResult = await networking.database.queryValues(
+            at: "\(networking.config.paths.translations)/\(languagePair.asString())",
             strategy: .last(100)
         )
 
@@ -84,7 +84,7 @@ public struct HostedTranslationArchiver {
     // MARK: - Find Archived Translations
 
     public func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
-        let path = "translations/\(languagePair.asString())/\(id)"
+        let path = "\(networking.config.paths.translations)/\(languagePair.asString())/\(id)"
         let commonParams = ["Path": path]
 
         if let exception = TranslationValidator.validate(
@@ -94,7 +94,7 @@ public struct HostedTranslationArchiver {
             return .failure(exception)
         }
 
-        let getValuesResult = await database.getValues(at: path)
+        let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {
         case let .success(values):
@@ -136,9 +136,12 @@ public struct HostedTranslationArchiver {
         for input: TranslationInput,
         languagePair: LanguagePair
     ) async -> Exception? {
-        let path = "translations/\(languagePair.asString())"
+        let path = "\(networking.config.paths.translations)/\(languagePair.asString())"
 
-        if let exception = await database.updateChildValues(forKey: path, with: [input.value().compressedHash: NSNull()]) {
+        if let exception = await networking.database.updateChildValues(
+            forKey: path,
+            with: [input.value().compressedHash: NSNull()]
+        ) {
             return exception
         }
 
@@ -158,8 +161,8 @@ public struct HostedTranslationArchiver {
 
         let languagePairString = translation.languagePair.asString()
 
-        if let exception = await database.updateChildValues(
-            forKey: "translations/\(languagePairString)",
+        if let exception = await networking.database.updateChildValues(
+            forKey: "\(networking.config.paths.translations)/\(languagePairString)",
             with: [translation.serialized.key: translation.serialized.value]
         ) {
             return exception

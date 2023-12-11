@@ -15,7 +15,7 @@ public enum NetworkingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Networking {
         .init(
             auth: .init(),
-            config: .init(environment: BuildConfig.networkEnvironment),
+            config: .init(environment: BuildConfig.networkEnvironment, paths: .init()),
             database: .init(),
             services: .init(
                 conversation: .init(),

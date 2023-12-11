@@ -23,7 +23,7 @@ public struct LegacyUserService {
     public func convertUser(id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
-        let userPath = "users/\(id)"
+        let userPath = "\(networking.config.paths.users)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
@@ -45,8 +45,12 @@ public struct LegacyUserService {
                 "nationalNumberString": nationalNumberString,
                 "regionCode": regionCode,
             ]
+            
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
+                return exception.appending(extraParams: commonParams)
+            }
 
-            if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/phoneNumber") {
+            if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
                 return exception.appending(extraParams: commonParams)
             }
 
@@ -54,15 +58,11 @@ public struct LegacyUserService {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/phoneNumber") {
-                return exception.appending(extraParams: commonParams)
-            }
-
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
                 return exception.appending(extraParams: commonParams)
             }
 
-            let legacyHashPath = "userHashes/\(nationalNumberString.legacyHash)"
+            let legacyHashPath = "\(networking.config.paths.userHashes)/\(nationalNumberString.legacyHash)"
             let getValuesResult = await networking.database.getValues(at: legacyHashPath)
 
             switch getValuesResult {
@@ -79,7 +79,7 @@ public struct LegacyUserService {
                 }
 
                 let newHash = nationalNumberString.compressedHash
-                let newHashPath = "userHashes/\(newHash)"
+                let newHashPath = "\(networking.config.paths.userHashes)/\(newHash)"
                 let getValuesResult = await networking.database.getValues(at: newHashPath)
 
                 switch getValuesResult {
@@ -130,7 +130,7 @@ public struct LegacyUserService {
     public func renameNumberData(forUser id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
-        let userPath = "users/\(id)"
+        let userPath = "\(networking.config.paths.users)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
@@ -149,7 +149,7 @@ public struct LegacyUserService {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await networking.database.setValue(numberData, forKey: "\(userPath)/phoneNumber") {
+            if let exception = await networking.database.setValue(numberData, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
                 return exception.appending(extraParams: commonParams)
             }
 

@@ -242,7 +242,7 @@ public struct AudioMessageService {
 
         if let exception = await networking.database.setValue(
             modifiedMessage.hasAudioComponent,
-            forKey: "messages/\(message.id)/hasAudioComponent"
+            forKey: "\(networking.config.paths.messages)/\(message.id)/\(Message.SerializationKeys.hasAudioComponent.rawValue)"
         ) {
             return .failure(exception.appending(extraParams: ["MessageID": message.id]))
         }

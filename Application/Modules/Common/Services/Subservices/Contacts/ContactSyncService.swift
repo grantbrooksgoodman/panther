@@ -165,7 +165,7 @@ public final class ContactSyncService {
     }
 
     private func getServerUserHashes() async -> Callback<[String], Exception> {
-        let getValuesResult = await networking.database.getValues(at: "userHashes")
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userHashes)
 
         switch getValuesResult {
         case let .success(values):

@@ -34,8 +34,8 @@ public struct Database {
                 at: path,
                 prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
-            ) { callback in
-                continuation.resume(returning: callback)
+            ) { getValuesResult in
+                continuation.resume(returning: getValuesResult)
             }
         }
     }
@@ -52,8 +52,8 @@ public struct Database {
                 strategy: strategy,
                 prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
-            ) { callback in
-                continuation.resume(returning: callback)
+            ) { queryValuesResult in
+                continuation.resume(returning: queryValuesResult)
             }
         }
     }

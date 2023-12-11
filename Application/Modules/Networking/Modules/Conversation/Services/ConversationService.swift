@@ -32,7 +32,8 @@ public struct ConversationService {
             ))
         }
 
-        guard let id = networking.database.generateKey(for: "conversations") else {
+        let path = networking.config.paths.conversations
+        guard let id = networking.database.generateKey(for: path) else {
             return .failure(.init(
                 "Failed to generate key for new conversation.",
                 metadata: [self, #file, #function, #line]
@@ -55,7 +56,7 @@ public struct ConversationService {
             Keys.participants.rawValue: mockConversation.participants.map(\.encoded),
         ]
 
-        if let exception = await networking.database.updateChildValues(forKey: "conversations/\(id)", with: data) {
+        if let exception = await networking.database.updateChildValues(forKey: "\(path)/\(id)", with: data) {
             return .failure(exception)
         }
 
@@ -91,7 +92,8 @@ public struct ConversationService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "conversations/\(id)")
+        let path = networking.config.paths.conversations
+        let getValuesResult = await networking.database.getValues(at: "\(path)/\(id)")
 
         switch getValuesResult {
         case let .success(values):
@@ -180,9 +182,10 @@ public struct ConversationService {
             return exception
         }
 
+        let path = networking.config.paths.conversations
         if let exception = await networking.database.setValue(
             NSNull(),
-            forKey: "conversations/\(conversation.id.key)"
+            forKey: "\(path)/\(conversation.id.key)"
         ) {
             return exception
         }
@@ -202,9 +205,10 @@ public struct ConversationService {
             conversationIDStrings.append(conversationID.encoded)
             conversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }.unique
 
+            let path = networking.config.paths.users
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "users/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+                forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
             ) {
                 return exception.appending(extraParams: commonParams)
             }
@@ -217,7 +221,8 @@ public struct ConversationService {
     }
 
     private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        let path = "users/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+        let usersPath = networking.config.paths.users
+        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {
@@ -248,9 +253,10 @@ public struct ConversationService {
         newParticipants = newParticipants.unique
         let encodedParticipants = newParticipants.map(\.encoded)
 
+        let path = networking.config.paths.conversations
         if let exception = await networking.database.setValue(
             encodedParticipants,
-            forKey: "conversations/\(conversation.id.key)/\(Conversation.SerializationKeys.participants.rawValue)"
+            forKey: "\(path)/\(conversation.id.key)/\(Conversation.SerializationKeys.participants.rawValue)"
         ) {
             return exception
         }
@@ -275,9 +281,10 @@ public struct ConversationService {
                 conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
                 conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
+                let path = networking.config.paths.users
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "users/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
                 ) {
                     return exception.appending(extraParams: commonParams)
                 }

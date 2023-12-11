@@ -27,7 +27,8 @@ public final class MetadataService {
         /* MARK: Properties */
 
         public var path: String {
-            "shared/\(rawValue)"
+            @Dependency(\.networking.config.paths.shared) var sharedPath: String
+            return "\(sharedPath)/\(rawValue)"
         }
     }
 
