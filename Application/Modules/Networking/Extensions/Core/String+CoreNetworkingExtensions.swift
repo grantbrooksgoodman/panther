@@ -1,5 +1,5 @@
 //
-//  String+NetworkingExtensions.swift
+//  String+CoreNetworkingExtensions.swift
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.
@@ -22,6 +22,8 @@ public extension String {
         addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? self
     }
 
+    static var bangQualifiedEmpty: String { "!" }
+
     var decodedTranslationComponents: (input: String, output: String)? {
         let components = components(separatedBy: "–")
         guard components.count == 2,
@@ -32,6 +34,10 @@ public extension String {
 
     var digits: String {
         components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+    }
+
+    var isBangQualifiedEmpty: Bool {
+        isBlank || self == .bangQualifiedEmpty
     }
 
     var prependingCurrentEnvironment: String {

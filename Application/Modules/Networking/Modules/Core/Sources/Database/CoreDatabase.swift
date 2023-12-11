@@ -24,6 +24,14 @@ public struct CoreDatabase {
 
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
 
+    // MARK: - ID Key Generation
+
+    public func generateKey(for path: String) -> String? {
+        // swiftformat:disable acronyms
+        firebaseDatabase.child(path).childByAutoId().key
+        // swiftformat:enable acronyms
+    }
+
     // MARK: - Value Retrieval
 
     /**
@@ -36,11 +44,8 @@ public struct CoreDatabase {
     public func getValues(
         at path: String,
         prependingEnvironment: Bool,
-        timeout duration: Duration = .seconds(10),
-        completion: @escaping (
-            _ values: Any?,
-            _ exception: Exception?
-        ) -> Void
+        timeout duration: Duration,
+        completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
         var didComplete = false
         var canComplete: Bool {
@@ -51,7 +56,7 @@ public struct CoreDatabase {
 
         let timeout = Timeout(after: duration) {
             guard canComplete else { return }
-            completion(nil, .timedOut([self, #file, #function, #line]))
+            completion(.failure(.timedOut([self, #file, #function, #line])))
         }
 
         let path = prependingEnvironment ? path.prepended : path
@@ -59,20 +64,21 @@ public struct CoreDatabase {
             timeout.cancel()
             guard canComplete else { return }
 
-            guard !isEmpty(snapshot.value) else {
-                completion(nil, .init(
+            guard !isEmpty(snapshot.value),
+                  let value = snapshot.value else {
+                completion(.failure(.init(
                     "No value exists at the specified key path.",
                     extraParams: ["Path": path],
                     metadata: [self, #file, #function, #line]
-                ))
+                )))
                 return
             }
 
-            completion(snapshot.value, nil)
+            completion(.success(value))
         } withCancel: { error in
             timeout.cancel()
             guard canComplete else { return }
-            completion(nil, .init(error, metadata: [self, #file, #function, #line]))
+            completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
         }
     }
 
@@ -80,11 +86,8 @@ public struct CoreDatabase {
         at path: String,
         strategy: QueryStrategy = .first(10),
         prependingEnvironment: Bool,
-        timeout duration: Duration = .seconds(10),
-        completion: @escaping (
-            _ values: Any?,
-            _ exception: Exception?
-        ) -> Void
+        timeout duration: Duration,
+        completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
         var didComplete = false
         var canComplete: Bool {
@@ -95,7 +98,7 @@ public struct CoreDatabase {
 
         let timeout = Timeout(after: duration) {
             guard canComplete else { return }
-            completion(nil, .timedOut([self, #file, #function, #line]))
+            completion(.failure(.timedOut([self, #file, #function, #line])))
         }
 
         let path = prependingEnvironment ? path.prepended : path
@@ -105,20 +108,21 @@ public struct CoreDatabase {
             guard canComplete else { return }
 
             guard let snapshot else {
-                completion(nil, .init(error, metadata: [self, #file, #function, #line]))
+                completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
                 return
             }
 
-            guard !isEmpty(snapshot.value) else {
-                completion(nil, .init(
+            guard !isEmpty(snapshot.value),
+                  let value = snapshot.value else {
+                completion(.failure(.init(
                     "No value exists at the specified key path.",
                     extraParams: ["Path": path],
                     metadata: [self, #file, #function, #line]
-                ))
+                )))
                 return
             }
 
-            completion(snapshot.value, nil)
+            completion(.success(value))
         }
 
         let reference = firebaseDatabase.child(path)
@@ -142,7 +146,7 @@ public struct CoreDatabase {
         _ value: Any,
         forKey key: String,
         prependingEnvironment: Bool,
-        timeout duration: Duration = .seconds(10),
+        timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
         var didComplete = false
@@ -169,7 +173,7 @@ public struct CoreDatabase {
         forKey key: String,
         with data: [String: Any],
         prependingEnvironment: Bool,
-        timeout duration: Duration = .seconds(10),
+        timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
         var didComplete = false

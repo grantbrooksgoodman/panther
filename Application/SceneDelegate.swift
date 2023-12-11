@@ -21,14 +21,14 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
 
     // MARK: - Properties
 
+    // Timer
+    private var touchTimer: Timer?
+
     // UIWindow
     public var window: UIWindow?
 
     private var buildInfoOverlayWindow: UIWindow!
     private var expiryOverlayWindow: UIWindow!
-
-    // Other
-    private var touchTimer: Timer?
 
     // MARK: - UIScene
 

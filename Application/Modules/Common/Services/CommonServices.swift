@@ -27,6 +27,7 @@ public struct CommonServices {
     public let review: ReviewService
     public let textMessage: TextMessageService
     public let update: UpdateService
+    public let userSession: UserSessionService
 
     // MARK: - Init
 
@@ -42,7 +43,8 @@ public struct CommonServices {
         regionDetail: RegionDetailService,
         review: ReviewService,
         textMessage: TextMessageService,
-        update: UpdateService
+        update: UpdateService,
+        userSession: UserSessionService
     ) {
         self.analytics = analytics
         self.audio = audio
@@ -56,5 +58,6 @@ public struct CommonServices {
         self.review = review
         self.textMessage = textMessage
         self.update = update
+        self.userSession = userSession
     }
 }

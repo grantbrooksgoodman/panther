@@ -16,8 +16,7 @@ import Redux
 public struct LegacyUserService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking.services.user) private var userService: UserService
-    @Dependency(\.networking.database) private var database: Database
+    @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Methods
 
@@ -25,7 +24,7 @@ public struct LegacyUserService {
         let commonParams = ["UserID": id]
 
         let userPath = "users/\(id)"
-        let getValuesResult = await database.getValues(at: userPath)
+        let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
         case let .success(values):
@@ -47,24 +46,24 @@ public struct LegacyUserService {
                 "regionCode": regionCode,
             ]
 
-            if let exception = await database.setValue(newDictionary, forKey: "\(userPath)/phoneNumber") {
+            if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/phoneNumber") {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await database.setValue(NSNull(), forKey: "\(userPath)/phoneNumber") {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/phoneNumber") {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await database.setValue(NSNull(), forKey: "\(userPath)/region") {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
                 return exception.appending(extraParams: commonParams)
             }
 
             let legacyHashPath = "userHashes/\(nationalNumberString.legacyHash)"
-            let getValuesResult = await database.getValues(at: legacyHashPath)
+            let getValuesResult = await networking.database.getValues(at: legacyHashPath)
 
             switch getValuesResult {
             case let .success(values):
@@ -75,13 +74,13 @@ public struct LegacyUserService {
 
                 array = array.filter { $0 != id }
 
-                if let exception = await database.setValue(array, forKey: legacyHashPath) {
+                if let exception = await networking.database.setValue(array, forKey: legacyHashPath) {
                     return exception.appending(extraParams: commonParams)
                 }
 
                 let newHash = nationalNumberString.compressedHash
                 let newHashPath = "userHashes/\(newHash)"
-                let getValuesResult = await database.getValues(at: newHashPath)
+                let getValuesResult = await networking.database.getValues(at: newHashPath)
 
                 switch getValuesResult {
                 case let .success(values):
@@ -93,7 +92,7 @@ public struct LegacyUserService {
                     array.append(id)
                     array = array.unique
 
-                    if let exception = await database.setValue(array, forKey: newHashPath) {
+                    if let exception = await networking.database.setValue(array, forKey: newHashPath) {
                         return exception.appending(extraParams: commonParams)
                     }
 
@@ -107,7 +106,7 @@ public struct LegacyUserService {
                         return exception.appending(extraParams: commonParams)
                     }
 
-                    if let exception = await database.setValue([id], forKey: newHashPath) {
+                    if let exception = await networking.database.setValue([id], forKey: newHashPath) {
                         return exception.appending(extraParams: commonParams)
                     }
 
@@ -132,7 +131,7 @@ public struct LegacyUserService {
         let commonParams = ["UserID": id]
 
         let userPath = "users/\(id)"
-        let getValuesResult = await database.getValues(at: userPath)
+        let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
         case let .success(values):
@@ -146,11 +145,11 @@ public struct LegacyUserService {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await database.setValue(NSNull(), forKey: "\(userPath)/numberData") {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/numberData") {
                 return exception.appending(extraParams: commonParams)
             }
 
-            if let exception = await database.setValue(numberData, forKey: "\(userPath)/phoneNumber") {
+            if let exception = await networking.database.setValue(numberData, forKey: "\(userPath)/phoneNumber") {
                 return exception.appending(extraParams: commonParams)
             }
 

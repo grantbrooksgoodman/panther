@@ -15,6 +15,7 @@ public struct Networking {
     public let config: NetworkConfig
     public let database: Database
     public let services: NetworkServices
+    public let storage: Storage
 
     // MARK: - Init
 
@@ -22,11 +23,13 @@ public struct Networking {
         auth: Auth,
         config: NetworkConfig,
         database: Database,
-        services: NetworkServices
+        services: NetworkServices,
+        storage: Storage
     ) {
         self.auth = auth
         self.config = config
         self.database = database
         self.services = services
+        self.storage = storage
     }
 }

@@ -40,7 +40,8 @@ public enum TranslationValidator {
             }
 
             if let translation {
-                parameters["SerializedTranslation"] = translation.serialized.description
+                parameters["SerializedTranslationKey"] = translation.serialized.key
+                parameters["SerializedTranslationValue"] = translation.serialized.value
             }
 
             return parameters

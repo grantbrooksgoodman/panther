@@ -16,8 +16,17 @@ import Translator
 public struct HostedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.hostedTranslationArchiver) private var hostedArchiver: HostedTranslationArchiver
     @Dependency(\.translatorService) private var translator: TranslatorService
+
+    // MARK: - Properties
+
+    public let archiver: HostedTranslationArchiver
+
+    // MARK: - Init
+
+    public init(archiver: HostedTranslationArchiver) {
+        self.archiver = archiver
+    }
 
     // MARK: - Label String Resolution
 
@@ -113,8 +122,8 @@ public struct HostedTranslationService {
             return .success(archivedTranslation.withSanitizedOutput)
         }
 
-        let findArchivedTranslationResult = await hostedArchiver.findArchivedTranslation(
-            for: input,
+        let findArchivedTranslationResult = await archiver.findArchivedTranslation(
+            id: input.value().compressedHash,
             languagePair: languagePair
         )
 
@@ -124,7 +133,7 @@ public struct HostedTranslationService {
                 translation: translation,
                 metadata: [self, #file, #function, #line]
             ) != nil {
-                await hostedArchiver.removeArchivedTranslation(for: input, languagePair: languagePair)
+                await archiver.removeArchivedTranslation(for: input, languagePair: languagePair)
                 return await translate(
                     input,
                     with: languagePair,
@@ -161,7 +170,7 @@ public struct HostedTranslationService {
 
                 let sanitizedTranslation = translation.withSanitizedOutput
                 if translation.input.value() != translation.output {
-                    await hostedArchiver.addToHostedArchive(translation)
+                    await archiver.addToHostedArchive(translation)
                     TranslationArchiver.addToArchive(sanitizedTranslation)
                 }
                 return .success(sanitizedTranslation)
@@ -178,26 +187,11 @@ public struct HostedTranslationService {
                     languagePair: languagePair
                 )
 
-                await hostedArchiver.addToHostedArchive(translation)
+                await archiver.addToHostedArchive(translation)
                 TranslationArchiver.addToArchive(translation)
 
                 return .success(translation)
             }
         }
-    }
-}
-
-/* MARK: HostedTranslationArchiver Dependency */
-
-private enum HostedTranslationArchiverDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> HostedTranslationArchiver {
-        .init()
-    }
-}
-
-private extension DependencyValues {
-    var hostedTranslationArchiver: HostedTranslationArchiver {
-        get { self[HostedTranslationArchiverDependency.self] }
-        set { self[HostedTranslationArchiverDependency.self] = newValue }
     }
 }

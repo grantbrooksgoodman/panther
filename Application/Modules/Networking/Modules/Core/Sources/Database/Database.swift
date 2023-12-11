@@ -16,6 +16,12 @@ public struct Database {
 
     @Dependency(\.coreDatabase) private var coreDatabase: CoreDatabase
 
+    // MARK: - ID Key Generation
+
+    public func generateKey(for path: String) -> String? {
+        coreDatabase.generateKey(for: path)
+    }
+
     // MARK: - Value Retrieval
 
     public func getValues(
@@ -28,14 +34,8 @@ public struct Database {
                 at: path,
                 prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
-            ) { values, exception in
-                guard let values else {
-                    let exception = exception ?? .init(metadata: [self, #file, #function, #line])
-                    continuation.resume(returning: .failure(exception))
-                    return
-                }
-
-                continuation.resume(returning: .success(values))
+            ) { callback in
+                continuation.resume(returning: callback)
             }
         }
     }
@@ -52,14 +52,8 @@ public struct Database {
                 strategy: strategy,
                 prependingEnvironment: prependingEnvironment,
                 timeout: duration ?? .seconds(10)
-            ) { values, exception in
-                guard let values else {
-                    let exception = exception ?? .init(metadata: [self, #file, #function, #line])
-                    continuation.resume(returning: .failure(exception))
-                    return
-                }
-
-                continuation.resume(returning: .success(values))
+            ) { callback in
+                continuation.resume(returning: callback)
             }
         }
     }

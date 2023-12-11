@@ -59,11 +59,12 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
             localizedLabel = CNLabeledValue<NSString>.localizedString(forLabel: label)
         }
 
+        let countryCode = cnLabeledPhoneNumber.value.value(forKey: "countryCode") as? String
         let internalFormattedString = cnLabeledPhoneNumber.value.value(forKey: "formattedInternationalStringValue") as? String
         var numberValue = cnLabeledPhoneNumber.value.stringValue.digits
 
         var callingCode: String?
-        if let countryCode = cnLabeledPhoneNumber.value.value(forKey: "countryCode") as? String,
+        if let countryCode,
            let callingCodeFromCountryCode = services.regionDetail.callingCode(regionCode: countryCode) {
             callingCode = callingCodeFromCountryCode
         } else if let internalFormattedString {
@@ -75,7 +76,8 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
             numberValue = numberValue.dropPrefix(resolvedCallingCode.count)
         }
 
-        let regionCode = services.regionDetail.regionCode(callingCode: resolvedCallingCode) ?? services.regionDetail.deviceRegionCode
+        // swiftlint:disable:next line_length
+        let regionCode = countryCode?.uppercased() ?? services.regionDetail.regionCode(callingCode: resolvedCallingCode) ?? services.regionDetail.deviceRegionCode
 
         self.init(
             callingCode: resolvedCallingCode,

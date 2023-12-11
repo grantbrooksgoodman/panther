@@ -27,12 +27,12 @@ public struct Contact: Codable, CompressedHashable, Equatable {
         ]
     }
 
+    // Data
+    public let imageData: Data?
+
     // String
     public let firstName: String
     public let lastName: String
-
-    // Other
-    public let imageData: Data?
 
     // MARK: - Computed Properties
 

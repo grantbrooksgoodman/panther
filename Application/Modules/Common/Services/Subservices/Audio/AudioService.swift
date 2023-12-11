@@ -17,9 +17,9 @@ public struct AudioService {
     // MARK: - Types
 
     public enum FileNames {
-        public static let inputM4A = "input.m4a"
-        public static let outputCAF = "output.caf"
-        public static let outputM4A = "output.m4a"
+        public static let inputM4A = "input.\(AudioFileExtension.m4a.rawValue)"
+        public static let outputCAF = "output.\(AudioFileExtension.caf.rawValue)"
+        public static let outputM4A = "output.\(AudioFileExtension.m4a.rawValue)"
     }
 
     // MARK: - Dependencies

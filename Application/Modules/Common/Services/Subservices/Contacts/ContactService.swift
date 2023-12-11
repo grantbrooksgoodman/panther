@@ -14,14 +14,6 @@ import Foundation
 import Redux
 
 public final class ContactService: Cacheable {
-    // MARK: - Types
-
-    public enum CacheStrategy {
-        case disregardCache
-        case returnCacheFirst
-        case returnCacheOnFailure
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore

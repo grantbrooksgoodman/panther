@@ -19,13 +19,11 @@ public final class ContactPairArchiveService {
 
     // MARK: - Properties
 
-    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
-
-    // MARK: - Computed Properties
-
     private var archive: [ContactPair]? {
         didSet { persistedArchive = archive }
     }
+
+    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
 
     // MARK: - Init
 

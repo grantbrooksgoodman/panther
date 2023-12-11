@@ -28,16 +28,3 @@ public struct ConversationID: Codable, Equatable {
         self.init(key: components[0], hash: components[1])
     }
 }
-
-public extension Array where Element == ConversationID {
-    var keys: [String] {
-        map { $0.key }
-    }
-}
-
-public extension Array where Element == String {
-    var asConversationIDs: [ConversationID]? {
-        let map = compactMap { ConversationID($0) }
-        return map.count == count ? map : nil
-    }
-}

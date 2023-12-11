@@ -18,9 +18,12 @@ public enum NetworkingDependency: DependencyKey {
             config: .init(environment: BuildConfig.networkEnvironment),
             database: .init(),
             services: .init(
-                translation: .init(),
+                conversation: .init(),
+                message: .init(audio: .init()),
+                translation: .init(archiver: .init()),
                 user: .init(.init())
-            )
+            ),
+            storage: .init()
         )
     }
 }

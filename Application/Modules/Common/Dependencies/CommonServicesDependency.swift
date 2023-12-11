@@ -34,7 +34,8 @@ public enum CommonServicesDependency: DependencyKey {
             regionDetail: .init(),
             review: .init(),
             textMessage: .init(),
-            update: .init()
+            update: .init(),
+            userSession: .init()
         )
     }
 }

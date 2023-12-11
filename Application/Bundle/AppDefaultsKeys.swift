@@ -18,6 +18,7 @@ public extension UserDefaultsKeyDomain {
         case contactSyncService(ContactSyncServiceDefaultsKey)
         case reviewService(ReviewServiceDefaultsKey)
         case updateService(UpdateServiceDefaultsKey)
+        case userSessionService(UserSessionServiceDefaultsKey)
 
         public var rawValue: String {
             switch self {
@@ -34,6 +35,9 @@ public extension UserDefaultsKeyDomain {
                 return key.rawValue
 
             case let .updateService(key):
+                return key.rawValue
+
+            case let .userSessionService(key):
                 return key.rawValue
             }
         }

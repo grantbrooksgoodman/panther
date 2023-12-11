@@ -36,6 +36,7 @@ public struct PermissionService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avAudioSession) private var avAudioSession: AVAudioSession
     @Dependency(\.build) private var build: Build
     @Dependency(\.cnContactStore) private var contactStore: CNContactStore
@@ -93,21 +94,14 @@ public struct PermissionService {
     }
 
     private func requestRecordPermission() async -> Callback<PermissionStatus, Exception> {
-        do {
-            try avAudioSession.setCategory(
-                .playAndRecord,
-                mode: .default,
-                options: [.allowBluetooth, .defaultToSpeaker]
-            )
-            try avAudioSession.setActive(true)
+        if let exception = audioService.activateAudioSession() {
+            return .failure(exception)
+        }
 
-            return await withCheckedContinuation { continuation in
-                avAudioSession.requestRecordPermission { granted in
-                    continuation.resume(returning: .success(granted ? .granted : .denied))
-                }
+        return await withCheckedContinuation { continuation in
+            avAudioSession.requestRecordPermission { granted in
+                continuation.resume(returning: .success(granted ? .granted : .denied))
             }
-        } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
         }
     }
 

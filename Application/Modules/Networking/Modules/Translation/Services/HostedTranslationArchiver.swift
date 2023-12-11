@@ -83,11 +83,7 @@ public struct HostedTranslationArchiver {
 
     // MARK: - Find Archived Translations
 
-    public func findArchivedTranslation(for input: TranslationInput, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
-        await findArchivedTranslation(id: input.value().compressedHash, languagePair: languagePair)
-    }
-
-    private func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
+    public func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
         let path = "translations/\(languagePair.asString())/\(id)"
         let commonParams = ["Path": path]
 
@@ -162,7 +158,10 @@ public struct HostedTranslationArchiver {
 
         let languagePairString = translation.languagePair.asString()
 
-        if let exception = await database.updateChildValues(forKey: "translations/\(languagePairString)", with: translation.serialized) {
+        if let exception = await database.updateChildValues(
+            forKey: "translations/\(languagePairString)",
+            with: [translation.serialized.key: translation.serialized.value]
+        ) {
             return exception
         }
 

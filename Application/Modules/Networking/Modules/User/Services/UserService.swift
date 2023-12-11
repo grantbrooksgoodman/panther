@@ -15,16 +15,15 @@ import Redux
 public final class UserService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking.database) private var database: Database
-    @Dependency(\.jsonDecoder) private var jsonDecoder: JSONDecoder
-    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
+    @Dependency(\.commonServices.userSession) private var userSessionService: UserSessionService
 
     // MARK: - Properties
 
     public let legacy: LegacyUserService
 
-    private var cachedHashes = [String: [String]]()
+//    private var cachedHashes = [String: [String]]()
 
     // MARK: - Init
 
@@ -34,15 +33,22 @@ public final class UserService {
 
     // MARK: - User Creation
 
-    public func createUser(_ metadata: NewUserMetadata) async -> Callback<User, Exception> {
-        let userHashesPath = "userHashes/\(metadata.phoneNumber.nationalNumberString.digits.compressedHash)"
-        var newValues = [metadata.id]
+    public func createUser(
+        id: String,
+        languageCode: String,
+        phoneNumber: PhoneNumber,
+        pushTokens: [String]?
+    ) async -> Callback<User, Exception> {
+        let userHashesPath = "userHashes/\(phoneNumber.nationalNumberString.digits.compressedHash)"
+        var newValues = [id]
 
-        let getValuesResult = await database.getValues(at: userHashesPath)
+        let getValuesResult = await networking.database.getValues(at: userHashesPath)
 
         switch getValuesResult {
         case let .failure(exception):
-            return .failure(exception)
+            if !exception.isEqual(to: .noValueExists) {
+                return .failure(exception)
+            }
 
         case let .success(values):
             if let values = values as? [String] {
@@ -50,49 +56,49 @@ public final class UserService {
             }
         }
 
-        if let exception = await database.setValue(newValues.unique, forKey: userHashesPath) {
+        if let exception = await networking.database.setValue(newValues.unique, forKey: userHashesPath) {
             return .failure(exception)
         }
 
-        var jsonDictionary: [String: Any]?
+        typealias Keys = User.SerializationKeys
+        let data: [String: Any] = [
+            Keys.conversations.rawValue: Array.bangQualifiedEmpty,
+            Keys.languageCode.rawValue: languageCode,
+            Keys.phoneNumber.rawValue: phoneNumber.encoded,
+            Keys.pushTokens.rawValue: Array.bangQualifiedEmpty,
+        ]
 
-        do {
-            let encoded = try jsonEncoder.encode(metadata)
-            jsonDictionary = try JSONSerialization.jsonObject(with: encoded, options: .mutableContainers) as? [String: Any]
-        } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
-        }
-
-        guard var jsonDictionary else {
-            return .failure(.init("Failed to encode to JSON.", metadata: [self, #file, #function, #line]))
-        }
-
-        jsonDictionary.removeValue(forKey: "id")
-        if let exception = await database.setValue(
-            jsonDictionary,
-            forKey: "users/\(metadata.id)"
+        if let exception = await networking.database.setValue(
+            data,
+            forKey: "users/\(id)"
         ) {
             return .failure(exception)
         }
 
-        return .success(.init(metadata))
+        return .success(.init(
+            id,
+            conversations: nil,
+            languageCode: languageCode,
+            phoneNumber: phoneNumber,
+            pushTokens: nil
+        ))
     }
 
     // MARK: - Retrieval by Hash
 
     private func getUserHashes() async -> Callback<[String: [String]], Exception> {
-        guard cachedHashes.isEmpty else {
-            return .success(cachedHashes)
-        }
+//        guard cachedHashes.isEmpty else {
+//            return .success(cachedHashes)
+//        }
 
-        let getValuesResult = await database.getValues(at: "userHashes")
+        let getValuesResult = await networking.database.getValues(at: "userHashes")
 
         switch getValuesResult {
         case let .success(values):
             guard let hashes = values as? [String: [String]] else {
                 return .failure(.init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line]))
             }
-            cachedHashes = hashes
+//            cachedHashes = hashes
             return .success(hashes)
 
         case let .failure(exception):
@@ -101,7 +107,7 @@ public final class UserService {
     }
 
     private func getUserIDs(hashes: [String]) async -> Callback<[String: [String]], Exception> {
-        guard !hashes.isEmpty else {
+        guard !hashes.isBangQualifiedEmpty else {
             return .failure(.init("No hashes provided.", metadata: [self, #file, #function, #line]))
         }
 
@@ -135,32 +141,22 @@ public final class UserService {
     public func getUser(id: String) async -> Callback<User, Exception> {
         let commonParams = ["UserID": id]
 
-        let getValuesResult = await database.getValues(at: "users/\(id)")
+        guard !id.isBangQualifiedEmpty else {
+            let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+
+        let getValuesResult = await networking.database.getValues(at: "users/\(id)")
 
         switch getValuesResult {
         case let .success(values):
-            guard var dictionary = values as? [String: Any] else {
+            guard var data = values as? [String: Any] else {
                 let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
-            dictionary["id"] = id
-            var decoded: User?
-
-            do {
-                let data = try JSONSerialization.data(withJSONObject: dictionary)
-                decoded = try jsonDecoder.decode(User.self, from: data)
-            } catch {
-                let exception = Exception(error, metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-
-            guard let decoded else {
-                let exception = Exception("Failed to decode User.", metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-
-            return .success(decoded)
+            data["id"] = id
+            return await User.decode(from: data)
 
         case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
@@ -168,8 +164,13 @@ public final class UserService {
     }
 
     public func getUsers(ids: [String]) async -> Callback<[User], Exception> {
-        guard !ids.isEmpty else {
-            return .failure(.init("No IDs provided.", metadata: [self, #file, #function, #line]))
+        let commonParams = ["UserIDs": ids]
+
+        guard !ids.isBangQualifiedEmpty else {
+            return .failure(.init(
+                "No IDs provided.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
         }
 
         var users = [User]()
@@ -182,8 +183,16 @@ public final class UserService {
                 users.append(user)
 
             case let .failure(exception):
-                return .failure(exception)
+                return .failure(exception.appending(extraParams: commonParams))
             }
+        }
+
+        guard !users.isEmpty,
+              users.count == ids.count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
         }
 
         return .success(users)
@@ -260,5 +269,33 @@ public final class UserService {
         }
 
         return .success(matches)
+    }
+
+    // MARK: - Get Users for Conversation
+
+    public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
+        let commonParams = ["ConversationID": conversation.id.encoded]
+
+        let userIDs = conversation.participants.map(\.userID).filter { $0 != userSessionService.currentUser?.id }
+        guard !userIDs.isBangQualifiedEmpty else {
+            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+
+        let getUsersResult = await networking.services.user.getUsers(ids: userIDs)
+
+        switch getUsersResult {
+        case let .success(users):
+            guard !users.isEmpty,
+                  users.count == userIDs.count else {
+                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
+            return .success(users)
+
+        case let .failure(exception):
+            return .failure(exception.appending(extraParams: commonParams))
+        }
     }
 }

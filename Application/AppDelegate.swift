@@ -155,6 +155,27 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         /* MARK: UpdateService Setup */
 
         services.update.incrementRelaunchCountIfNeeded()
+
+        /* MARK: UserSessionService Setup */
+
+        Task {
+            let setCurrentUserResult = await services.userSession.setCurrentUser()
+
+            switch setCurrentUserResult {
+            case .success:
+                guard let currentUser = services.userSession.currentUser else {
+                    Logger.log(.init("Failed to set current user.", metadata: [self, #file, #function, #line]))
+                    return
+                }
+
+                if let exception = await currentUser.conversations?.setUsers() {
+                    Logger.log(exception)
+                }
+
+            case let .failure(exception):
+                Logger.log(exception)
+            }
+        }
     }
 
     // MARK: - UISceneSession

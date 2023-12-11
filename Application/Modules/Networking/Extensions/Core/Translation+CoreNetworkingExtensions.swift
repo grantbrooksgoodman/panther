@@ -1,5 +1,5 @@
 //
-//  Translation+NetworkingExtensions.swift
+//  Translation+CoreNetworkingExtensions.swift
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.
@@ -14,12 +14,12 @@ import Translator
 extension Translation: Equatable {
     public static func == (left: Translation, right: Translation) -> Bool {
         let sameInput = left.input == right.input
-        let sameOutput = left.output == right.output
         let sameLanguagePair = left.languagePair == right.languagePair
+        let sameOutput = left.output == right.output
 
         guard sameInput,
-              sameOutput,
-              sameLanguagePair else { return false }
+              sameLanguagePair,
+              sameOutput else { return false }
 
         return true
     }
@@ -35,9 +35,9 @@ extension Translation: Validatable {
 }
 
 public extension Translation {
-    var serialized: [String: String] {
+    var serialized: (key: String, value: String) {
         let value = input.value()
-        return ["\(value.compressedHash)": "\(value.alphaEncoded)–\(output.matchingCapitalization(of: value).alphaEncoded)"]
+        return ("\(value.compressedHash)", "\(value.alphaEncoded)–\(output.matchingCapitalization(of: value).alphaEncoded)")
     }
 
     var withSanitizedOutput: Translation {
