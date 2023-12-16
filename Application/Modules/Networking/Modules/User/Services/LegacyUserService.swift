@@ -45,7 +45,7 @@ public struct LegacyUserService {
                 "nationalNumberString": nationalNumberString,
                 "regionCode": regionCode,
             ]
-            
+
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
                 return exception.appending(extraParams: commonParams)
             }

@@ -126,7 +126,11 @@ public final class ContactSyncService {
                     services.contact.contactPairArchive.addValue(.init(contact: contact, numberPairs: numberPairs))
 
                 case let .failure(exception):
-                    if !exception.isEqual(toAny: [.noUserWithHashes, .noValueExists]) {
+                    if !exception.isEqual(toAny: [
+                        .noUsersWithPhoneNumbers,
+                        .noUserWithHashes,
+                        .noValueExists,
+                    ]) {
                         return exception
                     }
                 }

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1702320956</string>
+	<string>1702760723</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleReleaseVersion</key>
-	<string>773</string>
+	<string>800</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5.15</string>
+	<string>0.5.16</string>
 	<key>CFBundleVersion</key>
-	<string>773</string>
+	<string>800</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>LSRequiresIPhoneOS</key>

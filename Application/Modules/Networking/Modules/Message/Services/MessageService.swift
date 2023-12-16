@@ -22,11 +22,13 @@ public struct MessageService {
     // MARK: - Properties
 
     public let audio: AudioMessageService
+    public let legacy: LegacyMessageService
 
     // MARK: - Init
 
-    public init(audio: AudioMessageService) {
+    public init(audio: AudioMessageService, legacy: LegacyMessageService) {
         self.audio = audio
+        self.legacy = legacy
     }
 
     // MARK: - Message Creation

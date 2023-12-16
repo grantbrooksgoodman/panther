@@ -15,13 +15,22 @@ public enum NetworkingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Networking {
         .init(
             auth: .init(),
-            config: .init(environment: BuildConfig.networkEnvironment, paths: .init()),
+            config: .init(
+                environment: BuildConfig.networkEnvironment,
+                paths: .init()
+            ),
             database: .init(),
             services: .init(
                 conversation: .init(),
-                message: .init(audio: .init()),
-                translation: .init(archiver: .init()),
-                user: .init(.init())
+                message: .init(
+                    audio: .init(),
+                    legacy: .init()
+                ),
+                translation: .init(
+                    archiver: .init(),
+                    legacy: .init()
+                ),
+                user: .init(legacy: .init())
             ),
             storage: .init()
         )

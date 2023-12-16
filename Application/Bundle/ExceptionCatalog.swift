@@ -20,6 +20,7 @@ public enum AppException: String {
 
     case exhaustedAvailablePlatforms = "6005"
     case noUserWithHashes = "BD49"
+    case noUsersWithPhoneNumbers = "9330"
     case noValueExists = "7CD4"
     case sameTranslationInputOutput = "964B"
     case timedOut = "DE75"

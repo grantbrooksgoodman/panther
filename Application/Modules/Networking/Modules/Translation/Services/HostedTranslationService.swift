@@ -21,11 +21,13 @@ public struct HostedTranslationService {
     // MARK: - Properties
 
     public let archiver: HostedTranslationArchiver
+    public let legacy: LegacyTranslationService
 
     // MARK: - Init
 
-    public init(archiver: HostedTranslationArchiver) {
+    public init(archiver: HostedTranslationArchiver, legacy: LegacyTranslationService) {
         self.archiver = archiver
+        self.legacy = legacy
     }
 
     // MARK: - Label String Resolution

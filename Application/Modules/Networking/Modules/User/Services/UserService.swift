@@ -30,7 +30,7 @@ public final class UserService: Cacheable {
 
     // MARK: - Init
 
-    public init(_ legacy: LegacyUserService) {
+    public init(legacy: LegacyUserService) {
         self.legacy = legacy
 
         emptyCache = .init(
@@ -105,8 +105,8 @@ public final class UserService: Cacheable {
     private func getUserHashes() async -> Callback<[String: [String]], Exception> {
         if let cachedValue = cache.value(forKey: .userHashSnapshot) as? UserHashSnapshot,
            !cachedValue.hashes.isEmpty,
-           !Array(cachedValue.hashes.keys).isBangQualifiedEmpty,
-           !cachedValue.hashes.values.allSatisfy(\.isBangQualifiedEmpty),
+           !Array(cachedValue.hashes.keys).contains(where: \.isBangQualifiedEmpty),
+           !cachedValue.hashes.values.contains(where: \.isBangQualifiedEmpty),
            !cachedValue.isExpired {
             return .success(cachedValue.hashes)
         }
@@ -273,6 +273,8 @@ public final class UserService: Cacheable {
     }
 
     public func getUsers(phoneNumbers: [PhoneNumber]) async -> Callback<[NumberPair], Exception> {
+        let commonParams = ["PhoneNumbers": phoneNumbers.map(\.encoded)]
+
         guard !phoneNumbers.isEmpty else {
             return .failure(.init("No phone numbers provided.", metadata: [self, #file, #function, #line]))
         }
@@ -287,12 +289,18 @@ public final class UserService: Cacheable {
                 matches.append(.init(phoneNumber: number, users: users))
 
             case let .failure(exception):
-                return .failure(exception)
+                if !exception.isEqual(toAny: [.noUserWithHashes, .noValueExists]) {
+                    return .failure(exception.appending(extraParams: commonParams))
+                }
             }
         }
 
         guard !matches.isEmpty else {
-            return .failure(.init(metadata: [self, #file, #function, #line]))
+            let exception = Exception(
+                "No users with provided phone numbers.",
+                metadata: [self, #file, #function, #line]
+            )
+            return .failure(exception.appending(extraParams: commonParams))
         }
 
         return .success(matches)
