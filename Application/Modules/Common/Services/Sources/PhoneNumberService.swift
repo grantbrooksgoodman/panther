@@ -11,7 +11,6 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
-import PhoneNumberKit
 import Redux
 
 public struct PhoneNumberService {
@@ -19,7 +18,6 @@ public struct PhoneNumberService {
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.mainBundle) private var mainBundle: Bundle
-    @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Computed Properties
@@ -105,58 +103,5 @@ public struct PhoneNumberService {
         guard let callingCodesForNumberLength = lookupTables[String(length)],
               callingCodesForNumberLength.contains(callingCode) else { return false }
         return true
-    }
-
-    // MARK: - Phone Number Formatting
-
-    public func failsafeFormat(_ number: String) -> String {
-        let digits = number.digits
-        let evenDigits = digits.count % 2 == 0
-
-        var formattedString = ""
-        for (index, character) in digits.components.enumerated() {
-            guard index != 0 else {
-                formattedString = character
-                continue
-            }
-
-            guard index % 2 == 0 else {
-                formattedString = "\(formattedString)\(evenDigits ? "" : " ")\(character)"
-                continue
-            }
-
-            formattedString = "\(formattedString)\(evenDigits ? " " : "")\(character)"
-        }
-
-        return formattedString.trimmingBorderedWhitespace
-    }
-
-    public func format(_ number: String, useFailsafe: Bool = true) -> String {
-        let digits = number.digits
-        let fallbackFormatted = useFailsafe ? failsafeFormat(digits) : digits
-
-        guard let callingCodes = matchingCountryCodes(for: digits),
-              callingCodes.count == 1 else { return fallbackFormatted }
-
-        let callingCode = callingCodes[0]
-
-        guard callingCode != "1" else {
-            let keyString = "formattedInternationalStringValue"
-            guard let formatted = CNPhoneNumber(stringValue: digits).value(forKey: keyString) as? String else { return fallbackFormatted }
-            return formatted
-        }
-
-        guard let regionCode = services.regionDetail.regionCode(callingCode: callingCode) else {
-            return fallbackFormatted
-        }
-
-        let formattedNumber: String?
-
-        do {
-            let parsed = try phoneNumberKit.parse(number.digits, withRegion: regionCode)
-            formattedNumber = phoneNumberKit.format(parsed, toType: .international)
-        } catch { return fallbackFormatted }
-
-        return formattedNumber ?? fallbackFormatted
     }
 }

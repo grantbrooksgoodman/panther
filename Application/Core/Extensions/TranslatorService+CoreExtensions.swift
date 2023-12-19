@@ -51,7 +51,10 @@ public extension TranslatorService {
         ) -> Void
     ) {
         @Dependency(\.coreKit) var core: CoreKit
+        @Dependency(\.commonServices.networkActivityIndicator) var networkActivity: NetworkActivityIndicatorService
         @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+        networkActivity.show()
         var didComplete = false
 
         if let hudConfig {
@@ -69,6 +72,7 @@ public extension TranslatorService {
             guard !didComplete else { return false }
             didComplete = true
             core.hud.hide()
+            networkActivity.hide()
             guard let hudConfig, hudConfig.isModal else { return true }
             Task { @MainActor in
                 uiApplication.keyWindow?.isUserInteractionEnabled = true

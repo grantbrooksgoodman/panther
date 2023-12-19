@@ -23,6 +23,7 @@ public struct CoreDatabase {
     // MARK: - Dependencies
 
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
+    @Dependency(\.networking.activityIndicator) private var networkActivity: NetworkActivityIndicator
 
     // MARK: - ID Key Generation
 
@@ -47,10 +48,13 @@ public struct CoreDatabase {
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -89,10 +93,13 @@ public struct CoreDatabase {
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -149,10 +156,13 @@ public struct CoreDatabase {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -176,10 +186,13 @@ public struct CoreDatabase {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 

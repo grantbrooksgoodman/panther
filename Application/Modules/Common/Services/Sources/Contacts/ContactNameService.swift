@@ -28,7 +28,7 @@ public struct ContactNameService {
             return splitName(nickname) ?? ("", nickname)
         } else if let organizationName = organizationName(contact) {
             return ("", organizationName)
-        } else if let phoneNumber = contact.phoneNumbers.asPhoneNumbers.first?.compiledNumberString.phoneNumberFormatted {
+        } else if let phoneNumber = contact.phoneNumbers.asPhoneNumbers.first?.formattedString() {
             return ("", phoneNumber)
         }
 

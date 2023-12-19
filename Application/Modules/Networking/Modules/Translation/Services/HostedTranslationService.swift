@@ -33,7 +33,8 @@ public struct HostedTranslationService {
     // MARK: - Label String Resolution
 
     public func resolve(_ strings: TranslatedLabelStrings.Type) async -> Callback<[TranslationOutputMap], Exception> {
-        guard LanguagePair.system.isWellFormed else {
+        guard LanguagePair.system.isWellFormed,
+              !LanguagePair.system.isIdempotent else {
             return .success(strings.defaultOutputMap)
         }
 
@@ -106,6 +107,14 @@ public struct HostedTranslationService {
             metadata: [self, #file, #function, #line]
         ) {
             return .failure(exception)
+        }
+
+        if languagePair.isIdempotent {
+            return .success(.init(
+                input: input,
+                output: input.value().sanitized,
+                languagePair: languagePair
+            ))
         }
 
         if let archivedTranslation = TranslationArchiver.getFromArchive(input, languagePair: languagePair) {

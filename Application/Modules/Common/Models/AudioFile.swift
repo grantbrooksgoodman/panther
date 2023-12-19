@@ -20,7 +20,7 @@ public final class AudioFile: Codable, Equatable {
     public let name: String
     public let url: URL
 
-    public private(set) var duration: Float
+    public private(set) var duration: Float?
 
     // MARK: - Init
 
@@ -39,12 +39,14 @@ public final class AudioFile: Codable, Equatable {
     public convenience init?(_ url: URL) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard fileManager.fileExists(atPath: url.path()),
+        guard let decodedPath = url.path().removingPercentEncoding,
+              fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: decodedPath),
               let fileName = url.absoluteString.components(separatedBy: "/").last,
               fileName.components(separatedBy: ".").count == 2 else { return nil }
 
         let components = fileName.components(separatedBy: ".")
-        guard components[1] == AudioFileExtension.caf.rawValue || components[1] == AudioFileExtension.m4a.rawValue else { return nil }
+        guard components[1] == AudioFileExtension.caf.rawValue ||
+            components[1] == AudioFileExtension.m4a.rawValue else { return nil }
         self.init(
             url,
             name: components[0],

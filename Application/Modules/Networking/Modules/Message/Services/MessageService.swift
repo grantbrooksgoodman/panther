@@ -35,14 +35,11 @@ public struct MessageService {
 
     public func createMessage(
         fromAccountID: String,
-        translation: Translation,
-        audioComponent: (input: AudioFile, output: AudioFile)?
+        translations: [Translation],
+        audioComponents: [AudioMessageReference]?
     ) async -> Callback<Message, Exception> {
         guard !fromAccountID.isBangQualifiedEmpty,
-              TranslationValidator.validate(
-                  translation: translation,
-                  metadata: [self, #file, #function, #line]
-              ) == nil else {
+              translations.isWellFormed else {
             return .failure(.init(
                 "Passed arguments fail validation.",
                 metadata: [self, #file, #function, #line]
@@ -61,31 +58,44 @@ public struct MessageService {
         typealias Keys = Message.SerializationKeys
         let data: [String: Any] = [
             Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.hasAudioComponent.rawValue: audioComponent == nil ? "false" : "true",
-            Keys.languagePair.rawValue: translation.languagePair.asString(),
-            Keys.translation.rawValue: translation.serialized.key,
+            Keys.hasAudioComponent.rawValue: audioComponents == nil ? "false" : "true",
+            Keys.translations.rawValue: translations.map(\.model.referenceKey).sorted(),
             Keys.readDate.rawValue: String.bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
 
-        let mockMessage: Message = .init(
+        var mockMessage: Message = .init(
             id,
             fromAccountID: fromAccountID,
-            hasAudioComponent: audioComponent != nil,
-            audioComponent: nil,
-            languagePair: translation.languagePair,
-            translation: translation,
+            hasAudioComponent: audioComponents != nil,
+            audioComponents: nil,
+            translations: translations,
             readDate: nil,
             sentDate: sentDate
         )
 
         func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
             guard mockMessage.hasAudioComponent,
-                  let audioComponent else {
+                  let audioComponents else {
                 return .success(mockMessage)
             }
 
-            return await audio.uploadAudioComponent(for: mockMessage, audioComponent: audioComponent)
+            for audioComponent in audioComponents {
+                let uploadAudioComponentResult = await audio.uploadAudioComponent(
+                    for: mockMessage,
+                    audioComponent: (audioComponent.original, audioComponent.translated)
+                )
+
+                switch uploadAudioComponentResult {
+                case let .success(message):
+                    mockMessage = message
+
+                case let .failure(exception):
+                    return .failure(exception)
+                }
+            }
+
+            return .success(mockMessage)
         }
 
         if let exception = await networking.database.updateChildValues(

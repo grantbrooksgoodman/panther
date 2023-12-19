@@ -20,6 +20,7 @@ public struct CommonServices {
     public let contact: ContactService
     public let invite: InviteService
     public let metadata: MetadataService
+    public let networkActivityIndicator: NetworkActivityIndicatorService
     public let permission: PermissionService
     public let phoneNumber: PhoneNumberService
     public let propertyLists: CommonPropertyLists
@@ -27,7 +28,6 @@ public struct CommonServices {
     public let review: ReviewService
     public let textMessage: TextMessageService
     public let update: UpdateService
-    public let userSession: UserSessionService
 
     // MARK: - Init
 
@@ -37,20 +37,21 @@ public struct CommonServices {
         contact: ContactService,
         invite: InviteService,
         metadata: MetadataService,
+        networkActivityIndicator: NetworkActivityIndicatorService,
         permission: PermissionService,
         phoneNumber: PhoneNumberService,
         propertyLists: CommonPropertyLists,
         regionDetail: RegionDetailService,
         review: ReviewService,
         textMessage: TextMessageService,
-        update: UpdateService,
-        userSession: UserSessionService
+        update: UpdateService
     ) {
         self.analytics = analytics
         self.audio = audio
         self.contact = contact
         self.invite = invite
         self.metadata = metadata
+        self.networkActivityIndicator = networkActivityIndicator
         self.permission = permission
         self.phoneNumber = phoneNumber
         self.propertyLists = propertyLists
@@ -58,6 +59,5 @@ public struct CommonServices {
         self.review = review
         self.textMessage = textMessage
         self.update = update
-        self.userSession = userSession
     }
 }

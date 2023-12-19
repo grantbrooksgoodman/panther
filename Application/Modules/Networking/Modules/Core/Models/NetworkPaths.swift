@@ -16,6 +16,8 @@ public struct NetworkPaths {
     // MARK: - Types
 
     private enum NetworkPath: String {
+        case audioMessageInputs
+        case audioTranslations
         case conversations
         case messages
         case shared
@@ -26,6 +28,8 @@ public struct NetworkPaths {
 
     // MARK: - Properties
 
+    public let audioMessageInputs = Path.audioMessageInputs.rawValue
+    public let audioTranslations = Path.audioTranslations.rawValue
     public let conversations = Path.conversations.rawValue
     public let messages = Path.messages.rawValue
     public let shared = Path.shared.rawValue

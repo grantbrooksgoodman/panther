@@ -17,7 +17,6 @@ public final class UserService: Cacheable {
 
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
-    @Dependency(\.commonServices.userSession) private var userSessionService: UserSessionService
 
     // MARK: - Properties
 
@@ -49,6 +48,19 @@ public final class UserService: Cacheable {
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) async -> Callback<User, Exception> {
+        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
+
+        switch getUserIDsResult {
+        case .success:
+            return .failure(.init(
+                "User already exists for this phone number.",
+                extraParams: ["PhoneNumber": phoneNumber.encoded],
+                metadata: [self, #file, #function, #line]
+            ))
+
+        default: ()
+        }
+
         let userHashesPath = "\(networking.config.paths.userHashes)/\(phoneNumber.nationalNumberString.digits.compressedHash)"
         var newValues = [id]
 
@@ -230,25 +242,20 @@ public final class UserService: Cacheable {
     public func getUsers(phoneNumber: PhoneNumber) async -> Callback<[User], Exception> {
         var matches = [User]()
 
-        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
-            return .failure(.init(
-                "No possible hashes for this number.",
-                extraParams: ["PhoneNumber": phoneNumber],
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        let getUserIDsResult = await getUserIDs(hashes: possibleHashes)
+        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
 
         switch getUserIDsResult {
         case let .success(userIDs):
-            let identifiers = userIDs.values.reduce([], +)
-            let getUsersResult = await getUsers(ids: identifiers)
+            let getUsersResult = await getUsers(ids: userIDs)
 
             switch getUsersResult {
             case let .success(users):
                 matches = users.filter { $0.phoneNumber.callingCode == phoneNumber.callingCode }
                 guard !matches.isEmpty else {
+                    guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
+                        return .failure(.init(metadata: [self, #file, #function, #line]))
+                    }
+
                     @Persistent(.mismatchedHashes) var mismatchedHashes: [String]?
                     mismatchedHashes = mismatchedHashes == nil ? .init() : mismatchedHashes
                     mismatchedHashes?.append(contentsOf: possibleHashes)
@@ -306,31 +313,23 @@ public final class UserService: Cacheable {
         return .success(matches)
     }
 
-    // MARK: - Get Users for Conversation
-
-    public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
-        let commonParams = ["ConversationID": conversation.id.encoded]
-
-        let userIDs = conversation.participants.map(\.userID).filter { $0 != userSessionService.currentUser?.id }
-        guard !userIDs.isBangQualifiedEmpty else {
-            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+    private func getUserIDs(phoneNumber: PhoneNumber) async -> Callback<[String], Exception> {
+        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
+            return .failure(.init(
+                "No possible hashes for this number.",
+                extraParams: ["PhoneNumber": phoneNumber],
+                metadata: [self, #file, #function, #line]
+            ))
         }
 
-        let getUsersResult = await networking.services.user.getUsers(ids: userIDs)
+        let getUserIDsResult = await getUserIDs(hashes: possibleHashes)
 
-        switch getUsersResult {
-        case let .success(users):
-            guard !users.isEmpty,
-                  users.count == userIDs.count else {
-                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-
-            return .success(users)
+        switch getUserIDsResult {
+        case let .success(userIDs):
+            return .success(userIDs.values.reduce([], +))
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception)
         }
     }
 

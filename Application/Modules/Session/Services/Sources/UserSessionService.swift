@@ -22,9 +22,9 @@ public final class UserSessionService {
     public private(set) var currentUser: User?
     @Persistent(.currentUserID) private var currentUserID: String?
 
-    // MARK: - Methods
+    // MARK: - Set Current User
 
-    public func setCurrentUser(_ cacheStrategy: CacheStrategy = .disregardCache) async -> Callback<User, Exception> {
+    public func setCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
         guard let currentUserID else {
             return .failure(.init("Current user ID has not been set.", metadata: [self, #file, #function, #line]))
         }
@@ -50,6 +50,34 @@ public final class UserSessionService {
             }
 
             return .failure(exception)
+        }
+    }
+
+    // MARK: - Get Users for Conversation
+
+    public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
+        let commonParams = ["ConversationID": conversation.id.encoded]
+
+        let userIDs = conversation.participants.map(\.userID).filter { $0 != currentUser?.id }
+        guard !userIDs.isBangQualifiedEmpty else {
+            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+
+        let getUsersResult = await userService.getUsers(ids: userIDs)
+
+        switch getUsersResult {
+        case let .success(users):
+            guard !users.isEmpty,
+                  users.count == userIDs.count else {
+                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
+            return .success(users)
+
+        case let .failure(exception):
+            return .failure(exception.appending(extraParams: commonParams))
         }
     }
 }

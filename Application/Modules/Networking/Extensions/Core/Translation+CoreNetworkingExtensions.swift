@@ -35,9 +35,8 @@ extension Translation: Validatable {
 }
 
 public extension Translation {
-    var serialized: (key: String, value: String) {
-        let value = input.value()
-        return ("\(value.compressedHash)", "\(value.alphaEncoded)–\(output.matchingCapitalization(of: value).alphaEncoded)")
+    var model: TranslationModel {
+        .init(self)
     }
 
     var withSanitizedOutput: Translation {

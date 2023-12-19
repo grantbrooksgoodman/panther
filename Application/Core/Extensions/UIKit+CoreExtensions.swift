@@ -193,16 +193,26 @@ public extension UIView {
     }
 
     func removeOverlay(name tag: String? = nil, animated: Bool = true) {
-        let overlayView = firstSubview(for: tag ?? "OVERLAY_VIEW")
-        let activityIndicatorView = firstSubview(for: "OVERLAY_VIEW_ACTIVITY_INDICATOR")
+        let overlayViews = subviews(for: tag ?? "OVERLAY_VIEW")
+        let activityIndicatorViews = subviews(for: "OVERLAY_VIEW_ACTIVITY_INDICATOR")
 
         Task { @MainActor in
             UIView.animate(withDuration: 0.2) {
-                overlayView?.alpha = 0
-                activityIndicatorView?.alpha = 0
+                overlayViews.forEach { overlayView in
+                    overlayView.alpha = 0
+                }
+
+                activityIndicatorViews.forEach { activityIndicatorView in
+                    activityIndicatorView.alpha = 0
+                }
             } completion: { _ in
-                overlayView?.removeFromSuperview()
-                activityIndicatorView?.removeFromSuperview()
+                overlayViews.forEach { overlayView in
+                    overlayView.removeFromSuperview()
+                }
+
+                activityIndicatorViews.forEach { activityIndicatorView in
+                    activityIndicatorView.removeFromSuperview()
+                }
             }
         }
     }

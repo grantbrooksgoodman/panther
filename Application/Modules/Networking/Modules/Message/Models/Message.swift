@@ -16,6 +16,16 @@ import Translator
 public struct Message: Codable, CompressedHashable, Equatable {
     // MARK: - Properties
 
+    // Array
+
+    /// In practice, will never contain more than one value due to specification made during decoding.
+    public let audioComponents: [AudioMessageReference]?
+    /// In practice, will never contain more than one value due to specification made during decoding.
+    public let translations: [Translation]
+
+    // Bool
+    public let hasAudioComponent: Bool
+
     // Date
     public let readDate: Date?
     public let sentDate: Date
@@ -24,21 +34,15 @@ public struct Message: Codable, CompressedHashable, Equatable {
     public let fromAccountID: String
     public let id: String
 
-    // Other
-    public let audioComponent: AudioMessageReference?
-    public let hasAudioComponent: Bool
-    public let languagePair: LanguagePair
-    public let translation: Translation
-
     // MARK: - Computed Properties
 
+    public var audioComponent: AudioMessageReference? { audioComponents?.first }
     public var hashFactors: [String] {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [
             id,
             fromAccountID,
             hasAudioComponent.description,
-            languagePair.asString(),
             dateFormatter.string(from: sentDate),
         ]
 
@@ -49,31 +53,9 @@ public struct Message: Codable, CompressedHashable, Equatable {
         return factors
     }
 
-    public var localAudioFilePath: LocalAudioFilePath? {
-        @Dependency(\.fileManager) var fileManager: FileManager
-        @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
-
-        guard hasAudioComponent else { return nil }
-
-        let path = "audioMessages/\(translation.languagePair.asString())/\(translation.serialized.key)"
-
-        let inputFilePath = "\(path)/\(id).m4a"
-        var outputFilePath = "\(path)/\(AudioService.FileNames.outputM4A)"
-        if translation.languagePair.from == translation.languagePair.to {
-            outputFilePath = inputFilePath
-        }
-
-        let inputFileURL = fileManager.documentsDirectoryURL.appending(path: inputFilePath)
-        let outputFileURL = fileManager.documentsDirectoryURL.appending(path: outputFilePath)
-
-        return .init(
-            directoryPathString: path,
-            inputPathString: inputFilePath,
-            inputPathURL: inputFileURL,
-            outputPathString: outputFilePath,
-            outputPathURL: outputFileURL
-        )
-    }
+    public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
+    /// The translation for this message in the current user's language code.
+    public var translation: Translation { translations.first! }
 
     // MARK: - Init
 
@@ -81,18 +63,17 @@ public struct Message: Codable, CompressedHashable, Equatable {
         _ id: String,
         fromAccountID: String,
         hasAudioComponent: Bool,
-        audioComponent: AudioMessageReference?,
-        languagePair: LanguagePair,
-        translation: Translation,
+        audioComponents: [AudioMessageReference]?,
+        translations: [Translation],
         readDate: Date?,
         sentDate: Date
     ) {
+        assert(!translations.isEmpty, "Initialized Message with empty Translation array")
         self.id = id
         self.fromAccountID = fromAccountID
         self.hasAudioComponent = hasAudioComponent
-        self.audioComponent = audioComponent
-        self.languagePair = languagePair
-        self.translation = translation
+        self.audioComponents = audioComponents
+        self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate
     }

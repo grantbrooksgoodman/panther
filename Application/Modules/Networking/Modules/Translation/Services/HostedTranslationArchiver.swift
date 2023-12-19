@@ -159,11 +159,19 @@ public struct HostedTranslationArchiver {
             return exception
         }
 
+        guard !translation.languagePair.isIdempotent,
+              let modelValue = translation.model.value else {
+            return .init(
+                "Translation language pair is idempotent; ineligible for hosted archive.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
         let languagePairString = translation.languagePair.asString()
 
         if let exception = await networking.database.updateChildValues(
             forKey: "\(networking.config.paths.translations)/\(languagePairString)",
-            with: [translation.serialized.key: translation.serialized.value]
+            with: [translation.model.key: modelValue]
         ) {
             return exception
         }

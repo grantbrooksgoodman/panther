@@ -23,6 +23,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     @Dependency(\.build) private var build: Build
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
 
     // MARK: - UIApplication
 
@@ -159,11 +160,11 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         /* MARK: UserSessionService Setup */
 
         Task {
-            let setCurrentUserResult = await services.userSession.setCurrentUser()
+            let setCurrentUserResult = await userSession.setCurrentUser()
 
             switch setCurrentUserResult {
             case .success:
-                guard let currentUser = services.userSession.currentUser else {
+                guard let currentUser = userSession.currentUser else {
                     Logger.log(.init("Failed to set current user.", metadata: [self, #file, #function, #line]))
                     return
                 }

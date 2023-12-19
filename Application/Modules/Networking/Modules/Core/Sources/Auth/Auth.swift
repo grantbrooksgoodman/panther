@@ -16,6 +16,7 @@ public struct Auth {
     // MARK: - Dependencies
 
     @Dependency(\.firebaseAuth) private var firebaseAuth: FirebaseAuth.Auth
+    @Dependency(\.networking.activityIndicator) private var networkActivity: NetworkActivityIndicator
     @Dependency(\.firebasePhoneAuthProvider) private var phoneAuthProvider: PhoneAuthProvider
 
     // MARK: - Authentication with Verification Code
@@ -25,12 +26,16 @@ public struct Auth {
         authID: String,
         verificationCode: String
     ) async -> Callback<String, Exception> {
+        networkActivity.show()
+
         let credential = phoneAuthProvider.credential(withVerificationID: authID, verificationCode: verificationCode)
 
         do {
             let signInResult = try await firebaseAuth.signIn(with: credential)
+            networkActivity.hide()
             return .success(signInResult.user.uid)
         } catch {
+            networkActivity.hide()
             return .failure(.init(error, metadata: [self, #file, #function, #line]))
         }
     }
@@ -42,13 +47,16 @@ public struct Auth {
         internationalNumber: String,
         languageCode: String = RuntimeStorage.languageCode
     ) async -> Callback<String, Exception> {
+        networkActivity.show()
         firebaseAuth.languageCode = languageCode
 
         let formattedNumber = "+\(internationalNumber.digits)"
         do {
             let authID = try await phoneAuthProvider.verifyPhoneNumber(formattedNumber, uiDelegate: nil)
+            networkActivity.hide()
             return .success(authID)
         } catch {
+            networkActivity.hide()
             return .failure(.init(error, metadata: [self, #file, #function, #line]))
         }
     }

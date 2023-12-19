@@ -44,7 +44,7 @@ public final class ContactPairArchiveService {
             .init(
                 "Added contact pair to local archive.",
                 extraParams: ["FullName": contactPair.contact.fullName,
-                              "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.compiledNumberString.phoneNumberFormatted ?? ""],
+                              "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.formattedString() ?? ""],
                 metadata: [self, #file, #function, #line]
             ),
             domain: .contacts

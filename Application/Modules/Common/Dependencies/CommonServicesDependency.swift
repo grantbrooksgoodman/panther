@@ -28,14 +28,14 @@ public enum CommonServicesDependency: DependencyKey {
             ),
             invite: .init(),
             metadata: .init(),
+            networkActivityIndicator: .init(),
             permission: .init(),
             phoneNumber: .init(),
             propertyLists: .init(),
             regionDetail: .init(),
             review: .init(),
             textMessage: .init(),
-            update: .init(),
-            userSession: .init()
+            update: .init()
         )
     }
 }

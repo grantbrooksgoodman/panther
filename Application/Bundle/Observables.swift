@@ -15,6 +15,8 @@ public enum ObservableKey: String {
 
     /* Add cases here to define new values for Observer instances. */
 
+    case isNetworkActivityOccurring
+
     // MARK: - Core Cases
 
     case breadcrumbsDidCapture
@@ -27,4 +29,6 @@ public enum ObservableKey: String {
 /// For sending and accessing observed values between scopes.
 public enum Observables {
     /* Add new properties conforming to Observable here. */
+
+    public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
 }

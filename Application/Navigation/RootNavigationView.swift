@@ -24,6 +24,7 @@ public extension RootView {
                 withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
             }
         }
+        .showsNetworkActivity()
     }
 }
 

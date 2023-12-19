@@ -111,40 +111,42 @@ public final class RegionDetailService: Cacheable {
     public func regionCode(by strategy: QueryStrategy) -> String? {
         switch strategy {
         case let .callingCode(callingCode):
-            return regionCode(callingCode: callingCode)
+            guard let regionCodes = regionCodes(callingCode: callingCode) else { return nil }
+            guard regionCodes.count == 1 else { return "multiple" }
+            return regionCodes[0]
 
         case let .regionTitle(regionTitle):
-            return regionCode(regionTitle: regionTitle)
+            return regionCodes(regionTitle: regionTitle)?.first
 
         case .regionCode:
             return nil
         }
     }
 
-    public func regionCode(callingCode: String) -> String? {
-        guard Array(callingCodes.values).contains(callingCode) else { return nil }
-        let regions = callingCodes.keys(for: callingCode)
-        guard regions.count == 1 else { return "multiple" }
-        return regions[0]
+    public func regionCodes(by strategy: QueryStrategy) -> [String]? {
+        switch strategy {
+        case let .callingCode(callingCode):
+            return regionCodes(callingCode: callingCode)
+
+        case let .regionTitle(regionTitle):
+            return regionCodes(regionTitle: regionTitle)
+
+        case .regionCode:
+            return nil
+        }
     }
 
-    public func regionCode(regionTitle title: String) -> String? {
+    private func regionCodes(callingCode: String) -> [String]? {
+        guard Array(callingCodes.values).contains(callingCode) else { return nil }
+        return callingCodes.keys(for: callingCode)
+    }
+
+    private func regionCodes(regionTitle title: String) -> [String]? {
         let format: RegionTitleFormat = title.hasPrefix("+") ? .callingCodeFirst : .regionNameFirst
-        return Array(callingCodes.keys).filter { regionTitle(by: .regionCode($0), titleFormat: format) == title }.first
+        return Array(callingCodes.keys).filter { regionTitle(by: .regionCode($0), titleFormat: format) == title }
     }
 
     // MARK: - Region Titles
-
-    private func getRegionTitlesForAllCallingCodes() -> [String] {
-        if let cachedValue = cache.value(forKey: .regionTitlesForAllCallingCodes) as? [String],
-           !cachedValue.isEmpty {
-            return cachedValue
-        }
-
-        let titles = Array(callingCodes.keys).compactMap { regionTitle(regionCode: $0, titleFormat: .regionNameFirst) }.sorted()
-        cache.set(titles, forKey: .regionTitlesForAllCallingCodes)
-        return titles
-    }
 
     public func localizedRegionName(regionCode: String) -> String {
         var cachedValue = cache.value(forKey: .localizedRegionNamesForRegionCodes) as? [String: String] ?? .init()
@@ -182,6 +184,17 @@ public final class RegionDetailService: Cacheable {
         case .regionTitle:
             return nil
         }
+    }
+
+    private func getRegionTitlesForAllCallingCodes() -> [String] {
+        if let cachedValue = cache.value(forKey: .regionTitlesForAllCallingCodes) as? [String],
+           !cachedValue.isEmpty {
+            return cachedValue
+        }
+
+        let titles = Array(callingCodes.keys).compactMap { regionTitle(regionCode: $0, titleFormat: .regionNameFirst) }.sorted()
+        cache.set(titles, forKey: .regionTitlesForAllCallingCodes)
+        return titles
     }
 
     private func regionTitle(

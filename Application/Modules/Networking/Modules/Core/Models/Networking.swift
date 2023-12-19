@@ -11,6 +11,7 @@ import Foundation
 public struct Networking {
     // MARK: - Properties
 
+    public let activityIndicator: NetworkActivityIndicator
     public let auth: Auth
     public let config: NetworkConfig
     public let database: Database
@@ -20,12 +21,14 @@ public struct Networking {
     // MARK: - Init
 
     public init(
+        activityIndicator: NetworkActivityIndicator,
         auth: Auth,
         config: NetworkConfig,
         database: Database,
         services: NetworkServices,
         storage: Storage
     ) {
+        self.activityIndicator = activityIndicator
         self.auth = auth
         self.config = config
         self.database = database

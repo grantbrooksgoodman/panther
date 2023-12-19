@@ -19,11 +19,13 @@ public enum AppException: String {
     /* Add new cases here. */
 
     case exhaustedAvailablePlatforms = "6005"
+    case genericStorageError = "6F00"
     case noUserWithHashes = "BD49"
     case noUsersWithPhoneNumbers = "9330"
     case noValueExists = "7CD4"
     case sameTranslationInputOutput = "964B"
     case timedOut = "DE75"
+    case transcribeAudioRetry = "B386"
 }
 
 /**

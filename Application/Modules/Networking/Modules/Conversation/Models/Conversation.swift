@@ -55,9 +55,9 @@ public final class Conversation: Codable, CompressedHashable, Equatable {
     // MARK: - Set Users
 
     public func setUsers() async -> Exception? {
-        @Dependency(\.networking.services.user) var userService: UserService
+        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
 
-        let getUsersResult = await userService.getUsers(conversation: self)
+        let getUsersResult = await userSession.getUsers(conversation: self)
 
         switch getUsersResult {
         case let .success(users):

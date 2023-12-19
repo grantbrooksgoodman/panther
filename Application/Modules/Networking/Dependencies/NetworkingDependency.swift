@@ -13,7 +13,10 @@ import Redux
 
 public enum NetworkingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Networking {
-        .init(
+        @Dependency(\.commonServices.networkActivityIndicator) var networkActivityIndicatorService: NetworkActivityIndicatorService
+
+        return .init(
+            activityIndicator: networkActivityIndicatorService,
             auth: .init(),
             config: .init(
                 environment: BuildConfig.networkEnvironment,

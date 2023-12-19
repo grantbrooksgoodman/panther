@@ -100,6 +100,13 @@
 		B93CAEAE2AF4623700C03BF4 /* Toast+AppearanceEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93CAEAD2AF4623700C03BF4 /* Toast+AppearanceEdge.swift */; };
 		B93CAEB02AF4624000C03BF4 /* Toast+ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93CAEAF2AF4624000C03BF4 /* Toast+ColorPalette.swift */; };
 		B94149572A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */; };
+		B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943885E2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift */; };
+		B94388642B3210A7002D94FF /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388632B3210A7002D94FF /* NetworkActivityIndicatorService.swift */; };
+		B94388672B3214D0002D94FF /* AppConstants+NetworkActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */; };
+		B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388682B3217B6002D94FF /* ConversationSessionService.swift */; };
+		B943886F2B321951002D94FF /* ClientSessionServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943886E2B321951002D94FF /* ClientSessionServiceDependency.swift */; };
+		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
+		B94388742B322056002D94FF /* TranslationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388732B322056002D94FF /* TranslationConstants.swift */; };
 		B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657682AABBC740091193B /* UserDefaultsDependency.swift */; };
 		B946576B2AABBD420091193B /* AKCoreDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576A2AABBD420091193B /* AKCoreDependency.swift */; };
 		B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576E2AABC5570091193B /* RootNavigationCoordinatorDependency.swift */; };
@@ -463,6 +470,13 @@
 		B9E0E1042B20FE7100C14274 /* AudioMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E1032B20FE7100C14274 /* AudioMessageService.swift */; };
 		B9E0E1062B20FE8600C14274 /* MessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E1052B20FE8600C14274 /* MessageService.swift */; };
 		B9E0E1082B2102B700C14274 /* LocalAudioFilePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E1072B2102B700C14274 /* LocalAudioFilePath.swift */; };
+		B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */; };
+		B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BB982B30FF3600ADEA71 /* TranslationReference.swift */; };
+		B9E1BB9B2B31107500ADEA71 /* TranslationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BB9A2B31107500ADEA71 /* TranslationModel.swift */; };
+		B9E1BBA12B315C7C00ADEA71 /* NetworkActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBA02B315C7C00ADEA71 /* NetworkActivityView.swift */; };
+		B9E1BBA42B315D7E00ADEA71 /* NetworkActivityViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBA32B315D7E00ADEA71 /* NetworkActivityViewModifier.swift */; };
+		B9E1BBA62B315ED500ADEA71 /* NetworkActivityReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBA52B315ED500ADEA71 /* NetworkActivityReducer.swift */; };
+		B9E1BBAC2B31614100ADEA71 /* NetworkActivityObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBAB2B31614100ADEA71 /* NetworkActivityObserver.swift */; };
 		B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7A32B125BB0000BC88D /* UserService.swift */; };
 		B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AC2B125E17000BC88D /* ConversationID.swift */; };
 		B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AE2B125FC0000BC88D /* User.swift */; };
@@ -512,7 +526,7 @@
 		B9EA3A8A2AC6BB3700674147 /* NotificationCenterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */; };
 		B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F32B26621E00624794 /* ConversationService.swift */; };
 		B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */; };
-		B9EFB9F82B268A3600624794 /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F72B268A3600624794 /* UserSessionService.swift */; };
+		B9EFB9F82B268A3600624794 /* ClientSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F72B268A3600624794 /* ClientSessionService.swift */; };
 		B9EFBA102B2691E600624794 /* CacheStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFBA0F2B2691E600624794 /* CacheStrategy.swift */; };
 		B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFBA152B2694C500624794 /* Array+CommonNetworkingExtensions.swift */; };
 		B9F8EC9A2B1E7AEF00D4F3A4 /* ContactSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F8EC992B1E7AEF00D4F3A4 /* ContactSyncService.swift */; };
@@ -709,6 +723,13 @@
 		B93CAEAF2AF4624000C03BF4 /* Toast+ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Toast+ColorPalette.swift"; sourceTree = "<group>"; };
 		B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnFirstAppearViewModifier.swift; sourceTree = "<group>"; };
 		B941496A2A4F7A8F0097DAE5 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
+		B943885E2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorProtocol.swift; sourceTree = "<group>"; };
+		B94388632B3210A7002D94FF /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
+		B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+NetworkActivityView.swift"; sourceTree = "<group>"; };
+		B94388682B3217B6002D94FF /* ConversationSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationSessionService.swift; sourceTree = "<group>"; };
+		B943886E2B321951002D94FF /* ClientSessionServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionServiceDependency.swift; sourceTree = "<group>"; };
+		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
+		B94388732B322056002D94FF /* TranslationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationConstants.swift; sourceTree = "<group>"; };
 		B94657682AABBC740091193B /* UserDefaultsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsDependency.swift; sourceTree = "<group>"; };
 		B946576A2AABBD420091193B /* AKCoreDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKCoreDependency.swift; sourceTree = "<group>"; };
 		B946576E2AABC5570091193B /* RootNavigationCoordinatorDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootNavigationCoordinatorDependency.swift; sourceTree = "<group>"; };
@@ -1069,6 +1090,13 @@
 		B9E0E1032B20FE7100C14274 /* AudioMessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessageService.swift; sourceTree = "<group>"; };
 		B9E0E1052B20FE8600C14274 /* MessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageService.swift; sourceTree = "<group>"; };
 		B9E0E1072B2102B700C14274 /* LocalAudioFilePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAudioFilePath.swift; sourceTree = "<group>"; };
+		B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSessionService.swift; sourceTree = "<group>"; };
+		B9E1BB982B30FF3600ADEA71 /* TranslationReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationReference.swift; sourceTree = "<group>"; };
+		B9E1BB9A2B31107500ADEA71 /* TranslationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationModel.swift; sourceTree = "<group>"; };
+		B9E1BBA02B315C7C00ADEA71 /* NetworkActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityView.swift; sourceTree = "<group>"; };
+		B9E1BBA32B315D7E00ADEA71 /* NetworkActivityViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityViewModifier.swift; sourceTree = "<group>"; };
+		B9E1BBA52B315ED500ADEA71 /* NetworkActivityReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityReducer.swift; sourceTree = "<group>"; };
+		B9E1BBAB2B31614100ADEA71 /* NetworkActivityObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityObserver.swift; sourceTree = "<group>"; };
 		B9E6D7A32B125BB0000BC88D /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		B9E6D7AC2B125E17000BC88D /* ConversationID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationID.swift; sourceTree = "<group>"; };
 		B9E6D7AE2B125FC0000BC88D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -1118,7 +1146,7 @@
 		B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterDependency.swift; sourceTree = "<group>"; };
 		B9EFB9F32B26621E00624794 /* ConversationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationService.swift; sourceTree = "<group>"; };
 		B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
-		B9EFB9F72B268A3600624794 /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
+		B9EFB9F72B268A3600624794 /* ClientSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionService.swift; sourceTree = "<group>"; };
 		B9EFBA0F2B2691E600624794 /* CacheStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheStrategy.swift; sourceTree = "<group>"; };
 		B9EFBA152B2694C500624794 /* Array+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9F8EC992B1E7AEF00D4F3A4 /* ContactSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSyncService.swift; sourceTree = "<group>"; };
@@ -1353,6 +1381,7 @@
 				B9E6D7B02B12612D000BC88D /* Common */,
 				B91A10F82AFF362000E3C1A0 /* Content */,
 				B9D0D9172B03019E00078A93 /* Networking */,
+				B943886A2B3218DB002D94FF /* Session */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1370,6 +1399,7 @@
 			children = (
 				B9E6D7D52B128845000BC88D /* Onboarding */,
 				B91A0E252AFF2F9100E3C1A0 /* Sample */,
+				B94388612B32104B002D94FF /* Shared */,
 			);
 			path = Content;
 			sourceTree = "<group>";
@@ -1445,6 +1475,76 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
+		B94388612B32104B002D94FF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				B94388652B3214C3002D94FF /* Constants */,
+				B94388622B321052002D94FF /* Network Activity */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		B94388622B321052002D94FF /* Network Activity */ = {
+			isa = PBXGroup;
+			children = (
+				B9E1BB9F2B315C6D00ADEA71 /* NetworkActivityView */,
+				B9E1BBA22B315D6D00ADEA71 /* View Modifiers */,
+			);
+			path = "Network Activity";
+			sourceTree = "<group>";
+		};
+		B94388652B3214C3002D94FF /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		B943886A2B3218DB002D94FF /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				B943886B2B32190A002D94FF /* Dependencies */,
+				B943886C2B321918002D94FF /* Services */,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
+		B943886B2B32190A002D94FF /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				B943886E2B321951002D94FF /* ClientSessionServiceDependency.swift */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		B943886C2B321918002D94FF /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B943886D2B321921002D94FF /* Sources */,
+				B9EFB9F72B268A3600624794 /* ClientSessionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B943886D2B321921002D94FF /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				B94388682B3217B6002D94FF /* ConversationSessionService.swift */,
+				B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */,
+				B94388702B3219CE002D94FF /* UserSessionService.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		B94388722B32204B002D94FF /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				B94388732B322056002D94FF /* TranslationConstants.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
 		B94657672AABBC670091193B /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
@@ -1482,6 +1582,7 @@
 		B952B8F42B1531B80043181F /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				B943885E2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift */,
 				B937D07C2B2237470058F00E /* SerializableProtocol.swift */,
 				B952B8F52B1531D50043181F /* ValidatableProtocol.swift */,
 			);
@@ -1492,6 +1593,8 @@
 			isa = PBXGroup;
 			children = (
 				B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */,
+				B9E1BB9A2B31107500ADEA71 /* TranslationModel.swift */,
+				B9E1BB982B30FF3600ADEA71 /* TranslationReference.swift */,
 				B952B8F72B1536F10043181F /* TranslationValidator.swift */,
 			);
 			path = Models;
@@ -1547,8 +1650,8 @@
 			isa = PBXGroup;
 			children = (
 				B963F1C52B23D6480087DB83 /* Conversation+Serializable.swift */,
-				B963F1C92B23D7250087DB83 /* Participant+Serializable.swift */,
 				B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */,
+				B963F1C92B23D7250087DB83 /* Participant+Serializable.swift */,
 			);
 			path = Serializable;
 			sourceTree = "<group>";
@@ -1616,13 +1719,13 @@
 				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
 				B900B5312B1AB3FA00BA2F1D /* InviteService.swift */,
 				B928F3CD2B17FE5700006BFD /* MetadataService.swift */,
+				B94388632B3210A7002D94FF /* NetworkActivityIndicatorService.swift */,
 				B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */,
 				B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */,
 				B9E6D7B32B126188000BC88D /* RegionDetailService.swift */,
 				B900B5352B1ABA2300BA2F1D /* ReviewService.swift */,
 				B900B52F2B1AB10F00BA2F1D /* TextMessageService.swift */,
 				B969691A2B18259400ADA875 /* UpdateService.swift */,
-				B9EFB9F72B268A3600624794 /* UserSessionService.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -2135,6 +2238,24 @@
 			path = Storage;
 			sourceTree = "<group>";
 		};
+		B9E1BB9F2B315C6D00ADEA71 /* NetworkActivityView */ = {
+			isa = PBXGroup;
+			children = (
+				B9E1BBAB2B31614100ADEA71 /* NetworkActivityObserver.swift */,
+				B9E1BBA52B315ED500ADEA71 /* NetworkActivityReducer.swift */,
+				B9E1BBA02B315C7C00ADEA71 /* NetworkActivityView.swift */,
+			);
+			path = NetworkActivityView;
+			sourceTree = "<group>";
+		};
+		B9E1BBA22B315D6D00ADEA71 /* View Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				B9E1BBA32B315D7E00ADEA71 /* NetworkActivityViewModifier.swift */,
+			);
+			path = "View Modifiers";
+			sourceTree = "<group>";
+		};
 		B9E6D7A22B125B97000BC88D /* User */ = {
 			isa = PBXGroup;
 			children = (
@@ -2268,6 +2389,7 @@
 		B9E6D7EA2B129308000BC88D /* Translation */ = {
 			isa = PBXGroup;
 			children = (
+				B94388722B32204B002D94FF /* Constants */,
 				B952B8FD2B153D550043181F /* Extensions */,
 				B952B8FB2B153CFF0043181F /* Models */,
 				B952B8FC2B153D210043181F /* Services */,
@@ -2928,6 +3050,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */,
 				B9EA3A8A2AC6BB3700674147 /* NotificationCenterDependency.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
@@ -2939,6 +3062,7 @@
 				B9BEC83A2AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift in Sources */,
 				B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */,
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
+				B9E1BBA12B315C7C00ADEA71 /* NetworkActivityView.swift in Sources */,
 				B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */,
 				B9E0E1042B20FE7100C14274 /* AudioMessageService.swift in Sources */,
 				B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */,
@@ -3004,15 +3128,18 @@
 				B9E7D43D2AAC222600FAF2A9 /* Observable.swift in Sources */,
 				B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */,
 				B992BCD52A159479003BFF2E /* AKConnectionAlertDelegate.swift in Sources */,
+				B94388742B322056002D94FF /* TranslationConstants.swift in Sources */,
 				B900B5322B1AB3FA00BA2F1D /* InviteService.swift in Sources */,
 				B920F18B2AD7C93A002FC1C2 /* LocaleDependency.swift in Sources */,
 				B94149572A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift in Sources */,
+				B9E1BBA62B315ED500ADEA71 /* NetworkActivityReducer.swift in Sources */,
 				B9E6D7CC2B1284EC000BC88D /* PermissionService.swift in Sources */,
 				B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */,
 				B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */,
 				B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,
 				A286879F28A4A1CB00A34912 /* AKReportDelegate.swift in Sources */,
+				B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */,
 				B93457122AAC015200944602 /* UIApplicationDependency.swift in Sources */,
 				B980E8B72B2266E60090F141 /* PhoneNumber+Serializable.swift in Sources */,
 				B9E7D4412AAC227100FAF2A9 /* BuildInfoOverlayViewObserver.swift in Sources */,
@@ -3031,6 +3158,7 @@
 				B93CAEAA2AF4621C00C03BF4 /* Toast+PerpetuationStrategy.swift in Sources */,
 				B946D87E2ACC966E001D2424 /* Duration+CoreExtensions.swift in Sources */,
 				B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */,
+				B9E1BB9B2B31107500ADEA71 /* TranslationModel.swift in Sources */,
 				B9D0D9442B03019E00078A93 /* NetworkServices.swift in Sources */,
 				B9E7D4282AAC1F0400FAF2A9 /* FailurePageReducer.swift in Sources */,
 				B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */,
@@ -3049,6 +3177,7 @@
 				B9E6D7DE2B1288B9000BC88D /* WelcomePageView.swift in Sources */,
 				B97DB56D2AF45F11002C2679 /* SwipeViewModifier.swift in Sources */,
 				B9D0D93E2B03019E00078A93 /* Exception+CommonExtensions.swift in Sources */,
+				B94388642B3210A7002D94FF /* NetworkActivityIndicatorService.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+CoreNetworkingExtensions.swift in Sources */,
 				B9C5830129BECB0C009DCE29 /* DeviceShakeViewModifier.swift in Sources */,
@@ -3072,7 +3201,7 @@
 				B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */,
 				B90F33222AE4D463002A9284 /* HeaderViewModifier.swift in Sources */,
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
-				B9EFB9F82B268A3600624794 /* UserSessionService.swift in Sources */,
+				B9EFB9F82B268A3600624794 /* ClientSessionService.swift in Sources */,
 				A206F7DF28AC552D008FFE18 /* Build.swift in Sources */,
 				B9CC83202AB11E7F00255116 /* ThemedReducer.swift in Sources */,
 				B91688ED2904913E004C80A2 /* Logger.swift in Sources */,
@@ -3080,12 +3209,16 @@
 				B9D0D9482B03019E00078A93 /* Auth.swift in Sources */,
 				B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */,
 				B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */,
+				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,
 				B91689072AC75FFB00AF403D /* MainBundleDependency.swift in Sources */,
 				B9E0E1082B2102B700C14274 /* LocalAudioFilePath.swift in Sources */,
 				B9E0E1022B20FD1100C14274 /* AudioFileExtension.swift in Sources */,
+				B943886F2B321951002D94FF /* ClientSessionServiceDependency.swift in Sources */,
 				B9E6D7D42B12850D000BC88D /* CNContactStoreDependency.swift in Sources */,
+				B9E1BBAC2B31614100ADEA71 /* NetworkActivityObserver.swift in Sources */,
 				B9E6D7F12B12B553000BC88D /* HostedTranslationService+AKTranslationDelegate.swift in Sources */,
+				B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */,
 				B9E6D7DC2B1288B2000BC88D /* WelcomeContentPageView.swift in Sources */,
 				B93BCDEB2AAD9D9D00AA16FE /* LanguagePair+CoreExtensions.swift in Sources */,
 				B93BCDE52AAD9A1A00AA16FE /* SampleViewStrings.swift in Sources */,
@@ -3120,12 +3253,14 @@
 				B9E7D4322AAC20E100FAF2A9 /* BuildInfoOverlayReducer.swift in Sources */,
 				B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */,
 				B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */,
+				B94388672B3214D0002D94FF /* AppConstants+NetworkActivityView.swift in Sources */,
 				B95798382AE4DE4800B9FFF9 /* CoreConstants+HeaderView.swift in Sources */,
 				B93BCDE92AAD9B5300AA16FE /* Callback.swift in Sources */,
 				B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */,
 				B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */,
 				B9B193C52B1A425E0016948C /* RecordingService.swift in Sources */,
 				B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */,
+				B9E1BBA42B315D7E00ADEA71 /* NetworkActivityViewModifier.swift in Sources */,
 				B9C5830829BECE59009DCE29 /* DevModeActions.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B93BCDDC2AAD8BFB00AA16FE /* UIKit+CoreExtensions.swift in Sources */,
@@ -3139,6 +3274,7 @@
 				B96446602B157E3E008E674A /* RootNavigationView.swift in Sources */,
 				B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */,
 				B9E6D7C42B126917000BC88D /* SystemLocalizedLocaleDependency.swift in Sources */,
+				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,
 				B90F331F2AE4D41A002A9284 /* HeaderView.swift in Sources */,
 				B9CC83172AB0DCA700255116 /* DevModeStandardActions.swift in Sources */,
 				B9AF12502ACE4AF50045C54C /* CompressedHashable.swift in Sources */,

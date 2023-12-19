@@ -25,8 +25,7 @@ extension Message: Serializable {
         case id
         case fromAccountID = "fromAccount"
         case hasAudioComponent
-        case languagePair
-        case translation = "translationReference"
+        case translations
         case readDate
         case sentDate
     }
@@ -45,8 +44,7 @@ extension Message: Serializable {
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.hasAudioComponent.rawValue: hasAudioComponent,
-            Keys.languagePair.rawValue: languagePair.asString(),
-            Keys.translation.rawValue: translation.serialized.key,
+            Keys.translations.rawValue: translations.map(\.model.referenceKey),
             Keys.readDate.rawValue: readDateString,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -55,19 +53,18 @@ extension Message: Serializable {
     // MARK: - Methods
 
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
+        @Dependency(\.networking.services.message.audio) var audioMessageService: AudioMessageService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.services) var networkServices: NetworkServices
+        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
               let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
               hasAudioComponentString == "true" || hasAudioComponentString == "false",
-              let languagePairString = data[Keys.languagePair.rawValue] as? String,
-              let translationReference = data[Keys.translation.rawValue] as? String,
+              let translationReferences = data[Keys.translations.rawValue] as? [String],
               let readDateString = data[Keys.readDate.rawValue] as? String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
-              let sentDate = dateFormatter.date(from: sentDateString),
-              let languagePair: LanguagePair = .init(languagePairString) else {
+              let sentDate = dateFormatter.date(from: sentDateString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
@@ -78,34 +75,99 @@ extension Message: Serializable {
             readDate = dateFormatter.date(from: readDateString)
         }
 
-        let findArchivedTranslationResult = await networkServices.translation.archiver.findArchivedTranslation(
-            id: translationReference,
-            languagePair: languagePair
-        )
-
         func decodedMessage(_ translation: Translation) -> Message {
             .init(
                 id,
                 fromAccountID: fromAccountID,
                 hasAudioComponent: hasAudioComponent,
-                audioComponent: nil,
-                languagePair: languagePair,
-                translation: translation,
+                audioComponents: nil,
+                translations: [translation],
                 readDate: readDate,
                 sentDate: sentDate
             )
         }
 
-        switch findArchivedTranslationResult {
+        let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
+        let references = translationReferences.compactMap { TranslationReference($0) }
+
+        guard let translationReference = references.first(where: { $0.languagePair.to == languageCode }) ?? references.first else {
+            return .failure(.init(
+                "Failed to decode translation reference.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let getTranslationResult = await getTranslation(
+            reference: translationReference,
+            makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode }
+        )
+
+        switch getTranslationResult {
         case let .success(translation):
-            if hasAudioComponent {
-                return await networkServices.message.audio.getAudioComponent(for: decodedMessage(translation))
-            } else {
-                return .success(decodedMessage(translation))
+            guard !hasAudioComponent else {
+                return await audioMessageService.getAudioComponent(
+                    for: decodedMessage(translation),
+                    languageCode: languageCode
+                )
             }
+
+            return .success(decodedMessage(translation))
 
         case let .failure(exception):
             return .failure(exception)
+        }
+    }
+
+    private static func getTranslation(
+        reference: TranslationReference,
+        makeIdempotent: Bool
+    ) async -> Callback<Translation, Exception> {
+        @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
+
+        func validateAndReturn(_ translation: Translation) -> Callback<Translation, Exception> {
+            if let exception = TranslationValidator.validate(
+                translation: translation,
+                metadata: [self, #file, #function, #line]
+            ) {
+                return .failure(exception)
+            }
+
+            return .success(translation)
+        }
+
+        switch reference.type {
+        case let .archived(hash):
+            let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(
+                id: hash,
+                languagePair: reference.languagePair
+            )
+
+            switch findArchivedTranslationResult {
+            case let .success(translation):
+                guard !makeIdempotent else {
+                    let idempotentTranslation: Translation = .init(
+                        input: translation.input,
+                        output: translation.input.value(),
+                        languagePair: .init(from: translation.languagePair.from, to: translation.languagePair.from)
+                    )
+
+                    return validateAndReturn(idempotentTranslation)
+                }
+
+                return validateAndReturn(translation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
+        case let .idempotent(value):
+            let translation: Translation = .init(
+                input: .init(value),
+                output: value,
+                languagePair: reference.languagePair
+            )
+
+            return validateAndReturn(translation)
         }
     }
 }

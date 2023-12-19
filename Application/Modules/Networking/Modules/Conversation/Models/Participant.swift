@@ -23,8 +23,8 @@ public struct Participant: Codable, Equatable {
 
     public init(
         userID: String,
-        hasDeletedConversation: Bool,
-        isTyping: Bool
+        hasDeletedConversation: Bool = false,
+        isTyping: Bool = false
     ) {
         self.userID = userID
         self.hasDeletedConversation = hasDeletedConversation

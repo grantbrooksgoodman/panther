@@ -16,6 +16,7 @@ public struct CoreStorage {
     // MARK: - Dependencies
 
     @Dependency(\.firebaseStorage) private var firebaseStorage: StorageReference
+    @Dependency(\.networking.activityIndicator) private var networkActivity: NetworkActivityIndicator
 
     // MARK: - Data Upload
 
@@ -26,10 +27,13 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -63,10 +67,13 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -98,10 +105,13 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -135,10 +145,13 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Bool, Exception>) -> Void
     ) {
+        networkActivity.show()
+
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
+            networkActivity.hide()
             return true
         }
 
@@ -159,7 +172,10 @@ public struct CoreStorage {
                 completion(.success(true))
 
             case let .failure(error):
-                Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+                let exception: Exception = .init(error, metadata: [self, #file, #function, #line])
+                if !exception.isEqual(to: .genericStorageError) {
+                    Logger.log(exception)
+                }
                 completion(.success(false))
             }
         }

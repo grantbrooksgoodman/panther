@@ -26,7 +26,9 @@ extension HostedTranslationService: AKTranslationDelegate {
             _ errorDescriptors: [String: AlertKit.TranslationInput]?
         ) -> Void
     ) {
-        guard LanguagePair(from: languagePair.from, to: languagePair.to).isWellFormed else {
+        let languagePairComparator: Translator.LanguagePair = .init(from: languagePair.from, to: languagePair.to)
+        guard languagePairComparator.isWellFormed,
+              !languagePairComparator.isIdempotent else {
             let map = inputs.map { AlertKit.Translation(
                 input: $0,
                 output: $0.value(),
