@@ -33,6 +33,12 @@ public final class RecordingService: NSObject {
 
     public var isRecording: Bool { audioRecorder?.isRecording ?? false }
 
+    // MARK: - Object Lifecycle
+
+    deinit {
+        stopObservingInterruptions()
+    }
+
     // MARK: - Recording
 
     public func startRecording() -> Exception? {

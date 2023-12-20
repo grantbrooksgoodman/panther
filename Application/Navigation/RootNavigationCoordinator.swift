@@ -13,6 +13,7 @@ public enum RootPage: CaseIterable {
     // MARK: - Cases
 
     case sample
+    case splash
     case onboarding(OnboardingPage)
 
     // MARK: - Properties
@@ -20,6 +21,7 @@ public enum RootPage: CaseIterable {
     public static var allCases: [RootPage] {
         [
             .sample,
+            .splash,
             .onboarding(.welcome),
         ]
     }
@@ -28,6 +30,9 @@ public enum RootPage: CaseIterable {
         switch self {
         case .sample:
             return "sample"
+
+        case .splash:
+            return "splash"
 
         case let .onboarding(page):
             return "onboarding: \(page.rawValue)"
@@ -38,7 +43,7 @@ public enum RootPage: CaseIterable {
 public final class RootNavigationCoordinator: ObservableObject {
     // MARK: - Properties
 
-    @Published public private(set) var page: RootPage = .onboarding(.welcome)
+    @Published public private(set) var page: RootPage = .splash
 
     // MARK: - Methods
 

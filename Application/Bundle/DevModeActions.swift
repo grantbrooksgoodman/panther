@@ -9,14 +9,52 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import Redux
+
 /**
  Use this extension to add new actions to the Developer Mode menu.
  */
 public extension DevModeService {
+    // MARK: - Properties
+
+    static var toggleNetworkActivityIndicatorAction: DevModeAction {
+        func toggleNetworkActivityIndicator() {
+            @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+            @Persistent(.indicatesNetworkActivity) var defaultsValue: Bool?
+
+            defer { coreHUD.flash(image: .success) }
+
+            guard let value = defaultsValue else {
+                defaultsValue = true
+                return
+            }
+
+            defaultsValue = !value
+        }
+
+        return .init(
+            title: "Toggle Network Activity Indicator",
+            perform: toggleNetworkActivityIndicator
+        )
+    }
+
     // MARK: - Custom Action Addition
 
     static func addCustomActions() {
         /* Add custom DevModeAction implementations here. */
-        // addActions([])
+        insertAction(toggleNetworkActivityIndicatorAction, at: actions.count - 1)
+    }
+}
+
+public extension Persistent {
+    convenience init(_ devModeServiceKey: UserDefaultsKeyDomain.DevModeServiceDefaultsKey) {
+        self.init(.app(.devModeService(devModeServiceKey)))
+    }
+}
+
+public extension UserDefaultsKeyDomain {
+    enum DevModeServiceDefaultsKey: String {
+        case indicatesNetworkActivity
     }
 }

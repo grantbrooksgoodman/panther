@@ -22,7 +22,7 @@ public struct NetworkActivityView: View {
     // MARK: - Properties
 
     @StateObject private var viewModel: ViewModel<NetworkActivityReducer>
-    @StateObject private var observer: ViewObserver<NetworkActivityObserver>
+    @StateObject private var observer: ViewObserver<NetworkActivityViewObserver>
 
     // MARK: - Init
 
@@ -46,7 +46,7 @@ public struct NetworkActivityView: View {
                     .tint(Colors.progressViewTint)
             }
             .offset(y: viewModel.yOffset)
-            .opacity(viewModel.isHidden ? 0 : 1)
+            .opacity(viewModel.isVisible ? 1 : 0)
             .animation(.spring(), value: viewModel.yOffset)
     }
 }

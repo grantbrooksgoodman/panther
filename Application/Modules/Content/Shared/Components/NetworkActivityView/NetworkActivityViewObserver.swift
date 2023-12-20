@@ -1,5 +1,5 @@
 //
-//  NetworkActivityObserver.swift
+//  NetworkActivityViewObserver.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 19/12/2023.
@@ -8,11 +8,12 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import Redux
 
-public struct NetworkActivityObserver: Observer {
+public struct NetworkActivityViewObserver: Observer {
     // MARK: - Type Aliases
 
     public typealias R = NetworkActivityReducer
@@ -32,10 +33,12 @@ public struct NetworkActivityObserver: Observer {
     // MARK: - Observer Conformance
 
     public func linkObservables() {
-        Observers.link(NetworkActivityObserver.self, with: observedValues)
+        Observers.link(NetworkActivityViewObserver.self, with: observedValues)
     }
 
     public func onChange(of observable: Observable<Any>) {
+        @Dependency(\.build) var build: Build
+
         Logger.log(
             "\(observable.value as? Nil != nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -45,7 +48,15 @@ public struct NetworkActivityObserver: Observer {
         switch observable.key {
         case .isNetworkActivityOccurring:
             guard let value = observable.value as? Bool else { return }
-            send(.setIsHidden(!value))
+            send(.isVisibleChanged(value))
+
+            @Persistent(.indicatesNetworkActivity) var indicatesNetworkActivity: Bool?
+            if build.stage != .generalRelease,
+               build.developerModeEnabled,
+               let indicatesNetworkActivity,
+               indicatesNetworkActivity {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
 
         default: ()
         }

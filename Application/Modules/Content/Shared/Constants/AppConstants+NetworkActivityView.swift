@@ -17,6 +17,7 @@ public extension AppConstants.CGFloats {
         public static let frameHeight: CGFloat = 40
         public static let frameWidth: CGFloat = 40
         public static let hiddenYOffset: CGFloat = -1000
+        public static let hideIndicatorTaskDelaySeconds: CGFloat = 1.25
         public static let padding: CGFloat = 5
     }
 }

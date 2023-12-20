@@ -20,11 +20,13 @@ public extension RootView {
             case .sample:
                 withTransition { SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer())) }
 
+            case .splash:
+                withTransition { SplashPageView(.init(initialState: .init(), reducer: SplashPageReducer())) }
+
             case .onboarding(.welcome):
                 withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
             }
         }
-        .showsNetworkActivity()
     }
 }
 

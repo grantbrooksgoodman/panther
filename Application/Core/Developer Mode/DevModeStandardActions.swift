@@ -18,18 +18,18 @@ public extension DevModeAction {
         // MARK: - Available Actions Getter
 
         public static var available: [DevModeAction] {
-            var availableActions: [DevModeAction] = [.Standard.toggleBuildInfoOverlayAction,
-                                                     .Standard.overrideLanguageCodeAction,
-                                                     .Standard.resetUserDefaultsAction,
-                                                     .Standard.toggleBreadcrumbsAction,
-                                                     .Standard.disableDeveloperModeAction]
+            var availableActions: [DevModeAction] = [toggleBuildInfoOverlayAction,
+                                                     overrideLanguageCodeAction,
+                                                     resetUserDefaultsAction,
+                                                     toggleBreadcrumbsAction,
+                                                     disableDeveloperModeAction]
 
             if RootPage.allCases.count > 1 {
-                availableActions.insert(.Standard.navigateToPageAction, at: 0)
+                availableActions.insert(navigateToPageAction, at: 0)
             }
 
             if AppTheme.allCases.count > 1 {
-                availableActions.insert(.Standard.changeThemeAction, at: 0)
+                availableActions.insert(changeThemeAction, at: 0)
             }
 
             return availableActions
@@ -232,7 +232,7 @@ public extension DevModeAction {
                         } else {
                             coreHUD.showSuccess()
                             DevModeService.removeAction(withTitle: "Stop Breadcrumbs Capture")
-                            DevModeService.insertAction(.Standard.toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
+                            DevModeService.insertAction(toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
                         }
                     }
 
@@ -267,7 +267,7 @@ public extension DevModeAction {
                     } else {
                         coreHUD.showSuccess()
                         DevModeService.removeAction(withTitle: "Start Breadcrumbs Capture")
-                        DevModeService.insertAction(.Standard.toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
+                        DevModeService.insertAction(toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
                     }
                 }
             }

@@ -14,29 +14,18 @@ import SwiftUI
 import Redux
 
 private struct NetworkActivityViewModifier: ViewModifier {
-    // MARK: - Dependencies
-
-    @Dependency(\.build) private var build: Build
-
-    // MARK: - Body
-
     public func body(content: Content) -> some View {
-        if build.stage != .generalRelease,
-           build.developerModeEnabled {
-            ZStack {
-                content
-                VStack {
-                    NetworkActivityView(
-                        .init(
-                            initialState: .init(),
-                            reducer: NetworkActivityReducer()
-                        )
-                    )
-                    Spacer()
-                }
-            }
-        } else {
+        ZStack {
             content
+            VStack {
+                NetworkActivityView(
+                    .init(
+                        initialState: .init(),
+                        reducer: NetworkActivityReducer()
+                    )
+                )
+                Spacer()
+            }
         }
     }
 }

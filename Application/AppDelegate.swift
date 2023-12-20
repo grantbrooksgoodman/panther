@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import Foundation
 import UIKit
 
 /* 3rd-party */
@@ -21,15 +22,12 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
-    @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
-    @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
 
     // MARK: - UIApplication
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         preInitialize()
-        initializeBundle()
+        setUpFirebase()
 
         /* Encapsulate further work here into setup functions. */
 
@@ -130,53 +128,10 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    // MARK: - Bundle Initialization
+    // MARK: - Set Up Firebase
 
-    private func initializeBundle() {
-        /* MARK: Firebase Setup */
-
+    private func setUpFirebase() {
         FirebaseApp.configure()
-
-        /* MARK: AKTranslationDelegate Setup */
-
-        akCore.register(translationDelegate: hostedTranslationService)
-
-        /* MARK: MetadataService Key Resolution */
-
-        Task {
-            if let exception = await services.metadata.resolveValues() {
-                Logger.log(exception)
-            }
-        }
-
-        /* MARK: ReviewService Setup */
-
-        services.review.incrementAppOpenCount()
-
-        /* MARK: UpdateService Setup */
-
-        services.update.incrementRelaunchCountIfNeeded()
-
-        /* MARK: UserSessionService Setup */
-
-        Task {
-            let setCurrentUserResult = await userSession.setCurrentUser()
-
-            switch setCurrentUserResult {
-            case .success:
-                guard let currentUser = userSession.currentUser else {
-                    Logger.log(.init("Failed to set current user.", metadata: [self, #file, #function, #line]))
-                    return
-                }
-
-                if let exception = await currentUser.conversations?.setUsers() {
-                    Logger.log(exception)
-                }
-
-            case let .failure(exception):
-                Logger.log(exception)
-            }
-        }
     }
 
     // MARK: - UISceneSession
