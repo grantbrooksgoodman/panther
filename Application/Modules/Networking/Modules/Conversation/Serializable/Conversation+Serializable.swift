@@ -79,11 +79,23 @@ extension Conversation: Serializable {
                     extraParams: ["ConversationIDKey": conversationID.key,
                                   "ConversationIDHash": conversationID.hash],
                     metadata: [self, #file, #function, #line]
-                )
+                ),
+                domain: .conversation
             )
 
             return .success(archivedConversation)
         } else if let outdatedConversation = networkServices.conversation.archive.getValue(idKey: conversationID.key) {
+            Logger.log(
+                .init(
+                    "Conversation needs update.",
+                    extraParams: ["ConversationIDKey": conversationID.key,
+                                  "NewConversationIDHash": conversationID.hash,
+                                  "OutdatedConversationIDHash": outdatedConversation.compressedHash],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .conversation
+            )
+
             let updateConversationResult = await conversationSession.updateConversation(outdatedConversation)
 
             switch updateConversationResult {

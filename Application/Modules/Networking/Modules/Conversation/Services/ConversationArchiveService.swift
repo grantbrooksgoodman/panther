@@ -9,19 +9,27 @@
 /* Native */
 import Foundation
 
-public struct ConversationArchiveService {
+public final class ConversationArchiveService {
     // MARK: - Properties
 
+    private var archive: [Conversation]?
     @Persistent(.conversationArchive) private var persistedArchive: [Conversation]?
+
+    // MARK: - Init
+
+    public init() {
+        archive = persistedArchive
+    }
 
     // MARK: - Addition
 
     public func addValue(_ conversation: Conversation) {
-        var values = persistedArchive ?? .init()
+        var values = archive ?? .init()
 
         values.removeAll(where: { $0.id.key == conversation.id.key })
         values.append(conversation)
-        persistedArchive = values
+        archive = values
+        persistedArchive = archive
 
         Logger.log(
             .init(
@@ -37,20 +45,22 @@ public struct ConversationArchiveService {
     // MARK: - Removal
 
     public func clearArchive() {
+        archive = nil
         persistedArchive = nil
     }
 
     public func removeValue(idKey: String) {
-        persistedArchive?.removeAll(where: { $0.id.key == idKey })
+        archive?.removeAll(where: { $0.id.key == idKey })
+        persistedArchive = archive
     }
 
     // MARK: - Retrieval
 
     public func getValue(id: ConversationID) -> Conversation? {
-        persistedArchive?.first(where: { $0.id == id })
+        archive?.first(where: { $0.id == id })
     }
 
     public func getValue(idKey: String) -> Conversation? {
-        persistedArchive?.first(where: { $0.id.key == idKey })
+        archive?.first(where: { $0.id.key == idKey })
     }
 }

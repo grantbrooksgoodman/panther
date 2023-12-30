@@ -59,6 +59,8 @@ public final class Conversation: Codable, CompressedHashable, Equatable {
     public func setUsers() async -> Exception? {
         @Dependency(\.clientSessionService.user) var userSession: UserSessionService
 
+        guard users == nil else { return nil }
+
         let getUsersResult = await userSession.getUsers(conversation: self)
 
         switch getUsersResult {

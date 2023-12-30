@@ -82,11 +82,43 @@ extension User: Serializable {
                 return .success(decoded)
             }
 
-            let getConversationsResult = await conversationService.getConversations(ids: conversationIDs.map(\.key))
+            var conversationsNeedingFetch = [ConversationID]()
+            var decodedConversations = [Conversation]()
+
+            for conversationID in conversationIDs {
+                guard let value = conversationService.archive.getValue(id: conversationID) else {
+                    conversationsNeedingFetch.append(conversationID)
+                    continue
+                }
+
+                decodedConversations.append(value)
+            }
+
+            guard !conversationsNeedingFetch.isEmpty else {
+                Logger.log(
+                    "Conversation archive is up to date.",
+                    domain: .conversation,
+                    metadata: [self, #file, #function, #line]
+                )
+
+                let sortedConversations = decodedConversations.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                let decoded: User = .init(
+                    id,
+                    conversations: sortedConversations.isEmpty ? nil : sortedConversations,
+                    languageCode: languageCode,
+                    phoneNumber: phoneNumber,
+                    pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens
+                )
+                return .success(decoded)
+            }
+
+            let getConversationsResult = await conversationService.getConversations(idKeys: conversationsNeedingFetch.map(\.key))
 
             switch getConversationsResult {
             case let .success(conversations):
-                let sortedConversations = conversations.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
+                decodedConversations.append(contentsOf: conversations)
+
+                let sortedConversations = decodedConversations.sorted(by: { $0.lastModifiedDate > $1.lastModifiedDate })
                 let decoded: User = .init(
                     id,
                     conversations: sortedConversations.isEmpty ? nil : sortedConversations,

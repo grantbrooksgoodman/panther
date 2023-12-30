@@ -93,7 +93,58 @@ public struct ConversationService {
 
     // MARK: - Retrieval by ID
 
-    public func getConversation(idKey: String) async -> Callback<Conversation, Exception> {
+    public func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
+        let usersPath = networking.config.paths.users
+        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: path)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let array = values as? [String] else {
+                return .failure(.init("Failed to typecast values to array.", metadata: [self, #file, #function, #line]))
+            }
+
+            return .success(array)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    public func getConversations(idKeys: [String]) async -> Callback<[Conversation], Exception> {
+        let commonParams = ["ConversationIDs": idKeys]
+
+        guard !idKeys.isBangQualifiedEmpty else {
+            let exception = Exception("No IDs provided.", metadata: [self, #file, #function, #line])
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+
+        var conversations = [Conversation]()
+
+        for id in idKeys {
+            let getConversationResult = await getConversation(idKey: id)
+
+            switch getConversationResult {
+            case let .success(conversation):
+                conversations.append(conversation)
+
+            case let .failure(exception):
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+        }
+
+        guard !conversations.isEmpty,
+              conversations.count == idKeys.count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
+        }
+
+        return .success(conversations)
+    }
+
+    private func getConversation(idKey: String) async -> Callback<Conversation, Exception> {
         let commonParams = ["ConversationIDKey": idKey]
 
         guard !idKey.isBangQualifiedEmpty else {
@@ -131,57 +182,6 @@ public struct ConversationService {
         case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
         }
-    }
-
-    public func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        let usersPath = networking.config.paths.users
-        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.init("Failed to typecast values to array.", metadata: [self, #file, #function, #line]))
-            }
-
-            return .success(array)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    public func getConversations(ids: [String]) async -> Callback<[Conversation], Exception> {
-        let commonParams = ["ConversationIDs": ids]
-
-        guard !ids.isBangQualifiedEmpty else {
-            let exception = Exception("No IDs provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
-        }
-
-        var conversations = [Conversation]()
-
-        for id in ids {
-            let getConversationResult = await getConversation(idKey: id)
-
-            switch getConversationResult {
-            case let .success(conversation):
-                conversations.append(conversation)
-
-            case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-        }
-
-        guard !conversations.isEmpty,
-              conversations.count == ids.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
-        }
-
-        return .success(conversations)
     }
 
     // MARK: - Auxiliary

@@ -112,9 +112,48 @@ extension Conversation: Updatable {
             return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
+        guard updated.compressedHash != compressedHash else {
+            return .success(updated)
+        }
+
         let hashPath = conversationKeyPath + SerializationKeys.compressedHash.rawValue
         if let exception = await networking.database.setValue(updated.compressedHash, forKey: hashPath) {
             return .failure(exception)
+        }
+
+        let paths = participants.map(\.userID).reduce(into: [String]()) { partialResult, userID in
+            partialResult.append("\(networking.config.paths.users)/\(userID)/\(User.SerializationKeys.conversations.rawValue)")
+        }
+
+        for path in paths {
+            let getValuesResult = await networking.database.getValues(at: path)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard var array = values as? [String] else {
+                    return .failure(.init(
+                        "Failed to typecast values to array.",
+                        metadata: [self, #file, #function, #line]
+                    ))
+                }
+
+                guard let index = array.firstIndex(where: { $0.hasPrefix(id.key) }) else {
+                    return .failure(.init(
+                        "Failed to get conversation index for user.",
+                        metadata: [self, #file, #function, #line]
+                    ))
+                }
+
+                array.removeAll(where: { $0.hasPrefix(id.key) })
+                array.insert(updated.id.encoded, at: index)
+
+                if let exception = await networking.database.setValue(array, forKey: path) {
+                    return .failure(exception)
+                }
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
         }
 
         return .success(updated)
