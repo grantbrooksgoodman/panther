@@ -64,7 +64,7 @@ public struct HostedTranslationArchiver {
 
                 Logger.log(
                     .init(
-                        "Added uploaded translation to archive.",
+                        "Added hosted translation to local archive.",
                         extraParams: ["Input": decoded.input,
                                       "Output": decoded.output.sanitized,
                                       "LanguagePair": languagePair.asString()],
@@ -160,7 +160,7 @@ public struct HostedTranslationArchiver {
         }
 
         guard !translation.languagePair.isIdempotent,
-              let modelValue = translation.model.value else {
+              let referenceValue = translation.reference.type.value else {
             return .init(
                 "Translation language pair is idempotent; ineligible for hosted archive.",
                 metadata: [self, #file, #function, #line]
@@ -171,7 +171,7 @@ public struct HostedTranslationArchiver {
 
         if let exception = await networking.database.updateChildValues(
             forKey: "\(networking.config.paths.translations)/\(languagePairString)",
-            with: [translation.model.key: modelValue]
+            with: [translation.reference.type.key: referenceValue]
         ) {
             return exception
         }

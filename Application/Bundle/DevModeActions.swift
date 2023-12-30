@@ -23,14 +23,14 @@ public extension DevModeService {
             @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
             @Persistent(.indicatesNetworkActivity) var defaultsValue: Bool?
 
-            defer { coreHUD.flash(image: .success) }
-
             guard let value = defaultsValue else {
                 defaultsValue = true
+                coreHUD.showSuccess(text: "ON")
                 return
             }
 
             defaultsValue = !value
+            coreHUD.showSuccess(text: !value == true ? "ON" : "OFF")
         }
 
         return .init(
@@ -43,7 +43,7 @@ public extension DevModeService {
 
     static func addCustomActions() {
         /* Add custom DevModeAction implementations here. */
-        insertAction(toggleNetworkActivityIndicatorAction, at: actions.count - 1)
+        insertAction(toggleNetworkActivityIndicatorAction, at: actions.count - 2)
     }
 }
 

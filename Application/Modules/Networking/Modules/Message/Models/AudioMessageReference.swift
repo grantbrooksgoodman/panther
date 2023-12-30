@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import Translator
+
 public struct AudioMessageReference: Codable, Equatable {
     // MARK: - Properties
 
@@ -17,22 +20,21 @@ public struct AudioMessageReference: Codable, Equatable {
     public let translated: AudioFile
 
     // String
-    public let originalDirectoryPath: String
-    public let targetLanguageCode: String
     public let translatedDirectoryPath: String
+
+    // Translation
+    public let translation: Translation
 
     // MARK: - Init
 
     public init(
-        _ targetLanguageCode: String,
+        translation: Translation,
         original: AudioFile,
-        originalDirectoryPath: String,
         translated: AudioFile,
         translatedDirectoryPath: String
     ) {
-        self.targetLanguageCode = targetLanguageCode
+        self.translation = translation
         self.original = original
-        self.originalDirectoryPath = originalDirectoryPath
         self.translated = translated
         self.translatedDirectoryPath = translatedDirectoryPath
     }

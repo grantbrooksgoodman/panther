@@ -16,9 +16,7 @@ extension Participant: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: String {
-        "\(userID) | \(hasDeletedConversation) | \(isTyping)"
-    }
+    public var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
 
     // MARK: - Methods
 

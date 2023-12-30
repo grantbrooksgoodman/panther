@@ -35,6 +35,7 @@ extension Conversation: Serializable {
         let messageIDs = messages.map(\.id)
         return [
             Keys.id.rawValue: id.encoded,
+            Keys.compressedHash.rawValue: id.hash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messageIDs,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.participants.rawValue: participants.map(\.encoded),
@@ -44,6 +45,7 @@ extension Conversation: Serializable {
     // MARK: - Methods
 
     public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
+        @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.services) var networkServices: NetworkServices
 
@@ -61,12 +63,37 @@ extension Conversation: Serializable {
         switch decodeResult {
         case let .success(decodedConversationID):
             conversationID = decodedConversationID
+
         case let .failure(exception):
             return .failure(exception)
         }
 
         guard let conversationID else {
             return .failure(.init("Failed to decode conversation ID.", metadata: [self, #file, #function, #line]))
+        }
+
+        if let archivedConversation = networkServices.conversation.archive.getValue(id: conversationID) {
+            Logger.log(
+                .init(
+                    "Successfully retrieved conversation from archive.",
+                    extraParams: ["ConversationIDKey": conversationID.key,
+                                  "ConversationIDHash": conversationID.hash],
+                    metadata: [self, #file, #function, #line]
+                )
+            )
+
+            return .success(archivedConversation)
+        } else if let outdatedConversation = networkServices.conversation.archive.getValue(idKey: conversationID.key) {
+            let updateConversationResult = await conversationSession.updateConversation(outdatedConversation)
+
+            switch updateConversationResult {
+            case let .success(conversation):
+                networkServices.conversation.archive.addValue(conversation)
+                return .success(conversation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
         }
 
         var participants = [Participant]()
@@ -97,6 +124,7 @@ extension Conversation: Serializable {
                 users: nil
             )
 
+            networkServices.conversation.archive.addValue(decoded)
             return .success(decoded)
         }
 
@@ -111,12 +139,13 @@ extension Conversation: Serializable {
 
             let decoded: Conversation = .init(
                 conversationID,
-                messages: messages,
+                messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil
             )
 
+            networkServices.conversation.archive.addValue(decoded)
             return .success(decoded)
 
         case let .failure(exception):

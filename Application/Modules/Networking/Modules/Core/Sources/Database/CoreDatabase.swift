@@ -33,6 +33,35 @@ public struct CoreDatabase {
         // swiftformat:enable acronyms
     }
 
+    // MARK: - Data Integrity Validation
+
+    public func isEncodable(_ value: Any) -> Bool {
+        let array = value as? [Any]
+        let nsArray = value as? NSArray
+
+        let dictionary = value as? [AnyHashable: Any]
+        let nsDictionary = value as? NSDictionary
+
+        let number = value as? Float
+        let nsNumber = value as? NSNumber
+
+        let string = value as? String
+        let nsString = value as? NSString
+
+        let compiled: [Any?] = [
+            array,
+            nsArray,
+            dictionary,
+            nsDictionary,
+            number,
+            nsNumber,
+            string,
+            nsString,
+        ]
+
+        return !compiled.allSatisfy { $0 == nil }
+    }
+
     // MARK: - Value Retrieval
 
     /**
@@ -166,6 +195,12 @@ public struct CoreDatabase {
             return true
         }
 
+        guard isEncodable(value) else {
+            guard canComplete else { return }
+            completion(.invalidType(value: value, [self, #file, #function, #line]))
+            return
+        }
+
         let timeout = Timeout(after: duration) {
             guard canComplete else { return }
             completion(.timedOut([self, #file, #function, #line]))
@@ -194,6 +229,12 @@ public struct CoreDatabase {
             didComplete = true
             networkActivity.hide()
             return true
+        }
+
+        guard data.values.allSatisfy({ isEncodable($0) }) else {
+            guard canComplete else { return }
+            completion(.invalidType(value: data, [self, #file, #function, #line]))
+            return
         }
 
         let timeout = Timeout(after: duration) {

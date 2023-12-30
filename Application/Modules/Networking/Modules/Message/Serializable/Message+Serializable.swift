@@ -44,7 +44,7 @@ extension Message: Serializable {
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.hasAudioComponent.rawValue: hasAudioComponent,
-            Keys.translations.rawValue: translations.map(\.model.referenceKey),
+            Keys.translations.rawValue: translations.map(\.reference.hostingKey),
             Keys.readDate.rawValue: readDateString,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -75,13 +75,13 @@ extension Message: Serializable {
             readDate = dateFormatter.date(from: readDateString)
         }
 
-        func decodedMessage(_ translation: Translation) -> Message {
+        func decodedMessage(_ translations: [Translation]) -> Message {
             .init(
                 id,
                 fromAccountID: fromAccountID,
                 hasAudioComponent: hasAudioComponent,
                 audioComponents: nil,
-                translations: [translation],
+                translations: translations,
                 readDate: readDate,
                 sentDate: sentDate
             )
@@ -90,59 +90,49 @@ extension Message: Serializable {
         let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
         let references = translationReferences.compactMap { TranslationReference($0) }
 
-        guard let translationReference = references.first(where: { $0.languagePair.to == languageCode }) ?? references.first else {
-            return .failure(.init(
-                "Failed to decode translation reference.",
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        let getTranslationResult = await getTranslation(
-            reference: translationReference,
+        let getTranslationsResult = await getTranslations(
+            references: references,
             makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode }
         )
 
-        switch getTranslationResult {
-        case let .success(translation):
+        switch getTranslationsResult {
+        case let .success(translations):
+            let matchingLanguage = translations.filter { $0.languagePair.to == languageCode }
+            let notMatchingLanguage = translations.filter { $0.languagePair.to != languageCode }
+            let sortedTranslations = matchingLanguage + notMatchingLanguage
+
             guard !hasAudioComponent else {
-                return await audioMessageService.getAudioComponent(
-                    for: decodedMessage(translation),
-                    languageCode: languageCode
-                )
+                return await audioMessageService.getAudioComponent(for: decodedMessage(sortedTranslations))
             }
 
-            return .success(decodedMessage(translation))
+            return .success(decodedMessage(sortedTranslations))
 
         case let .failure(exception):
             return .failure(exception)
         }
     }
 
-    private static func getTranslation(
-        reference: TranslationReference,
+    private static func getTranslations(
+        references: [TranslationReference],
         makeIdempotent: Bool
-    ) async -> Callback<Translation, Exception> {
-        @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
+    ) async -> Callback<[Translation], Exception> {
+        func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
+            @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
 
-        func validateAndReturn(_ translation: Translation) -> Callback<Translation, Exception> {
-            if let exception = TranslationValidator.validate(
-                translation: translation,
-                metadata: [self, #file, #function, #line]
-            ) {
-                return .failure(exception)
+            func validateAndReturn(_ translation: Translation) -> Callback<Translation, Exception> {
+                if let exception = TranslationValidator.validate(
+                    translation: translation,
+                    metadata: [self, #file, #function, #line]
+                ) {
+                    return .failure(exception)
+                }
+
+                return .success(translation)
             }
 
-            return .success(translation)
-        }
+            let decodeResult = await Translation.decode(from: reference)
 
-        switch reference.type {
-        case let .archived(hash):
-            let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(
-                id: hash,
-                languagePair: reference.languagePair
-            )
-
-            switch findArchivedTranslationResult {
+            switch decodeResult {
             case let .success(translation):
                 guard !makeIdempotent else {
                     let idempotentTranslation: Translation = .init(
@@ -159,15 +149,48 @@ extension Message: Serializable {
             case let .failure(exception):
                 return .failure(exception)
             }
-
-        case let .idempotent(value):
-            let translation: Translation = .init(
-                input: .init(value),
-                output: value,
-                languagePair: reference.languagePair
-            )
-
-            return validateAndReturn(translation)
         }
+
+        guard !references.isEmpty,
+              let firstReference = references.first else {
+            return .failure(.init(
+                "No translation references provided.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        guard !makeIdempotent else {
+            let getTranslationResult = await getTranslation(firstReference)
+
+            switch getTranslationResult {
+            case let .success(translation):
+                return .success([translation])
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        var translations = [Translation]()
+        for reference in references {
+            let getTranslationResult = await getTranslation(reference)
+
+            switch getTranslationResult {
+            case let .success(translation):
+                translations.append(translation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard translations.count == references.count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        return .success(translations)
     }
 }

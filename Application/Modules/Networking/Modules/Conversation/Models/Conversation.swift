@@ -29,7 +29,9 @@ public final class Conversation: Codable, CompressedHashable, Equatable {
     // MARK: - Computed Properties
 
     public var hashFactors: [String] {
+        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
+        factors.append(dateFormatter.string(from: lastModifiedDate))
         factors.append(contentsOf: messages.map(\.id))
         factors.append(contentsOf: messages.map(\.compressedHash))
         factors.append(contentsOf: participants.map(\.encoded))

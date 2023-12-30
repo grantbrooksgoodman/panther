@@ -18,6 +18,16 @@ public struct ConversationService {
     @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
+    // MARK: - Properties
+
+    public let archive: ConversationArchiveService
+
+    // MARK: - Init
+
+    public init(archive: ConversationArchiveService) {
+        self.archive = archive
+    }
+
     // MARK: - Conversation Creation
 
     public func createConversation(
@@ -83,16 +93,16 @@ public struct ConversationService {
 
     // MARK: - Retrieval by ID
 
-    public func getConversation(id: String) async -> Callback<Conversation, Exception> {
-        let commonParams = ["ConversationIDKey": id]
+    public func getConversation(idKey: String) async -> Callback<Conversation, Exception> {
+        let commonParams = ["ConversationIDKey": idKey]
 
-        guard !id.isBangQualifiedEmpty else {
+        guard !idKey.isBangQualifiedEmpty else {
             let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
             return .failure(exception.appending(extraParams: commonParams))
         }
 
         let path = networking.config.paths.conversations
-        let getValuesResult = await networking.database.getValues(at: "\(path)/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(path)/\(idKey)")
 
         switch getValuesResult {
         case let .success(values):
@@ -107,7 +117,7 @@ public struct ConversationService {
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
-            data[Keys.id.rawValue] = ConversationID(key: id, hash: conversationIDHash).encoded
+            data[Keys.id.rawValue] = ConversationID(key: idKey, hash: conversationIDHash).encoded
             let decodeResult = await Conversation.decode(from: data)
 
             switch decodeResult {
@@ -152,7 +162,7 @@ public struct ConversationService {
         var conversations = [Conversation]()
 
         for id in ids {
-            let getConversationResult = await getConversation(id: id)
+            let getConversationResult = await getConversation(idKey: id)
 
             switch getConversationResult {
             case let .success(conversation):

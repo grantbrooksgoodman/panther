@@ -195,6 +195,13 @@ public final class UserService: Cacheable {
             }
 
             data["id"] = id
+
+            @Persistent(.currentUserID) var currentUserID: String?; #warning("Not a fan of having this here.")
+            if let languageCode = data[User.SerializationKeys.languageCode.rawValue] as? String,
+               id == currentUserID {
+                RuntimeStorage.store(languageCode, as: .languageCode)
+            }
+
             return await User.decode(from: data)
 
         case let .failure(exception):

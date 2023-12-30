@@ -34,8 +34,4 @@ public extension UserDefaultsKeyDomain {
         case firstPostponedUpdate
         case relaunchesSinceLastPostponedUpdate
     }
-
-    enum UserSessionServiceDefaultsKey: String {
-        case currentUserID
-    }
 }

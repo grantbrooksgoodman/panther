@@ -22,6 +22,7 @@ public extension DevModeAction {
                                                      overrideLanguageCodeAction,
                                                      resetUserDefaultsAction,
                                                      toggleBreadcrumbsAction,
+                                                     viewLoggerSessionRecordAction,
                                                      disableDeveloperModeAction]
 
             if RootPage.allCases.count > 1 {
@@ -232,7 +233,7 @@ public extension DevModeAction {
                         } else {
                             coreHUD.showSuccess()
                             DevModeService.removeAction(withTitle: "Stop Breadcrumbs Capture")
-                            DevModeService.insertAction(toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
+                            DevModeService.insertAction(toggleBreadcrumbsAction, after: resetUserDefaultsAction)
                         }
                     }
 
@@ -267,7 +268,7 @@ public extension DevModeAction {
                     } else {
                         coreHUD.showSuccess()
                         DevModeService.removeAction(withTitle: "Start Breadcrumbs Capture")
-                        DevModeService.insertAction(toggleBreadcrumbsAction, at: DevModeService.actions.count - 1)
+                        DevModeService.insertAction(toggleBreadcrumbsAction, after: resetUserDefaultsAction)
                     }
                 }
             }
@@ -288,6 +289,15 @@ public extension DevModeAction {
             }
 
             return .init(title: "Show/Hide Build Info Overlay", perform: toggleBuildInfoOverlay)
+        }
+
+        private static var viewLoggerSessionRecordAction: DevModeAction {
+            func viewLoggerSessionRecord() {
+                @Dependency(\.quickViewer) var quickViewer: QuickViewer
+                quickViewer.preview(fileAtPath: Logger.sessionRecordFilePath.path())
+            }
+
+            return .init(title: "View Logger Session Record", perform: viewLoggerSessionRecord)
         }
     }
 }

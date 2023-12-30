@@ -17,10 +17,8 @@ public struct Message: Codable, CompressedHashable, Equatable {
     // MARK: - Properties
 
     // Array
-
     /// In practice, will never contain more than one value due to specification made during decoding.
     public let audioComponents: [AudioMessageReference]?
-    /// In practice, will never contain more than one value due to specification made during decoding.
     public let translations: [Translation]
 
     // Bool

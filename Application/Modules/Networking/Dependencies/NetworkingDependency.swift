@@ -24,7 +24,7 @@ public enum NetworkingDependency: DependencyKey {
             ),
             database: .init(),
             services: .init(
-                conversation: .init(),
+                conversation: .init(archive: .init()),
                 message: .init(
                     audio: .init(),
                     legacy: .init()

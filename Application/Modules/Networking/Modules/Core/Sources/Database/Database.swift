@@ -16,6 +16,12 @@ public struct Database {
 
     @Dependency(\.coreDatabase) private var coreDatabase: CoreDatabase
 
+    // MARK: - Data Integrity Validation
+
+    public func isEncodable(_ value: Any) -> Bool {
+        coreDatabase.isEncodable(value)
+    }
+
     // MARK: - ID Key Generation
 
     public func generateKey(for path: String) -> String? {
@@ -27,13 +33,13 @@ public struct Database {
     public func getValues(
         at path: String,
         prependingEnvironment: Bool = true,
-        timeout duration: Duration? = nil
+        timeout duration: Duration = .seconds(10)
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
             coreDatabase.getValues(
                 at: path,
                 prependingEnvironment: prependingEnvironment,
-                timeout: duration ?? .seconds(10)
+                timeout: duration
             ) { getValuesResult in
                 continuation.resume(returning: getValuesResult)
             }
@@ -44,14 +50,14 @@ public struct Database {
         at path: String,
         strategy: CoreDatabase.QueryStrategy = .first(10),
         prependingEnvironment: Bool = true,
-        timeout duration: Duration? = nil
+        timeout duration: Duration = .seconds(10)
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
             coreDatabase.queryValues(
                 at: path,
                 strategy: strategy,
                 prependingEnvironment: prependingEnvironment,
-                timeout: duration ?? .seconds(10)
+                timeout: duration
             ) { queryValuesResult in
                 continuation.resume(returning: queryValuesResult)
             }
@@ -65,14 +71,14 @@ public struct Database {
         _ value: Any,
         forKey key: String,
         prependingEnvironment: Bool = true,
-        timeout duration: Duration? = nil
+        timeout duration: Duration = .seconds(10)
     ) async -> Exception? {
         return await withCheckedContinuation { continuation in
             coreDatabase.setValue(
                 value,
                 forKey: key,
                 prependingEnvironment: prependingEnvironment,
-                timeout: duration ?? .seconds(10)
+                timeout: duration
             ) { exception in
                 continuation.resume(returning: exception)
             }
@@ -84,14 +90,14 @@ public struct Database {
         forKey key: String,
         with data: [String: Any],
         prependingEnvironment: Bool = true,
-        timeout duration: Duration? = nil
+        timeout duration: Duration = .seconds(10)
     ) async -> Exception? {
         return await withCheckedContinuation { continuation in
             coreDatabase.updateChildValues(
                 forKey: key,
                 with: data,
                 prependingEnvironment: prependingEnvironment,
-                timeout: duration ?? .seconds(10)
+                timeout: duration
             ) { exception in
                 continuation.resume(returning: exception)
             }

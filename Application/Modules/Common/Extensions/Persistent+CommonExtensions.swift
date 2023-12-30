@@ -29,8 +29,4 @@ public extension Persistent {
     convenience init(_ updateServiceKey: UserDefaultsKeyDomain.UpdateServiceDefaultsKey) {
         self.init(.app(.updateService(updateServiceKey)))
     }
-
-    convenience init(_ userSessionServiceKey: UserDefaultsKeyDomain.UserSessionServiceDefaultsKey) {
-        self.init(.app(.userSessionService(userSessionServiceKey)))
-    }
 }

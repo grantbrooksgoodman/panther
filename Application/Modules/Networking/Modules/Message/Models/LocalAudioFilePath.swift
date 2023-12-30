@@ -16,7 +16,6 @@ public struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Properties
 
     // String
-    public let inputDirectoryPathString: String
     public let inputFilePathString: String
     public let outputDirectoryPathString: String
     public let outputFilePathString: String
@@ -28,14 +27,12 @@ public struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Init
 
     public init(
-        inputDirectoryPathString: String,
         inputFilePathString: String,
         inputFilePathURL: URL,
         outputDirectoryPathString: String,
         outputFilePathString: String,
         outputFilePathURL: URL
     ) {
-        self.inputDirectoryPathString = inputDirectoryPathString
         self.inputFilePathString = inputFilePathString
         self.inputFilePathURL = inputFilePathURL
         self.outputDirectoryPathString = outputDirectoryPathString
@@ -50,7 +47,8 @@ public struct LocalAudioFilePath: Codable, Equatable {
         guard message.hasAudioComponent else { return nil }
 
         let inputFilePath = "\(networkPaths.audioMessageInputs)/\(message.id).\(AudioFileExtension.m4a.rawValue)"
-        var outputFilePath = "\(networkPaths.audioTranslations)/\(message.translation.model.referenceKey)/\(AudioService.FileNames.outputM4A)"
+        let outputDirectoryPath = "\(networkPaths.audioTranslations)/\(message.translation.reference.hostingKey)/"
+        var outputFilePath = outputDirectoryPath + "\(message.translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         if message.translation.languagePair.isIdempotent {
             outputFilePath = inputFilePath
         }
@@ -59,10 +57,9 @@ public struct LocalAudioFilePath: Codable, Equatable {
         let outputFileURL = fileManager.documentsDirectoryURL.appending(path: outputFilePath)
 
         self.init(
-            inputDirectoryPathString: networkPaths.audioMessageInputs,
             inputFilePathString: inputFilePath,
             inputFilePathURL: inputFileURL,
-            outputDirectoryPathString: "\(networkPaths.audioTranslations)/\(message.translation.model.referenceKey)",
+            outputDirectoryPathString: outputDirectoryPath,
             outputFilePathString: outputFilePath,
             outputFilePathURL: outputFileURL
         )

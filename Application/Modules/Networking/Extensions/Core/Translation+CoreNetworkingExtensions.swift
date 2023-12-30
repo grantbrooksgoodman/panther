@@ -35,7 +35,7 @@ extension Translation: Validatable {
 }
 
 public extension Translation {
-    var model: TranslationModel {
+    var reference: TranslationReference {
         .init(self)
     }
 

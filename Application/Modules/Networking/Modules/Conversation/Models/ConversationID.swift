@@ -21,10 +21,4 @@ public struct ConversationID: Codable, Equatable {
         self.key = key
         self.hash = hash
     }
-
-    public init?(_ string: String) {
-        let components = string.components(separatedBy: " | ")
-        guard components.count > 1 else { return nil }
-        self.init(key: components[0], hash: components[1])
-    }
 }

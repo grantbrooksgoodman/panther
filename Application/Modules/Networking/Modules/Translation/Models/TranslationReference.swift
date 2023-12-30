@@ -16,14 +16,44 @@ public struct TranslationReference: Codable, Equatable {
     // MARK: - Types
 
     public enum `Type`: Codable, Equatable {
-        case archived(_ hash: String)
-        case idempotent(_ value: String)
+        /* MARK: Cases */
+
+        case archived(_ hash: String, value: String? = nil)
+        case idempotent(_ encodedValue: String)
+
+        /* MARK: Properties */
+
+        public var key: String {
+            switch self {
+            case let .archived(hash, value: _):
+                return hash
+
+            case let .idempotent(encodedValue):
+                return encodedValue
+            }
+        }
+
+        public var value: String? {
+            switch self {
+            case let .archived(_, value: value):
+                return value
+
+            case .idempotent:
+                return nil
+            }
+        }
     }
 
     // MARK: - Properties
 
     public let languagePair: LanguagePair
     public let type: `Type`
+
+    // MARK: - Computed Properties
+
+    public var hostingKey: String {
+        "\(languagePair.isIdempotent ? "\(TranslationConstants.idempotentPrefix)\(languagePair.from)" : languagePair.asString()) | \(type.key)"
+    }
 
     // MARK: - Init
 
@@ -42,7 +72,24 @@ public struct TranslationReference: Codable, Equatable {
 
         self.init(
             languagePair: languagePair,
-            type: isIdempotent ? .idempotent(reference.base64Decoded) : .archived(reference)
+            type: isIdempotent ? .idempotent(reference.base64Encoded) : .archived(reference)
         )
+    }
+
+    public init(_ translation: Translation) {
+        let input = translation.input.value()
+
+        if translation.languagePair.isIdempotent {
+            self.init(
+                languagePair: translation.languagePair,
+                type: .idempotent(input.base64Encoded)
+            )
+        } else {
+            let outputValue = "\(input.alphaEncoded)–\(translation.output.matchingCapitalization(of: input).alphaEncoded)"
+            self.init(
+                languagePair: translation.languagePair,
+                type: .archived(input.compressedHash, value: outputValue)
+            )
+        }
     }
 }

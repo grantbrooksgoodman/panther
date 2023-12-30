@@ -14,6 +14,7 @@ public enum LoggerDomain: String, CaseIterable {
 
     case general
     case contacts
+    case conversation
     case hostedTranslation
     case observer
 }

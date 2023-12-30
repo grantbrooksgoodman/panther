@@ -59,7 +59,7 @@ public struct MessageService {
         let data: [String: Any] = [
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.hasAudioComponent.rawValue: audioComponents == nil ? "false" : "true",
-            Keys.translations.rawValue: translations.map(\.model.referenceKey).sorted(),
+            Keys.translations.rawValue: translations.map(\.reference.hostingKey).sorted(),
             Keys.readDate.rawValue: String.bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -68,7 +68,7 @@ public struct MessageService {
             id,
             fromAccountID: fromAccountID,
             hasAudioComponent: audioComponents != nil,
-            audioComponents: nil,
+            audioComponents: audioComponents,
             translations: translations,
             readDate: nil,
             sentDate: sentDate
@@ -80,19 +80,8 @@ public struct MessageService {
                 return .success(mockMessage)
             }
 
-            for audioComponent in audioComponents {
-                let uploadAudioComponentResult = await audio.uploadAudioComponent(
-                    for: mockMessage,
-                    audioComponent: (audioComponent.original, audioComponent.translated)
-                )
-
-                switch uploadAudioComponentResult {
-                case let .success(message):
-                    mockMessage = message
-
-                case let .failure(exception):
-                    return .failure(exception)
-                }
+            if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+                return .failure(exception)
             }
 
             return .success(mockMessage)

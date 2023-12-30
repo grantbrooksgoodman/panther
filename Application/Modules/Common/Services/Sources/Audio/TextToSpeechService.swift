@@ -32,7 +32,7 @@ public struct TextToSpeechService {
 
         switch getAudioFileResult {
         case let .success(url):
-            let convertToM4AResult = await convertToM4A(file: url)
+            let convertToM4AResult = await convertToM4A(file: url, languageCode: languageCode)
 
             switch convertToM4AResult {
             case let .success(url):
@@ -49,8 +49,11 @@ public struct TextToSpeechService {
 
     // MARK: - Auxiliary
 
-    private func convertToM4A(file url: URL) async -> Callback<URL, Exception> {
-        let outputURL = fileManager.documentsDirectoryURL.appending(path: FileNames.outputM4A)
+    private func convertToM4A(file url: URL, languageCode: String) async -> Callback<URL, Exception> {
+        let commonParams = ["FileURLString": url.absoluteString]
+
+        let fileName = "\(languageCode)-\(FileNames.outputM4A)"
+        let outputURL = fileManager.documentsDirectoryURL.appending(path: fileName)
 
         let asset = AVAsset(url: url)
         let exportSession = AVAssetExportSession(
@@ -61,15 +64,17 @@ public struct TextToSpeechService {
         guard let exportSession else {
             return .failure(.init(
                 "Failed to create export session.",
+                extraParams: commonParams,
                 metadata: [self, #file, #function, #line]
             ))
         }
 
-        if fileManager.fileExists(atPath: fileManager.pathToFileInDocuments(named: FileNames.outputM4A)) {
+        if fileManager.fileExists(atPath: fileManager.pathToFileInDocuments(named: fileName)) {
             do {
                 try fileManager.removeItem(at: outputURL)
             } catch {
-                return .failure(.init(error, metadata: [self, #file, #function, #line]))
+                let exception = Exception(error, metadata: [self, #file, #function, #line])
+                return .failure(exception.appending(extraParams: commonParams))
             }
         }
 
@@ -79,20 +84,25 @@ public struct TextToSpeechService {
         do {
             exportSession.metadata = try await asset.load(.metadata)
         } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+            let exception = Exception(error, metadata: [self, #file, #function, #line])
+            return .failure(exception.appending(extraParams: commonParams))
         }
 
-        await exportSession.export()
+        return await withCheckedContinuation { continuation in
+            exportSession.exportAsynchronously {
+                guard let error = exportSession.error else {
+                    continuation.resume(returning: .success(outputURL))
+                    return
+                }
 
-        if let error = exportSession.error {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+                let exception = Exception(error, metadata: [self, #file, #function, #line])
+                continuation.resume(returning: .failure(exception.appending(extraParams: commonParams)))
+            }
         }
-
-        return .success(outputURL)
     }
 
     private func getAudioFile(from text: String, languageCode: String) async -> Callback<URL, Exception> {
-        let filePath = fileManager.documentsDirectoryURL.appending(path: FileNames.outputCAF)
+        let filePath = fileManager.documentsDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputCAF)")
 
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = audioService.highestQualityVoice(languageCode)

@@ -16,17 +16,18 @@ import Translator
 public struct MessageSessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.networking) private var networking: Networking
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSessionService) private var clientSessionService: ClientSessionService
 
-    // MARK: - Methods
+    // MARK: - Send Text Message
 
     public func sendTextMessage(
         _ text: String,
         toUsers users: [User],
         inConversation conversation: Conversation?
     ) async -> Callback<Conversation, Exception> {
-        guard let currentUser = userSession.currentUser else {
+        guard let currentUser = clientSessionService.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: [self, #file, #function, #line]
@@ -68,8 +69,8 @@ public struct MessageSessionService {
         switch createMessageResult {
         case let .success(message):
             if let conversation {
-                return await addMessage(
-                    message,
+                return await clientSessionService.conversation.addMessages(
+                    [message],
                     to: conversation
                 )
             } else {
@@ -86,67 +87,106 @@ public struct MessageSessionService {
         }
     }
 
-    // MARK: - Auxiliary
+    // MARK: - Send Audio Message
 
-    private func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
-        var appendedMessages = conversation.messages
-        appendedMessages.append(message)
-
-        var modifiedConversation: Conversation = .init(
-            .init(key: conversation.id.key, hash: ""),
-            messages: appendedMessages,
-            lastModifiedDate: Date(),
-            participants: conversation.participants,
-            users: conversation.users
-        )
-
-        let conversationID: ConversationID = .init(
-            key: modifiedConversation.id.key,
-            hash: modifiedConversation.compressedHash
-        )
-
-        modifiedConversation = .init(
-            conversationID,
-            messages: modifiedConversation.messages,
-            lastModifiedDate: modifiedConversation.lastModifiedDate,
-            participants: modifiedConversation.participants,
-            users: modifiedConversation.users
-        )
-
-        typealias Keys = Conversation.SerializationKeys
-        let encodedConversation = modifiedConversation.encoded
-        guard let encodedID = encodedConversation[Keys.id.rawValue] as? String,
-              let encodedLastModifiedDate = encodedConversation[Keys.lastModifiedDate.rawValue] as? String,
-              let encodedMessages = encodedConversation[Keys.messages.rawValue] as? [String] else {
+    public func sendAudioMessage(
+        _ inputFile: AudioFile,
+        toUsers users: [User],
+        inConversation conversation: Conversation?
+    ) async -> Callback<Conversation, Exception> {
+        guard let currentUser = clientSessionService.user.currentUser else {
             return .failure(.init(
-                "Failed to unwrap encoded keys.",
+                "Current user has not been set.",
                 metadata: [self, #file, #function, #line]
             ))
         }
 
-        let path = "\(networking.config.paths.conversations)/\(modifiedConversation.id.key)"
+        let transcribeResult = await audioService.transcription.transcribeAudioFile(
+            at: inputFile.url,
+            languageCode: currentUser.languageCode
+        )
 
-        if let exception = await networking.database.setValue(
-            encodedID,
-            forKey: "\(path)/\(Keys.id.rawValue)"
-        ) {
+        switch transcribeResult {
+        case let .success(transcription):
+            let users = users.filter { $0 != currentUser }
+            var translations = [Translation]()
+            var audioComponents = [AudioMessageReference]()
+
+            for languageCode in users.map(\.languageCode) {
+                let translateResult = await networking.services.translation.translate(
+                    .init(transcription),
+                    with: .init(from: currentUser.languageCode, to: languageCode)
+                )
+
+                switch translateResult {
+                case let .success(translation):
+                    translations.append(translation)
+
+                    let readToFileResult = await audioService.textToSpeech.readToFile(
+                        text: translation.output,
+                        languageCode: languageCode
+                    )
+
+                    switch readToFileResult {
+                    case let .success(url):
+                        guard let outputFile = AudioFile(url) else {
+                            return .failure(.init(
+                                "Failed to generate output audio file.",
+                                metadata: [self, #file, #function, #line]
+                            ))
+                        }
+
+                        audioComponents.append(.init(
+                            translation: translation,
+                            original: inputFile,
+                            translated: outputFile,
+                            translatedDirectoryPath: "\(networking.config.paths.audioTranslations)/\(translation.reference.hostingKey)"
+                        ))
+
+                    case let .failure(exception):
+                        return .failure(exception)
+                    }
+
+                case let .failure(exception):
+                    return .failure(exception)
+                }
+            }
+
+            guard translations.isWellFormed else {
+                return .failure(.init(
+                    "Translations fail validation.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            let createMessageResult = await networking.services.message.createMessage(
+                fromAccountID: currentUser.id,
+                translations: translations,
+                audioComponents: audioComponents
+            )
+
+            switch createMessageResult {
+            case let .success(message):
+                if let conversation {
+                    return await clientSessionService.conversation.addMessages(
+                        [message],
+                        to: conversation
+                    )
+                } else {
+                    var participantUsers = [currentUser]
+                    participantUsers.append(contentsOf: users)
+                    return await networking.services.conversation.createConversation(
+                        firstMessage: message,
+                        participants: participantUsers.map { Participant(userID: $0.id) }
+                    )
+                }
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
+        case let .failure(exception):
             return .failure(exception)
         }
-
-        if let exception = await networking.database.setValue(
-            encodedLastModifiedDate,
-            forKey: "\(path)/\(Keys.lastModifiedDate.rawValue)"
-        ) {
-            return .failure(exception)
-        }
-
-        if let exception = await networking.database.setValue(
-            encodedMessages,
-            forKey: "\(path)/\(Keys.messages.rawValue)"
-        ) {
-            return .failure(exception)
-        }
-
-        return .success(modifiedConversation)
     }
 }
