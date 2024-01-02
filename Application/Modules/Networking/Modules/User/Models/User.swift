@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import Redux
+
 public struct User: Codable, Equatable {
     // MARK: - Properties
 
@@ -22,6 +25,13 @@ public struct User: Codable, Equatable {
 
     // Models
     public let phoneNumber: PhoneNumber
+
+    // MARK: - Computed Properties
+
+    public var canSendAudioMessages: Bool {
+        @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
+        return transcriptionService.isTranscriptionSupported(for: languageCode)
+    }
 
     // MARK: - Init
 
@@ -37,5 +47,12 @@ public struct User: Codable, Equatable {
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
         self.pushTokens = pushTokens
+    }
+
+    // MARK: - Methods
+
+    public func canSendAudioMessages(to user: User) -> Bool {
+        @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
+        return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
     }
 }

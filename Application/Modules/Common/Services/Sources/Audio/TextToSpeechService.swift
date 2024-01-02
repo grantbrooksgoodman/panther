@@ -47,6 +47,14 @@ public struct TextToSpeechService {
         }
     }
 
+    // MARK: - Capabilities
+
+    public func isTextToSpeechSupported(for languageCode: String) -> Bool {
+        AVSpeechSynthesisVoice
+            .speechVoices()
+            .contains(where: { $0.language.lowercased().hasPrefix(languageCode.lowercased()) })
+    }
+
     // MARK: - Auxiliary
 
     private func convertToM4A(file url: URL, languageCode: String) async -> Callback<URL, Exception> {

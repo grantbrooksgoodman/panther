@@ -29,7 +29,7 @@ public struct SplashPageViewService {
 
         akCore.register(translationDelegate: hostedTranslationService)
 
-        /* MARK: MetadataService Key Resolution */
+        /* MARK: MetadataService Setup */
 
         if let exception = await services.metadata.resolveValues() {
             return exception

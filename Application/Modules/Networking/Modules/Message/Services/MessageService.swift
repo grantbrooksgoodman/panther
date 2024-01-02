@@ -64,7 +64,7 @@ public struct MessageService {
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
 
-        var mockMessage: Message = .init(
+        let mockMessage: Message = .init(
             id,
             fromAccountID: fromAccountID,
             hasAudioComponent: audioComponents != nil,

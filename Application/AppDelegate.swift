@@ -20,6 +20,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitCore) private var akCore: AKCore
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
 
@@ -62,7 +63,6 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
 
         /* MARK: Developer Mode Setup */
 
-        DevModeService.addStandardActions()
         DevModeService.addCustomActions()
 
         /* MARK: Theme Setup */
@@ -150,5 +150,6 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+        coreUtilities.eraseTemporaryDirectory()
     }
 }

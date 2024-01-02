@@ -61,4 +61,13 @@ public struct TranscriptionService {
             }
         }
     }
+
+    // MARK: - Capabilities
+
+    public func isTranscriptionSupported(for languageCode: String) -> Bool {
+        SFSpeechRecognizer
+            .supportedLocales()
+            .compactMap(\.language.languageCode?.identifier)
+            .contains(where: { $0.hasPrefix(languageCode.lowercased()) })
+    }
 }

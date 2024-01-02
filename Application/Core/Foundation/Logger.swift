@@ -43,7 +43,7 @@ public enum Logger {
 
     public static var sessionRecordFilePath: URL {
         @Dependency(\.fileManager) var fileManager: FileManager
-        return fileManager.documentsDirectoryURL.appending(path: "\(sessionID.uuidString).txt")
+        return fileManager.temporaryDirectory.appending(path: "\(sessionID.uuidString).txt")
     }
 
     private static var elapsedTime: String {

@@ -24,7 +24,7 @@ public enum BuildConfig {
 
     public static let appStoreReleaseVersion = 0
     public static let dmyFirstCompileDateString = "11112023"
-    public static let stage: Build.Stage = .preAlpha
+    public static let stage: Build.Stage = .alpha
 
     // MARK: - Other
 

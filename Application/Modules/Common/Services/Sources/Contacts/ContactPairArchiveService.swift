@@ -51,6 +51,12 @@ public final class ContactPairArchiveService {
         )
     }
 
+    // MARK: - Removal
+
+    public func clearArchive() {
+        archive = nil
+    }
+
     // MARK: - Retrieval
 
     public func getValue(contactHash: String) -> ContactPair? {
