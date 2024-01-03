@@ -61,7 +61,7 @@ public struct MessageSessionService {
         }
 
         let createMessageResult = await networking.services.message.createMessage(
-            fromAccountID: currentUser.id,
+            fromAccountID: currentUser.id.key,
             translations: translations,
             audioComponents: nil
         )
@@ -78,7 +78,7 @@ public struct MessageSessionService {
                 participantUsers.append(contentsOf: users)
                 return await networking.services.conversation.createConversation(
                     firstMessage: message,
-                    participants: participantUsers.map { Participant(userID: $0.id) }
+                    participants: participantUsers.map { Participant(userIDKey: $0.id.key) }
                 )
             }
 
@@ -160,7 +160,7 @@ public struct MessageSessionService {
             }
 
             let createMessageResult = await networking.services.message.createMessage(
-                fromAccountID: currentUser.id,
+                fromAccountID: currentUser.id.key,
                 translations: translations,
                 audioComponents: audioComponents
             )
@@ -177,7 +177,7 @@ public struct MessageSessionService {
                     participantUsers.append(contentsOf: users)
                     return await networking.services.conversation.createConversation(
                         firstMessage: message,
-                        participants: participantUsers.map { Participant(userID: $0.id) }
+                        participants: participantUsers.map { Participant(userIDKey: $0.id.key) }
                     )
                 }
 

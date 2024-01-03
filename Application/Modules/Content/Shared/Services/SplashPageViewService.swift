@@ -73,11 +73,13 @@ public struct SplashPageViewService {
         let akError = AKError(exception)
         let mockGenericException = Exception(metadata: [self, #file, #function, #line])
         let mockTimedOutException = Exception.timedOut([self, #file, #function, #line])
+
         let notGenericDescription = akError.description != mockGenericException.userFacingDescriptor
         let notTimedOutDescription = akError.description != mockTimedOutException.userFacingDescriptor
+        let hasUserFacingDescriptor = akError.extraParams?.keys.contains(Exception.CommonParamKeys.userFacingDescriptor.rawValue) ?? false
 
-        let shouldTranslate = notGenericDescription && notTimedOutDescription
-        var translationOptionKeys: [AKTranslationOptionKey] = [.none]
+        let shouldTranslate = hasUserFacingDescriptor && notGenericDescription && notTimedOutDescription
+        var translationOptionKeys: [AKTranslationOptionKey] = [build.isOnline ? .actions(indices: nil) : .none]
         if shouldTranslate,
            build.isOnline {
             translationOptionKeys = [.actions(indices: nil), .message]

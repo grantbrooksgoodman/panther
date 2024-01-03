@@ -52,8 +52,8 @@ public extension String {
     }
 
     var prependingCurrentEnvironment: String {
-        @Dependency(\.networking.config) var config: NetworkConfig
-        return "\(config.environment.shortString)/\(trimmingBorderedForwardSlashes)"
+        @Dependency(\.networking.config.environment.shortString) var environmentString: String
+        return "\(environmentString)/\(trimmingBorderedForwardSlashes)"
     }
 
     var trimmingBorderedForwardSlashes: String {

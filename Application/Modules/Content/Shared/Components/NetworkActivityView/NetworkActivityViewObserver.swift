@@ -13,7 +13,7 @@ import UIKit
 /* 3rd-party */
 import Redux
 
-public struct NetworkActivityViewObserver: Observer {
+public final class NetworkActivityViewObserver: Observer {
     // MARK: - Type Aliases
 
     public typealias R = NetworkActivityReducer
@@ -23,6 +23,8 @@ public struct NetworkActivityViewObserver: Observer {
     public let id = UUID()
     public let observedValues: [any ObservableProtocol] = [Observables.isNetworkActivityOccurring]
     public let viewModel: ViewModel<R>
+
+    private var taskID = UUID()
 
     // MARK: - Init
 
@@ -38,6 +40,7 @@ public struct NetworkActivityViewObserver: Observer {
 
     public func onChange(of observable: Observable<Any>) {
         @Dependency(\.build) var build: Build
+        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
 
         Logger.log(
             "\(observable.value as? Nil != nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -56,6 +59,15 @@ public struct NetworkActivityViewObserver: Observer {
                let indicatesNetworkActivity,
                indicatesNetworkActivity {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
+
+            let taskID = UUID()
+            self.taskID = taskID
+
+            coreGCD.after(.seconds(2)) {
+                guard self.taskID == taskID,
+                      !Observables.isNetworkActivityOccurring.value else { return }
+                self.send(.isVisibleChanged(false))
             }
 
         default: ()

@@ -42,6 +42,12 @@ public struct CoreStorage {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
+        Logger.log(
+            "Uploading data to path \"\(metadata.filePath)\".",
+            domain: .storage,
+            metadata: [self, #file, #function, #line]
+        )
+
         firebaseStorage.putData(
             data,
             metadata: metadata.asStorageMetadata(prependingEnvironment: prependingEnvironment)
@@ -82,6 +88,12 @@ public struct CoreStorage {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
+        Logger.log(
+            "Deleting item at path \"\(path)\".",
+            domain: .storage,
+            metadata: [self, #file, #function, #line]
+        )
+
         let itemPath = prependingEnvironment ? path.prependingCurrentEnvironment : path
         let itemReference = firebaseStorage.child(itemPath)
         itemReference.delete { error in
@@ -119,6 +131,12 @@ public struct CoreStorage {
             guard canComplete else { return }
             completion(.timedOut([self, #file, #function, #line]))
         }
+
+        Logger.log(
+            "Downloading item at path \"\(path)\".",
+            domain: .storage,
+            metadata: [self, #file, #function, #line]
+        )
 
         let itemPath = prependingEnvironment ? path.prependingCurrentEnvironment : path
         let itemReference = firebaseStorage.child(itemPath)
@@ -159,6 +177,12 @@ public struct CoreStorage {
             guard canComplete else { return }
             completion(.failure(.timedOut([self, #file, #function, #line])))
         }
+
+        Logger.log(
+            "Checking item exists at path \"\(path)\".",
+            domain: .storage,
+            metadata: [self, #file, #function, #line]
+        )
 
         let itemPath = prependingEnvironment ? path.prependingCurrentEnvironment : path
         let itemReference = firebaseStorage.child(itemPath)

@@ -69,9 +69,9 @@ public final class ContactPairArchiveService {
             .first
     }
 
-    public func getValue(userHash: String) -> ContactPair? {
-        return archive?
-            .filter { (phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique) ?? []).contains(userHash) }
+    public func getValue(userNumberHash: String) -> ContactPair? {
+        archive?
+            .filter { (phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique) ?? []).contains(userNumberHash) }
             .first
     }
 }

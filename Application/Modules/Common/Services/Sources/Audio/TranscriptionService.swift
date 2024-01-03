@@ -25,6 +25,14 @@ public struct TranscriptionService {
             return .failure(.init("Not authorized for transcription.", metadata: [self, #file, #function, #line]))
         }
 
+        guard isTranscriptionSupported(for: languageCode) else {
+            return .failure(.init(
+                "Transcription is not supported for the specified language code.",
+                extraParams: ["LanguageCode": languageCode],
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
         let locale = Locale(identifier: languageCode)
 
         let request = SFSpeechURLRecognitionRequest(url: url)

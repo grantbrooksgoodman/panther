@@ -134,17 +134,23 @@ extension Message: Serializable {
 
             switch decodeResult {
             case let .success(translation):
+                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
+
                 guard !makeIdempotent else {
                     let idempotentTranslation: Translation = .init(
-                        input: translation.input,
-                        output: translation.input.value(),
+                        input: input,
+                        output: input.value().base64Decoded,
                         languagePair: .init(from: translation.languagePair.from, to: translation.languagePair.from)
                     )
 
                     return validateAndReturn(idempotentTranslation)
                 }
 
-                return validateAndReturn(translation)
+                return validateAndReturn(.init(
+                    input: input,
+                    output: translation.output.base64Decoded,
+                    languagePair: translation.languagePair
+                ))
 
             case let .failure(exception):
                 return .failure(exception)
@@ -164,7 +170,8 @@ extension Message: Serializable {
 
             switch getTranslationResult {
             case let .success(translation):
-                return .success([translation])
+                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
+                return .success([.init(input: input, output: translation.output.base64Decoded, languagePair: translation.languagePair)])
 
             case let .failure(exception):
                 return .failure(exception)
@@ -177,7 +184,8 @@ extension Message: Serializable {
 
             switch getTranslationResult {
             case let .success(translation):
-                translations.append(translation)
+                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
+                translations.append(.init(input: input, output: translation.output.base64Decoded, languagePair: translation.languagePair))
 
             case let .failure(exception):
                 return .failure(exception)
@@ -187,6 +195,13 @@ extension Message: Serializable {
         guard translations.count == references.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        guard translations.allSatisfy(\.isWellFormed) else {
+            return .failure(.init(
+                "Translations fail validation.",
                 metadata: [self, #file, #function, #line]
             ))
         }

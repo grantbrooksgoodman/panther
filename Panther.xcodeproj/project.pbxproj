@@ -50,7 +50,7 @@
 		B900B54E2B1AE04600BA2F1D /* ContactNameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */; };
 		B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */; };
 		B90243EB2B27746500448809 /* NetworkPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90243EA2B27746500448809 /* NetworkPaths.swift */; };
-		B90243ED2B2786BF00448809 /* UserHashSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90243EC2B2786BF00448809 /* UserHashSnapshot.swift */; };
+		B90243ED2B2786BF00448809 /* UserNumberHashSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */; };
 		B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244042B27ABC200448809 /* LegacyTranslationService.swift */; };
 		B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244062B27C84E00448809 /* LegacyMessageService.swift */; };
 		B90CCC092AC74478001C326F /* CoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CCC082AC74478001C326F /* CoreConstants.swift */; };
@@ -138,6 +138,10 @@
 		B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */; };
 		B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */; };
 		B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */; };
+		B96FD2A82B44A9E600B54791 /* UserID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2A72B44A9E600B54791 /* UserID.swift */; };
+		B96FD2AA2B44AB7000B54791 /* UserID+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2A92B44AB7000B54791 /* UserID+Serializable.swift */; };
+		B96FD2AC2B44AF0F00B54791 /* UserArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AB2B44AF0F00B54791 /* UserArchiveService.swift */; };
+		B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */; };
 		B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97381082ACE8A2000ADB173 /* Persistent.swift */; };
 		B97DB56D2AF45F11002C2679 /* SwipeViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB56C2AF45F11002C2679 /* SwipeViewModifier.swift */; };
 		B97DB56F2AF45F5E002C2679 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB56E2AF45F5E002C2679 /* ToastView.swift */; };
@@ -613,7 +617,7 @@
 		B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactNameService.swift; sourceTree = "<group>"; };
 		B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPairArchiveService.swift; sourceTree = "<group>"; };
 		B90243EA2B27746500448809 /* NetworkPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPaths.swift; sourceTree = "<group>"; };
-		B90243EC2B2786BF00448809 /* UserHashSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHashSnapshot.swift; sourceTree = "<group>"; };
+		B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNumberHashSnapshot.swift; sourceTree = "<group>"; };
 		B90244042B27ABC200448809 /* LegacyTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTranslationService.swift; sourceTree = "<group>"; };
 		B90244062B27C84E00448809 /* LegacyMessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMessageService.swift; sourceTree = "<group>"; };
 		B90CCC082AC74478001C326F /* CoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreConstants.swift; sourceTree = "<group>"; };
@@ -777,6 +781,10 @@
 		B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPageView.swift; sourceTree = "<group>"; };
+		B96FD2A72B44A9E600B54791 /* UserID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserID.swift; sourceTree = "<group>"; };
+		B96FD2A92B44AB7000B54791 /* UserID+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserID+Serializable.swift"; sourceTree = "<group>"; };
+		B96FD2AB2B44AF0F00B54791 /* UserArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserArchiveService.swift; sourceTree = "<group>"; };
+		B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Updatable.swift"; sourceTree = "<group>"; };
 		B97381082ACE8A2000ADB173 /* Persistent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistent.swift; sourceTree = "<group>"; };
 		B97DB56C2AF45F11002C2679 /* SwipeViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeViewModifier.swift; sourceTree = "<group>"; };
 		B97DB56E2AF45F5E002C2679 /* ToastView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
@@ -1738,6 +1746,14 @@
 			path = Root;
 			sourceTree = "<group>";
 		};
+		B96FD2AD2B44CE1F00B54791 /* Updatable */ = {
+			isa = PBXGroup;
+			children = (
+				B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */,
+			);
+			path = Updatable;
+			sourceTree = "<group>";
+		};
 		B97DB56B2AF45EDA002C2679 /* Toast */ = {
 			isa = PBXGroup;
 			children = (
@@ -1759,6 +1775,7 @@
 			isa = PBXGroup;
 			children = (
 				B980E8B32B225F380090F141 /* User+Serializable.swift */,
+				B96FD2A92B44AB7000B54791 /* UserID+Serializable.swift */,
 			);
 			path = Serializable;
 			sourceTree = "<group>";
@@ -2369,6 +2386,7 @@
 				B9E6D7A52B125C05000BC88D /* Models */,
 				B980E8B02B225F260090F141 /* Serializable */,
 				B9E6D7CA2B12848F000BC88D /* Services */,
+				B96FD2AD2B44CE1F00B54791 /* Updatable */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -2377,7 +2395,8 @@
 			isa = PBXGroup;
 			children = (
 				B9E6D7AE2B125FC0000BC88D /* User.swift */,
-				B90243EC2B2786BF00448809 /* UserHashSnapshot.swift */,
+				B96FD2A72B44A9E600B54791 /* UserID.swift */,
+				B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2436,6 +2455,7 @@
 			isa = PBXGroup;
 			children = (
 				B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */,
+				B96FD2AB2B44AF0F00B54791 /* UserArchiveService.swift */,
 				B9E6D7A32B125BB0000BC88D /* UserService.swift */,
 			);
 			path = Services;
@@ -3265,6 +3285,7 @@
 				B93BCDCE2AAD854B00AA16FE /* URLSessionDependency.swift in Sources */,
 				B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */,
 				B9D0D9472B03019E00078A93 /* Database.swift in Sources */,
+				B96FD2A82B44A9E600B54791 /* UserID.swift in Sources */,
 				B9E7D42B2AAC1F4000FAF2A9 /* AppConstants.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
 				B9E7D4562AAD0D8100FAF2A9 /* CalendarDependencies.swift in Sources */,
@@ -3306,6 +3327,7 @@
 				A286879C28A4A09600A34912 /* Reachability.swift in Sources */,
 				B9E7D4222AAC1ED700FAF2A9 /* SamplePageReducer.swift in Sources */,
 				B9D0D9412B03019E00078A93 /* Networking.swift in Sources */,
+				B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */,
 				B920F1872AD77128002FC1C2 /* Calendar+CoreExtensions.swift in Sources */,
 				B900B5402B1AC96000BA2F1D /* Array+CommonExtensions.swift in Sources */,
 				B9988BFF2AC4C72800C4924C /* RuntimeStorage.swift in Sources */,
@@ -3322,6 +3344,7 @@
 				B95887172B323B00007FB37B /* FadeInViewModifier.swift in Sources */,
 				B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */,
 				B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */,
+				B96FD2AA2B44AB7000B54791 /* UserID+Serializable.swift in Sources */,
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSessionService.swift in Sources */,
 				A206F7DF28AC552D008FFE18 /* Build.swift in Sources */,
@@ -3377,6 +3400,7 @@
 				B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */,
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,
 				B9E7D4322AAC20E100FAF2A9 /* BuildInfoOverlayReducer.swift in Sources */,
+				B96FD2AC2B44AF0F00B54791 /* UserArchiveService.swift in Sources */,
 				B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */,
 				B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */,
 				B94388672B3214D0002D94FF /* AppConstants+NetworkActivityView.swift in Sources */,
@@ -3413,7 +3437,7 @@
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
 				A206F7D528AC38DD008FFE18 /* ExpiryOverlayView.swift in Sources */,
 				B9E7D4212AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
-				B90243ED2B2786BF00448809 /* UserHashSnapshot.swift in Sources */,
+				B90243ED2B2786BF00448809 /* UserNumberHashSnapshot.swift in Sources */,
 				B9DB71092AD3897200EAC88B /* StoredItemKeyDomain.swift in Sources */,
 				B91689092AC760AA00AF403D /* MainQueueDependency.swift in Sources */,
 				B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */,

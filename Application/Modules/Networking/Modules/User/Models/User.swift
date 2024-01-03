@@ -12,18 +12,16 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct User: Codable, Equatable {
+public struct User: Codable, CompressedHashable, Equatable {
     // MARK: - Properties
 
     // Array
     public let conversations: [Conversation]?
     public let pushTokens: [String]?
 
-    // String
-    public let id: String
+    // Other
+    public let id: UserID
     public let languageCode: String
-
-    // Models
     public let phoneNumber: PhoneNumber
 
     // MARK: - Computed Properties
@@ -33,10 +31,26 @@ public struct User: Codable, Equatable {
         return transcriptionService.isTranscriptionSupported(for: languageCode)
     }
 
+    public var hashFactors: [String] {
+        var factors = [id.key]
+
+        if let conversations {
+            factors.append(contentsOf: conversations.map(\.compressedHash))
+        }
+
+        if let pushTokens {
+            factors.append(contentsOf: pushTokens)
+        }
+
+        factors.append(languageCode)
+        factors.append(phoneNumber.compressedHash)
+        return factors
+    }
+
     // MARK: - Init
 
     public init(
-        _ id: String,
+        _ id: UserID,
         conversations: [Conversation]?,
         languageCode: String,
         phoneNumber: PhoneNumber,

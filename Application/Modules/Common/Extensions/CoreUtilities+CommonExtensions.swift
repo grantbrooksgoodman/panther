@@ -16,19 +16,17 @@ import Translator
 public extension CoreKit.Utilities {
     func clearCaches() {
         @Dependency(\.commonServices) var commonServices: CommonServices
-        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
         @Dependency(\.networking.services) var networkServices: NetworkServices
 
         commonServices.contact.contactPairArchive.clearArchive()
         networkServices.conversation.archive.clearArchive()
+        networkServices.user.archive.clearArchive()
         TranslationArchiver.clearArchive()
 
         commonServices.contact.clearCache()
         commonServices.propertyLists.clearCache()
         commonServices.regionDetail.clearCache()
         networkServices.user.clearCache()
-
-        coreHUD.flash(image: .success)
     }
 
     @discardableResult

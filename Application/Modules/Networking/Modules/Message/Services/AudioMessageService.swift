@@ -236,6 +236,6 @@ public struct AudioMessageService {
             sentDate: message.sentDate
         )
 
-        return await modifiedMessage.updateValue(String(true), forKey: .hasAudioComponent)
+        return .success(modifiedMessage)
     }
 }

@@ -22,7 +22,7 @@ public struct NetworkPaths {
         case messages
         case shared
         case translations
-        case userHashes
+        case userNumberHashes
         case users
     }
 
@@ -34,6 +34,6 @@ public struct NetworkPaths {
     public let messages = Path.messages.rawValue
     public let shared = Path.shared.rawValue
     public let translations = Path.translations.rawValue
-    public let userHashes = Path.userHashes.rawValue
+    public let userNumberHashes = Path.userNumberHashes.rawValue
     public let users = Path.users.rawValue
 }

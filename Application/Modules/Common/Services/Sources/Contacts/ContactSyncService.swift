@@ -21,8 +21,8 @@ public final class ContactSyncService {
     // MARK: - Properties
 
     @Persistent(.mismatchedHashes) private var mismatchedHashes: [String]?
-    @Persistent(.localUserHashes) private var persistedLocalUserHashes: [String]?
-    @Persistent(.serverUserHashes) private var persistedServerUserHashes: [String]?
+    @Persistent(.localUserNumberHashes) private var persistedLocalUserNumberHashes: [String]?
+    @Persistent(.serverUserNumberHashes) private var persistedServerUserNumberHashes: [String]?
 
     // MARK: - Synchronization
 
@@ -45,40 +45,40 @@ public final class ContactSyncService {
 
     /// - Returns: A `Bool` describing whether or not the local contact archive needs updating.
     private func syncHashes() async -> Callback<Bool, Exception> {
-        let getLocalUserHashesResult = await getLocalUserHashes()
+        let getLocalUserNumberHashesResult = await getLocalUserNumberHashes()
 
-        switch getLocalUserHashesResult {
-        case let .success(localUserHashes):
-            guard let persistedLocalUserHashes,
-                  persistedLocalUserHashes.sorted() == localUserHashes.sorted() else {
-                if let exception = await updatePersistedLocalUserHashes(with: localUserHashes) {
+        switch getLocalUserNumberHashesResult {
+        case let .success(localUserNumberHashes):
+            guard let persistedLocalUserNumberHashes,
+                  persistedLocalUserNumberHashes.sorted() == localUserNumberHashes.sorted() else {
+                if let exception = await updatePersistedLocalUserNumberHashes(with: localUserNumberHashes) {
                     return .failure(exception)
                 }
                 return .success(true)
             }
 
-            let getServerUserHashesResult = await getServerUserHashes()
+            let getServerUserNumberHashesResult = await getServerUserNumberHashes()
 
-            switch getServerUserHashesResult {
-            case let .success(serverUserHashes):
-                guard let persistedServerUserHashes,
-                      persistedServerUserHashes.sorted() == serverUserHashes.sorted() else {
-                    if let exception = await updatePersistedServerUserHashes(with: serverUserHashes) {
+            switch getServerUserNumberHashesResult {
+            case let .success(serverUserNumberHashes):
+                guard let persistedServerUserNumberHashes,
+                      persistedServerUserNumberHashes.sorted() == serverUserNumberHashes.sorted() else {
+                    if let exception = await updatePersistedServerUserNumberHashes(with: serverUserNumberHashes) {
                         return .failure(exception)
                     }
                     return .success(true)
                 }
 
-                var filteredHashes = serverUserHashes.filter { persistedLocalUserHashes.contains($0) }
+                var filteredHashes = serverUserNumberHashes.filter { persistedLocalUserNumberHashes.contains($0) }
                 if let mismatchedHashes {
                     filteredHashes = filteredHashes.filter { !mismatchedHashes.contains($0) }
                 }
 
                 let archivedContactCount = filteredHashes.reduce(into: Int()) { partialResult, hash in
-                    partialResult += services.contact.contactPairArchive.getValue(userHash: hash) != nil ? 1 : 0
+                    partialResult += services.contact.contactPairArchive.getValue(userNumberHash: hash) != nil ? 1 : 0
                 }
 
-                let missingValues = filteredHashes.filter { services.contact.contactPairArchive.getValue(userHash: $0) == nil }
+                let missingValues = filteredHashes.filter { services.contact.contactPairArchive.getValue(userNumberHash: $0) == nil }
                 if !missingValues.isEmpty {
                     Logger.log(
                         "Missing the following contact values:\n\(missingValues)",
@@ -151,7 +151,7 @@ public final class ContactSyncService {
 
     // MARK: - Hash Retrieval
 
-    private func getLocalUserHashes() async -> Callback<[String], Exception> {
+    private func getLocalUserNumberHashes() async -> Callback<[String], Exception> {
         let fetchAllContactsResult = await services.contact.fetchAllContacts(cacheStrategy: .disregardCache)
 
         switch fetchAllContactsResult {
@@ -168,8 +168,8 @@ public final class ContactSyncService {
         }
     }
 
-    private func getServerUserHashes() async -> Callback<[String], Exception> {
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userHashes)
+    private func getServerUserNumberHashes() async -> Callback<[String], Exception> {
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
 
         switch getValuesResult {
         case let .success(values):
@@ -189,14 +189,14 @@ public final class ContactSyncService {
 
     // MARK: - Persisted Hash Updating
 
-    private func updatePersistedLocalUserHashes(with value: [String]? = nil) async -> Exception? {
+    private func updatePersistedLocalUserNumberHashes(with value: [String]? = nil) async -> Exception? {
         guard let value,
               !value.isEmpty else {
-            let getLocalUserHashesResult = await getLocalUserHashes()
+            let getLocalUserNumberHashesResult = await getLocalUserNumberHashes()
 
-            switch getLocalUserHashesResult {
-            case let .success(localUserHashes):
-                persistedLocalUserHashes = localUserHashes
+            switch getLocalUserNumberHashesResult {
+            case let .success(localUserNumberHashes):
+                persistedLocalUserNumberHashes = localUserNumberHashes
             case let .failure(exception):
                 return exception
             }
@@ -204,18 +204,18 @@ public final class ContactSyncService {
             return nil
         }
 
-        persistedLocalUserHashes = value
+        persistedLocalUserNumberHashes = value
         return nil
     }
 
-    private func updatePersistedServerUserHashes(with value: [String]? = nil) async -> Exception? {
+    private func updatePersistedServerUserNumberHashes(with value: [String]? = nil) async -> Exception? {
         guard let value,
               !value.isEmpty else {
-            let getServerUserHashesResult = await getServerUserHashes()
+            let getServerUserNumberHashesResult = await getServerUserNumberHashes()
 
-            switch getServerUserHashesResult {
-            case let .success(serverUserHashes):
-                persistedServerUserHashes = serverUserHashes
+            switch getServerUserNumberHashesResult {
+            case let .success(serverUserNumberHashes):
+                persistedServerUserNumberHashes = serverUserNumberHashes
             case let .failure(exception):
                 return exception
             }
@@ -223,7 +223,7 @@ public final class ContactSyncService {
             return nil
         }
 
-        persistedServerUserHashes = value
+        persistedServerUserNumberHashes = value
         return nil
     }
 }

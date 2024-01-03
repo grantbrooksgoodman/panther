@@ -12,6 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
+// swiftlint:disable:next type_body_length
 public final class UserService: Cacheable {
     // MARK: - Dependencies
 
@@ -21,6 +22,7 @@ public final class UserService: Cacheable {
     // MARK: - Properties
 
     // Instance
+    public let archive: UserArchiveService
     public let legacy: LegacyUserService
 
     // Cache
@@ -29,12 +31,13 @@ public final class UserService: Cacheable {
 
     // MARK: - Init
 
-    public init(legacy: LegacyUserService) {
+    public init(archive: UserArchiveService, legacy: LegacyUserService) {
+        self.archive = archive
         self.legacy = legacy
 
         emptyCache = .init(
             [
-                .userHashSnapshot: UserHashSnapshot.empty,
+                .userNumberHashSnapshot: UserNumberHashSnapshot.empty,
             ]
         )
         cache = emptyCache
@@ -48,9 +51,9 @@ public final class UserService: Cacheable {
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) async -> Callback<User, Exception> {
-        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
+        let getUserIDKeysResult = await getUserIDKeys(phoneNumber: phoneNumber)
 
-        switch getUserIDsResult {
+        switch getUserIDKeysResult {
         case .success:
             return .failure(.init(
                 "User already exists for this phone number.",
@@ -61,10 +64,10 @@ public final class UserService: Cacheable {
         default: ()
         }
 
-        let userHashesPath = "\(networking.config.paths.userHashes)/\(phoneNumber.nationalNumberString.digits.compressedHash)"
+        let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(phoneNumber.nationalNumberString.digits.compressedHash)"
         var newValues = [id]
 
-        let getValuesResult = await networking.database.getValues(at: userHashesPath)
+        let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)
 
         switch getValuesResult {
         case let .failure(exception):
@@ -78,23 +81,19 @@ public final class UserService: Cacheable {
             }
         }
 
-        if let exception = await networking.database.setValue(newValues.unique, forKey: userHashesPath) {
+        if let exception = await networking.database.setValue(newValues.unique, forKey: userNumberHashesPath) {
             return .failure(exception)
         }
 
-        var resolvedPushTokens = Array.bangQualifiedEmpty
-        if let pushTokens,
-           !pushTokens.isBangQualifiedEmpty {
-            resolvedPushTokens = pushTokens
-        }
+        var mockUser: User = .init(
+            .init(key: id, hash: ""),
+            conversations: nil,
+            languageCode: languageCode,
+            phoneNumber: phoneNumber,
+            pushTokens: pushTokens
+        )
 
-        typealias Keys = User.SerializationKeys
-        let data: [String: Any] = [
-            Keys.conversations.rawValue: Array.bangQualifiedEmpty,
-            Keys.languageCode.rawValue: languageCode,
-            Keys.phoneNumber.rawValue: phoneNumber.encoded,
-            Keys.pushTokens.rawValue: resolvedPushTokens,
-        ]
+        let data = mockUser.encoded.filter { $0.key != User.SerializationKeys.id.rawValue }
 
         if let exception = await networking.database.setValue(
             data,
@@ -103,19 +102,24 @@ public final class UserService: Cacheable {
             return .failure(exception)
         }
 
-        return .success(.init(
-            id,
-            conversations: nil,
-            languageCode: languageCode,
-            phoneNumber: phoneNumber,
-            pushTokens: resolvedPushTokens
-        ))
+        let userID: UserID = .init(key: mockUser.id.key, hash: mockUser.compressedHash)
+
+        mockUser = .init(
+            userID,
+            conversations: mockUser.conversations,
+            languageCode: mockUser.languageCode,
+            phoneNumber: mockUser.phoneNumber,
+            pushTokens: mockUser.pushTokens
+        )
+
+        archive.addValue(mockUser)
+        return .success(mockUser)
     }
 
     // MARK: - Retrieval by Hash
 
-    private func getUserHashes() async -> Callback<[String: [String]], Exception> {
-        if let cachedValue = cache.value(forKey: .userHashSnapshot) as? UserHashSnapshot,
+    private func getUserNumberHashes() async -> Callback<[String: [String]], Exception> {
+        if let cachedValue = cache.value(forKey: .userNumberHashSnapshot) as? UserNumberHashSnapshot,
            !cachedValue.hashes.isEmpty,
            !Array(cachedValue.hashes.keys).contains(where: \.isBangQualifiedEmpty),
            !cachedValue.hashes.values.contains(where: \.isBangQualifiedEmpty),
@@ -123,7 +127,7 @@ public final class UserService: Cacheable {
             return .success(cachedValue.hashes)
         }
 
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userHashes)
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
 
         switch getValuesResult {
         case let .success(values):
@@ -131,12 +135,12 @@ public final class UserService: Cacheable {
                 return .failure(.init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line]))
             }
             cache.set(
-                UserHashSnapshot(
+                UserNumberHashSnapshot(
                     date: Date(),
                     hashes: hashes,
                     expiryThreshold: .seconds(60)
                 ),
-                forKey: .userHashSnapshot
+                forKey: .userNumberHashSnapshot
             )
             return .success(hashes)
 
@@ -145,19 +149,19 @@ public final class UserService: Cacheable {
         }
     }
 
-    private func getUserIDs(hashes: [String]) async -> Callback<[String: [String]], Exception> {
+    private func getUserIDKeys(hashes: [String]) async -> Callback<[String: [String]], Exception> {
         guard !hashes.isBangQualifiedEmpty else {
             return .failure(.init("No hashes provided.", metadata: [self, #file, #function, #line]))
         }
 
-        let getUserHashesResult = await getUserHashes()
+        let getUserNumberHashesResult = await getUserNumberHashes()
 
-        switch getUserHashesResult {
-        case let .success(userHashes):
+        switch getUserNumberHashesResult {
+        case let .success(userNumberHashes):
             var matches = [String: [String]]()
             for hash in hashes {
-                guard let userIDs = userHashes[hash] else { continue }
-                matches[hash] = userIDs
+                guard let userIDKeys = userNumberHashes[hash] else { continue }
+                matches[hash] = userIDKeys
             }
 
             guard !matches.isEmpty else {
@@ -177,15 +181,15 @@ public final class UserService: Cacheable {
 
     // MARK: - Retrieval by ID
 
-    public func getUser(id: String) async -> Callback<User, Exception> {
-        let commonParams = ["UserID": id]
+    public func getUser(idKey: String) async -> Callback<User, Exception> {
+        let commonParams = ["UserID": idKey]
 
-        guard !id.isBangQualifiedEmpty else {
+        guard !idKey.isBangQualifiedEmpty else {
             let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.users)/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.users)/\(idKey)")
 
         switch getValuesResult {
         case let .success(values):
@@ -194,11 +198,17 @@ public final class UserService: Cacheable {
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
-            data["id"] = id
+            typealias Keys = User.SerializationKeys
+            guard let userIDHash = data[Keys.compressedHash.rawValue] as? String else {
+                let exception = Exception("Failed to decode user ID.", metadata: [self, #file, #function, #line])
+                return .failure(exception.appending(extraParams: commonParams))
+            }
 
-            @Persistent(.currentUserID) var currentUserID: String?; #warning("Not a fan of having this here.")
-            if let languageCode = data[User.SerializationKeys.languageCode.rawValue] as? String,
-               id == currentUserID {
+            data[Keys.id.rawValue] = UserID(key: idKey, hash: userIDHash).encoded
+
+            @Persistent(.currentUserID) var currentUserID: UserID?; #warning("Not a fan of having this here.")
+            if let languageCode = data[Keys.languageCode.rawValue] as? String,
+               idKey == currentUserID?.key {
                 RuntimeStorage.store(languageCode, as: .languageCode)
             }
 
@@ -209,20 +219,20 @@ public final class UserService: Cacheable {
         }
     }
 
-    public func getUsers(ids: [String]) async -> Callback<[User], Exception> {
-        let commonParams = ["UserIDs": ids]
+    public func getUsers(idKeys: [String]) async -> Callback<[User], Exception> {
+        let commonParams = ["UserIDKeys": idKeys]
 
-        guard !ids.isBangQualifiedEmpty else {
+        guard !idKeys.isBangQualifiedEmpty else {
             return .failure(.init(
-                "No IDs provided.",
+                "No ID keys provided.",
                 metadata: [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
         }
 
         var users = [User]()
 
-        for id in ids {
-            let getUserResult = await getUser(id: id)
+        for id in idKeys {
+            let getUserResult = await getUser(idKey: id)
 
             switch getUserResult {
             case let .success(user):
@@ -234,7 +244,7 @@ public final class UserService: Cacheable {
         }
 
         guard !users.isEmpty,
-              users.count == ids.count else {
+              users.count == idKeys.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
                 metadata: [self, #file, #function, #line]
@@ -249,11 +259,11 @@ public final class UserService: Cacheable {
     public func getUsers(phoneNumber: PhoneNumber) async -> Callback<[User], Exception> {
         var matches = [User]()
 
-        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
+        let getUserIDKeysResult = await getUserIDKeys(phoneNumber: phoneNumber)
 
-        switch getUserIDsResult {
-        case let .success(userIDs):
-            let getUsersResult = await getUsers(ids: userIDs)
+        switch getUserIDKeysResult {
+        case let .success(userIDKeys):
+            let getUsersResult = await getUsers(idKeys: userIDKeys)
 
             switch getUsersResult {
             case let .success(users):
@@ -320,7 +330,7 @@ public final class UserService: Cacheable {
         return .success(matches)
     }
 
-    private func getUserIDs(phoneNumber: PhoneNumber) async -> Callback<[String], Exception> {
+    private func getUserIDKeys(phoneNumber: PhoneNumber) async -> Callback<[String], Exception> {
         guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
             return .failure(.init(
                 "No possible hashes for this number.",
@@ -329,11 +339,11 @@ public final class UserService: Cacheable {
             ))
         }
 
-        let getUserIDsResult = await getUserIDs(hashes: possibleHashes)
+        let getUserIDKeysResult = await getUserIDKeys(hashes: possibleHashes)
 
-        switch getUserIDsResult {
-        case let .success(userIDs):
-            return .success(userIDs.values.reduce([], +))
+        switch getUserIDKeysResult {
+        case let .success(userIDKeys):
+            return .success(userIDKeys.values.reduce([], +))
 
         case let .failure(exception):
             return .failure(exception)
@@ -351,7 +361,7 @@ public final class UserService: Cacheable {
 
 public extension CacheDomain {
     enum UserServiceCacheDomainKey: String, Equatable {
-        case userHashSnapshot
+        case userNumberHashSnapshot
     }
 }
 

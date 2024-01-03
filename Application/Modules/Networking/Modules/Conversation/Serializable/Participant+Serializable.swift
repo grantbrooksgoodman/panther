@@ -16,14 +16,27 @@ extension Participant: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
+    public var encoded: String { "\(userIDKey) | \(hasDeletedConversation) | \(isTyping)" }
 
     // MARK: - Methods
 
     public static func decode(from data: String) async -> Callback<Participant, Exception> {
-        guard let decoded: Participant = .init(data) else {
+        let components = data.components(separatedBy: " | ")
+        guard components.count == 3,
+              components[1] == "true" || components[1] == "false",
+              components[2] == "true" || components[2] == "false" else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
+
+        let userIDKey = components[0]
+        let hasDeletedConversation = components[1] == "true" ? true : false
+        let isTyping = components[2] == "true" ? true : false
+
+        let decoded: Participant = .init(
+            userIDKey: userIDKey,
+            hasDeletedConversation: hasDeletedConversation,
+            isTyping: isTyping
+        )
 
         return .success(decoded)
     }

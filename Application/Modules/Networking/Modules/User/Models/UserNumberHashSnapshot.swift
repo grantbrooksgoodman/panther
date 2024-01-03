@@ -1,5 +1,5 @@
 //
-//  UserHashSnapshot.swift
+//  UserNumberHashSnapshot.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -11,7 +11,7 @@ import Foundation
 
 /* 3rd-party */
 
-public struct UserHashSnapshot: Codable, Equatable {
+public struct UserNumberHashSnapshot: Codable, Equatable {
     // MARK: - Properties
 
     public let date: Date
@@ -20,7 +20,7 @@ public struct UserHashSnapshot: Codable, Equatable {
 
     // MARK: - Computed Properties
 
-    public static var empty: UserHashSnapshot {
+    public static var empty: UserNumberHashSnapshot {
         .init(
             date: .init(timeIntervalSince1970: 0),
             hashes: .init(),

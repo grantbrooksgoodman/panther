@@ -18,6 +18,7 @@ public struct PlaybackService {
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avQueuePlayer) private var avQueuePlayer: AVQueuePlayer
+    @Dependency(\.fileManager) private var fileManager: FileManager
 
     // MARK: - Properties
 
@@ -25,12 +26,24 @@ public struct PlaybackService {
 
     // MARK: - Playback
 
-    public func playAudio(url: URL) {
+    @discardableResult
+    public func playAudio(url: URL) -> Exception? {
+        guard let decodedPath = url.path().removingPercentEncoding,
+              fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: decodedPath) else {
+            return .init(
+                "File does not exist.",
+                extraParams: ["FilePath": url.path()],
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
         audioService.activateAudioSession()
 
         avQueuePlayer.removeAllItems()
         avQueuePlayer.insert(.init(url: url), after: nil)
         avQueuePlayer.play()
+
+        return nil
     }
 
     public func stopPlaying() {

@@ -27,11 +27,11 @@ public extension Array where Element == Conversation {
 
     /// The conversations among the array in which the current user is participating and has not deleted.
     var visibleForCurrentUser: [Conversation] {
-        @Persistent(.currentUserID) var currentUserID: String?
+        @Persistent(.currentUserID) var currentUserID: UserID?
         guard let currentUserID else { return self }
 
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            let currentUserParticipants = conversation.participants.filter { $0.userID == currentUserID }
+            let currentUserParticipants = conversation.participants.filter { $0.userIDKey == currentUserID.key }
             guard !currentUserParticipants.isEmpty else { return false }
             return currentUserParticipants.allSatisfy { !$0.hasDeletedConversation }
         }

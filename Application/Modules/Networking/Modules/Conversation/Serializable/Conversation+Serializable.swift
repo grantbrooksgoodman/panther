@@ -35,7 +35,7 @@ extension Conversation: Serializable {
         let messageIDs = messages.map(\.id)
         return [
             Keys.id.rawValue: id.encoded,
-            Keys.compressedHash.rawValue: id.hash,
+            Keys.compressedHash.rawValue: compressedHash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messageIDs,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.participants.rawValue: participants.map(\.encoded),
@@ -50,10 +50,10 @@ extension Conversation: Serializable {
         @Dependency(\.networking.services) var networkServices: NetworkServices
 
         guard let id = data[Keys.id.rawValue] as? String,
+              let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               let messageIDs = data[Keys.messages.rawValue] as? [String],
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
-              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString),
-              let encodedParticipants = data[Keys.participants.rawValue] as? [String] else {
+              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 

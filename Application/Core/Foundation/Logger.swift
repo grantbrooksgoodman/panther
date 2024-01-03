@@ -32,7 +32,7 @@ public enum Logger {
 
     // MARK: - Properties
 
-    public private(set) static var subscribedDomains: [LoggerDomain] = [.general]
+    public private(set) static var subscribedDomains = [LoggerDomain]()
 
     private static let sessionID = UUID()
 
@@ -120,7 +120,8 @@ public enum Logger {
 
         log(
             "\(footer)\n",
-            domain: domain
+            domain: domain,
+            addingNewline: exception.extraParams == nil ? .preceding : nil
         )
 
         currentTimeLastCalled = Date()
@@ -321,14 +322,14 @@ public enum Logger {
             return
         }
 
-        for (index, param) in parameters.enumerated() {
+        for (index, key) in parameters.keys.sorted().enumerated() {
             switch index {
             case 0:
-                log("[\(param.key): \(param.value),", domain: domain, addingNewline: .preceding)
+                log("[\(key): \(parameters[key]!),", domain: domain, addingNewline: .preceding)
             case parameters.count - 1:
-                log("\(param.key): \(param.value)]", domain: domain, addingNewline: .surrounding)
+                log("\(key): \(parameters[key]!)]", domain: domain, addingNewline: .surrounding)
             default:
-                log("\(param.key): \(param.value),", domain: domain, addingNewline: .preceding)
+                log("\(key): \(parameters[key]!),", domain: domain, addingNewline: .preceding)
             }
         }
     }

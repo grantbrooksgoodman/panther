@@ -46,6 +46,12 @@ public struct ConversationSessionService {
     public func updateConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
 
+        Logger.log(
+            "Updating conversation with ID \(conversation.id.key).",
+            domain: .conversation,
+            metadata: [self, #file, #function, #line]
+        )
+
         func setLastModifiedDate() async -> Callback<Conversation, Exception> {
             let lastModifiedDateKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.lastModifiedDate.rawValue)"
             let getValuesResult = await networking.database.getValues(at: lastModifiedDateKeyPath)
@@ -87,7 +93,6 @@ public struct ConversationSessionService {
 
             let currentMessageIDs = conversation.messages.map(\.id)
             let filteredMessageIDs = array.filter { !currentMessageIDs.contains($0) }
-            print("missing \(filteredMessageIDs.count) messages")
 
             guard !filteredMessageIDs.isEmpty else {
                 return await setLastModifiedDate()
@@ -98,18 +103,11 @@ public struct ConversationSessionService {
             switch getMessagesResult {
             case let .success(messages):
                 let updatedMessages = (conversation.messages + messages).sorted(by: { $0.sentDate < $1.sentDate })
-                let addMessagesResult = await addMessages(
-                    updatedMessages,
-                    to: conversation
-                )
-
-                switch addMessagesResult {
-                case let .success(conversation):
-                    return .success(conversation)
-
-                case let .failure(exception):
-                    return .failure(exception)
+                guard let modified = conversation.modifyKey(.messages, withValue: updatedMessages) else {
+                    return .failure(.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line]))
                 }
+
+                return .success(modified)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -128,11 +126,11 @@ public struct ConversationSessionService {
                 return .init("No current user.", metadata: [self, #file, #function, #line])
             }
 
-            return await hideConversation(conversation, forUserID: currentUser.id)
+            return await hideConversation(conversation, forUser: currentUser.id.key)
         }
 
         if let exception = await removeConversationFromUsers(
-            userIDs: conversation.participants.map(\.userID),
+            userIDKeys: conversation.participants.map(\.userIDKey),
             conversationIDKey: conversation.id.key
         ) {
             return exception
@@ -156,12 +154,12 @@ public struct ConversationSessionService {
         return nil
     }
 
-    private func hideConversation(_ conversation: Conversation, forUserID userID: String) async -> Exception? {
-        var newParticipants = conversation.participants.filter { $0.userID != userID }
+    private func hideConversation(_ conversation: Conversation, forUser userIDKey: String) async -> Exception? {
+        var newParticipants = conversation.participants.filter { $0.userIDKey != userIDKey }
 
         for participant in conversation.participants where !newParticipants.contains(participant) {
             let newParticipant: Participant = .init(
-                userID: participant.userID,
+                userIDKey: participant.userIDKey,
                 hasDeletedConversation: true,
                 isTyping: participant.isTyping
             )
@@ -182,17 +180,17 @@ public struct ConversationSessionService {
         return nil
     }
 
-    private func removeConversationFromUsers(userIDs: [String], conversationIDKey: String) async -> Exception? {
-        func removeConversationFromUser(userID: String, conversationIDKey: String) async -> Exception? {
-            let commonParams = ["UserID": userID, "ConversationID": conversationIDKey]
+    private func removeConversationFromUsers(userIDKeys: [String], conversationIDKey: String) async -> Exception? {
+        func removeConversationFromUser(userIDKey: String, conversationIDKey: String) async -> Exception? {
+            let commonParams = ["UserIDKey": userIDKey, "ConversationIDKey": conversationIDKey]
 
-            guard !userID.isBangQualifiedEmpty,
+            guard !userIDKey.isBangQualifiedEmpty,
                   !conversationIDKey.isBangQualifiedEmpty else {
                 let exception = Exception("Passed arguments fail validation.", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 
-            let getConversationIDStringsResult = await networking.services.conversation.getConversationIDStrings(for: userID)
+            let getConversationIDStringsResult = await networking.services.conversation.getConversationIDStrings(for: userIDKey)
 
             switch getConversationIDStringsResult {
             case var .success(conversationIDStrings):
@@ -202,7 +200,7 @@ public struct ConversationSessionService {
                 let path = networking.config.paths.users
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+                    forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
                 ) {
                     return exception.appending(extraParams: commonParams)
                 }
@@ -214,9 +212,9 @@ public struct ConversationSessionService {
             return nil
         }
 
-        for userID in userIDs {
+        for userIDKey in userIDKeys {
             if let exception = await removeConversationFromUser(
-                userID: userID,
+                userIDKey: userIDKey,
                 conversationIDKey: conversationIDKey
             ) {
                 return exception

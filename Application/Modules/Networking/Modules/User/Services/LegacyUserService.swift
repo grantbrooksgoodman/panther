@@ -62,7 +62,7 @@ public struct LegacyUserService {
                 return exception.appending(extraParams: commonParams)
             }
 
-            let legacyHashPath = "\(networking.config.paths.userHashes)/\(nationalNumberString.legacyHash)"
+            let legacyHashPath = "userHashes/\(nationalNumberString.legacyHash)"
             let getValuesResult = await networking.database.getValues(at: legacyHashPath)
 
             switch getValuesResult {
@@ -79,7 +79,7 @@ public struct LegacyUserService {
                 }
 
                 let newHash = nationalNumberString.compressedHash
-                let newHashPath = "\(networking.config.paths.userHashes)/\(newHash)"
+                let newHashPath = "\(networking.config.paths.userNumberHashes)/\(newHash)"
                 let getValuesResult = await networking.database.getValues(at: newHashPath)
 
                 switch getValuesResult {
@@ -98,6 +98,7 @@ public struct LegacyUserService {
 
                     Logger.log(
                         "Successfully converted user with ID «\(id)» to new schema.",
+                        domain: .user,
                         metadata: [self, #file, #function, #line]
                     )
 
@@ -112,6 +113,7 @@ public struct LegacyUserService {
 
                     Logger.log(
                         "Successfully converted user with ID «\(id)» to new schema.",
+                        domain: .user,
                         metadata: [self, #file, #function, #line]
                     )
                 }
@@ -155,6 +157,7 @@ public struct LegacyUserService {
 
             Logger.log(
                 "Successfully renamed number data for user with ID «\(id)».",
+                domain: .user,
                 metadata: [self, #file, #function, #line]
             )
 

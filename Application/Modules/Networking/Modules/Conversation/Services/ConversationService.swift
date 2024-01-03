@@ -15,7 +15,6 @@ import Redux
 public struct ConversationService {
     // MARK: - Dependencies
 
-    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
@@ -49,7 +48,7 @@ public struct ConversationService {
             ))
         }
 
-        let mockConversation: Conversation = .init(
+        var mockConversation: Conversation = .init(
             .init(key: id, hash: ""),
             messages: [firstMessage],
             lastModifiedDate: Date(),
@@ -57,13 +56,7 @@ public struct ConversationService {
             users: nil
         )
 
-        typealias Keys = Conversation.SerializationKeys
-        let data: [String: Any] = [
-            Keys.compressedHash.rawValue: mockConversation.compressedHash,
-            Keys.messages.rawValue: mockConversation.messages.map(\.id),
-            Keys.lastModifiedDate.rawValue: dateFormatter.string(from: mockConversation.lastModifiedDate),
-            Keys.participants.rawValue: mockConversation.participants.map(\.encoded),
-        ]
+        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializationKeys.id.rawValue }
 
         if let exception = await networking.database.updateChildValues(forKey: "\(path)/\(id)", with: data) {
             return .failure(exception)
@@ -73,14 +66,14 @@ public struct ConversationService {
 
         for participant in participants {
             if let exception = await addConversationToUser(
-                userID: participant.userID,
+                userIDKey: participant.userIDKey,
                 conversationID: conversationID
             ) {
                 return .failure(exception)
             }
         }
 
-        let modifiedMockConversation: Conversation = .init(
+        mockConversation = .init(
             conversationID,
             messages: mockConversation.messages,
             lastModifiedDate: mockConversation.lastModifiedDate,
@@ -88,14 +81,15 @@ public struct ConversationService {
             users: mockConversation.users
         )
 
-        return .success(modifiedMockConversation)
+        archive.addValue(mockConversation)
+        return .success(mockConversation)
     }
 
     // MARK: - Retrieval by ID
 
-    public func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
+    public func getConversationIDStrings(for userIDKey: String) async -> Callback<[String], Exception> {
         let usersPath = networking.config.paths.users
-        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+        let path = "\(usersPath)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {
@@ -186,10 +180,10 @@ public struct ConversationService {
 
     // MARK: - Auxiliary
 
-    private func addConversationToUser(userID: String, conversationID: ConversationID) async -> Exception? {
-        let commonParams = ["UserID": userID, "ConversationID": conversationID.encoded]
+    private func addConversationToUser(userIDKey: String, conversationID: ConversationID) async -> Exception? {
+        let commonParams = ["UserIDKey": userIDKey, "ConversationID": conversationID.encoded]
 
-        let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
+        let getConversationIDStringsResult = await getConversationIDStrings(for: userIDKey)
 
         switch getConversationIDStringsResult {
         case var .success(conversationIDStrings):
@@ -199,7 +193,7 @@ public struct ConversationService {
             let path = networking.config.paths.users
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversations.rawValue)"
+                forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
             ) {
                 return exception.appending(extraParams: commonParams)
             }

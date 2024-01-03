@@ -19,9 +19,9 @@ public extension UserDefaultsKeyDomain {
     }
 
     enum ContactSyncServiceDefaultsKey: String {
-        case localUserHashes
+        case localUserNumberHashes
         case mismatchedHashes
-        case serverUserHashes
+        case serverUserNumberHashes
     }
 
     enum ReviewServiceDefaultsKey: String {

@@ -26,14 +26,23 @@ public final class ConversationArchiveService {
     public func addValue(_ conversation: Conversation) {
         var values = archive ?? .init()
 
+        guard !values.contains(conversation) else { return }
+
         values.removeAll(where: { $0.id.key == conversation.id.key })
-        values.append(conversation)
+        values.append(.init(
+            conversation.id,
+            messages: conversation.messages,
+            lastModifiedDate: conversation.lastModifiedDate,
+            participants: conversation.participants,
+            users: nil
+        ))
+
         archive = values
         persistedArchive = archive
 
         Logger.log(
             .init(
-                "Added conversation to local archive.",
+                "Added conversation to persisted archive.",
                 extraParams: ["ConversationIDKey": conversation.id.key,
                               "ConversationIDHash": conversation.id.hash],
                 metadata: [self, #file, #function, #line]

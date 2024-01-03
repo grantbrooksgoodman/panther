@@ -92,6 +92,12 @@ public struct CoreDatabase {
             completion(.failure(.timedOut([self, #file, #function, #line])))
         }
 
+        Logger.log(
+            "Getting values at path \"\(path)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
+
         let path = prependingEnvironment ? path.prepended : path
         firebaseDatabase.child(path).observeSingleEvent(of: .value) { snapshot in
             timeout.cancel()
@@ -136,6 +142,12 @@ public struct CoreDatabase {
             guard canComplete else { return }
             completion(.failure(.timedOut([self, #file, #function, #line])))
         }
+
+        Logger.log(
+            "Querying values at path \"\(path)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
 
         let path = prependingEnvironment ? path.prepended : path
 
@@ -206,6 +218,12 @@ public struct CoreDatabase {
             completion(.timedOut([self, #file, #function, #line]))
         }
 
+        Logger.log(
+            "Setting value \"\(value)\" for key \"\(key)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
+
         let key = prependingEnvironment ? key.prepended : key
         firebaseDatabase.child(key).setValue(value) { error, _ in
             timeout.cancel()
@@ -241,6 +259,12 @@ public struct CoreDatabase {
             guard canComplete else { return }
             completion(.timedOut([self, #file, #function, #line]))
         }
+
+        Logger.log(
+            "Updating child values for key \"\(key)\" with \"\(data)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
 
         let key = prependingEnvironment ? key.prepended : key
         firebaseDatabase.child(key).updateChildValues(data) { error, _ in

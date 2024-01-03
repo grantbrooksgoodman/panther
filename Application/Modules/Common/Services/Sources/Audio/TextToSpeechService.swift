@@ -28,6 +28,14 @@ public struct TextToSpeechService {
     // MARK: - Read to File
 
     public func readToFile(text: String, languageCode: String) async -> Callback<URL, Exception> {
+        guard isTextToSpeechSupported(for: languageCode) else {
+            return .failure(.init(
+                "Text to speech is not supported for the specified language code.",
+                extraParams: ["LanguageCode": languageCode],
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
         let getAudioFileResult = await getAudioFile(from: text, languageCode: languageCode)
 
         switch getAudioFileResult {
