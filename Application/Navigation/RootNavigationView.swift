@@ -23,8 +23,17 @@ public extension RootView {
             case .splash:
                 withTransition { SplashPageView(.init(initialState: .init(), reducer: SplashPageReducer())) }
 
-            case .onboarding(.welcome):
-                withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
+            case let .onboarding(onboardingPage):
+                switch onboardingPage {
+                case .welcome:
+                    withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
+
+                case .selectLanguage:
+                    withTransition { SelectLanguagePageView(.init(initialState: .init(), reducer: SelectLanguagePageReducer())) }
+
+                case .verifyNumber:
+                    withTransition { VerifyNumberPageView(.init(initialState: .init(), reducer: VerifyNumberPageReducer())) }
+                }
             }
         }
     }

@@ -9,13 +9,14 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import Translator
-
 public extension TranslatedLabelStringCollection {
     enum SampleViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
+        // MARK: - Cases
+
         case titleLabelText = "Hello World"
         case subtitleLabelText = "In Redux!"
+
+        // MARK: - Properties
 
         public var alternate: String? { nil }
     }

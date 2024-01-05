@@ -20,6 +20,7 @@ public final class RegionDetailService: Cacheable {
         case callingCode(String)
         case regionCode(String)
         case regionTitle(String)
+        case searchTerm(String)
     }
 
     public enum RegionTitleFormat {
@@ -41,9 +42,9 @@ public final class RegionDetailService: Cacheable {
     // MARK: - Computed Properties
 
     public var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
-    public var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
 
     private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
+    private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
 
     // MARK: - Init
 
@@ -93,7 +94,7 @@ public final class RegionDetailService: Cacheable {
 
             let format: RegionTitleFormat = regionTitle.hasPrefix("+") ? .callingCodeFirst : .regionNameFirst
 
-            guard let match = keys.filter({ self.regionTitle(by: .regionCode($0), titleFormat: format) == regionTitle }).first,
+            guard let match = keys.filter({ self.regionTitles(by: .regionCode($0), titleFormat: format)?.first == regionTitle }).first,
                   let image = UIImage(named: "\(match.lowercased()).png") else { return nil }
 
             cachedValue[regionTitle] = image
@@ -101,7 +102,8 @@ public final class RegionDetailService: Cacheable {
 
             return image
 
-        case .callingCode:
+        case .callingCode,
+             .searchTerm:
             return nil
         }
     }
@@ -112,13 +114,14 @@ public final class RegionDetailService: Cacheable {
         switch strategy {
         case let .callingCode(callingCode):
             guard let regionCodes = regionCodes(callingCode: callingCode) else { return nil }
-            guard regionCodes.count == 1 else { return "multiple" }
+            guard regionCodes.count == 1 else { return Localized(.multiple).wrappedValue }
             return regionCodes[0]
 
         case let .regionTitle(regionTitle):
             return regionCodes(regionTitle: regionTitle)?.first
 
-        case .regionCode:
+        case .regionCode,
+             .searchTerm:
             return nil
         }
     }
@@ -131,7 +134,8 @@ public final class RegionDetailService: Cacheable {
         case let .regionTitle(regionTitle):
             return regionCodes(regionTitle: regionTitle)
 
-        case .regionCode:
+        case .regionCode,
+             .searchTerm:
             return nil
         }
     }
@@ -143,7 +147,7 @@ public final class RegionDetailService: Cacheable {
 
     private func regionCodes(regionTitle title: String) -> [String]? {
         let format: RegionTitleFormat = title.hasPrefix("+") ? .callingCodeFirst : .regionNameFirst
-        return Array(callingCodes.keys).filter { regionTitle(by: .regionCode($0), titleFormat: format) == title }
+        return Array(callingCodes.keys).filter { regionTitles(by: .regionCode($0), titleFormat: format)?.first == title }
     }
 
     // MARK: - Region Titles
@@ -161,25 +165,34 @@ public final class RegionDetailService: Cacheable {
 
         guard callingCodes[regionCode] != nil else { return regionCode }
 
-        guard let regionName = localizedLocale.localizedString(forRegionCode: regionCode) else {
-            setCacheValue(regionCode, "Multiple")
-            return "Multiple"
+        guard let regionName = localizedLocale.localizedString(forRegionCode: regionCode.uppercased()) else {
+            setCacheValue(regionCode, Localized(.multiple).wrappedValue)
+            return Localized(.multiple).wrappedValue
         }
 
         setCacheValue(regionCode, regionName)
         return regionName
     }
 
-    public func regionTitle(
+    public func regionTitles(
         by strategy: QueryStrategy,
         titleFormat: RegionTitleFormat = .callingCodeFirst
-    ) -> String? {
+    ) -> [String]? {
         switch strategy {
         case let .callingCode(callingCode):
-            return regionTitle(callingCode: callingCode, titleFormat: titleFormat)
+            let regionTitle = regionTitle(callingCode: callingCode, titleFormat: titleFormat)
+            return regionTitle == nil ? nil : [regionTitle!]
 
         case let .regionCode(regionCode):
-            return regionTitle(regionCode: regionCode, titleFormat: titleFormat)
+            let regionTitle = regionTitle(regionCode: regionCode, titleFormat: titleFormat)
+            return regionTitle == nil ? nil : [regionTitle!]
+
+        case let .searchTerm(searchTerm):
+            guard !searchTerm.isBlank else { return regionTitlesForAllCallingCodes }
+            let filtered = regionTitlesForAllCallingCodes.filter {
+                $0.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm.lowercasedTrimmingWhitespaceAndNewlines)
+            }
+            return filtered.isEmpty ? nil : filtered
 
         case .regionTitle:
             return nil
@@ -221,7 +234,7 @@ public final class RegionDetailService: Cacheable {
             return title
         }
 
-        if let title = regionTitle(by: .regionCode(regions[0]), titleFormat: titleFormat) {
+        if let title = regionTitles(by: .regionCode(regions[0]), titleFormat: titleFormat)?.first {
             setCacheValue(callingCode, title)
             return title
         }

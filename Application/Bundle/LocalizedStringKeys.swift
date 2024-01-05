@@ -26,6 +26,7 @@ public enum LocalizedStringKey: String {
     case noEmail
     case noInternetMessage
     case noInternetTitle
+    case noResults
 
     case reportBug
     case somethingWentWrong
@@ -34,6 +35,7 @@ public enum LocalizedStringKey: String {
     case tryAgain
 
     case search
+    case selectCallingCode
     case sendFeedback
     case settings
 

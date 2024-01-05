@@ -11,6 +11,7 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
+import PhoneNumberKit
 import Redux
 
 public struct PhoneNumberService {
@@ -18,6 +19,7 @@ public struct PhoneNumberService {
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.mainBundle) private var mainBundle: Bundle
+    @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Computed Properties
@@ -70,6 +72,21 @@ public struct PhoneNumberService {
         }
 
         return matches.isEmpty ? nil : matches
+    }
+
+    // MARK: - Example National Number String
+
+    public func exampleNationalNumberString(for regionCode: String) -> String {
+        let usNumberString = "(555) 555-5555"
+        guard regionCode != "US" else { return usNumberString }
+
+        if let regionMetadata = phoneNumberKit.metadata(for: regionCode),
+           let description = regionMetadata.mobile,
+           let exampleNumber = description.exampleNumber {
+            return PhoneNumber(exampleNumber).partiallyFormatted(forRegion: regionCode)
+        }
+
+        return usNumberString
     }
 
     // MARK: - Hash Generation

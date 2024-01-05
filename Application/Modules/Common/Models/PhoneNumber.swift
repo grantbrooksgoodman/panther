@@ -91,7 +91,7 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
         } else if resolvedCallingCode == "1" {
             regionCode = "US"
         } else if let derivedRegionCode = services.regionDetail.regionCode(by: .callingCode(resolvedCallingCode)),
-                  derivedRegionCode != "multiple" /* Localized(.multiple).wrappedValue */ {
+                  derivedRegionCode != Localized(.multiple).wrappedValue {
             regionCode = derivedRegionCode
         } else if let countryCode {
             regionCode = countryCode.uppercased()

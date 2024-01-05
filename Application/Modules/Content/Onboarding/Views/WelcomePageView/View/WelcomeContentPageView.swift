@@ -54,7 +54,7 @@ public struct WelcomeContentPageView: View {
                     .bold()
             }
             .padding(.vertical, Floats.continueButtonVerticalPadding)
-            .foregroundColor(Colors.continueButtonForeground)
+            .foregroundStyle(Colors.continueButtonForeground)
 
             Button {
                 viewModel.send(.signInButtonTapped)
@@ -62,7 +62,7 @@ public struct WelcomeContentPageView: View {
                 Text(viewModel.strings.value(for: .signInButtonText))
             }
             .padding(.vertical, Floats.signInButtonVerticalPadding)
-            .foregroundColor(Colors.signInButtonForeground)
+            .foregroundStyle(Colors.signInButtonForeground)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

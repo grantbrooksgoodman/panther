@@ -256,6 +256,26 @@ public final class UserService: Cacheable {
 
     // MARK: - Retrieval by Phone Number
 
+    public func getUserIDKeys(phoneNumber: PhoneNumber) async -> Callback<[String], Exception> {
+        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
+            return .failure(.init(
+                "No possible hashes for this number.",
+                extraParams: ["PhoneNumber": phoneNumber],
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let getUserIDKeysResult = await getUserIDKeys(hashes: possibleHashes)
+
+        switch getUserIDKeysResult {
+        case let .success(userIDKeys):
+            return .success(userIDKeys.values.reduce([], +))
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
     public func getUsers(phoneNumber: PhoneNumber) async -> Callback<[User], Exception> {
         var matches = [User]()
 
@@ -328,26 +348,6 @@ public final class UserService: Cacheable {
         }
 
         return .success(matches)
-    }
-
-    private func getUserIDKeys(phoneNumber: PhoneNumber) async -> Callback<[String], Exception> {
-        guard let possibleHashes = phoneNumberService.possibleHashes(for: phoneNumber.compiledNumberString) else {
-            return .failure(.init(
-                "No possible hashes for this number.",
-                extraParams: ["PhoneNumber": phoneNumber],
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        let getUserIDKeysResult = await getUserIDKeys(hashes: possibleHashes)
-
-        switch getUserIDKeysResult {
-        case let .success(userIDKeys):
-            return .success(userIDKeys.values.reduce([], +))
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
     }
 
     // MARK: - Clear Cache

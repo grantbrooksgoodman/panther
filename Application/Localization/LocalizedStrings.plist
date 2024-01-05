@@ -1242,6 +1242,161 @@
 		<key>zh</key>
 		<string>周一</string>
 	</dict>
+	<key>multiple</key>
+	<dict>
+		<key>af</key>
+		<string>Veelvuldig</string>
+		<key>ar</key>
+		<string>عديد</string>
+		<key>az</key>
+		<string>Çoxlu</string>
+		<key>be</key>
+		<string>Множны</string>
+		<key>bg</key>
+		<string>Многократни</string>
+		<key>bn</key>
+		<string>একাধিক</string>
+		<key>bs</key>
+		<string>Višestruko</string>
+		<key>ca</key>
+		<string>Múltiple</string>
+		<key>cs</key>
+		<string>Násobek</string>
+		<key>cy</key>
+		<string>Lluosrif</string>
+		<key>da</key>
+		<string>Mange</string>
+		<key>de</key>
+		<string>Mehrere</string>
+		<key>el</key>
+		<string>Πολλαπλούς</string>
+		<key>en</key>
+		<string>Multiple</string>
+		<key>eo</key>
+		<string>Multoblaj</string>
+		<key>es</key>
+		<string>Múltiple</string>
+		<key>et</key>
+		<string>Mitu</string>
+		<key>eu</key>
+		<string>Anizkoitz</string>
+		<key>fa</key>
+		<string>چندگانه</string>
+		<key>fi</key>
+		<string>Useita</string>
+		<key>fr</key>
+		<string>Plusieurs</string>
+		<key>ga</key>
+		<string>Iolraithe</string>
+		<key>gd</key>
+		<string>Iomadach</string>
+		<key>gl</key>
+		<string>Múltiple</string>
+		<key>gu</key>
+		<string>બહુવિધ</string>
+		<key>he</key>
+		<string>מרובות</string>
+		<key>hi</key>
+		<string>विभिन्न</string>
+		<key>hr</key>
+		<string>Višestruki</string>
+		<key>ht</key>
+		<string>Plizyè</string>
+		<key>hu</key>
+		<string>Többszörös</string>
+		<key>hy</key>
+		<string>Բազմապատիկ</string>
+		<key>id</key>
+		<string>Banyak</string>
+		<key>is</key>
+		<string>Margfeldi</string>
+		<key>it</key>
+		<string>Multiplo</string>
+		<key>ja</key>
+		<string>複数</string>
+		<key>ka</key>
+		<string>Შედგენილი</string>
+		<key>kk</key>
+		<string>Жалғамалы</string>
+		<key>kn</key>
+		<string>ಬಹು</string>
+		<key>ko</key>
+		<string>다수의</string>
+        <key>ky</key>
+        <string>Бир нече</string>
+        <key>lt</key>
+        <string>Daugkartinis</string>
+        <key>mg</key>
+        <string>Maro</string>
+        <key>mi</key>
+        <string>Taurea</string>
+        <key>mk</key>
+        <string>Повеќекратни</string>
+        <key>ml</key>
+        <string>പെരുക്കമായ</string>
+        <key>mn</key>
+        <string>Олон тооны</string>
+        <key>mt</key>
+        <string>Multipli</string>
+        <key>ne</key>
+        <string>बहुभागीय</string>
+        <key>nl</key>
+        <string>Meerdere</string>
+        <key>no</key>
+        <string>Flere</string>
+        <key>pa</key>
+        <string>ਕਈ</string>
+        <key>pl</key>
+        <string>Wiele</string>
+        <key>pt</key>
+        <string>Múltiplo</string>
+        <key>ro</key>
+        <string>Multiplu</string>
+        <key>ru</key>
+        <string>Несколько</string>
+        <key>si</key>
+        <string>බහු</string>
+        <key>sk</key>
+        <string>Viacnásobný</string>
+        <key>sl</key>
+        <string>Večkraten</string>
+        <key>sq</key>
+        <string>I shumëfishtë</string>
+        <key>sr</key>
+        <string>Вишеструки</string>
+        <key>su</key>
+        <string>Sababaraha</string>
+        <key>sv</key>
+        <string>Flera olika</string>
+        <key>sw</key>
+        <string>Nyingi</string>
+        <key>ta</key>
+        <string>நான்கு</string>
+        <key>te</key>
+        <string>బహుళ</string>
+        <key>tg</key>
+        <string>Кутоҳ</string>
+        <key>th</key>
+        <string>หลายรายการ</string>
+        <key>tl</key>
+        <string>Maramihang</string>
+        <key>tr</key>
+        <string>Çoklu</string>
+        <key>tt</key>
+        <string>Күп</string>
+        <key>uk</key>
+        <string>Багаторазовий</string>
+        <key>ur</key>
+        <string>ایک سے زیادہ</string>
+        <key>uz</key>
+        <string>Bir nechta</string>
+        <key>vi</key>
+        <string>Nhiều</string>
+        <key>yi</key>
+        <string>קייפל</string>
+        <key>zh</key>
+        <string>多种的</string>
+	</dict>
 	<key>no_email</key>
 	<dict>
 		<key>af</key>
@@ -2616,6 +2771,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>זוכן</string>
 		<key>zh</key>
 		<string>搜索</string>
+	</dict>
+	<key>select_calling_code</key>
+	<dict>
+		<key>af</key>
+		<string>Kies oproepkode</string>
+		<key>ar</key>
+		<string>حدد رمز الاتصال</string>
+		<key>az</key>
+		<string>Zəng Kodu Seçin</string>
+		<key>be</key>
+		<string>Выберыце Calling Code</string>
+		<key>bg</key>
+		<string>Изберете Код за обаждане</string>
+		<key>bn</key>
+		<string>কলিং কোড নির্বাচন করুন</string>
+		<key>bs</key>
+		<string>Odaberite Pozivni Kod</string>
+		<key>ca</key>
+		<string>Seleccioneu el codi de trucada</string>
+		<key>cs</key>
+		<string>Vyberte Volací Kód</string>
+		<key>cy</key>
+		<string>Dewiswch y Cod Galw</string>
+		<key>da</key>
+		<string>Vælg opkaldskode</string>
+		<key>de</key>
+		<string>Wählen Sie den Code aufrufen</string>
+		<key>el</key>
+		<string>Επιλέξτε τον κωδικό κλήσης</string>
+		<key>en</key>
+		<string>Select Calling Code</string>
+		<key>eo</key>
+		<string>Elektu Vokan Kodon</string>
+		<key>es</key>
+		<string>Seleccione el código de llamadas</string>
+		<key>et</key>
+		<string>Valige kõnekood</string>
+		<key>eu</key>
+		<string>Hautatu Deitzeko Kodea</string>
+		<key>fa</key>
+		<string>کد تماس را انتخاب کنید</string>
+		<key>fi</key>
+		<string>Valitse kutsukeskus</string>
+		<key>fr</key>
+		<string>Sélectionner le code d&apos;appel</string>
+		<key>ga</key>
+		<string>Roghnaigh Cód Glaonna</string>
+		<key>gd</key>
+		<string>Tagh Còd Gairm</string>
+		<key>gl</key>
+		<string>Seleccione Código de chamada</string>
+		<key>gu</key>
+		<string>ક calling લિંગ કોડ પસંદ કરો</string>
+		<key>he</key>
+		<string>בחר קוד שיחה</string>
+		<key>hi</key>
+		<string>कॉलिंग कोड का चयन करें</string>
+		<key>hr</key>
+		<string>Odaberite Pozivni Kod</string>
+		<key>ht</key>
+		<string>Chwazi Kòd Rele</string>
+		<key>hu</key>
+		<string>Válassza a Hívókód lehetőséget</string>
+		<key>hy</key>
+		<string>Ընտրեք Զանգի Կոդ</string>
+		<key>id</key>
+		<string>Pilih Kode Panggilan</string>
+		<key>is</key>
+		<string>Veldu Símtalsnúmer</string>
+		<key>it</key>
+		<string>Seleziona Codice di chiamata</string>
+		<key>ja</key>
+		<string>[呼び出しコード]を選択します</string>
+		<key>ka</key>
+		<string>Აირჩიეთ Ზარის Კოდი</string>
+		<key>kk</key>
+		<string>Қоңырау шалу кодын таңдаңыз</string>
+		<key>kn</key>
+		<string>ಕರೆ ಕೋಡ್ ಆಯ್ಕೆಮಾಡಿ</string>
+		<key>ko</key>
+		<string>통화 코드를 선택하십시오</string>
+		<key>ky</key>
+		<string>Чакыруу Кодун Тандаңыз</string>
+		<key>lt</key>
+		<string>Pasirinkite Skambinimo Kodą</string>
+		<key>mg</key>
+		<string>Safidio ny kaody antso</string>
+		<key>mi</key>
+		<string>Tīpakohia te waehere waea</string>
+		<key>mk</key>
+		<string>Изберете Код за повикување</string>
+		<key>ml</key>
+		<string>കോളിംഗ് കോഡ് തിരഞ്ഞെടുക്കുക</string>
+		<key>mn</key>
+		<string>Дуудлагын кодыг сонгоно уу</string>
+		<key>mt</key>
+		<string>Agħżel Kodiċi Tas-Sejħa</string>
+		<key>ne</key>
+		<string>कल गर्दै कल कोड चयन गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Selecteer belcode</string>
+		<key>no</key>
+		<string>Velg anropskode</string>
+		<key>pa</key>
+		<string>ਕਾਲਿੰਗ ਕੋਡ ਦੀ ਚੋਣ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Wybierz Kod Połączenia</string>
+		<key>pt</key>
+		<string>Selecione Código de chamada</string>
+		<key>ro</key>
+		<string>Selectați Codul de apelare</string>
+		<key>ru</key>
+		<string>Выберите Код Вызова</string>
+		<key>si</key>
+		<string>ඇමතුම් කේතය තෝරන්න</string>
+		<key>sk</key>
+		<string>Vyberte Volací Kód</string>
+		<key>sl</key>
+		<string>Izberite Klicno Kodo</string>
+		<key>sq</key>
+		<string>Zgjidhni Kodin e thirrjes</string>
+		<key>sr</key>
+		<string>Изаберите Код Позива</string>
+		<key>su</key>
+		<string>Pilih Kode Nelepon</string>
+		<key>sv</key>
+		<string>Välj samtalskod</string>
+		<key>sw</key>
+		<string>Chagua nambari ya kupiga simu</string>
+		<key>ta</key>
+		<string>அழைப்பு குறியீட்டைத் தேர்ந்தெடுக்கவும்</string>
+		<key>te</key>
+		<string>కాలింగ్ కోడ్‌ని ఎంచుకోండి</string>
+		<key>tg</key>
+		<string>Интихоби Рамзи Занг</string>
+		<key>th</key>
+		<string>เลือกรหัสการโทร</string>
+		<key>tl</key>
+		<string>Piliin ang Calling Code</string>
+		<key>tr</key>
+		<string>Arama Kodunu Seçin</string>
+		<key>tt</key>
+		<string>Шалтырату Кодын Сайлагыз</string>
+		<key>uk</key>
+		<string>Виберіть Код Виклику</string>
+		<key>ur</key>
+		<string>کالنگ کوڈ منتخب کریں</string>
+		<key>uz</key>
+		<string>Qo&apos;ng&apos;iroq Kodini Tanlang</string>
+		<key>vi</key>
+		<string>Chọn Mã Gọi</string>
+		<key>yi</key>
+		<string>סעלעקטירן פאַך קאָד</string>
+		<key>zh</key>
+		<string>选择通话代码</string>
 	</dict>
 	<key>send_feedback</key>
 	<dict>

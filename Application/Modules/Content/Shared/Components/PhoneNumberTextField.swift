@@ -1,0 +1,62 @@
+//
+//  PhoneNumberTextField.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 05/01/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+import SwiftUI
+
+/* 3rd-party */
+import Redux
+
+public struct PhoneNumberTextField: View {
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices) private var services: CommonServices
+
+    // MARK: - Properties
+
+    @Binding private var text: String
+    private let regionCode: String
+
+    // MARK: - Computed Properties
+
+    private var partiallyFormatted: String {
+        PhoneNumber(
+            callingCode: services.regionDetail.callingCode(regionCode: regionCode) ?? services.phoneNumber.deviceCallingCode,
+            nationalNumberString: text.digits,
+            regionCode: regionCode,
+            label: nil,
+            internalFormattedString: nil
+        ).partiallyFormatted(forRegion: regionCode)
+    }
+
+    // MARK: - Init
+
+    public init(_ text: Binding<String>, regionCode: String) {
+        _text = text
+        self.regionCode = regionCode
+    }
+
+    // MARK: - View
+
+    public var body: some View {
+        GenericTextField(
+            $text,
+            keyboardType: .phonePad,
+            placeholderText: (services.phoneNumber.exampleNationalNumberString(for: regionCode), nil)
+        )
+        .onChange(of: text) { newValue in
+            guard !newValue.isBlank else { return }
+            text = partiallyFormatted
+        }
+        .onChange(of: regionCode) { _ in
+            guard !text.isBlank else { return }
+            text = partiallyFormatted
+        }
+    }
+}

@@ -21,6 +21,7 @@ public struct CommonServices {
     public let invite: InviteService
     public let metadata: MetadataService
     public let networkActivityIndicator: NetworkActivityIndicatorService
+    public let notification: NotificationService
     public let permission: PermissionService
     public let phoneNumber: PhoneNumberService
     public let propertyLists: CommonPropertyLists
@@ -38,6 +39,7 @@ public struct CommonServices {
         invite: InviteService,
         metadata: MetadataService,
         networkActivityIndicator: NetworkActivityIndicatorService,
+        notification: NotificationService,
         permission: PermissionService,
         phoneNumber: PhoneNumberService,
         propertyLists: CommonPropertyLists,
@@ -52,6 +54,7 @@ public struct CommonServices {
         self.invite = invite
         self.metadata = metadata
         self.networkActivityIndicator = networkActivityIndicator
+        self.notification = notification
         self.permission = permission
         self.phoneNumber = phoneNumber
         self.propertyLists = propertyLists

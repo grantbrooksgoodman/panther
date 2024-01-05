@@ -18,6 +18,7 @@ public extension UserDefaultsKeyDomain {
         case contactSyncService(ContactSyncServiceDefaultsKey)
         case conversationArchiveService(ConversationArchiveServiceDefaultsKey)
         case devModeService(DevModeServiceDefaultsKey)
+        case notificationService(NotificationServiceDefaultsKey)
         case reviewService(ReviewServiceDefaultsKey)
         case updateService(UpdateServiceDefaultsKey)
         case userArchiveService(UserArchiveServiceDefaultsKey)
@@ -38,6 +39,9 @@ public extension UserDefaultsKeyDomain {
                 return key.rawValue
 
             case let .devModeService(key):
+                return key.rawValue
+
+            case let .notificationService(key):
                 return key.rawValue
 
             case let .reviewService(key):

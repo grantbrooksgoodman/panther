@@ -23,6 +23,8 @@ public enum RootPage: CaseIterable {
             .sample,
             .splash,
             .onboarding(.welcome),
+            .onboarding(.selectLanguage),
+            .onboarding(.verifyNumber),
         ]
     }
 

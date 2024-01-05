@@ -12,17 +12,24 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
+import FirebaseAnalytics
 import FirebaseCore
+import FirebaseMessaging
 import Redux
 
 @main
-public final class AppDelegate: UIResponder, UIApplicationDelegate {
+public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
+    @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
+    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
 
     // MARK: - UIApplication
 
@@ -132,6 +139,14 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func setUpFirebase() {
         FirebaseApp.configure()
+        Analytics.setAnalyticsCollectionEnabled(true)
+    }
+
+    // MARK: - Set Up Push Notifications
+
+    private func setUpPushNotifications() {
+        userNotificationCenter.delegate = self
+        firebaseMessaging.delegate = self
     }
 
     // MARK: - UISceneSession
@@ -151,5 +166,25 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
         coreUtilities.eraseTemporaryDirectory()
+    }
+
+    // MARK: - MessagingDelegate Conformance
+
+    public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        notificationCenter.post(name: Notification.Name("FCMToken"), object: nil, userInfo: ["token": fcmToken ?? ""])
+        notificationService.setPushToken(fcmToken)
+    }
+
+    // MARK: - UNUserNotificationCenterDelegate Conformance
+
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        if let exception = await notificationService.respondToNotification(notification) {
+            Logger.log(exception)
+        }
+
+        return [.badge, .banner, .sound]
     }
 }

@@ -29,6 +29,7 @@ public enum CommonServicesDependency: DependencyKey {
             invite: .init(),
             metadata: .init(),
             networkActivityIndicator: .init(),
+            notification: .init(),
             permission: .init(),
             phoneNumber: .init(),
             propertyLists: .init(),

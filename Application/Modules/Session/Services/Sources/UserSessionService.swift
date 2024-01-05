@@ -18,6 +18,7 @@ public final class UserSessionService {
 
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
     @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
 
@@ -77,35 +78,31 @@ public final class UserSessionService {
 
     // MARK: - Hash Value Observation
 
-    public func startObservingHashValueChanges() async -> Exception? {
+    public func startObservingHashValueChanges() {
         guard let currentUser,
-              let hashDatabaseReference else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
-        }
+              let hashDatabaseReference else { return }
 
-        return await withCheckedContinuation { continuation in
-            hashDatabaseReference.observe(.value) { snapshot in
-                guard let hash = snapshot.value as? String,
-                      hash != currentUser.id.hash else { return }
+        hashDatabaseReference.observe(.value) { snapshot in
+            guard let hash = snapshot.value as? String,
+                  hash != currentUser.id.hash else { return }
 
-                Task {
-                    let setCurrentUserResult = await self.setCurrentUser()
+            Task {
+                let setCurrentUserResult = await self.setCurrentUser()
 
-                    switch setCurrentUserResult {
-                    case let .success(user):
-                        Logger.log(
-                            "Updated current user.\nPrevious hash: \(currentUser.id.hash)\nNew hash: \(user.id.hash)",
-                            domain: .user,
-                            metadata: [self, #file, #function, #line]
-                        )
+                switch setCurrentUserResult {
+                case let .success(user):
+                    Logger.log(
+                        "Updated current user.\nPrevious hash: \(currentUser.id.hash)\nNew hash: \(user.id.hash)",
+                        domain: .user,
+                        metadata: [self, #file, #function, #line]
+                    )
 
-                    case let .failure(exception):
-                        continuation.resume(returning: exception)
-                    }
+                case let .failure(exception):
+                    Logger.log(exception, domain: .user)
                 }
-            } withCancel: { error in
-                continuation.resume(returning: .init(error, metadata: [self, #file, #function, #line]))
             }
+        } withCancel: { error in
+            Logger.log(.init(error, metadata: [self, #file, #function, #line]), domain: .user)
         }
     }
 
@@ -144,6 +141,35 @@ public final class UserSessionService {
 
         case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
+        }
+    }
+
+    // MARK: - Update Push Tokens
+
+    public func updatePushTokens() async -> Exception? {
+        guard let pushToken = notificationService.pushToken else {
+            return .init("Push token has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        var pushTokens = currentUser?.pushTokens ?? []
+        guard !pushTokens.contains(pushToken) else {
+            return .init("Push tokens already up to date.", metadata: [self, #file, #function, #line])
+        }
+
+        pushTokens.append(pushToken)
+        let updateValueResult = await currentUser?.updateValue(pushTokens, forKey: .pushTokens)
+
+        switch updateValueResult {
+        case let .success(user):
+            currentUser = user
+            currentUserID = user.id
+            return nil
+
+        case let .failure(exception):
+            return exception
+
+        case .none:
+            return nil
         }
     }
 }

@@ -24,6 +24,10 @@ public extension UserDefaultsKeyDomain {
         case serverUserNumberHashes
     }
 
+    enum NotificationServiceDefaultsKey: String {
+        case badgeNumber
+    }
+
     enum ReviewServiceDefaultsKey: String {
         case appOpenCount
         case lastRequestedReviewForBuildNumber

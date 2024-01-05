@@ -9,7 +9,8 @@ target 'Panther' do
   pod 'FirebaseAnalytics'
   pod 'FirebaseAuth'
   pod 'FirebaseDatabase'
-  pod 'FirebaseStorage'  
+  pod 'FirebaseMessaging'
+  pod 'FirebaseStorage'
 
   # Linting
   pod 'SwiftFormat/CLI', '~> 0.49'

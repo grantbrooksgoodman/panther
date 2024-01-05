@@ -11,4 +11,6 @@ import Foundation
 
 public enum OnboardingPage: String, CaseIterable {
     case welcome
+    case selectLanguage
+    case verifyNumber
 }

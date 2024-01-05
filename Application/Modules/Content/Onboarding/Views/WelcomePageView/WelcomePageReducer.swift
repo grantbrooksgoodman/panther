@@ -74,7 +74,7 @@ public struct WelcomePageReducer: Reducer {
             }
 
         case .action(.continueButtonTapped):
-            navigationCoordinator.setPage(.sample)
+            navigationCoordinator.setPage(.onboarding(.selectLanguage))
 
         case .action(.signInButtonTapped):
             navigationCoordinator.setPage(.sample)
