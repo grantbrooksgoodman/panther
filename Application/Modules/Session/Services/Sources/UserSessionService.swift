@@ -10,17 +10,38 @@
 import Foundation
 
 /* 3rd-party */
+import FirebaseDatabase
 import Redux
 
 public final class UserSessionService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking.services.user) private var userService: UserService
+    @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
+    @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
 
     public private(set) var currentUser: User?
     @Persistent(.currentUserID) private var currentUserID: UserID?
+
+    // MARK: - Computed Properties
+
+    private var hashDatabaseReference: DatabaseReference? {
+        guard let currentUser else { return nil }
+
+        let pathPrefix = "\(networking.config.environment.shortString)/\(networking.config.paths.users)"
+        return firebaseDatabase.child(
+            "\(pathPrefix)/\(currentUser.id.key)/\(User.SerializationKeys.compressedHash.rawValue)"
+        )
+    }
+
+    // MARK: - Object Lifecycle
+
+    deinit {
+        if let exception = stopObservingHashValueChanges() {
+            Logger.log(exception)
+        }
+    }
 
     // MARK: - Set Current User
 
@@ -35,7 +56,7 @@ public final class UserSessionService {
             return .success(currentUser)
         }
 
-        let getUserResult = await userService.getUser(idKey: currentUserID.key)
+        let getUserResult = await networking.services.user.getUser(idKey: currentUserID.key)
 
         switch getUserResult {
         case let .success(user):
@@ -54,6 +75,50 @@ public final class UserSessionService {
         }
     }
 
+    // MARK: - Hash Value Observation
+
+    public func startObservingHashValueChanges() async -> Exception? {
+        guard let currentUser,
+              let hashDatabaseReference else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        return await withCheckedContinuation { continuation in
+            hashDatabaseReference.observe(.value) { snapshot in
+                guard let hash = snapshot.value as? String,
+                      hash != currentUser.id.hash else { return }
+
+                Task {
+                    let setCurrentUserResult = await self.setCurrentUser()
+
+                    switch setCurrentUserResult {
+                    case let .success(user):
+                        Logger.log(
+                            "Updated current user.\nPrevious hash: \(currentUser.id.hash)\nNew hash: \(user.id.hash)",
+                            domain: .user,
+                            metadata: [self, #file, #function, #line]
+                        )
+
+                    case let .failure(exception):
+                        continuation.resume(returning: exception)
+                    }
+                }
+            } withCancel: { error in
+                continuation.resume(returning: .init(error, metadata: [self, #file, #function, #line]))
+            }
+        }
+    }
+
+    @discardableResult
+    public func stopObservingHashValueChanges() -> Exception? {
+        guard let hashDatabaseReference else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        hashDatabaseReference.removeAllObservers()
+        return nil
+    }
+
     // MARK: - Get Users for Conversation
 
     public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
@@ -65,7 +130,7 @@ public final class UserSessionService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getUsersResult = await userService.getUsers(idKeys: userIDKeys)
+        let getUsersResult = await networking.services.user.getUsers(idKeys: userIDKeys)
 
         switch getUsersResult {
         case let .success(users):
