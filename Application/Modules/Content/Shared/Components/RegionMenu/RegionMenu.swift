@@ -38,41 +38,47 @@ public struct RegionMenu: View {
     // MARK: - View
 
     public var body: some View {
-        ScrollViewReader { _ in
-            Button {
-                isPresented.toggle()
-            } label: {
-                VStack {
-                    Image(uiImage: regionDetailService.image(by: .regionCode(selectedRegionCode)) ?? .init())
-                        .resizable()
-                        .frame(
-                            width: Floats.buttonLabelImageFrameWidth,
-                            height: Floats.buttonLabelImageFrameHeight
-                        )
-                        .cornerRadius(Floats.buttonLabelImageCornerRadius)
-                        .aspectRatio(contentMode: .fit)
-
-                    Text("+\(regionDetailService.callingCode(regionCode: selectedRegionCode) ?? "1")")
-                        .foregroundColor(Colors.buttonLabelTextForeground)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(
-                    minWidth: Floats.buttonLabelVStackFrameMinWidth,
-                    minHeight: Floats.buttonLabelVStackFrameMinHeight
-                )
-                .background(
-                    RoundedRectangle(
-                        cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
+        Button {
+            isPresented.toggle()
+        } label: {
+            VStack {
+                Image(uiImage: regionDetailService.image(by: .regionCode(selectedRegionCode)) ?? .init())
+                    .resizable()
+                    .frame(
+                        width: Floats.buttonLabelImageFrameWidth,
+                        height: Floats.buttonLabelImageFrameHeight
                     )
+                    .cornerRadius(Floats.buttonLabelImageCornerRadius)
+                    .aspectRatio(contentMode: .fit)
+
+                Text("+\(regionDetailService.callingCode(regionCode: selectedRegionCode) ?? "1")")
+                    .foregroundColor(Colors.buttonLabelTextForeground)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(
+                minWidth: Floats.buttonLabelVStackFrameMinWidth,
+                minHeight: Floats.buttonLabelVStackFrameMinHeight
+            )
+            .background(
+                RoundedRectangle(
+                    cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
                 )
-                .foregroundStyle(colorScheme == .dark ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground)
-                .shadow(radius: Floats.buttonLabelVStackShadowRadius)
-            }
-            .popover(isPresented: $isPresented) {
-                RegionPickerView($isPresented, selectedRegionCode: $selectedRegionCode)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .onAppear { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
-            }
+            )
+            .foregroundStyle(colorScheme == .dark ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground)
+            .shadow(radius: Floats.buttonLabelVStackShadowRadius)
+        }
+        .popover(isPresented: $isPresented) {
+            RegionPickerView(
+                .init(
+                    initialState: .init(
+                        $isPresented,
+                        selectedRegionCode: $selectedRegionCode
+                    ),
+                    reducer: RegionMenuReducer()
+                )
+            )
+            .frame(maxWidth: .infinity, alignment: .top)
+            .onAppear { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
         }
     }
 }
@@ -86,59 +92,49 @@ private struct RegionPickerView: View {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
 
     // MARK: - Properties
 
-    // Bool
-    @Binding private var isPresented: Bool
+    @StateObject private var observer: ViewObserver<RegionMenuObserver>
+    @State private var selectedRegionTitle = ""
+    @StateObject private var viewModel: ViewModel<RegionMenuReducer>
 
-    // String
-    @Localized(.selectCallingCode) private var headerLabelText
-    @Localized(.noResults) private var noResultsLabelText
-    @State private var query = ""
-    @Binding private var selectedRegionCode: String
+    // MARK: - Bindings
+
+    private var searchQueryBinding: Binding<String> {
+        viewModel.binding(
+            for: \.searchQuery,
+            sendAction: { .searchQueryChanged($0) }
+        )
+    }
 
     // MARK: - Init
 
-    public init(
-        _ isPresented: Binding<Bool>,
-        selectedRegionCode: Binding<String>
-    ) {
-        _isPresented = isPresented
-        _selectedRegionCode = selectedRegionCode
+    public init(_ viewModel: ViewModel<RegionMenuReducer>) {
+        _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
     public var body: some View {
-        if isPresented {
+        if viewModel.isPresented.wrappedValue {
             ScrollViewReader { proxy in
-                SearchBar($query)
+                SearchBar(searchQueryBinding)
                     .padding(.bottom, Floats.searchBarBottomPadding)
                     .background(Color.navigationBarBackground)
 
-                if let regionTitles = regionDetailService.regionTitles(by: .searchTerm(query)) {
+                if let regionTitles = viewModel.queriedRegionTitles {
                     listView(regionTitles: regionTitles)
                         .onAppear {
-                            coreGCD.after(.milliseconds(.init(Floats.dismissDelayMilliseconds))) {
-                                withAnimation {
-                                    proxy.scrollTo(
-                                        regionDetailService.regionTitles(
-                                            by: .regionCode(selectedRegionCode),
-                                            titleFormat: .regionNameFirst
-                                        )?.first ?? selectedRegionCode,
-                                        anchor: .top
-                                    )
-                                }
-                            }
+                            viewModel.send(.listViewAppeared(proxy: proxy))
                         }
                 } else {
                     noResultsView
                 }
             }
-            .header(.text(.init(headerLabelText)), showsDivider: false, isThemed: true)
+            .header(.text(.init(viewModel.headerLabelText)), showsDivider: false)
             .background(Color.navigationBarBackground)
             .ignoresSafeArea(.all)
         } else {
@@ -149,10 +145,8 @@ private struct RegionPickerView: View {
     private func listView(regionTitles: [String]) -> some View {
         List(regionTitles, id: \.self) { regionTitle in
             Button {
-                selectedRegionCode = regionDetailService.regionCode(by: .regionTitle(regionTitle)) ?? ""
-                coreGCD.after(.milliseconds(.init(Floats.dismissDelayMilliseconds))) {
-                    self.isPresented = false
-                }
+                selectedRegionTitle = regionTitle
+                viewModel.send(.selectedRegionTitleChanged(regionTitle))
             } label: {
                 HStack {
                     Image(uiImage: regionDetailService.image(by: .regionTitle(regionTitle)) ?? .init())
@@ -171,7 +165,7 @@ private struct RegionPickerView: View {
                         ))
                         .foregroundStyle(Color.titleText)
 
-                    if regionTitle == regionDetailService.regionTitles(by: .regionCode(selectedRegionCode), titleFormat: .regionNameFirst)?.first {
+                    if regionTitle == selectedRegionTitle {
                         Image(systemName: Strings.selectedCellImageSystemName)
                             .foregroundStyle(Colors.selectedCellImageForeground)
                             .padding(.leading, Floats.selectedCellImageLeadingPadding)
@@ -184,7 +178,7 @@ private struct RegionPickerView: View {
     private var noResultsView: some View {
         Group {
             Spacer()
-            Text(noResultsLabelText)
+            Text(viewModel.noResultsLabelText)
                 .font(.system(size: Floats.noResultsLabelSystemFontSize, weight: .regular))
                 .foregroundStyle(Colors.noResultsLabelTextForeground)
             Spacer()

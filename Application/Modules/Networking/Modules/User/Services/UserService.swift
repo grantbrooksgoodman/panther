@@ -353,6 +353,7 @@ public final class UserService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
+        CacheDomain.UserServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .userService($0)) }
         cache = emptyCache
     }
 }
@@ -360,7 +361,7 @@ public final class UserService: Cacheable {
 /* MARK: Cache */
 
 public extension CacheDomain {
-    enum UserServiceCacheDomainKey: String, Equatable {
+    enum UserServiceCacheDomainKey: String, CaseIterable, Equatable {
         case userNumberHashSnapshot
     }
 }

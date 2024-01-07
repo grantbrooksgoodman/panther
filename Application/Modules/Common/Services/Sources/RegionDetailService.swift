@@ -31,7 +31,6 @@ public final class RegionDetailService: Cacheable {
     // MARK: - Dependencies
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
-    @Dependency(\.systemLocalizedLocale) private var localizedLocale: Locale
     @Dependency(\.commonServices.propertyLists) private var commonPropertyLists: CommonPropertyLists
 
     // MARK: - Properties
@@ -45,6 +44,7 @@ public final class RegionDetailService: Cacheable {
 
     private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
     private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
+    private var systemLocalizedLocale: Locale { Locale(languageCode: .init(RuntimeStorage.languageCode)) }
 
     // MARK: - Init
 
@@ -165,7 +165,7 @@ public final class RegionDetailService: Cacheable {
 
         guard callingCodes[regionCode] != nil else { return regionCode }
 
-        guard let regionName = localizedLocale.localizedString(forRegionCode: regionCode.uppercased()) else {
+        guard let regionName = systemLocalizedLocale.localizedString(forRegionCode: regionCode.uppercased()) else {
             setCacheValue(regionCode, Localized(.multiple).wrappedValue)
             return Localized(.multiple).wrappedValue
         }
@@ -273,7 +273,7 @@ public final class RegionDetailService: Cacheable {
             return title
         }
 
-        guard let regionName = localizedLocale.localizedString(forRegionCode: regionCode) else {
+        guard let regionName = systemLocalizedLocale.localizedString(forRegionCode: regionCode) else {
             return title(for: Localized(.multiple).wrappedValue)
         }
 
@@ -283,6 +283,7 @@ public final class RegionDetailService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
+        CacheDomain.RegionDetailServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .regionDetailService($0)) }
         cache = emptyCache
     }
 }
@@ -290,7 +291,7 @@ public final class RegionDetailService: Cacheable {
 /* MARK: Cache */
 
 public extension CacheDomain {
-    enum RegionDetailServiceCacheDomainKey: String, Equatable {
+    enum RegionDetailServiceCacheDomainKey: String, CaseIterable, Equatable {
         case imagesForRegionCodes
         case imagesForRegionTitles
 

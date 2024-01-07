@@ -186,6 +186,7 @@ public final class ContactService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
+        CacheDomain.ContactServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .contactService($0)) }
         cache = emptyCache
     }
 }
@@ -193,7 +194,7 @@ public final class ContactService: Cacheable {
 /* MARK: Cache */
 
 public extension CacheDomain {
-    enum ContactServiceCacheDomainKey: String, Equatable {
+    enum ContactServiceCacheDomainKey: String, CaseIterable, Equatable {
         case contacts
     }
 }

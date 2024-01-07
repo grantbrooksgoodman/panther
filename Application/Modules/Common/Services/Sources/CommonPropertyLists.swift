@@ -69,6 +69,7 @@ public final class CommonPropertyLists: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
+        CacheDomain.CommonPropertyListsCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .commonPropertyLists($0)) }
         cache = emptyCache
     }
 }
@@ -76,7 +77,7 @@ public final class CommonPropertyLists: Cacheable {
 /* MARK: Cache */
 
 public extension CacheDomain {
-    enum CommonPropertyListsCacheDomainKey: String, Equatable {
+    enum CommonPropertyListsCacheDomainKey: String, CaseIterable, Equatable {
         case callingCodes
         case lookupTables
     }

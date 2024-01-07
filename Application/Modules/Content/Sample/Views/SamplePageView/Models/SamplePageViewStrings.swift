@@ -1,5 +1,5 @@
 //
-//  SampleViewStrings.swift
+//  SamplePageViewStrings.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 11/11/2023.
