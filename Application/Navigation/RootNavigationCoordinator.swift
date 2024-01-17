@@ -25,6 +25,8 @@ public enum RootPage: CaseIterable {
             .onboarding(.welcome),
             .onboarding(.selectLanguage),
             .onboarding(.verifyNumber),
+            .onboarding(.authCode),
+            .onboarding(.permission),
         ]
     }
 

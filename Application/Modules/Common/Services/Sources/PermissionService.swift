@@ -77,7 +77,6 @@ public struct PermissionService {
         do {
             let requestAccessResult = try await contactStore.requestAccess(for: .contacts)
             return .success(requestAccessResult ? .granted : .denied)
-
         } catch {
             return .failure(.init(error, metadata: [self, #file, #function, #line]))
         }
@@ -128,6 +127,7 @@ public struct PermissionService {
 
     // MARK: - Call to Action Methods
 
+    /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
     @discardableResult
     public func presentCTA(for type: PermissionType) async -> Bool {
         switch type {
@@ -163,7 +163,6 @@ public struct PermissionService {
         )
     }
 
-    /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
     private func presentCTA(with message: String) async -> Bool {
         @Localized(.settings) var settingsString: String
         let settingsURL = await URL(string: UIApplication.openSettingsURLString)

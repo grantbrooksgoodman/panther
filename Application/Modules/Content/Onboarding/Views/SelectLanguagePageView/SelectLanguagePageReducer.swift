@@ -12,7 +12,6 @@ import Foundation
 /* 3rd-party */
 import AlertKit
 import Redux
-import Translator
 
 public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies

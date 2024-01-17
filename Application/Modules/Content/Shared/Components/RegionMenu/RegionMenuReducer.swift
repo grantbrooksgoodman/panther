@@ -59,6 +59,14 @@ public struct RegionMenuReducer: Reducer {
             return regionDetailService.regionTitles(by: .searchTerm(searchQuery))
         }
 
+        public var selectedRegionTitle: String? {
+            @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
+            return regionDetailService.regionTitles(
+                by: .regionCode(selectedRegionCode.wrappedValue),
+                titleFormat: .regionNameFirst
+            )?.first
+        }
+
         /* MARK: Init */
 
         public init(
@@ -103,15 +111,10 @@ public struct RegionMenuReducer: Reducer {
 
         case let .action(.listViewAppeared(proxy: proxy)):
             let selectedRegionCode = state.selectedRegionCode.wrappedValue
+            let selectedRegionTitle = state.selectedRegionTitle
             coreGCD.after(.milliseconds(.init(Floats.dismissDelayMilliseconds))) {
                 withAnimation {
-                    proxy.scrollTo(
-                        regionDetailService.regionTitles(
-                            by: .regionCode(selectedRegionCode),
-                            titleFormat: .regionNameFirst
-                        )?.first ?? selectedRegionCode,
-                        anchor: .top
-                    )
+                    proxy.scrollTo(selectedRegionTitle ?? selectedRegionCode, anchor: .top)
                 }
             }
 
@@ -120,7 +123,6 @@ public struct RegionMenuReducer: Reducer {
 
         case let .action(.selectedRegionTitleChanged(selectedRegionTitle)):
             state.selectedRegionCode.wrappedValue = regionDetailService.regionCode(by: .regionTitle(selectedRegionTitle)) ?? ""
-
             return .task(delay: .milliseconds(.init(Floats.dismissDelayMilliseconds))) {
                 .isPresentedChanged(false)
             }

@@ -52,7 +52,7 @@ public struct RegionMenu: View {
                     .aspectRatio(contentMode: .fit)
 
                 Text("+\(regionDetailService.callingCode(regionCode: selectedRegionCode) ?? "1")")
-                    .foregroundColor(Colors.buttonLabelTextForeground)
+                    .foregroundStyle(Colors.buttonLabelTextForeground)
                     .multilineTextAlignment(.center)
             }
             .frame(
@@ -137,6 +137,9 @@ private struct RegionPickerView: View {
             .header(.text(.init(viewModel.headerLabelText)), showsDivider: false)
             .background(Color.navigationBarBackground)
             .ignoresSafeArea(.all)
+            .onAppear {
+                selectedRegionTitle = viewModel.selectedRegionTitle ?? ""
+            }
         } else {
             EmptyView()
         }

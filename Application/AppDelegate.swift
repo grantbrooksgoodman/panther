@@ -147,6 +147,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     private func setUpPushNotifications() {
         userNotificationCenter.delegate = self
         firebaseMessaging.delegate = self
+        uiApplication.registerForRemoteNotifications()
     }
 
     // MARK: - UISceneSession

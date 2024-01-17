@@ -125,7 +125,7 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
     public func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
         let regionCode = regionCode ?? self.regionCode
 
-        let fullFormatAttempt = formattedString(regionCode: regionCode, useFailsafe: useFailsafe)
+        let fullFormatAttempt = formattedString(regionCode: regionCode, includeCallingCode: true, useFailsafe: useFailsafe)
         if fullFormatAttempt.contains("+") || fullFormatAttempt.contains(" ") {
             return fullFormatAttempt
         }
@@ -141,7 +141,7 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
         let partialNumberString = nationalNumberString.isEmpty ? compiledNumberString : nationalNumberString
         guard partialNumberString != "" else { return partialNumberString }
 
-        var fullFormatAttempt = formattedString(regionCode: regionCode, useFailsafe: true)
+        var fullFormatAttempt = formattedString(regionCode: regionCode, includeCallingCode: false, useFailsafe: true)
         guard let callingCode = services.regionDetail.callingCode(regionCode: regionCode) else { return fullFormatAttempt }
 
         guard fullFormatAttempt == failsafeFormat(partialNumberString) else {
@@ -150,9 +150,7 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
                 return partialFormatter.formatPartial(partialNumberString)
             }
 
-            fullFormatAttempt = fullFormatAttempt.removingOccurrences(of: ["+"])
-            fullFormatAttempt = fullFormatAttempt.dropPrefix(callingCode.count)
-
+            fullFormatAttempt = fullFormatAttempt.removingOccurrences(of: ["+\(callingCode)"])
             return fullFormatAttempt.trimmingBorderedWhitespace
         }
 
@@ -182,7 +180,11 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
         return formattedString.trimmingBorderedWhitespace
     }
 
-    private func formattedString(regionCode: String, useFailsafe: Bool) -> String {
+    private func formattedString(
+        regionCode: String,
+        includeCallingCode: Bool,
+        useFailsafe: Bool
+    ) -> String {
         @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit
 
         if callingCode == "1",
@@ -195,8 +197,8 @@ public struct PhoneNumber: Codable, CompressedHashable, Equatable {
         let formattedNumber: String?
 
         do {
-            let parsed = try phoneNumberKit.parse(compiledNumberString, withRegion: regionCode)
-            formattedNumber = phoneNumberKit.format(parsed, toType: .international)
+            let parsed = try phoneNumberKit.parse(nationalNumberString, withRegion: regionCode)
+            formattedNumber = phoneNumberKit.format(parsed, toType: includeCallingCode ? .international : .national)
         } catch {
             return internalFormattedString ?? fallbackFormatted
         }

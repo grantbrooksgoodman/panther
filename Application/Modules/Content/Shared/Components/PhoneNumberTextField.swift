@@ -20,8 +20,8 @@ public struct PhoneNumberTextField: View {
 
     // MARK: - Properties
 
+    @Binding private var regionCode: String
     @Binding private var text: String
-    private let regionCode: String
 
     // MARK: - Computed Properties
 
@@ -37,9 +37,9 @@ public struct PhoneNumberTextField: View {
 
     // MARK: - Init
 
-    public init(_ text: Binding<String>, regionCode: String) {
+    public init(_ text: Binding<String>, regionCode: Binding<String>) {
         _text = text
-        self.regionCode = regionCode
+        _regionCode = regionCode
     }
 
     // MARK: - View
@@ -52,11 +52,15 @@ public struct PhoneNumberTextField: View {
         )
         .onChange(of: text) { newValue in
             guard !newValue.isBlank else { return }
-            text = partiallyFormatted
+            Task { @MainActor in
+                text = partiallyFormatted
+            }
         }
         .onChange(of: regionCode) { _ in
             guard !text.isBlank else { return }
-            text = partiallyFormatted
+            Task { @MainActor in
+                text = partiallyFormatted
+            }
         }
     }
 }

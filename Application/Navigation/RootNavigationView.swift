@@ -33,6 +33,12 @@ public extension RootView {
 
                 case .verifyNumber:
                     withTransition { VerifyNumberPageView(.init(initialState: .init(), reducer: VerifyNumberPageReducer())) }
+
+                case .authCode:
+                    withTransition { AuthCodePageView(.init(initialState: .init(), reducer: AuthCodePageReducer())) }
+
+                case .permission:
+                    withTransition { PermissionPageView(.init(initialState: .init(), reducer: PermissionPageReducer())) }
                 }
             }
         }

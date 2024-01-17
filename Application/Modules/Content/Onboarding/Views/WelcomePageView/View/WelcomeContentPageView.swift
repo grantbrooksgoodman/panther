@@ -53,16 +53,16 @@ public struct WelcomeContentPageView: View {
                 Text(viewModel.strings.value(for: .continueButtonText))
                     .bold()
             }
-            .padding(.vertical, Floats.continueButtonVerticalPadding)
             .foregroundStyle(Colors.continueButtonForeground)
+            .padding(.vertical, Floats.continueButtonVerticalPadding)
 
             Button {
                 viewModel.send(.signInButtonTapped)
             } label: {
                 Text(viewModel.strings.value(for: .signInButtonText))
             }
-            .padding(.vertical, Floats.signInButtonVerticalPadding)
             .foregroundStyle(Colors.signInButtonForeground)
+            .padding(.vertical, Floats.signInButtonVerticalPadding)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

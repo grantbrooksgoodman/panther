@@ -13,4 +13,6 @@ public enum OnboardingPage: String, CaseIterable {
     case welcome
     case selectLanguage
     case verifyNumber
+    case authCode
+    case permission
 }

@@ -18,6 +18,7 @@ import Redux
 public enum AppException: String {
     /* Add new cases here. */
 
+    case contactAccessDenied = "F6E6"
     case currentUserIDNotSet = "E383"
     case exhaustedAvailablePlatforms = "6005"
     case genericStorageError = "6F00"

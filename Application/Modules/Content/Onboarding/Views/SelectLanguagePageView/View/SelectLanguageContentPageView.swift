@@ -65,18 +65,18 @@ public struct SelectLanguageContentPageView: View {
                     Text(viewModel.strings.value(for: .continueButtonText))
                         .bold()
                 }
-                .padding(.top, Floats.continueButtonTopPadding)
-                .foregroundStyle(Colors.continueButtonForeground)
                 .disabled(!viewModel.isContinueButtonEnabled)
+                .foregroundStyle(Colors.continueButtonForeground)
+                .padding(.top, Floats.continueButtonTopPadding)
 
                 Button {
                     viewModel.send(.backButtonTapped)
                 } label: {
                     Text(viewModel.strings.value(for: .backButtonText))
                 }
-                .padding(.top, Floats.backButtonTopPadding)
-                .foregroundStyle(Colors.backButtonForeground)
                 .font(.system(size: Floats.backButtonFontSize))
+                .foregroundStyle(Colors.backButtonForeground)
+                .padding(.top, Floats.backButtonTopPadding)
             }
             .padding(.top, Floats.topPadding)
 

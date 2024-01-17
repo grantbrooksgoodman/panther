@@ -10,7 +10,7 @@
 import Foundation
 
 public extension TranslatedLabelStringCollection {
-    enum SampleViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
+    enum SamplePageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
         case titleLabelText = "Hello World"
@@ -22,12 +22,12 @@ public extension TranslatedLabelStringCollection {
     }
 }
 
-public enum SampleViewStrings: TranslatedLabelStrings {
+public enum SamplePageViewStrings: TranslatedLabelStrings {
     public static var keyPairs: [TranslationInputMap] {
-        TranslatedLabelStringCollection.SampleViewStringKey.allCases
+        TranslatedLabelStringCollection.SamplePageViewStringKey.allCases
             .map {
                 TranslationInputMap(
-                    key: .sampleView($0),
+                    key: .samplePageView($0),
                     input: .init(
                         $0.rawValue,
                         alternate: $0.alternate

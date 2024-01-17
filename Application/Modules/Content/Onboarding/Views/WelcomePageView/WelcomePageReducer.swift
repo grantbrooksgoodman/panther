@@ -11,7 +11,6 @@ import Foundation
 
 /* 3rd-party */
 import Redux
-import Translator
 
 public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies

@@ -1,8 +1,8 @@
 //
-//  VerifyNumberContentPageView.swift
+//  AuthCodeContentPageView.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 04/01/2024.
+//  Created by Grant Brooks Goodman on 16/01/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -13,35 +13,29 @@ import SwiftUI
 /* 3rd-party */
 import Redux
 
-public struct VerifyNumberContentPageView: View {
+public struct AuthCodeContentPageView: View {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.VerifyNumberPageView
-    private typealias Floats = AppConstants.CGFloats.VerifyNumberPageView
+    private typealias Colors = AppConstants.Colors.AuthCodePageView
+    private typealias Floats = AppConstants.CGFloats.AuthCodePageView
+    private typealias Strings = AppConstants.Strings.AuthCodePageView
 
     // MARK: - Properties
 
-    @ObservedObject private var viewModel: ViewModel<VerifyNumberPageReducer>
+    @ObservedObject private var viewModel: ViewModel<AuthCodePageReducer>
 
     // MARK: - Bindings
 
-    private var phoneNumberStringBinding: Binding<String> {
+    private var verificationCodeBinding: Binding<String> {
         viewModel.binding(
-            for: \.phoneNumberString,
-            sendAction: { .phoneNumberStringChanged($0) }
-        )
-    }
-
-    private var selectedRegionCodeBinding: Binding<String> {
-        viewModel.binding(
-            for: \.selectedRegionCode,
-            sendAction: { .selectedRegionCodeChanged($0) }
+            for: \.verificationCode,
+            sendAction: { .verificationCodeChanged($0) }
         )
     }
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<VerifyNumberPageReducer>) {
+    public init(_ viewModel: ViewModel<AuthCodePageReducer>) {
         self.viewModel = viewModel
     }
 
@@ -60,18 +54,13 @@ public struct VerifyNumberContentPageView: View {
                     .font(.system(size: Floats.instructionLabelFontSize))
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                HStack(alignment: .center) {
-                    RegionMenu(selectedRegionCodeBinding)
-                        .padding(.leading, Floats.regionMenuLeadingPadding)
-                        .padding(.trailing, Floats.regionMenuTrailingPadding)
-
-                    PhoneNumberTextField(
-                        phoneNumberStringBinding,
-                        regionCode: selectedRegionCodeBinding
-                    )
-                    .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
-                    .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
-                }
+                GenericTextField(
+                    verificationCodeBinding,
+                    keyboardType: .numberPad,
+                    placeholderText: (Strings.textFieldPlaceholder, nil)
+                )
+                .padding(.horizontal, Floats.textFieldHorizontalPadding)
+                .padding(.vertical, Floats.textFieldVerticalPadding)
 
                 Button {
                     viewModel.send(.continueButtonTapped)
@@ -79,9 +68,9 @@ public struct VerifyNumberContentPageView: View {
                     Text(viewModel.strings.value(for: .continueButtonText))
                         .bold()
                 }
+                .accentColor(Colors.continueButtonAccent)
                 .disabled(!viewModel.isContinueButtonEnabled)
                 .padding(.top, Floats.continueButtonTopPadding)
-                .accentColor(Colors.continueButtonAccent)
 
                 Button {
                     viewModel.send(.backButtonTapped)
@@ -89,9 +78,9 @@ public struct VerifyNumberContentPageView: View {
                     Text(viewModel.strings.value(for: .backButtonText))
                 }
                 .disabled(!viewModel.isBackButtonEnabled)
-                .padding(.top, Floats.backButtonTopPadding)
-                .foregroundStyle(Colors.backButtonForeground)
                 .font(.system(size: Floats.backButtonFontSize))
+                .foregroundStyle(Colors.backButtonForeground)
+                .padding(.top, Floats.backButtonTopPadding)
             }
             .padding(.bottom, Floats.bottomPadding)
 
@@ -105,7 +94,7 @@ public struct VerifyNumberContentPageView: View {
 }
 
 private extension Array where Element == TranslationOutputMap {
-    func value(for key: TranslatedLabelStringCollection.VerifyNumberPageViewStringKey) -> String {
-        (first(where: { $0.key == .verifyNumberPageView(key) })?.value ?? key.rawValue).sanitized
+    func value(for key: TranslatedLabelStringCollection.AuthCodePageViewStringKey) -> String {
+        (first(where: { $0.key == .authCodePageView(key) })?.value ?? key.rawValue).sanitized
     }
 }
