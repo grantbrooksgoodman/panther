@@ -120,6 +120,9 @@ public struct PermissionPageReducer: Reducer {
             uiApplication.keyWindow?.removeOverlay()
 
             if let exception {
+                state.isBackButtonEnabled = true
+                state.isFinishButtonEnabled = false
+
                 Logger.log(exception, with: .toast())
             } else {
                 navigationCoordinator.setPage(.sample)

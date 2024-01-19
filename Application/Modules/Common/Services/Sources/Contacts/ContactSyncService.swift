@@ -26,12 +26,22 @@ public final class ContactSyncService {
 
     // MARK: - Synchronization
 
-    public func syncContactPairArchive() async -> Exception? {
+    public func syncContactPairArchive(forceUpdate: Bool = false) async -> Exception? {
         let syncHashesResult = await syncHashes()
 
         switch syncHashesResult {
         case let .success(shouldUpdate):
+            if forceUpdate {
+                Logger.log(
+                    "Performing forced update of contact pair archive.",
+                    domain: .contacts,
+                    metadata: [self, #file, #function, #line]
+                )
+                return await updateContactPairArchive()
+            }
+
             guard shouldUpdate else { return nil }
+
             Logger.log(
                 "Contact pair archive needs updating.",
                 domain: .contacts,

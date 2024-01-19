@@ -21,6 +21,7 @@ public struct Contact: Codable, CompressedHashable, Equatable {
     public var hashFactors: [String] {
         [
             firstName,
+            id,
             lastName,
             phoneNumbers.map(\.compressedHash).joined(),
             imageData?.base64EncodedString() ?? "",
@@ -32,6 +33,7 @@ public struct Contact: Codable, CompressedHashable, Equatable {
 
     // String
     public let firstName: String
+    public let id: String
     public let lastName: String
 
     // MARK: - Computed Properties
@@ -52,11 +54,13 @@ public struct Contact: Codable, CompressedHashable, Equatable {
     // MARK: - Init
 
     public init(
+        _ id: String,
         firstName: String,
         lastName: String,
         phoneNumbers: [PhoneNumber],
         imageData: Data?
     ) {
+        self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.phoneNumbers = phoneNumbers
@@ -67,6 +71,7 @@ public struct Contact: Codable, CompressedHashable, Equatable {
         @Dependency(\.contactNameService) var contactNameService: ContactNameService
         let compiledName = contactNameService.name(for: contact)
         self.init(
+            contact.identifier,
             firstName: compiledName.firstName,
             lastName: compiledName.lastName,
             phoneNumbers: contact.phoneNumbers.asPhoneNumbers.unique,

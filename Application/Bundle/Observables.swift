@@ -16,6 +16,7 @@ public enum ObservableKey: String {
     /* Add cases here to define new values for Observer instances. */
 
     case isNetworkActivityOccurring
+    case updatedCurrentUser
 
     // MARK: - Core Cases
 
@@ -31,4 +32,5 @@ public enum Observables {
     /* Add new properties conforming to Observable here. */
 
     public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
+    public static let updatedCurrentUser: Observable<Nil> = .init(key: .updatedCurrentUser)
 }

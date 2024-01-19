@@ -17,6 +17,9 @@ public extension RootView {
     var rootPage: some View {
         Group {
             switch navigationCoordinator.page {
+            case .conversations:
+                withTransition { ConversationsPageView(.init(initialState: .init(), reducer: ConversationsPageReducer())) }
+
             case .sample:
                 withTransition { SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer())) }
 

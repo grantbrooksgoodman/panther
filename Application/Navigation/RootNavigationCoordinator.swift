@@ -12,6 +12,7 @@ import Foundation
 public enum RootPage: CaseIterable {
     // MARK: - Cases
 
+    case conversations
     case sample
     case splash
     case onboarding(OnboardingPage)
@@ -20,6 +21,7 @@ public enum RootPage: CaseIterable {
 
     public static var allCases: [RootPage] {
         [
+            .conversations,
             .sample,
             .splash,
             .onboarding(.welcome),
@@ -32,6 +34,9 @@ public enum RootPage: CaseIterable {
 
     public var rawValue: String {
         switch self {
+        case .conversations:
+            return "conversations"
+
         case .sample:
             return "sample"
 

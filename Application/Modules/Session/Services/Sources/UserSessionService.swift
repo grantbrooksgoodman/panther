@@ -97,6 +97,8 @@ public final class UserSessionService {
                         metadata: [self, #file, #function, #line]
                     )
 
+                    Observables.updatedCurrentUser.trigger()
+
                 case let .failure(exception):
                     Logger.log(exception, domain: .user)
                 }

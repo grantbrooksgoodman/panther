@@ -336,10 +336,12 @@ public extension Array where Element == Exception {
 public extension Error {
     var staticIdentifier: String {
         let nsError = self as NSError
-        var underlyingIDs = ["[\(nsError.domain):\(nsError.code)]"]
+        let userInfo = nsError.userInfo.filter { $0.key != "NSLocalizedDescription" }
+        var underlyingIDs = ["[\(nsError.domain):\(nsError.code), \(userInfo.description)]"]
         underlyingIDs.append(contentsOf: nsError.underlyingErrors.reduce(into: [String]()) { partialResult, error in
             let underlyingNSError = error as NSError
-            partialResult.append("[\(underlyingNSError.domain):\(underlyingNSError.code)]")
+            let underlyingUserInfo = nsError.userInfo.filter { $0.key != "NSLocalizedDescription" }
+            partialResult.append("[\(underlyingNSError.domain):\(underlyingNSError.code), \(underlyingUserInfo.description)]")
         })
         return underlyingIDs.joined(separator: "+")
     }

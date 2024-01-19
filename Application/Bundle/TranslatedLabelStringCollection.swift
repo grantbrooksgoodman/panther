@@ -13,6 +13,7 @@ public enum TranslatedLabelStringCollection: Equatable {
     /* Add cases here to expose new strings for on-the-fly translation. */
 
     case authCodePageView(AuthCodePageViewStringKey)
+    case conversationsPageView(ConversationsPageViewStringKey)
     case permissionPageView(PermissionPageViewStringKey)
     case samplePageView(SamplePageViewStringKey)
     case selectLanguagePageView(SelectLanguagePageViewStringKey)

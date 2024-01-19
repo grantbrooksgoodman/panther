@@ -59,7 +59,7 @@ extension Message: Updatable {
                 hasAudioComponent: hasAudioComponent,
                 audioComponents: audioComponents,
                 translations: translations,
-                readDate: dateFormatter.date(from: value) ?? readDate,
+                readDate: dateFormatter.date(from: value) ?? nil,
                 sentDate: sentDate
             )
         }

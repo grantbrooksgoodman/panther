@@ -36,7 +36,7 @@ public final class ContactPairArchiveService {
     public func addValue(_ contactPair: ContactPair) {
         var values = archive ?? .init()
 
-        values.removeAll(where: { $0.contact.compressedHash == contactPair.contact.compressedHash })
+        values.removeAll(where: { $0.contact.id == contactPair.contact.id })
         values.append(contactPair)
         archive = values
 
@@ -61,12 +61,6 @@ public final class ContactPairArchiveService {
 
     public func getValue(contactHash: String) -> ContactPair? {
         archive?.first(where: { $0.contact.compressedHash == contactHash })
-    }
-
-    public func getValue(phoneNumbers: [String]) -> ContactPair? {
-        archive?
-            .filter { $0.contact.phoneNumbers.compiledNumberStrings.containsAnyString(in: phoneNumbers) }
-            .first
     }
 
     public func getValue(userNumberHash: String) -> ContactPair? {

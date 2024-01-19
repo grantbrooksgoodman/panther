@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public final class Conversation: Codable, CompressedHashable, Equatable {
+public final class Conversation: Codable, CompressedHashable, Equatable, Hashable {
     // MARK: - Properties
 
     // Array
@@ -73,6 +73,34 @@ public final class Conversation: Codable, CompressedHashable, Equatable {
         }
     }
 
+    // MARK: - Update Read Date
+
+    public func updateReadDate(for message: Message) async -> Callback<Conversation, Exception> {
+        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+
+        guard let messageIndex = messages.firstIndex(where: { $0.id == message.id }) else {
+            return .failure(.init(
+                "This conversation does not contain the specified message.",
+                extraParams: ["MessageID": message.id],
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let readDateString = dateFormatter.string(from: Date())
+        let updateMessageValueResult = await message.updateValue(readDateString, forKey: .readDate)
+
+        switch updateMessageValueResult {
+        case let .success(message):
+            var updatedMessages = messages.filter { $0.id != message.id }
+            updatedMessages.insert(message, at: messageIndex)
+
+            return await updateValue(updatedMessages, forKey: .messages)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
     // MARK: - Equatable Conformance
 
     public static func == (left: Conversation, right: Conversation) -> Bool {
@@ -89,5 +117,11 @@ public final class Conversation: Codable, CompressedHashable, Equatable {
               sameUsers else { return false }
 
         return true
+    }
+
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hashFactors)
     }
 }
