@@ -16,6 +16,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
     // MARK: - Properties
 
     // Array
+    /// - Note: Will always contain at least 1 element.
     public let messages: [Message]
     public let participants: [Participant]
 

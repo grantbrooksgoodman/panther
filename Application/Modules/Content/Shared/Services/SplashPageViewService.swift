@@ -60,7 +60,8 @@ public struct SplashPageViewService {
                 return exception
             }
 
-            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: Int.random(in: 1 ... 1_000_000) % 4 == 0),
+            var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
+            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: randomBool && randomBool),
                !exception.isEqual(to: .notAuthorizedForContacts) {
                 return exception
             }

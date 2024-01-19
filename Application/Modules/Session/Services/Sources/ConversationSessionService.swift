@@ -121,12 +121,15 @@ public struct ConversationSessionService {
     // MARK: - Deletion
 
     public func deleteConversation(_ conversation: Conversation) async -> Exception? {
-        guard conversation.participants.allSatisfy(\.hasDeletedConversation) else {
-            guard let currentUser = userSession.currentUser else {
-                return .init("No current user.", metadata: [self, #file, #function, #line])
+        guard conversation.participants
+            .filter({ $0.userIDKey != userSession.currentUser?.id.key })
+            .allSatisfy(\.hasDeletedConversation) else {
+            @Persistent(.currentUserID) var currentUserID: UserID?
+            guard let currentUserID else {
+                return .init("No current user ID.", metadata: [self, #file, #function, #line])
             }
 
-            return await hideConversation(conversation, forUser: currentUser.id.key)
+            return await hideConversation(conversation, forUser: currentUserID.key)
         }
 
         if let exception = await removeConversationFromUsers(
@@ -138,7 +141,8 @@ public struct ConversationSessionService {
 
         if let exception = await networking.services.message.deleteMessages(
             conversation.messages,
-            in: conversation
+            in: conversation,
+            updateConversationHash: false
         ) {
             return exception
         }
@@ -151,21 +155,30 @@ public struct ConversationSessionService {
             return exception
         }
 
+        // TODO: Investigate the BAD_ACCESS crash here.
+//        networking.services.conversation.archive.removeValue(idKey: conversation.id.key)
+//        conversation.participants.map(\.userIDKey).forEach { networking.services.user.archive.removeValue(idKey: $0) }
+        
         return nil
     }
 
     private func hideConversation(_ conversation: Conversation, forUser userIDKey: String) async -> Exception? {
-        var newParticipants = conversation.participants.filter { $0.userIDKey != userIDKey }
-
-        for participant in conversation.participants where !newParticipants.contains(participant) {
-            let newParticipant: Participant = .init(
-                userIDKey: participant.userIDKey,
-                hasDeletedConversation: true,
-                isTyping: participant.isTyping
+        guard let currentParticipant = conversation.participants.first(where: { $0.userIDKey == userIDKey }) else {
+            return .init(
+                "This conversation does not contain the specified participant.",
+                extraParams: ["UserIDKey": userIDKey],
+                metadata: [self, #file, #function, #line]
             )
-            newParticipants.append(newParticipant)
         }
+        
+        var newParticipants = conversation.participants.filter { $0.userIDKey != userIDKey }
+        let newParticipant: Participant = .init(
+            userIDKey: currentParticipant.userIDKey,
+            hasDeletedConversation: true,
+            isTyping: currentParticipant.isTyping
+        )
 
+        newParticipants.append(newParticipant)
         newParticipants = newParticipants.unique
         let encodedParticipants = newParticipants.map(\.encoded)
 
@@ -177,7 +190,15 @@ public struct ConversationSessionService {
             return exception
         }
 
-        return nil
+        let updateValueResult = await conversation.updateValue(dateFormatter.string(from: Date()), forKey: .lastModifiedDate)
+
+        switch updateValueResult {
+        case .success:
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
     }
 
     private func removeConversationFromUsers(userIDKeys: [String], conversationIDKey: String) async -> Exception? {

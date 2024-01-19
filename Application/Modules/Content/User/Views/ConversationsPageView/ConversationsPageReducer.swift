@@ -70,7 +70,7 @@ public struct ConversationsPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loading
-            state.conversations = userSessionService.currentUser?.conversations ?? []
+            state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate ?? []
 
             viewService.viewAppeared()
 
@@ -92,7 +92,7 @@ public struct ConversationsPageReducer: Reducer {
             }
 
         case let .feedback(.reloadDataReturned(.success(conversations))):
-            state.conversations = conversations
+            state.conversations = conversations.visibleForCurrentUser.sortedByLatestMessageSentDate
             state.viewID = .init()
 
         case let .feedback(.reloadDataReturned(.failure(exception))):
@@ -110,7 +110,7 @@ public struct ConversationsPageReducer: Reducer {
             if let exception {
                 Logger.log(exception, with: .toast())
             } else {
-                state.conversations = userSessionService.currentUser?.conversations ?? []
+                state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate ?? []
             }
         }
 

@@ -169,7 +169,8 @@ public struct MessageService {
 
     public func deleteMessage(
         _ message: Message,
-        in conversation: Conversation? = nil
+        in conversation: Conversation? = nil,
+        updateConversationHash: Bool = true
     ) async -> Exception? {
         func deleteMessage(_ message: Message) async -> Exception? {
             if message.hasAudioComponent,
@@ -211,19 +212,34 @@ public struct MessageService {
                 return exception
             }
 
+            guard updateConversationHash else { return nil }
+
+            let updateValueResult = await conversation.updateValue(dateFormatter.string(from: Date()), forKey: .lastModifiedDate)
+
+            switch updateValueResult {
+            case .success:
+                return nil
+
+            case let .failure(exception):
+                return exception
+            }
+
         case let .failure(exception):
             return exception
         }
-
-        return nil
     }
 
     public func deleteMessages(
         _ messages: [Message],
-        in conversation: Conversation? = nil
+        in conversation: Conversation? = nil,
+        updateConversationHash: Bool = true
     ) async -> Exception? {
         for message in messages {
-            if let exception = await deleteMessage(message, in: conversation) {
+            if let exception = await deleteMessage(
+                message,
+                in: conversation,
+                updateConversationHash: updateConversationHash
+            ) {
                 return exception
             }
         }

@@ -15,6 +15,7 @@ import Redux
 public struct ConversationService {
     // MARK: - Dependencies
 
+    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
@@ -194,6 +195,11 @@ public struct ConversationService {
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
                 forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
+            ) {
+                return exception.appending(extraParams: commonParams)
+            } else if let exception = await networking.database.setValue(
+                dateFormatter.string(from: Date()).compressedHash,
+                forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.compressedHash.rawValue)"
             ) {
                 return exception.appending(extraParams: commonParams)
             }

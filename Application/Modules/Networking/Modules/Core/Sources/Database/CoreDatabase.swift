@@ -42,6 +42,8 @@ public struct CoreDatabase {
         let dictionary = value as? [AnyHashable: Any]
         let nsDictionary = value as? NSDictionary
 
+        let null = value as? NSNull
+
         let number = value as? Float
         let nsNumber = value as? NSNumber
 
@@ -53,6 +55,7 @@ public struct CoreDatabase {
             nsArray,
             dictionary,
             nsDictionary,
+            null,
             number,
             nsNumber,
             string,

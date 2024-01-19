@@ -15,6 +15,16 @@ import Redux
 public extension Array where Element == Conversation {
     // MARK: - Properties
 
+    var sortedByLatestMessageSentDate: [Conversation] {
+        return sorted(by: { $0.messages
+                .sorted(by: { $0.sentDate > $1.sentDate })
+                .first!.sentDate >
+                $1.messages
+                .sorted(by: { $0.sentDate > $1.sentDate })
+                .first!.sentDate
+        })
+    }
+
     var uniquedByIDKey: [Conversation] {
         var conversations = [Conversation]()
 
