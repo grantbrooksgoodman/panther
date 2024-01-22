@@ -37,6 +37,9 @@ public struct ConversationCellView: View {
             NavigationLink {
                 // TODO: Link to chat page.
                 SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer()))
+                    .onAppear {
+                        viewModel.send(.chatPageViewAppeared)
+                    }
             } label: {
                 EmptyView()
             }
@@ -47,6 +50,14 @@ public struct ConversationCellView: View {
             cellView
         }
         .frame(height: Floats.frameHeight)
+        .swipeActions(allowsFullSwipe: false) {
+            Button {
+                viewModel.send(.deleteConversationButtonTapped)
+            } label: {
+                Image(systemName: Strings.deleteConversationButtonImageSystemName)
+            }
+            .tint(Colors.deleteConversationButtonImageTint)
+        }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

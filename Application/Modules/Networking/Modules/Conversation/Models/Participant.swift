@@ -17,16 +17,16 @@ public struct Participant: Codable, Equatable {
     public let isTyping: Bool
 
     // String
-    public let userIDKey: String
+    public let userID: String
 
     // MARK: - Init
 
     public init(
-        userIDKey: String,
+        userID: String,
         hasDeletedConversation: Bool = false,
         isTyping: Bool = false
     ) {
-        self.userIDKey = userIDKey
+        self.userID = userID
         self.hasDeletedConversation = hasDeletedConversation
         self.isTyping = isTyping
     }

@@ -1,5 +1,5 @@
 //
-//  UserNumberHashSnapshot.swift
+//  UserDataSnapshot.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct UserNumberHashSnapshot {
+public struct UserDataSnapshot {
     // MARK: - Properties
 
+    public let data: [String: Any]
     public let date: Date
     public let expiryThreshold: Duration
-    public let hashes: [String: [String]]
 
     // MARK: - Computed Properties
 
-    public static var empty: UserNumberHashSnapshot {
+    public static var empty: UserDataSnapshot {
         .init(
             date: .init(timeIntervalSince1970: 0),
-            hashes: .init(),
+            data: .init(),
             expiryThreshold: .zero
         )
     }
@@ -34,11 +34,11 @@ public struct UserNumberHashSnapshot {
 
     public init(
         date: Date,
-        hashes: [String: [String]],
+        data: [String: Any],
         expiryThreshold: Duration
     ) {
         self.date = date
-        self.hashes = hashes
+        self.data = data
         self.expiryThreshold = expiryThreshold
     }
 }

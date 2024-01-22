@@ -16,10 +16,11 @@ public extension Array where Element == Conversation {
     // MARK: - Properties
 
     var sortedByLatestMessageSentDate: [Conversation] {
-        return sorted(by: { $0.messages
+        guard allSatisfy({ $0.messages != nil }) else { return self }
+        return sorted(by: { $0.messages!
                 .sorted(by: { $0.sentDate > $1.sentDate })
                 .first!.sentDate >
-                $1.messages
+                $1.messages!
                 .sorted(by: { $0.sentDate > $1.sentDate })
                 .first!.sentDate
         })
@@ -37,13 +38,12 @@ public extension Array where Element == Conversation {
 
     /// The conversations among the array in which the current user is participating and has not deleted.
     var visibleForCurrentUser: [Conversation] {
-        @Persistent(.currentUserID) var currentUserID: UserID?
+        @Persistent(.currentUserID) var currentUserID: String?
         guard let currentUserID else { return self }
 
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            let currentUserParticipants = conversation.participants.filter { $0.userIDKey == currentUserID.key }
-            guard !currentUserParticipants.isEmpty else { return false }
-            return currentUserParticipants.allSatisfy { !$0.hasDeletedConversation }
+            guard let participant = conversation.participants.first(where: { $0.userID == currentUserID }) else { return false }
+            return !participant.hasDeletedConversation
         }
 
         return filter { satisfiesConstraints($0) }
@@ -60,5 +60,25 @@ public extension Array where Element == Conversation {
         }
 
         return nil
+    }
+}
+
+public extension Array where Element == Message {
+    /// The unique messages among the array according to their `id` value, where those with populated `readDate` fields take priority.
+    var uniquedByID: [Message] {
+        let withReadDate = filter { $0.readDate != nil }
+        let withoutReadDate = filter { $0.readDate == nil }
+
+        var messages = [Message]()
+
+        for message in withReadDate where !messages.contains(where: { $0.id == message.id }) {
+            messages.append(message)
+        }
+
+        for message in withoutReadDate where !messages.contains(where: { $0.id == message.id }) {
+            messages.append(message)
+        }
+
+        return messages
     }
 }

@@ -50,6 +50,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ConversationCellView {
+        public static let deleteConversationButtonImageTint: Color = .red
         public static let unreadIndicatorViewForeground: Color = .blue
     }
 }

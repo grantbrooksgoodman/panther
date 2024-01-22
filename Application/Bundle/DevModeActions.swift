@@ -29,6 +29,45 @@ public extension DevModeService {
         return .init(title: "Clear Caches", perform: clearCaches)
     }
 
+    static var destroyConversationDatabaseAction: DevModeAction {
+        func destroyConversationDatabase() {
+            @Dependency(\.coreKit) var core: CoreKit
+            @Dependency(\.networking.config.environment.description) var networkEnvironment: String
+
+            var confirmationAlert = AKConfirmationAlert(
+                title: "Destroy Database", // swiftlint:disable:next line_length
+                message: "This will delete all conversations for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                confirmationStyle: .destructivePreferred,
+                shouldTranslate: [.none]
+            )
+
+            confirmationAlert.present { didConfirm in
+                guard didConfirm == 1 else { return }
+
+                confirmationAlert = .init(
+                    title: "Are you sure?",
+                    message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
+                    confirmationStyle: .destructivePreferred,
+                    shouldTranslate: [.none]
+                )
+
+                confirmationAlert.present { didConfirm in
+                    guard didConfirm == 1 else { return }
+
+                    Task {
+                        if let exception = await core.utils.destroyConversationDatabase() {
+                            Logger.log(exception, with: .toast())
+                        } else {
+                            core.hud.flash(image: .success)
+                        }
+                    }
+                }
+            }
+        }
+
+        return .init(title: "Destroy Conversation Database", perform: destroyConversationDatabase, isDestructive: true)
+    }
+
     static var eraseDocumentsDirectoryAction: DevModeAction {
         func eraseDocumentsDirectory() {
             @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
@@ -79,6 +118,7 @@ public extension DevModeService {
                 eraseDocumentsDirectoryAction,
                 eraseTemporaryDirectoryAction,
                 toggleNetworkActivityIndicatorAction,
+                destroyConversationDatabaseAction,
             ]
             let akActions = actions.map { AKAction(title: $0.title, style: $0.isDestructive ? .destructive : .default) }
 

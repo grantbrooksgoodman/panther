@@ -12,17 +12,21 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct User: Codable, CompressedHashable, Equatable {
+public final class User: Codable, CompressedHashable, Equatable {
     // MARK: - Properties
 
     // Array
-    public let conversations: [Conversation]?
     public let pushTokens: [String]?
 
-    // Other
-    public let id: UserID
-    public let languageCode: String
+    public private(set) var conversationIDs: [ConversationID]?
+    public private(set) var conversations: [Conversation]?
+
+    // PhoneNumber
     public let phoneNumber: PhoneNumber
+
+    // String
+    public let id: String
+    public let languageCode: String
 
     // MARK: - Computed Properties
 
@@ -32,7 +36,7 @@ public struct User: Codable, CompressedHashable, Equatable {
     }
 
     public var hashFactors: [String] {
-        var factors = [id.key]
+        var factors = [id]
 
         if let conversations {
             factors.append(contentsOf: conversations.map(\.compressedHash))
@@ -50,14 +54,14 @@ public struct User: Codable, CompressedHashable, Equatable {
     // MARK: - Init
 
     public init(
-        _ id: UserID,
-        conversations: [Conversation]?,
+        _ id: String,
+        conversationIDs: [ConversationID]?,
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id
-        self.conversations = conversations
+        self.conversationIDs = conversationIDs
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
         self.pushTokens = pushTokens
@@ -68,5 +72,104 @@ public struct User: Codable, CompressedHashable, Equatable {
     public func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
+    }
+
+    public func setConversations() async -> Exception? {
+        @Dependency(\.networking.services.conversation) var conversationService: ConversationService
+        @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
+
+        guard let conversationIDs else { return nil }
+
+        var conversationsNeedingFetch = [ConversationID]()
+        var conversationsNeedingUpdate = [Conversation]()
+        var decodedConversations = [Conversation]()
+
+        for conversationID in conversationIDs {
+            if let value = conversationService.archive.getValue(id: conversationID) {
+                decodedConversations.append(value)
+            } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
+                conversationsNeedingUpdate.append(value)
+            } else {
+                conversationsNeedingFetch.append(conversationID)
+            }
+        }
+
+        Logger.log(
+            // swiftlint:disable:next line_length
+            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nDecoded conversations: \(decodedConversations.count)",
+            domain: .user,
+            metadata: [self, #file, #function, #line]
+        )
+
+        if conversationsNeedingFetch.isEmpty,
+           conversationsNeedingUpdate.isEmpty {
+            self.conversationIDs = decodedConversations.map(\.id)
+            conversations = decodedConversations.sortedByLatestMessageSentDate
+            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            return nil
+        }
+
+        for conversation in conversationsNeedingUpdate {
+            let updateConversationResult = await conversationSession.updateConversation(conversation)
+
+            switch updateConversationResult {
+            case let .success(updatedConversation):
+                decodedConversations.removeAll(where: { $0.id.key == updatedConversation.id.key })
+                decodedConversations.append(updatedConversation)
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        guard !conversationsNeedingFetch.isEmpty else {
+            guard decodedConversations.count == conversationIDs.count else {
+                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+            }
+
+            self.conversationIDs = decodedConversations.map(\.id)
+            conversations = decodedConversations.sortedByLatestMessageSentDate
+            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            return nil
+        }
+
+        let getConversationsResult = await conversationService.getConversations(idKeys: conversationsNeedingFetch.map(\.key))
+
+        switch getConversationsResult {
+        case let .success(conversations):
+            decodedConversations.append(contentsOf: conversations)
+
+            guard decodedConversations.count == conversationIDs.count else {
+                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+            }
+
+            self.conversationIDs = decodedConversations.map(\.id)
+            self.conversations = decodedConversations.sortedByLatestMessageSentDate
+            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
+    // MARK: - Equatable Conformance
+
+    public static func == (left: User, right: User) -> Bool {
+        let sameConversationIDs = left.conversationIDs == right.conversationIDs
+        let sameConversations = left.conversations == right.conversations
+        let sameID = left.id == right.id
+        let sameLanguageCode = left.languageCode == right.languageCode
+        let samePhoneNumber = left.phoneNumber == right.phoneNumber
+        let samePushTokens = left.pushTokens == right.pushTokens
+
+        guard sameConversationIDs,
+              sameConversations,
+              sameID,
+              sameLanguageCode,
+              samePhoneNumber,
+              samePushTokens else { return false }
+
+        return true
     }
 }

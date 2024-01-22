@@ -56,7 +56,11 @@ public struct SplashPageViewService {
             akCore.setLanguageCode(currentUser.languageCode)
             RuntimeStorage.store(currentUser.languageCode, as: .languageCode)
 
-            if let exception = await currentUser.conversations?.setUsers() {
+            if let exception = await currentUser.setConversations() {
+                return exception
+            }
+
+            if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
                 return exception
             }
 

@@ -32,11 +32,11 @@ extension Conversation: Serializable {
 
     public var encoded: [String: Any] {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-        let messageIDs = messages.map(\.id)
+        let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
         return [
             Keys.id.rawValue: id.encoded,
             Keys.compressedHash.rawValue: compressedHash,
-            Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messageIDs,
+            Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.participants.rawValue: participants.map(\.encoded),
         ]
@@ -45,9 +45,8 @@ extension Conversation: Serializable {
     // MARK: - Methods
 
     public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
-        @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.services) var networkServices: NetworkServices
+        @Dependency(\.networking.services.message) var messageService: MessageService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
@@ -72,42 +71,6 @@ extension Conversation: Serializable {
             return .failure(.init("Failed to decode conversation ID.", metadata: [self, #file, #function, #line]))
         }
 
-        if let archivedConversation = networkServices.conversation.archive.getValue(id: conversationID) {
-            Logger.log(
-                .init(
-                    "Successfully retrieved conversation from archive.",
-                    extraParams: ["ConversationIDKey": conversationID.key,
-                                  "ConversationIDHash": conversationID.hash],
-                    metadata: [self, #file, #function, #line]
-                ),
-                domain: .conversation
-            )
-
-            return .success(archivedConversation)
-        } else if let outdatedConversation = networkServices.conversation.archive.getValue(idKey: conversationID.key) {
-            Logger.log(
-                .init(
-                    "Conversation needs update.",
-                    extraParams: ["ConversationIDKey": conversationID.key,
-                                  "NewConversationIDHash": conversationID.hash,
-                                  "OutdatedConversationIDHash": outdatedConversation.compressedHash],
-                    metadata: [self, #file, #function, #line]
-                ),
-                domain: .conversation
-            )
-
-            let updateConversationResult = await conversationSession.updateConversation(outdatedConversation)
-
-            switch updateConversationResult {
-            case let .success(conversation):
-                networkServices.conversation.archive.addValue(conversation)
-                return .success(conversation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
         var participants = [Participant]()
 
         for encodedParticipant in encodedParticipants {
@@ -127,20 +90,45 @@ extension Conversation: Serializable {
             return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
         }
 
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserParticipant = participants.first(where: { $0.userID == currentUserID }),
+              !currentUserParticipant.hasDeletedConversation else {
+            let decoded: Conversation = .init(
+                conversationID,
+                messageIDs: messageIDs,
+                messages: nil,
+                lastModifiedDate: lastModifiedDate,
+                participants: participants,
+                users: nil
+            )
+
+            Logger.log(
+                .init(
+                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    extraParams: ["ConversationIDKey": conversationID.key,
+                                  "ConversationIDHash": conversationID.hash],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .conversation
+            )
+
+            return .success(decoded)
+        }
+
         guard !messageIDs.isBangQualifiedEmpty else {
             let decoded: Conversation = .init(
                 conversationID,
+                messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
                 messages: .init(),
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil
             )
 
-            networkServices.conversation.archive.addValue(decoded)
             return .success(decoded)
         }
 
-        let getMessagesResult = await networkServices.message.getMessages(ids: messageIDs)
+        let getMessagesResult = await messageService.getMessages(ids: messageIDs)
 
         switch getMessagesResult {
         case let .success(messages):
@@ -151,13 +139,13 @@ extension Conversation: Serializable {
 
             let decoded: Conversation = .init(
                 conversationID,
+                messageIDs: messageIDs,
                 messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil
             )
 
-            networkServices.conversation.archive.addValue(decoded)
             return .success(decoded)
 
         case let .failure(exception):

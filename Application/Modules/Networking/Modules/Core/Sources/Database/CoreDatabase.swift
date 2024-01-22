@@ -62,6 +62,22 @@ public struct CoreDatabase {
             nsString,
         ]
 
+        if let array {
+            guard array.allSatisfy({ isEncodable($0) }) else { return false }
+        }
+
+        if let nsArray {
+            guard nsArray.allSatisfy({ isEncodable($0) }) else { return false }
+        }
+
+        if let dictionary {
+            guard dictionary.values.allSatisfy({ isEncodable($0) }) else { return false }
+        }
+
+        if let nsDictionary {
+            guard nsDictionary.allValues.allSatisfy({ isEncodable($0) }) else { return false }
+        }
+
         return !compiled.allSatisfy { $0 == nil }
     }
 

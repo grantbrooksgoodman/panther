@@ -16,10 +16,11 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
     // MARK: - Properties
 
     // Array
-    /// - Note: Will always contain at least 1 element.
-    public let messages: [Message]
     public let participants: [Participant]
+    public let messageIDs: [String]
 
+    /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
+    public private(set) var messages: [Message]?
     /// When set, contains all users participating in this conversation, other than the current user.
     public private(set) var users: [User]?
 
@@ -33,8 +34,8 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
         factors.append(dateFormatter.string(from: lastModifiedDate))
-        factors.append(contentsOf: messages.map(\.id))
-        factors.append(contentsOf: messages.map(\.compressedHash))
+        factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
+        factors.append(contentsOf: messages?.map(\.compressedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
         return factors
     }
@@ -43,30 +44,78 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     public init(
         _ id: ConversationID,
-        messages: [Message],
+        messageIDs: [String],
+        messages: [Message]?,
         lastModifiedDate: Date,
         participants: [Participant],
         users: [User]?
     ) {
         self.id = id
+        self.messageIDs = messageIDs
         self.messages = messages
         self.lastModifiedDate = lastModifiedDate
         self.participants = participants
         self.users = users
     }
 
+    // MARK: - Set Messages
+
+    /// - Note: This method need only be called for conversations in which the current user is not participating.
+    public func setMessages() async -> Exception? {
+        @Dependency(\.networking.services.message) var messageService: MessageService
+
+        let getMessagesResult = await messageService.getMessages(ids: messageIDs)
+
+        switch getMessagesResult {
+        case let .success(messages):
+            guard !messages.isEmpty,
+                  messages.count == messageIDs.count else {
+                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+            }
+
+            self.messages = messages
+
+            Logger.log(
+                .init(
+                    "Set messages on conversation.",
+                    extraParams: ["ConversationID": id.encoded],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .conversation
+            )
+
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     // MARK: - Set Users
 
-    public func setUsers() async -> Exception? {
+    public func setUsers(forceUpdate: Bool = false) async -> Exception? {
         @Dependency(\.clientSessionService.user) var userSession: UserSessionService
 
-        guard users == nil else { return nil }
+        if users != nil,
+           !forceUpdate {
+            return nil
+        }
 
         let getUsersResult = await userSession.getUsers(conversation: self)
 
         switch getUsersResult {
         case let .success(users):
             self.users = users
+
+            Logger.log(
+                .init(
+                    "Set users on conversation.",
+                    extraParams: ["ConversationID": id.encoded],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .conversation
+            )
+
             return nil
 
         case let .failure(exception):
@@ -78,6 +127,10 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     public func updateReadDate(for message: Message) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+
+        guard let messages else {
+            return .failure(.init("Messages have not been set.", metadata: [self, #file, #function, #line]))
+        }
 
         guard let messageIndex = messages.firstIndex(where: { $0.id == message.id }) else {
             return .failure(.init(
@@ -94,7 +147,6 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
         case let .success(message):
             var updatedMessages = messages.filter { $0.id != message.id }
             updatedMessages.insert(message, at: messageIndex)
-
             return await updateValue(updatedMessages, forKey: .messages)
 
         case let .failure(exception):

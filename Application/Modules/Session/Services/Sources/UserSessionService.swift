@@ -23,7 +23,7 @@ public final class UserSessionService {
     // MARK: - Properties
 
     public private(set) var currentUser: User?
-    @Persistent(.currentUserID) private var currentUserID: UserID?
+    @Persistent(.currentUserID) private var currentUserID: String?
 
     // MARK: - Computed Properties
 
@@ -32,15 +32,15 @@ public final class UserSessionService {
 
         let pathPrefix = "\(networking.config.environment.shortString)/\(networking.config.paths.users)"
         return firebaseDatabase.child(
-            "\(pathPrefix)/\(currentUser.id.key)/\(User.SerializationKeys.compressedHash.rawValue)"
+            "\(pathPrefix)/\(currentUser.id)/\(User.SerializationKeys.conversationIDs.rawValue)"
         )
     }
 
     // MARK: - Object Lifecycle
 
     deinit {
-        if let exception = stopObservingHashValueChanges() {
-            Logger.log(exception)
+        if let exception = stopObservingConversationHashValueChanges() {
+            Logger.log(exception, domain: .user)
         }
     }
 
@@ -57,10 +57,11 @@ public final class UserSessionService {
             return .success(currentUser)
         }
 
-        let getUserResult = await networking.services.user.getUser(idKey: currentUserID.key)
+        let getUserResult = await networking.services.user.getUser(id: currentUserID)
 
         switch getUserResult {
         case let .success(user):
+            // FIXME: If this causes problems, try wrapping the setter call in a mainQueue.sync closure.
             currentUser = user
             self.currentUserID = user.id
             return .success(user)
@@ -76,40 +77,61 @@ public final class UserSessionService {
         }
     }
 
-    // MARK: - Hash Value Observation
+    // MARK: - Conversation Hash Value Observation
 
-    public func startObservingHashValueChanges() {
+    public func startObservingConversationHashValueChanges() {
         guard let currentUser,
               let hashDatabaseReference else { return }
 
         hashDatabaseReference.observe(.value) { snapshot in
-            guard let hash = snapshot.value as? String,
-                  hash != currentUser.id.hash else { return }
+            func updateCurrentUser() {
+                // FIXME: Previously protected by a guard clause ensuring an update was not already occurring.
+                Task { /* @MainActor in */
+                    let setCurrentUserResult = await self.setCurrentUser()
 
-            Task {
-                let setCurrentUserResult = await self.setCurrentUser()
+                    switch setCurrentUserResult {
+                    case .success:
+                        Logger.log(
+                            "Updated current user.",
+                            domain: .user,
+                            metadata: [self, #file, #function, #line]
+                        )
 
-                switch setCurrentUserResult {
-                case let .success(user):
-                    Logger.log(
-                        "Updated current user.\nPrevious hash: \(currentUser.id.hash)\nNew hash: \(user.id.hash)",
-                        domain: .user,
-                        metadata: [self, #file, #function, #line]
-                    )
+                        Observables.updatedCurrentUser.trigger()
 
-                    Observables.updatedCurrentUser.trigger()
-
-                case let .failure(exception):
-                    Logger.log(exception, domain: .user)
+                    case let .failure(exception):
+                        Logger.log(exception, domain: .user)
+                    }
                 }
             }
+
+            guard let updatedConversationIDStrings = snapshot.value as? [String] else { return }
+            guard let currentConversationIDStrings = currentUser.conversationIDs?.map(\.encoded) else {
+                updateCurrentUser()
+                return
+            }
+
+            guard !currentConversationIDStrings.containsAllStrings(in: updatedConversationIDStrings) else {
+                Logger.log(
+                    "Skipping current user update as values do not appear to have changed.",
+                    domain: .user,
+                    metadata: [self, #file, #function, #line]
+                )
+                return
+            }
+
+            for id in currentConversationIDStrings where !updatedConversationIDStrings.contains(id) {
+                self.networking.services.conversation.archive.removeValue(idKey: id)
+            }
+
+            updateCurrentUser()
         } withCancel: { error in
             Logger.log(.init(error, metadata: [self, #file, #function, #line]), domain: .user)
         }
     }
 
     @discardableResult
-    public func stopObservingHashValueChanges() -> Exception? {
+    public func stopObservingConversationHashValueChanges() -> Exception? {
         guard let hashDatabaseReference else {
             return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
         }
@@ -123,18 +145,18 @@ public final class UserSessionService {
     public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
         let commonParams = ["ConversationID": conversation.id.encoded]
 
-        let userIDKeys = conversation.participants.map(\.userIDKey).filter { $0 != currentUser?.id.key }
-        guard !userIDKeys.isBangQualifiedEmpty else {
+        let userIDs = conversation.participants.map(\.userID).filter { $0 != currentUserID }
+        guard !userIDs.isBangQualifiedEmpty else {
             let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getUsersResult = await networking.services.user.getUsers(idKeys: userIDKeys)
+        let getUsersResult = await networking.services.user.getUsers(ids: userIDs)
 
         switch getUsersResult {
         case let .success(users):
             guard !users.isEmpty,
-                  users.count == userIDKeys.count else {
+                  users.count == userIDs.count else {
                 let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
                 return .failure(exception.appending(extraParams: commonParams))
             }

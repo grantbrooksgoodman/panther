@@ -17,8 +17,8 @@ public struct MessageSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
+    @Dependency(\.clientSessionService) private var clientSession: ClientSessionService
     @Dependency(\.networking) private var networking: Networking
-    @Dependency(\.clientSessionService) private var clientSessionService: ClientSessionService
 
     // MARK: - Send Text Message
 
@@ -27,7 +27,7 @@ public struct MessageSessionService {
         toUsers users: [User],
         inConversation conversation: Conversation?
     ) async -> Callback<Conversation, Exception> {
-        guard let currentUser = clientSessionService.user.currentUser else {
+        guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: [self, #file, #function, #line]
@@ -61,7 +61,7 @@ public struct MessageSessionService {
         }
 
         let createMessageResult = await networking.services.message.createMessage(
-            fromAccountID: currentUser.id.key,
+            fromAccountID: currentUser.id,
             translations: translations,
             audioComponents: nil
         )
@@ -69,7 +69,7 @@ public struct MessageSessionService {
         switch createMessageResult {
         case let .success(message):
             if let conversation {
-                return await clientSessionService.conversation.addMessages(
+                return await clientSession.conversation.addMessages(
                     [message],
                     to: conversation
                 )
@@ -78,7 +78,7 @@ public struct MessageSessionService {
                 participantUsers.append(contentsOf: users)
                 return await networking.services.conversation.createConversation(
                     firstMessage: message,
-                    participants: participantUsers.map { Participant(userIDKey: $0.id.key) }
+                    participants: participantUsers.map { Participant(userID: $0.id) }
                 )
             }
 
@@ -94,7 +94,7 @@ public struct MessageSessionService {
         toUsers users: [User],
         inConversation conversation: Conversation?
     ) async -> Callback<Conversation, Exception> {
-        guard let currentUser = clientSessionService.user.currentUser else {
+        guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: [self, #file, #function, #line]
@@ -160,7 +160,7 @@ public struct MessageSessionService {
             }
 
             let createMessageResult = await networking.services.message.createMessage(
-                fromAccountID: currentUser.id.key,
+                fromAccountID: currentUser.id,
                 translations: translations,
                 audioComponents: audioComponents
             )
@@ -168,7 +168,7 @@ public struct MessageSessionService {
             switch createMessageResult {
             case let .success(message):
                 if let conversation {
-                    return await clientSessionService.conversation.addMessages(
+                    return await clientSession.conversation.addMessages(
                         [message],
                         to: conversation
                     )
@@ -177,7 +177,7 @@ public struct MessageSessionService {
                     participantUsers.append(contentsOf: users)
                     return await networking.services.conversation.createConversation(
                         firstMessage: message,
-                        participants: participantUsers.map { Participant(userIDKey: $0.id.key) }
+                        participants: participantUsers.map { Participant(userID: $0.id) }
                     )
                 }
 

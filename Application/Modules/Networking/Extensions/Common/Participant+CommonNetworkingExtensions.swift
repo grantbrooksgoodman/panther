@@ -11,6 +11,6 @@ import Foundation
 
 extension Participant: Validatable {
     public var isWellFormed: Bool {
-        !userIDKey.isBangQualifiedEmpty
+        !userID.isBangQualifiedEmpty
     }
 }

@@ -29,13 +29,7 @@ public final class ConversationArchiveService {
         guard !values.contains(conversation) else { return }
 
         values.removeAll(where: { $0.id.key == conversation.id.key })
-        values.append(.init(
-            conversation.id,
-            messages: conversation.messages,
-            lastModifiedDate: conversation.lastModifiedDate,
-            participants: conversation.participants,
-            users: nil
-        ))
+        values.append(conversation)
 
         archive = values
         persistedArchive = archive
@@ -59,8 +53,19 @@ public final class ConversationArchiveService {
     }
 
     public func removeValue(idKey: String) {
+        guard (archive ?? []).contains(where: { $0.id.key == idKey }) else { return }
+
         archive?.removeAll(where: { $0.id.key == idKey })
         persistedArchive = archive
+
+        Logger.log(
+            .init(
+                "Removed conversation from persisted archive.",
+                extraParams: ["ConversationIDKey": idKey],
+                metadata: [self, #file, #function, #line]
+            ),
+            domain: .conversation
+        )
     }
 
     // MARK: - Retrieval

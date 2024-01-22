@@ -17,7 +17,10 @@ public struct ConversationSessionService {
 
     @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+
+    // MARK: - Properties
+
+    @Persistent(.currentUserID) private var currentUserID: String?
 
     // MARK: - Add Messages
 
@@ -29,7 +32,7 @@ public struct ConversationSessionService {
             ))
         }
 
-        var appendedMessages = conversation.messages
+        var appendedMessages = conversation.messages ?? []
         appendedMessages.append(contentsOf: messages)
 
         switch await conversation.updateValue(appendedMessages, forKey: .messages) {
@@ -43,6 +46,7 @@ public struct ConversationSessionService {
 
     // MARK: - Update Messages / Last Modified Date
 
+    // swiftlint:disable:next function_body_length
     public func updateConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
 
@@ -52,9 +56,9 @@ public struct ConversationSessionService {
             metadata: [self, #file, #function, #line]
         )
 
-        func setLastModifiedDate() async -> Callback<Conversation, Exception> {
-            let lastModifiedDateKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.lastModifiedDate.rawValue)"
-            let getValuesResult = await networking.database.getValues(at: lastModifiedDateKeyPath)
+        func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+            let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.compressedHash.rawValue)"
+            let getValuesResult = await networking.database.getValues(at: hashKeyPath)
 
             switch getValuesResult {
             case let .success(values):
@@ -65,14 +69,62 @@ public struct ConversationSessionService {
                     ))
                 }
 
-                guard let conversation = conversation.modifyKey(.lastModifiedDate, withValue: string) else {
+                return .success(.init(
+                    .init(key: conversation.id.key, hash: string),
+                    messageIDs: conversation.messageIDs,
+                    messages: conversation.messages,
+                    lastModifiedDate: conversation.lastModifiedDate,
+                    participants: conversation.participants,
+                    users: conversation.users
+                ))
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+            let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.participants.rawValue)"
+            let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard let array = values as? [String] else {
+                    return .failure(.init(
+                        "Failed to typecast values to array.",
+                        metadata: [self, #file, #function, #line]
+                    ))
+                }
+
+                var participants = [Participant]()
+
+                for value in array {
+                    let decodeResult = await Participant.decode(from: value)
+
+                    switch decodeResult {
+                    case let .success(participant):
+                        participants.append(participant)
+
+                    case let .failure(exception):
+                        return .failure(exception)
+                    }
+                }
+
+                guard participants.count == array.count else {
+                    return .failure(.init(
+                        "Mismatched ratio returned.",
+                        metadata: [self, #file, #function, #line]
+                    ))
+                }
+
+                guard let conversation = conversation.modifyKey(.participants, withValue: participants) else {
                     return .failure(.typeMismatch(
-                        key: Conversation.SerializationKey.lastModifiedDate.rawValue,
+                        key: Conversation.SerializationKey.participants.rawValue,
                         [self, #file, #function, #line]
                     ))
                 }
 
-                return .success(conversation)
+                return await updateHash(conversation)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -91,23 +143,34 @@ public struct ConversationSessionService {
                 ))
             }
 
-            let currentMessageIDs = conversation.messages.map(\.id)
-            let filteredMessageIDs = array.filter { !currentMessageIDs.contains($0) }
+            var filteredMessageIDs = array.filter { !(conversation.messages?.uniquedByID.map(\.id) ?? conversation.messageIDs).contains($0) }
+            if filteredMessageIDs.isEmpty {
+                filteredMessageIDs = conversation.messages?.uniquedByID.map(\.id) ?? []
+            }
+
+            filteredMessageIDs = filteredMessageIDs.unique
 
             guard !filteredMessageIDs.isEmpty else {
-                return await setLastModifiedDate()
+                return await updateParticipants(conversation)
+            }
+
+            guard let currentMessages = conversation.messages?.uniquedByID else {
+                return .failure(.init(
+                    "Messages have not been set.",
+                    metadata: [self, #file, #function, #line]
+                ))
             }
 
             let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)
 
             switch getMessagesResult {
             case let .success(messages):
-                let updatedMessages = (conversation.messages + messages).sorted(by: { $0.sentDate < $1.sentDate })
+                let updatedMessages = (currentMessages + messages).sorted(by: { $0.sentDate < $1.sentDate })
                 guard let modified = conversation.modifyKey(.messages, withValue: updatedMessages) else {
                     return .failure(.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line]))
                 }
 
-                return .success(modified)
+                return await updateParticipants(modified)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -122,25 +185,24 @@ public struct ConversationSessionService {
 
     public func deleteConversation(_ conversation: Conversation) async -> Exception? {
         guard conversation.participants
-            .filter({ $0.userIDKey != userSession.currentUser?.id.key })
+            .filter({ $0.userID != currentUserID })
             .allSatisfy(\.hasDeletedConversation) else {
-            @Persistent(.currentUserID) var currentUserID: UserID?
             guard let currentUserID else {
                 return .init("No current user ID.", metadata: [self, #file, #function, #line])
             }
 
-            return await hideConversation(conversation, forUser: currentUserID.key)
+            return await hideConversation(conversation, forUser: currentUserID)
         }
 
         if let exception = await removeConversationFromUsers(
-            userIDKeys: conversation.participants.map(\.userIDKey),
+            userIDs: conversation.participants.map(\.userID),
             conversationIDKey: conversation.id.key
         ) {
             return exception
         }
 
         if let exception = await networking.services.message.deleteMessages(
-            conversation.messages,
+            ids: conversation.messageIDs,
             in: conversation,
             updateConversationHash: false
         ) {
@@ -155,25 +217,21 @@ public struct ConversationSessionService {
             return exception
         }
 
-        // TODO: Investigate the BAD_ACCESS crash here.
-//        networking.services.conversation.archive.removeValue(idKey: conversation.id.key)
-//        conversation.participants.map(\.userIDKey).forEach { networking.services.user.archive.removeValue(idKey: $0) }
-        
         return nil
     }
 
-    private func hideConversation(_ conversation: Conversation, forUser userIDKey: String) async -> Exception? {
-        guard let currentParticipant = conversation.participants.first(where: { $0.userIDKey == userIDKey }) else {
+    private func hideConversation(_ conversation: Conversation, forUser userID: String) async -> Exception? {
+        guard let currentParticipant = conversation.participants.first(where: { $0.userID == userID }) else {
             return .init(
                 "This conversation does not contain the specified participant.",
-                extraParams: ["UserIDKey": userIDKey],
+                extraParams: ["UserID": userID],
                 metadata: [self, #file, #function, #line]
             )
         }
-        
-        var newParticipants = conversation.participants.filter { $0.userIDKey != userIDKey }
+
+        var newParticipants = conversation.participants.filter { $0.userID != userID }
         let newParticipant: Participant = .init(
-            userIDKey: currentParticipant.userIDKey,
+            userID: currentParticipant.userID,
             hasDeletedConversation: true,
             isTyping: currentParticipant.isTyping
         )
@@ -201,27 +259,27 @@ public struct ConversationSessionService {
         }
     }
 
-    private func removeConversationFromUsers(userIDKeys: [String], conversationIDKey: String) async -> Exception? {
-        func removeConversationFromUser(userIDKey: String, conversationIDKey: String) async -> Exception? {
-            let commonParams = ["UserIDKey": userIDKey, "ConversationIDKey": conversationIDKey]
+    private func removeConversationFromUsers(userIDs: [String], conversationIDKey: String) async -> Exception? {
+        func removeConversationFromUser(userID: String, conversationIDKey: String) async -> Exception? {
+            let commonParams = ["UserID": userID, "ConversationIDKey": conversationIDKey]
 
-            guard !userIDKey.isBangQualifiedEmpty,
+            guard !userID.isBangQualifiedEmpty,
                   !conversationIDKey.isBangQualifiedEmpty else {
                 let exception = Exception("Passed arguments fail validation.", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 
-            let getConversationIDStringsResult = await networking.services.conversation.getConversationIDStrings(for: userIDKey)
+            let getConversationIDStringsResult = await networking.services.conversation.getConversationIDStrings(for: userID)
 
             switch getConversationIDStringsResult {
             case var .success(conversationIDStrings):
                 conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
-                conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
+                conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
 
                 let path = networking.config.paths.users
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
+                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
                 ) {
                     return exception.appending(extraParams: commonParams)
                 }
@@ -233,9 +291,9 @@ public struct ConversationSessionService {
             return nil
         }
 
-        for userIDKey in userIDKeys {
+        for userID in userIDs {
             if let exception = await removeConversationFromUser(
-                userIDKey: userIDKey,
+                userID: userID,
                 conversationIDKey: conversationIDKey
             ) {
                 return exception

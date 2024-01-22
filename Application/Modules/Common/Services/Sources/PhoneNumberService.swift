@@ -114,7 +114,7 @@ public struct PhoneNumberService {
         return hashes.isEmpty ? nil : hashes
     }
 
-    // MARK: - Length Verification
+    // MARK: - Length Validation
 
     public func numberIsValidLength(_ length: Int, for callingCode: String) -> Bool {
         guard let callingCodesForNumberLength = lookupTables[String(length)],

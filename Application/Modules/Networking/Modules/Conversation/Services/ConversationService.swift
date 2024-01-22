@@ -51,6 +51,7 @@ public struct ConversationService {
 
         var mockConversation: Conversation = .init(
             .init(key: id, hash: ""),
+            messageIDs: [firstMessage.id],
             messages: [firstMessage],
             lastModifiedDate: Date(),
             participants: participants,
@@ -67,7 +68,7 @@ public struct ConversationService {
 
         for participant in participants {
             if let exception = await addConversationToUser(
-                userIDKey: participant.userIDKey,
+                userID: participant.userID,
                 conversationID: conversationID
             ) {
                 return .failure(exception)
@@ -76,21 +77,21 @@ public struct ConversationService {
 
         mockConversation = .init(
             conversationID,
+            messageIDs: mockConversation.messageIDs,
             messages: mockConversation.messages,
             lastModifiedDate: mockConversation.lastModifiedDate,
             participants: mockConversation.participants,
             users: mockConversation.users
         )
 
-        archive.addValue(mockConversation)
         return .success(mockConversation)
     }
 
     // MARK: - Retrieval by ID
 
-    public func getConversationIDStrings(for userIDKey: String) async -> Callback<[String], Exception> {
+    public func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
         let usersPath = networking.config.paths.users
-        let path = "\(usersPath)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
+        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {
@@ -181,10 +182,10 @@ public struct ConversationService {
 
     // MARK: - Auxiliary
 
-    private func addConversationToUser(userIDKey: String, conversationID: ConversationID) async -> Exception? {
-        let commonParams = ["UserIDKey": userIDKey, "ConversationID": conversationID.encoded]
+    private func addConversationToUser(userID: String, conversationID: ConversationID) async -> Exception? {
+        let commonParams = ["UserID": userID, "ConversationID": conversationID.encoded]
 
-        let getConversationIDStringsResult = await getConversationIDStrings(for: userIDKey)
+        let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
 
         switch getConversationIDStringsResult {
         case var .success(conversationIDStrings):
@@ -194,12 +195,7 @@ public struct ConversationService {
             let path = networking.config.paths.users
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.conversations.rawValue)"
-            ) {
-                return exception.appending(extraParams: commonParams)
-            } else if let exception = await networking.database.setValue(
-                dateFormatter.string(from: Date()).compressedHash,
-                forKey: "\(path)/\(userIDKey)/\(User.SerializationKeys.compressedHash.rawValue)"
+                forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
                 return exception.appending(extraParams: commonParams)
             }

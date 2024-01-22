@@ -70,7 +70,7 @@ public final class OnboardingService {
 
         switch createUserResult {
         case let .success(user):
-            @Persistent(.currentUserID) var currentUserID: UserID?
+            @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = user.id
             return nil
 

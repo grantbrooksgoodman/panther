@@ -21,6 +21,7 @@ public enum AppException: String {
     case contactAccessDenied = "F6E6"
     case currentUserIDNotSet = "E383"
     case exhaustedAvailablePlatforms = "6005"
+    case fileDoesNotExist = "BB00"
     case invalidVerificationCode = "7E4A"
     case genericStorageError = "6F00"
     case notAuthorizedForContacts = "16AA"

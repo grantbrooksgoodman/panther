@@ -33,7 +33,7 @@ public enum NetworkingDependency: DependencyKey {
                     archiver: .init(),
                     legacy: .init()
                 ),
-                user: .init(archive: .init(), legacy: .init())
+                user: .init(legacy: .init())
             ),
             storage: .init()
         )

@@ -42,6 +42,7 @@ extension Conversation: Updatable {
             guard let value = value as? String else { return nil }
             return updateIDHash(.init(
                 id,
+                messageIDs: messageIDs,
                 messages: messages,
                 lastModifiedDate: dateFormatter.date(from: value) ?? lastModifiedDate,
                 participants: participants,
@@ -52,7 +53,8 @@ extension Conversation: Updatable {
             guard let value = value as? [Message] else { return nil }
             return updateIDHash(.init(
                 id,
-                messages: value,
+                messageIDs: value.map(\.id).unique,
+                messages: value.uniquedByID,
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: users
@@ -62,6 +64,7 @@ extension Conversation: Updatable {
             guard let value = value as? [Participant] else { return nil }
             return updateIDHash(.init(
                 id,
+                messageIDs: messageIDs,
                 messages: messages,
                 lastModifiedDate: lastModifiedDate,
                 participants: value,
@@ -74,23 +77,24 @@ extension Conversation: Updatable {
         @Dependency(\.networking) var networking: Networking
         @Dependency(\.clientSessionService.user) var userSession: UserSessionService
 
-        guard var users else {
-            if let exception = await setUsers() {
-                return .failure(exception)
-            }
-
-            return await updateValue(value, forKey: key)
-        }
-
         guard updatableKeys.contains(key) else {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
+        }
+
+        if let exception = await setUsers(forceUpdate: true) {
+            return .failure(exception)
+        }
+
+        guard var users else {
+            return .failure(.init(
+                "Failed to set users on conversation.",
+                metadata: [self, #file, #function, #line]
+            ))
         }
 
         guard let updated = modifyKey(key, withValue: value) else {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
-
-        networking.services.conversation.archive.addValue(updated)
 
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(id.key)/"
         let valueKeyPath = conversationKeyPath + key.rawValue
@@ -126,13 +130,13 @@ extension Conversation: Updatable {
         }
 
         for user in users {
-            guard var conversations = user.conversations,
-                  let index = conversations.firstIndex(where: { $0.id.key == updated.id.key }) else { continue }
+            guard var conversationIDs = user.conversationIDs,
+                  let index = conversationIDs.firstIndex(where: { $0.key == updated.id.key }) else { continue }
 
-            conversations.removeAll(where: { $0.id.key == updated.id.key })
-            conversations.insert(updated, at: index)
+            conversationIDs.removeAll(where: { $0.key == updated.id.key })
+            conversationIDs.insert(updated.id, at: index)
 
-            let updateValueResult = await user.updateValue(conversations, forKey: .conversations)
+            let updateValueResult = await user.updateValue(conversationIDs, forKey: .conversationIDs)
 
             switch updateValueResult {
             case let .failure(exception):
@@ -148,6 +152,7 @@ extension Conversation: Updatable {
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(
             .init(key: conversation.id.key, hash: conversation.compressedHash),
+            messageIDs: messageIDs,
             messages: conversation.messages,
             lastModifiedDate: conversation.lastModifiedDate,
             participants: conversation.participants,

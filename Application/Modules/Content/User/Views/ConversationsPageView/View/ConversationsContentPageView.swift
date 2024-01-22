@@ -14,6 +14,10 @@ import SwiftUI
 import Redux
 
 public struct ConversationsContentPageView: View {
+    // MARK: - Constants Accessors
+
+    private typealias Strings = AppConstants.Strings.ConversationsPageView
+
     // MARK: - Properties
 
     @ObservedObject private var viewModel: ViewModel<ConversationsPageReducer>
@@ -45,8 +49,26 @@ public struct ConversationsContentPageView: View {
                 .refreshable {
                     viewModel.send(.pulledToRefresh)
                 }
+                .toolbar {
+                    settingsToolbarButton
+                }
             }
-            .id(viewModel.viewID)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var settingsToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                viewModel.send(.settingsToolbarButtonTapped)
+            } label: {
+                Label(
+                    Strings.settingsToolbarButtonText,
+                    systemImage: Strings.settingsToolbarButtonLabelImageSystemName
+                )
+                .foregroundColor(.accent)
+            }
+//            .disabled(!viewModel.isSettingsToolbarButtonEnabled)
         }
     }
 }

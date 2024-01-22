@@ -22,7 +22,7 @@ extension User: Updatable {
 
     public var updatableKeys: [SerializationKeys] {
         [
-            .conversations,
+            .conversationIDs,
             .pushTokens,
         ]
     }
@@ -31,31 +31,30 @@ extension User: Updatable {
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
         switch key {
-        case .compressedHash,
-             .id,
+        case .id,
              .languageCode,
              .phoneNumber:
             return nil
 
-        case .conversations:
-            guard let value = value as? [Conversation] else { return nil }
-            return updateIDHash(.init(
+        case .conversationIDs:
+            guard let value = value as? [ConversationID] else { return nil }
+            return .init(
                 id,
-                conversations: value,
+                conversationIDs: value,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
-            ))
+            )
 
         case .pushTokens:
             guard let value = value as? [String] else { return nil }
-            return updateIDHash(.init(
+            return .init(
                 id,
-                conversations: conversations,
+                conversationIDs: conversationIDs,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
                 pushTokens: value
-            ))
+            )
         }
     }
 
@@ -70,18 +69,15 @@ extension User: Updatable {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
-        networking.services.user.archive.addValue(updated)
-
-        let userKeyPath = "\(networking.config.paths.users)/\(id.key)/"
+        let userKeyPath = "\(networking.config.paths.users)/\(id)/"
         let valueKeyPath = userKeyPath + key.rawValue
 
-        if key == .conversations,
-           let conversations = value as? [Conversation] {
-            if let exception = await networking.database.setValue(conversations.map(\.id.encoded), forKey: valueKeyPath) {
+        if let serializable = value as? any Serializable {
+            if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
                 return .failure(exception)
             }
-        } else if let serializable = value as? any Serializable {
-            if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
+        } else if let serializable = value as? [any Serializable] {
+            if let exception = await networking.database.setValue(serializable.map { $0.encoded }, forKey: valueKeyPath) {
                 return .failure(exception)
             }
         } else if networking.database.isEncodable(value) {
@@ -92,25 +88,6 @@ extension User: Updatable {
             return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
-        guard updated.compressedHash != compressedHash else {
-            return .success(updated)
-        }
-
-        let hashPath = userKeyPath + SerializationKeys.compressedHash.rawValue
-        if let exception = await networking.database.setValue(updated.compressedHash, forKey: hashPath) {
-            return .failure(exception)
-        }
-
         return .success(updated)
-    }
-
-    private func updateIDHash(_ user: User) -> User {
-        .init(
-            .init(key: user.id.key, hash: user.compressedHash),
-            conversations: user.conversations,
-            languageCode: user.languageCode,
-            phoneNumber: user.phoneNumber,
-            pushTokens: user.pushTokens
-        )
     }
 }

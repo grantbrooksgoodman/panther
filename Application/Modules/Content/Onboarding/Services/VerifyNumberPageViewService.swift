@@ -21,9 +21,9 @@ public struct VerifyNumberPageViewService {
     // MARK: - Methods
 
     public func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
-        let getUserIDKeysResult = await userService.getUserIDKeys(phoneNumber: phoneNumber)
+        let getUserIDsResult = await userService.getUserIDs(phoneNumber: phoneNumber)
 
-        switch getUserIDKeysResult {
+        switch getUserIDsResult {
         case .success:
             return true
 

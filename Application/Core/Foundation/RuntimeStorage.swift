@@ -8,6 +8,7 @@
 /* Native */
 import Foundation
 
+// FIXME: If data races occur, try wrapping setter calls in DispatchQueue.sync or Task { @MainActor in } closures.
 public actor RuntimeStorage {
     // MARK: - Properties
 

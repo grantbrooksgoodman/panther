@@ -23,7 +23,7 @@ public struct ConversationsPageViewService {
 
     public func viewAppeared() {
         coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
-        userSessionService.startObservingHashValueChanges()
+        userSessionService.startObservingConversationHashValueChanges()
     }
 
     public func reloadData() async -> Callback<[Conversation], Exception> {
@@ -36,14 +36,26 @@ public struct ConversationsPageViewService {
 
         switch setCurrentUserResult {
         case let .success(user):
-            if let exception = await user.conversations?.setUsers() {
+            if let exception = await updatedCurrentUser() {
                 return .failure(exception)
-            } else {
-                return .success(user.conversations ?? [])
             }
+
+            return .success(user.conversations ?? [])
 
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    public func updatedCurrentUser() async -> Exception? {
+        if let exception = await userSessionService.currentUser?.setConversations() {
+            return exception
+        }
+
+        if let exception = await userSessionService.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
+            return exception
+        }
+
+        return nil
     }
 }

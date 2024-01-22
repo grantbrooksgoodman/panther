@@ -17,19 +17,24 @@ public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
-    @Dependency(\.clientSessionService.user) private var userSessionService: UserSessionService
+    @Dependency(\.clientSessionService.conversation) private var conversationSession: ConversationSessionService
 
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
 
+        case chatPageViewAppeared
+        case deleteConversationButtonTapped
         case userInfoBadgeTapped
     }
 
     // MARK: - Feedback
 
-    public enum Feedback {}
+    public enum Feedback {
+        case deleteConversationReturned(Exception?)
+        case updateReadDateReturned(Callback<Conversation, Exception>)
+    }
 
     // MARK: - State
 
@@ -101,25 +106,67 @@ public struct ConversationCellReducer: Reducer {
                 state.otherUser = otherUser
             }
 
+            @Persistent(.currentUserID) var currentUserID: String?
+
             // Set date & subtitle label text
-            if let lastMessage = state.conversation.messages.last {
+            if let lastMessage = state.conversation.messages?.last {
                 state.dateLabelText = lastMessage.sentDate.formattedShortString
 
                 if lastMessage.audioComponent == nil {
-                    let isLastMessageFromCurrentUser = lastMessage.fromAccountID == userSessionService.currentUser?.id.key
+                    let isLastMessageFromCurrentUser = lastMessage.fromAccountID == currentUserID
                     state.subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
                 } else {
-                    state.subtitleLabelText = "🔊 AUDIO MESSAGE (LOCALIZE!)"
+                    // TODO: Localize this string.
+                    state.subtitleLabelText = "🔊 AUDIO MESSAGE"
                 }
             }
 
             // Set unread indicator status
-            if let lastMessageFromOtherUsers = state.conversation.messages.filter({ $0.fromAccountID != userSessionService.currentUser?.id.key }).last {
+            if let lastMessageFromOtherUsers = state.conversation.messages?.filter({ $0.fromAccountID != currentUserID }).last {
                 state.isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
             }
 
+        case .action(.chatPageViewAppeared):
+            @Persistent(.currentUserID) var currentUserID: String?
+
+            let conversation = state.conversation
+            guard let lastMessageFromOtherUsers = conversation.messages?.filter({ $0.fromAccountID != currentUserID }).last else {
+                return .none
+            }
+
+            return .task {
+                let result = await conversation.updateReadDate(for: lastMessageFromOtherUsers)
+                return .updateReadDateReturned(result)
+            }
+
+        case .action(.deleteConversationButtonTapped):
+            // TODO: Prompt user to confirm.
+            let conversation = state.conversation
+            return .task {
+                let result = await conversationSession.deleteConversation(conversation)
+                return .deleteConversationReturned(result)
+            }
+
         case .action(.userInfoBadgeTapped):
-            Logger.log("User info badge tapped.", metadata: [self, #file, #function, #line])
+            Logger.log(
+                "User info badge tapped.",
+                metadata: [self, #file, #function, #line]
+            )
+
+        case let .feedback(.deleteConversationReturned(exception)):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
+
+        case .feedback(.updateReadDateReturned(.success)):
+            Logger.log(
+                "Updated read date for last message from other user.",
+                domain: .conversation,
+                metadata: [self, #file, #function, #line]
+            )
+
+        case let .feedback(.updateReadDateReturned(.failure(exception))):
+            Logger.log(exception, with: .toast())
         }
 
         return .none

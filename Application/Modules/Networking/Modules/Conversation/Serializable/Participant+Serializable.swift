@@ -16,7 +16,7 @@ extension Participant: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: String { "\(userIDKey) | \(hasDeletedConversation) | \(isTyping)" }
+    public var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
 
     // MARK: - Methods
 
@@ -28,12 +28,12 @@ extension Participant: Serializable {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
-        let userIDKey = components[0]
+        let userID = components[0]
         let hasDeletedConversation = components[1] == "true" ? true : false
         let isTyping = components[2] == "true" ? true : false
 
         let decoded: Participant = .init(
-            userIDKey: userIDKey,
+            userID: userID,
             hasDeletedConversation: hasDeletedConversation,
             isTyping: isTyping
         )

@@ -168,19 +168,18 @@ public struct MessageService {
     // MARK: - Deletion
 
     public func deleteMessage(
-        _ message: Message,
+        id messageID: String,
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true
     ) async -> Exception? {
-        func deleteMessage(_ message: Message) async -> Exception? {
-            if message.hasAudioComponent,
-               let exception = await networking.services.message.audio.deleteInputAudioComponent(for: message) {
+        func deleteMessage() async -> Exception? {
+            if let exception = await networking.services.message.audio.deleteInputAudioComponent(for: messageID) {
                 return exception
             }
 
             if let exception = await networking.database.setValue(
                 NSNull(),
-                forKey: "\(networking.config.paths.messages)/\(message.id)"
+                forKey: "\(networking.config.paths.messages)/\(messageID)"
             ) {
                 return exception
             }
@@ -189,10 +188,10 @@ public struct MessageService {
         }
 
         guard let conversation else {
-            return await deleteMessage(message)
+            return await deleteMessage()
         }
 
-        if let exception = await deleteMessage(message) {
+        if let exception = await deleteMessage() {
             return exception
         }
 
@@ -205,7 +204,7 @@ public struct MessageService {
                 return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
             }
 
-            array.removeAll(where: { $0 == message.id })
+            array.removeAll(where: { $0 == messageID })
             array = array.unique
 
             if let exception = await networking.database.setValue(array, forKey: path) {
@@ -230,13 +229,13 @@ public struct MessageService {
     }
 
     public func deleteMessages(
-        _ messages: [Message],
+        ids messageIDs: [String],
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true
     ) async -> Exception? {
-        for message in messages {
+        for messageID in messageIDs {
             if let exception = await deleteMessage(
-                message,
+                id: messageID,
                 in: conversation,
                 updateConversationHash: updateConversationHash
             ) {

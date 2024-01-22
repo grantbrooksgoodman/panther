@@ -186,16 +186,15 @@ public struct AudioMessageService {
 
     // MARK: - Deletion
 
-    public func deleteInputAudioComponent(for message: Message) async -> Exception? {
-        guard message.hasAudioComponent else {
-            return .init(
-                "Message does not have an audio component.",
-                extraParams: ["MessageID": message.id],
-                metadata: [self, #file, #function, #line]
-            )
+    public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
+        if let exception = await networking.storage.deleteItem(
+            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(AudioFileExtension.m4a.rawValue)"
+        ) {
+            guard !exception.isEqual(to: .fileDoesNotExist) else { return nil }
+            return exception
         }
 
-        return await networking.storage.deleteItem(at: "\(networking.config.paths.audioMessageInputs)/\(message.id).\(AudioFileExtension.m4a.rawValue)")
+        return nil
     }
 
     // MARK: - Upload

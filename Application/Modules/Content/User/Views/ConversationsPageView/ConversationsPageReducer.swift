@@ -27,6 +27,8 @@ public struct ConversationsPageReducer: Reducer {
 
         case pulledToRefresh
         case updatedCurrentUser
+
+        case settingsToolbarButtonTapped
     }
 
     // MARK: - Feedback
@@ -34,7 +36,7 @@ public struct ConversationsPageReducer: Reducer {
     public enum Feedback {
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case setUsersReturned(Exception?)
+        case updatedCurrentUserReturned(Exception?)
     }
 
     // MARK: - State
@@ -52,7 +54,6 @@ public struct ConversationsPageReducer: Reducer {
 
         public var conversations = [Conversation]()
         public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
-        public var viewID = UUID()
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -70,7 +71,7 @@ public struct ConversationsPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loading
-            state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate ?? []
+            state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
 
             viewService.viewAppeared()
 
@@ -85,15 +86,20 @@ public struct ConversationsPageReducer: Reducer {
                 return .reloadDataReturned(result)
             }
 
+        case .action(.settingsToolbarButtonTapped):
+            Logger.log(
+                "Settings toolbar button tapped.",
+                metadata: [self, #file, #function, #line]
+            )
+
         case .action(.updatedCurrentUser):
             return .task {
-                let result = await userSessionService.currentUser?.conversations?.setUsers()
-                return .setUsersReturned(result)
+                let result = await viewService.updatedCurrentUser()
+                return .updatedCurrentUserReturned(result)
             }
 
         case let .feedback(.reloadDataReturned(.success(conversations))):
-            state.conversations = conversations.visibleForCurrentUser.sortedByLatestMessageSentDate
-            state.viewID = .init()
+            state.conversations = conversations.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
 
         case let .feedback(.reloadDataReturned(.failure(exception))):
             Logger.log(exception, with: .toast())
@@ -106,12 +112,13 @@ public struct ConversationsPageReducer: Reducer {
             Logger.log(exception)
             state.viewState = .loaded
 
-        case let .feedback(.setUsersReturned(exception)):
-            if let exception {
-                Logger.log(exception, with: .toast())
-            } else {
-                state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate ?? []
+        case let .feedback(.updatedCurrentUserReturned(exception)):
+            guard let exception else {
+                state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
+                return .none
             }
+
+            Logger.log(exception, with: .toast())
         }
 
         return .none
