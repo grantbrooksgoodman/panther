@@ -93,19 +93,18 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     // MARK: - Set Users
 
-    public func setUsers(forceUpdate: Bool = false) async -> Exception? {
+    public func setUsers() async -> Exception? {
+        @Dependency(\.mainQueue) var mainQueue: DispatchQueue
         @Dependency(\.clientSessionService.user) var userSession: UserSessionService
-
-        if users != nil,
-           !forceUpdate {
-            return nil
-        }
 
         let getUsersResult = await userSession.getUsers(conversation: self)
 
         switch getUsersResult {
         case let .success(users):
-            self.users = users
+            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
+            mainQueue.sync {
+                self.users = users
+            }
 
             Logger.log(
                 .init(
@@ -125,33 +124,32 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     // MARK: - Update Read Date
 
-    public func updateReadDate(for message: Message) async -> Callback<Conversation, Exception> {
+    public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-
-        guard let messages else {
-            return .failure(.init("Messages have not been set.", metadata: [self, #file, #function, #line]))
-        }
-
-        guard let messageIndex = messages.firstIndex(where: { $0.id == message.id }) else {
-            return .failure(.init(
-                "This conversation does not contain the specified message.",
-                extraParams: ["MessageID": message.id],
-                metadata: [self, #file, #function, #line]
-            ))
-        }
+        @Dependency(\.commonServices.notification) var notificationService: NotificationService
 
         let readDateString = dateFormatter.string(from: Date())
-        let updateMessageValueResult = await message.updateValue(readDateString, forKey: .readDate)
 
-        switch updateMessageValueResult {
-        case let .success(message):
-            var updatedMessages = messages.filter { $0.id != message.id }
-            updatedMessages.insert(message, at: messageIndex)
-            return await updateValue(updatedMessages, forKey: .messages)
+        var modifiedMessages = [Message]()
 
-        case let .failure(exception):
-            return .failure(exception)
+        for message in messages {
+            let updateValueResult = await message.updateValue(readDateString, forKey: .readDate)
+
+            switch updateValueResult {
+            case let .success(message):
+                let badgeNumber = (notificationService.badgeNumber ?? 0)
+                if let exception = await notificationService.setBadgeNumber(badgeNumber < 1 ? 0 : badgeNumber - 1) {
+                    return .failure(exception)
+                }
+
+                modifiedMessages.append(message)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
         }
+
+        return await updateValue(modifiedMessages, forKey: .messages)
     }
 
     // MARK: - Equatable Conformance

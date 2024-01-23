@@ -81,7 +81,7 @@ extension Conversation: Updatable {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
         }
 
-        if let exception = await setUsers(forceUpdate: true) {
+        if let exception = await setUsers() {
             return .failure(exception)
         }
 

@@ -130,12 +130,13 @@ public struct ConversationCellReducer: Reducer {
             @Persistent(.currentUserID) var currentUserID: String?
 
             let conversation = state.conversation
-            guard let lastMessageFromOtherUsers = conversation.messages?.filter({ $0.fromAccountID != currentUserID }).last else {
+            guard let messages = conversation.messages?.filter({ $0.fromAccountID != currentUserID }),
+                  messages.last?.readDate == nil else {
                 return .none
             }
 
             return .task {
-                let result = await conversation.updateReadDate(for: lastMessageFromOtherUsers)
+                let result = await conversation.updateReadDate(for: messages.filter { $0.readDate == nil })
                 return .updateReadDateReturned(result)
             }
 

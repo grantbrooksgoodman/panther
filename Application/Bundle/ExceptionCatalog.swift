@@ -25,6 +25,7 @@ public enum AppException: String {
     case invalidVerificationCode = "7E4A"
     case genericStorageError = "6F00"
     case notAuthorizedForContacts = "16AA"
+    case notRegisteredForPushNotifications = "06BE"
     case noUserWithHashes = "BD49"
     case noUsersWithPhoneNumbers = "9330"
     case noValueExists = "7CD4"

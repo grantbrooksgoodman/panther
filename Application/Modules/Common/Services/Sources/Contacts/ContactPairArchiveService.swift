@@ -36,6 +36,8 @@ public final class ContactPairArchiveService {
     public func addValue(_ contactPair: ContactPair) {
         var values = archive ?? .init()
 
+        guard !values.contains(contactPair) else { return }
+
         values.removeAll(where: { $0.contact.id == contactPair.contact.id })
         values.append(contactPair)
         archive = values
@@ -49,6 +51,8 @@ public final class ContactPairArchiveService {
             ),
             domain: .contacts
         )
+
+        Observables.updatedContactPairArchive.trigger()
     }
 
     // MARK: - Removal

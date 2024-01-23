@@ -18,6 +18,7 @@ public final class UserSessionService {
 
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
     @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
@@ -61,9 +62,11 @@ public final class UserSessionService {
 
         switch getUserResult {
         case let .success(user):
-            // FIXME: If this causes problems, try wrapping the setter call in a mainQueue.sync closure.
-            currentUser = user
-            self.currentUserID = user.id
+            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
+            mainQueue.sync {
+                currentUser = user
+                self.currentUserID = user.id
+            }
             return .success(user)
 
         case let .failure(exception):
@@ -168,8 +171,37 @@ public final class UserSessionService {
         }
     }
 
+    // MARK: - Reset Push Tokens
+
+    @discardableResult
+    public func resetPushTokens() async -> Exception? {
+        notificationService.setPushToken(nil)
+
+        guard currentUser?.pushTokens != nil else {
+            return .init("Push token has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        let updateValueResult = await currentUser?.updateValue(Array.bangQualifiedEmpty, forKey: .pushTokens)
+
+        switch updateValueResult {
+        case let .success(user):
+            mainQueue.sync {
+                currentUser = user
+                self.currentUserID = user.id
+            }
+            return nil
+
+        case let .failure(exception):
+            return exception
+
+        case .none:
+            return nil
+        }
+    }
+
     // MARK: - Update Push Tokens
 
+    @discardableResult
     public func updatePushTokens() async -> Exception? {
         guard let pushToken = notificationService.pushToken else {
             return .init("Push token has not been set.", metadata: [self, #file, #function, #line])
@@ -181,12 +213,14 @@ public final class UserSessionService {
         }
 
         pushTokens.append(pushToken)
-        let updateValueResult = await currentUser?.updateValue(pushTokens, forKey: .pushTokens)
+        let updateValueResult = await currentUser?.updateValue(pushTokens.unique, forKey: .pushTokens)
 
         switch updateValueResult {
         case let .success(user):
-            currentUser = user
-            currentUserID = user.id
+            mainQueue.sync {
+                currentUser = user
+                self.currentUserID = user.id
+            }
             return nil
 
         case let .failure(exception):

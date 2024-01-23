@@ -16,8 +16,8 @@ import Redux
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.clientSessionService.user.currentUser) private var currentUser: User?
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
-    @Dependency(\.clientSessionService.user) private var userSessionService: UserSessionService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
     // MARK: - Actions
@@ -26,9 +26,10 @@ public struct ConversationsPageReducer: Reducer {
         case viewAppeared
 
         case pulledToRefresh
-        case updatedCurrentUser
-
         case settingsToolbarButtonTapped
+
+        case updatedContactPairArchive
+        case updatedCurrentUser
     }
 
     // MARK: - Feedback
@@ -37,6 +38,7 @@ public struct ConversationsPageReducer: Reducer {
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updatedCurrentUserReturned(Exception?)
+        case viewAppearedReturned(Exception?)
     }
 
     // MARK: - State
@@ -54,6 +56,7 @@ public struct ConversationsPageReducer: Reducer {
 
         public var conversations = [Conversation]()
         public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
+        public var viewID = UUID()
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -71,14 +74,17 @@ public struct ConversationsPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loading
-            state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
+            state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
 
-            viewService.viewAppeared()
+            let viewAppearedTask: Effect<Feedback> = .task {
+                let result = await viewService.viewAppeared()
+                return .viewAppearedReturned(result)
+            }
 
             return .task {
                 let result = await translator.resolve(ConversationsPageViewStrings.self)
                 return .resolveReturned(result)
-            }
+            }.merge(with: viewAppearedTask)
 
         case .action(.pulledToRefresh):
             return .task {
@@ -91,6 +97,9 @@ public struct ConversationsPageReducer: Reducer {
                 "Settings toolbar button tapped.",
                 metadata: [self, #file, #function, #line]
             )
+
+        case .action(.updatedContactPairArchive):
+            state.viewID = UUID()
 
         case .action(.updatedCurrentUser):
             return .task {
@@ -114,11 +123,17 @@ public struct ConversationsPageReducer: Reducer {
 
         case let .feedback(.updatedCurrentUserReturned(exception)):
             guard let exception else {
-                state.conversations = userSessionService.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
+                let conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
+                state.conversations = conversations ?? state.conversations
                 return .none
             }
 
             Logger.log(exception, with: .toast())
+
+        case let .feedback(.viewAppearedReturned(exception)):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
         }
 
         return .none

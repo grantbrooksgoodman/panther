@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public final class User: Codable, CompressedHashable, Equatable {
+public final class User: Codable, Equatable {
     // MARK: - Properties
 
     // Array
@@ -33,22 +33,6 @@ public final class User: Codable, CompressedHashable, Equatable {
     public var canSendAudioMessages: Bool {
         @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
         return transcriptionService.isTranscriptionSupported(for: languageCode)
-    }
-
-    public var hashFactors: [String] {
-        var factors = [id]
-
-        if let conversations {
-            factors.append(contentsOf: conversations.map(\.compressedHash))
-        }
-
-        if let pushTokens {
-            factors.append(contentsOf: pushTokens)
-        }
-
-        factors.append(languageCode)
-        factors.append(phoneNumber.compressedHash)
-        return factors
     }
 
     // MARK: - Init
@@ -74,9 +58,57 @@ public final class User: Codable, CompressedHashable, Equatable {
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
     }
 
+    // TODO: This is expensive. Prefer a value on the user itself.
+    public func getBadgeNumber() async -> Callback<Int, Exception> {
+        var badgeNumber = 0
+
+        guard let conversationIDs,
+              !conversationIDs.isEmpty else {
+            return .success(badgeNumber)
+        }
+
+        guard let conversations else {
+            if let exception = await setConversations() {
+                return .failure(exception)
+            }
+
+            return await getBadgeNumber()
+        }
+
+        guard conversations.allSatisfy({ $0.messages != nil }) else {
+            if let exception = await conversations.setMessages() {
+                return .failure(exception)
+            }
+
+            return await getBadgeNumber()
+        }
+
+        func incrementForUnread(_ messages: [Message]) {
+            for message in messages where message.readDate == nil {
+                badgeNumber += 1
+            }
+        }
+
+        for conversation in conversations {
+            guard let messages = conversation.messages else { continue }
+
+            guard let lastMessageFromCurrentUser = messages.last(where: { $0.fromAccountID == id }),
+                  let index = messages.firstIndex(of: lastMessageFromCurrentUser) else {
+                incrementForUnread(messages)
+                continue
+            }
+
+            guard messages.count > index else { continue }
+            incrementForUnread(messages[index ... messages.count - 1].filter { $0.fromAccountID != id })
+        }
+
+        return .success(badgeNumber)
+    }
+
     public func setConversations() async -> Exception? {
         @Dependency(\.networking.services.conversation) var conversationService: ConversationService
         @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
+        @Dependency(\.mainQueue) var mainQueue: DispatchQueue
 
         guard let conversationIDs else { return nil }
 
@@ -127,9 +159,12 @@ public final class User: Codable, CompressedHashable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            self.conversationIDs = decodedConversations.map(\.id)
-            conversations = decodedConversations.sortedByLatestMessageSentDate
-            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
+            mainQueue.sync {
+                self.conversationIDs = decodedConversations.map(\.id)
+                conversations = decodedConversations.sortedByLatestMessageSentDate
+                decodedConversations.forEach { conversationService.archive.addValue($0) }
+            }
             return nil
         }
 
@@ -143,9 +178,12 @@ public final class User: Codable, CompressedHashable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            self.conversationIDs = decodedConversations.map(\.id)
-            self.conversations = decodedConversations.sortedByLatestMessageSentDate
-            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
+            mainQueue.sync {
+                self.conversationIDs = decodedConversations.map(\.id)
+                self.conversations = decodedConversations.sortedByLatestMessageSentDate
+                decodedConversations.forEach { conversationService.archive.addValue($0) }
+            }
             return nil
 
         case let .failure(exception):

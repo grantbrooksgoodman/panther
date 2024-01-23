@@ -37,6 +37,7 @@ extension User: Updatable {
             return nil
 
         case .conversationIDs:
+            #warning("Make sure this works when the array is empty.")
             guard let value = value as? [ConversationID] else { return nil }
             return .init(
                 id,
@@ -53,7 +54,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
-                pushTokens: value
+                pushTokens: value.isBangQualifiedEmpty ? nil : value
             )
         }
     }

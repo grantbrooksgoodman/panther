@@ -40,6 +40,7 @@ public class Cache {
         objects[key] = nil
     }
 
+    // FIXME: Seeing access races occur here.
     public func value(forKey key: CacheDomain) -> Any? {
         return objects[key]
     }

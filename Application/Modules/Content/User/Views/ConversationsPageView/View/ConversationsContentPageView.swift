@@ -53,6 +53,7 @@ public struct ConversationsContentPageView: View {
                     settingsToolbarButton
                 }
             }
+            .id(viewModel.viewID)
         }
     }
 

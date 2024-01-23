@@ -8,7 +8,6 @@
 /* Native */
 import Foundation
 
-// FIXME: If data races occur, try wrapping setter calls in DispatchQueue.sync or Task { @MainActor in } closures.
 public actor RuntimeStorage {
     // MARK: - Properties
 
@@ -29,6 +28,8 @@ public actor RuntimeStorage {
     }
 
     // MARK: - Retrieval
+
+    // FIXME: Seeing access races occur here.
 
     public static func retrieve(_ item: StoredItemKeyDomain) -> Any? {
         guard let object = storedItems[item.keyValue] else { return nil }

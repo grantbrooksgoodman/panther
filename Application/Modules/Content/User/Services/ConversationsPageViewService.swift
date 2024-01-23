@@ -15,28 +15,55 @@ import Redux
 public struct ConversationsPageViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.contact.sync) private var contactSyncService: ContactSyncService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.clientSessionService.user) private var userSessionService: UserSessionService
+    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
 
     // MARK: - Methods
 
-    public func viewAppeared() {
+    public func viewAppeared() async -> Exception? {
         coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
-        userSessionService.startObservingConversationHashValueChanges()
+        userSession.startObservingConversationHashValueChanges()
+
+        await userSession.updatePushTokens()
+
+        let getBadgeNumberResult = await userSession.currentUser?.getBadgeNumber()
+
+        switch getBadgeNumberResult {
+        case let .success(badgeNumber):
+            if let exception = await services.notification.setBadgeNumber(badgeNumber) {
+                return exception
+            }
+
+        case let .failure(exception):
+            return exception
+
+        case .none:
+            return nil
+        }
+
+        return nil
     }
 
     public func reloadData() async -> Callback<[Conversation], Exception> {
-        if let exception = await contactSyncService.syncContactPairArchive(forceUpdate: true),
-           !exception.isEqual(to: .notAuthorizedForContacts) {
-            return .failure(exception)
+        func syncContactPairArchive() async -> Exception? {
+            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
+               !exception.isEqual(to: .notAuthorizedForContacts) {
+                return exception
+            }
+
+            return nil
         }
 
-        let setCurrentUserResult = await userSessionService.setCurrentUser()
+        let setCurrentUserResult = await userSession.setCurrentUser()
 
         switch setCurrentUserResult {
         case let .success(user):
             if let exception = await updatedCurrentUser() {
+                return .failure(exception)
+            }
+
+            if let exception = await syncContactPairArchive() {
                 return .failure(exception)
             }
 
@@ -48,11 +75,11 @@ public struct ConversationsPageViewService {
     }
 
     public func updatedCurrentUser() async -> Exception? {
-        if let exception = await userSessionService.currentUser?.setConversations() {
+        if let exception = await userSession.currentUser?.setConversations() {
             return exception
         }
 
-        if let exception = await userSessionService.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
+        if let exception = await userSession.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
             return exception
         }
 

@@ -17,7 +17,7 @@ public struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
-    @Dependency(\.clientSessionService.user) private var userSessionService: UserSessionService
+    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
 
     // MARK: - Actions
@@ -69,7 +69,7 @@ public struct SplashPageReducer: Reducer {
                     let result = await viewService.presentErrorAlert(exception)
                     return .errorAlertDismissed(result)
                 }
-            } else if userSessionService.currentUser != nil {
+            } else if userSession.currentUser != nil {
                 navigationCoordinator.setPage(.conversations)
             } else {
                 navigationCoordinator.setPage(.onboarding(.welcome))

@@ -16,9 +16,9 @@ import Translator
 public struct MessageSessionService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.clientSessionService) private var clientSession: ClientSessionService
     @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Send Text Message
 
@@ -68,6 +68,10 @@ public struct MessageSessionService {
 
         switch createMessageResult {
         case let .success(message):
+            if let exception = await services.notification.notify(users, of: message) {
+                return .failure(exception)
+            }
+
             if let conversation {
                 return await clientSession.conversation.addMessages(
                     [message],
@@ -101,7 +105,7 @@ public struct MessageSessionService {
             ))
         }
 
-        let transcribeResult = await audioService.transcription.transcribeAudioFile(
+        let transcribeResult = await services.audio.transcription.transcribeAudioFile(
             at: inputFile.url,
             languageCode: currentUser.languageCode
         )
@@ -122,7 +126,7 @@ public struct MessageSessionService {
                 case let .success(translation):
                     translations.append(translation)
 
-                    let readToFileResult = await audioService.textToSpeech.readToFile(
+                    let readToFileResult = await services.audio.textToSpeech.readToFile(
                         text: translation.output,
                         languageCode: languageCode
                     )
@@ -167,6 +171,10 @@ public struct MessageSessionService {
 
             switch createMessageResult {
             case let .success(message):
+                if let exception = await services.notification.notify(users, of: message) {
+                    return .failure(exception)
+                }
+
                 if let conversation {
                     return await clientSession.conversation.addMessages(
                         [message],

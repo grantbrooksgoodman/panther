@@ -52,6 +52,17 @@ public extension Array where Element == Conversation {
     // MARK: - Methods
 
     @discardableResult
+    func setMessages() async -> Exception? {
+        for conversation in self {
+            if let exception = await conversation.setMessages() {
+                return exception
+            }
+        }
+
+        return nil
+    }
+
+    @discardableResult
     func setUsers() async -> Exception? {
         for conversation in self {
             if let exception = await conversation.setUsers() {

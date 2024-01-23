@@ -20,7 +20,7 @@ public struct ConversationsPageObserver: Observer {
     // MARK: - Properties
 
     public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.updatedCurrentUser]
+    public let observedValues: [any ObservableProtocol] = [Observables.updatedContactPairArchive, Observables.updatedCurrentUser]
     public let viewModel: ViewModel<R>
 
     // MARK: - Init
@@ -43,6 +43,9 @@ public struct ConversationsPageObserver: Observer {
         )
 
         switch observable.key {
+        case .updatedContactPairArchive:
+            send(.updatedContactPairArchive)
+
         case .updatedCurrentUser:
             send(.updatedCurrentUser)
 

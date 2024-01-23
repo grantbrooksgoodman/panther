@@ -36,6 +36,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         preInitialize()
         setUpFirebase()
+        setUpPushNotifications()
 
         /* Encapsulate further work here into setup functions. */
 
@@ -182,10 +183,15 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        if let exception = await notificationService.respondToNotification(notification) {
-            Logger.log(exception)
-        }
+        let respondToNotificationResult = await notificationService.respondToNotification(notification)
 
-        return [.badge, .banner, .sound]
+        switch respondToNotificationResult {
+        case let .success(presentationOptions):
+            return presentationOptions
+
+        case let .failure(exception):
+            Logger.log(exception)
+            return []
+        }
     }
 }

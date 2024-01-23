@@ -310,7 +310,7 @@ public enum Logger {
             try fileHandle.seekToEnd()
             try fileHandle.write(contentsOf: data)
             try fileHandle.close()
-        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileNoSuchFileError {
+        } catch let error as NSError where error.code == NSFileNoSuchFileError && error.domain == NSCocoaErrorDomain {
             try? data.write(to: sessionRecordFilePath, options: .atomic)
         } catch { return }
     }
