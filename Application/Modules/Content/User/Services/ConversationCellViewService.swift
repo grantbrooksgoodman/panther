@@ -1,0 +1,98 @@
+//
+//  ConversationCellViewService.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 23/01/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+import UIKit
+
+/* 3rd-party */
+import AlertKit
+import Redux
+
+public struct ConversationCellViewService {
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
+
+    // MARK: - Methods
+
+    public func cellViewData(for conversation: Conversation) -> ConversationCellViewData? {
+        guard let users = conversation.users,
+              let lastUser = users.last else { return nil }
+
+        var titleLabelText: String
+        var subtitleLabelText = ""
+        var dateLabelText = ""
+        var contactImage: UIImage?
+        var isShowingUnreadIndicator = false
+        var otherUser: User?
+
+        // Set title label text
+        if let contactPair = users
+            .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.compressedHash) })
+            .sorted(by: { $0.contact.fullName < $1.contact.fullName })
+            .first {
+            titleLabelText = contactPair.contact.fullName
+            if let imageData = contactPair.contact.imageData {
+                contactImage = UIImage(data: imageData)
+            }
+        } else {
+            titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)
+        }
+
+        // TODO: If >1 other user, set avatar image to number of users.
+        if users.count > 1 {
+            titleLabelText += " + \(users.count - 1)"
+        } else if let firstUser = users.first {
+            otherUser = firstUser
+        }
+
+        @Persistent(.currentUserID) var currentUserID: String?
+
+        // Set date & subtitle label text
+        if let lastMessage = conversation.messages?.last {
+            dateLabelText = lastMessage.sentDate.formattedShortString
+
+            if lastMessage.audioComponent == nil {
+                let isLastMessageFromCurrentUser = lastMessage.fromAccountID == currentUserID
+                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
+            } else {
+                // TODO: Localize this string.
+                subtitleLabelText = "🔊 AUDIO MESSAGE"
+            }
+        }
+
+        // Set unread indicator status
+        if let lastMessageFromOtherUsers = conversation.messages?.filter({ $0.fromAccountID != currentUserID }).last {
+            isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
+        }
+
+        return .init(
+            titleLabelText: titleLabelText,
+            subtitleLabelText: subtitleLabelText,
+            dateLabelText: dateLabelText,
+            contactImage: contactImage,
+            isShowingUnreadIndicator: isShowingUnreadIndicator,
+            otherUser: otherUser
+        )
+    }
+
+    /// - Returns: `true` if the user selected the cancel option.
+    public func presentDeletionActionSheet(_ title: String) async -> Bool {
+        let actionSheet: AKActionSheet = .init(
+            title: title,
+            message: "Are you sure you'd like to delete this conversation?\nThis operation cannot be undone.",
+            actions: [.init(title: "Delete", style: .destructive)],
+            shouldTranslate: [.actions(indices: nil), .message],
+            networkDependent: true
+        )
+
+        let actionID = await actionSheet.present()
+        return actionID == -1
+    }
+}

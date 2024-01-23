@@ -15,16 +15,16 @@ public struct InstructionViewStrings: Equatable {
     public let subtitleLabelText: String
     public let titleLabelText: String
 
+    // MARK: - Computed Properties
+
+    public static var empty: InstructionViewStrings {
+        .init(titleLabelText: "", subtitleLabelText: "")
+    }
+
     // MARK: - Init
 
     public init(titleLabelText: String, subtitleLabelText: String) {
         self.titleLabelText = titleLabelText
         self.subtitleLabelText = subtitleLabelText
-    }
-
-    // MARK: - Default Value
-
-    public static var empty: InstructionViewStrings {
-        .init(titleLabelText: "", subtitleLabelText: "")
     }
 }

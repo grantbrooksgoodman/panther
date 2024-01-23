@@ -130,7 +130,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
         let readDateString = dateFormatter.string(from: Date())
 
-        var modifiedMessages = [Message]()
+        var modifiedMessages = self.messages ?? []
 
         for message in messages {
             let updateValueResult = await message.updateValue(readDateString, forKey: .readDate)
@@ -142,7 +142,12 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
                     return .failure(exception)
                 }
 
-                modifiedMessages.append(message)
+                if let messageIndex = modifiedMessages.firstIndex(where: { $0.id == message.id }) {
+                    modifiedMessages.remove(at: messageIndex)
+                    modifiedMessages.insert(message, at: messageIndex)
+                } else {
+                    modifiedMessages.append(message)
+                }
 
             case let .failure(exception):
                 return .failure(exception)

@@ -8,8 +8,13 @@
 
 /* Native */
 import Foundation
+import Redux
 
 public final class ConversationArchiveService {
+    // MARK: - Dependencies
+
+    @Dependency(\.coreKit.gcd.newSerialQueue) private var serialQueue: DispatchQueue
+
     // MARK: - Properties
 
     private var archive: [Conversation]?
@@ -31,8 +36,11 @@ public final class ConversationArchiveService {
         values.removeAll(where: { $0.id.key == conversation.id.key })
         values.append(conversation)
 
-        archive = values
-        persistedArchive = archive
+        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+        serialQueue.sync {
+            archive = values
+            persistedArchive = archive
+        }
 
         Logger.log(
             .init(
@@ -48,15 +56,21 @@ public final class ConversationArchiveService {
     // MARK: - Removal
 
     public func clearArchive() {
-        archive = nil
-        persistedArchive = nil
+        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+        serialQueue.sync {
+            archive = nil
+            persistedArchive = nil
+        }
     }
 
     public func removeValue(idKey: String) {
         guard (archive ?? []).contains(where: { $0.id.key == idKey }) else { return }
 
-        archive?.removeAll(where: { $0.id.key == idKey })
-        persistedArchive = archive
+        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+        serialQueue.sync {
+            archive?.removeAll(where: { $0.id.key == idKey })
+            persistedArchive = archive
+        }
 
         Logger.log(
             .init(

@@ -108,7 +108,7 @@ public final class User: Codable, Equatable {
     public func setConversations() async -> Exception? {
         @Dependency(\.networking.services.conversation) var conversationService: ConversationService
         @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
-        @Dependency(\.mainQueue) var mainQueue: DispatchQueue
+        @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
         guard let conversationIDs else { return nil }
 
@@ -135,9 +135,12 @@ public final class User: Codable, Equatable {
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
-            self.conversationIDs = decodedConversations.map(\.id)
-            conversations = decodedConversations.sortedByLatestMessageSentDate
-            decodedConversations.forEach { conversationService.archive.addValue($0) }
+            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            serialQueue.sync {
+                self.conversationIDs = decodedConversations.map(\.id)
+                conversations = decodedConversations.sortedByLatestMessageSentDate
+                decodedConversations.forEach { conversationService.archive.addValue($0) }
+            }
             return nil
         }
 
@@ -159,8 +162,8 @@ public final class User: Codable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            mainQueue.sync {
+            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
@@ -178,8 +181,8 @@ public final class User: Codable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            mainQueue.sync {
+            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
                 self.conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }

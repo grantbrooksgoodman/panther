@@ -86,6 +86,10 @@ public final class UserSessionService {
         guard let currentUser,
               let hashDatabaseReference else { return }
 
+        if let exception = stopObservingConversationHashValueChanges() {
+            Logger.log(exception, domain: .user)
+        }
+
         hashDatabaseReference.observe(.value) { snapshot in
             func updateCurrentUser() {
                 // FIXME: Previously protected by a guard clause ensuring an update was not already occurring.

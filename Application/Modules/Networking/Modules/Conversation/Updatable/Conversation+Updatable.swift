@@ -101,7 +101,8 @@ extension Conversation: Updatable {
 
         if key == .messages,
            let messages = value as? [Message] {
-            if let exception = await networking.database.setValue(messages.map(\.id), forKey: valueKeyPath) {
+            let messageIDs = messages.map(\.id).isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messages.map(\.id)
+            if let exception = await networking.database.setValue(messageIDs, forKey: valueKeyPath) {
                 return .failure(exception)
             }
         } else if let serializable = value as? any Serializable {

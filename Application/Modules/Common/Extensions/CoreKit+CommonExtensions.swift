@@ -1,5 +1,5 @@
 //
-//  CoreUtilities+CommonExtensions.swift
+//  CoreKit+CommonExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -12,6 +12,18 @@ import Foundation
 /* 3rd-party */
 import Redux
 import Translator
+
+public extension CoreKit.GCD {
+    var newSerialQueue: DispatchQueue {
+        let label = "\(Int.random(in: 1 ... 1_000_000))"
+        Logger.log(
+            "Instantiating new queue with label «\(label)».",
+            domain: .queue,
+            metadata: [self, #file, #function, #line]
+        )
+        return .init(label: label)
+    }
+}
 
 public extension CoreKit.Utilities {
     func clearCaches() {

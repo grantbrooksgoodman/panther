@@ -77,24 +77,24 @@ public struct ConversationCellView: View {
                         x: Floats.unreadIndicatorViewXOffset,
                         y: Floats.unreadIndicatorViewYOffset
                     )
-                    .opacity(viewModel.isShowingUnreadIndicator ? 1 : 0)
+                    .opacity(viewModel.cellViewData.isShowingUnreadIndicator ? 1 : 0)
                     .padding(.trailing, Floats.unreadIndicatorViewTrailingPadding)
 
-                AvatarImageView(viewModel.contactImage)
+                AvatarImageView(viewModel.cellViewData.contactImage)
                     .padding(.top, Floats.avatarImageViewTopPadding)
 
                 ZStack {
                     VStack(alignment: .leading) {
                         HStack {
                             HStack {
-                                Text(viewModel.titleLabelText)
+                                Text(viewModel.cellViewData.titleLabelText)
                                     .bold()
                                     .font(.system(size: Floats.titleLabelSystemFontSize))
                                     .foregroundStyle(Color.titleText)
                                     .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
                                     .padding(.bottom, Floats.titleLabelBottomPadding)
 
-                                if let otherUser = viewModel.otherUser {
+                                if let otherUser = viewModel.cellViewData.otherUser {
                                     UserInfoBadgeView(otherUser) {
                                         viewModel.send(.userInfoBadgeTapped)
                                     }
@@ -105,7 +105,7 @@ public struct ConversationCellView: View {
                             Spacer()
 
                             HStack(alignment: .center, spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
-                                Text(viewModel.dateLabelText)
+                                Text(viewModel.cellViewData.dateLabelText)
                                     .font(.system(size: Floats.dateLabelSystemFontSize))
                                     .foregroundStyle(Color.subtitleText)
                                     .padding(.trailing, Floats.dateLabelPaddingTrailing)
@@ -116,7 +116,7 @@ public struct ConversationCellView: View {
                             }
                         }
 
-                        Text(viewModel.subtitleLabelText)
+                        Text(viewModel.cellViewData.subtitleLabelText)
                             .font(Font.system(size: Floats.subtitleLabelSystemFontSize))
                             .foregroundStyle(viewModel.subtitleLabelTextForegroundColor)
                             .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)

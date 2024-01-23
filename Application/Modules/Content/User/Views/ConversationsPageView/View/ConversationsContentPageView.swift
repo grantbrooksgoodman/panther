@@ -31,30 +31,32 @@ public struct ConversationsContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        VStack {
-            NavigationView {
-                List {
-                    ForEach(viewModel.conversations, id: \.self) { conversation in
-                        ConversationCellView(
-                            .init(
-                                initialState: .init(conversation),
-                                reducer: ConversationCellReducer()
+        ThemedView({
+            VStack {
+                NavigationView {
+                    List {
+                        ForEach(viewModel.conversations, id: \.self) { conversation in
+                            ConversationCellView(
+                                .init(
+                                    initialState: .init(conversation),
+                                    reducer: ConversationCellReducer()
+                                )
                             )
-                        )
+                        }
+                    }
+                    .background(Color.background)
+                    .listStyle(.plain)
+                    .navigationTitle(viewModel.strings.value(for: .navigationTitle))
+                    .refreshable {
+                        viewModel.send(.pulledToRefresh)
+                    }
+                    .toolbar {
+                        settingsToolbarButton
                     }
                 }
-                .background(Color.background)
-                .listStyle(.plain)
-                .navigationTitle(viewModel.strings.value(for: .navigationTitle))
-                .refreshable {
-                    viewModel.send(.pulledToRefresh)
-                }
-                .toolbar {
-                    settingsToolbarButton
-                }
+                .id(viewModel.viewID)
             }
-            .id(viewModel.viewID)
-        }
+        }, redrawsOnAppearanceChange: true)
     }
 
     @ToolbarContentBuilder
