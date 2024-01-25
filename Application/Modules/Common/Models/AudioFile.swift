@@ -47,6 +47,7 @@ public final class AudioFile: Codable, Equatable {
         let components = fileName.components(separatedBy: ".")
         guard components[1] == AudioFileExtension.caf.rawValue ||
             components[1] == AudioFileExtension.m4a.rawValue else { return nil }
+
         self.init(
             url,
             name: components[0],

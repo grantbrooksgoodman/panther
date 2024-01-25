@@ -21,28 +21,15 @@ public struct ConversationsPageViewService {
 
     // MARK: - Methods
 
-    public func viewAppeared() async -> Exception? {
+    public func viewAppeared() {
         coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
-        userSession.startObservingConversationHashValueChanges()
+        userSession.startObservingCurrentUserChanges()
 
-        await userSession.updatePushTokens()
-
-        let getBadgeNumberResult = await userSession.currentUser?.getBadgeNumber()
-
-        switch getBadgeNumberResult {
-        case let .success(badgeNumber):
-            if let exception = await services.notification.setBadgeNumber(badgeNumber) {
-                return exception
+        Task {
+            if let exception = await userSession.updatePushTokens() {
+                Logger.log(exception)
             }
-
-        case let .failure(exception):
-            return exception
-
-        case .none:
-            return nil
         }
-
-        return nil
     }
 
     public func reloadData() async -> Callback<[Conversation], Exception> {

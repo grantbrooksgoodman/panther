@@ -17,6 +17,8 @@ public final class ConversationArchiveService {
 
     // MARK: - Properties
 
+    private let threadLock = NSLock()
+
     private var archive: [Conversation]?
     @Persistent(.conversationArchive) private var persistedArchive: [Conversation]?
 
@@ -36,11 +38,11 @@ public final class ConversationArchiveService {
         values.removeAll(where: { $0.id.key == conversation.id.key })
         values.append(conversation)
 
-        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
-        serialQueue.sync {
-            archive = values
-            persistedArchive = archive
-        }
+        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        threadLock.lock()
+        archive = values
+        persistedArchive = archive
+        threadLock.unlock()
 
         Logger.log(
             .init(
@@ -56,21 +58,21 @@ public final class ConversationArchiveService {
     // MARK: - Removal
 
     public func clearArchive() {
-        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
-        serialQueue.sync {
-            archive = nil
-            persistedArchive = nil
-        }
+        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        threadLock.lock()
+        archive = nil
+        persistedArchive = nil
+        threadLock.unlock()
     }
 
     public func removeValue(idKey: String) {
         guard (archive ?? []).contains(where: { $0.id.key == idKey }) else { return }
 
-        // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
-        serialQueue.sync {
-            archive?.removeAll(where: { $0.id.key == idKey })
-            persistedArchive = archive
-        }
+        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        threadLock.lock()
+        archive?.removeAll(where: { $0.id.key == idKey })
+        persistedArchive = archive
+        threadLock.unlock()
 
         Logger.log(
             .init(

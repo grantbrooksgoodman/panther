@@ -22,6 +22,7 @@ extension User: Updatable {
 
     public var updatableKeys: [SerializationKeys] {
         [
+            .badgeNumber,
             .conversationIDs,
             .pushTokens,
         ]
@@ -36,11 +37,23 @@ extension User: Updatable {
              .phoneNumber:
             return nil
 
+        case .badgeNumber:
+            guard let value = value as? Int else { return nil }
+            return .init(
+                id,
+                badgeNumber: value,
+                conversationIDs: conversationIDs,
+                languageCode: languageCode,
+                phoneNumber: phoneNumber,
+                pushTokens: pushTokens
+            )
+
         case .conversationIDs:
             #warning("Make sure this works when the array is empty.")
             guard let value = value as? [ConversationID] else { return nil }
             return .init(
                 id,
+                badgeNumber: badgeNumber,
                 conversationIDs: value,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
@@ -51,6 +64,7 @@ extension User: Updatable {
             guard let value = value as? [String] else { return nil }
             return .init(
                 id,
+                badgeNumber: badgeNumber,
                 conversationIDs: conversationIDs,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,

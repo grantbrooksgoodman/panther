@@ -193,8 +193,6 @@
 		B992BCD02A159121003BFF2E /* ThemedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B992BCCF2A159121003BFF2E /* ThemedView.swift */; };
 		B992BCD52A159479003BFF2E /* AKConnectionAlertDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B992BCD42A159479003BFF2E /* AKConnectionAlertDelegate.swift */; };
 		B992BCD82A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B992BCD72A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift */; };
-		B994419B2B15652000F3B99D /* Translator.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B994419A2B15652000F3B99D /* Translator.xcframework */; };
-		B994419C2B15652000F3B99D /* Translator.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B994419A2B15652000F3B99D /* Translator.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B995A45D2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */; };
 		B99652DD2AC525EA00C9CD69 /* Redux in Frameworks */ = {isa = PBXBuildFile; productRef = B99652DC2AC525EA00C9CD69 /* Redux */; };
 		B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */; };
@@ -503,6 +501,8 @@
 		B9D0D9472B03019E00078A93 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92E2B03019E00078A93 /* Database.swift */; };
 		B9D0D9482B03019E00078A93 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9302B03019E00078A93 /* Auth.swift */; };
 		B9D0D9512B0310C800078A93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */; };
+		B9D3148C2B60ACF000679DE7 /* Translator.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D3148B2B60ACF000679DE7 /* Translator.xcframework */; };
+		B9D3148D2B60ACF000679DE7 /* Translator.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B9D3148B2B60ACF000679DE7 /* Translator.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71062AD3891700EAC88B /* UserDefaultsKeyDomain.swift */; };
 		B9DB71092AD3897200EAC88B /* StoredItemKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71082AD3897200EAC88B /* StoredItemKeyDomain.swift */; };
 		B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */; };
@@ -617,8 +617,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B994419C2B15652000F3B99D /* Translator.xcframework in Embed Frameworks */,
 				B9F627AA2B3273D300462DD9 /* AlertKit.xcframework in Embed Frameworks */,
+				B9D3148D2B60ACF000679DE7 /* Translator.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -894,7 +894,6 @@
 		B992BCCF2A159121003BFF2E /* ThemedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemedView.swift; sourceTree = "<group>"; };
 		B992BCD42A159479003BFF2E /* AKConnectionAlertDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AKConnectionAlertDelegate.swift; sourceTree = "<group>"; };
 		B992BCD72A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UserDefaults+CoreExtensions.swift"; sourceTree = "<group>"; };
-		B994419A2B15652000F3B99D /* Translator.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Translator.xcframework; path = ../../XCFrameworks/Translator/build/Translator.xcframework; sourceTree = "<group>"; };
 		B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ConversationsPageView.swift"; sourceTree = "<group>"; };
 		B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServicesDependency.swift; sourceTree = "<group>"; };
 		B9975C8A2B201AA4008CE353 /* CommonServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServices.swift; sourceTree = "<group>"; };
@@ -1202,6 +1201,7 @@
 		B9D0D92E2B03019E00078A93 /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B9D0D9302B03019E00078A93 /* Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B9D3148B2B60ACF000679DE7 /* Translator.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Translator.xcframework; path = ../../XCFrameworks/Translator/build/Translator.xcframework; sourceTree = "<group>"; };
 		B9DB71062AD3891700EAC88B /* UserDefaultsKeyDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyDomain.swift; sourceTree = "<group>"; };
 		B9DB71082AD3897200EAC88B /* StoredItemKeyDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredItemKeyDomain.swift; sourceTree = "<group>"; };
 		B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationArchiveService.swift; sourceTree = "<group>"; };
@@ -1318,8 +1318,8 @@
 			files = (
 				B99652DD2AC525EA00C9CD69 /* Redux in Frameworks */,
 				2A96538A96662BA1D41A40A5 /* Pods_Panther.framework in Frameworks */,
-				B994419B2B15652000F3B99D /* Translator.xcframework in Frameworks */,
 				B9F627A92B3273D300462DD9 /* AlertKit.xcframework in Frameworks */,
+				B9D3148C2B60ACF000679DE7 /* Translator.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1338,8 +1338,8 @@
 		A286879128A49DA600A34912 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B9D3148B2B60ACF000679DE7 /* Translator.xcframework */,
 				B9F627A82B3273D300462DD9 /* AlertKit.xcframework */,
-				B994419A2B15652000F3B99D /* Translator.xcframework */,
 				4F42A94D2D5F5D7CC160C361 /* Pods_Panther.framework */,
 			);
 			name = Frameworks;

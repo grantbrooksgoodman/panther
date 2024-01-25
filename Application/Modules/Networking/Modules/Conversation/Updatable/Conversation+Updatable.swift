@@ -81,7 +81,7 @@ extension Conversation: Updatable {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
         }
 
-        if let exception = await setUsers() {
+        if let exception = await setUsers(forceUpdate: true) {
             return .failure(exception)
         }
 
@@ -102,7 +102,7 @@ extension Conversation: Updatable {
         if key == .messages,
            let messages = value as? [Message] {
             let messageIDs = messages.map(\.id).isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messages.map(\.id)
-            if let exception = await networking.database.setValue(messageIDs, forKey: valueKeyPath) {
+            if let exception = await networking.database.setValue(messageIDs.unique, forKey: valueKeyPath) {
                 return .failure(exception)
             }
         } else if let serializable = value as? any Serializable {

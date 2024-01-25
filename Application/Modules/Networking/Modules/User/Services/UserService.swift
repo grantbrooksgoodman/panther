@@ -35,7 +35,7 @@ public final class UserService: Cacheable {
 
         emptyCache = .init(
             [
-                .userDataSnapshot: UserDataSnapshot.empty,
+                .userDataSnapshots: [],
                 .userNumberHashSnapshot: UserNumberHashSnapshot.empty,
             ]
         )
@@ -86,6 +86,7 @@ public final class UserService: Cacheable {
 
         let mockUser: User = .init(
             id,
+            badgeNumber: 0,
             conversationIDs: nil,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
@@ -184,16 +185,18 @@ public final class UserService: Cacheable {
 
         typealias Keys = User.SerializationKeys
 
-        if let cachedValue = cache.value(forKey: .userDataSnapshot) as? UserDataSnapshot,
-           !cachedValue.isExpired,
-           let cachedID = cachedValue.data[Keys.id.rawValue] as? String,
-           cachedID == id {
+        if let cachedValue = cache.value(forKey: .userDataSnapshots) as? [UserDataSnapshot],
+           let match = cachedValue.first(where: { ($0.data[Keys.id.rawValue] as? String) == id }),
+           !match.isExpired {
             Logger.log(
-                "Returning cached user data snapshot.",
-                domain: .user,
-                metadata: [self, #file, #function, #line]
+                .init(
+                    "Returning cached user data snapshot.",
+                    extraParams: ["UserID": id],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .user
             )
-            return await User.decode(from: cachedValue.data)
+            return await User.decode(from: match.data)
         }
 
         let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.users)/\(id)")
@@ -213,14 +216,15 @@ public final class UserService: Cacheable {
                 RuntimeStorage.store(languageCode, as: .languageCode)
             }
 
-            cache.set(
-                UserDataSnapshot(
+            var cacheValues = (cache.value(forKey: .userDataSnapshots) as? [UserDataSnapshot]) ?? []
+            cacheValues.append(
+                .init(
                     date: Date(),
                     data: data,
-                    expiryThreshold: .milliseconds(10)
-                ),
-                forKey: .userDataSnapshot
+                    expiryThreshold: .milliseconds(100)
+                )
             )
+            cache.set(cacheValues, forKey: .userDataSnapshots)
             return await User.decode(from: data)
 
         case let .failure(exception):
@@ -371,7 +375,7 @@ public final class UserService: Cacheable {
 
 public extension CacheDomain {
     enum UserServiceCacheDomainKey: String, CaseIterable, Equatable {
-        case userDataSnapshot
+        case userDataSnapshots
         case userNumberHashSnapshot
     }
 }

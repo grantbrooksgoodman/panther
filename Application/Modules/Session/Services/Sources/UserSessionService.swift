@@ -25,22 +25,21 @@ public final class UserSessionService {
 
     public private(set) var currentUser: User?
     @Persistent(.currentUserID) private var currentUserID: String?
+    private var isUpdatingCurrentUser = false
 
     // MARK: - Computed Properties
 
-    private var hashDatabaseReference: DatabaseReference? {
+    private var currentUserDatabaseReference: DatabaseReference? {
         guard let currentUser else { return nil }
-
-        let pathPrefix = "\(networking.config.environment.shortString)/\(networking.config.paths.users)"
         return firebaseDatabase.child(
-            "\(pathPrefix)/\(currentUser.id)/\(User.SerializationKeys.conversationIDs.rawValue)"
+            "\(networking.config.environment.shortString)/\(networking.config.paths.users)/\(currentUser.id)"
         )
     }
 
     // MARK: - Object Lifecycle
 
     deinit {
-        if let exception = stopObservingConversationHashValueChanges() {
+        if let exception = stopObservingCurrentUserChanges() {
             Logger.log(exception, domain: .user)
         }
     }
@@ -80,47 +79,65 @@ public final class UserSessionService {
         }
     }
 
-    // MARK: - Conversation Hash Value Observation
+    // MARK: - Current User Observation
 
-    public func startObservingConversationHashValueChanges() {
+    public func startObservingCurrentUserChanges() {
         guard let currentUser,
-              let hashDatabaseReference else { return }
+              let currentUserDatabaseReference else { return }
 
-        if let exception = stopObservingConversationHashValueChanges() {
+        if let exception = stopObservingCurrentUserChanges() {
             Logger.log(exception, domain: .user)
         }
 
-        hashDatabaseReference.observe(.value) { snapshot in
+        currentUserDatabaseReference.observe(.value) { snapshot in
+            guard let dictionary = snapshot.value as? [String: Any] else {
+                Logger.log(
+                    .init(
+                        "Failed to typecast values to dictionary.",
+                        metadata: [self, #file, #function, #line]
+                    ),
+                    domain: .user
+                )
+                return
+            }
+
+            typealias Keys = User.SerializationKeys
+
+            if let updatedBadgeNumber = dictionary[Keys.badgeNumber.rawValue] as? Int,
+               currentUser.badgeNumber != updatedBadgeNumber {
+                Logger.log(
+                    "Updating current user badge number (\(currentUser.badgeNumber) to \(updatedBadgeNumber)).",
+                    domain: .user,
+                    metadata: [self, #file, #function, #line]
+                )
+
+                self.currentUser = .init(
+                    currentUser.id,
+                    badgeNumber: updatedBadgeNumber,
+                    conversationIDs: currentUser.conversationIDs,
+                    languageCode: currentUser.languageCode,
+                    phoneNumber: currentUser.phoneNumber,
+                    pushTokens: currentUser.pushTokens
+                )
+            }
+
             func updateCurrentUser() {
-                // FIXME: Previously protected by a guard clause ensuring an update was not already occurring.
-                Task { /* @MainActor in */
-                    let setCurrentUserResult = await self.setCurrentUser()
-
-                    switch setCurrentUserResult {
-                    case .success:
-                        Logger.log(
-                            "Updated current user.",
-                            domain: .user,
-                            metadata: [self, #file, #function, #line]
-                        )
-
-                        Observables.updatedCurrentUser.trigger()
-
-                    case let .failure(exception):
+                Task {
+                    if let exception = await self.updateCurrentUser() {
                         Logger.log(exception, domain: .user)
                     }
                 }
             }
 
-            guard let updatedConversationIDStrings = snapshot.value as? [String] else { return }
+            guard let updatedConversationIDStrings = dictionary[Keys.conversationIDs.rawValue] as? [String] else { return }
             guard let currentConversationIDStrings = currentUser.conversationIDs?.map(\.encoded) else {
                 updateCurrentUser()
                 return
             }
 
-            guard !currentConversationIDStrings.containsAllStrings(in: updatedConversationIDStrings) else {
+            guard currentConversationIDStrings.sorted() != updatedConversationIDStrings.sorted() else {
                 Logger.log(
-                    "Skipping current user update as values do not appear to have changed.",
+                    "Skipping current user update as conversation ID values do not appear to have changed.",
                     domain: .user,
                     metadata: [self, #file, #function, #line]
                 )
@@ -138,12 +155,12 @@ public final class UserSessionService {
     }
 
     @discardableResult
-    public func stopObservingConversationHashValueChanges() -> Exception? {
-        guard let hashDatabaseReference else {
+    public func stopObservingCurrentUserChanges() -> Exception? {
+        guard let currentUserDatabaseReference else {
             return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
         }
 
-        hashDatabaseReference.removeAllObservers()
+        currentUserDatabaseReference.removeAllObservers()
         return nil
     }
 
@@ -175,7 +192,7 @@ public final class UserSessionService {
         }
     }
 
-    // MARK: - Reset Push Tokens
+    // MARK: - Push Tokens
 
     @discardableResult
     public func resetPushTokens() async -> Exception? {
@@ -202,8 +219,6 @@ public final class UserSessionService {
             return nil
         }
     }
-
-    // MARK: - Update Push Tokens
 
     @discardableResult
     public func updatePushTokens() async -> Exception? {
@@ -232,6 +247,38 @@ public final class UserSessionService {
 
         case .none:
             return nil
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func updateCurrentUser() async -> Exception? {
+        guard !isUpdatingCurrentUser else {
+            Logger.log(
+                "Skipping current user update because an update is already occurring.",
+                domain: .user,
+                metadata: [self, #file, #function, #line]
+            )
+            return nil
+        }
+
+        isUpdatingCurrentUser = true
+        let setCurrentUserResult = await setCurrentUser()
+
+        switch setCurrentUserResult {
+        case .success:
+            Logger.log(
+                "Updated current user.",
+                domain: .user,
+                metadata: [self, #file, #function, #line]
+            )
+
+            Observables.updatedCurrentUser.trigger()
+            isUpdatingCurrentUser = false
+            return nil
+
+        case let .failure(exception):
+            return exception
         }
     }
 }

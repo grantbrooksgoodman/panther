@@ -93,9 +93,13 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     // MARK: - Set Users
 
-    public func setUsers() async -> Exception? {
+    public func setUsers(forceUpdate: Bool = false) async -> Exception? {
         @Dependency(\.mainQueue) var mainQueue: DispatchQueue
         @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+
+        if !forceUpdate {
+            guard users == nil else { return nil }
+        }
 
         let getUsersResult = await userSession.getUsers(conversation: self)
 
@@ -127,8 +131,17 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
     public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.commonServices.notification) var notificationService: NotificationService
+        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+
+        guard !messages.isEmpty else {
+            return .failure(.init(
+                "No messages provided.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
 
         let readDateString = dateFormatter.string(from: Date())
+        let messages = messages.filter { $0.readDate == nil }
 
         var modifiedMessages = self.messages ?? []
 
@@ -137,11 +150,6 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
             switch updateValueResult {
             case let .success(message):
-                let badgeNumber = (notificationService.badgeNumber ?? 0)
-                if let exception = await notificationService.setBadgeNumber(badgeNumber < 1 ? 0 : badgeNumber - 1) {
-                    return .failure(exception)
-                }
-
                 if let messageIndex = modifiedMessages.firstIndex(where: { $0.id == message.id }) {
                     modifiedMessages.remove(at: messageIndex)
                     modifiedMessages.insert(message, at: messageIndex)
@@ -177,6 +185,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     // MARK: - Hashable Conformance
 
+    // FIXME: May need to add a UUID to prevent the occasional collision.
     public func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
     }

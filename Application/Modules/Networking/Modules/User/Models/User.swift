@@ -21,12 +21,13 @@ public final class User: Codable, Equatable {
     public private(set) var conversationIDs: [ConversationID]?
     public private(set) var conversations: [Conversation]?
 
-    // PhoneNumber
-    public let phoneNumber: PhoneNumber
-
     // String
     public let id: String
     public let languageCode: String
+
+    // Other
+    public let badgeNumber: Int
+    public let phoneNumber: PhoneNumber
 
     // MARK: - Computed Properties
 
@@ -39,12 +40,14 @@ public final class User: Codable, Equatable {
 
     public init(
         _ id: String,
+        badgeNumber: Int,
         conversationIDs: [ConversationID]?,
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id
+        self.badgeNumber = badgeNumber
         self.conversationIDs = conversationIDs
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
@@ -56,53 +59,6 @@ public final class User: Codable, Equatable {
     public func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
-    }
-
-    // TODO: This is expensive. Prefer a value on the user itself.
-    public func getBadgeNumber() async -> Callback<Int, Exception> {
-        var badgeNumber = 0
-
-        guard let conversationIDs,
-              !conversationIDs.isEmpty else {
-            return .success(badgeNumber)
-        }
-
-        guard let conversations else {
-            if let exception = await setConversations() {
-                return .failure(exception)
-            }
-
-            return await getBadgeNumber()
-        }
-
-        guard conversations.allSatisfy({ $0.messages != nil }) else {
-            if let exception = await conversations.setMessages() {
-                return .failure(exception)
-            }
-
-            return await getBadgeNumber()
-        }
-
-        func incrementForUnread(_ messages: [Message]) {
-            for message in messages where message.readDate == nil {
-                badgeNumber += 1
-            }
-        }
-
-        for conversation in conversations {
-            guard let messages = conversation.messages else { continue }
-
-            guard let lastMessageFromCurrentUser = messages.last(where: { $0.fromAccountID == id }),
-                  let index = messages.firstIndex(of: lastMessageFromCurrentUser) else {
-                incrementForUnread(messages)
-                continue
-            }
-
-            guard messages.count > index else { continue }
-            incrementForUnread(messages[index ... messages.count - 1].filter { $0.fromAccountID != id })
-        }
-
-        return .success(badgeNumber)
     }
 
     public func setConversations() async -> Exception? {
@@ -135,7 +91,7 @@ public final class User: Codable, Equatable {
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
-            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
@@ -162,7 +118,7 @@ public final class User: Codable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
@@ -181,7 +137,7 @@ public final class User: Codable, Equatable {
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
-            // FIXME: Still seeing data races using mainQueue.sync. Trying CoreKit.GCD.newSerialQueue instead.
+            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
                 self.conversations = decodedConversations.sortedByLatestMessageSentDate
@@ -197,6 +153,7 @@ public final class User: Codable, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (left: User, right: User) -> Bool {
+        let sameBadgeNumber = left.badgeNumber == right.badgeNumber
         let sameConversationIDs = left.conversationIDs == right.conversationIDs
         let sameConversations = left.conversations == right.conversations
         let sameID = left.id == right.id
@@ -204,7 +161,8 @@ public final class User: Codable, Equatable {
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
         let samePushTokens = left.pushTokens == right.pushTokens
 
-        guard sameConversationIDs,
+        guard sameBadgeNumber,
+              sameConversationIDs,
               sameConversations,
               sameID,
               sameLanguageCode,

@@ -18,6 +18,7 @@ public final class NotificationService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
+    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
@@ -25,14 +26,11 @@ public final class NotificationService {
 
     // MARK: - Properties
 
-    @Persistent(.badgeNumber) public var badgeNumber: Int?
     public private(set) var pushToken: String?
 
     // MARK: - Badge Number
 
     public func resetBadgeNumber() async -> Exception? {
-        badgeNumber = nil
-
         do {
             try await userNotificationCenter.setBadgeCount(0)
         } catch {
@@ -43,10 +41,8 @@ public final class NotificationService {
     }
 
     public func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
-        self.badgeNumber = badgeNumber
-
         do {
-            try await userNotificationCenter.setBadgeCount(badgeNumber)
+            try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
         } catch {
             return .init(error, metadata: [self, #file, #function, #line])
         }
@@ -56,7 +52,7 @@ public final class NotificationService {
 
     // MARK: - Notify Users of Message
 
-    func notify(_ users: [User], of message: Message) async -> Exception? {
+    public func notify(_ users: [User], of message: Message) async -> Exception? {
         func notify(_ user: User, of message: Message) async -> Exception? {
             let commonParams = ["UserID": user.id]
 
@@ -74,66 +70,30 @@ public final class NotificationService {
                 ).appending(extraParams: commonParams)
             }
 
-            guard let pushAPIKey = metadataService.pushAPIKey else {
-                if let exception = await metadataService.resolveValues() {
-                    return exception.appending(extraParams: commonParams)
-                }
-
-                return await notify(user, of: message)
-            }
-
-            guard let url = URL(string: "https://fcm.googleapis.com/fcm/send") else {
-                return .init(
-                    "Failed to generate URL.",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams)
-            }
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-
-            request.setValue("key=\(pushAPIKey)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            var text: String?
+            var body: String?
             if !message.hasAudioComponent {
-                text = message.translations.first(where: { $0.languagePair.to == user.languageCode })?.output
-                if text == nil {
-                    text = message.translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value()
+                body = message.translations.first(where: { $0.languagePair.to == user.languageCode })?.output
+                if body == nil {
+                    body = message.translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value()
                 }
             }
 
-            let getBadgeNumberResult = await user.getBadgeNumber()
+            let incrementBadgeNumberResult = await incrementBadgeNumber(for: user)
 
-            switch getBadgeNumberResult {
+            switch incrementBadgeNumberResult {
             case let .success(badgeNumber):
                 for pushToken in pushTokens {
-                    var payload: [String: Any] = ["mutable_content": true, "to": pushToken]
-
                     // TODO: Localize this string.
                     let audioMessageBody = "Audio Message" // Localized(.audioMessage).wrappedValue
-                    payload["notification"] = ["badge": badgeNumber + 1,
-                                               "body": text ?? "🔊 \(audioMessageBody)",
-                                               "title": currentUser.phoneNumber.formattedString()] as [String: Any]
-                    payload["data"] = ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.compressedHash]
 
-                    do {
-                        try request.httpBody = JSONSerialization.data(withJSONObject: payload)
-                        let dataResult = try await urlSession.data(for: request)
-
-                        guard let responseString = String(data: dataResult.0, encoding: .utf8),
-                              responseString.contains("\"success\":1"),
-                              let urlResponse = dataResult.1 as? HTTPURLResponse,
-                              urlResponse.statusCode == 200 else {
-                            return .init(
-                                "Failed to decode URL response or status did not indicate success.",
-                                metadata: [self, #file, #function, #line]
-                            ).appending(extraParams: commonParams)
-                        }
-
-                        return nil
-                    } catch {
-                        return .init(error, metadata: [self, #file, #function, #line]).appending(extraParams: commonParams)
+                    if let exception = await sendNotification(
+                        title: currentUser.phoneNumber.formattedString(),
+                        body: body ?? "🔊 \(audioMessageBody)",
+                        badgeNumber: badgeNumber,
+                        pushToken: pushToken,
+                        extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.compressedHash]
+                    ) {
+                        return exception.appending(extraParams: commonParams)
                     }
                 }
 
@@ -163,6 +123,15 @@ public final class NotificationService {
             metadata: [self, #file, #function, #line]
         )
 
+        var badgeNumber = (userSession.currentUser?.badgeNumber ?? 0) + 1
+        if let notificationBadgeNumber = notification.request.content.badge as? Int {
+            badgeNumber = notificationBadgeNumber
+        }
+
+        if let exception = await setBadgeNumber(badgeNumber) {
+            return .failure(exception)
+        }
+
         switch await uiApplication.applicationState {
         case .active:
             Observables.rootViewToast.value = .init(
@@ -176,15 +145,6 @@ public final class NotificationService {
 
         case .background,
              .inactive:
-            var badgeNumber = (badgeNumber ?? 0) + 1
-            if let notificationBadgeNumber = notification.request.content.badge as? Int {
-                badgeNumber = notificationBadgeNumber
-            }
-
-            if let exception = await setBadgeNumber(badgeNumber) {
-                return .failure(exception)
-            }
-
             return .success([.badge, .banner, .list, .sound])
 
         @unknown default:
@@ -196,5 +156,97 @@ public final class NotificationService {
 
     public func setPushToken(_ pushToken: String?) {
         self.pushToken = pushToken
+    }
+
+    // MARK: - Auxiliary
+
+    private func incrementBadgeNumber(for user: User) async -> Callback<Int, Exception> {
+        let keyPath = "\(networking.config.paths.users)/\(user.id)/\(User.SerializationKey.badgeNumber.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: keyPath)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let integer = values as? Int else {
+                return .failure(.init(
+                    "Failed to typecast values to integer.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            let updateValueResult = await user.updateValue(integer + 1, forKey: .badgeNumber)
+
+            switch updateValueResult {
+            case let .success(user):
+                return .success(user.badgeNumber)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func sendNotification(
+        title: String,
+        body: String,
+        badgeNumber: Int,
+        pushToken: String,
+        extraParams: [String: String]
+    ) async -> Exception? {
+        guard let pushAPIKey = metadataService.pushAPIKey else {
+            if let exception = await metadataService.resolveValues() {
+                return exception
+            }
+
+            return await sendNotification(
+                title: title,
+                body: body,
+                badgeNumber: badgeNumber,
+                pushToken: pushToken,
+                extraParams: extraParams
+            )
+        }
+
+        guard let url = URL(string: "https://fcm.googleapis.com/fcm/send") else {
+            return .init(
+                "Failed to generate URL.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        request.setValue("key=\(pushAPIKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        var payload: [String: Any] = ["mutable_content": true, "to": pushToken]
+        payload["notification"] = [
+            "badge": badgeNumber,
+            "body": body,
+            "title": title,
+        ] as [String: Any]
+        payload["data"] = extraParams
+
+        do {
+            try request.httpBody = JSONSerialization.data(withJSONObject: payload)
+            let dataResult = try await urlSession.data(for: request)
+
+            guard let responseString = String(data: dataResult.0, encoding: .utf8),
+                  responseString.contains("\"success\":1"),
+                  let urlResponse = dataResult.1 as? HTTPURLResponse,
+                  urlResponse.statusCode == 200 else {
+                return .init(
+                    "Failed to decode URL response or status did not indicate success.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            return nil
+        } catch {
+            return .init(error, metadata: [self, #file, #function, #line])
+        }
     }
 }

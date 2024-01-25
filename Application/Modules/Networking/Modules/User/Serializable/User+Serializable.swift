@@ -22,6 +22,7 @@ extension User: Serializable {
 
     public enum SerializationKeys: String {
         case id
+        case badgeNumber
         case conversationIDs = "openConversations"
         case languageCode
         case phoneNumber
@@ -34,6 +35,7 @@ extension User: Serializable {
         let conversationIDs = (conversationIDs ?? .init()).map { $0.encoded }
         return [
             Keys.id.rawValue: id,
+            Keys.badgeNumber.rawValue: badgeNumber,
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
             Keys.languageCode.rawValue: languageCode,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
@@ -45,6 +47,7 @@ extension User: Serializable {
 
     public static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
         guard let id = data[Keys.id.rawValue] as? String,
+              let badgeNumber = data[Keys.badgeNumber.rawValue] as? Int,
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let languageCode = data[Keys.languageCode.rawValue] as? String,
@@ -82,6 +85,7 @@ extension User: Serializable {
 
         return .success(.init(
             id,
+            badgeNumber: badgeNumber,
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
             languageCode: languageCode,
             phoneNumber: phoneNumber,

@@ -27,6 +27,12 @@ extension Translation: Serializable {
     public static func decode(from data: TranslationReference) async -> Callback<Translation, Exception> {
         @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
 
+        func addToArchive(_ translation: Translation) {
+            let sanitizedTranslation = translation.withSanitizedOutput
+            guard translation.input.value() != translation.output else { return }
+            TranslationArchiver.addToArchive(sanitizedTranslation)
+        }
+
         switch data.type {
         case let .archived(hash, value: value):
             if let value {
@@ -37,11 +43,21 @@ extension Translation: Serializable {
                     return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
                 }
 
-                return .success(.init(
+                let decoded: Translation = .init(
                     input: .init(inputString),
                     output: outputString,
                     languagePair: data.languagePair
-                ))
+                )
+
+                addToArchive(decoded)
+                return .success(decoded)
+            }
+
+            if let archivedTranslation = TranslationArchiver.getFromArchive(
+                withReference: hash,
+                languagePair: data.languagePair
+            ) {
+                return .success(archivedTranslation.withSanitizedOutput)
             }
 
             let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(
@@ -51,6 +67,7 @@ extension Translation: Serializable {
 
             switch findArchivedTranslationResult {
             case let .success(translation):
+                addToArchive(translation)
                 return .success(translation)
 
             case let .failure(exception):

@@ -37,7 +37,7 @@ public struct ConversationSessionService {
 
         switch await conversation.updateValue(appendedMessages, forKey: .messages) {
         case let .success(conversation):
-            return await conversation.updateValue(dateFormatter.string(from: Date()), forKey: .lastModifiedDate)
+            return .success(conversation)
 
         case let .failure(exception):
             return .failure(exception)

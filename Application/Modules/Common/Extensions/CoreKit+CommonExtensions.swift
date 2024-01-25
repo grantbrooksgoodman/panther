@@ -21,7 +21,7 @@ public extension CoreKit.GCD {
             domain: .queue,
             metadata: [self, #file, #function, #line]
         )
-        return .init(label: label)
+        return .init(label: label, qos: .userInteractive)
     }
 }
 
@@ -112,5 +112,33 @@ public extension CoreKit.Utilities {
         }
 
         return nil
+    }
+
+    func resetPushTokens() async -> Exception? {
+        @Dependency(\.networking) var networking: Networking
+
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.users)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+            }
+
+            let userIDs = Array(dictionary.keys)
+            for userID in userIDs {
+                if let exception = await networking.database.setValue(
+                    [String.bangQualifiedEmpty],
+                    forKey: "\(networking.config.paths.users)/\(userID)/\(User.SerializationKeys.pushTokens.rawValue)"
+                ) {
+                    return exception
+                }
+            }
+
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
     }
 }

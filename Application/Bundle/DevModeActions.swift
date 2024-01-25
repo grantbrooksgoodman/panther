@@ -79,6 +79,7 @@ public extension DevModeService {
                 shouldTranslate: [.none]
             ).present { didConfirm in
                 guard didConfirm == 1 else { return }
+
                 guard let exception = coreUtilities.eraseDocumentsDirectory() else {
                     AKAlert(
                         message: "The Documents directory has been erased. You must now restart the app.",
@@ -91,7 +92,7 @@ public extension DevModeService {
                     return
                 }
 
-                AKErrorAlert(error: .init(exception)).present()
+                Logger.log(exception, with: .errorAlert)
             }
         }
 
@@ -119,6 +120,7 @@ public extension DevModeService {
                 eraseTemporaryDirectoryAction,
                 toggleNetworkActivityIndicatorAction,
                 destroyConversationDatabaseAction,
+                resetPushTokensAction,
             ]
             let akActions = actions.map { AKAction(title: $0.title, style: $0.isDestructive ? .destructive : .default) }
 
@@ -170,6 +172,36 @@ public extension DevModeService {
         }
 
         return .init(title: "Standard Options", perform: presentStandardOptions)
+    }
+
+    static var resetPushTokensAction: DevModeAction {
+        func resetPushTokens() {
+            @Dependency(\.coreKit) var core: CoreKit
+            @Dependency(\.networking.config.environment.description) var networkEnvironment: String
+
+            AKConfirmationAlert(
+                title: "Reset Push Tokens", // swiftlint:disable:next line_length
+                message: "This will remove all push tokens for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                confirmationStyle: .destructivePreferred,
+                shouldTranslate: [.none]
+            ).present { didConfirm in
+                guard didConfirm == 1 else { return }
+
+                Task {
+                    if let exception = await core.utils.resetPushTokens() {
+                        Logger.log(exception, with: .toast())
+                    } else {
+                        core.hud.flash("Reset Push Tokens", image: .success)
+                    }
+                }
+            }
+        }
+
+        return .init(
+            title: "Reset Push Tokens",
+            perform: resetPushTokens,
+            isDestructive: true
+        )
     }
 
     static var toggleNetworkActivityIndicatorAction: DevModeAction {

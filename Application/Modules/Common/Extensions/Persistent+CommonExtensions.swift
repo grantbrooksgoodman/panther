@@ -22,10 +22,6 @@ public extension Persistent {
         self.init(.app(.contactSyncService(contactSyncServiceKey)))
     }
 
-    convenience init(_ notificationServiceKey: UserDefaultsKeyDomain.NotificationServiceDefaultsKey) {
-        self.init(.app(.notificationService(notificationServiceKey)))
-    }
-
     convenience init(_ reviewServiceKey: UserDefaultsKeyDomain.ReviewServiceDefaultsKey) {
         self.init(.app(.reviewService(reviewServiceKey)))
     }

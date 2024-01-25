@@ -14,10 +14,16 @@ import UIKit
 import AlertKit
 import Redux
 
-public struct ConversationCellViewService {
+public final class ConversationCellViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+
+    // MARK: - Properties
+
+    public private(set) var badgeDecrementAmount = 0
 
     // MARK: - Methods
 
@@ -94,5 +100,42 @@ public struct ConversationCellViewService {
 
         let actionID = await actionSheet.present()
         return actionID == -1
+    }
+
+    public func setBadgeDecrementAmount(_ badgeDecrementAmount: Int) {
+        self.badgeDecrementAmount = badgeDecrementAmount
+    }
+
+    public func updateCurrentUserBadgeNumber() async -> Exception? {
+        guard let currentUser = userSession.currentUser else {
+            return .init(
+                "Current user has not been set.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        let decrementResult = (currentUser.badgeNumber - badgeDecrementAmount)
+        let newBadgeNumber = decrementResult < 0 ? 0 : decrementResult
+
+        guard newBadgeNumber != currentUser.badgeNumber else {
+            return .init(
+                "New badge number is equal to current value.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        let updateValueResult = await currentUser.updateValue(newBadgeNumber, forKey: .badgeNumber)
+
+        switch updateValueResult {
+        case .success:
+            if let exception = await notificationService.setBadgeNumber(currentUser.badgeNumber) {
+                return exception
+            }
+
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
     }
 }

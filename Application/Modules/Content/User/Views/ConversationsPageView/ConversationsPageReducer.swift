@@ -38,7 +38,6 @@ public struct ConversationsPageReducer: Reducer {
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updatedCurrentUserReturned(Exception?)
-        case viewAppearedReturned(Exception?)
     }
 
     // MARK: - State
@@ -76,15 +75,12 @@ public struct ConversationsPageReducer: Reducer {
             state.viewState = .loading
             state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
 
-            let viewAppearedTask: Effect<Feedback> = .task {
-                let result = await viewService.viewAppeared()
-                return .viewAppearedReturned(result)
-            }
+            viewService.viewAppeared()
 
             return .task {
                 let result = await translator.resolve(ConversationsPageViewStrings.self)
                 return .resolveReturned(result)
-            }.merge(with: viewAppearedTask)
+            }
 
         case .action(.pulledToRefresh):
             return .task {
@@ -129,11 +125,6 @@ public struct ConversationsPageReducer: Reducer {
             }
 
             Logger.log(exception, with: .toast())
-
-        case let .feedback(.viewAppearedReturned(exception)):
-            if let exception {
-                Logger.log(exception, with: .toast())
-            }
         }
 
         return .none

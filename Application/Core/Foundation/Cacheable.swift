@@ -22,6 +22,8 @@ public protocol Cacheable {
 public class Cache {
     // MARK: - Properties
 
+    private let threadLock = NSLock()
+
     private var objects: [CacheDomain: Any]
 
     // MARK: - Init
@@ -32,12 +34,17 @@ public class Cache {
 
     // MARK: - Methods
 
+    // FIXME: Experienced BAD_ACCESS crash here. Tried mainQueue.(a)sync; serialQueue; Task { @MainActor in }. Using NSLock for now.
     public func set(_ value: Any, forKey key: CacheDomain) {
+        threadLock.lock()
         objects[key] = value
+        threadLock.unlock()
     }
 
     public func removeObject(forKey key: CacheDomain) {
+        threadLock.lock()
         objects[key] = nil
+        threadLock.unlock()
     }
 
     // FIXME: Seeing access races occur here.
