@@ -95,7 +95,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
 
     public func setUsers(forceUpdate: Bool = false) async -> Exception? {
         @Dependency(\.mainQueue) var mainQueue: DispatchQueue
-        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         if !forceUpdate {
             guard users == nil else { return nil }
@@ -131,7 +131,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
     public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.commonServices.notification) var notificationService: NotificationService
-        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard !messages.isEmpty else {
             return .failure(.init(

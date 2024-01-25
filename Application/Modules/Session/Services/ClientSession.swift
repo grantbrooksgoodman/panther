@@ -1,5 +1,5 @@
 //
-//  ClientSessionService.swift
+//  ClientSession.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct ClientSessionService {
+public struct ClientSession {
     // MARK: - Properties
 
     public let conversation: ConversationSessionService

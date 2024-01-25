@@ -63,7 +63,7 @@ public final class User: Codable, Equatable {
 
     public func setConversations() async -> Exception? {
         @Dependency(\.networking.services.conversation) var conversationService: ConversationService
-        @Dependency(\.clientSessionService.conversation) var conversationSession: ConversationSessionService
+        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
         guard let conversationIDs else { return nil }

@@ -75,7 +75,7 @@ extension Conversation: Updatable {
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
         @Dependency(\.networking) var networking: Networking
-        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard updatableKeys.contains(key) else {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))

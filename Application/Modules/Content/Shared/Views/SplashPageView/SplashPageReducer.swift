@@ -17,7 +17,7 @@ public struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
 
     // MARK: - Actions

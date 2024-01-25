@@ -20,7 +20,7 @@ public struct SplashPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Methods
 

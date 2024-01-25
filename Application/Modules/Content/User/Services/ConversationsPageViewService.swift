@@ -17,7 +17,7 @@ public struct ConversationsPageViewService {
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Methods
 

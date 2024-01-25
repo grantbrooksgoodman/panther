@@ -19,7 +19,7 @@ public final class ConversationCellViewService {
 
     @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 

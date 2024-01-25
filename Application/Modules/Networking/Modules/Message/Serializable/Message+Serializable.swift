@@ -55,7 +55,7 @@ extension Message: Serializable {
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
         @Dependency(\.networking.services.message.audio) var audioMessageService: AudioMessageService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.clientSessionService.user) var userSession: UserSessionService
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,

@@ -16,7 +16,7 @@ import Translator
 public struct MessageSessionService {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSessionService) private var clientSession: ClientSessionService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices) private var services: CommonServices
 

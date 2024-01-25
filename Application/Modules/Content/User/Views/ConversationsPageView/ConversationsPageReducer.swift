@@ -16,7 +16,7 @@ import Redux
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSessionService.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 

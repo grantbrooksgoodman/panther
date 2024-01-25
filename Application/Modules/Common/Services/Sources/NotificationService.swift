@@ -22,7 +22,7 @@ public final class NotificationService {
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
-    @Dependency(\.clientSessionService.user) private var userSession: UserSessionService
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 

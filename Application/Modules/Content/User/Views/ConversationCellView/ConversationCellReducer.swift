@@ -16,7 +16,7 @@ import Redux
 public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSessionService.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
