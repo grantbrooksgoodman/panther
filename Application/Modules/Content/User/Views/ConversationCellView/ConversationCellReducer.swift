@@ -16,7 +16,7 @@ import Redux
 public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
@@ -88,6 +88,7 @@ public struct ConversationCellReducer: Reducer {
             guard !unreadMessages.isEmpty else { return .none }
 
             viewService.setBadgeDecrementAmount(unreadMessages.count)
+            clientSession.user.stopObservingCurrentUserChanges()
             return .task {
                 let result = await conversation.updateReadDate(for: unreadMessages)
                 return .updateReadDateReturned(result)
@@ -107,15 +108,17 @@ public struct ConversationCellReducer: Reducer {
             )
 
         case let .feedback(.deleteConversationReturned(exception)):
+            defer { clientSession.user.startObservingCurrentUserChanges() }
             guard let exception else { return .none }
             Logger.log(exception, with: .toast())
 
         case let .feedback(.deletionActionSheetDismissed(cancelled: cancelled)):
             guard !cancelled else { return .none }
 
+            clientSession.user.stopObservingCurrentUserChanges()
             let conversation = state.conversation
             return .task {
-                let result = await conversationSession.deleteConversation(conversation)
+                let result = await clientSession.conversation.deleteConversation(conversation)
                 return .deleteConversationReturned(result)
             }
 
@@ -126,11 +129,12 @@ public struct ConversationCellReducer: Reducer {
 
         case .feedback(.updateReadDateReturned(.success)):
             Logger.log(
-                "Updated read date for \(viewService.badgeDecrementAmount) message\(viewService.badgeDecrementAmount == 1 ? "s" : "").",
+                "Updated read date for \(viewService.badgeDecrementAmount) message\(viewService.badgeDecrementAmount == 1 ? "" : "s").",
                 domain: .conversation,
                 metadata: [self, #file, #function, #line]
             )
 
+            clientSession.user.startObservingCurrentUserChanges()
             return .task {
                 let result = await viewService.updateCurrentUserBadgeNumber()
                 return .updateCurrentUserBadgeNumberReturned(result)

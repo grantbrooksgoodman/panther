@@ -22,4 +22,5 @@ public enum LoggerDomain: String, CaseIterable {
     case queue
     case storage
     case user
+    case userSession
 }

@@ -161,7 +161,7 @@ public final class NotificationService {
     // MARK: - Auxiliary
 
     private func incrementBadgeNumber(for user: User) async -> Callback<Int, Exception> {
-        let keyPath = "\(networking.config.paths.users)/\(user.id)/\(User.SerializationKey.badgeNumber.rawValue)"
+        let keyPath = "\(networking.config.paths.users)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
         let getValuesResult = await networking.database.getValues(at: keyPath)
 
         switch getValuesResult {

@@ -114,7 +114,7 @@ public final class UserService: Cacheable {
            !cachedValue.hashes.values.contains(where: \.isBangQualifiedEmpty),
            !cachedValue.isExpired {
             Logger.log(
-                "Returning cached user hash snapshot.",
+                "Returning cached user number hash snapshot.",
                 domain: .user,
                 metadata: [self, #file, #function, #line]
             )

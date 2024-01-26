@@ -109,6 +109,10 @@ extension Conversation: Updatable {
             if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
                 return .failure(exception)
             }
+        } else if let serializable = value as? [any Serializable] {
+            if let exception = await networking.database.setValue(serializable.map { $0.encoded }, forKey: valueKeyPath) {
+                return .failure(exception)
+            }
         } else if networking.database.isEncodable(value) {
             if let exception = await networking.database.setValue(value, forKey: valueKeyPath) {
                 return .failure(exception)

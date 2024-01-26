@@ -60,35 +60,13 @@ public struct MessageSessionService {
             ))
         }
 
-        let createMessageResult = await networking.services.message.createMessage(
-            fromAccountID: currentUser.id,
+        return await createMessageAndAddToConversation(
+            conversation: conversation,
+            initiatingUser: currentUser,
+            otherUsers: users,
             translations: translations,
             audioComponents: nil
         )
-
-        switch createMessageResult {
-        case let .success(message):
-            if let exception = await services.notification.notify(users, of: message) {
-                return .failure(exception)
-            }
-
-            if let conversation {
-                return await clientSession.conversation.addMessages(
-                    [message],
-                    to: conversation
-                )
-            } else {
-                var participantUsers = [currentUser]
-                participantUsers.append(contentsOf: users)
-                return await networking.services.conversation.createConversation(
-                    firstMessage: message,
-                    participants: participantUsers.map { Participant(userID: $0.id) }
-                )
-            }
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
     }
 
     // MARK: - Send Audio Message
@@ -163,37 +141,96 @@ public struct MessageSessionService {
                 ))
             }
 
-            let createMessageResult = await networking.services.message.createMessage(
-                fromAccountID: currentUser.id,
+            return await createMessageAndAddToConversation(
+                conversation: conversation,
+                initiatingUser: currentUser,
+                otherUsers: users,
                 translations: translations,
                 audioComponents: audioComponents
             )
 
-            switch createMessageResult {
-            case let .success(message):
-                if let exception = await services.notification.notify(users, of: message) {
-                    return .failure(exception)
-                }
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
 
-                if let conversation {
-                    return await clientSession.conversation.addMessages(
-                        [message],
-                        to: conversation
-                    )
-                } else {
-                    var participantUsers = [currentUser]
-                    participantUsers.append(contentsOf: users)
-                    return await networking.services.conversation.createConversation(
-                        firstMessage: message,
-                        participants: participantUsers.map { Participant(userID: $0.id) }
-                    )
-                }
+    // MARK: - Auxiliary
+
+    private func createMessageAndAddToConversation(
+        conversation: Conversation?,
+        initiatingUser: User,
+        otherUsers: [User],
+        translations: [Translation],
+        audioComponents: [AudioMessageReference]?
+    ) async -> Callback<Conversation, Exception> {
+        func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
+            let addMessagesResult = await clientSession.conversation.addMessages([message], to: conversation)
+
+            clientSession.user.startObservingCurrentUserChanges()
+
+            switch addMessagesResult {
+            case let .success(conversation):
+                return .success(conversation)
 
             case let .failure(exception):
                 return .failure(exception)
             }
+        }
+
+        clientSession.user.stopObservingCurrentUserChanges()
+
+        let createMessageResult = await networking.services.message.createMessage(
+            fromAccountID: initiatingUser.id,
+            translations: translations,
+            audioComponents: audioComponents
+        )
+
+        switch createMessageResult {
+        case let .success(message):
+            if let exception = await services.notification.notify(otherUsers, of: message) {
+                clientSession.user.startObservingCurrentUserChanges()
+                return .failure(exception)
+            }
+
+            if let conversation {
+                let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
+
+                guard newParticipants.map(\.hasDeletedConversation) != conversation.participants.map(\.hasDeletedConversation) else {
+                    return await addMessage(message, to: conversation)
+                }
+
+                let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
+
+                switch updateValueResult {
+                case let .success(conversation):
+                    return await addMessage(message, to: conversation)
+
+                case let .failure(exception):
+                    clientSession.user.startObservingCurrentUserChanges()
+                    return .failure(exception)
+                }
+            } else {
+                var participantUsers = [initiatingUser]
+                participantUsers.append(contentsOf: otherUsers)
+
+                let createConversationResult = await networking.services.conversation.createConversation(
+                    firstMessage: message,
+                    participants: participantUsers.map { Participant(userID: $0.id) }
+                )
+
+                clientSession.user.startObservingCurrentUserChanges()
+
+                switch createConversationResult {
+                case let .success(conversation):
+                    return .success(conversation)
+
+                case let .failure(exception):
+                    return .failure(exception)
+                }
+            }
 
         case let .failure(exception):
+            clientSession.user.startObservingCurrentUserChanges()
             return .failure(exception)
         }
     }

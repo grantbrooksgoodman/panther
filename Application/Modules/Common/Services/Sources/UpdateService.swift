@@ -139,16 +139,16 @@ public final class UpdateService {
 
         switch type {
         case .forced:
-            presentForcedUpdateCTA(appShareLink)
+            await presentForcedUpdateCTA(appShareLink)
 
         case .normal:
-            presentNormalUpdateCTA(appShareLink)
+            await presentNormalUpdateCTA(appShareLink)
         }
 
         return nil
     }
 
-    private func presentForcedUpdateCTA(_ url: URL) {
+    private func presentForcedUpdateCTA(_ url: URL) async {
         isPersistingForcedUpdateCTA = true
 
         Task { @MainActor in
@@ -156,50 +156,56 @@ public final class UpdateService {
         }
 
         let message = "This version of *\(build.finalName)* is no longer supported. To continue, please download and install the most recent update."
-
-        AKAlert(
+        let alert = AKAlert(
             title: "Update Required",
             message: message,
             actions: [AKAction(title: "Update", style: .preferred)],
             showsCancelButton: build.developerModeEnabled || build.stage != .generalRelease
-        ).present { actionID in
-            self.firstPostponedUpdate = nil
-            self.relaunchesSinceLastPostponedUpdate = 0
+        )
 
-            guard actionID != -1 else {
-                self.isPersistingForcedUpdateCTA = false
-                return
-            }
+        let actionID = await alert.present()
+        firstPostponedUpdate = nil
+        relaunchesSinceLastPostponedUpdate = 0
 
-            self.uiApplication.keyWindow?.isUserInteractionEnabled = false
-            self.uiApplication.open(url)
-
-            self.buildNumberWhenLastForcedToUpdate = self.build.buildNumber
-            self.presentForcedUpdateCTA(url)
+        guard actionID != -1 else {
+            isPersistingForcedUpdateCTA = false
+            return
         }
+
+        Task { @MainActor in
+            uiApplication.keyWindow?.isUserInteractionEnabled = false
+            uiApplication.open(url)
+        }
+
+        buildNumberWhenLastForcedToUpdate = build.buildNumber
+        await presentForcedUpdateCTA(url)
     }
 
-    private func presentNormalUpdateCTA(_ url: URL) {
+    private func presentNormalUpdateCTA(_ url: URL) async {
         let message = "A new version of *\(build.finalName)* is available in the *App Store*. Would you like to update now?"
-
-        AKAlert(
+        let alert = AKAlert(
             title: "Update Available",
             message: message,
             actions: [.init(title: "Update", style: .preferred)],
             cancelButtonTitle: "Later"
-        ).present { actionID in
-            guard actionID != -1 else {
-                if self.firstPostponedUpdate == nil {
-                    self.firstPostponedUpdate = Date()
-                }
+        )
 
-                self.relaunchesSinceLastPostponedUpdate = 0
-                return
+        let actionID = await alert.present()
+
+        guard actionID != -1 else {
+            if firstPostponedUpdate == nil {
+                firstPostponedUpdate = Date()
             }
 
-            self.uiApplication.open(url)
-            self.firstPostponedUpdate = nil
-            self.relaunchesSinceLastPostponedUpdate = 0
+            relaunchesSinceLastPostponedUpdate = 0
+            return
         }
+
+        Task { @MainActor in
+            uiApplication.open(url)
+        }
+
+        firstPostponedUpdate = nil
+        relaunchesSinceLastPostponedUpdate = 0
     }
 }

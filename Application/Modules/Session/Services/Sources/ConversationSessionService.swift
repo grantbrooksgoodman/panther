@@ -56,35 +56,35 @@ public struct ConversationSessionService {
             metadata: [self, #file, #function, #line]
         )
 
-        func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-            let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.compressedHash.rawValue)"
-            let getValuesResult = await networking.database.getValues(at: hashKeyPath)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard let string = values as? String else {
-                    return .failure(.init(
-                        "Failed to typecast values to string.",
-                        metadata: [self, #file, #function, #line]
-                    ))
-                }
-
-                return .success(.init(
-                    .init(key: conversation.id.key, hash: string),
-                    messageIDs: conversation.messageIDs,
-                    messages: conversation.messages,
-                    lastModifiedDate: conversation.lastModifiedDate,
-                    participants: conversation.participants,
-                    users: conversation.users
-                ))
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
         func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-            let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.participants.rawValue)"
+            func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+                let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.compressedHash.rawValue)"
+                let getValuesResult = await networking.database.getValues(at: hashKeyPath)
+
+                switch getValuesResult {
+                case let .success(values):
+                    guard let string = values as? String else {
+                        return .failure(.init(
+                            "Failed to typecast values to string.",
+                            metadata: [self, #file, #function, #line]
+                        ))
+                    }
+
+                    return .success(.init(
+                        .init(key: conversation.id.key, hash: string),
+                        messageIDs: conversation.messageIDs,
+                        messages: conversation.messages,
+                        lastModifiedDate: conversation.lastModifiedDate,
+                        participants: conversation.participants,
+                        users: conversation.users
+                    ))
+
+                case let .failure(exception):
+                    return .failure(exception)
+                }
+            }
+
+            let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.participants.rawValue)"
             let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
 
             switch getValuesResult {
@@ -119,7 +119,7 @@ public struct ConversationSessionService {
 
                 guard let conversation = conversation.modifyKey(.participants, withValue: participants) else {
                     return .failure(.typeMismatch(
-                        key: Conversation.SerializationKey.participants.rawValue,
+                        key: Conversation.SerializationKeys.participants.rawValue,
                         [self, #file, #function, #line]
                     ))
                 }
@@ -131,7 +131,24 @@ public struct ConversationSessionService {
             }
         }
 
-        let messagesKeyPath = conversationKeyPath + "/\(Conversation.SerializationKey.messages.rawValue)"
+        if let currentUserID {
+            guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUserID }),
+                  !currentUserParticipant.hasDeletedConversation else {
+                Logger.log(
+                    .init(
+                        "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                        extraParams: ["ConversationIDKey": conversation.id.key,
+                                      "ConversationIDHash": conversation.id.hash],
+                        metadata: [self, #file, #function, #line]
+                    ),
+                    domain: .conversation
+                )
+
+                return await updateParticipants(conversation)
+            }
+        }
+
+        let messagesKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.messages.rawValue)"
         let getValuesResult = await networking.database.getValues(at: messagesKeyPath)
 
         switch getValuesResult {

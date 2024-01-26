@@ -17,8 +17,8 @@ public final class UserSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
-    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
@@ -40,7 +40,7 @@ public final class UserSessionService {
 
     deinit {
         if let exception = stopObservingCurrentUserChanges() {
-            Logger.log(exception, domain: .user)
+            Logger.log(exception, domain: .userSession)
         }
     }
 
@@ -57,6 +57,8 @@ public final class UserSessionService {
             return .success(currentUser)
         }
 
+        isUpdatingCurrentUser = true
+        
         let getUserResult = await networking.services.user.getUser(id: currentUserID)
 
         switch getUserResult {
@@ -66,9 +68,12 @@ public final class UserSessionService {
                 currentUser = user
                 self.currentUserID = user.id
             }
+            isUpdatingCurrentUser = false
             return .success(user)
 
         case let .failure(exception):
+            isUpdatingCurrentUser = false
+            
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
@@ -82,21 +87,24 @@ public final class UserSessionService {
     // MARK: - Current User Observation
 
     public func startObservingCurrentUserChanges() {
-        guard let currentUser,
-              let currentUserDatabaseReference else { return }
-
-        if let exception = stopObservingCurrentUserChanges() {
-            Logger.log(exception, domain: .user)
-        }
-
+        guard let currentUserDatabaseReference else { return }
+        currentUserDatabaseReference.removeAllObservers()
+        
+        Logger.log(
+            "Started observing current user changes.",
+            domain: .userSession,
+            metadata: [self, #file, #function, #line]
+        )
+        
         currentUserDatabaseReference.observe(.value) { snapshot in
+            guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {
                 Logger.log(
                     .init(
                         "Failed to typecast values to dictionary.",
                         metadata: [self, #file, #function, #line]
                     ),
-                    domain: .user
+                    domain: .userSession
                 )
                 return
             }
@@ -107,7 +115,7 @@ public final class UserSessionService {
                currentUser.badgeNumber != updatedBadgeNumber {
                 Logger.log(
                     "Updating current user badge number (\(currentUser.badgeNumber) to \(updatedBadgeNumber)).",
-                    domain: .user,
+                    domain: .userSession,
                     metadata: [self, #file, #function, #line]
                 )
 
@@ -150,7 +158,7 @@ public final class UserSessionService {
 
             updateCurrentUser()
         } withCancel: { error in
-            Logger.log(.init(error, metadata: [self, #file, #function, #line]), domain: .user)
+            Logger.log(.init(error, metadata: [self, #file, #function, #line]), domain: .userSession)
         }
     }
 
@@ -159,6 +167,12 @@ public final class UserSessionService {
         guard let currentUserDatabaseReference else {
             return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
         }
+
+        Logger.log(
+            "Stopped observing current user changes.",
+            domain: .userSession,
+            metadata: [self, #file, #function, #line]
+        )
 
         currentUserDatabaseReference.removeAllObservers()
         return nil
@@ -256,7 +270,7 @@ public final class UserSessionService {
         guard !isUpdatingCurrentUser else {
             Logger.log(
                 "Skipping current user update because an update is already occurring.",
-                domain: .user,
+                domain: .userSession,
                 metadata: [self, #file, #function, #line]
             )
             return nil
@@ -269,7 +283,7 @@ public final class UserSessionService {
         case .success:
             Logger.log(
                 "Updated current user.",
-                domain: .user,
+                domain: .userSession,
                 metadata: [self, #file, #function, #line]
             )
 
@@ -278,6 +292,7 @@ public final class UserSessionService {
             return nil
 
         case let .failure(exception):
+            isUpdatingCurrentUser = false
             return exception
         }
     }

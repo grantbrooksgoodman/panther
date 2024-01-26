@@ -35,6 +35,7 @@ public extension CoreKit.Utilities {
         TranslationArchiver.clearArchive()
 
         commonServices.contact.clearCache()
+        commonServices.contact.contactPairArchive.clearCache()
         commonServices.propertyLists.clearCache()
         commonServices.regionDetail.clearCache()
         networkServices.user.clearCache()

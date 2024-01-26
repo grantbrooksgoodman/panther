@@ -37,6 +37,7 @@ public enum BuildConfig {
         .notifications,
         .queue,
         .user,
+        .userSession,
     ]
     public static let networkEnvironment: NetworkEnvironment = .development
 }

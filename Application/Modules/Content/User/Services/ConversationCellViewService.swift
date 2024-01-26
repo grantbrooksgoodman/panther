@@ -128,7 +128,7 @@ public final class ConversationCellViewService {
 
         switch updateValueResult {
         case .success:
-            if let exception = await notificationService.setBadgeNumber(currentUser.badgeNumber) {
+            if let exception = await notificationService.setBadgeNumber(newBadgeNumber) {
                 return exception
             }
 

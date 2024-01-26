@@ -38,7 +38,7 @@ public final class ConversationArchiveService {
         values.removeAll(where: { $0.id.key == conversation.id.key })
         values.append(conversation)
 
-        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        // FIXME: Still seeing data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency.
         threadLock.lock()
         archive = values
         persistedArchive = archive
@@ -58,7 +58,7 @@ public final class ConversationArchiveService {
     // MARK: - Removal
 
     public func clearArchive() {
-        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        // FIXME: Still seeing data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency.
         threadLock.lock()
         archive = nil
         persistedArchive = nil
@@ -68,7 +68,7 @@ public final class ConversationArchiveService {
     public func removeValue(idKey: String) {
         guard (archive ?? []).contains(where: { $0.id.key == idKey }) else { return }
 
-        // FIXME: Still seeing data races using mainQueue/newSerialQueue.sync. Using NSLock for now.
+        // FIXME: Still seeing data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency.
         threadLock.lock()
         archive?.removeAll(where: { $0.id.key == idKey })
         persistedArchive = archive
