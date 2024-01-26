@@ -25,11 +25,14 @@ public struct ConversationsPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case pulledToRefresh
+        case composeToolbarButtonTapped
         case settingsToolbarButtonTapped
 
+        case pulledToRefresh
         case updatedContactPairArchive
         case updatedCurrentUser
+
+        case isPresentingSettingsSheetChanged(Bool)
     }
 
     // MARK: - Feedback
@@ -54,6 +57,7 @@ public struct ConversationsPageReducer: Reducer {
         /* MARK: Properties */
 
         public var conversations = [Conversation]()
+        public var isPresentingSettingsSheet = false
         public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
         public var viewID = UUID()
         public var viewState: ViewState = .loading
@@ -71,7 +75,19 @@ public struct ConversationsPageReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
-        case .action(.viewAppeared):
+        case let .action(action):
+            return reduce(into: &state, for: action)
+
+        case let .feedback(feedback):
+            return reduce(into: &state, for: feedback)
+        }
+    }
+
+    // MARK: - Reduce Action
+
+    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
             state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
 
@@ -82,42 +98,56 @@ public struct ConversationsPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.pulledToRefresh):
+        case .composeToolbarButtonTapped:
+            Logger.log(
+                "Compose toolbar button tapped.",
+                metadata: [self, #file, #function, #line]
+            )
+
+        case let .isPresentingSettingsSheetChanged(isPresentingSettingsSheet):
+            state.isPresentingSettingsSheet = isPresentingSettingsSheet
+
+        case .pulledToRefresh:
             return .task {
                 let result = await viewService.reloadData()
                 return .reloadDataReturned(result)
             }
 
-        case .action(.settingsToolbarButtonTapped):
-            Logger.log(
-                "Settings toolbar button tapped.",
-                metadata: [self, #file, #function, #line]
-            )
+        case .settingsToolbarButtonTapped:
+            state.isPresentingSettingsSheet = true
 
-        case .action(.updatedContactPairArchive):
+        case .updatedContactPairArchive:
             state.viewID = UUID()
 
-        case .action(.updatedCurrentUser):
+        case .updatedCurrentUser:
             return .task {
                 let result = await viewService.updatedCurrentUser()
                 return .updatedCurrentUserReturned(result)
             }
+        }
 
-        case let .feedback(.reloadDataReturned(.success(conversations))):
+        return .none
+    }
+
+    // MARK: - Reduce Feedback
+
+    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
+        switch feedback {
+        case let .reloadDataReturned(.success(conversations)):
             state.conversations = conversations.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
 
-        case let .feedback(.reloadDataReturned(.failure(exception))):
+        case let .reloadDataReturned(.failure(exception)):
             Logger.log(exception, with: .toast())
 
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
 
-        case let .feedback(.updatedCurrentUserReturned(exception)):
+        case let .updatedCurrentUserReturned(exception):
             guard let exception else {
                 let conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
                 state.conversations = conversations ?? state.conversations

@@ -67,10 +67,7 @@ public struct BuildInfoOverlayView: View {
             }
 
             Text(viewModel.buildInfoButtonText)
-                .font(Font.custom(
-                    Strings.buildInfoButtonLabelFontName,
-                    size: Floats.buildInfoButtonLabelFontSize
-                ))
+                .font(.sanFrancisco(.bold, size: Floats.buildInfoButtonLabelFontSize))
                 .foregroundStyle(Colors.buildInfoButtonLabelForeground)
         })
         .padding(.all, Floats.buildInfoButtonPadding)

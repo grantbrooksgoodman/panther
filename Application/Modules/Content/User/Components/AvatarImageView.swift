@@ -38,7 +38,7 @@ public struct AvatarImageView: View {
                     .clipShape(Circle())
             } else {
                 Image(systemName: Strings.defaultImageSystemName)
-                    .foregroundColor(Colors.defaultImageForeground)
+                    .foregroundStyle(Colors.defaultImageForeground)
             }
         }
         .font(.system(size: Floats.systemFontSize))

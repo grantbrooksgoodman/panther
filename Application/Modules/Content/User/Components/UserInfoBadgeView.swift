@@ -45,7 +45,7 @@ public struct UserInfoBadgeView: View {
         Rectangle()
             .overlay(buttonView, alignment: .center)
             .frame(maxWidth: Floats.bodyMaxWidth, maxHeight: Floats.bodyMaxHeight)
-            .foregroundColor(colorScheme == .dark ? Colors.bodyDarkForeground : Colors.bodyLightForeground)
+            .foregroundStyle(colorScheme == .dark ? Colors.bodyDarkForeground : Colors.bodyLightForeground)
             .roundedCorners(Floats.bodyCornerRadius)
     }
 
@@ -54,7 +54,7 @@ public struct UserInfoBadgeView: View {
             HStack(alignment: .center, spacing: Floats.labelViewHStackSpacing) {
                 Text(user.languageCode.uppercased())
                     .font(.system(size: Floats.labelViewTextSystemFontSize).bold())
-                    .foregroundColor(.titleText)
+                    .foregroundStyle(Color.titleText)
                     .shadow(
                         color: Colors.labelViewTextShadow,
                         radius: Floats.labelViewTextShadowRadius

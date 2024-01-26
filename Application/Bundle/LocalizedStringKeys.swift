@@ -50,6 +50,8 @@ public enum LocalizedStringKey: String {
     case today
     case yesterday
 
+    case version
+
     // MARK: - Properties
 
     public var referent: String { rawValue.snakeCased }

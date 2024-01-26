@@ -22,6 +22,15 @@ public struct ConversationsContentPageView: View {
 
     @ObservedObject private var viewModel: ViewModel<ConversationsPageReducer>
 
+    // MARK: - Bindings
+
+    private var settingsSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingSettingsSheet,
+            sendAction: { .isPresentingSettingsSheetChanged($0) }
+        )
+    }
+
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ConversationsPageReducer>) {
@@ -31,7 +40,7 @@ public struct ConversationsContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView({
+        ThemedView(redrawsOnAppearanceChange: true) {
             VStack {
                 NavigationView {
                     List {
@@ -51,17 +60,42 @@ public struct ConversationsContentPageView: View {
                         viewModel.send(.pulledToRefresh)
                     }
                     .toolbar {
+                        composeToolbarButton
                         settingsToolbarButton
                     }
                 }
                 .id(viewModel.viewID)
             }
-        }, redrawsOnAppearanceChange: true)
+        }
+        .sheet(isPresented: settingsSheetBinding) {
+            SettingsPageView(
+                .init(
+                    initialState: .init(settingsSheetBinding),
+                    reducer: SettingsPageReducer()
+                )
+            )
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var composeToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.send(.composeToolbarButtonTapped)
+            } label: {
+                Label(
+                    Strings.composeToolbarButtonText,
+                    systemImage: Strings.composeToolbarButtonLabelImageSystemName
+                )
+                .foregroundStyle(Color.accent)
+            }
+//            .disabled(!viewModel.isComposeToolbarButtonEnabled)
+        }
     }
 
     @ToolbarContentBuilder
     private var settingsToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
+        ToolbarItem(placement: .topBarLeading) {
             Button {
                 viewModel.send(.settingsToolbarButtonTapped)
             } label: {
@@ -69,7 +103,7 @@ public struct ConversationsContentPageView: View {
                     Strings.settingsToolbarButtonText,
                     systemImage: Strings.settingsToolbarButtonLabelImageSystemName
                 )
-                .foregroundColor(.accent)
+                .foregroundStyle(Color.accent)
             }
 //            .disabled(!viewModel.isSettingsToolbarButtonEnabled)
         }

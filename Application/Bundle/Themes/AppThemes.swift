@@ -36,6 +36,7 @@ public enum AppTheme: CaseIterable {
     private var defaultColoredItems: [Item] {
         let accent = Item(type: .accent, set: .init(primary: .systemBlue))
         let background = Item(type: .background, set: .init(primary: .white, variant: .black))
+        let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: .init(hex: 0xF8F8F8), variant: .init(hex: 0x2A2A2C)))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .black, variant: .white))
@@ -46,6 +47,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
             titleText,

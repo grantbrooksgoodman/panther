@@ -58,7 +58,7 @@ public final class UserSessionService {
         }
 
         isUpdatingCurrentUser = true
-        
+
         let getUserResult = await networking.services.user.getUser(id: currentUserID)
 
         switch getUserResult {
@@ -73,7 +73,7 @@ public final class UserSessionService {
 
         case let .failure(exception):
             isUpdatingCurrentUser = false
-            
+
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
@@ -89,13 +89,13 @@ public final class UserSessionService {
     public func startObservingCurrentUserChanges() {
         guard let currentUserDatabaseReference else { return }
         currentUserDatabaseReference.removeAllObservers()
-        
+
         Logger.log(
             "Started observing current user changes.",
             domain: .userSession,
             metadata: [self, #file, #function, #line]
         )
-        
+
         currentUserDatabaseReference.observe(.value) { snapshot in
             guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {

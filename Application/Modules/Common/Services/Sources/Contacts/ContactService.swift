@@ -8,6 +8,7 @@
 
 /* Native */
 import Contacts
+import ContactsUI
 import Foundation
 
 /* 3rd-party */
@@ -41,6 +42,7 @@ public final class ContactService: Cacheable {
 
         emptyCache = .init(
             [
+                .cnContacts: [CNContact](),
                 .contacts: [Contact](),
             ]
         )
@@ -89,6 +91,7 @@ public final class ContactService: Cacheable {
             return
         }
 
+        var cnContacts = [CNContact]()
         var contacts = [Contact]()
 
         guard let queryKeys = [
@@ -100,6 +103,7 @@ public final class ContactService: Cacheable {
             CNContactPhoneticGivenNameKey,
             CNContactPhoneticOrganizationNameKey,
             CNContactThumbnailImageDataKey,
+            CNContactViewController.descriptorForRequiredKeys(),
         ] as? [CNKeyDescriptor] else {
             if cacheStrategy == .returnCacheOnFailure {
                 completeWithCacheIfPresent()
@@ -116,6 +120,7 @@ public final class ContactService: Cacheable {
             do {
                 try self.cnContactStore.enumerateContacts(with: fetchRequest) { contact, _ in
                     if !contact.phoneNumbers.isEmpty {
+                        cnContacts.append(contact)
                         contacts.append(.init(contact))
                     }
                 }
@@ -138,6 +143,7 @@ public final class ContactService: Cacheable {
                 return
             }
 
+            self.cache.set(cnContacts, forKey: .cnContacts)
             contacts = contacts.sorted { $0.firstName < $1.firstName }
             self.cache.set(contacts, forKey: .contacts)
 
@@ -156,6 +162,7 @@ public final class ContactService: Cacheable {
             switch fetchAllContactsResult {
             case .success:
                 return await fetchContacts(by: phoneNumber)
+
             case let .failure(exception):
                 return .failure(exception)
             }
@@ -195,6 +202,7 @@ public final class ContactService: Cacheable {
 
 public extension CacheDomain {
     enum ContactServiceCacheDomainKey: String, CaseIterable, Equatable {
+        case cnContacts
         case contacts
     }
 }
