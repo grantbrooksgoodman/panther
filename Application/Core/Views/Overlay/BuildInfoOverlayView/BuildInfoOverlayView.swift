@@ -85,7 +85,7 @@ public struct BuildInfoOverlayView: View {
             viewModel.send(.sendFeedbackButtonTapped)
         }, label: {
             Text(viewModel.sendFeedbackButtonText)
-                .font(Font.custom(
+                .font(.custom(
                     Strings.sendFeedbackButtonLabelFontName,
                     size: Floats.sendFeedbackButtonLabelFontSize
                 ))

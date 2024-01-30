@@ -156,6 +156,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         traitCollection previousTraitCollection: UITraitCollection
     ) {
         Observables.themedViewAppearanceChanged.trigger()
+        Observables.traitCollectionChanged.trigger()
     }
 
     // MARK: - UIGestureRecognizer

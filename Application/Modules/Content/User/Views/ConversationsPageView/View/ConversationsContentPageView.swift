@@ -24,6 +24,13 @@ public struct ConversationsContentPageView: View {
 
     // MARK: - Bindings
 
+    private var inviteLanguagePickerSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingInviteLanguagePickerSheet,
+            sendAction: { .isPresentingInviteLanguagePickerSheetChanged($0) }
+        )
+    }
+
     private var settingsSheetBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPresentingSettingsSheet,
@@ -67,6 +74,14 @@ public struct ConversationsContentPageView: View {
                 .accentColor(Color.accent)
                 .id(viewModel.viewID)
             }
+        }
+        .sheet(isPresented: inviteLanguagePickerSheetBinding) {
+            InviteLanguagePickerView(
+                .init(
+                    initialState: .init(inviteLanguagePickerSheetBinding),
+                    reducer: InviteLanguagePickerReducer()
+                )
+            )
         }
         .sheet(isPresented: settingsSheetBinding) {
             SettingsPageView(

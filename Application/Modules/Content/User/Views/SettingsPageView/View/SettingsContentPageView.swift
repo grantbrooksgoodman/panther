@@ -59,6 +59,7 @@ public struct SettingsContentPageView: View {
                     doneButton
                 }
             }
+            .accentColor(Color.accent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .interactiveDismissDisabled(true)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)

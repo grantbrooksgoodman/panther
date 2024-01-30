@@ -32,6 +32,8 @@ public struct ConversationsPageReducer: Reducer {
         case updatedContactPairArchive
         case updatedCurrentUser
 
+        // swiftlint:disable:next identifier_name
+        case isPresentingInviteLanguagePickerSheetChanged(Bool)
         case isPresentingSettingsSheetChanged(Bool)
     }
 
@@ -56,9 +58,15 @@ public struct ConversationsPageReducer: Reducer {
 
         /* MARK: Properties */
 
+        // Array
         public var conversations = [Conversation]()
-        public var isPresentingSettingsSheet = false
         public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
+
+        // Bool
+        public var isPresentingInviteLanguagePickerSheet = false
+        public var isPresentingSettingsSheet = false
+
+        // Other
         public var viewID = UUID()
         public var viewState: ViewState = .loading
 
@@ -103,6 +111,9 @@ public struct ConversationsPageReducer: Reducer {
                 "Compose toolbar button tapped.",
                 metadata: [self, #file, #function, #line]
             )
+
+        case let .isPresentingInviteLanguagePickerSheetChanged(isPresentingInviteLanguagePickerSheet):
+            state.isPresentingInviteLanguagePickerSheet = isPresentingInviteLanguagePickerSheet
 
         case let .isPresentingSettingsSheetChanged(isPresentingSettingsSheet):
             state.isPresentingSettingsSheet = isPresentingSettingsSheet

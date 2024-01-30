@@ -20,7 +20,6 @@ public extension UserDefaultsKeyDomain {
         case devModeService(DevModeServiceDefaultsKey)
         case reviewService(ReviewServiceDefaultsKey)
         case updateService(UpdateServiceDefaultsKey)
-        case userArchiveService(UserArchiveServiceDefaultsKey)
         case userSessionService(UserSessionServiceDefaultsKey)
 
         public var rawValue: String {
@@ -44,9 +43,6 @@ public extension UserDefaultsKeyDomain {
                 return key.rawValue
 
             case let .updateService(key):
-                return key.rawValue
-
-            case let .userArchiveService(key):
                 return key.rawValue
 
             case let .userSessionService(key):

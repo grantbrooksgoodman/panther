@@ -1,8 +1,8 @@
 //
-//  ConversationsPageObserver.swift
+//  InviteLanguagePickerObserver.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 16/01/2024.
+//  Created by Grant Brooks Goodman on 29/01/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -12,17 +12,15 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct ConversationsPageObserver: Observer {
+public struct InviteLanguagePickerObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = ConversationsPageReducer
+    public typealias R = InviteLanguagePickerReducer
 
     // MARK: - Properties
 
     public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.translatedInvitationPending,
-                                                           Observables.updatedContactPairArchive,
-                                                           Observables.updatedCurrentUser]
+    public let observedValues: [any ObservableProtocol] = [Observables.traitCollectionChanged]
     public let viewModel: ViewModel<R>
 
     // MARK: - Init
@@ -34,7 +32,7 @@ public struct ConversationsPageObserver: Observer {
     // MARK: - Observer Conformance
 
     public func linkObservables() {
-        Observers.link(ConversationsPageObserver.self, with: observedValues)
+        Observers.link(InviteLanguagePickerObserver.self, with: observedValues)
     }
 
     public func onChange(of observable: Observable<Any>) {
@@ -45,14 +43,12 @@ public struct ConversationsPageObserver: Observer {
         )
 
         switch observable.key {
-        case .translatedInvitationPending:
-            send(.isPresentingInviteLanguagePickerSheetChanged(true))
-
-        case .updatedContactPairArchive:
-            send(.updatedContactPairArchive)
-
-        case .updatedCurrentUser:
-            send(.updatedCurrentUser)
+        case .traitCollectionChanged:
+            Task { @MainActor in
+                let previousQuery = viewModel.searchQuery
+                send(.searchQueryChanged(" "))
+                send(.searchQueryChanged(previousQuery.isBlank ? "" : previousQuery))
+            }
 
         default: ()
         }

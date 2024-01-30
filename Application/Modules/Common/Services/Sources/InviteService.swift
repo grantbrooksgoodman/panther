@@ -50,7 +50,9 @@ public struct InviteService {
         switch translateResult {
         case let .success(translation):
             let textMessage = "\(translation.output)\n\n\(appShareLink.absoluteString)"
-            services.textMessage.composeTextMessage(textMessage)
+            if let exception = services.textMessage.composeTextMessage(textMessage) {
+                return exception
+            }
 
         case let .failure(exception):
             return exception

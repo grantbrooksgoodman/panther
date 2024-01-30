@@ -29,6 +29,7 @@ public extension CoreKit.Utilities {
     func clearCaches() {
         @Dependency(\.commonServices) var commonServices: CommonServices
         @Dependency(\.networking.services) var networkServices: NetworkServices
+        @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
 
         commonServices.contact.contactPairArchive.clearArchive()
         networkServices.conversation.archive.clearArchive()
@@ -38,6 +39,7 @@ public extension CoreKit.Utilities {
         commonServices.propertyLists.clearCache()
         commonServices.regionDetail.clearCache()
         networkServices.user.clearCache()
+        settingsPageViewService.clearCache()
     }
 
     func destroyConversationDatabase() async -> Exception? {

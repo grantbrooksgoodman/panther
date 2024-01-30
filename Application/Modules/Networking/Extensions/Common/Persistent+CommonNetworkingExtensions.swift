@@ -13,8 +13,4 @@ public extension Persistent {
     convenience init(_ conversationArchiveServiceKey: UserDefaultsKeyDomain.ConversationArchiveServiceDefaultsKey) {
         self.init(.app(.conversationArchiveService(conversationArchiveServiceKey)))
     }
-
-    convenience init(_ userArchiveServiceKey: UserDefaultsKeyDomain.UserArchiveServiceDefaultsKey) {
-        self.init(.app(.userArchiveService(userArchiveServiceKey)))
-    }
 }

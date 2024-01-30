@@ -117,7 +117,7 @@ public struct ConversationCellView: View {
                         }
 
                         Text(viewModel.cellViewData.subtitleLabelText)
-                            .font(Font.system(size: Floats.subtitleLabelSystemFontSize))
+                            .font(.system(size: Floats.subtitleLabelSystemFontSize))
                             .foregroundStyle(viewModel.subtitleLabelTextForegroundColor)
                             .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)
                             .offset(x: Floats.subtitleLabelXOffset, y: Floats.subtitleLabelYOffset)

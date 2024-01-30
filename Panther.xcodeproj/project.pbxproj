@@ -214,6 +214,11 @@
 		B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */; };
 		B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C8A2B201AA4008CE353 /* CommonServices.swift */; };
 		B9988BFF2AC4C72800C4924C /* RuntimeStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9988BFE2AC4C72800C4924C /* RuntimeStorage.swift */; };
+		B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */; };
+		B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */; };
+		B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */; };
+		B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C42B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift */; };
+		B998B3CB2B68BB520048241B /* InviteLanguagePickerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */; };
 		B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DB929E4C2AF00117D42 /* CustomColors.swift */; };
 		B99B1DBE29E4C43400117D42 /* ThemeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBD29E4C43400117D42 /* ThemeService.swift */; };
 		B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBF29E4C45000117D42 /* AppThemes.swift */; };
@@ -931,6 +936,11 @@
 		B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServicesDependency.swift; sourceTree = "<group>"; };
 		B9975C8A2B201AA4008CE353 /* CommonServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServices.swift; sourceTree = "<group>"; };
 		B9988BFE2AC4C72800C4924C /* RuntimeStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeStorage.swift; sourceTree = "<group>"; };
+		B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITheme+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerView.swift; sourceTree = "<group>"; };
+		B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerReducer.swift; sourceTree = "<group>"; };
+		B998B3C42B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+InviteLanguagePickerView.swift"; sourceTree = "<group>"; };
+		B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerObserver.swift; sourceTree = "<group>"; };
 		B99B1DB929E4C2AF00117D42 /* CustomColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomColors.swift; sourceTree = "<group>"; };
 		B99B1DBD29E4C43400117D42 /* ThemeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeService.swift; sourceTree = "<group>"; };
 		B99B1DBF29E4C45000117D42 /* AppThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemes.swift; sourceTree = "<group>"; };
@@ -1732,6 +1742,7 @@
 			isa = PBXGroup;
 			children = (
 				B9F5D1EC2B48989800059B44 /* AppConstants+GenericTextField.swift */,
+				B998B3C42B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift */,
 				B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */,
 				B99195A12B488DC300BD5BBC /* AppConstants+RegionMenu.swift */,
 				B99195A72B48963200BD5BBC /* AppConstants+SearchBar.swift */,
@@ -1878,6 +1889,7 @@
 		B958870A2B3232EC007FB37B /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B998B3BF2B68A66B0048241B /* InviteLanguagePickerView */,
 				B9E1BB9F2B315C6D00ADEA71 /* NetworkActivityView */,
 				B9334E092B48E54A00C667E5 /* RegionMenu */,
 				B9F5D1EA2B48987C00059B44 /* GenericTextField.swift */,
@@ -2128,6 +2140,16 @@
 				B969691A2B18259400ADA875 /* UpdateService.swift */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		B998B3BF2B68A66B0048241B /* InviteLanguagePickerView */ = {
+			isa = PBXGroup;
+			children = (
+				B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */,
+				B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */,
+				B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */,
+			);
+			path = InviteLanguagePickerView;
 			sourceTree = "<group>";
 		};
 		B99B1DB629E4C0BD00117D42 /* Theming */ = {
@@ -3071,6 +3093,7 @@
 			children = (
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
 				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
+				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3758,6 +3781,7 @@
 				B90249C02B573A4500D62855 /* AuthCodePageReducer.swift in Sources */,
 				B91A10FE2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift in Sources */,
 				B96EDD892B635A4700CB925B /* SettingsPageViewStrings.swift in Sources */,
+				B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */,
 				B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */,
 				B93BCDCE2AAD854B00AA16FE /* URLSessionDependency.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
@@ -3783,6 +3807,7 @@
 				B9E7D4282AAC1F0400FAF2A9 /* FailurePageReducer.swift in Sources */,
 				B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */,
 				B99195932B47E88400BD5BBC /* VerifyNumberContentPageView.swift in Sources */,
+				B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */,
 				B900B5302B1AB10F00BA2F1D /* TextMessageService.swift in Sources */,
 				B946576B2AABBD420091193B /* AKCoreDependency.swift in Sources */,
 				B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */,
@@ -3809,9 +3834,11 @@
 				B9E6D7EF2B129516000BC88D /* Translation+CoreNetworkingExtensions.swift in Sources */,
 				B9C5830129BECB0C009DCE29 /* DeviceShakeViewModifier.swift in Sources */,
 				B9F5D1F12B489BFC00059B44 /* VerifyNumberPageViewServiceDependency.swift in Sources */,
+				B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */,
 				B991957D2B47CB2F00BD5BBC /* AppConstants+InstructionView.swift in Sources */,
 				B992BCD02A159121003BFF2E /* ThemedView.swift in Sources */,
 				B9E7D4722AAD163B00FAF2A9 /* CoreKitDependency.swift in Sources */,
+				B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */,
 				B991959B2B47EAD300BD5BBC /* VerifyNumberPageViewService.swift in Sources */,
 				B9F47AE82B576EF500D86C67 /* ConversationsPageView.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SampleContentPageView.swift in Sources */,
@@ -3842,6 +3869,7 @@
 				B9F47AF62B585FE400D86C67 /* AppConstants+AvatarImageView.swift in Sources */,
 				B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */,
 				B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */,
+				B998B3CB2B68BB520048241B /* InviteLanguagePickerObserver.swift in Sources */,
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				A206F7DF28AC552D008FFE18 /* Build.swift in Sources */,

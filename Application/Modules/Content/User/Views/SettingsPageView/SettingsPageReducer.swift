@@ -18,6 +18,7 @@ public struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
@@ -44,6 +45,7 @@ public struct SettingsPageReducer: Reducer {
 
     public enum Feedback {
         case fetchCnContactForCurrentUserReturned(Callback<CNContact, Exception>)
+        case inviteFriendsButtonTappedReturned(Callback<Bool, Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -167,7 +169,7 @@ public struct SettingsPageReducer: Reducer {
             state.buildInfoButtonStrings = state.buildInfoButtonStrings.next
 
         case .changeThemeButtonTapped:
-            break
+            viewService.changeThemeButtonTapped()
 
         case .clearCachesButtonTapped:
             viewService.clearCachesButtonTapped()
@@ -176,7 +178,10 @@ public struct SettingsPageReducer: Reducer {
             state.isPresented.wrappedValue = false
 
         case .inviteFriendsButtonTapped:
-            break
+            return .task {
+                let result = await viewService.inviteFriendsButtonTapped()
+                return .inviteFriendsButtonTappedReturned(result)
+            }
 
         case .leaveReviewButtonTapped:
             viewService.leaveReviewButtonTapped()
@@ -188,7 +193,7 @@ public struct SettingsPageReducer: Reducer {
             viewService.sendFeedbackButtonTapped()
 
         case .signOutButtonTapped:
-            break
+            viewService.signOutButtonTapped()
         }
 
         return .none
@@ -215,6 +220,16 @@ public struct SettingsPageReducer: Reducer {
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
             state.viewID = UUID()
             Logger.log(exception)
+
+        case let .inviteFriendsButtonTappedReturned(.success(wantsToTranslate)):
+            guard wantsToTranslate else { return .none }
+            state.isPresented.wrappedValue = false
+            coreGCD.after(.milliseconds(200)) {
+                Observables.translatedInvitationPending.trigger()
+            }
+
+        case let .inviteFriendsButtonTappedReturned(.failure(exception)):
+            Logger.log(exception, with: .toast())
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

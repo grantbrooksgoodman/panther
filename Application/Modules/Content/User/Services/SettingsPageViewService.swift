@@ -15,7 +15,7 @@ import SwiftUI
 import AlertKit
 import Redux
 
-public struct SettingsPageViewService {
+public final class SettingsPageViewService: Cacheable {
     // MARK: - Type Aliases
 
     private typealias Strings = AppConstants.Strings.SettingsPageView
@@ -27,12 +27,70 @@ public struct SettingsPageViewService {
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
+    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
+    // MARK: - Properties
+
+    public var cache: Cache
+    public var emptyCache: Cache
+
+    private var defaultsKeysToKeep: [UserDefaultsKeyDomain] {
+        [
+            .app(.devModeService(.indicatesNetworkActivity)),
+            .core(.breadcrumbsCaptureEnabled),
+            .core(.breadcrumbsCapturesAllViews),
+            .core(.currentThemeID),
+            .core(.developerModeEnabled),
+            .core(.hidesBuildInfoOverlay),
+        ]
+    }
+
+    // MARK: - Init
+
+    public init() {
+        emptyCache = .init(
+            [
+                .cnContactForCurrentUser: NSNull(),
+            ]
+        )
+        cache = emptyCache
+    }
+
     // MARK: - Reducer Action Handlers
+
+    public func changeThemeButtonTapped() {
+        Task {
+            var actions = [AKAction]()
+            var titleMap = [Int: String]()
+
+            func isCurrentTheme(_ theme: UITheme) -> Bool { theme.name == ThemeService.currentTheme.name }
+            func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
+
+            actions = AppTheme.allCases.map { .init(
+                title: isCurrentTheme($0.theme) ? "\(themeName($0.theme)) (Applied)" : themeName($0.theme),
+                style: .default,
+                isEnabled: !isCurrentTheme($0.theme)
+            ) }
+
+            actions.forEach { titleMap[$0.identifier] = $0.title }
+
+            let actionSheet = AKActionSheet(
+                message: "Change Theme",
+                actions: actions
+            )
+
+            let actionID = await actionSheet.present()
+            guard actionID != -1,
+                  let actionTitle = titleMap[actionID],
+                  let correspondingCase = AppTheme.allCases.first(where: { themeName($0.theme) == actionTitle }) else { return }
+
+            ThemeService.setTheme(correspondingCase.theme)
+        }
+    }
 
     public func clearCachesButtonTapped() {
         @Sendable
@@ -41,12 +99,9 @@ public struct SettingsPageViewService {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: [.app(.userSessionService(.currentUserID)),
-                                     .core(.breadcrumbsCaptureEnabled),
-                                     .core(.breadcrumbsCapturesAllViews),
-                                     .core(.currentThemeID),
-                                     .core(.developerModeEnabled),
-                                     .core(.hidesBuildInfoOverlay)])
+            var defaultsKeysToKeep: [UserDefaultsKeyDomain] = [.app(.userSessionService(.currentUserID))]
+            defaultsKeysToKeep.append(contentsOf: self.defaultsKeysToKeep)
+            defaults.reset(keeping: defaultsKeysToKeep)
 
             services.analytics.logEvent(.clearCaches)
 
@@ -75,6 +130,22 @@ public struct SettingsPageViewService {
         }
     }
 
+    public func inviteFriendsButtonTapped() async -> Callback<Bool, Exception> {
+        if let wantsToTranslate = await services.invite.promptToTranslate() {
+            guard wantsToTranslate else {
+                if let exception = await services.invite.composeInvitation(languageCode: nil) {
+                    return .failure(exception)
+                }
+
+                return .success(false)
+            }
+
+            return .success(true)
+        }
+
+        return .success(false)
+    }
+
     public func leaveReviewButtonTapped() {
         guard let url = URL(string: Strings.reviewOnAppStoreURLString) else { return }
         Task { @MainActor in
@@ -84,6 +155,23 @@ public struct SettingsPageViewService {
 
     public func sendFeedbackButtonTapped() {
         buildInfoOverlayViewService.sendFeedbackButtonTapped()
+    }
+
+    public func signOutButtonTapped() {
+        Task {
+            let actionSheet = AKActionSheet(actions: [.init(title: "Sign Out", style: .destructivePreferred)])
+
+            let actionID = await actionSheet.present()
+            guard actionID != -1 else { return }
+
+            core.utils.clearCaches()
+            core.utils.eraseDocumentsDirectory()
+            core.utils.eraseTemporaryDirectory()
+
+            defaults.reset(keeping: defaultsKeysToKeep)
+
+            navigationCoordinator.setPage(.onboarding(.welcome))
+        }
     }
 
     /// `.longPressGestureRecognized`
@@ -151,6 +239,10 @@ public struct SettingsPageViewService {
     // MARK: - Fetch CNContact for Current User
 
     public func fetchCnContactForCurrentUser() async -> Callback<CNContact, Exception> {
+        if let cachedValue = cache.value(forKey: .cnContactForCurrentUser) as? CNContact {
+            return .success(cachedValue)
+        }
+
         guard let currentUser = userSession.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
@@ -158,6 +250,48 @@ public struct SettingsPageViewService {
             ))
         }
 
-        return await services.contact.firstCnContact(for: currentUser.phoneNumber)
+        let firstCnContactResult = await services.contact.firstCnContact(for: currentUser.phoneNumber)
+
+        switch firstCnContactResult {
+        case let .success(cnContact):
+            cache.set(cnContact, forKey: .cnContactForCurrentUser)
+            return .success(cnContact)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        CacheDomain.SettingsPageViewServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .settingsPageViewService($0)) }
+        cache = emptyCache
+    }
+}
+
+/* MARK: Cache */
+
+public extension CacheDomain {
+    enum SettingsPageViewServiceCacheDomainKey: String, CaseIterable, Equatable {
+        case cnContactForCurrentUser
+    }
+}
+
+private extension Cache {
+    convenience init(_ objects: [CacheDomain.SettingsPageViewServiceCacheDomainKey: Any]) {
+        var mappedObjects = [CacheDomain: Any]()
+        objects.forEach { object in
+            mappedObjects[.settingsPageViewService(object.key)] = object.value
+        }
+        self.init(mappedObjects)
+    }
+
+    func set(_ value: Any, forKey key: CacheDomain.SettingsPageViewServiceCacheDomainKey) {
+        set(value, forKey: .settingsPageViewService(key))
+    }
+
+    func value(forKey key: CacheDomain.SettingsPageViewServiceCacheDomainKey) -> Any? {
+        value(forKey: .settingsPageViewService(key))
     }
 }

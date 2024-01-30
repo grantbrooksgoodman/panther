@@ -36,6 +36,7 @@ public enum LocalizedStringKey: String {
 
     case search
     case selectCallingCode
+    case selectLanguage
     case sendFeedback
     case settings
 

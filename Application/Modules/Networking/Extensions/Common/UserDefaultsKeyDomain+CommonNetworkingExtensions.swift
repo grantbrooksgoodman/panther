@@ -13,8 +13,4 @@ public extension UserDefaultsKeyDomain {
     enum ConversationArchiveServiceDefaultsKey: String {
         case conversationArchive
     }
-
-    enum UserArchiveServiceDefaultsKey: String {
-        case userArchive
-    }
 }
