@@ -136,6 +136,9 @@ public final class ContactSyncService {
                     services.contact.contactPairArchive.addValue(.init(contact: contact, numberPairs: numberPairs))
 
                 case let .failure(exception):
+                    let possibleHashes = services.phoneNumber.possibleHashes(for: contact.phoneNumbers.compiledNumberStrings.unique) ?? []
+                    services.contact.contactPairArchive.removeValue(userNumberHashes: possibleHashes)
+
                     if !exception.isEqual(toAny: [
                         .noUsersWithPhoneNumbers,
                         .noUserWithHashes,

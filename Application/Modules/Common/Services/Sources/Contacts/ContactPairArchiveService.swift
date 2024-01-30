@@ -15,12 +15,17 @@ import Redux
 public final class ContactPairArchiveService {
     // MARK: - Dependencies
 
+    @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
+    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
 
     private var archive: [ContactPair]? {
-        didSet { persistedArchive = archive }
+        didSet {
+            persistedArchive = archive
+            persistValuesForNotificationExtension()
+        }
     }
 
     @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
@@ -29,6 +34,7 @@ public final class ContactPairArchiveService {
 
     public init() {
         archive = persistedArchive
+        persistValuesForNotificationExtension()
     }
 
     // MARK: - Addition
@@ -44,7 +50,7 @@ public final class ContactPairArchiveService {
 
         Logger.log(
             .init(
-                "Added contact pair to local archive.",
+                "Added contact pair to persisted archive.",
                 extraParams: ["FullName": contactPair.contact.fullName,
                               "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.formattedString() ?? ""],
                 metadata: [self, #file, #function, #line]
@@ -61,6 +67,26 @@ public final class ContactPairArchiveService {
         archive = nil
     }
 
+    public func removeValue(userNumberHashes: [String]) {
+        func satisfiesConstraints(_ contactPair: ContactPair) -> Bool {
+            let possibleHashes = phoneNumberService.possibleHashes(for: contactPair.contact.phoneNumbers.compiledNumberStrings.unique) ?? []
+            return possibleHashes.containsAnyString(in: userNumberHashes)
+        }
+
+        guard (archive ?? []).contains(where: { satisfiesConstraints($0) }) else { return }
+        archive?.removeAll(where: { satisfiesConstraints($0) })
+        Observables.updatedContactPairArchive.trigger()
+
+        Logger.log(
+            .init(
+                "Removed contact pair from persisted archive.",
+                extraParams: ["UserNumberHashes": userNumberHashes],
+                metadata: [self, #file, #function, #line]
+            ),
+            domain: .contacts
+        )
+    }
+
     // MARK: - Retrieval
 
     public func getValue(contactHash: String) -> ContactPair? {
@@ -72,5 +98,21 @@ public final class ContactPairArchiveService {
             .first(where: {
                 (phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique) ?? []).contains(userNumberHash)
             })
+    }
+
+    // MARK: - Persist Values for Notification Extension
+
+    private func persistValuesForNotificationExtension() {
+        Task { @MainActor in
+            var notificationExtensionArchive = [[String]: String]()
+
+            archive?.forEach { contactPair in
+                let possibleHashes = phoneNumberService.possibleHashes(for: contactPair.contact.phoneNumbers.compiledNumberStrings.unique) ?? []
+                notificationExtensionArchive[possibleHashes] = contactPair.contact.fullName
+            }
+
+            guard let encoded = try? jsonEncoder.encode(notificationExtensionArchive) else { return }
+            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.defaultsKeyName)
+        }
     }
 }
