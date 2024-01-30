@@ -22,7 +22,7 @@ public enum BuildConfig {
 
     // MARK: - Versioning
 
-    public static let appStoreReleaseVersion = 0
+    public static let appStoreReleaseVersion = 2
     public static let dmyFirstCompileDateString = "11112023"
     public static let stage: Build.Stage = .beta
 

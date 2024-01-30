@@ -42,6 +42,9 @@ public struct SplashPageViewService {
         /* MARK: UpdateService Setup */
 
         services.update.incrementRelaunchCountIfNeeded()
+        if let exception = await services.update.promptToUpdateIfNeeded() {
+            return exception
+        }
 
         /* MARK: UserSessionService Setup */
 
