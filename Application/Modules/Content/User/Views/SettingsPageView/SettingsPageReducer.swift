@@ -170,7 +170,7 @@ public struct SettingsPageReducer: Reducer {
             break
 
         case .clearCachesButtonTapped:
-            break
+            viewService.clearCachesButtonTapped()
 
         case .doneToolbarButtonTapped:
             state.isPresented.wrappedValue = false
@@ -179,13 +179,13 @@ public struct SettingsPageReducer: Reducer {
             break
 
         case .leaveReviewButtonTapped:
-            break
+            viewService.leaveReviewButtonTapped()
 
         case .longPressGestureRecognized:
-            break
+            viewService.setClipboardWithHapticFeedback(state.buildInfoButtonStrings.labelText)
 
         case .sendFeedbackButtonTapped:
-            break
+            viewService.sendFeedbackButtonTapped()
 
         case .signOutButtonTapped:
             break

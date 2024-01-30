@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import AlertKit
@@ -118,6 +119,7 @@ public extension DevModeService {
                 clearCachesAction,
                 eraseDocumentsDirectoryAction,
                 eraseTemporaryDirectoryAction,
+                setCurrentUserIDAction,
                 toggleNetworkActivityIndicatorAction,
                 destroyConversationDatabaseAction,
                 resetPushTokensAction,
@@ -202,6 +204,40 @@ public extension DevModeService {
             perform: resetPushTokens,
             isDestructive: true
         )
+    }
+    
+    static var setCurrentUserIDAction: DevModeAction {
+        func setCurrentUserID() {
+            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            @Dependency(\.rootNavigationCoordinator) var navigationCoordinator: RootNavigationCoordinator
+            @Persistent(.currentUserID) var currentUserID: String?
+
+            let textFieldAlert = AKTextFieldAlert(
+                message: "Set Current User ID",
+                actions: [.init(title: "Done", style: .preferred)],
+                textFieldAttributes: [
+                    .capitalizationType: UITextAutocapitalizationType.none,
+                    .correctionType: UITextAutocorrectionType.no,
+                    .textAlignment: NSTextAlignment.center,
+                ],
+                shouldTranslate: [.none]
+            )
+
+            textFieldAlert.presentTextFieldAlert { inputString, actionID in
+                guard actionID != -1,
+                      let inputString,
+                      !inputString.isBlank else { return }
+                let previousValue = currentUserID
+                currentUserID = inputString
+                if currentUserID != previousValue {
+                    coreUtilities.clearCaches()
+                }
+
+                navigationCoordinator.setPage(.splash)
+            }
+        }
+
+        return .init(title: "Set Current User ID", perform: setCurrentUserID)
     }
 
     static var toggleNetworkActivityIndicatorAction: DevModeAction {

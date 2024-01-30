@@ -32,6 +32,7 @@ public struct ConversationsPageViewService {
         }
     }
 
+    /// `.pulledToRefresh`
     public func reloadData() async -> Callback<[Conversation], Exception> {
         func syncContactPairArchive() async -> Exception? {
             if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),

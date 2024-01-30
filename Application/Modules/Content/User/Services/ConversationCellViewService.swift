@@ -27,6 +27,7 @@ public final class ConversationCellViewService {
 
     // MARK: - Methods
 
+    /// `.viewAppeared`
     public func cellViewData(for conversation: Conversation) -> ConversationCellViewData? {
         guard let users = conversation.users,
               let lastUser = users.last else { return nil }
@@ -88,6 +89,7 @@ public final class ConversationCellViewService {
         )
     }
 
+    /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
     public func presentDeletionActionSheet(_ title: String) async -> Bool {
         let actionSheet: AKActionSheet = .init(
@@ -102,10 +104,13 @@ public final class ConversationCellViewService {
         return actionID == -1
     }
 
+    /// `.chatPageViewAppeared`,
+    /// `.updateCurrentUserBadgeNumberReturned(exception)`
     public func setBadgeDecrementAmount(_ badgeDecrementAmount: Int) {
         self.badgeDecrementAmount = badgeDecrementAmount
     }
 
+    /// `.updateReadDateReturned(.success)`
     public func updateCurrentUserBadgeNumber() async -> Exception? {
         guard let currentUser = userSession.currentUser else {
             return .init(

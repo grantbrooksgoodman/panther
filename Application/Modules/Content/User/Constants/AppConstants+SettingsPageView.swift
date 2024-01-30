@@ -68,5 +68,7 @@ public extension AppConstants.Strings {
         public static let overrideLanguageCodeButtonText = "Override Language Code to English"
         public static let restoreLanguageCodeButtonTextPrefix = "Restore Language to"
         public static let toggleDeveloperModeButtonText = "Toggle Developer Mode"
+
+        public static let reviewOnAppStoreURLString = "https://apps.apple.com/app/id1662674065?action=write-review"
     }
 }

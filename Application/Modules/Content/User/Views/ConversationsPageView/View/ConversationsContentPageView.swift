@@ -64,6 +64,7 @@ public struct ConversationsContentPageView: View {
                         settingsToolbarButton
                     }
                 }
+                .accentColor(Color.accent)
                 .id(viewModel.viewID)
             }
         }
@@ -87,8 +88,8 @@ public struct ConversationsContentPageView: View {
                     Strings.composeToolbarButtonText,
                     systemImage: Strings.composeToolbarButtonLabelImageSystemName
                 )
-                .foregroundStyle(Color.accent)
             }
+            .tint(Color.accent)
 //            .disabled(!viewModel.isComposeToolbarButtonEnabled)
         }
     }
@@ -103,8 +104,8 @@ public struct ConversationsContentPageView: View {
                     Strings.settingsToolbarButtonText,
                     systemImage: Strings.settingsToolbarButtonLabelImageSystemName
                 )
-                .foregroundStyle(Color.accent)
             }
+            .tint(Color.accent)
 //            .disabled(!viewModel.isSettingsToolbarButtonEnabled)
         }
     }

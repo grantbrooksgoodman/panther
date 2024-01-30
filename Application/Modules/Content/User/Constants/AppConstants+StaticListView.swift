@@ -18,7 +18,7 @@ public extension AppConstants.CGFloats {
         public static let clipShapeRoundedRectangleCornerSizeHeight: CGFloat = 8
         public static let clipShapeRoundedRectangleCornerSizeWidth: CGFloat = 8
 
-        public static let frameMaxHeightPrimaryMultiplier: CGFloat = 34
+        public static let frameMaxHeightPrimaryMultiplier: CGFloat = 33.8
         public static let frameMaxHeightSecondaryMultiplier: CGFloat = 10
 
         public static let imageCornerRadius: CGFloat = 7
