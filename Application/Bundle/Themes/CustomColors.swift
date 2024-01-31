@@ -22,6 +22,9 @@ public enum ColoredItemType: String, Equatable {
     case navigationBarBackground
     case navigationBarTitle
 
+    case receiverBubble
+    case senderBubble
+
     case subtitleText
     case titleText
 }
@@ -36,6 +39,9 @@ public extension UIColor {
 
     static var navigationBarBackground: UIColor { theme.color(for: .navigationBarBackground) }
     static var navigationBarTitle: UIColor { theme.color(for: .navigationBarTitle) }
+
+    static var receiverBubble: UIColor { theme.color(for: .receiverBubble) }
+    static var senderBubble: UIColor { theme.color(for: .senderBubble) }
 
     static var subtitleText: UIColor { theme.color(for: .subtitleText) }
     static var titleText: UIColor { theme.color(for: .titleText) }
@@ -53,6 +59,9 @@ public extension Color {
 
     static var navigationBarBackground: Color { .init(uiColor: .navigationBarBackground) }
     static var navigationBarTitle: Color { .init(uiColor: .navigationBarTitle) }
+
+    static var receiverBubble: Color { .init(uiColor: .receiverBubble) }
+    static var senderBubble: Color { .init(uiColor: .senderBubble) }
 
     static var subtitleText: Color { .init(uiColor: .subtitleText) }
     static var titleText: Color { .init(uiColor: .titleText) }

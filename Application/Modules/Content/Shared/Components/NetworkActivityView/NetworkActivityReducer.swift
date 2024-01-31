@@ -32,7 +32,7 @@ public struct NetworkActivityReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Type Aliases */
+        /* MARK: Constants Accessors */
 
         public typealias Floats = AppConstants.CGFloats.NetworkActivityView
 

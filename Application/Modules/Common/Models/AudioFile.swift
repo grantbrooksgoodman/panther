@@ -20,7 +20,7 @@ public final class AudioFile: Codable, Equatable {
     public let name: String
     public let url: URL
 
-    public private(set) var duration: Float?
+    public private(set) var contentDuration: Float?
 
     // MARK: - Init
 
@@ -28,12 +28,12 @@ public final class AudioFile: Codable, Equatable {
         _ url: URL,
         name: String,
         fileExtension: AudioFileExtension,
-        duration: Float
+        contentDuration: Float
     ) {
         self.url = url
         self.name = name
         self.fileExtension = fileExtension
-        self.duration = duration
+        self.contentDuration = contentDuration
     }
 
     public convenience init?(_ url: URL) {
@@ -52,7 +52,7 @@ public final class AudioFile: Codable, Equatable {
             url,
             name: components[0],
             fileExtension: components[1] == AudioFileExtension.caf.rawValue ? .caf : .m4a,
-            duration: 0
+            contentDuration: 0
         )
 
         Task {
@@ -65,12 +65,12 @@ public final class AudioFile: Codable, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (left: AudioFile, right: AudioFile) -> Bool {
-        let sameDuration = left.duration == right.duration
+        let sameContentDuration = left.contentDuration == right.contentDuration
         let sameFileExtension = left.fileExtension == right.fileExtension
         let sameName = left.name == right.name
         let sameURL = left.url == right.url
 
-        guard sameDuration,
+        guard sameContentDuration,
               sameFileExtension,
               sameName,
               sameURL else { return false }
@@ -84,7 +84,7 @@ public final class AudioFile: Codable, Equatable {
         do {
             let assetReader = try AVAssetReader(asset: .init(url: url))
             let duration: Float = try .init(await assetReader.asset.load(.duration).seconds)
-            self.duration = duration
+            contentDuration = duration
         } catch {
             return .init(error, metadata: [self, #file, #function, #line])
         }

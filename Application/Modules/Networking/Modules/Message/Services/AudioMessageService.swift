@@ -49,7 +49,7 @@ public struct AudioMessageService {
                 audioFile.url,
                 name: message.id,
                 fileExtension: audioFile.fileExtension,
-                duration: audioFile.duration ?? .init()
+                contentDuration: audioFile.contentDuration ?? .init()
             )
 
             if let lastUploadedInput,

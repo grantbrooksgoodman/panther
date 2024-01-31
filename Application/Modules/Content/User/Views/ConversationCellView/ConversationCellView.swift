@@ -35,11 +35,7 @@ public struct ConversationCellView: View {
     public var body: some View {
         ZStack {
             NavigationLink {
-                // TODO: Link to chat page.
-                SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer()))
-                    .onAppear {
-                        viewModel.send(.chatPageViewAppeared)
-                    }
+                chatPageView
             } label: {
                 EmptyView()
             }
@@ -125,5 +121,17 @@ public struct ConversationCellView: View {
                 }
             }
         }
+    }
+
+    private var chatPageView: some View {
+        ChatPageView(viewModel.conversation)
+            .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
+            .navigationBarColor(background: .navigationBarBackground, titleText: .navigationBarTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(viewModel.cellViewData.titleLabelText)
+            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
+            .onAppear {
+                viewModel.send(.chatPageViewAppeared)
+            }
     }
 }

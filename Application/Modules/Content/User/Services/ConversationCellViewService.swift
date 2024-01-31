@@ -59,14 +59,12 @@ public final class ConversationCellViewService {
             otherUser = firstUser
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-
         // Set date & subtitle label text
         if let lastMessage = conversation.messages?.last {
             dateLabelText = lastMessage.sentDate.formattedShortString
 
             if lastMessage.audioComponent == nil {
-                let isLastMessageFromCurrentUser = lastMessage.fromAccountID == currentUserID
+                let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
                 subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
             } else {
                 // TODO: Localize this string.
@@ -75,7 +73,7 @@ public final class ConversationCellViewService {
         }
 
         // Set unread indicator status
-        if let lastMessageFromOtherUsers = conversation.messages?.filter({ $0.fromAccountID != currentUserID }).last {
+        if let lastMessageFromOtherUsers = conversation.messages?.filter({ !$0.isFromCurrentUser }).last {
             isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
         }
 

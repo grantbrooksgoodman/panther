@@ -16,7 +16,7 @@ import AlertKit
 import Redux
 
 public final class SettingsPageViewService: Cacheable {
-    // MARK: - Type Aliases
+    // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.SettingsPageView
 

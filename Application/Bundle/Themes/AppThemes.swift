@@ -50,12 +50,17 @@ public enum AppTheme: CaseIterable {
     // MARK: - Colored Item Accessors
 
     private var defaultColoredItems: [Item] {
-        let accent = Item(type: .accent, set: .init(primary: .systemBlue))
+        let accentColor = UIColor.systemBlue
+
+        let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: .white, variant: .black))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: .init(hex: 0xF8F8F8), variant: .init(hex: 0x2A2A2C)))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .black, variant: .white))
+
+        let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
+        let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0xE5E5EA), variant: .init(hex: 0x27252A)))
 
         let titleText = Item(type: .titleText, set: .init(primary: .black, variant: .white))
         let subtitleText = Item(type: .subtitleText, set: .init(primary: .black, variant: .white))
@@ -66,6 +71,8 @@ public enum AppTheme: CaseIterable {
             listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
+            senderBubble,
+            receiverBubble,
             titleText,
             subtitleText,
         ]
@@ -82,6 +89,9 @@ public enum AppTheme: CaseIterable {
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
+        let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
+        let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
+
         let titleText = Item(type: .titleText, set: .init(primary: .white))
         let subtitleText = Item(type: .subtitleText, set: .init(primary: .lightGray))
 
@@ -91,6 +101,8 @@ public enum AppTheme: CaseIterable {
             listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
+            senderBubble,
+            receiverBubble,
             titleText,
             subtitleText,
         ]
@@ -107,6 +119,9 @@ public enum AppTheme: CaseIterable {
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
+        let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
+        let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
+
         let titleText = Item(type: .titleText, set: .init(primary: .white))
         let subtitleText = Item(type: .subtitleText, set: .init(primary: .lightGray))
 
@@ -116,6 +131,8 @@ public enum AppTheme: CaseIterable {
             listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
+            senderBubble,
+            receiverBubble,
             titleText,
             subtitleText,
         ]
@@ -132,6 +149,9 @@ public enum AppTheme: CaseIterable {
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
+        let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
+        let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
+
         let titleText = Item(type: .titleText, set: .init(primary: .white))
         let subtitleText = Item(type: .subtitleText, set: .init(primary: .lightGray))
 
@@ -141,6 +161,8 @@ public enum AppTheme: CaseIterable {
             listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
+            senderBubble,
+            receiverBubble,
             titleText,
             subtitleText,
         ]
@@ -157,6 +179,9 @@ public enum AppTheme: CaseIterable {
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
+        let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
+        let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
+
         let titleText = Item(type: .titleText, set: .init(primary: .white))
         let subtitleText = Item(type: .subtitleText, set: .init(primary: .lightGray))
 
@@ -166,6 +191,8 @@ public enum AppTheme: CaseIterable {
             listViewBackground,
             navigationBarBackground,
             navigationBarTitle,
+            senderBubble,
+            receiverBubble,
             titleText,
             subtitleText,
         ]

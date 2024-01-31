@@ -76,10 +76,9 @@ public struct ConversationCellReducer: Reducer {
             state.cellViewData = cellViewData
 
         case .action(.chatPageViewAppeared):
-            @Persistent(.currentUserID) var currentUserID: String?
             let conversation = state.conversation
 
-            guard let messages = conversation.messages?.filter({ $0.fromAccountID != currentUserID }),
+            guard let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),
                   messages.last?.readDate == nil else {
                 return .none
             }

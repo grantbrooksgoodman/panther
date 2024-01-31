@@ -65,6 +65,22 @@
 		B90249D42B5745BF00D62855 /* AppConstants+PermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D32B5745BF00D62855 /* AppConstants+PermissionPageView.swift */; };
 		B90249D62B57533900D62855 /* StatusIndicatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D52B57533900D62855 /* StatusIndicatorButton.swift */; };
 		B90249D82B57536400D62855 /* AppConstants+StatusIndicatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D72B57536400D62855 /* AppConstants+StatusIndicatorButton.swift */; };
+		B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = B90C91042B69C95B008DFE59 /* MessageKit */; };
+		B90C91082B69C9ED008DFE59 /* ChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91072B69C9ED008DFE59 /* ChatPageView.swift */; };
+		B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */; };
+		B90C910C2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */; };
+		B90C910E2B69CD95008DFE59 /* Message+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */; };
+		B90C91102B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C910F2B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift */; };
+		B90C91122B69CF4C008DFE59 /* AppConstants+AudioItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91112B69CF4C008DFE59 /* AppConstants+AudioItem.swift */; };
+		B90C91142B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */; };
+		B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */; };
+		B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */; };
+		B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */; };
+		B90C911C2B6A0D67008DFE59 /* NavigationBarColorViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C911B2B6A0D67008DFE59 /* NavigationBarColorViewModifier.swift */; };
+		B90C911E2B6A11A5008DFE59 /* Contact.png in Resources */ = {isa = PBXBuildFile; fileRef = B90C911D2B6A11A5008DFE59 /* Contact.png */; };
+		B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */; };
+		B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */; };
+		B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */; };
 		B90CCC092AC74478001C326F /* CoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CCC082AC74478001C326F /* CoreConstants.swift */; };
 		B90F331F2AE4D41A002A9284 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90F331D2AE4D41A002A9284 /* HeaderView.swift */; };
 		B90F33202AE4D41A002A9284 /* HeaderView+DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90F331E2AE4D41A002A9284 /* HeaderView+DataModels.swift */; };
@@ -738,6 +754,21 @@
 		B90249D32B5745BF00D62855 /* AppConstants+PermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+PermissionPageView.swift"; sourceTree = "<group>"; };
 		B90249D52B57533900D62855 /* StatusIndicatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIndicatorButton.swift; sourceTree = "<group>"; };
 		B90249D72B57536400D62855 /* AppConstants+StatusIndicatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+StatusIndicatorButton.swift"; sourceTree = "<group>"; };
+		B90C91072B69C9ED008DFE59 /* ChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageView.swift; sourceTree = "<group>"; };
+		B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewController.swift; sourceTree = "<group>"; };
+		B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessagesDataSource.swift"; sourceTree = "<group>"; };
+		B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B90C910F2B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioFile+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B90C91112B69CF4C008DFE59 /* AppConstants+AudioItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioItem.swift"; sourceTree = "<group>"; };
+		B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessagesDisplayDelegate.swift"; sourceTree = "<group>"; };
+		B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessagesLayoutDelegate.swift"; sourceTree = "<group>"; };
+		B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessageCellDelegate.swift"; sourceTree = "<group>"; };
+		B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B90C911B2B6A0D67008DFE59 /* NavigationBarColorViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarColorViewModifier.swift; sourceTree = "<group>"; };
+		B90C911D2B6A11A5008DFE59 /* Contact.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Contact.png; sourceTree = "<group>"; };
+		B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageView.swift"; sourceTree = "<group>"; };
+		B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThemeService+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90CCC082AC74478001C326F /* CoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreConstants.swift; sourceTree = "<group>"; };
 		B90F331D2AE4D41A002A9284 /* HeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		B90F331E2AE4D41A002A9284 /* HeaderView+DataModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "HeaderView+DataModels.swift"; sourceTree = "<group>"; };
@@ -1396,6 +1427,7 @@
 				2A96538A96662BA1D41A40A5 /* Pods_Panther.framework in Frameworks */,
 				B9F627A92B3273D300462DD9 /* AlertKit.xcframework in Frameworks */,
 				B9D3148C2B60ACF000679DE7 /* Translator.xcframework in Frameworks */,
+				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1508,6 +1540,7 @@
 			isa = PBXGroup;
 			children = (
 				B9D0D7152B0300A200078A93 /* Country Flags */,
+				B90C911D2B6A11A5008DFE59 /* Contact.png */,
 				A2DF2CAF28199D130089DEA1 /* NT (Black).png */,
 				A2DF2CB028199D130089DEA1 /* NT (White).png */,
 			);
@@ -1596,6 +1629,19 @@
 				B90249CF2B57458C00D62855 /* PermissionPageView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		B90C91062B69C9E4008DFE59 /* ChatPageView */ = {
+			isa = PBXGroup;
+			children = (
+				B90C91072B69C9ED008DFE59 /* ChatPageView.swift */,
+				B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */,
+				B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */,
+				B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */,
+				B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */,
+				B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */,
+			);
+			path = ChatPageView;
 			sourceTree = "<group>";
 		};
 		B90F331C2AE4D408002A9284 /* Header */ = {
@@ -3059,6 +3105,7 @@
 		B9F47AE22B576E3800D86C67 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B90C91062B69C9E4008DFE59 /* ChatPageView */,
 				B9F47AFF2B5864D600D86C67 /* ConversationCellView */,
 				B9F47AE32B576EC700D86C67 /* ConversationsPageView */,
 				B96EDD822B635A1A00CB925B /* SettingsPageView */,
@@ -3091,6 +3138,7 @@
 			children = (
 				B9F47AFB2B5862B300D86C67 /* HighPriorityButtonStyle.swift */,
 				B9F47AF92B5861C800D86C67 /* RoundedCornersViewModifier.swift */,
+				B90C911B2B6A0D67008DFE59 /* NavigationBarColorViewModifier.swift */,
 			);
 			path = "View Modifiers";
 			sourceTree = "<group>";
@@ -3110,7 +3158,9 @@
 		B9F47AF42B585FD800D86C67 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
+				B90C91112B69CF4C008DFE59 /* AppConstants+AudioItem.swift */,
 				B9F47AF52B585FE400D86C67 /* AppConstants+AvatarImageView.swift */,
+				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
@@ -3133,7 +3183,12 @@
 		B9F47B092B586E3500D86C67 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B90C910F2B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift */,
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
+				B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */,
+				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
+				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
+				B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */,
 				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 			);
@@ -3198,6 +3253,7 @@
 			name = Panther;
 			packageProductDependencies = (
 				B99652DC2AC525EA00C9CD69 /* Redux */,
+				B90C91042B69C95B008DFE59 /* MessageKit */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Panther.app */;
@@ -3228,7 +3284,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					A2DF2C5028199B660089DEA1 = {
 						CreatedOnToolsVersion = 12.2;
@@ -3323,6 +3379,7 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B99652DB2AC525EA00C9CD69 /* XCLocalSwiftPackageReference "../../XCFrameworks/Redux" */,
+				B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3348,6 +3405,7 @@
 				B9D0D8E12B0300B100078A93 /* qa.png in Resources */,
 				B9D0D8412B0300B000078A93 /* fm.png in Resources */,
 				B9D0D84A2B0300B000078A93 /* bv.png in Resources */,
+				B90C911E2B6A11A5008DFE59 /* Contact.png in Resources */,
 				B9D0D84F2B0300B000078A93 /* jm.png in Resources */,
 				B9D0D8922B0300B000078A93 /* bd.png in Resources */,
 				B9D0D8372B0300B000078A93 /* ga.png in Resources */,
@@ -3767,6 +3825,7 @@
 				B9D0D9452B03019E00078A93 /* NetworkConfig.swift in Sources */,
 				B9CC83192AB0F4BB00255116 /* QuickViewer.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
+				B90C91122B69CF4C008DFE59 /* AppConstants+AudioItem.swift in Sources */,
 				B980E8AB2B2251BD0090F141 /* StandardDateFormatterDependency.swift in Sources */,
 				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
@@ -3782,8 +3841,10 @@
 				B9E7D4742AAD359000FAF2A9 /* Array+CoreExtensions.swift in Sources */,
 				B93CAEAC2AF4622500C03BF4 /* Toast+Style.swift in Sources */,
 				B980E8B42B225F380090F141 /* User+Serializable.swift in Sources */,
+				B90C910E2B69CD95008DFE59 /* Message+UserContentExtensions.swift in Sources */,
 				B99195992B47E99E00BD5BBC /* AppConstants+VerifyNumberPageView.swift in Sources */,
 				B991958D2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift in Sources */,
+				B90C91082B69C9ED008DFE59 /* ChatPageView.swift in Sources */,
 				B9E0E1002B20FA9300C14274 /* Storage+Metadata.swift in Sources */,
 				B9F47B2D2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift in Sources */,
 				B9DCCAA12B34FB6C00532B12 /* Persistent+SessionExtensions.swift in Sources */,
@@ -3793,6 +3854,7 @@
 				B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */,
 				B9260BBA2AC4105C00824A7C /* BuildDependency.swift in Sources */,
 				B9E6D7E32B1289CF000BC88D /* WelcomePageViewStrings.swift in Sources */,
+				B90C91142B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift in Sources */,
 				B93CAEAE2AF4623700C03BF4 /* Toast+AppearanceEdge.swift in Sources */,
 				B97DB5752AF45FBA002C2679 /* CoreConstants+ToastView.swift in Sources */,
 				B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */,
@@ -3846,6 +3908,7 @@
 				B920F18B2AD7C93A002FC1C2 /* LocaleDependency.swift in Sources */,
 				B94149572A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift in Sources */,
 				B9E1BBA62B315ED500ADEA71 /* NetworkActivityReducer.swift in Sources */,
+				B90C910C2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift in Sources */,
 				B9E6D7CC2B1284EC000BC88D /* PermissionService.swift in Sources */,
 				B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */,
 				B9DCCAB72B3B7CCB00532B12 /* Translation+Serializable.swift in Sources */,
@@ -3901,6 +3964,7 @@
 				B96EDD852B635A3000CB925B /* SettingsPageView.swift in Sources */,
 				B92409832AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift in Sources */,
 				B93BCDD02AAD8B1900AA16FE /* Dictionary+CoreExtensions.swift in Sources */,
+				B90C911C2B6A0D67008DFE59 /* NavigationBarColorViewModifier.swift in Sources */,
 				B9E7D43B2AAC221F00FAF2A9 /* Observer.swift in Sources */,
 				B9E6D7B82B12626F000BC88D /* CommonPropertyLists.swift in Sources */,
 				B9B193C02B1A41800016948C /* AudioService.swift in Sources */,
@@ -3917,6 +3981,7 @@
 				B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+CoreNetworkingExtensions.swift in Sources */,
+				B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */,
 				B9C5830129BECB0C009DCE29 /* DeviceShakeViewModifier.swift in Sources */,
 				B9F5D1F12B489BFC00059B44 /* VerifyNumberPageViewServiceDependency.swift in Sources */,
 				B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */,
@@ -3926,10 +3991,13 @@
 				B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */,
 				B991959B2B47EAD300BD5BBC /* VerifyNumberPageViewService.swift in Sources */,
 				B9F47AE82B576EF500D86C67 /* ConversationsPageView.swift in Sources */,
+				B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SampleContentPageView.swift in Sources */,
+				B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */,
 				B964465C2B157DFB008E674A /* RootReducer.swift in Sources */,
 				A286879C28A4A09600A34912 /* Reachability.swift in Sources */,
 				B9E7D4222AAC1ED700FAF2A9 /* SamplePageReducer.swift in Sources */,
+				B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */,
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
 				B9D0D9412B03019E00078A93 /* Networking.swift in Sources */,
 				B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */,
@@ -3967,6 +4035,7 @@
 				B955F76F2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift in Sources */,
 				B958870F2B32331F007FB37B /* SplashPageReducer.swift in Sources */,
 				B991957F2B47CB4000BD5BBC /* InstructionView.swift in Sources */,
+				B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */,
 				B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */,
 				B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */,
 				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
@@ -3990,6 +4059,7 @@
 				B94657722AABC6320091193B /* RootNavigationCoordinator.swift in Sources */,
 				B9E7D4302AAC20D900FAF2A9 /* BuildInfoOverlayView.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
+				B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */,
 				B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */,
 				B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */,
 				B92409812AB2C5AB004CF4C0 /* Breadcrumbs.swift in Sources */,
@@ -4038,6 +4108,7 @@
 				B90249C42B573A5800D62855 /* AuthCodeContentPageView.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */,
+				B90C91102B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift in Sources */,
 				B9F47AEA2B576EFF00D86C67 /* ConversationsContentPageView.swift in Sources */,
 				B93BCDDC2AAD8BFB00AA16FE /* UIKit+CoreExtensions.swift in Sources */,
 				A206F7D228AC2EB8008FFE18 /* AKExpiryAlertDelegate.swift in Sources */,
@@ -4053,6 +4124,7 @@
 				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,
 				B96EDD992B6381C400CB925B /* StaticListItem.swift in Sources */,
 				B90249D02B57458C00D62855 /* PermissionPageView.swift in Sources */,
+				B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */,
 				B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */,
 				B99195A62B48962900BD5BBC /* SearchBar.swift in Sources */,
 				B90F331F2AE4D41A002A9284 /* HeaderView.swift in Sources */,
@@ -4186,6 +4258,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -4248,6 +4321,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -4459,7 +4533,23 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MessageKit/MessageKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		B90C91042B69C95B008DFE59 /* MessageKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */;
+			productName = MessageKit;
+		};
 		B99652DC2AC525EA00C9CD69 /* Redux */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Redux;

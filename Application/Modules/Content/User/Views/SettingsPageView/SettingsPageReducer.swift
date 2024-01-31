@@ -52,7 +52,7 @@ public struct SettingsPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Type Aliases */
+        /* MARK: Constants Accessors */
 
         private typealias Strings = AppConstants.Strings.SettingsPageView
 
