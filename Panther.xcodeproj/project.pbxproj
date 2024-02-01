@@ -242,6 +242,9 @@
 		B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DC729E4C4BD00117D42 /* UITheme+DataModels.swift */; };
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */; };
+		B9AD411F2B6B06A4005BF8F0 /* ChatPageView+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageView+InputBarAccessoryViewDelegate.swift */; };
+		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
+		B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */; };
 		B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9ADF4E32B00554B002D9211 /* AppIconService.swift */; };
 		B9AF12502ACE4AF50045C54C /* CompressedHashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AF124F2ACE4AF50045C54C /* CompressedHashable.swift */; };
 		B9AF12522ACE4DAD0045C54C /* JSONDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AF12512ACE4DAD0045C54C /* JSONDependencies.swift */; };
@@ -1005,6 +1008,9 @@
 		B99B1DC729E4C4BD00117D42 /* UITheme+DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITheme+DataModels.swift"; sourceTree = "<group>"; };
 		B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberKitDependency.swift; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDefaultsKeys.swift; sourceTree = "<group>"; };
+		B9AD411E2B6B06A4005BF8F0 /* ChatPageView+InputBarAccessoryViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageView+InputBarAccessoryViewDelegate.swift"; sourceTree = "<group>"; };
+		B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewService.swift; sourceTree = "<group>"; };
+		B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B9ADF4E32B00554B002D9211 /* AppIconService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
 		B9AF124F2ACE4AF50045C54C /* CompressedHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompressedHashable.swift; sourceTree = "<group>"; };
 		B9AF12512ACE4DAD0045C54C /* JSONDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDependencies.swift; sourceTree = "<group>"; };
@@ -1636,6 +1642,7 @@
 			children = (
 				B90C91072B69C9ED008DFE59 /* ChatPageView.swift */,
 				B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */,
+				B9AD411E2B6B06A4005BF8F0 /* ChatPageView+InputBarAccessoryViewDelegate.swift */,
 				B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */,
 				B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */,
 				B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */,
@@ -3198,6 +3205,7 @@
 		B9F47B282B5A070700D86C67 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
 				B96EDD8C2B635A6000CB925B /* SettingsPageViewService.swift */,
@@ -3208,6 +3216,7 @@
 		B9F47B2B2B5A072F00D86C67 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */,
 				B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */,
 				B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */,
 				B96EDD8E2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift */,
@@ -3819,6 +3828,7 @@
 				B9F47AFE2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift in Sources */,
 				B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */,
 				B93BCDF72AAF937500AA16FE /* FileManager+CoreExtensions.swift in Sources */,
+				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,
 				B9E7D4272AAC1F0400FAF2A9 /* FailurePageView.swift in Sources */,
 				B9D0D93B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift in Sources */,
 				B96EDD912B6360C500CB925B /* CNContactView.swift in Sources */,
@@ -3918,6 +3928,7 @@
 				B9F47B022B5864E600D86C67 /* ConversationCellReducer.swift in Sources */,
 				B90249CE2B57458800D62855 /* PermissionPageViewStrings.swift in Sources */,
 				B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */,
+				B9AD411F2B6B06A4005BF8F0 /* ChatPageView+InputBarAccessoryViewDelegate.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,
 				A286879F28A4A1CB00A34912 /* AKReportDelegate.swift in Sources */,
 				B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */,
@@ -4129,6 +4140,7 @@
 				B99195A62B48962900BD5BBC /* SearchBar.swift in Sources */,
 				B90F331F2AE4D41A002A9284 /* HeaderView.swift in Sources */,
 				B9CC83172AB0DCA700255116 /* DevModeStandardActions.swift in Sources */,
+				B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */,
 				B96EDD9B2B63825C00CB925B /* StaticListView.swift in Sources */,
 				B9AF12502ACE4AF50045C54C /* CompressedHashable.swift in Sources */,
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,

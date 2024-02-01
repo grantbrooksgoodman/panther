@@ -21,7 +21,10 @@ public final class ChatPageViewController: MessagesViewController {
 
     // MARK: - Properties
 
-    public private(set) var conversation: Conversation?
+    public var conversation: Conversation? {
+        @Dependency(\.clientSession.conversation.currentConversation) var currentConversation: Conversation?
+        return currentConversation
+    }
 
     // MARK: - Init
 
@@ -36,10 +39,23 @@ public final class ChatPageViewController: MessagesViewController {
 
     // MARK: - View Lifecycle
 
+    override public func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        toggleBuildInfoOverlay(on: false)
+    }
+
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         messagesCollectionView.scrollToLastItem(animated: true)
+    }
+
+    override public func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
+        toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
     }
 
     // MARK: - UICollectionView
@@ -80,9 +96,18 @@ public final class ChatPageViewController: MessagesViewController {
         return textCell
     }
 
-    // MARK: - Set Conversation
+    // MARK: - Auxiliary
 
-    public func setConversation(_ conversation: Conversation) {
-        self.conversation = conversation
+    private func toggleBuildInfoOverlay(on: Bool) {
+        @Dependency(\.uiApplication) var uiApplication: UIApplication
+        guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow else { return }
+        guard on else {
+            overlayWindow.isHidden = true
+            DevModeService.removeAction(withTitle: "Show/Hide Build Info Overlay")
+            return
+        }
+
+        overlayWindow.isHidden = false
+        DevModeService.addStandardActions()
     }
 }

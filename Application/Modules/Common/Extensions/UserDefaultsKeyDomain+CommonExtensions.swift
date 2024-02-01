@@ -14,6 +14,10 @@ public extension UserDefaultsKeyDomain {
         case `default`
     }
 
+    enum AudioServiceDefaultsKey: String {
+        case acknowledgedAudioMessagesUnsupported
+    }
+
     enum ContactPairArchiveServiceDefaultsKey: String {
         case contactPairArchive
     }

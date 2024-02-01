@@ -9,7 +9,7 @@
 /* Native */
 import UserNotifications
 
-public class NotificationExtension: UNNotificationServiceExtension {
+public final class NotificationExtension: UNNotificationServiceExtension {
     // MARK: - Properties
 
     public var contentHandler: ((UNNotificationContent) -> Void)?
@@ -27,9 +27,9 @@ public class NotificationExtension: UNNotificationServiceExtension {
         guard let bestAttemptContent else { return }
 
         guard let appGroupDefaults,
-              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.bestAttemptContentUserInfoKey] as? String,
               let encodedData = appGroupDefaults.value(forKey: NotificationExtensionConstants.defaultsKeyName) as? Data,
               let dictionary = try? jsonDecoder.decode([[String]: String].self, from: encodedData),
+              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.bestAttemptContentUserInfoKey] as? String,
               let matchingKey = dictionary.keys.first(where: { $0.contains(userNumberHash) }),
               let fullName = dictionary[matchingKey] else {
             contentHandler(bestAttemptContent)

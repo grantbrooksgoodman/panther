@@ -14,6 +14,10 @@ public extension Persistent {
         self.init(.app(.general(generalKey)))
     }
 
+    convenience init(_ audioServiceKey: UserDefaultsKeyDomain.AudioServiceDefaultsKey) {
+        self.init(.app(.audioService(audioServiceKey)))
+    }
+
     convenience init(_ contactPairArchiveServiceKey: UserDefaultsKeyDomain.ContactPairArchiveServiceDefaultsKey) {
         self.init(.app(.contactPairArchiveService(contactPairArchiveServiceKey)))
     }

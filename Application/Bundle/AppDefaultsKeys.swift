@@ -14,6 +14,7 @@ public extension UserDefaultsKeyDomain {
         /* Add cases here for each new defaults key. */
 
         case general(GeneralAppDefaultsKey)
+        case audioService(AudioServiceDefaultsKey)
         case contactPairArchiveService(ContactPairArchiveServiceDefaultsKey)
         case contactSyncService(ContactSyncServiceDefaultsKey)
         case conversationArchiveService(ConversationArchiveServiceDefaultsKey)
@@ -25,6 +26,9 @@ public extension UserDefaultsKeyDomain {
         public var rawValue: String {
             switch self {
             case let .general(key):
+                return key.rawValue
+
+            case let .audioService(key):
                 return key.rawValue
 
             case let .contactPairArchiveService(key):

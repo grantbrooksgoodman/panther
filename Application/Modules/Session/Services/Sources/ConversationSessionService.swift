@@ -12,13 +12,15 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct ConversationSessionService {
+public final class ConversationSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
+
+    public private(set) var currentConversation: Conversation?
 
     @Persistent(.currentUserID) private var currentUserID: String?
 
@@ -42,6 +44,12 @@ public struct ConversationSessionService {
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    // MARK: - Set Current Conversation
+
+    public func setCurrentConversation(_ currentConversation: Conversation) {
+        self.currentConversation = currentConversation
     }
 
     // MARK: - Update Messages / Last Modified Date

@@ -12,6 +12,7 @@ import SwiftUI
 
 /* 3rd-party */
 import MessageKit
+import Redux
 
 public struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Type Aliases
@@ -31,50 +32,11 @@ public struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> MessagesViewController {
-        let viewController = ChatPageViewController()
-
-        viewController.setConversation(conversation)
-
-        viewController.messagesCollectionView.messageCellDelegate = viewController
-        viewController.messagesCollectionView.messagesDataSource = viewController
-        viewController.messagesCollectionView.messagesDisplayDelegate = viewController
-        viewController.messagesCollectionView.messagesLayoutDelegate = viewController
-
-        configureCollectionViewLayout(viewController)
-        configureBackgroundColor(viewController)
-
-        return viewController
+        @Dependency(\.chatPageViewService) var viewService: ChatPageViewService
+        return viewService.createViewController(conversation)
     }
 
     // MARK: - Update UIViewController
 
     public func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {}
-
-    // MARK: - UI Configuration
-
-    public func configureBackgroundColor(_ viewController: MessagesViewController) {
-        viewController.messagesCollectionView.backgroundColor = .background
-        viewController.messagesCollectionView.backgroundView?.backgroundColor = .background
-        viewController.view.backgroundColor = .background
-    }
-
-    private func configureCollectionViewLayout(_ viewController: MessagesViewController) {
-        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
-
-        layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
-        layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
-        layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
-
-        typealias Floats = AppConstants.CGFloats.ChatPageView
-
-        layout.setMessageOutgoingCellBottomLabelAlignment(.init(
-            textAlignment: .right,
-            textInsets: .init(
-                top: Floats.messageOutgoingCellBottomLabelAlignmentTopTextInset,
-                left: 0,
-                bottom: 0,
-                right: Floats.messageOutgoingCellBottomLabelAlignmentRightTextInset
-            )
-        ))
-    }
 }

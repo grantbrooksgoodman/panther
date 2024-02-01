@@ -18,10 +18,18 @@ public extension AppConstants.CGFloats {
     enum ChatPageView {
         public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
         public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
-
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
 
         public static let displayDelegateMessageStyleCustomLayerCornerRadius: CGFloat = 10
+
+        public static let inputBarLayerBorderWidth: CGFloat = 0.5
+        public static let inputBarLayerCornerRadius: CGFloat = 15
+
+        public static let inputBarSendButtonOnSelectedTransformScaleX: CGFloat = 1.1
+        public static let inputBarSendButtonOnSelectedTransformScaleY: CGFloat = 1.1
+
+        public static let inputBarSendButtonSizeHeight: CGFloat = 30
+        public static let inputBarSendButtonSizeWidth: CGFloat = 30
 
         public static let layoutDelegateCellBottomLabelHeight: CGFloat = 5
         public static let layoutDelegateCellTopLabelHeight: CGFloat = 25
@@ -57,6 +65,15 @@ public extension AppConstants.Colors {
         public static let displayDelegateGenericAvatarViewBackground: Color = .init(uiColor: .clear)
         public static let displayDelegateGenericAvatarViewTint: Color = .init(uiColor: .gray)
 
+        public static let inputBarContentViewRecordLayerBorder: Color = .init(uiColor: .clear)
+        public static let inputBarContentViewTextLayerBorder: Color = .init(uiColor: .systemGray)
+
+        public static let inputBarInputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
+        public static let inputBarInputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
+
+        public static let inputBarSendButtonRecordTint: Color = .init(uiColor: .red)
+        public static let inputBarSendButtonTextTint: Color = .init(uiColor: .systemBlue)
+
         public static let messageSeparatorAttributedDateStringBoldAttributesForeground: Color = .init(uiColor: .gray)
         public static let messageSeparatorAttributedDateStringStandardAttributesForeground: Color = .init(uiColor: .lightGray)
     }
@@ -72,6 +89,15 @@ public extension AppConstants.Strings {
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
 
         public static let displayDelegateGenericAvatarViewImageName = "Contact.png"
+
+        public static let sendButtonAlternateDefaultImageName = "Send (Alternate).png"
+        public static let sendButtonAlternateHighlightedImageName = "Send (Alternate - Highlighted).png"
+
+        public static let sendButtonPrimaryDefaultImageName = "Send.png"
+        public static let sendButtonPrimaryHighlightedImageName = "Send (Highlighted).png"
+
+        public static let recordButtonDefaultImageName = "Record.png"
+        public static let recordButtonHighlightedImageName = "Record (Highlighted).png"
     }
 }
 
