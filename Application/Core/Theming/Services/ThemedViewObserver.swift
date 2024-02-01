@@ -43,7 +43,13 @@ public struct ThemedViewObserver: Observer {
 
         switch observable.key {
         case .themedViewAppearanceChanged:
-            send(.appearanceChanged)
+            @Dependency(\.chatPageStateService) var chatPageState: ChatPageStateService
+            guard chatPageState.isPresented else {
+                send(.appearanceChanged)
+                return
+            }
+
+            chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { send(.appearanceChanged) }
         default: ()
         }
     }

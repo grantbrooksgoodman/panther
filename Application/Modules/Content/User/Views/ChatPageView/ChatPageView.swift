@@ -19,6 +19,10 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
     public typealias UIViewControllerType = MessagesViewController
 
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
+
     // MARK: - Properties
 
     private let conversation: Conversation
@@ -32,8 +36,7 @@ public struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> MessagesViewController {
-        @Dependency(\.chatPageViewService) var viewService: ChatPageViewService
-        return viewService.createViewController(conversation)
+        viewService.createViewController(conversation)
     }
 
     // MARK: - Update UIViewController

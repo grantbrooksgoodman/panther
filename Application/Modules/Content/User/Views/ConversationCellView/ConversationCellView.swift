@@ -126,6 +126,7 @@ public struct ConversationCellView: View {
     private var chatPageView: some View {
         ChatPageView(viewModel.conversation)
             .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
+            .ignoresSafeArea(.keyboard)
             .navigationBarColor(background: .navigationBarBackground, titleText: .navigationBarTitle)
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(viewModel.cellViewData.titleLabelText)

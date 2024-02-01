@@ -66,4 +66,6 @@ public extension Message {
         @Persistent(.currentUserID) var currentUserID: String?
         return fromAccountID == currentUserID
     }
+
+    var isMock: Bool { id == UserContentConstants.newMessageID }
 }

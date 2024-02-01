@@ -47,7 +47,11 @@ public struct ConversationsPageViewService {
 
         switch setCurrentUserResult {
         case let .success(user):
-            if let exception = await updatedCurrentUser() {
+            if let exception = await user.setConversations() {
+                return .failure(exception)
+            }
+
+            if let exception = await user.conversations?.setUsers() {
                 return .failure(exception)
             }
 
@@ -60,17 +64,5 @@ public struct ConversationsPageViewService {
         case let .failure(exception):
             return .failure(exception)
         }
-    }
-
-    public func updatedCurrentUser() async -> Exception? {
-        if let exception = await userSession.currentUser?.setConversations() {
-            return exception
-        }
-
-        if let exception = await userSession.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
-            return exception
-        }
-
-        return nil
     }
 }

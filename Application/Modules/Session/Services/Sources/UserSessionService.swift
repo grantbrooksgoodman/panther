@@ -16,6 +16,7 @@ import Redux
 public final class UserSessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.networking) private var networking: Networking
@@ -288,6 +289,8 @@ public final class UserSessionService {
             )
 
             Observables.updatedCurrentUser.trigger()
+            chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
+
             isUpdatingCurrentUser = false
             return nil
 

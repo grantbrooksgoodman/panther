@@ -37,7 +37,7 @@ public final class ChatPageViewService {
               let conversation = clientSession.conversation.currentConversation else { return true }
 
         guard currentUser.canSendAudioMessages else { return audioService.acknowledgedAudioMessagesUnsupported ?? false }
-        guard let users = conversation.users else { return conversation.id.key != "EMPTY" /* TODO: Audit this. */ }
+        guard let users = conversation.users else { return !conversation.isMock /* TODO: Audit this. */ }
         return !users.allSatisfy { currentUser.canSendAudioMessages(to: $0) }
     }
 
@@ -52,6 +52,7 @@ public final class ChatPageViewService {
         viewController.messagesCollectionView.messagesDataSource = viewController
         viewController.messagesCollectionView.messagesDisplayDelegate = viewController
         viewController.messagesCollectionView.messagesLayoutDelegate = viewController
+        viewController.messageInputBar.delegate = viewController
 
         viewController.scrollsToLastItemOnKeyboardBeginsEditing = true
         viewController.showMessageTimestampOnSwipeLeft = true
@@ -115,7 +116,7 @@ public final class ChatPageViewService {
         inputBar.inputTextView.layer.borderWidth = Floats.inputBarLayerBorderWidth
         inputBar.inputTextView.layer.cornerRadius = Floats.inputBarLayerCornerRadius
 
-        //        inputBar.inputTextView.delegate = self
+        inputBar.inputTextView.delegate = viewController
         inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         inputBar.inputTextView.tintColor = .accent
 
@@ -140,6 +141,12 @@ public final class ChatPageViewService {
     }
 
     // MARK: - Auxiliary
+
+    public func reloadCollectionView() {
+        Task { @MainActor in
+            viewController?.messagesCollectionView.reloadDataAndKeepOffset()
+        }
+    }
 
     private func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
         guard forRecording else {

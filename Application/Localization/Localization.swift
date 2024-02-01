@@ -15,6 +15,8 @@ public enum Localization {
     // MARK: - Properties
 
     public static var localizedStrings: [String: [String: String]] {
+        // FIXME: Experienced EXC_BREAKPOINT crash in Simulator here from chatPageMessageSeparatorAttributedDateString getter.
+        // Consider using commonPropertyLists to take advantage of the cache.
         @Dependency(\.mainBundle) var mainBundle: Bundle
         guard let filePath = mainBundle.url(forResource: "LocalizedStrings", withExtension: "plist"),
               let data = try? Data(contentsOf: filePath),

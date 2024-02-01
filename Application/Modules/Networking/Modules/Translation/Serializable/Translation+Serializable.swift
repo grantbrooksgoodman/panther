@@ -53,6 +53,7 @@ extension Translation: Serializable {
                 return .success(decoded)
             }
 
+            // FIXME: Experienced crash here. Consider using await MainActor.run.
             if let archivedTranslation = TranslationArchiver.getFromArchive(
                 withReference: hash,
                 languagePair: data.languagePair

@@ -18,6 +18,10 @@ public extension AppConstants.CGFloats {
     enum ChatPageView {
         public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
         public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
+
+        public static let dataSourceCellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
+        public static let dataSourceCellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
+
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
 
         public static let displayDelegateMessageStyleCustomLayerCornerRadius: CGFloat = 10
@@ -31,7 +35,7 @@ public extension AppConstants.CGFloats {
         public static let inputBarSendButtonSizeHeight: CGFloat = 30
         public static let inputBarSendButtonSizeWidth: CGFloat = 30
 
-        public static let layoutDelegateCellBottomLabelHeight: CGFloat = 5
+        public static let layoutDelegateCellBottomLabelHeight: CGFloat = 20
         public static let layoutDelegateCellTopLabelHeight: CGFloat = 25
         public static let layoutDelegateCellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
         public static let layoutDelegateMessageTopLabelHeight: CGFloat = 15
@@ -56,6 +60,9 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
+        public static let dataSourceCellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
+        public static let dataSourceCellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+
         public static let dataSourceCurrentUserAudioTintColor: Color = .init(uiColor: .white)
         public static let dataSourceMessageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
 

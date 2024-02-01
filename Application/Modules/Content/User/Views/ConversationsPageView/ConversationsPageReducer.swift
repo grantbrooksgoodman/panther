@@ -42,7 +42,6 @@ public struct ConversationsPageReducer: Reducer {
     public enum Feedback {
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case updatedCurrentUserReturned(Exception?)
     }
 
     // MARK: - State
@@ -131,10 +130,7 @@ public struct ConversationsPageReducer: Reducer {
             state.viewID = UUID()
 
         case .updatedCurrentUser:
-            return .task {
-                let result = await viewService.updatedCurrentUser()
-                return .updatedCurrentUserReturned(result)
-            }
+            state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? state.conversations
         }
 
         return .none
@@ -157,15 +153,6 @@ public struct ConversationsPageReducer: Reducer {
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
-
-        case let .updatedCurrentUserReturned(exception):
-            guard let exception else {
-                let conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
-                state.conversations = conversations ?? state.conversations
-                return .none
-            }
-
-            Logger.log(exception, with: .toast())
         }
 
         return .none

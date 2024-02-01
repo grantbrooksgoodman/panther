@@ -19,12 +19,16 @@ public final class ChatPageViewController: MessagesViewController {
 
     private typealias Floats = AppConstants.CGFloats.ChatPageView
 
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+
     // MARK: - Properties
 
-    public var conversation: Conversation? {
-        @Dependency(\.clientSession.conversation.currentConversation) var currentConversation: Conversation?
-        return currentConversation
-    }
+    /// A convenience property linked to the client session's `currentConversation` value.
+    public var conversation: Conversation? { currentConversation }
 
     // MARK: - Init
 
@@ -48,6 +52,7 @@ public final class ChatPageViewController: MessagesViewController {
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        chatPageState.setIsPresented(true)
         messagesCollectionView.scrollToLastItem(animated: true)
     }
 
@@ -56,6 +61,12 @@ public final class ChatPageViewController: MessagesViewController {
 
         @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
         toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
+    }
+
+    override public func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        chatPageState.setIsPresented(false)
     }
 
     // MARK: - UICollectionView
@@ -99,15 +110,7 @@ public final class ChatPageViewController: MessagesViewController {
     // MARK: - Auxiliary
 
     private func toggleBuildInfoOverlay(on: Bool) {
-        @Dependency(\.uiApplication) var uiApplication: UIApplication
         guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow else { return }
-        guard on else {
-            overlayWindow.isHidden = true
-            DevModeService.removeAction(withTitle: "Show/Hide Build Info Overlay")
-            return
-        }
-
-        overlayWindow.isHidden = false
-        DevModeService.addStandardActions()
+        overlayWindow.isHidden = !on
     }
 }

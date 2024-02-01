@@ -36,6 +36,7 @@ public final class ConversationSessionService {
 
         var appendedMessages = conversation.messages ?? []
         appendedMessages.append(contentsOf: messages)
+        appendedMessages = appendedMessages.filter { !$0.isMock }.sortedBySentDate
 
         switch await conversation.updateValue(appendedMessages, forKey: .messages) {
         case let .success(conversation):
@@ -49,7 +50,7 @@ public final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     public func setCurrentConversation(_ currentConversation: Conversation) {
-        self.currentConversation = currentConversation
+        self.currentConversation = currentConversation.withMessagesSortedBySentDate
     }
 
     // MARK: - Update Messages / Last Modified Date

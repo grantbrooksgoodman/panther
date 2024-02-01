@@ -17,6 +17,12 @@ public struct ConversationsPageObserver: Observer {
 
     public typealias R = ConversationsPageReducer
 
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
+
     // MARK: - Properties
 
     public let id = UUID()
@@ -52,7 +58,13 @@ public struct ConversationsPageObserver: Observer {
             send(.updatedContactPairArchive)
 
         case .updatedCurrentUser:
-            send(.updatedCurrentUser)
+            guard chatPageState.isPresented else {
+                updateConversations()
+                return
+            }
+
+            chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateCurrentUser) { send(.updatedCurrentUser) }
+            chatPageState.addEffectUponIsWaitingToUpdateConversations(changedTo: true, id: .updateConversations) { updateConversations() }
 
         default: ()
         }
@@ -61,6 +73,33 @@ public struct ConversationsPageObserver: Observer {
     public func send(_ action: R.Action) {
         Task { @MainActor in
             viewModel.send(action)
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func updateConversations() {
+        Task { @MainActor in
+            if let exception = await clientSession.user.currentUser?.setConversations() {
+                Logger.log(exception, with: .toast())
+            }
+
+            if let exception = await clientSession.user.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
+                Logger.log(exception, with: .toast())
+            }
+
+            guard chatPageState.isPresented else {
+                send(.updatedCurrentUser)
+                return
+            }
+
+            if let currentConversation = clientSession.conversation.currentConversation,
+               let updatedConversation = clientSession.user.currentUser?.conversations?.first(where: { $0.id.key == currentConversation.id.key }) {
+                clientSession.conversation.setCurrentConversation(updatedConversation)
+                chatPageViewService.reloadCollectionView()
+            }
+
+            chatPageState.setIsWaitingToUpdateConversations(false)
         }
     }
 }

@@ -18,6 +18,7 @@ public enum LocalizedStringKey: String {
     case copy
 
     case delete
+    case delivered
     case dismiss
     case done
 
@@ -29,6 +30,7 @@ public enum LocalizedStringKey: String {
     case noInternetTitle
     case noResults
 
+    case read
     case reportBug
     case somethingWentWrong
     case tapToReport

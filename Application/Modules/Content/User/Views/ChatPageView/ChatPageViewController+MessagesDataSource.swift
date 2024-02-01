@@ -44,11 +44,39 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Cell Bottom Label Attributed Text
 
-    // TODO: Implement this.
     public func cellBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
-    ) -> NSAttributedString? { return nil }
+    ) -> NSAttributedString? {
+        guard let conversation,
+              let messages = conversation.messages,
+              let message = message as? Message,
+              indexPath.section == messages.count - 1,
+              message.isFromCurrentUser,
+              !message.isMock else { return nil }
+
+        let boldAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: Floats.dataSourceCellBottomLabelAttributedTextBoldAttributesSystemFontSize),
+            .foregroundColor: UIColor(Colors.dataSourceCellBottomLabelAttributedTextBoldAttributesForeground),
+        ]
+
+        guard let readDate = message.readDate else {
+            return .init(
+                string: Localized(.delivered).wrappedValue,
+                attributes: boldAttributes
+            )
+        }
+
+        let readString = "\(Localized(.read).wrappedValue) \(readDate.formattedShortString)"
+        return readString.attributed(
+            mainAttributes: [
+                .font: UIFont.systemFont(ofSize: Floats.dataSourceCellBottomLabelAttributedTextStandardAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.dataSourceCellBottomLabelAttributedTextStandardAttributesForeground),
+            ],
+            alternateAttributes: boldAttributes,
+            alternateAttributeRange: [Localized(.read).wrappedValue]
+        )
+    }
 
     // MARK: - Cell Top Label Attributed Text
 
@@ -65,7 +93,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     public func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
         guard let message = message as? Message else { return }
-        cell.playButton.isEnabled = message.id != "NEW" // TODO: Audit this.
+        cell.playButton.isEnabled = !message.isMock // TODO: Audit this.
 
         guard message.isFromCurrentUser else {
             cell.durationLabel.textColor = .accent
@@ -152,6 +180,6 @@ extension ChatPageViewController: MessagesDataSource {
     // MARK: - Number of Sections
 
     public func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
-        return (conversation?.messages ?? []).count
+        (conversation?.messages ?? []).count
     }
 }

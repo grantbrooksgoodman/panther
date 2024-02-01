@@ -25,8 +25,10 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
         guard let messages = conversation?.messages,
-              messages.count > indexPath.section else { return 0 }
-        return indexPath.section == messages.count - 1 ? Floats.layoutDelegateCellBottomLabelHeight : 0
+              let message = message as? Message,
+              indexPath.section == messages.count - 1,
+              message.isFromCurrentUser else { return 0 }
+        return Floats.layoutDelegateCellBottomLabelHeight
     }
 
     // MARK: - Cell Top Label Height
