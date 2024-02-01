@@ -622,6 +622,161 @@
 		<key>zh</key>
 		<string>删除</string>
 	</dict>
+	<key>delivered</key>
+	<dict>
+		<key>af</key>
+		<string>Afgelewer</string>
+		<key>ar</key>
+		<string>تم التوصيل</string>
+		<key>az</key>
+		<string>Çatdırılmış</string>
+		<key>be</key>
+		<string>Дастаўлены</string>
+		<key>bg</key>
+		<string>Доставено</string>
+		<key>bn</key>
+		<string>বিতরণ করা হয়েছে</string>
+		<key>bs</key>
+		<string>Isporučeno</string>
+		<key>ca</key>
+		<string>Lliurat</string>
+		<key>cs</key>
+		<string>Doručeno</string>
+		<key>cy</key>
+		<string>Wedi&apos;i gyflwyno</string>
+		<key>da</key>
+		<string>Leveret</string>
+		<key>de</key>
+		<string>Geliefert</string>
+		<key>el</key>
+		<string>Παραδόθηκε</string>
+		<key>en</key>
+		<string>Delivered</string>
+		<key>eo</key>
+		<string>Liverita</string>
+		<key>es</key>
+		<string>Entregado</string>
+		<key>et</key>
+		<string>Kohale toimetatud</string>
+		<key>eu</key>
+		<string>Entregatua</string>
+		<key>fa</key>
+		<string>تحویل داده شده</string>
+		<key>fi</key>
+		<string>Toimitettu</string>
+		<key>fr</key>
+		<string>Livré</string>
+		<key>ga</key>
+		<string>Seachadadh</string>
+		<key>gd</key>
+		<string>Air a lìbhrigeadh</string>
+		<key>gl</key>
+		<string>Entregado</string>
+		<key>gu</key>
+		<string>વિતરિત</string>
+		<key>he</key>
+		<string>נמסר</string>
+		<key>hi</key>
+		<string>पहुंचा दिया</string>
+		<key>hr</key>
+		<string>Isporučeno</string>
+		<key>ht</key>
+		<string>Livre</string>
+		<key>hu</key>
+		<string>Szállítva</string>
+		<key>hy</key>
+		<string>Հանձնվել է</string>
+		<key>id</key>
+		<string>Terkirim</string>
+		<key>is</key>
+		<string>Afhent</string>
+		<key>it</key>
+		<string>Consegnato</string>
+		<key>ja</key>
+		<string>配達済み</string>
+		<key>ka</key>
+		<string>Მიწოდებული</string>
+		<key>kk</key>
+		<string>Жеткізілген</string>
+		<key>kn</key>
+		<string>ವಿತರಿಸಲಾಗಿದೆ</string>
+		<key>ko</key>
+		<string>배달됨</string>
+		<key>ky</key>
+		<string>Жеткирүү</string>
+		<key>lt</key>
+		<string>Pristatyta</string>
+		<key>mg</key>
+		<string>Nafahana</string>
+		<key>mi</key>
+		<string>Kua tukuna</string>
+		<key>mk</key>
+		<string>Доставено</string>
+		<key>ml</key>
+		<string>എത്തിച്ചു</string>
+		<key>mn</key>
+		<string>Хүргэсэн</string>
+		<key>mt</key>
+		<string>Mogħtija</string>
+		<key>ne</key>
+		<string>डेलिभर गरियो</string>
+		<key>nl</key>
+		<string>Geleverd</string>
+		<key>no</key>
+		<string>Levert</string>
+		<key>pa</key>
+		<string>ਡਿਲੀਵਰ ਕੀਤਾ</string>
+		<key>pl</key>
+		<string>Dostarczony</string>
+		<key>pt</key>
+		<string>Entregue</string>
+		<key>ro</key>
+		<string>Livrat</string>
+		<key>ru</key>
+		<string>Доставленный</string>
+		<key>si</key>
+		<string>භාර දුන්නා</string>
+		<key>sk</key>
+		<string>Doručené</string>
+		<key>sl</key>
+		<string>Dostavljeno</string>
+		<key>sq</key>
+		<string>Dorëzuar</string>
+		<key>sr</key>
+		<string>Испоручена</string>
+		<key>su</key>
+		<string>Dihaturkeun</string>
+		<key>sv</key>
+		<string>Levererad</string>
+		<key>sw</key>
+		<string>Imewasilishwa</string>
+		<key>ta</key>
+		<string>வழங்கப்பட்டது</string>
+		<key>te</key>
+		<string>పంపిణీ చేయబడింది</string>
+		<key>tg</key>
+		<string>Супурд</string>
+		<key>th</key>
+		<string>ส่ง</string>
+		<key>tl</key>
+		<string>Naihatid</string>
+		<key>tr</key>
+		<string>Teslim edilmiş</string>
+		<key>tt</key>
+		<string>Тапшырылды</string>
+		<key>uk</key>
+		<string>Доставлено</string>
+		<key>ur</key>
+		<string>پہنچایا</string>
+		<key>uz</key>
+		<string>Yetkazib berildi</string>
+		<key>vi</key>
+		<string>Đã giao hàng</string>
+		<key>yi</key>
+		<string>איבערגעגעבן</string>
+		<key>zh</key>
+		<string>发表</string>
+	</dict>
 	<key>dismiss</key>
 	<dict>
 		<key>af</key>
@@ -1396,6 +1551,161 @@
 		<string>קייפל</string>
 		<key>zh</key>
 		<string>多种的</string>
+	</dict>
+	<key>new_message</key>
+	<dict>
+		<key>af</key>
+		<string>Nuwe Boodskap</string>
+		<key>ar</key>
+		<string>رسالة جديدة</string>
+		<key>az</key>
+		<string>Yeni Mesaj</string>
+		<key>be</key>
+		<string>Новае Паведамленне</string>
+		<key>bg</key>
+		<string>Ново Съобщение</string>
+		<key>bn</key>
+		<string>নতুন বার্তা</string>
+		<key>bs</key>
+		<string>Nova Poruka</string>
+		<key>ca</key>
+		<string>Nou Missatge</string>
+		<key>cs</key>
+		<string>Nová Zpráva</string>
+		<key>cy</key>
+		<string>Neges Newydd</string>
+		<key>da</key>
+		<string>Ny Besked</string>
+		<key>de</key>
+		<string>Neue Nachricht</string>
+		<key>el</key>
+		<string>Νέο Μήνυμα</string>
+		<key>en</key>
+		<string>New Message</string>
+		<key>eo</key>
+		<string>Nova Mesaĝo</string>
+		<key>es</key>
+		<string>Nuevo Mensaje</string>
+		<key>et</key>
+		<string>Uus Sõnum</string>
+		<key>eu</key>
+		<string>Mezu Berria</string>
+		<key>fa</key>
+		<string>پیام جدید</string>
+		<key>fi</key>
+		<string>Uusi Viesti</string>
+		<key>fr</key>
+		<string>Nouveau Message</string>
+		<key>ga</key>
+		<string>Teachtaireacht Nua</string>
+		<key>gd</key>
+		<string>Teachdaireachd Ùr</string>
+		<key>gl</key>
+		<string>Nova Mensaxe</string>
+		<key>gu</key>
+		<string>નવો સંદેશ</string>
+		<key>he</key>
+		<string>הודעה חדשה</string>
+		<key>hi</key>
+		<string>नया संदेश</string>
+		<key>hr</key>
+		<string>Nova Poruka</string>
+		<key>ht</key>
+		<string>Nouvo Mesaj</string>
+		<key>hu</key>
+		<string>Új Üzenet</string>
+		<key>hy</key>
+		<string>Նոր Հաղորդագրություն</string>
+		<key>id</key>
+		<string>Pesan Baru</string>
+		<key>is</key>
+		<string>Ný Skilaboð</string>
+		<key>it</key>
+		<string>Nuovo Messaggio</string>
+		<key>ja</key>
+		<string>新しいメッセージ</string>
+		<key>ka</key>
+		<string>Ახალი Შეტყობინება</string>
+		<key>kk</key>
+		<string>Жаңа Хабарлама</string>
+		<key>kn</key>
+		<string>ಹೊಸ ಸಂದೇಶ</string>
+		<key>ko</key>
+		<string>새로운 메시지</string>
+		<key>ky</key>
+		<string>Жаңы Кат</string>
+		<key>lt</key>
+		<string>Nauja Žinutė</string>
+		<key>mg</key>
+		<string>Hafatra Vaovao</string>
+		<key>mi</key>
+		<string>Karere Hou</string>
+		<key>mk</key>
+		<string>Нова Порака</string>
+		<key>ml</key>
+		<string>പുതിയ സന്ദേശം</string>
+		<key>mn</key>
+		<string>Шинэ Мессеж</string>
+		<key>mt</key>
+		<string>Messaġġ Ġdid</string>
+		<key>ne</key>
+		<string>नयाँ सन्देश</string>
+		<key>nl</key>
+		<string>Nieuw Bericht</string>
+		<key>no</key>
+		<string>Ny Melding</string>
+		<key>pa</key>
+		<string>ਨਵਾਂ ਸੁਨੇਹਾ</string>
+		<key>pl</key>
+		<string>Nowa Wiadomość</string>
+		<key>pt</key>
+		<string>Nova Mensagem</string>
+		<key>ro</key>
+		<string>Mesaj Nou</string>
+		<key>ru</key>
+		<string>Новое Сообщение</string>
+		<key>si</key>
+		<string>නව පණිවිඩය</string>
+		<key>sk</key>
+		<string>Nová Správa</string>
+		<key>sl</key>
+		<string>Novo Sporočilo</string>
+		<key>sq</key>
+		<string>Mesazh i ri</string>
+		<key>sr</key>
+		<string>Нова Порука</string>
+		<key>su</key>
+		<string>Pesen Anyar</string>
+		<key>sv</key>
+		<string>Nytt Meddelande</string>
+		<key>sw</key>
+		<string>Ujumbe Mpya</string>
+		<key>ta</key>
+		<string>புதிய தகவல்</string>
+		<key>te</key>
+		<string>కొత్త సందేశం</string>
+		<key>tg</key>
+		<string>Паёми Нав</string>
+		<key>th</key>
+		<string>ข้อความใหม่</string>
+		<key>tl</key>
+		<string>Bagong Mensahe</string>
+		<key>tr</key>
+		<string>Yeni Mesaj</string>
+		<key>tt</key>
+		<string>Яңа Хәбәр</string>
+		<key>uk</key>
+		<string>Нове Повідомлення</string>
+		<key>ur</key>
+		<string>نیا پیغام</string>
+		<key>uz</key>
+		<string>Yangi Xabar</string>
+		<key>vi</key>
+		<string>Tin nhắn mới</string>
+		<key>yi</key>
+		<string>נייע מעסעד</string>
+		<key>zh</key>
+		<string>新消息</string>
 	</dict>
 	<key>no_email</key>
 	<dict>
@@ -2307,6 +2617,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>没有结果</string>
 	</dict>
+	<key>read</key>
+	<dict>
+		<key>af</key>
+		<string>Gesien</string>
+		<key>ar</key>
+		<string>مرئي</string>
+		<key>az</key>
+		<string>Görkəmli</string>
+		<key>be</key>
+		<string>Бачылі</string>
+		<key>bg</key>
+		<string>Видяно</string>
+		<key>bn</key>
+		<string>দেখা হয়েছে</string>
+		<key>bs</key>
+		<string>Seen</string>
+		<key>ca</key>
+		<string>Veure</string>
+		<key>cs</key>
+		<string>Vidět</string>
+		<key>cy</key>
+		<string>Welech</string>
+		<key>da</key>
+		<string>Set</string>
+		<key>de</key>
+		<string>Gesehen</string>
+		<key>el</key>
+		<string>Βλέπεται</string>
+		<key>en</key>
+		<string>Read</string>
+		<key>eo</key>
+		<string>Vidita</string>
+		<key>es</key>
+		<string>Visto</string>
+		<key>et</key>
+		<string>Nähtud</string>
+		<key>eu</key>
+		<string>Ikusita</string>
+		<key>fa</key>
+		<string>مشاهده گردید</string>
+		<key>fi</key>
+		<string>Nähty</string>
+		<key>fr</key>
+		<string>Vue</string>
+		<key>ga</key>
+		<string>Feicthe</string>
+		<key>gd</key>
+		<string>Air fhaicinn</string>
+		<key>gl</key>
+		<string>Visto</string>
+		<key>gu</key>
+		<string>જોયું</string>
+		<key>he</key>
+		<string>נראה</string>
+		<key>hi</key>
+		<string>देखा गया</string>
+		<key>hr</key>
+		<string>Viđeno</string>
+		<key>ht</key>
+		<string>Wè</string>
+		<key>hu</key>
+		<string>Látott</string>
+		<key>hy</key>
+		<string>Տեսած</string>
+		<key>id</key>
+		<string>Terlihat</string>
+		<key>is</key>
+		<string>Séð</string>
+		<key>it</key>
+		<string>Visto</string>
+		<key>ja</key>
+		<string>見た</string>
+		<key>ka</key>
+		<string>Ნახეს</string>
+		<key>kk</key>
+		<string>Көрінген</string>
+		<key>kn</key>
+		<string>ನೋಡಿದೆ</string>
+		<key>ko</key>
+		<string>본</string>
+		<key>ky</key>
+		<string>Көрүлгөн</string>
+		<key>lt</key>
+		<string>Matytas</string>
+		<key>mg</key>
+		<string>Nahita</string>
+		<key>mi</key>
+		<string>Ka kitea</string>
+		<key>mk</key>
+		<string>Видено</string>
+		<key>ml</key>
+		<string>കണ്ടു</string>
+		<key>mn</key>
+		<string>Төлөөлөж чадна</string>
+		<key>mt</key>
+		<string>Ara</string>
+		<key>ne</key>
+		<string>देखिनु</string>
+		<key>nl</key>
+		<string>Gezien</string>
+		<key>no</key>
+		<string>Sett</string>
+		<key>pa</key>
+		<string>ਦੇਖਿਆ</string>
+		<key>pl</key>
+		<string>Widziany</string>
+		<key>pt</key>
+		<string>Visto</string>
+		<key>ro</key>
+		<string>Văzut</string>
+		<key>ru</key>
+		<string>Видимый</string>
+		<key>si</key>
+		<string>දැක ඇත</string>
+		<key>sk</key>
+		<string>Videné</string>
+		<key>sl</key>
+		<string>Videno</string>
+		<key>sq</key>
+		<string>Shihet</string>
+		<key>sr</key>
+		<string>Сеен</string>
+		<key>su</key>
+		<string>Katempo</string>
+		<key>sv</key>
+		<string>Sett</string>
+		<key>sw</key>
+		<string>Kuonekana</string>
+		<key>ta</key>
+		<string>பார்த்தேன்</string>
+		<key>te</key>
+		<string>చూసింది</string>
+		<key>tg</key>
+		<string>Дида</string>
+		<key>th</key>
+		<string>เห็น</string>
+		<key>tl</key>
+		<string>Nakita</string>
+		<key>tr</key>
+		<string>Görülen</string>
+		<key>tt</key>
+		<string>Күренде</string>
+		<key>uk</key>
+		<string>Бачили</string>
+		<key>ur</key>
+		<string>دیکھا</string>
+		<key>uz</key>
+		<string>Ko&apos;rilgan</string>
+		<key>vi</key>
+		<string>Đã xem</string>
+		<key>yi</key>
+		<string>געזען</string>
+		<key>zh</key>
+		<string>见过</string>
+	</dict>
 	<key>report_bug</key>
 	<dict>
 		<key>af</key>
@@ -2926,6 +3391,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>סעלעקטירן פאַך קאָד</string>
 		<key>zh</key>
 		<string>选择通话代码</string>
+	</dict>
+	<key>select_language</key>
+	<dict>
+		<key>af</key>
+		<string>Kies Taal</string>
+		<key>ar</key>
+		<string>اختار اللغة</string>
+		<key>az</key>
+		<string>Dil Seçin</string>
+		<key>be</key>
+		<string>Выберыце Мову</string>
+		<key>bg</key>
+		<string>Избери Език</string>
+		<key>bn</key>
+		<string>ভাষা নির্বাচন কর</string>
+		<key>bs</key>
+		<string>Odaberite Jezik</string>
+		<key>ca</key>
+		<string>Escolliu L&apos;idioma</string>
+		<key>cs</key>
+		<string>Zvolte Jazyk</string>
+		<key>cy</key>
+		<string>Dewiswch Iaith</string>
+		<key>da</key>
+		<string>Vælg Sprog</string>
+		<key>de</key>
+		<string>Sprache Auswählen</string>
+		<key>el</key>
+		<string>Επιλέξτε Γλώσσα</string>
+		<key>en</key>
+		<string>Select Language</string>
+		<key>eo</key>
+		<string>Elektu Lingvon</string>
+		<key>es</key>
+		<string>Seleccione el idioma</string>
+		<key>et</key>
+		<string>Vali Keel</string>
+		<key>eu</key>
+		<string>Hautatu Hizkuntza</string>
+		<key>fa</key>
+		<string>زبان را انتخاب کنید</string>
+		<key>fi</key>
+		<string>Valitse Kieli</string>
+		<key>fr</key>
+		<string>Choisir la langue</string>
+		<key>ga</key>
+		<string>Roghnaigh Teanga</string>
+		<key>gd</key>
+		<string>Tagh Cànan</string>
+		<key>gl</key>
+		<string>Seleccione Idioma</string>
+		<key>gu</key>
+		<string>ભાષા પસંદ કરો</string>
+		<key>he</key>
+		<string>בחר שפה</string>
+		<key>hi</key>
+		<string>भाषा चुने</string>
+		<key>hr</key>
+		<string>Izaberi Jezik</string>
+		<key>ht</key>
+		<string>Chwazi Lang</string>
+		<key>hu</key>
+		<string>Válasszon Nyelvet</string>
+		<key>hy</key>
+		<string>Ընտրել Լեզուն</string>
+		<key>id</key>
+		<string>Pilih Bahasa</string>
+		<key>is</key>
+		<string>Veldu Tungumál</string>
+		<key>it</key>
+		<string>Seleziona la lingua</string>
+		<key>ja</key>
+		<string>言語を選択する</string>
+		<key>ka</key>
+		<string>Აირჩიეთ Ენა</string>
+		<key>kk</key>
+		<string>Тіл Таңдаңыз</string>
+		<key>kn</key>
+		<string>ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+		<key>ko</key>
+		<string>언어 선택</string>
+		<key>ky</key>
+		<string>Тил Тандаңыз</string>
+		<key>lt</key>
+		<string>Pasirinkite Kalbą</string>
+		<key>mg</key>
+		<string>Select Language</string>
+		<key>mi</key>
+		<string>Tīpakohia te Reo</string>
+		<key>mk</key>
+		<string>Одбери Јазик</string>
+		<key>ml</key>
+		<string>ഭാഷ തിരഞ്ഞെടുക്കുക</string>
+		<key>mn</key>
+		<string>Хэл Сонгох</string>
+		<key>mt</key>
+		<string>Agħżel Lingwa</string>
+		<key>ne</key>
+		<string>भाषा छनोट गर्नुस</string>
+		<key>nl</key>
+		<string>Selecteer Taal</string>
+		<key>no</key>
+		<string>Velg Språk</string>
+		<key>pa</key>
+		<string>ਭਾਸ਼ਾ ਚੁਣੋ</string>
+		<key>pl</key>
+		<string>Wybierz Język</string>
+		<key>pt</key>
+		<string>Selecione o idioma</string>
+		<key>ro</key>
+		<string>Selecteaza Limba</string>
+		<key>ru</key>
+		<string>Выберите Язык</string>
+		<key>si</key>
+		<string>භාෂාව තෝරන්න</string>
+		<key>sk</key>
+		<string>Zvoľ Jazyk</string>
+		<key>sl</key>
+		<string>Izberi Jezik</string>
+		<key>sq</key>
+		<string>Zgjidh Gjuhen</string>
+		<key>sr</key>
+		<string>Изаберите Језик</string>
+		<key>su</key>
+		<string>Pilih Basa</string>
+		<key>sv</key>
+		<string>Välj Språk</string>
+		<key>sw</key>
+		<string>Chagua Lugha</string>
+		<key>ta</key>
+		<string>மொழியை தேர்ந்தெடுங்கள்</string>
+		<key>te</key>
+		<string>భాషను ఎంచుకోండి</string>
+		<key>tg</key>
+		<string>Забонро интихоб кунед</string>
+		<key>th</key>
+		<string>เลือกภาษา</string>
+		<key>tl</key>
+		<string>Piliin ang Wika</string>
+		<key>tr</key>
+		<string>Dil Seçin</string>
+		<key>tt</key>
+		<string>Телне Сайлагыз</string>
+		<key>uk</key>
+		<string>Оберіть Мову</string>
+		<key>ur</key>
+		<string>زبان منتخب کریں۔</string>
+		<key>uz</key>
+		<string>Tilni Tanlang</string>
+		<key>vi</key>
+		<string>Chọn ngôn ngữ</string>
+		<key>yi</key>
+		<string>אויסקלייַבן שפּראַך</string>
+		<key>zh</key>
+		<string>选择语言</string>
 	</dict>
 	<key>send_feedback</key>
 	<dict>

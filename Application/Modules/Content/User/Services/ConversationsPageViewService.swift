@@ -51,7 +51,7 @@ public struct ConversationsPageViewService {
                 return .failure(exception)
             }
 
-            if let exception = await user.conversations?.setUsers() {
+            if let exception = await user.conversations?.visibleForCurrentUser.setUsers() {
                 return .failure(exception)
             }
 

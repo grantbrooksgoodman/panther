@@ -71,7 +71,7 @@ public struct InviteLanguagePickerView: View {
 
     private func listView(languageNames: [String: String]) -> some View {
         List {
-            ForEach(languageNames.map(\.key).sorted(), id: \.self) { key in
+            ForEach(languageNames.sorted(by: { $0.value < $1.value }).map(\.key), id: \.self) { key in
                 Button {
                     viewModel.send(.selectedLanguageCodeChanged(key))
                 } label: {

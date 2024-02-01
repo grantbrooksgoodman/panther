@@ -93,10 +93,32 @@ public struct ConversationsPageObserver: Observer {
                 return
             }
 
+            func setCurrentConversationAndReload(_ conversation: Conversation) {
+                clientSession.conversation.setCurrentConversation(conversation)
+                chatPageViewService.reloadCollectionView()
+            }
+
             if let currentConversation = clientSession.conversation.currentConversation,
                let updatedConversation = clientSession.user.currentUser?.conversations?.first(where: { $0.id.key == currentConversation.id.key }) {
-                clientSession.conversation.setCurrentConversation(updatedConversation)
-                chatPageViewService.reloadCollectionView()
+                guard let currentMessages = currentConversation.messages,
+                      let missingMessages = updatedConversation.messages?
+                      .filter({ !currentMessages.contains($0) })
+                      .filter({ !$0.isFromCurrentUser })
+                      .filter({ $0.readDate == nil }),
+                      !missingMessages.isEmpty else {
+                    setCurrentConversationAndReload(updatedConversation)
+                    return
+                }
+
+                let updateReadDateResult = await updatedConversation.updateReadDate(for: missingMessages)
+
+                switch updateReadDateResult {
+                case let .success(conversation):
+                    setCurrentConversationAndReload(conversation)
+
+                case let .failure(exception):
+                    Logger.log(exception, with: .toast())
+                }
             }
 
             chatPageState.setIsWaitingToUpdateConversations(false)

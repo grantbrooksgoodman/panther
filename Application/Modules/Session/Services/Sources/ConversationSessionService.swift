@@ -181,10 +181,11 @@ public final class ConversationSessionService {
             }
 
             guard let currentMessages = conversation.messages?.uniquedByID else {
-                return .failure(.init(
-                    "Messages have not been set.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                if let exception = await conversation.setMessages() {
+                    return .failure(exception)
+                }
+
+                return await updateConversation(conversation)
             }
 
             let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)

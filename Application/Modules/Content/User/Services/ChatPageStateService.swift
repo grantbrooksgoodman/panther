@@ -88,7 +88,7 @@ public final class ChatPageStateService {
 
             Logger.log(
                 .init(
-                    "Executing effects for change of \"isPresented\" to TRUE.",
+                    "Running effects for change of \"isPresented\" to TRUE.",
                     extraParams: ["EnqueuedEffectIDs": uponIsPresentedChangedToTrue.keys.map(\.rawValue)],
                     metadata: [self, #file, #function, #line]
                 ),
@@ -103,7 +103,7 @@ public final class ChatPageStateService {
 
             Logger.log(
                 .init(
-                    "Executing effects for change of \"isPresented\" to FALSE.",
+                    "Running effects for change of \"isPresented\" to FALSE.",
                     extraParams: ["EnqueuedEffectIDs": uponIsPresentedChangedToFalse.keys.map(\.rawValue)],
                     metadata: [self, #file, #function, #line]
                 ),
@@ -122,7 +122,7 @@ public final class ChatPageStateService {
 
             Logger.log(
                 .init(
-                    "Executing effects for change of \"isWaitingToUpdateConversations\" to TRUE.",
+                    "Running effects for change of \"isWaitingToUpdateConversations\" to TRUE.",
                     extraParams: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToTrue.keys.map(\.rawValue)],
                     metadata: [self, #file, #function, #line]
                 ),
@@ -137,7 +137,7 @@ public final class ChatPageStateService {
 
             Logger.log(
                 .init(
-                    "Executing effects for change of \"isWaitingToUpdateConversations\" to FALSE.",
+                    "Running effects for change of \"isWaitingToUpdateConversations\" to FALSE.",
                     extraParams: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToFalse.keys.map(\.rawValue)],
                     metadata: [self, #file, #function, #line]
                 ),
