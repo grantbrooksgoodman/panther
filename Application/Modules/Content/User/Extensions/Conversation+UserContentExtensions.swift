@@ -12,11 +12,11 @@ import Foundation
 public extension Conversation {
     var isMock: Bool { id.key == UserContentConstants.newConversationID }
 
-    var withMessagesSortedBySentDate: Conversation {
+    var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
             id,
             messageIDs: messageIDs,
-            messages: messages?.sortedBySentDate,
+            messages: messages?.sortedByAscendingSentDate,
             lastModifiedDate: lastModifiedDate,
             participants: participants,
             users: users

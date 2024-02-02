@@ -53,6 +53,8 @@ public extension AppConstants.CGFloats {
 
         public static let textCellMessageLabelLeftTextInset: CGFloat = 15
         public static let textCellMessageLabelRightTextInset: CGFloat = 1
+
+        public static let typingIndicatorTimerTimeInterval: CGFloat = 3
     }
 }
 

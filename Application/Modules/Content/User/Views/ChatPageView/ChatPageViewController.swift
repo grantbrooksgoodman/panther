@@ -23,12 +23,15 @@ public final class ChatPageViewController: MessagesViewController {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.inputBarAccessoryViewService) private var inputBarAccessoryViewService: InputBarAccessoryViewService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
     /// A convenience property linked to the client session's `currentConversation` value.
     public var conversation: Conversation? { currentConversation }
+
+    private var typingIndicatorTimer: Timer?
 
     // MARK: - Init
 
@@ -54,6 +57,13 @@ public final class ChatPageViewController: MessagesViewController {
 
         chatPageState.setIsPresented(true)
         messagesCollectionView.scrollToLastItem(animated: true)
+        typingIndicatorTimer = .scheduledTimer(
+            timeInterval: .init(Floats.typingIndicatorTimerTimeInterval),
+            target: self,
+            selector: #selector(toggleTypingIndicator),
+            userInfo: nil,
+            repeats: true
+        )
     }
 
     override public func viewWillDisappear(_ animated: Bool) {
@@ -61,12 +71,20 @@ public final class ChatPageViewController: MessagesViewController {
 
         @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
         toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
+
+        typingIndicatorTimer?.invalidate()
+        typingIndicatorTimer = nil
     }
 
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
         chatPageState.setIsPresented(false)
+        Task {
+            if let exception = await inputBarAccessoryViewService.textViewDidChange(to: "") {
+                Logger.log(exception, with: .toast())
+            }
+        }
     }
 
     // MARK: - UICollectionView
@@ -112,5 +130,20 @@ public final class ChatPageViewController: MessagesViewController {
     private func toggleBuildInfoOverlay(on: Bool) {
         guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow else { return }
         overlayWindow.isHidden = !on
+    }
+
+    @objc
+    private func toggleTypingIndicator() {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let conversation,
+              conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {
+            guard !isTypingIndicatorHidden else { return }
+            setTypingIndicatorViewHidden(true, animated: true)
+            return
+        }
+
+        guard isTypingIndicatorHidden else { return }
+        setTypingIndicatorViewHidden(false, animated: true)
+        messagesCollectionView.scrollToLastItem(animated: true)
     }
 }

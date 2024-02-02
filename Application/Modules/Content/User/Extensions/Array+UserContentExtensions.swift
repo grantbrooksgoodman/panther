@@ -10,5 +10,5 @@
 import Foundation
 
 public extension Array where Element == Message {
-    var sortedBySentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
+    var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
 }

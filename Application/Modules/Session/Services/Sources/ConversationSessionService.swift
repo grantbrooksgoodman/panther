@@ -36,7 +36,7 @@ public final class ConversationSessionService {
 
         var appendedMessages = conversation.messages ?? []
         appendedMessages.append(contentsOf: messages)
-        appendedMessages = appendedMessages.filter { !$0.isMock }.sortedBySentDate
+        appendedMessages = appendedMessages.filter { !$0.isMock }.sortedByAscendingSentDate
 
         switch await conversation.updateValue(appendedMessages, forKey: .messages) {
         case let .success(conversation):
@@ -50,7 +50,7 @@ public final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     public func setCurrentConversation(_ currentConversation: Conversation) {
-        self.currentConversation = currentConversation.withMessagesSortedBySentDate
+        self.currentConversation = currentConversation.withMessagesSortedByAscendingSentDate
     }
 
     // MARK: - Update Messages / Last Modified Date
@@ -157,6 +157,14 @@ public final class ConversationSessionService {
             }
         }
 
+        guard let currentMessages = conversation.messages?.uniquedByID else {
+            if let exception = await conversation.setMessages() {
+                return .failure(exception)
+            }
+
+            return await updateConversation(conversation)
+        }
+
         let messagesKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.messages.rawValue)"
         let getValuesResult = await networking.database.getValues(at: messagesKeyPath)
 
@@ -169,23 +177,15 @@ public final class ConversationSessionService {
                 ))
             }
 
-            var filteredMessageIDs = array.filter { !(conversation.messages?.uniquedByID.map(\.id) ?? conversation.messageIDs).contains($0) }
+            var filteredMessageIDs = array.filter { !currentMessages.map(\.id).contains($0) }
             if filteredMessageIDs.isEmpty {
-                filteredMessageIDs = conversation.messages?.uniquedByID.map(\.id) ?? []
+                filteredMessageIDs = currentMessages.map(\.id)
             }
 
             filteredMessageIDs = filteredMessageIDs.unique
 
             guard !filteredMessageIDs.isEmpty else {
                 return await updateParticipants(conversation)
-            }
-
-            guard let currentMessages = conversation.messages?.uniquedByID else {
-                if let exception = await conversation.setMessages() {
-                    return .failure(exception)
-                }
-
-                return await updateConversation(conversation)
             }
 
             let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)
