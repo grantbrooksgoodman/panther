@@ -14,6 +14,10 @@ import Redux
 import Translator
 
 public struct MessageSessionService {
+    // MARK: - Constants Accessors
+
+    private typealias Constants = ClientSessionConstants
+
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -43,6 +47,8 @@ public struct MessageSessionService {
                 .init(text),
                 with: .init(from: currentUser.languageCode, to: languageCode)
             )
+
+            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.translationDeliveryProgressIncrement)
 
             switch translateResult {
             case let .success(translation):
@@ -166,6 +172,7 @@ public struct MessageSessionService {
         func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
             let addMessagesResult = await clientSession.conversation.addMessages([message], to: conversation)
 
+            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.addMessageDeliveryProgressIncrement)
             clientSession.user.startObservingCurrentUserChanges()
 
             switch addMessagesResult {
@@ -185,12 +192,16 @@ public struct MessageSessionService {
             audioComponents: audioComponents
         )
 
+        clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.createMessageDeliveryProgressIncrement)
+
         switch createMessageResult {
         case let .success(message):
             if let exception = await services.notification.notify(otherUsers, of: message) {
                 clientSession.user.startObservingCurrentUserChanges()
                 return .failure(exception)
             }
+
+            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.notifyDeliveryProgressIncrement)
 
             if let conversation {
                 let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
@@ -200,6 +211,8 @@ public struct MessageSessionService {
                 }
 
                 let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
+
+                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.updateValueDeliveryProgressIncrement)
 
                 switch updateValueResult {
                 case let .success(conversation):
@@ -218,6 +231,7 @@ public struct MessageSessionService {
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )
 
+                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.createConversationDeliveryProgressIncrement)
                 clientSession.user.startObservingCurrentUserChanges()
 
                 switch createConversationResult {

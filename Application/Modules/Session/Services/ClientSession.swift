@@ -16,6 +16,7 @@ public struct ClientSession {
     // MARK: - Properties
 
     public let conversation: ConversationSessionService
+    public let deliveryProgressIndicator: DeliveryProgressIndicator?
     public let message: MessageSessionService
     public let user: UserSessionService
 
@@ -23,10 +24,12 @@ public struct ClientSession {
 
     public init(
         conversation: ConversationSessionService,
+        deliveryProgressIndicator: DeliveryProgressIndicator?,
         message: MessageSessionService,
         user: UserSessionService
     ) {
         self.conversation = conversation
+        self.deliveryProgressIndicator = deliveryProgressIndicator
         self.message = message
         self.user = user
     }

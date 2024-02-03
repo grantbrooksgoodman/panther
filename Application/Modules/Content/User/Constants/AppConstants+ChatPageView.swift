@@ -24,6 +24,15 @@ public extension AppConstants.CGFloats {
 
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
 
+        public static let deliveryProgressAnimationDelaySeconds: CGFloat = 0.5
+        public static let deliveryProgressAnimationDurationSeconds: CGFloat = 0.2
+
+        public static let deliveryProgressTimerProgressIncrement: CGFloat = 0.001
+        public static let deliveryProgressTimerProgressIncrementThreshold: CGFloat = 0.9
+
+        public static let deliveryProgressTimerTimeInterval: CGFloat = 0.01
+        public static let deliveryProgressViewFrameHeight: CGFloat = 2
+
         public static let displayDelegateMessageStyleCustomLayerCornerRadius: CGFloat = 10
 
         public static let inputBarLayerBorderWidth: CGFloat = 0.5
@@ -96,6 +105,8 @@ public extension AppConstants.Strings {
         public static let cellDelegatePhoneNumberSelectionURLString = "tel://"
 
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
+
+        public static let deliveryProgressViewSemanticTag = "DELIVERY_PROGRESS_VIEW"
 
         public static let displayDelegateGenericAvatarViewImageName = "Contact.png"
 

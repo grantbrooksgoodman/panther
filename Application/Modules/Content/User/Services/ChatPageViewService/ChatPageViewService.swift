@@ -24,9 +24,13 @@ public final class ChatPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
+
+    public private(set) var deliveryProgression: DeliveryProgressionService?
 
     private var viewController: ChatPageViewController?
 
@@ -58,9 +62,11 @@ public final class ChatPageViewService {
         viewController.showMessageTimestampOnSwipeLeft = true
 
         self.viewController = viewController
+        deliveryProgression = .init(viewController)
 
         configureCollectionViewLayout()
         configureBackgroundColor()
+        configureDeliveryProgressView()
         configureInitialInputBar()
 
         return viewController
@@ -90,6 +96,26 @@ public final class ChatPageViewService {
                 right: Floats.messageOutgoingCellBottomLabelAlignmentRightTextInset
             )
         ))
+    }
+
+    private func configureDeliveryProgressView() {
+        guard let mainScreen = uiApplication.mainScreen else { return }
+
+        let deliveryProgressView: UIProgressView = .init(
+            frame: .init(
+                x: 0,
+                y: 0,
+                width: mainScreen.bounds.width,
+                height: Floats.deliveryProgressViewFrameHeight
+            )
+        )
+
+        deliveryProgressView.progress = 0
+        deliveryProgressView.progressTintColor = .accent
+        deliveryProgressView.progressViewStyle = .bar
+
+        deliveryProgressView.tag = coreUI.semTag(for: Strings.deliveryProgressViewSemanticTag)
+        viewController?.view.addSubview(deliveryProgressView)
     }
 
     public func configureInitialInputBar() {

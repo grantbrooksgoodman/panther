@@ -32,12 +32,16 @@ public struct InputBarAccessoryViewService {
         addMockMessageToCurrentConversation(text)
 
         toggleSendingUI(inputBar, on: true)
+        chatPageViewService.deliveryProgression?.startAnimatingDeliveryProgress()
+
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
             inConversation: conversation
         )
+
         toggleSendingUI(inputBar, on: false)
+        chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
 
         switch sendTextMessageResult {
         case let .success(conversation):
@@ -101,86 +105,36 @@ public struct InputBarAccessoryViewService {
         }
     }
 
-    // TODO: Not 100% sure we need to get updated participants first.
     private func updateIsTypingForCurrentUser(_ isTyping: Bool) async -> Exception? {
+        @Persistent(.currentUserID) var currentUserID: String?
+
         guard let conversation,
               conversation.participants.count == 2 else { return nil }
 
-        func getUpdatedParticipants() async -> Callback<[Participant], Exception> {
-            @Dependency(\.networking) var networking: Networking
-
-            let keyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)/\(Conversation.SerializationKeys.participants.rawValue)"
-            let getValuesResult = await networking.database.getValues(at: keyPath)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard let array = values as? [String] else {
-                    return .failure(.init(
-                        "Failed to typecast values to array.",
-                        metadata: [self, #file, #function, #line]
-                    ))
-                }
-
-                var decodedParticipants = [Participant]()
-                for encodedParticipant in array {
-                    let decodeResult = await Participant.decode(from: encodedParticipant)
-                    switch decodeResult {
-                    case let .success(participant):
-                        decodedParticipants.append(participant)
-
-                    case let .failure(exception):
-                        return .failure(exception)
-                    }
-                }
-
-                guard !decodedParticipants.isEmpty else {
-                    return .failure(.init(
-                        "Failed to decode participants.",
-                        metadata: [self, #file, #function, #line]
-                    ))
-                }
-
-                return .success(decodedParticipants)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
+        guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUserID }) else {
+            return .init(
+                "Failed to find current user in conversation participants.",
+                metadata: [self, #file, #function, #line]
+            )
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
+        guard isTyping != currentUserParticipant.isTyping else { return nil }
 
-        let getUpdatedParticipantsResult = await getUpdatedParticipants()
+        var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
+        newParticipants.append(.init(
+            userID: currentUserParticipant.userID,
+            hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+            isTyping: isTyping
+        ))
 
-        switch getUpdatedParticipantsResult {
-        case let .success(participants):
-            guard let currentUserParticipant = participants.first(where: { $0.userID == currentUserID }) else {
-                return .init(
-                    "Failed to find current user in conversation participants.",
-                    metadata: [self, #file, #function, #line]
-                )
-            }
+        clientSession.user.stopObservingCurrentUserChanges()
+        let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
+        clientSession.user.startObservingCurrentUserChanges()
 
-            guard isTyping != currentUserParticipant.isTyping else { return nil }
-
-            var newParticipants = participants.filter { $0 != currentUserParticipant }
-            newParticipants.append(.init(
-                userID: currentUserParticipant.userID,
-                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                isTyping: isTyping
-            ))
-
-            clientSession.user.stopObservingCurrentUserChanges()
-            let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-            clientSession.user.startObservingCurrentUserChanges()
-
-            switch updateValueResult {
-            case let .success(conversation):
-                clientSession.conversation.setCurrentConversation(conversation)
-                return nil
-
-            case let .failure(exception):
-                return exception
-            }
+        switch updateValueResult {
+        case let .success(conversation):
+            clientSession.conversation.setCurrentConversation(conversation)
+            return nil
 
         case let .failure(exception):
             return exception
