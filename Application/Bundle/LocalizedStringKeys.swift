@@ -42,6 +42,7 @@ public enum LocalizedStringKey: String {
     case selectLanguage
     case sendFeedback
     case settings
+    case slideToCancel
 
     case sunday
     case monday

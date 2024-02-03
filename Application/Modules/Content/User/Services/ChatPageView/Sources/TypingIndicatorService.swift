@@ -29,6 +29,12 @@ public final class TypingIndicatorService {
         self.viewController = viewController
     }
 
+    // MARK: - Object Lifecycle
+
+    deinit {
+        stopCheckingForTypingIndicatorChanges()
+    }
+
     // MARK: - Public
 
     public func startCheckingForTypingIndicatorChanges() {

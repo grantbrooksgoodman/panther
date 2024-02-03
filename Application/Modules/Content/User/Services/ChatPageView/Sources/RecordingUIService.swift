@@ -1,0 +1,258 @@
+//
+//  RecordingUIService.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 02/02/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+import UIKit
+
+/* 3rd-party */
+import Redux
+
+public final class RecordingUIService {
+    // MARK: - Constants Accessors
+
+    private typealias Colors = AppConstants.Colors.RecordingView
+    private typealias Floats = AppConstants.CGFloats.RecordingView
+    private typealias Strings = AppConstants.Strings.RecordingView
+
+    // MARK: - Dependencies
+
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.commonServices.audio.recording) private var recordingService: RecordingService
+
+    // MARK: - Properties
+
+    private let viewController: ChatPageViewController
+
+    private var durationLabelTimer: Timer?
+    private var recordingDuration = 0
+
+    // MARK: - Computed Properties
+
+    // UILabel
+    private var cancelLabel: UILabel? { recordingView?.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel }
+    private var durationLabel: UILabel? { recordingView?.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel }
+
+    // Other
+    private var imageView: UIImageView? { recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView }
+    private var recordingView: UIView? { viewController.messageInputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag) }
+
+    // MARK: - Init
+
+    public init(_ viewController: ChatPageViewController) {
+        self.viewController = viewController
+    }
+
+    // MARK: - Public
+
+    public func hideRecordingUI() async {
+        await withCheckedContinuation { continuation in
+            Task { @MainActor in
+                UIView.animate(withDuration: Floats.hideAnimationDuration) {
+                    self.viewController.messageInputBar.inputTextView.alpha = 1
+                    self.recordingView?.alpha = 0
+                } completion: { _ in
+                    self.viewController.messageInputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
+                    self.resetSession()
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func showRecordingUI() async {
+        await withCheckedContinuation { continuation in
+            Task { @MainActor in
+                let viewComponents = buildRecordingView()
+
+                let recordingView = viewComponents.view
+                let cancelLabel = viewComponents.cancelLabel
+                let durationLabel = viewComponents.durationLabel
+                let imageView = viewComponents.imageView
+
+                viewController.messageInputBar.contentView.addSubview(recordingView)
+                recordingView.center = viewController.messageInputBar.inputTextView.center
+                recordingView.tag = coreUI.semTag(for: Strings.recordingViewSemanticTag)
+
+                cancelLabel.center.y = recordingView.center.y
+                durationLabel.center.y = recordingView.center.y
+                imageView.center.y = recordingView.center.y
+                durationLabel.center.y = imageView.center.y
+
+                UIView.animate(withDuration: Floats.showAnimationDuration) {
+                    self.viewController.messageInputBar.inputTextView.alpha = 0
+                    recordingView.alpha = 1
+                }
+
+                let offset = cancelLabel.intrinsicContentSize.width + Floats.cancelLabelOffsetIncrement
+                let maxXToOffset = recordingView.frame.maxX - offset
+
+                UIView.animate(
+                    withDuration: Floats.showAnimationDuration,
+                    delay: 0,
+                    options: [.curveEaseIn]
+                ) {
+                    let distanceFromMax = cancelLabel.frame.origin.x - maxXToOffset
+                    for _ in 0 ... Int(distanceFromMax) {
+                        guard cancelLabel.frame.origin.x != maxXToOffset else { return }
+                        cancelLabel.frame.origin.x -= 1
+                    }
+                } completion: { _ in
+                    cancelLabel.frame.origin.x = maxXToOffset
+                    cancelLabel.addShimmerEffect()
+
+                    if self.durationLabelTimer != nil {
+                        self.resetSession()
+                    }
+
+                    self.durationLabelTimer = Timer.scheduledTimer(
+                        timeInterval: 1,
+                        target: self,
+                        selector: #selector(self.animateRecording),
+                        userInfo: nil,
+                        repeats: true
+                    )
+
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    @objc
+    private func animateRecording() {
+        guard /* recordingService.isRecording, */
+            viewController.messageInputBar.sendButton.isRecordButton,
+            let durationLabel,
+            let imageView else {
+            resetSession()
+            return
+        }
+
+        recordingDuration += 1
+
+        durationLabel.text = Float(recordingDuration).durationString
+        durationLabel.frame.size.width = durationLabel.intrinsicContentSize.width
+
+        let recordingImage = UIImage(named: Strings.recordingImageName)
+        let recordingImageFilled = UIImage(named: Strings.recordingFilledImageName)
+
+        UIView.transition(
+            with: imageView,
+            duration: Floats.transitionAnimationDuration,
+            options: .transitionCrossDissolve
+        ) {
+            let isImageFilled = imageView.image == recordingImageFilled
+            imageView.image = isImageFilled ? recordingImage : recordingImageFilled
+        }
+    }
+
+    private func resetSession() {
+        durationLabelTimer?.invalidate()
+        durationLabelTimer = nil
+        recordingDuration = 0
+    }
+
+    // MARK: - View Builders
+
+    private func buildCancelLabel() -> UILabel {
+        let cancelLabel = UILabel()
+        cancelLabel.text = "\(Strings.cancelLabelTextPrefix)\(Localized(.slideToCancel).wrappedValue)"
+
+        cancelLabel.baselineAdjustment = .alignCenters
+        cancelLabel.font = UIFont(name: Strings.cancelLabelFontName, size: Floats.cancelLabelFontSize)
+        cancelLabel.textAlignment = .center
+        cancelLabel.textColor = UIColor(Colors.cancelLabelTextColor)
+
+        cancelLabel.frame.size.width = cancelLabel.intrinsicContentSize.width
+        cancelLabel.frame.size.height = Floats.cancelLabelFrameHeight
+
+        return cancelLabel
+    }
+
+    private func buildDurationLabel() -> UILabel {
+        let durationLabel = UILabel()
+        durationLabel.text = Strings.durationLabelInitialText
+
+        durationLabel.baselineAdjustment = .alignCenters
+        durationLabel.font = UIFont(name: Strings.durationLabelFontName, size: Floats.durationLabelFontSize)
+        durationLabel.textAlignment = .center
+        durationLabel.textColor = UIColor(Colors.durationLabelTextColor)
+
+        durationLabel.frame.size.width = durationLabel.intrinsicContentSize.width
+        durationLabel.frame.size.height = Floats.durationLabelFrameHeight
+
+        return durationLabel
+    }
+
+    private func buildImageView() -> UIImageView {
+        let imageView = UIImageView()
+        imageView.frame = CGRect(
+            origin: .zero,
+            size: .init(
+                width: Floats.imageViewFrameWidth,
+                height: Floats.imageViewFrameHeight
+            )
+        )
+
+        imageView.image = UIImage(named: Strings.recordingImageName)
+        return imageView
+    }
+
+    // swiftlint:disable:next large_tuple
+    private func buildRecordingView() -> (
+        view: UIView,
+        cancelLabel: UILabel,
+        durationLabel: UILabel,
+        imageView: UIImageView
+    ) {
+        let recordingView = UIView()
+        recordingView.backgroundColor = viewController.messageInputBar.inputTextView.backgroundColor
+        recordingView.frame = viewController.messageInputBar.inputTextView.frame
+
+        recordingView.clipsToBounds = true
+        recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
+        recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth
+        recordingView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+
+        let cancelLabel = buildCancelLabel()
+        recordingView.addSubview(cancelLabel)
+        cancelLabel.frame.origin.x = recordingView.frame.maxX
+        cancelLabel.tag = coreUI.semTag(for: Strings.cancelLabelSemanticTag)
+
+        let durationLabel = buildDurationLabel()
+        recordingView.addSubview(durationLabel)
+        durationLabel.frame.origin.x = recordingView.frame.origin.x + durationLabel.intrinsicContentSize.width
+        durationLabel.tag = coreUI.semTag(for: Strings.durationLabelSemanticTag)
+
+        let imageView = buildImageView()
+        recordingView.addSubview(imageView)
+        imageView.frame.origin.x = recordingView.frame.origin.x + Floats.imageViewFrameXOriginIncrement
+        imageView.tag = coreUI.semTag(for: Strings.imageViewSemanticTag)
+
+        guard let cancelLabel = recordingView.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel,
+              let durationLabel = recordingView.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel,
+              let imageView = recordingView.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView else {
+            return (
+                recordingView,
+                cancelLabel,
+                durationLabel,
+                imageView
+            )
+        }
+
+        return (
+            recordingView,
+            cancelLabel,
+            durationLabel,
+            imageView
+        )
+    }
+}

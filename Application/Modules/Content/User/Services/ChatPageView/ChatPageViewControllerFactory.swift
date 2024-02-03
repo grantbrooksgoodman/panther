@@ -144,6 +144,11 @@ public struct ChatPageViewControllerFactory {
 
         inputBar.sendButton.setImage(sendButtonNormalImage, for: .normal)
         inputBar.sendButton.setImage(sendButtonHighlightedImage, for: .highlighted)
+
+        let recordButtonSemanticTag = coreUI.semTag(for: Strings.recordButtonSemanticTag)
+        let sendButtonSemanticTag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
+
+        inputBar.sendButton.tag = shouldConfigureInputBarForText ? sendButtonSemanticTag : recordButtonSemanticTag
         inputBar.sendButton.tintColor = shouldConfigureInputBarForText ? .init(Colors.inputBarSendButtonTextTint) : .init(Colors.inputBarSendButtonRecordTint)
 
         inputBar.sendButton

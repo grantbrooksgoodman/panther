@@ -24,8 +24,8 @@ public extension AppConstants.CGFloats {
 
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
 
-        public static let deliveryProgressAnimationDelaySeconds: CGFloat = 1
-        public static let deliveryProgressAnimationDurationSeconds: CGFloat = 0.2
+        public static let deliveryProgressAnimationDelay: CGFloat = 1
+        public static let deliveryProgressAnimationDuration: CGFloat = 0.2
 
         public static let deliveryProgressTimerProgressIncrement: CGFloat = 0.001
         public static let deliveryProgressTimerProgressIncrementThreshold: CGFloat = 0.9
@@ -118,6 +118,9 @@ public extension AppConstants.Strings {
 
         public static let recordButtonDefaultImageName = "Record.png"
         public static let recordButtonHighlightedImageName = "Record (Highlighted).png"
+
+        public static let recordButtonSemanticTag = "RECORD_BUTTON"
+        public static let sendButtonSemanticTag = "SEND_BUTTON"
     }
 }
 

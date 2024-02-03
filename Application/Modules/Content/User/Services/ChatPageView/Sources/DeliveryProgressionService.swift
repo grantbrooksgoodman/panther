@@ -53,7 +53,7 @@ public final class DeliveryProgressionService: DeliveryProgressIndicator {
     public func startAnimatingDeliveryProgress() {
         mainQueue.async {
             guard let progressView = self.progressView else { return }
-            UIView.animate(withDuration: Floats.deliveryProgressAnimationDurationSeconds) {
+            UIView.animate(withDuration: Floats.deliveryProgressAnimationDuration) {
                 progressView.alpha = 1
             } completion: { _ in
                 self.deliveryProgressTimer = .scheduledTimer(
@@ -74,8 +74,8 @@ public final class DeliveryProgressionService: DeliveryProgressIndicator {
         mainQueue.async {
             self.progressView?.setProgress(1, animated: true)
             UIView.animate(
-                withDuration: Floats.deliveryProgressAnimationDurationSeconds,
-                delay: Floats.deliveryProgressAnimationDelaySeconds
+                withDuration: Floats.deliveryProgressAnimationDuration,
+                delay: Floats.deliveryProgressAnimationDelay
             ) {
                 self.progressView?.alpha = 0
             } completion: { _ in

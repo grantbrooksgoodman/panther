@@ -102,6 +102,11 @@
 		B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */; };
 		B91822242B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */; };
 		B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */; };
+		B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822272B6DE5570068BDAB /* RecordingUIService.swift */; };
+		B918222A2B6DEA450068BDAB /* UIView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */; };
+		B918222C2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B918222B2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift */; };
+		B918222E2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B918222D2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift */; };
+		B91822302B6EBC3A0068BDAB /* AppConstants+RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingView.swift */; };
 		B91A10FA2AFF364700E3C1A0 /* EmptyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */; };
 		B91A10FE2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */; };
 		B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */; };
@@ -882,6 +887,11 @@
 		B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactory.swift; sourceTree = "<group>"; };
 		B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactoryDependency.swift; sourceTree = "<group>"; };
 		B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorService.swift; sourceTree = "<group>"; };
+		B91822272B6DE5570068BDAB /* RecordingUIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingUIService.swift; sourceTree = "<group>"; };
+		B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B918222B2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+UIViewShimmerEffect.swift"; sourceTree = "<group>"; };
+		B918222D2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputBarSendButton+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecordingView.swift"; sourceTree = "<group>"; };
 		B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyPageView.swift; sourceTree = "<group>"; };
 		B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceStyleViewModifier.swift; sourceTree = "<group>"; };
 		B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
@@ -2326,6 +2336,7 @@
 			isa = PBXGroup;
 			children = (
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */,
+				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
 			path = Sources;
@@ -3240,8 +3251,10 @@
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
+				B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingView.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
+				B918222B2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift */,
 				B9F47AFD2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift */,
 				B903CA712B6C2E9100A238A4 /* UserContentConstants.swift */,
 			);
@@ -3265,11 +3278,13 @@
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
 				B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */,
 				B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */,
+				B918222D2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift */,
 				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
 				B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */,
 				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
+				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3908,6 +3923,7 @@
 				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,
 				B9E7D4272AAC1F0400FAF2A9 /* FailurePageView.swift in Sources */,
 				B9D0D93B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift in Sources */,
+				B918222A2B6DEA450068BDAB /* UIView+UserContentExtensions.swift in Sources */,
 				B96EDD912B6360C500CB925B /* CNContactView.swift in Sources */,
 				B9D0D9452B03019E00078A93 /* NetworkConfig.swift in Sources */,
 				B9CC83192AB0F4BB00255116 /* QuickViewer.swift in Sources */,
@@ -4114,6 +4130,7 @@
 				B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */,
 				B90F33222AE4D463002A9284 /* HeaderViewModifier.swift in Sources */,
 				B958870D2B323317007FB37B /* SplashPageView.swift in Sources */,
+				B91822302B6EBC3A0068BDAB /* AppConstants+RecordingView.swift in Sources */,
 				B903CA762B6C2F5500A238A4 /* InputBarAccessoryViewServiceDependency.swift in Sources */,
 				B95887172B323B00007FB37B /* FadeInViewModifier.swift in Sources */,
 				B9F47AE62B576EE300D86C67 /* ConversationsPageReducer.swift in Sources */,
@@ -4141,6 +4158,7 @@
 				B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */,
 				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,
+				B918222E2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift in Sources */,
 				B91689072AC75FFB00AF403D /* MainBundleDependency.swift in Sources */,
 				B9E0E1082B2102B700C14274 /* LocalAudioFilePath.swift in Sources */,
 				B9F47B062B5864F500D86C67 /* ConversationCellView.swift in Sources */,
@@ -4191,6 +4209,7 @@
 				B94657752AABC66F0091193B /* RootView.swift in Sources */,
 				B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */,
 				B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */,
+				B918222C2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift in Sources */,
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,
 				B9E7D4322AAC20E100FAF2A9 /* BuildInfoOverlayReducer.swift in Sources */,
 				B97381092ACE8A2000ADB173 /* Persistent.swift in Sources */,
@@ -4234,6 +4253,7 @@
 				B9CC83172AB0DCA700255116 /* DevModeStandardActions.swift in Sources */,
 				B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */,
 				B96EDD9B2B63825C00CB925B /* StaticListView.swift in Sources */,
+				B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */,
 				B9AF12502ACE4AF50045C54C /* CompressedHashable.swift in Sources */,
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,

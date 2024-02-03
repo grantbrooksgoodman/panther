@@ -24,6 +24,7 @@ public final class ChatPageViewService {
     // MARK: - Properties
 
     public private(set) var deliveryProgression: DeliveryProgressionService?
+    public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
     private var viewController: ChatPageViewController?
@@ -40,6 +41,7 @@ public final class ChatPageViewService {
         self.viewController = viewController
         deliveryProgression = .init(viewController)
         typingIndicator = .init(viewController)
+        recordingUI = .init(viewController)
 
         return viewController
     }
