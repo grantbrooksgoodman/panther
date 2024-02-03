@@ -1,8 +1,8 @@
 //
-//  ChatPageViewService.swift
+//  ChatPageViewControllerFactory.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 31/01/2024.
+//  Created by Grant Brooks Goodman on 02/02/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -14,7 +14,7 @@ import UIKit
 import MessageKit
 import Redux
 
-public final class ChatPageViewService {
+public struct ChatPageViewControllerFactory {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageView
@@ -30,12 +30,6 @@ public final class ChatPageViewService {
 
     // MARK: - Properties
 
-    public private(set) var deliveryProgression: DeliveryProgressionService?
-
-    private var viewController: ChatPageViewController?
-
-    // MARK: - Computed Properties
-
     private var shouldConfigureInputBarForText: Bool {
         guard let currentUser = clientSession.user.currentUser,
               let conversation = clientSession.conversation.currentConversation else { return true }
@@ -45,12 +39,10 @@ public final class ChatPageViewService {
         return !users.allSatisfy { currentUser.canSendAudioMessages(to: $0) }
     }
 
-    // MARK: - View Controller Creation
+    // MARK: - Build View Controller
 
-    public func createViewController(_ conversation: Conversation) -> MessagesViewController {
+    public func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
-
-        clientSession.conversation.setCurrentConversation(conversation)
 
         viewController.messagesCollectionView.messageCellDelegate = viewController
         viewController.messagesCollectionView.messagesDataSource = viewController
@@ -61,27 +53,24 @@ public final class ChatPageViewService {
         viewController.scrollsToLastItemOnKeyboardBeginsEditing = true
         viewController.showMessageTimestampOnSwipeLeft = true
 
-        self.viewController = viewController
-        deliveryProgression = .init(viewController)
-
-        configureCollectionViewLayout()
-        configureBackgroundColor()
-        configureDeliveryProgressView()
-        configureInitialInputBar()
+        configureCollectionViewLayout(viewController)
+        configureBackgroundColor(viewController)
+        configureDeliveryProgressView(viewController)
+        configureInitialInputBar(viewController)
 
         return viewController
     }
 
     // MARK: - UI Configuration
 
-    public func configureBackgroundColor() {
-        viewController?.messagesCollectionView.backgroundColor = .background
-        viewController?.messagesCollectionView.backgroundView?.backgroundColor = .background
-        viewController?.view.backgroundColor = .background
+    public func configureBackgroundColor(_ viewController: ChatPageViewController) {
+        viewController.messagesCollectionView.backgroundColor = .background
+        viewController.messagesCollectionView.backgroundView?.backgroundColor = .background
+        viewController.view.backgroundColor = .background
     }
 
-    public func configureCollectionViewLayout() {
-        guard let layout = viewController?.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
+    public func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
+        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
 
         layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
@@ -98,7 +87,7 @@ public final class ChatPageViewService {
         ))
     }
 
-    private func configureDeliveryProgressView() {
+    private func configureDeliveryProgressView(_ viewController: ChatPageViewController) {
         guard let mainScreen = uiApplication.mainScreen else { return }
 
         let deliveryProgressView: UIProgressView = .init(
@@ -115,11 +104,10 @@ public final class ChatPageViewService {
         deliveryProgressView.progressViewStyle = .bar
 
         deliveryProgressView.tag = coreUI.semTag(for: Strings.deliveryProgressViewSemanticTag)
-        viewController?.view.addSubview(deliveryProgressView)
+        viewController.view.addSubview(deliveryProgressView)
     }
 
-    public func configureInitialInputBar() {
-        guard let viewController else { return }
+    public func configureInitialInputBar(_ viewController: ChatPageViewController) {
         let inputBar = viewController.messageInputBar
 
         inputBar.backgroundView.backgroundColor = .inputBarBackground
@@ -167,12 +155,6 @@ public final class ChatPageViewService {
     }
 
     // MARK: - Auxiliary
-
-    public func reloadCollectionView() {
-        Task { @MainActor in
-            viewController?.messagesCollectionView.reloadDataAndKeepOffset()
-        }
-    }
 
     private func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
         guard forRecording else {

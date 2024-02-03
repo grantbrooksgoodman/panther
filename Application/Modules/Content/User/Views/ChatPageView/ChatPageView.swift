@@ -36,7 +36,7 @@ public struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> MessagesViewController {
-        viewService.createViewController(conversation)
+        viewService.instantiateViewController(conversation)
     }
 
     // MARK: - Update UIViewController

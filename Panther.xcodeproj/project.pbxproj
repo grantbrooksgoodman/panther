@@ -99,6 +99,8 @@
 		B91688ED2904913E004C80A2 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91688EC2904913D004C80A2 /* Logger.swift */; };
 		B91689072AC75FFB00AF403D /* MainBundleDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91689062AC75FFB00AF403D /* MainBundleDependency.swift */; };
 		B91689092AC760AA00AF403D /* MainQueueDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91689082AC760AA00AF403D /* MainQueueDependency.swift */; };
+		B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */; };
+		B91822242B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */; };
 		B91A10FA2AFF364700E3C1A0 /* EmptyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */; };
 		B91A10FE2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */; };
 		B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */; };
@@ -876,6 +878,8 @@
 		B91688EC2904913D004C80A2 /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B91689062AC75FFB00AF403D /* MainBundleDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBundleDependency.swift; sourceTree = "<group>"; };
 		B91689082AC760AA00AF403D /* MainQueueDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDependency.swift; sourceTree = "<group>"; };
+		B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactory.swift; sourceTree = "<group>"; };
+		B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactoryDependency.swift; sourceTree = "<group>"; };
 		B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyPageView.swift; sourceTree = "<group>"; };
 		B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceStyleViewModifier.swift; sourceTree = "<group>"; };
 		B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
@@ -2306,13 +2310,14 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
-		B9BF37F72B6DAF8D00024548 /* ChatPageViewService */ = {
+		B9BF37F72B6DAF8D00024548 /* ChatPageView */ = {
 			isa = PBXGroup;
 			children = (
 				B9BF37F82B6DAF9800024548 /* Sources */,
+				B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */,
 				B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */,
 			);
-			path = ChatPageViewService;
+			path = ChatPageView;
 			sourceTree = "<group>";
 		};
 		B9BF37F82B6DAF9800024548 /* Sources */ = {
@@ -3269,7 +3274,7 @@
 		B9F47B282B5A070700D86C67 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B9BF37F72B6DAF8D00024548 /* ChatPageViewService */,
+				B9BF37F72B6DAF8D00024548 /* ChatPageView */,
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
@@ -3283,6 +3288,7 @@
 			isa = PBXGroup;
 			children = (
 				B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */,
+				B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */,
 				B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */,
 				B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */,
 				B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */,
@@ -3995,6 +4001,7 @@
 				B9DCCAB72B3B7CCB00532B12 /* Translation+Serializable.swift in Sources */,
 				B9F5D1ED2B48989800059B44 /* AppConstants+GenericTextField.swift in Sources */,
 				B99195912B47E87B00BD5BBC /* VerifyNumberPageView.swift in Sources */,
+				B91822242B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift in Sources */,
 				B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */,
 				B9F47B022B5864E600D86C67 /* ConversationCellReducer.swift in Sources */,
 				B90249CE2B57458800D62855 /* PermissionPageViewStrings.swift in Sources */,
@@ -4016,6 +4023,7 @@
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */,
 				B9D0D9472B03019E00078A93 /* Database.swift in Sources */,
+				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
 				B9E7D42B2AAC1F4000FAF2A9 /* AppConstants.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
 				B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */,
