@@ -15,23 +15,11 @@ import MessageKit
 import Redux
 
 public final class ChatPageViewController: MessagesViewController {
-    // MARK: - Constants Accessors
-
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-    @Dependency(\.inputBarAccessoryViewService) private var inputBarAccessoryViewService: InputBarAccessoryViewService
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.clientSession.conversation.currentConversation) public var currentConversation: Conversation?
 
-    // MARK: - Properties
-
-    /// A convenience property linked to the client session's `currentConversation` value.
-    public var conversation: Conversation? { currentConversation }
-
-    private var typingIndicatorTimer: Timer?
+    @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
 
     // MARK: - Init
 
@@ -48,43 +36,22 @@ public final class ChatPageViewController: MessagesViewController {
 
     override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        toggleBuildInfoOverlay(on: false)
+        viewService.onViewWillAppear()
     }
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
-        chatPageState.setIsPresented(true)
-        messagesCollectionView.scrollToLastItem(animated: true)
-        typingIndicatorTimer = .scheduledTimer(
-            timeInterval: .init(Floats.typingIndicatorTimerTimeInterval),
-            target: self,
-            selector: #selector(toggleTypingIndicator),
-            userInfo: nil,
-            repeats: true
-        )
+        viewService.onViewDidAppear()
     }
 
     override public func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
-        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
-        toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
-
-        typingIndicatorTimer?.invalidate()
-        typingIndicatorTimer = nil
+        viewService.onViewWillDisappear()
     }
 
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-
-        chatPageState.setIsPresented(false)
-        Task {
-            if let exception = await inputBarAccessoryViewService.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toast())
-            }
-        }
+        viewService.onViewDidDisappear()
     }
 
     // MARK: - UICollectionView
@@ -101,13 +68,14 @@ public final class ChatPageViewController: MessagesViewController {
         genericCell.tag = indexPath.section
 
         guard let textCell = genericCell as? TextMessageCell,
-              let messages = conversation?.messages,
+              let messages = currentConversation?.messages,
               messages.count > indexPath.section else { return genericCell }
 
         let currentMessage = messages[indexPath.section]
 
         if !ThemeService.isDefaultThemeApplied /* , */
         /*! currentMessage.isDisplayingAlternate */ {
+            typealias Floats = AppConstants.CGFloats.ChatPageView
             if currentMessage.isFromCurrentUser {
                 textCell.messageLabel.textInsets.right = Floats.textCellMessageLabelRightTextInset
             } else {
@@ -123,27 +91,5 @@ public final class ChatPageViewController: MessagesViewController {
 //        textCell.messageLabel.frame.size.width = textCell.messageLabel.intrinsicContentSize.width
 
         return textCell
-    }
-
-    // MARK: - Auxiliary
-
-    private func toggleBuildInfoOverlay(on: Bool) {
-        guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow else { return }
-        overlayWindow.isHidden = !on
-    }
-
-    @objc
-    private func toggleTypingIndicator() {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let conversation,
-              conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {
-            guard !isTypingIndicatorHidden else { return }
-            setTypingIndicatorViewHidden(true, animated: true)
-            return
-        }
-
-        guard isTypingIndicatorHidden else { return }
-        setTypingIndicatorViewHidden(false, animated: true)
-        messagesCollectionView.scrollToLastItem(animated: true)
     }
 }

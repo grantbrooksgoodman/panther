@@ -48,8 +48,8 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        guard let conversation,
-              let messages = conversation.messages,
+        guard let currentConversation,
+              let messages = currentConversation.messages,
               let message = message as? Message,
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser,
@@ -84,7 +84,7 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        guard let messages = conversation?.messages,
+        guard let messages = currentConversation?.messages,
               indexPath.section < messages.count else { return nil }
         return messages[indexPath.section].sentDate.chatPageMessageSeparatorAttributedDateString
     }
@@ -129,7 +129,7 @@ extension ChatPageViewController: MessagesDataSource {
         at indexPath: IndexPath,
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
-        guard let messages = conversation?.messages,
+        guard let messages = currentConversation?.messages,
               !messages.isEmpty else { return Message.empty }
         guard indexPath.section < messages.count else { return messages.last! }
         return messages[indexPath.section]
@@ -143,9 +143,9 @@ extension ChatPageViewController: MessagesDataSource {
     ) -> NSAttributedString? {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
 
-        guard let conversation,
-              conversation.participants.count > 2,
-              let messages = conversation.messages,
+        guard let currentConversation,
+              currentConversation.participants.count > 2,
+              let messages = currentConversation.messages,
               let message = message as? Message,
               !message.isFromCurrentUser,
               messages.count > indexPath.section else { return nil }
@@ -155,7 +155,7 @@ extension ChatPageViewController: MessagesDataSource {
             return nil
         }
 
-        guard let users = conversation.users,
+        guard let users = currentConversation.users,
               let matchingUser = users.first(where: { $0.id == message.fromAccountID }) else { return nil }
 
         let font: UIFont = .init(
@@ -180,6 +180,6 @@ extension ChatPageViewController: MessagesDataSource {
     // MARK: - Number of Sections
 
     public func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
-        (conversation?.messages ?? []).count
+        (currentConversation?.messages ?? []).count
     }
 }

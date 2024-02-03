@@ -28,7 +28,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> UIColor {
-        guard let messages = conversation?.messages,
+        guard let messages = currentConversation?.messages,
               indexPath.section < messages.count else { return .senderBubble }
         return messages[indexPath.section].backgroundColor
     }
@@ -52,7 +52,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             avatarView.tintColor = UIColor(Colors.displayDelegateGenericAvatarViewTint)
         }
 
-        guard let users = conversation?.users,
+        guard let users = currentConversation?.users,
               let matchingUser = users.first(where: { $0.id == message.fromAccountID }), // TODO: Cache the below value.
               let contactPair = contactPairArchive.getValue(userNumberHash: matchingUser.phoneNumber.nationalNumberString.digits.compressedHash) else {
             configureGenericAvatar()

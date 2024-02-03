@@ -182,6 +182,7 @@ public final class SettingsPageViewService: Cacheable {
 
     // MARK: - Developer Mode List Items
 
+    /// `.viewAppeared`
     public func developerModeListItems() -> [StaticListItem]? {
         func overrideLanguageCodeButtonTapped() {
             guard !akCore.languageCodeIsLocked else {
@@ -238,6 +239,7 @@ public final class SettingsPageViewService: Cacheable {
 
     // MARK: - Fetch CNContact for Current User
 
+    /// `.viewAppeared`
     public func fetchCnContactForCurrentUser() async -> Callback<CNContact, Exception> {
         if let cachedValue = cache.value(forKey: .cnContactForCurrentUser) as? CNContact {
             return .success(cachedValue)

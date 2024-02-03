@@ -101,6 +101,7 @@
 		B91689092AC760AA00AF403D /* MainQueueDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91689082AC760AA00AF403D /* MainQueueDependency.swift */; };
 		B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */; };
 		B91822242B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */; };
+		B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */; };
 		B91A10FA2AFF364700E3C1A0 /* EmptyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */; };
 		B91A10FE2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */; };
 		B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */; };
@@ -880,6 +881,7 @@
 		B91689082AC760AA00AF403D /* MainQueueDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDependency.swift; sourceTree = "<group>"; };
 		B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactory.swift; sourceTree = "<group>"; };
 		B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactoryDependency.swift; sourceTree = "<group>"; };
+		B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorService.swift; sourceTree = "<group>"; };
 		B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyPageView.swift; sourceTree = "<group>"; };
 		B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceStyleViewModifier.swift; sourceTree = "<group>"; };
 		B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
@@ -2324,6 +2326,7 @@
 			isa = PBXGroup;
 			children = (
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */,
+				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -4005,6 +4008,7 @@
 				B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */,
 				B9F47B022B5864E600D86C67 /* ConversationCellReducer.swift in Sources */,
 				B90249CE2B57458800D62855 /* PermissionPageViewStrings.swift in Sources */,
+				B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */,
 				B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */,
 				B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,

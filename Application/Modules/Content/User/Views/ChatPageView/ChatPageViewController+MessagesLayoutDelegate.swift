@@ -24,7 +24,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-        guard let messages = conversation?.messages,
+        guard let messages = currentConversation?.messages,
               let message = message as? Message,
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser else { return 0 }
@@ -40,7 +40,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
     ) -> CGFloat {
         guard indexPath.section != 0 else { return Floats.layoutDelegateCellTopLabelHeight }
 
-        guard let messages = conversation?.messages,
+        guard let messages = currentConversation?.messages,
               let message = message as? Message,
               messages.count > indexPath.section,
               indexPath.section - 1 > -1 else { return 0 }
@@ -57,9 +57,9 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-        guard let conversation,
-              conversation.participants.count > 2,
-              let messages = conversation.messages,
+        guard let currentConversation,
+              currentConversation.participants.count > 2,
+              let messages = currentConversation.messages,
               let message = message as? Message else { return 0 }
 
         if messages.count > indexPath.section,

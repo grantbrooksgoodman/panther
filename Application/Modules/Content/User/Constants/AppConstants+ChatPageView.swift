@@ -24,7 +24,7 @@ public extension AppConstants.CGFloats {
 
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
 
-        public static let deliveryProgressAnimationDelaySeconds: CGFloat = 0.5
+        public static let deliveryProgressAnimationDelaySeconds: CGFloat = 1
         public static let deliveryProgressAnimationDurationSeconds: CGFloat = 0.2
 
         public static let deliveryProgressTimerProgressIncrement: CGFloat = 0.001
