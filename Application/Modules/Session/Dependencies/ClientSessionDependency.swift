@@ -14,10 +14,8 @@ import Redux
 
 public enum ClientSessionDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> ClientSession {
-        @Dependency(\.chatPageViewService.deliveryProgression) var deliveryProgressionService: DeliveryProgressionService?
-        return .init(
+        .init(
             conversation: .init(),
-            deliveryProgressIndicator: deliveryProgressionService,
             message: .init(),
             user: .init()
         )

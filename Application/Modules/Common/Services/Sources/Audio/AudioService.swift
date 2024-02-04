@@ -33,7 +33,7 @@ public struct AudioService {
     public let textToSpeech: TextToSpeechService
     public let transcription: TranscriptionService
 
-    @Persistent(.acknowledgedAudioMessagesUnsupported) public var acknowledgedAudioMessagesUnsupported: Bool? // TODO: Make use of this.
+    @Persistent(.acknowledgedAudioMessagesUnsupported) public var acknowledgedAudioMessagesUnsupported: Bool?
 
     // MARK: - Init
 

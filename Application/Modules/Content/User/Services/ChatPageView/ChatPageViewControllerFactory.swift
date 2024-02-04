@@ -23,21 +23,9 @@ public struct ChatPageViewControllerFactory {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-
-    // MARK: - Properties
-
-    private var shouldConfigureInputBarForText: Bool {
-        guard let currentUser = clientSession.user.currentUser,
-              let conversation = clientSession.conversation.currentConversation else { return true }
-
-        guard currentUser.canSendAudioMessages else { return audioService.acknowledgedAudioMessagesUnsupported ?? false }
-        guard let users = conversation.users else { return !conversation.isMock /* TODO: Audit this. */ }
-        return !users.allSatisfy { currentUser.canSendAudioMessages(to: $0) }
-    }
 
     // MARK: - Build View Controller
 
@@ -115,9 +103,11 @@ public struct ChatPageViewControllerFactory {
         inputBar.setStackViewItems([viewController.messageInputBar.sendButton], forStack: .right, animated: false)
         inputBar.rightStackView.alignment = .center
 
+        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
+
         // swiftlint:disable line_length
-        let contentViewBorderColor = UIColor(shouldConfigureInputBarForText ? Colors.inputBarContentViewTextLayerBorder : Colors.inputBarContentViewRecordLayerBorder).cgColor
-        let inputTextViewBorderColor = UIColor(shouldConfigureInputBarForText ? Colors.inputBarInputTextViewTextLayerBorder : Colors.inputBarInputTextViewRecordLayerBorder).cgColor
+        let contentViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputBarContentViewRecordLayerBorder : Colors.inputBarContentViewTextLayerBorder).cgColor
+        let inputTextViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputBarInputTextViewRecordLayerBorder : Colors.inputBarInputTextViewRecordLayerBorder).cgColor
         // swiftlint:enable line_length
 
         inputBar.contentView.clipsToBounds = true
@@ -134,12 +124,18 @@ public struct ChatPageViewControllerFactory {
         inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         inputBar.inputTextView.tintColor = .accent
 
-        let sendButtonNormalImage = sendButtonImage(forRecording: !shouldConfigureInputBarForText, isHighlighted: false)
-        let sendButtonHighlightedImage = sendButtonImage(forRecording: !shouldConfigureInputBarForText, isHighlighted: true)
-
         inputBar.sendButton.setSize(
             .init(width: Floats.inputBarSendButtonSizeWidth, height: Floats.inputBarSendButtonSizeHeight),
             animated: false
+        )
+
+        let sendButtonNormalImage = inputBarConfigService.sendButtonImage(
+            forRecording: inputBarConfigService.canConfigureInputBarForRecording,
+            isHighlighted: false
+        )
+        let sendButtonHighlightedImage = inputBarConfigService.sendButtonImage(
+            forRecording: inputBarConfigService.canConfigureInputBarForRecording,
+            isHighlighted: true
         )
 
         inputBar.sendButton.setImage(sendButtonNormalImage, for: .normal)
@@ -148,8 +144,8 @@ public struct ChatPageViewControllerFactory {
         let recordButtonSemanticTag = coreUI.semTag(for: Strings.recordButtonSemanticTag)
         let sendButtonSemanticTag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
 
-        inputBar.sendButton.tag = shouldConfigureInputBarForText ? sendButtonSemanticTag : recordButtonSemanticTag
-        inputBar.sendButton.tintColor = shouldConfigureInputBarForText ? .init(Colors.inputBarSendButtonTextTint) : .init(Colors.inputBarSendButtonRecordTint)
+        inputBar.sendButton.tag = canConfigureInputBarForRecording ? recordButtonSemanticTag : sendButtonSemanticTag
+        inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.inputBarSendButtonRecordTint) : .init(Colors.inputBarSendButtonTextTint)
 
         inputBar.sendButton
             .onSelected { $0.transform = CGAffineTransform(
@@ -157,19 +153,5 @@ public struct ChatPageViewControllerFactory {
                 y: Floats.inputBarSendButtonOnSelectedTransformScaleY
             ) }
             .onDeselected { $0.transform = .identity }
-    }
-
-    // MARK: - Auxiliary
-
-    private func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
-        guard forRecording else {
-            guard ThemeService.isDefaultThemeApplied else {
-                return .init(named: isHighlighted ? Strings.sendButtonAlternateHighlightedImageName : Strings.sendButtonAlternateDefaultImageName)
-            }
-
-            return .init(named: isHighlighted ? Strings.sendButtonPrimaryHighlightedImageName : Strings.sendButtonPrimaryDefaultImageName)
-        }
-
-        return .init(named: isHighlighted ? Strings.recordButtonHighlightedImageName : Strings.recordButtonDefaultImageName)
     }
 }

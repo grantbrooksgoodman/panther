@@ -46,7 +46,9 @@ public final class DeliveryProgressionService: DeliveryProgressIndicator {
     public func incrementDeliveryProgress(by: Float) {
         mainQueue.async {
             guard let progressView = self.progressView else { return }
-            progressView.setProgress(progressView.progress + by, animated: true)
+            UIView.animate(withDuration: Floats.deliveryProgressAnimationDuration) {
+                progressView.setProgress(progressView.progress + by, animated: true)
+            }
         }
     }
 

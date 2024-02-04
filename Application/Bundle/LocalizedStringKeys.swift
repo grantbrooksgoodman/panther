@@ -22,6 +22,8 @@ public enum LocalizedStringKey: String {
     case dismiss
     case done
 
+    case holdDownToRecord
+
     case multiple
     case newMessage
 
@@ -29,6 +31,7 @@ public enum LocalizedStringKey: String {
     case noInternetMessage
     case noInternetTitle
     case noResults
+    case noSpeechDetected
 
     case read
     case reportBug

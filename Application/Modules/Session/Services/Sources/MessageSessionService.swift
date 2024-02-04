@@ -96,6 +96,8 @@ public struct MessageSessionService {
 
         switch transcribeResult {
         case let .success(transcription):
+            clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+
             let users = users.filter { $0 != currentUser }
             var translations = [Translation]()
             var audioComponents = [AudioMessageReference]()
@@ -106,6 +108,8 @@ public struct MessageSessionService {
                     with: .init(from: currentUser.languageCode, to: languageCode)
                 )
 
+                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.translationDeliveryProgressIncrement)
+
                 switch translateResult {
                 case let .success(translation):
                     translations.append(translation)
@@ -114,6 +118,8 @@ public struct MessageSessionService {
                         text: translation.output,
                         languageCode: languageCode
                     )
+
+                    clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.readToFileDeliveryProgressIncrement)
 
                     switch readToFileResult {
                     case let .success(url):

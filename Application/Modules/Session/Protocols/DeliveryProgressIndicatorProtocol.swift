@@ -11,4 +11,5 @@ import Foundation
 
 public protocol DeliveryProgressIndicator {
     func incrementDeliveryProgress(by: Float)
+    func startAnimatingDeliveryProgress()
 }

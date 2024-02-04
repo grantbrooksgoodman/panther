@@ -11,6 +11,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import InputBarAccessoryView
 import Redux
 
 public final class RecordingUIService {
@@ -40,7 +41,8 @@ public final class RecordingUIService {
 
     // Other
     private var imageView: UIImageView? { recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView }
-    private var recordingView: UIView? { viewController.messageInputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag) }
+    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var recordingView: UIView? { inputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag) }
 
     // MARK: - Init
 
@@ -48,16 +50,16 @@ public final class RecordingUIService {
         self.viewController = viewController
     }
 
-    // MARK: - Public
+    // MARK: - Toggle Recording UI
 
     public func hideRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
                 UIView.animate(withDuration: Floats.hideAnimationDuration) {
-                    self.viewController.messageInputBar.inputTextView.alpha = 1
                     self.recordingView?.alpha = 0
+                    self.inputBar.inputTextView.alpha = 1
                 } completion: { _ in
-                    self.viewController.messageInputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
+                    self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
                     self.resetSession()
                     continuation.resume()
                 }
@@ -75,8 +77,8 @@ public final class RecordingUIService {
                 let durationLabel = viewComponents.durationLabel
                 let imageView = viewComponents.imageView
 
-                viewController.messageInputBar.contentView.addSubview(recordingView)
-                recordingView.center = viewController.messageInputBar.inputTextView.center
+                inputBar.contentView.addSubview(recordingView)
+                recordingView.center = inputBar.inputTextView.center
                 recordingView.tag = coreUI.semTag(for: Strings.recordingViewSemanticTag)
 
                 cancelLabel.center.y = recordingView.center.y
@@ -85,7 +87,7 @@ public final class RecordingUIService {
                 durationLabel.center.y = imageView.center.y
 
                 UIView.animate(withDuration: Floats.showAnimationDuration) {
-                    self.viewController.messageInputBar.inputTextView.alpha = 0
+                    self.inputBar.inputTextView.alpha = 0
                     recordingView.alpha = 1
                 }
 
@@ -128,10 +130,10 @@ public final class RecordingUIService {
 
     @objc
     private func animateRecording() {
-        guard /* recordingService.isRecording, */
-            viewController.messageInputBar.sendButton.isRecordButton,
-            let durationLabel,
-            let imageView else {
+        guard recordingService.isRecording,
+              inputBar.sendButton.isRecordButton,
+              let durationLabel,
+              let imageView else {
             resetSession()
             return
         }
@@ -214,8 +216,8 @@ public final class RecordingUIService {
         imageView: UIImageView
     ) {
         let recordingView = UIView()
-        recordingView.backgroundColor = viewController.messageInputBar.inputTextView.backgroundColor
-        recordingView.frame = viewController.messageInputBar.inputTextView.frame
+        recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
+        recordingView.frame = inputBar.inputTextView.frame
 
         recordingView.clipsToBounds = true
         recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor

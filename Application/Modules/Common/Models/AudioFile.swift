@@ -39,8 +39,7 @@ public final class AudioFile: Codable, Equatable {
     public convenience init?(_ url: URL) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard let decodedPath = url.path().removingPercentEncoding,
-              fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: decodedPath),
+        guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)),
               let fileName = url.absoluteString.components(separatedBy: "/").last,
               fileName.components(separatedBy: ".").count == 2 else { return nil }
 

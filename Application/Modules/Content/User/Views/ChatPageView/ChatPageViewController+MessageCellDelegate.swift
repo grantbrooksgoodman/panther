@@ -17,6 +17,7 @@ import Redux
 extension ChatPageViewController: MessageCellDelegate {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.ChatPageView
     private typealias Strings = AppConstants.Strings.ChatPageView
 
     // MARK: - Did Select Date
@@ -44,5 +45,35 @@ extension ChatPageViewController: MessageCellDelegate {
 
     // MARK: - Did Tap Play Button
 
-    public func didTapPlayButton(in cell: AudioMessageCell) {}
+    public func didTapPlayButton(in cell: AudioMessageCell) {
+        @Dependency(\.commonServices.audio.playback) var playbackService: PlaybackService
+
+        guard let indexPath = messagesCollectionView.indexPath(for: cell),
+              let messages = currentConversation?.messages,
+              indexPath.section < messages.count else { return }
+
+        let message = messages[indexPath.section]
+        guard let localAudioFilePath = message.localAudioFilePath else { return }
+
+        let path = message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
+
+        guard !cell.playButton.isSelected else {
+            cell.playButton.isSelected = false
+            cell.progressView.progress = 0
+
+            if let audioFile = AudioFile(path) {
+                cell.durationLabel.text = audioFile.duration.durationString
+            }
+
+            playbackService.stopPlaying()
+            return
+        }
+
+        cell.playButton.isSelected = true
+        cell.progressView.tintColor = message.isFromCurrentUser ? UIColor(Colors.cellDelegateAudioMessageCellCurrentUserProgressViewTint) : .accent
+
+        if let exception = playbackService.playAudio(url: path) {
+            Logger.log(exception, with: .toast())
+        }
+    }
 }

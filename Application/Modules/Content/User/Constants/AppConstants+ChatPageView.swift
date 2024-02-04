@@ -44,6 +44,8 @@ public extension AppConstants.CGFloats {
         public static let inputBarSendButtonSizeHeight: CGFloat = 30
         public static let inputBarSendButtonSizeWidth: CGFloat = 30
 
+        public static let inputBarTransitionAnimationDuration: CGFloat = 0.3
+
         public static let layoutDelegateCellBottomLabelHeight: CGFloat = 20
         public static let layoutDelegateCellTopLabelHeight: CGFloat = 25
         public static let layoutDelegateCellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
@@ -71,6 +73,8 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
+        public static let cellDelegateAudioMessageCellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
+
         public static let dataSourceCellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
         public static let dataSourceCellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
 
@@ -88,6 +92,8 @@ public extension AppConstants.Colors {
 
         public static let inputBarInputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
         public static let inputBarInputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
+
+        public static let inputBarInputTextViewTint: Color = .init(uiColor: .clear)
 
         public static let inputBarSendButtonRecordTint: Color = .init(uiColor: .red)
         public static let inputBarSendButtonTextTint: Color = .init(uiColor: .systemBlue)

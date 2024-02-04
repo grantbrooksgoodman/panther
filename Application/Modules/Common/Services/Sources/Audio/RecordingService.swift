@@ -41,6 +41,26 @@ public final class RecordingService: NSObject {
 
     // MARK: - Recording
 
+    public func cancelRecording() -> Exception? {
+        let stopRecordingResult = stopRecording()
+
+        switch stopRecordingResult {
+        case let .success(url):
+            guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else { return nil }
+
+            do {
+                try fileManager.removeItem(at: url)
+            } catch {
+                return .init(error, metadata: [self, #file, #function, #line])
+            }
+
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     public func startRecording() -> Exception? {
         audioService.activateAudioSession()
 

@@ -18,12 +18,15 @@ public final class ChatPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.inputBarAccessoryViewService) private var inputBarAccessoryViewService: InputBarAccessoryViewService
+    @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
     public private(set) var deliveryProgression: DeliveryProgressionService?
+    public private(set) var gestureRecognizer: GestureRecognizerService?
+    public private(set) var inputBar: InputBarService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
@@ -32,16 +35,19 @@ public final class ChatPageViewService {
     // MARK: - Instantiate View Controller
 
     public func instantiateViewController(_ conversation: Conversation) -> MessagesViewController {
-        @Dependency(\.chatPageViewControllerFactory) var chatPageViewControllerFactory: ChatPageViewControllerFactory
-        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
-
-        conversationSession.setCurrentConversation(conversation)
+        clientSession.conversation.setCurrentConversation(conversation)
 
         let viewController = chatPageViewControllerFactory.buildViewController()
         self.viewController = viewController
-        deliveryProgression = .init(viewController)
-        typingIndicator = .init(viewController)
+
+        let deliveryProgressionService = DeliveryProgressionService(viewController)
+        deliveryProgression = deliveryProgressionService
+        clientSession.registerDeliveryProgressIndicator(deliveryProgressionService)
+
+        gestureRecognizer = .init(viewController)
+        inputBar = .init(viewController)
         recordingUI = .init(viewController)
+        typingIndicator = .init(viewController)
 
         return viewController
     }
@@ -54,8 +60,10 @@ public final class ChatPageViewService {
 
     public func onViewDidAppear() {
         chatPageState.setIsPresented(true)
-        viewController?.messagesCollectionView.scrollToLastItem(animated: true)
+        gestureRecognizer?.configureInputBarGestureRecognizers()
+        inputBar?.configureInputBar(forceUpdate: true)
         typingIndicator?.startCheckingForTypingIndicatorChanges()
+        viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
 
     public func onViewWillDisappear() {
@@ -68,7 +76,7 @@ public final class ChatPageViewService {
     public func onViewDidDisappear() {
         chatPageState.setIsPresented(false)
         Task {
-            if let exception = await inputBarAccessoryViewService.textViewDidChange(to: "") {
+            if let exception = await inputBar?.textViewDidChange(to: "") {
                 Logger.log(exception, with: .toast())
             }
         }

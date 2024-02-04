@@ -12,6 +12,7 @@ import UIKit
 
 /* 3rd-party */
 import MessageKit
+import Redux
 
 extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Properties
@@ -25,4 +26,9 @@ extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Methods
 
     public func textViewDidBeginEditing(_ textView: UITextView) {}
+
+    public func textViewDidChange(_ textView: UITextView) {
+        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
+        inputBarService?.configureInputBar()
+    }
 }

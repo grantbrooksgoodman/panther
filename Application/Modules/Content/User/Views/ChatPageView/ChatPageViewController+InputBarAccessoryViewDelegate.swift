@@ -17,9 +17,9 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
     // MARK: - Did Press Send Button
 
     public func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
-        @Dependency(\.inputBarAccessoryViewService) var inputBarAccessoryViewService: InputBarAccessoryViewService
+        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
-            if let exception = await inputBarAccessoryViewService.didPressSendButton(inputBar, text: text) {
+            if let exception = await inputBarService?.didPressSendButton(with: text) {
                 Logger.log(exception, with: .toast())
             }
         }
@@ -28,9 +28,9 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
     // MARK: - Text View Did Change
 
     public func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
-        @Dependency(\.inputBarAccessoryViewService) var inputBarAccessoryViewService: InputBarAccessoryViewService
+        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
-            if let exception = await inputBarAccessoryViewService.textViewDidChange(to: text) {
+            if let exception = await inputBarService?.textViewDidChange(to: text) {
                 Logger.log(exception, with: .toast())
             }
         }

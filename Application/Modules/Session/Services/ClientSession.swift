@@ -12,25 +12,30 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct ClientSession {
+public final class ClientSession {
     // MARK: - Properties
 
     public let conversation: ConversationSessionService
-    public let deliveryProgressIndicator: DeliveryProgressIndicator?
     public let message: MessageSessionService
     public let user: UserSessionService
+
+    public private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
 
     // MARK: - Init
 
     public init(
         conversation: ConversationSessionService,
-        deliveryProgressIndicator: DeliveryProgressIndicator?,
         message: MessageSessionService,
         user: UserSessionService
     ) {
         self.conversation = conversation
-        self.deliveryProgressIndicator = deliveryProgressIndicator
         self.message = message
         self.user = user
+    }
+
+    // MARK: - Register Delivery Progress Indicator
+
+    public func registerDeliveryProgressIndicator(_ deliveryProgressIndicator: DeliveryProgressIndicator) {
+        self.deliveryProgressIndicator = deliveryProgressIndicator
     }
 }

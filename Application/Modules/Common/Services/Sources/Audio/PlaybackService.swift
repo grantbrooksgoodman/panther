@@ -28,8 +28,7 @@ public struct PlaybackService {
 
     @discardableResult
     public func playAudio(url: URL) -> Exception? {
-        guard let decodedPath = url.path().removingPercentEncoding,
-              fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: decodedPath) else {
+        guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
             return .init(
                 "File does not exist.",
                 extraParams: ["FilePath": url.path()],
