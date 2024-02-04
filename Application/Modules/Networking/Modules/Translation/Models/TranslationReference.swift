@@ -88,7 +88,7 @@ public struct TranslationReference: Codable, Equatable {
             let outputValue = "\(input.alphaEncoded)–\(translation.output.matchingCapitalization(of: input).alphaEncoded)"
             self.init(
                 languagePair: translation.languagePair,
-                type: .archived(input.compressedHash, value: outputValue)
+                type: .archived(input.encodedHash, value: outputValue)
             )
         }
     }

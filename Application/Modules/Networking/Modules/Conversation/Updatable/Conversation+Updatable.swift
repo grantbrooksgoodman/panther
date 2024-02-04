@@ -34,7 +34,7 @@ extension Conversation: Updatable {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
 
         switch key {
-        case .compressedHash,
+        case .encodedHash,
              .id:
             return nil
 
@@ -121,12 +121,12 @@ extension Conversation: Updatable {
             return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
-        guard updated.compressedHash != compressedHash else {
+        guard updated.encodedHash != encodedHash else {
             return .success(updated)
         }
 
-        let hashPath = conversationKeyPath + SerializationKeys.compressedHash.rawValue
-        if let exception = await networking.database.setValue(updated.compressedHash, forKey: hashPath) {
+        let hashPath = conversationKeyPath + SerializationKeys.encodedHash.rawValue
+        if let exception = await networking.database.setValue(updated.encodedHash, forKey: hashPath) {
             return .failure(exception)
         }
 
@@ -156,7 +156,7 @@ extension Conversation: Updatable {
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(
-            .init(key: conversation.id.key, hash: conversation.compressedHash),
+            .init(key: conversation.id.key, hash: conversation.encodedHash),
             messageIDs: messageIDs,
             messages: conversation.messages,
             lastModifiedDate: conversation.lastModifiedDate,

@@ -123,7 +123,8 @@ public struct ConversationCellReducer: Reducer {
 
         case let .feedback(.updateCurrentUserBadgeNumberReturned(exception)):
             defer { viewService.setBadgeDecrementAmount(0) }
-            guard let exception else { return .none }
+            guard let exception,
+                  !exception.isEqual(to: .sameBadgeNumber) else { return .none }
             Logger.log(exception, with: .toast())
 
         case .feedback(.updateReadDateReturned(.success)):

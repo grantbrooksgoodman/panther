@@ -140,7 +140,7 @@ public struct HostedTranslationArchiver {
 
         if let exception = await networking.database.updateChildValues(
             forKey: path,
-            with: [input.value().compressedHash: NSNull()]
+            with: [input.value().encodedHash: NSNull()]
         ) {
             return exception
         }

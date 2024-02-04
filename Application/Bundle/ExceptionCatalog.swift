@@ -18,23 +18,26 @@ import Redux
 public enum AppException: String {
     /* Add new cases here. */
 
+    case currentUserIDNotSet = "EA90"
+    case exhaustedAvailablePlatforms = "C526"
+    case genericStorageError = "C81B"
+    case kAFAssistantError = "24F2"
+    case noAudioRecorderToStop = "E44E"
+    case notRegisteredForPushNotifications = "FB09"
+    case noUserWithHashes = "1181"
+    case noUsersWithPhoneNumbers = "74AA"
+    case noValueExists = "BE3A"
+    case sameBadgeNumber = "E1C7"
+    case sameTranslationInputOutput = "6CEB"
+    case timedOut = "801F"
+
+    // FIXME: All of the below need regeneration.
+
     case avFoundationError = "EA73"
     case contactAccessDenied = "F6E6"
     case couldntRemoveInput = "F9A1"
-    case currentUserIDNotSet = "E383"
-    case exhaustedAvailablePlatforms = "6005"
     case fileDoesNotExist = "BB00"
-    case genericStorageError = "6F00"
-    case invalidVerificationCode = "7E4A"
-    case kAFAssistantError = "91C7"
     case notAuthorizedForContacts = "16AA"
-    case notRegisteredForPushNotifications = "06BE"
-    case noAudioRecorderToStop = "A92A"
-    case noUserWithHashes = "BD49"
-    case noUsersWithPhoneNumbers = "9330"
-    case noValueExists = "7CD4"
-    case sameTranslationInputOutput = "964B"
-    case timedOut = "DE75"
     case transcribeAudioRetry = "B386"
     case transcribeNoSuchFileOrDirectory = "5BBC"
 }
@@ -44,10 +47,20 @@ public enum AppException: String {
  */
 public extension Exception {
     func userFacingDescriptor(for descriptor: String) -> String? {
+        // swiftlint:disable line_length
         switch descriptor {
-        /* Add simplified error descriptors here. */
+        case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
+            return "The format of the phone number is incorrect. Please verify that you haven't included the country code."
+
+        case "The multifactor verification code used to create the auth credential is invalid.Re-collect the verification code and be sure to use the verification code provided by the user.":
+            return "The verification code is incorrect. Please try again."
+
+        case "The SMS code has expired. Please re-send the verification code to try again.":
+            return "The verification code has expired. Please try again."
+
         default:
             return nil
         }
+        // swiftlint:enable line_length
     }
 }

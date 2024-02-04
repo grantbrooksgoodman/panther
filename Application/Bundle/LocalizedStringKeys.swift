@@ -14,6 +14,8 @@ public enum LocalizedStringKey: String {
 
     /* Add cases here for newly pre-localized strings. */
 
+    case audioMessage
+
     case cancel
     case copy
 

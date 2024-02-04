@@ -21,7 +21,7 @@ public extension Array where Element == CNLabeledValue<CNPhoneNumber> {
 
 public extension Array where Element == ContactPair {
     var hashes: [String] {
-        map { $0.contact.compressedHash }
+        map { $0.contact.encodedHash }
     }
 }
 

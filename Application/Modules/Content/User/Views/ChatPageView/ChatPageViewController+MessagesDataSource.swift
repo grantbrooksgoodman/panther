@@ -49,6 +49,7 @@ extension ChatPageViewController: MessagesDataSource {
         at indexPath: IndexPath
     ) -> NSAttributedString? {
         guard let currentConversation,
+              currentConversation.participants.count == 2,
               let messages = currentConversation.messages,
               let message = message as? Message,
               indexPath.section == messages.count - 1,
@@ -170,7 +171,7 @@ extension ChatPageViewController: MessagesDataSource {
 
         let isDefaultTheme = ThemeService.isDefaultThemeApplied
 
-        guard let contactPair = contactPairArchive.getValue(userNumberHash: matchingUser.phoneNumber.nationalNumberString.digits.compressedHash) else {
+        guard let contactPair = contactPairArchive.getValue(userNumberHash: matchingUser.phoneNumber.nationalNumberString.digits.encodedHash) else {
             return .init(string: "\(isDefaultTheme ? "   " : "")\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
         }
 

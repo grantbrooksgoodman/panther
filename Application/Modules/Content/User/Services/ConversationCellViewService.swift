@@ -41,7 +41,7 @@ public final class ConversationCellViewService {
 
         // Set title label text
         if let contactPair = users
-            .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.compressedHash) })
+            .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.encodedHash) })
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
             titleLabelText = contactPair.contact.fullName
@@ -67,8 +67,7 @@ public final class ConversationCellViewService {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
                 subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
             } else {
-                // TODO: Localize this string.
-                subtitleLabelText = "🔊 AUDIO MESSAGE"
+                subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
             }
         }
 

@@ -24,7 +24,9 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-        guard let messages = currentConversation?.messages,
+        guard let currentConversation,
+              currentConversation.participants.count == 2,
+              let messages = currentConversation.messages,
               let message = message as? Message,
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser else { return 0 }

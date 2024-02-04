@@ -92,11 +92,11 @@ public struct PhoneNumberService {
     // MARK: - Hash Generation
 
     public func possibleHashes(for number: String) -> [String]? {
-        var hashes = [number.compressedHash]
+        var hashes = [number.encodedHash]
 
         if let countryCodes = matchingCountryCodes(for: number) {
             countryCodes.forEach { code in
-                hashes.append(number.dropPrefix(code.count).compressedHash)
+                hashes.append(number.dropPrefix(code.count).encodedHash)
             }
         }
 

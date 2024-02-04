@@ -49,11 +49,11 @@ public extension Date { // swiftlint:disable:next identifier_name
 
         let overYearFormatter = DateFormatter()
         overYearFormatter.locale = Locale(identifier: RuntimeStorage.languageCode)
-        overYearFormatter.dateFormat = Locale.systemLanguageID == "en-US" ? "MMM dd yyyy, " : "dd MMM yyyy, "
+        overYearFormatter.dateFormat = Locale.systemLanguageID == "en-US" ? "MMM dd yyyy," : "dd MMM yyyy,"
 
         let underYearFormatter = DateFormatter()
         underYearFormatter.locale = Locale(identifier: RuntimeStorage.languageCode)
-        underYearFormatter.dateFormat = Locale.systemLanguageID == "en-US" ? "E MMM d, " : "E d MMM, "
+        underYearFormatter.dateFormat = Locale.systemLanguageID == "en-US" ? "E MMM d," : "E d MMM,"
 
         let overYearString = overYearFormatter.string(from: self)
         let underYearString = underYearFormatter.string(from: self)

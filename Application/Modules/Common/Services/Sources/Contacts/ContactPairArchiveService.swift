@@ -90,7 +90,7 @@ public final class ContactPairArchiveService {
     // MARK: - Retrieval
 
     public func getValue(contactHash: String) -> ContactPair? {
-        archive?.first(where: { $0.contact.compressedHash == contactHash })
+        archive?.first(where: { $0.contact.encodedHash == contactHash })
     }
 
     public func getValue(userNumberHash: String) -> ContactPair? {

@@ -41,7 +41,7 @@ public struct LegacyTranslationService {
 
             if let exception = await networking.database.setValue(
                 string,
-                forKey: "\(path)/\(inputString.compressedHash)"
+                forKey: "\(path)/\(inputString.encodedHash)"
             ) {
                 return .failure(exception)
             }
@@ -53,7 +53,7 @@ public struct LegacyTranslationService {
                 return .failure(exception)
             }
 
-            return .success(inputString.compressedHash)
+            return .success(inputString.encodedHash)
 
         case let .failure(exception):
             return .failure(exception)

@@ -64,7 +64,7 @@ public struct ConversationService {
             return .failure(exception)
         }
 
-        let conversationID: ConversationID = .init(key: mockConversation.id.key, hash: mockConversation.compressedHash)
+        let conversationID: ConversationID = .init(key: mockConversation.id.key, hash: mockConversation.encodedHash)
 
         for participant in participants {
             if let exception = await addConversationToUser(
@@ -159,7 +159,7 @@ public struct ConversationService {
             }
 
             typealias Keys = Conversation.SerializationKeys
-            guard let conversationIDHash = data[Keys.compressedHash.rawValue] as? String else {
+            guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
                 let exception = Exception("Failed to decode conversation ID.", metadata: [self, #file, #function, #line])
                 return .failure(exception.appending(extraParams: commonParams))
             }

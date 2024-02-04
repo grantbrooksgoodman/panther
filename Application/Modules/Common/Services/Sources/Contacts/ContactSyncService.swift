@@ -117,7 +117,7 @@ public final class ContactSyncService {
 
         switch fetchAllContactsResult {
         case let .success(contacts):
-            let needingFetch = contacts.filter { services.contact.contactPairArchive.getValue(contactHash: $0.compressedHash) == nil }
+            let needingFetch = contacts.filter { services.contact.contactPairArchive.getValue(contactHash: $0.encodedHash) == nil }
 
             guard !needingFetch.isEmpty else {
                 Logger.log(

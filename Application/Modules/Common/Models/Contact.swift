@@ -13,7 +13,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public struct Contact: Codable, CompressedHashable, Equatable {
+public struct Contact: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     // Array
@@ -23,7 +23,7 @@ public struct Contact: Codable, CompressedHashable, Equatable {
             firstName,
             id,
             lastName,
-            phoneNumbers.map(\.compressedHash).joined(),
+            phoneNumbers.map(\.encodedHash).joined(),
             imageData?.base64EncodedString() ?? "",
         ]
     }

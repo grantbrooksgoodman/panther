@@ -83,15 +83,12 @@ public final class NotificationService {
             switch incrementBadgeNumberResult {
             case let .success(badgeNumber):
                 for pushToken in pushTokens {
-                    // TODO: Localize this string.
-                    let audioMessageBody = "Audio Message" // Localized(.audioMessage).wrappedValue
-
                     if let exception = await sendNotification(
                         title: currentUser.phoneNumber.formattedString(),
-                        body: body ?? "🔊 \(audioMessageBody)",
+                        body: body ?? "🔊 \(Localized(.audioMessage).wrappedValue)",
                         badgeNumber: badgeNumber,
                         pushToken: pushToken,
-                        extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.compressedHash]
+                        extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]
                     ) {
                         return exception.appending(extraParams: commonParams)
                     }

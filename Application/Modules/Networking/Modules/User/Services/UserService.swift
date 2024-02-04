@@ -63,7 +63,7 @@ public final class UserService: Cacheable {
         default: ()
         }
 
-        let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(phoneNumber.nationalNumberString.digits.compressedHash)"
+        let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(phoneNumber.nationalNumberString.digits.encodedHash)"
         var newValues = [id]
 
         let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)

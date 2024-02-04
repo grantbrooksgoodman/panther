@@ -134,7 +134,7 @@ public struct HostedTranslationService {
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(
-            id: input.value().compressedHash,
+            id: input.value().encodedHash,
             languagePair: languagePair
         )
 

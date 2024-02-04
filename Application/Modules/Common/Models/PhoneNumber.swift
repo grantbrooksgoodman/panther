@@ -14,7 +14,7 @@ import Foundation
 import PhoneNumberKit
 import Redux
 
-public struct PhoneNumber: Codable, CompressedHashable, Equatable {
+public struct PhoneNumber: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     public let callingCode: String

@@ -13,7 +13,7 @@ import Foundation
 import Redux
 import Translator
 
-public struct Message: Codable, CompressedHashable, Equatable {
+public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     // Array

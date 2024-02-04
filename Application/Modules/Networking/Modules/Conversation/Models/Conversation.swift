@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public final class Conversation: Codable, CompressedHashable, Equatable, Hashable {
+public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Properties
 
     // Array
@@ -35,7 +35,7 @@ public final class Conversation: Codable, CompressedHashable, Equatable, Hashabl
         var factors = [id.key]
         factors.append(dateFormatter.string(from: lastModifiedDate))
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
-        factors.append(contentsOf: messages?.map(\.compressedHash) ?? [])
+        factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
         return factors
     }

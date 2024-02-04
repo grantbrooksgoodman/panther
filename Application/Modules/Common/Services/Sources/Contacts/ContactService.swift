@@ -173,7 +173,7 @@ public final class ContactService: Cacheable {
             guard let callingCodes = services.phoneNumber.possibleCallingCodes(for: numberStrings),
                   let hashes = services.phoneNumber.possibleHashes(for: numberStrings),
                   callingCodes.contains(phoneNumber.callingCode),
-                  hashes.contains(phoneNumber.compiledNumberString.compressedHash) else { return false }
+                  hashes.contains(phoneNumber.compiledNumberString.encodedHash) else { return false }
             return true
         }
 

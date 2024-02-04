@@ -157,6 +157,161 @@
 		<key>zh</key>
 		<string>Chinese (中文)</string>
 	</dict>
+	<key>audio_message</key>
+	<dict>
+		<key>af</key>
+		<string>Oudioboodskap</string>
+		<key>ar</key>
+		<string>رسالة صوتية</string>
+		<key>az</key>
+		<string>Audio Mesaj</string>
+		<key>be</key>
+		<string>Гукавое Паведамленне</string>
+		<key>bg</key>
+		<string>Аудио Съобщение</string>
+		<key>bn</key>
+		<string>অডিও বার্তা</string>
+		<key>bs</key>
+		<string>Audio Poruka</string>
+		<key>ca</key>
+		<string>Missatge D&apos;àudio</string>
+		<key>cs</key>
+		<string>Zvuková Zpráva</string>
+		<key>cy</key>
+		<string>Neges Sain</string>
+		<key>da</key>
+		<string>Lydmeddelelse</string>
+		<key>de</key>
+		<string>Audionachricht</string>
+		<key>el</key>
+		<string>Μήνυμα Ήχου</string>
+		<key>en</key>
+		<string>Audio Message</string>
+		<key>eo</key>
+		<string>Sona Mesaĝo</string>
+		<key>es</key>
+		<string>Mensaje de audio</string>
+		<key>et</key>
+		<string>Helisõnum</string>
+		<key>eu</key>
+		<string>Audio-mezua</string>
+		<key>fa</key>
+		<string>پیام صوتی</string>
+		<key>fi</key>
+		<string>Ääniviesti</string>
+		<key>fr</key>
+		<string>Message Audio</string>
+		<key>ga</key>
+		<string>Teachtaireacht Fuaime</string>
+		<key>gd</key>
+		<string>Teachdaireachd Fuaim</string>
+		<key>gl</key>
+		<string>Mensaxe de audio</string>
+		<key>gu</key>
+		<string>ઓડિયો સંદેશ</string>
+		<key>he</key>
+		<string>הודעת שמע</string>
+		<key>hi</key>
+		<string>ऑडियो संदेश</string>
+		<key>hr</key>
+		<string>Audio Poruka</string>
+		<key>ht</key>
+		<string>Mesaj Odyo</string>
+		<key>hu</key>
+		<string>Hangüzenet</string>
+		<key>hy</key>
+		<string>Աուդիո Հաղորդագրություն</string>
+		<key>id</key>
+		<string>Pesan Audio</string>
+		<key>is</key>
+		<string>Hljóðskilaboð</string>
+		<key>it</key>
+		<string>Messaggio Audio</string>
+		<key>ja</key>
+		<string>音声メッセージ</string>
+		<key>ka</key>
+		<string>Აუდიო Შეტყობინება</string>
+		<key>kk</key>
+		<string>Аудио Хабарлама</string>
+		<key>kn</key>
+		<string>ಆಡಿಯೋ ಸಂದೇಶ</string>
+		<key>ko</key>
+		<string>오디오 메시지</string>
+		<key>ky</key>
+		<string>Аудио Билдирүү</string>
+		<key>lt</key>
+		<string>Garso Pranešimas</string>
+		<key>mg</key>
+		<string>Hafatra Audio</string>
+		<key>mi</key>
+		<string>Karere Ororongo</string>
+		<key>mk</key>
+		<string>Аудио Порака</string>
+		<key>ml</key>
+		<string>ഓഡിയോ സന്ദേശം</string>
+		<key>mn</key>
+		<string>Аудио Мессеж</string>
+		<key>mt</key>
+		<string>Messaġġ Awdjo</string>
+		<key>ne</key>
+		<string>अडियो सन्देश</string>
+		<key>nl</key>
+		<string>Audio Bericht</string>
+		<key>no</key>
+		<string>Lydmelding</string>
+		<key>pa</key>
+		<string>ਆਡੀਓ ਸੁਨੇਹਾ</string>
+		<key>pl</key>
+		<string>Wiadomość Dźwiękowa</string>
+		<key>pt</key>
+		<string>Mensagem de áudio</string>
+		<key>ro</key>
+		<string>Mesaj Audio</string>
+		<key>ru</key>
+		<string>Аудио Сообщение</string>
+		<key>si</key>
+		<string>ශ්‍රව්‍ය පණිවිඩය</string>
+		<key>sk</key>
+		<string>Zvuková Správa</string>
+		<key>sl</key>
+		<string>Zvočno Sporočilo</string>
+		<key>sq</key>
+		<string>Mesazh Audio</string>
+		<key>sr</key>
+		<string>Аудио Порука</string>
+		<key>su</key>
+		<string>Pesen Audio</string>
+		<key>sv</key>
+		<string>Ljudmeddelande</string>
+		<key>sw</key>
+		<string>Ujumbe wa Sauti</string>
+		<key>ta</key>
+		<string>ஆடியோ செய்தி</string>
+		<key>te</key>
+		<string>ఆడియో సందేశం</string>
+		<key>tg</key>
+		<string>Паёми Аудио</string>
+		<key>th</key>
+		<string>ข้อความเสียง</string>
+		<key>tl</key>
+		<string>Mensahe sa Audio</string>
+		<key>tr</key>
+		<string>Sesli Mesaj</string>
+		<key>tt</key>
+		<string>Аудио Хәбәр</string>
+		<key>uk</key>
+		<string>Звукове Повідомлення</string>
+		<key>ur</key>
+		<string>آڈیو پیغام</string>
+		<key>uz</key>
+		<string>Audio Xabar</string>
+		<key>vi</key>
+		<string>Tin nhắn thoại</string>
+		<key>yi</key>
+		<string>אַודיאָ אָנזאָג</string>
+		<key>zh</key>
+		<string>语音信息</string>
+	</dict>
 	<key>cancel</key>
 	<dict>
 		<key>af</key>
@@ -1241,6 +1396,161 @@
 		<string>פרייטאג</string>
 		<key>zh</key>
 		<string>星期五</string>
+	</dict>
+	<key>hold_down_to_record</key>
+	<dict>
+		<key>af</key>
+		<string>Hou ingedruk om op te neem</string>
+		<key>ar</key>
+		<string>اضغط باستمرار للتسجيل</string>
+		<key>az</key>
+		<string>Yazmaq üçün basıb saxlayın</string>
+		<key>be</key>
+		<string>Утрымлівайце для запісу</string>
+		<key>bg</key>
+		<string>Задръжте натиснат за запис</string>
+		<key>bn</key>
+		<string>রেকর্ড করতে চেপে ধরুন</string>
+		<key>bs</key>
+		<string>Držite za snimanje</string>
+		<key>ca</key>
+		<string>Mantén premut per gravar</string>
+		<key>cs</key>
+		<string>Podržte pro záznam</string>
+		<key>cy</key>
+		<string>Daliwch i lawr i gofnodi</string>
+		<key>da</key>
+		<string>Hold nede for at optage</string>
+		<key>de</key>
+		<string>Zum aufnehmen gedrückt halten</string>
+		<key>el</key>
+		<string>Κρατήστε πατημένο για εγγραφή</string>
+		<key>en</key>
+		<string>Hold down to record</string>
+		<key>eo</key>
+		<string>Tenu premita por registri</string>
+		<key>es</key>
+		<string>Mantenga presionado para grabar</string>
+		<key>et</key>
+		<string>Salvestamiseks hoidke all</string>
+		<key>eu</key>
+		<string>Eduki sakatuta grabatzeko</string>
+		<key>fa</key>
+		<string>برای ضبط نگه دارید</string>
+		<key>fi</key>
+		<string>Pidä painettuna tallentaaksesi</string>
+		<key>fr</key>
+		<string>Maintenez enfoncé pour enregistrer</string>
+		<key>ga</key>
+		<string>Coinnigh síos a thaifeadadh</string>
+		<key>gd</key>
+		<string>Cùm sìos airson clàradh</string>
+		<key>gl</key>
+		<string>Mantén premido para gravar</string>
+		<key>gu</key>
+		<string>રેકોર્ડ કરવા માટે દબાવી રાખો</string>
+		<key>he</key>
+		<string>הקש לחוץ כדי להקליט</string>
+		<key>hi</key>
+		<string>रिकॉर्ड करने के लिए दबाए रखें</string>
+		<key>hr</key>
+		<string>Držite za snimanje</string>
+		<key>ht</key>
+		<string>Kenbe la pou anrejistre</string>
+		<key>hu</key>
+		<string>Tartsa lenyomva a rögzítéshez</string>
+		<key>hy</key>
+		<string>Ձայնագրելու համար սեղմեք</string>
+		<key>id</key>
+		<string>Tahan untuk merekam</string>
+		<key>is</key>
+		<string>Haltu inni til að taka upp</string>
+		<key>it</key>
+		<string>Tieni premuto per registrare</string>
+		<key>ja</key>
+		<string>長押しして録音</string>
+		<key>ka</key>
+		<string>დააჭირე ჩასაწერად</string>
+		<key>kk</key>
+		<string>Жазу үшін басып тұрыңыз</string>
+		<key>kn</key>
+		<string>ರೆಕಾರ್ಡ್ ಮಾಡಲು ಹಿಡಿದುಕೊಳ್ಳಿ</string>
+		<key>ko</key>
+		<string>길게 눌러 녹음</string>
+		<key>ky</key>
+		<string>Жазуу үчүн басып туруңуз</string>
+		<key>lt</key>
+		<string>Norėdami įrašyti, laikykite nuspaudę</string>
+		<key>mg</key>
+		<string>Tazony ho firaketana</string>
+		<key>mi</key>
+		<string>Purihia ki te tuhi</string>
+		<key>mk</key>
+		<string>Држете за да снимате</string>
+		<key>ml</key>
+		<string>റെക്കോർഡ് ചെയ്യാൻ അമർത്തിപ്പിടിക്കുക</string>
+		<key>mn</key>
+		<string>Бичлэг хийхийн тулд удаан дарна уу</string>
+		<key>mt</key>
+		<string>Żomm l-isfel biex tirrekordja</string>
+		<key>ne</key>
+		<string>रेकर्ड गर्न तल होल्ड गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Houd ingedrukt om op te nemen</string>
+		<key>no</key>
+		<string>Hold nede for å ta opp</string>
+		<key>pa</key>
+		<string>ਰਿਕਾਰਡ ਕਰਨ ਲਈ ਦਬਾ ਕੇ ਰੱਖੋ</string>
+		<key>pl</key>
+		<string>Przytrzymaj, aby nagrać</string>
+		<key>pt</key>
+		<string>Segure para gravar</string>
+		<key>ro</key>
+		<string>Țineți apăsat pentru a înregistra</string>
+		<key>ru</key>
+		<string>Удерживайте, чтобы записать</string>
+		<key>si</key>
+		<string>පටිගත කිරීමට රැඳී සිටින්න</string>
+		<key>sk</key>
+		<string>Podržaním spustíte nahrávanie</string>
+		<key>sl</key>
+		<string>Držite za snemanje</string>
+		<key>sq</key>
+		<string>Mbajeni shtypur për të regjistruar</string>
+		<key>sr</key>
+		<string>Држите за снимање</string>
+		<key>su</key>
+		<string>Tahan pikeun ngarékam</string>
+		<key>sv</key>
+		<string>Håll intryckt för att spela in</string>
+		<key>sw</key>
+		<string>Shikilia ili urekodi</string>
+		<key>ta</key>
+		<string>பதிவு செய்ய அழுத்திப் பிடிக்கவும்</string>
+		<key>te</key>
+		<string>రికార్డ్ చేయడానికి పట్టుకోండి</string>
+		<key>tg</key>
+		<string>Барои сабт пахш кунед</string>
+		<key>th</key>
+		<string>กดค้างไว้เพื่อบันทึก</string>
+		<key>tl</key>
+		<string>Pindutin nang matagal upang i-record</string>
+		<key>tr</key>
+		<string>Kaydetmek için basılı tutun</string>
+		<key>tt</key>
+		<string>Язарга тотын</string>
+		<key>uk</key>
+		<string>Утримуйте для запису</string>
+		<key>ur</key>
+		<string>ریکارڈ کرنے کے لیے دبا کر رکھیں</string>
+		<key>uz</key>
+		<string>Yozib olish uchun bosib turing</string>
+		<key>vi</key>
+		<string>Nhấn giữ để ghi</string>
+		<key>yi</key>
+		<string>האַלטן אַראָפּ צו רעקאָרדירן</string>
+		<key>zh</key>
+		<string>按住录音</string>
 	</dict>
 	<key>monday</key>
 	<dict>
@@ -2617,6 +2927,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>没有结果</string>
 	</dict>
+	<key>no_speech_detected</key>
+	<dict>
+		<key>af</key>
+		<string>Geen spraak bespeur nie</string>
+		<key>ar</key>
+		<string>لم يتم الكشف عن الكلام</string>
+		<key>az</key>
+		<string>Heç bir nitq aşkarlanmadı</string>
+		<key>be</key>
+		<string>Гаворка не выяўлена</string>
+		<key>bg</key>
+		<string>Не е открита реч</string>
+		<key>bn</key>
+		<string>কোন বক্তৃতা সনাক্ত করা যায়নি</string>
+		<key>bs</key>
+		<string>Govor nije otkriven</string>
+		<key>ca</key>
+		<string>No s&apos;ha detectat cap parla</string>
+		<key>cs</key>
+		<string>Nebyla zjištěna žádná řeč</string>
+		<key>cy</key>
+		<string>Dim lleferydd wedi&apos;i ganfod</string>
+		<key>da</key>
+		<string>Ingen tale registreret</string>
+		<key>de</key>
+		<string>Keine sprache erkannt</string>
+		<key>el</key>
+		<string>Δεν εντοπίστηκε ομιλία</string>
+		<key>en</key>
+		<string>No speech detected</string>
+		<key>eo</key>
+		<string>Neniu parolado detektita</string>
+		<key>es</key>
+		<string>No se detecta voz</string>
+		<key>et</key>
+		<string>Kõnet ei tuvastatud</string>
+		<key>eu</key>
+		<string>Ez da hizketarik hauteman</string>
+		<key>fa</key>
+		<string>گفتاری شناسایی نشد</string>
+		<key>fi</key>
+		<string>Puhetta ei havaittu</string>
+		<key>fr</key>
+		<string>Aucune parole détectée</string>
+		<key>ga</key>
+		<string>Níor aimsíodh aon chaint</string>
+		<key>gd</key>
+		<string>Cha deach cainnt a lorg</string>
+		<key>gl</key>
+		<string>Non se detectou ningunha fala</string>
+		<key>gu</key>
+		<string>કોઈ ભાષણ મળ્યું નથી</string>
+		<key>he</key>
+		<string>לא זוהה דיבור</string>
+		<key>hi</key>
+		<string>कोई भाषण नहीं मिला</string>
+		<key>hr</key>
+		<string>Govor nije otkriven</string>
+		<key>ht</key>
+		<string>Pa gen diskou detekte</string>
+		<key>hu</key>
+		<string>Nem észlelhető beszéd</string>
+		<key>hy</key>
+		<string>Խոսք չի հայտնաբերվել</string>
+		<key>id</key>
+		<string>Tidak ada ucapan yang terdeteksi</string>
+		<key>is</key>
+		<string>Ekkert tal fannst</string>
+		<key>it</key>
+		<string>Nessun parlato rilevato</string>
+		<key>ja</key>
+		<string>音声が検出されませんでした</string>
+		<key>ka</key>
+		<string>მეტყველება არ არის აღმოჩენილი</string>
+		<key>kk</key>
+		<string>Сөйлеу анықталмады</string>
+		<key>kn</key>
+		<string>ಯಾವುದೇ ಭಾಷಣ ಪತ್ತೆಯಾಗಿಲ್ಲ</string>
+		<key>ko</key>
+		<string>음성이 감지되지 않음</string>
+		<key>ky</key>
+		<string>Кеп табылган жок</string>
+		<key>lt</key>
+		<string>Kalbos neaptikta</string>
+		<key>mg</key>
+		<string>Tsy misy kabary hita</string>
+		<key>mi</key>
+		<string>Karekau he korero i kitea</string>
+		<key>mk</key>
+		<string>Не е откриен говор</string>
+		<key>ml</key>
+		<string>സംസാരമൊന്നും കണ്ടെത്തിയില്ല</string>
+		<key>mn</key>
+		<string>Яриа илрүүлсэнгүй</string>
+		<key>mt</key>
+		<string>L-ebda diskors ma nstab</string>
+		<key>ne</key>
+		<string>कुनै भाषण पत्ता लागेन</string>
+		<key>nl</key>
+		<string>Geen spraak gedetecteerd</string>
+		<key>no</key>
+		<string>Ingen tale oppdaget</string>
+		<key>pa</key>
+		<string>ਕੋਈ ਬੋਲੀ ਨਹੀਂ ਮਿਲੀ</string>
+		<key>pl</key>
+		<string>Nie wykryto mowy</string>
+		<key>pt</key>
+		<string>Nenhuma fala detectada</string>
+		<key>ro</key>
+		<string>Nu a fost detectată nicio vorbire</string>
+		<key>ru</key>
+		<string>Речь не обнаружена</string>
+		<key>si</key>
+		<string>කථනයක් අනාවරණය වී නොමැත</string>
+		<key>sk</key>
+		<string>Nerozpoznala sa žiadna reč</string>
+		<key>sl</key>
+		<string>Ni zaznanega govora</string>
+		<key>sq</key>
+		<string>Nuk u zbulua asnjë fjalim</string>
+		<key>sr</key>
+		<string>Говор није откривен</string>
+		<key>su</key>
+		<string>Taya ucapan nu dideteksi</string>
+		<key>sv</key>
+		<string>Inget tal upptäckt</string>
+		<key>sw</key>
+		<string>Hakuna hotuba iliyotambuliwa</string>
+		<key>ta</key>
+		<string>பேச்சு எதுவும் கண்டறியப்படவில்லை</string>
+		<key>te</key>
+		<string>ప్రసంగం కనుగొనబడలేదు</string>
+		<key>tg</key>
+		<string>Ягон сухан ошкор нашуд</string>
+		<key>th</key>
+		<string>ตรวจไม่พบเสียงพูด</string>
+		<key>tl</key>
+		<string>Walang natukoy na pananalita</string>
+		<key>tr</key>
+		<string>Konuşma algılanmadı</string>
+		<key>tt</key>
+		<string>Сөйләшү табылмады</string>
+		<key>uk</key>
+		<string>Мовлення не виявлено</string>
+		<key>ur</key>
+		<string>کوئی تقریر نہیں ملی</string>
+		<key>uz</key>
+		<string>Hech qanday nutq aniqlanmadi</string>
+		<key>vi</key>
+		<string>Không phát hiện thấy giọng nói nào</string>
+		<key>yi</key>
+		<string>קיין רייד דיטעקטאַד</string>
+		<key>zh</key>
+		<string>未检测到语音</string>
+	</dict>
 	<key>read</key>
 	<dict>
 		<key>af</key>
@@ -3856,6 +4321,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>סעטטינגס...</string>
 		<key>zh</key>
 		<string>设置...</string>
+	</dict>
+	<key>slide_to_cancel</key>
+	<dict>
+		<key>af</key>
+		<string>Skuif om te kanselleer</string>
+		<key>ar</key>
+		<string>قم بالتمرير للإلغاء</string>
+		<key>az</key>
+		<string>Ləğv etmək üçün sürüşdürün</string>
+		<key>be</key>
+		<string>Ссуньце, каб адмяніць</string>
+		<key>bg</key>
+		<string>Плъзнете за отмяна</string>
+		<key>bn</key>
+		<string>বাতিল করতে স্লাইড করুন</string>
+		<key>bs</key>
+		<string>Prevucite za otkazivanje</string>
+		<key>ca</key>
+		<string>Llisca per cancel·lar</string>
+		<key>cs</key>
+		<string>Posunutím zrušíte</string>
+		<key>cy</key>
+		<string>Sleid i ganslo</string>
+		<key>da</key>
+		<string>Skub for at annullere</string>
+		<key>de</key>
+		<string>Zum abbrechen schieben</string>
+		<key>el</key>
+		<string>Σύρετε για ακύρωση</string>
+		<key>en</key>
+		<string>Slide to cancel</string>
+		<key>eo</key>
+		<string>Glitu por nuligi</string>
+		<key>es</key>
+		<string>Deslizar para cancelar</string>
+		<key>et</key>
+		<string>Tühistamiseks libistage</string>
+		<key>eu</key>
+		<string>Irristatu bertan behera uzteko</string>
+		<key>fa</key>
+		<string>برای لغو اسلاید کنید</string>
+		<key>fi</key>
+		<string>Peruuta liu&apos;uttamalla</string>
+		<key>fr</key>
+		<string>Faites glisser pour annuler</string>
+		<key>ga</key>
+		<string>Sleamhnán le cealú</string>
+		<key>gd</key>
+		<string>Sleamhnachadh gus a chuir dheth</string>
+		<key>gl</key>
+		<string>Desliza para cancelar</string>
+		<key>gu</key>
+		<string>રદ કરવા માટે સ્લાઇડ કરો</string>
+		<key>he</key>
+		<string>החלק כדי לבטל</string>
+		<key>hi</key>
+		<string>रद्द करने के लिए स्लाइड</string>
+		<key>hr</key>
+		<string>Povucite za odustajanje</string>
+		<key>ht</key>
+		<string>Glise pou anile</string>
+		<key>hu</key>
+		<string>Csúsztassa a törléshez</string>
+		<key>hy</key>
+		<string>Սահեցրեք՝ չեղարկելու համար</string>
+		<key>id</key>
+		<string>Geser untuk membatalkan</string>
+		<key>is</key>
+		<string>Renndu til að hætta við</string>
+		<key>it</key>
+		<string>Scorri per annullare</string>
+		<key>ja</key>
+		<string>スライドしてキャンセル</string>
+		<key>ka</key>
+		<string>გაასრიალეთ გასაუქმებლად</string>
+		<key>kk</key>
+		<string>Бас тарту үшін сырғытыңыз</string>
+		<key>kn</key>
+		<string>ರದ್ದುಗೊಳಿಸಲು ಸ್ಲೈಡ್ ಮಾಡಿ</string>
+		<key>ko</key>
+		<string>슬라이드하여 취소</string>
+		<key>ky</key>
+		<string>Жокко чыгаруу үчүн жылдырыңыз</string>
+		<key>lt</key>
+		<string>Slinkite, kad atšauktumėte</string>
+		<key>mg</key>
+		<string>Kitiho mba hanafoanana</string>
+		<key>mi</key>
+		<string>Kiriata ki te whakakore</string>
+		<key>mk</key>
+		<string>Лизгајте за да откажете</string>
+		<key>ml</key>
+		<string>റദ്ദാക്കാൻ സ്ലൈഡ് ചെയ്യുക</string>
+		<key>mn</key>
+		<string>Цуцлахын тулд гулсуулна уу</string>
+		<key>mt</key>
+		<string>Żerżaq biex tikkanċella</string>
+		<key>ne</key>
+		<string>रद्द गर्न स्लाइड गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Schuif om te annuleren</string>
+		<key>no</key>
+		<string>Skyv for å avbryte</string>
+		<key>pa</key>
+		<string>ਰੱਦ ਕਰਨ ਲਈ ਸਲਾਈਡ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Przesuń, aby anulować</string>
+		<key>pt</key>
+		<string>Deslize para cancelar</string>
+		<key>ro</key>
+		<string>Glisați pentru a anula</string>
+		<key>ru</key>
+		<string>Сдвиньте, чтобы отменить</string>
+		<key>si</key>
+		<string>අවලංගු කිරීමට ස්ලයිඩ් කරන්න</string>
+		<key>sk</key>
+		<string>Posunutím zrušíte</string>
+		<key>sl</key>
+		<string>Potisnite za preklic</string>
+		<key>sq</key>
+		<string>Rrëshqitni për ta anuluar</string>
+		<key>sr</key>
+		<string>Превуците да бисте отказали</string>
+		<key>su</key>
+		<string>Geser ngabolaykeun</string>
+		<key>sv</key>
+		<string>Skjut för att avbryta</string>
+		<key>sw</key>
+		<string>Telezesha kidole ili kughairi</string>
+		<key>ta</key>
+		<string>ரத்துசெய்ய ஸ்லைடு</string>
+		<key>te</key>
+		<string>రద్దు చేయడానికి స్లయిడ్ చేయండి</string>
+		<key>tg</key>
+		<string>Барои бекор кардан лағжонед</string>
+		<key>th</key>
+		<string>เลื่อนเพื่อยกเลิก</string>
+		<key>tl</key>
+		<string>I-slide para kanselahin</string>
+		<key>tr</key>
+		<string>İptal etmek için kaydırın</string>
+		<key>tt</key>
+		<string>Бетерү өчен слайд</string>
+		<key>uk</key>
+		<string>Проведіть пальцем, щоб скасувати</string>
+		<key>ur</key>
+		<string>منسوخ کرنے کے لیے سلائیڈ کریں۔</string>
+		<key>uz</key>
+		<string>Bekor qilish uchun suring</string>
+		<key>vi</key>
+		<string>Trượt để hủy</string>
+		<key>yi</key>
+		<string>רוק צו באָטל מאַכן</string>
+		<key>zh</key>
+		<string>滑动取消</string>
 	</dict>
 	<key>something_went_wrong</key>
 	<dict>

@@ -11,7 +11,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-extension String: CompressedHashable {
+extension String: EncodedHashable {
     public var hashFactors: [String] {
         [self]
     }

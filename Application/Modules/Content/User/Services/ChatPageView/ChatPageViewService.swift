@@ -20,6 +20,7 @@ public final class ChatPageViewService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.commonServices.audio.recording) private var recordingService: RecordingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -55,11 +56,11 @@ public final class ChatPageViewService {
     // MARK: - View Controller Lifecycle Handlers
 
     public func onViewWillAppear() {
+        chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
     }
 
     public func onViewDidAppear() {
-        chatPageState.setIsPresented(true)
         gestureRecognizer?.configureInputBarGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
         typingIndicator?.startCheckingForTypingIndicatorChanges()
@@ -75,10 +76,16 @@ public final class ChatPageViewService {
 
     public func onViewDidDisappear() {
         chatPageState.setIsPresented(false)
+
         Task {
             if let exception = await inputBar?.textViewDidChange(to: "") {
                 Logger.log(exception, with: .toast())
             }
+        }
+
+        if let exception = recordingService.cancelRecording() {
+            guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
+            Logger.log(exception, with: .toast())
         }
     }
 

@@ -67,7 +67,7 @@ public final class ConversationSessionService {
 
         func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
             func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-                let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.compressedHash.rawValue)"
+                let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
                 let getValuesResult = await networking.database.getValues(at: hashKeyPath)
 
                 switch getValuesResult {

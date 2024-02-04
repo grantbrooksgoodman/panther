@@ -37,7 +37,7 @@ public extension ContactService {
             guard let callingCodes = phoneNumberService.possibleCallingCodes(for: numberStrings),
                   let hashes = phoneNumberService.possibleHashes(for: numberStrings),
                   callingCodes.contains(phoneNumber.callingCode),
-                  hashes.contains(phoneNumber.compiledNumberString.compressedHash) else { return false }
+                  hashes.contains(phoneNumber.compiledNumberString.encodedHash) else { return false }
             return true
         }
 

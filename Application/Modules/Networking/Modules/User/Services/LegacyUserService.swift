@@ -78,7 +78,7 @@ public struct LegacyUserService {
                     return exception.appending(extraParams: commonParams)
                 }
 
-                let newHash = nationalNumberString.compressedHash
+                let newHash = nationalNumberString.encodedHash
                 let newHashPath = "\(networking.config.paths.userNumberHashes)/\(newHash)"
                 let getValuesResult = await networking.database.getValues(at: newHashPath)
 

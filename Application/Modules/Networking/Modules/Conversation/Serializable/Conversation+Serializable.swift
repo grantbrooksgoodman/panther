@@ -22,7 +22,7 @@ extension Conversation: Serializable {
 
     public enum SerializationKeys: String {
         case id
-        case compressedHash = "hash"
+        case encodedHash = "hash"
         case messages
         case lastModifiedDate = "lastModified"
         case participants
@@ -35,7 +35,7 @@ extension Conversation: Serializable {
         let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
         return [
             Keys.id.rawValue: id.encoded,
-            Keys.compressedHash.rawValue: compressedHash,
+            Keys.encodedHash.rawValue: encodedHash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.participants.rawValue: participants.map(\.encoded),
