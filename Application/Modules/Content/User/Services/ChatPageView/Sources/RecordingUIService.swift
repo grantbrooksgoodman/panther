@@ -28,6 +28,8 @@ public final class RecordingUIService {
 
     // MARK: - Properties
 
+    public var isShowingRecordingUI = false
+
     private let viewController: ChatPageViewController
 
     private var durationLabelTimer: Timer?
@@ -50,6 +52,12 @@ public final class RecordingUIService {
         self.viewController = viewController
     }
 
+    // MARK: - Object Lifecycle
+
+    deinit {
+        resetSession()
+    }
+
     // MARK: - Toggle Recording UI
 
     public func hideRecordingUI() async {
@@ -61,6 +69,7 @@ public final class RecordingUIService {
                 } completion: { _ in
                     self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
                     self.resetSession()
+                    self.isShowingRecordingUI = false
                     continuation.resume()
                 }
             }
@@ -70,6 +79,8 @@ public final class RecordingUIService {
     public func showRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
+                isShowingRecordingUI = true
+
                 let viewComponents = buildRecordingView()
 
                 let recordingView = viewComponents.view
@@ -130,11 +141,14 @@ public final class RecordingUIService {
 
     @objc
     private func animateRecording() {
-        guard recordingService.isRecording,
+        guard let durationLabelTimer,
+              durationLabelTimer.isValid,
+              recordingService.isInOrWillTransitionToRecordingState,
               inputBar.sendButton.isRecordButton,
               let durationLabel,
               let imageView else {
             resetSession()
+            dismantleRecordingSession()
             return
         }
 
@@ -153,6 +167,24 @@ public final class RecordingUIService {
         ) {
             let isImageFilled = imageView.image == recordingImageFilled
             imageView.image = isImageFilled ? recordingImage : recordingImageFilled
+        }
+    }
+
+    /// - NOTE: Fixes a bug in which typing immediately after beginning recording would fail to cancel recording.
+    private func dismantleRecordingSession() {
+        Logger.log(
+            "Intercepted typing while recording bug.",
+            domain: .bugPrevention,
+            metadata: [self, #file, #function, #line]
+        )
+
+        Task { @MainActor in
+            await hideRecordingUI()
+        }
+
+        if let exception = recordingService.cancelRecording() {
+            guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
+            Logger.log(exception, with: .toast())
         }
     }
 

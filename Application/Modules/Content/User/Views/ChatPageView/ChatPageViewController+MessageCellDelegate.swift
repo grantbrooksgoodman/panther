@@ -46,7 +46,8 @@ extension ChatPageViewController: MessageCellDelegate {
     // MARK: - Did Tap Play Button
 
     public func didTapPlayButton(in cell: AudioMessageCell) {
-        @Dependency(\.commonServices.audio.playback) var playbackService: PlaybackService
+        @Dependency(\.commonServices.audio) var audioService: AudioService
+        @Dependency(\.chatPageViewService.recordingUI) var recordingUIService: RecordingUIService?
 
         guard let indexPath = messagesCollectionView.indexPath(for: cell),
               let messages = currentConversation?.messages,
@@ -65,14 +66,15 @@ extension ChatPageViewController: MessageCellDelegate {
                 cell.durationLabel.text = audioFile.duration.durationString
             }
 
-            playbackService.stopPlaying()
+            audioService.playback.stopPlaying()
             return
         }
 
         cell.playButton.isSelected = true
         cell.progressView.tintColor = message.isFromCurrentUser ? UIColor(Colors.cellDelegateAudioMessageCellCurrentUserProgressViewTint) : .accent
 
-        if let exception = playbackService.playAudio(url: path) {
+        guard !audioService.recording.isInOrWillTransitionToRecordingState else { return }
+        if let exception = audioService.playback.playAudio(url: path) {
             Logger.log(exception, with: .toast())
         }
     }

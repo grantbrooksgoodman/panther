@@ -109,19 +109,24 @@ public final class GestureRecognizerService {
 
             Task { @MainActor in
                 guard !inputBar.sendButton.bounds.contains(convertedPoint),
-                      services.audio.recording.isRecording,
+                      services.audio.recording.isInOrWillTransitionToRecordingState,
                       let exception = await chatPageViewService.inputBar?.didPressRecordButton(with: .cancelRecording) else { return }
                 showError(exception)
             }
 
         case .ended:
-            /// Fixes a bug in which an immediate release of the button would fail to stop recording.
+            /// - NOTE: Fixes a bug in which an immediate release of the button would fail to stop recording.
             @Sendable
             func doubleCheckState() {
                 coreGCD.after(.milliseconds(Floats.millisecondsDelay)) {
                     Task { @MainActor in
-                        guard self.services.audio.recording.isRecording,
-                              let exception = await self.chatPageViewService.inputBar?.didPressRecordButton(with: .stopRecording) else { return }
+                        guard self.services.audio.recording.isInOrWillTransitionToRecordingState else { return }
+                        Logger.log(
+                            "Intercepted failure to stop recording bug.",
+                            domain: .bugPrevention,
+                            metadata: [self, #file, #function, #line]
+                        )
+                        guard let exception = await self.chatPageViewService.inputBar?.didPressRecordButton(with: .stopRecording) else { return }
                         self.showError(exception)
                     }
                 }
@@ -211,7 +216,7 @@ public final class GestureRecognizerService {
         guard exception.isEqual(toAny: [
             .avFoundationError,
             .kAFAssistantError,
-            .transcribeAudioRetry,
+            .noSpeechDetected,
             .transcribeNoSuchFileOrDirectory,
         ]) else {
             Logger.log(exception, with: .toast())

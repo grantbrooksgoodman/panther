@@ -17,10 +17,10 @@ import Redux
 public final class ChatPageViewService {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.commonServices.audio.recording) private var recordingService: RecordingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -83,7 +83,8 @@ public final class ChatPageViewService {
             }
         }
 
-        if let exception = recordingService.cancelRecording() {
+        audioService.playback.stopPlaying()
+        if let exception = audioService.recording.cancelRecording() {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
             Logger.log(exception, with: .toast())
         }

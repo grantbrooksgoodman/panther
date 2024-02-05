@@ -25,6 +25,11 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Methods
 
+    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
+        return !recordingService.isInOrWillTransitionToRecordingState
+    }
+
     public func textViewDidBeginEditing(_ textView: UITextView) {}
 
     public func textViewDidChange(_ textView: UITextView) {

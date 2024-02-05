@@ -148,7 +148,7 @@ public final class InputBarService {
         switch command {
         case .cancelRecording:
             guard !isStoppingRecording,
-                  audioService.recording.isRecording else { return nil }
+                  audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
@@ -161,13 +161,14 @@ public final class InputBarService {
             return nil
 
         case .startRecording:
-            guard !audioService.recording.isRecording else { return nil }
+            guard !audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
+            audioService.playback.stopPlaying()
             await chatPageViewService.recordingUI?.showRecordingUI()
             return audioService.recording.startRecording()
 
         case .stopRecording:
             guard !isStoppingRecording,
-                  audioService.recording.isRecording else { return nil }
+                  audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }

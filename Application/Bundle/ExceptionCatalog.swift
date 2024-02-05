@@ -21,9 +21,10 @@ public enum AppException: String {
     case currentUserIDNotSet = "EA90"
     case exhaustedAvailablePlatforms = "C526"
     case genericStorageError = "C81B"
-    case kAFAssistantError = "24F2"
+    case kAFAssistantError = "F59D"
     case noAudioRecorderToStop = "E44E"
     case notRegisteredForPushNotifications = "FB09"
+    case noSpeechDetected = "24F2"
     case noUserWithHashes = "1181"
     case noUsersWithPhoneNumbers = "74AA"
     case noValueExists = "BE3A"
@@ -38,7 +39,6 @@ public enum AppException: String {
     case couldntRemoveInput = "F9A1"
     case fileDoesNotExist = "BB00"
     case notAuthorizedForContacts = "16AA"
-    case transcribeAudioRetry = "B386"
     case transcribeNoSuchFileOrDirectory = "5BBC"
 }
 

@@ -27,6 +27,8 @@ public final class RecordingService: NSObject {
 
     // MARK: - Properties
 
+    public private(set) var willStartRecording = false
+
     private var audioRecorder: AVAudioRecorder?
 
     // MARK: - Computed Properties
@@ -62,6 +64,8 @@ public final class RecordingService: NSObject {
     }
 
     public func startRecording() -> Exception? {
+        willStartRecording = true
+
         audioService.activateAudioSession()
 
         let filePath = fileManager.documentsDirectoryURL.appending(path: FileNames.inputM4A)
@@ -87,6 +91,8 @@ public final class RecordingService: NSObject {
     }
 
     public func stopRecording() -> Callback<URL, Exception> {
+        willStartRecording = false
+
         stopObservingInterruptions()
 
         guard let audioRecorder else {

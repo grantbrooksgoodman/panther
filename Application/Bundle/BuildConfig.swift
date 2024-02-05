@@ -30,8 +30,9 @@ public enum BuildConfig {
 
     public static let languageCode = Locale.systemLanguageCode
     public static let loggerDomainSubscriptions: [LoggerDomain] = [
-        .contacts,
+        .bugPrevention,
         .chatPageState,
+        .contacts,
         .conversation,
         .general,
         .hostedTranslation,
