@@ -29,11 +29,3 @@ public extension AppConstants.Colors {
         public static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
     }
 }
-
-// MARK: - String
-
-public extension AppConstants.Strings {
-    enum SplashPageView {
-        public static let imageName = "Hello"
-    }
-}

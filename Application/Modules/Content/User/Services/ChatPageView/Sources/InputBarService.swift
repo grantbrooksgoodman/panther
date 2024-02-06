@@ -163,7 +163,7 @@ public final class InputBarService {
 
         case .startRecording:
             guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
-            services.audio.playback.stopPlaying()
+            chatPageViewService.audioMessagePlayback?.stopPlayback()
             await chatPageViewService.recordingUI?.showRecordingUI()
             services.haptics.generateFeedback(.medium)
             return services.audio.recording.startRecording()

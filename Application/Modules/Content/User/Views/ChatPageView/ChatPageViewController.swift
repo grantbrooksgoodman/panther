@@ -67,6 +67,11 @@ public final class ChatPageViewController: MessagesViewController {
         guard let genericCell = super.collectionView(collectionView, cellForItemAt: indexPath) as? MessageCollectionViewCell else { return .init() }
         genericCell.tag = indexPath.section
 
+        if let audioCell = genericCell as? AudioMessageCell {
+            audioCell.playButton.setImage(.play.withRenderingMode(.alwaysTemplate), for: .normal)
+            audioCell.playButton.setImage(.stop.withRenderingMode(.alwaysTemplate), for: .selected)
+        }
+
         guard let textCell = genericCell as? TextMessageCell,
               let messages = currentConversation?.messages,
               messages.count > indexPath.section else { return genericCell }

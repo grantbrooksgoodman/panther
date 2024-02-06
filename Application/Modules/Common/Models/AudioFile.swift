@@ -14,13 +14,19 @@ import Foundation
 import Redux
 
 public final class AudioFile: Codable, Equatable {
+    // MARK: - Constants Accessors
+
+    private typealias Strings = AppConstants.Strings.AudioFile
+
     // MARK: - Properties
 
     public let fileExtension: AudioFileExtension
     public let name: String
     public let url: URL
 
-    public private(set) var contentDuration: Float?
+    public private(set) var contentDuration: Float? {
+        didSet { didSetDuration() }
+    }
 
     // MARK: - Init
 
@@ -78,6 +84,18 @@ public final class AudioFile: Codable, Equatable {
     }
 
     // MARK: - Auxiliary
+
+    private func didSetDuration() {
+        @Dependency(\.notificationCenter) var notificationCenter: NotificationCenter
+        notificationCenter.post(
+            name: .init(rawValue: Strings.setDurationNotificationName),
+            object: self,
+            userInfo: [
+                Strings.durationNotificationUserInfoKey: contentDuration ?? 0,
+                Strings.urlNotificationUserInfoKey: url,
+            ]
+        )
+    }
 
     private func setDuration() async -> Exception? {
         do {

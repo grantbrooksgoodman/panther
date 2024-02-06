@@ -18,7 +18,7 @@ public extension InputBarSendButton {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         typealias Strings = AppConstants.Strings.ChatPageView
 
-        let imageMatches = image(for: .normal) == .init(named: Strings.recordButtonDefaultImageName)
+        let imageMatches = image(for: .normal) == .record
         let tagMatches = tag == coreUI.semTag(for: Strings.recordButtonSemanticTag)
 
         return imageMatches && tagMatches

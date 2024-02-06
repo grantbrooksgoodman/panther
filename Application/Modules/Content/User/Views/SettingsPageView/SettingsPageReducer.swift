@@ -76,17 +76,19 @@ public struct SettingsPageReducer: Reducer {
         @Localized(.done) public var doneToolbarButtonText: String
         public var navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["..."])
 
-        // UIImage
-        public var buildInfoButtonDarkBackgroundImage: UIImage? { .init(named: Strings.buildInfoButtonDarkBackgroundImageSystemName) }
-        public var buildInfoButtonLightBackgroundImage: UIImage? { .init(named: Strings.buildInfoButtonLightBackgroundImageSystemName) }
-        public var contactDetailViewImage: UIImage?
-
         // Other
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
+        public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
         public var isPresented: Binding<Bool>
         public var viewID = UUID()
         public var viewState: ViewState = .loading
+
+        /* MARK: Computed Properties */
+
+        // UIImage
+        public var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
+        public var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
 
         /* MARK: Init */
 

@@ -26,6 +26,7 @@ public final class ChatPageViewService {
 
     // MARK: - Properties
 
+    public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
     public private(set) var deliveryProgression: DeliveryProgressionService?
     public private(set) var gestureRecognizer: GestureRecognizerService?
     public private(set) var inputBar: InputBarService?
@@ -48,6 +49,7 @@ public final class ChatPageViewService {
         deliveryProgression = deliveryProgressionService
         clientSession.registerDeliveryProgressIndicator(deliveryProgressionService)
 
+        audioMessagePlayback = .init(viewController)
         gestureRecognizer = .init(viewController)
         inputBar = .init(viewController)
         recordingUI = .init(viewController)

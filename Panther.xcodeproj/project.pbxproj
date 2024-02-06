@@ -31,8 +31,6 @@
 		A2DF2CAA28199CE20089DEA1 /* San Francisco (Light).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */; };
 		A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */; };
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
-		A2DF2CB128199D130089DEA1 /* NT (Black).png in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CAF28199D130089DEA1 /* NT (Black).png */; };
-		A2DF2CB228199D130089DEA1 /* NT (White).png in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CB028199D130089DEA1 /* NT (White).png */; };
 		A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */; };
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
@@ -83,7 +81,6 @@
 		B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */; };
 		B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */; };
 		B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */; };
-		B90C911E2B6A11A5008DFE59 /* Contact.png in Resources */ = {isa = PBXBuildFile; fileRef = B90C911D2B6A11A5008DFE59 /* Contact.png */; };
 		B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */; };
 		B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */; };
 		B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */; };
@@ -281,6 +278,9 @@
 		B9BB3CF12AC0C5F00077D1BC /* TranslationMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF02AC0C5F00077D1BC /* TranslationMap.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BB3CF72AC1486D0077D1BC /* AKTranslationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF62AC1486D0077D1BC /* AKTranslationDelegate.swift */; };
+		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
+		B9BD952B2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */; };
+		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BEC83A2AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */; };
 		B9BF37F62B6DAEB800024548 /* DeliveryProgressionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */; };
 		B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */; };
@@ -747,8 +747,6 @@
 		A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light).otf"; sourceTree = "<group>"; };
 		A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Bold).otf"; sourceTree = "<group>"; };
 		A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light Italic).otf"; sourceTree = "<group>"; };
-		A2DF2CAF28199D130089DEA1 /* NT (Black).png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NT (Black).png"; sourceTree = "<group>"; };
-		A2DF2CB028199D130089DEA1 /* NT (White).png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NT (White).png"; sourceTree = "<group>"; };
 		A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
@@ -799,7 +797,6 @@
 		B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessagesLayoutDelegate.swift"; sourceTree = "<group>"; };
 		B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessageCellDelegate.swift"; sourceTree = "<group>"; };
 		B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+UserContentExtensions.swift"; sourceTree = "<group>"; };
-		B90C911D2B6A11A5008DFE59 /* Contact.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Contact.png; sourceTree = "<group>"; };
 		B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageView.swift"; sourceTree = "<group>"; };
 		B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThemeService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -1070,6 +1067,9 @@
 		B9BB3CF02AC0C5F00077D1BC /* TranslationMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationMap.swift; sourceTree = "<group>"; };
 		B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatedLabelStringCollection.swift; sourceTree = "<group>"; };
 		B9BB3CF62AC1486D0077D1BC /* AKTranslationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKTranslationDelegate.swift; sourceTree = "<group>"; };
+		B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessagePlaybackService.swift; sourceTree = "<group>"; };
+		B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioMessagePlaybackService.swift"; sourceTree = "<group>"; };
+		B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioFile.swift"; sourceTree = "<group>"; };
 		B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressionService.swift; sourceTree = "<group>"; };
 		B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressIndicatorProtocol.swift; sourceTree = "<group>"; };
@@ -1596,9 +1596,6 @@
 			isa = PBXGroup;
 			children = (
 				B9D0D7152B0300A200078A93 /* Country Flags */,
-				B90C911D2B6A11A5008DFE59 /* Contact.png */,
-				A2DF2CAF28199D130089DEA1 /* NT (Black).png */,
-				A2DF2CB028199D130089DEA1 /* NT (White).png */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -2334,6 +2331,14 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
+		B9BD952C2B72E3E8009C1CB8 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
 		B9BF37F72B6DAF8D00024548 /* ChatPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -2347,6 +2352,7 @@
 		B9BF37F82B6DAF9800024548 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */,
 				B9627C622B6EC325004EE9DA /* GestureRecognizerService.swift */,
 				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
@@ -2926,6 +2932,7 @@
 		B9E6D7B02B12612D000BC88D /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				B9BD952C2B72E3E8009C1CB8 /* Constants */,
 				B9E6D7B92B126324000BC88D /* Dependencies */,
 				B9E6D7C02B126385000BC88D /* Extensions */,
 				B900B53C2B1AC82A00BA2F1D /* Models */,
@@ -3259,6 +3266,7 @@
 			isa = PBXGroup;
 			children = (
 				B90C91112B69CF4C008DFE59 /* AppConstants+AudioItem.swift */,
+				B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */,
 				B9F47AF52B585FE400D86C67 /* AppConstants+AvatarImageView.swift */,
 				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
@@ -3521,7 +3529,6 @@
 				B9D0D8E12B0300B100078A93 /* qa.png in Resources */,
 				B9D0D8412B0300B000078A93 /* fm.png in Resources */,
 				B9D0D84A2B0300B000078A93 /* bv.png in Resources */,
-				B90C911E2B6A11A5008DFE59 /* Contact.png in Resources */,
 				B9D0D84F2B0300B000078A93 /* jm.png in Resources */,
 				B9D0D8922B0300B000078A93 /* bd.png in Resources */,
 				B9D0D8372B0300B000078A93 /* ga.png in Resources */,
@@ -3571,7 +3578,6 @@
 				B9D0D8622B0300B000078A93 /* cy.png in Resources */,
 				B9D0D8D52B0300B100078A93 /* ss.png in Resources */,
 				B9D0D8312B0300B000078A93 /* ad.png in Resources */,
-				A2DF2CB128199D130089DEA1 /* NT (Black).png in Resources */,
 				B9D0D8A82B0300B000078A93 /* gm.png in Resources */,
 				B9D0D86E2B0300B000078A93 /* ph.png in Resources */,
 				B9D0D8562B0300B000078A93 /* pa.png in Resources */,
@@ -3680,7 +3686,6 @@
 				A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */,
 				B9D0D8522B0300B000078A93 /* ng.png in Resources */,
 				B9D0D8BD2B0300B000078A93 /* eg.png in Resources */,
-				A2DF2CB228199D130089DEA1 /* NT (White).png in Resources */,
 				B9D0D8192B0300B000078A93 /* mm.png in Resources */,
 				B9D0D9102B0300B100078A93 /* al.png in Resources */,
 				A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */,
@@ -3917,6 +3922,7 @@
 				B980E8B22B225F310090F141 /* ConversationID+Serializable.swift in Sources */,
 				B9E6D7ED2B1293CB000BC88D /* HostedTranslationService.swift in Sources */,
 				B96EDD8B2B635A4D00CB925B /* SettingsPageReducer.swift in Sources */,
+				B9BD952B2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift in Sources */,
 				B9BEC83A2AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift in Sources */,
 				B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */,
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
@@ -4202,6 +4208,7 @@
 				B9E6D7C22B126390000BC88D /* String+CommonExtensions.swift in Sources */,
 				B9EFBA102B2691E600624794 /* CacheStrategy.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
+				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
 				B97DB5732AF45F6C002C2679 /* ToastViewModifier.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
@@ -4212,6 +4219,7 @@
 				B925A0942B6480A400111413 /* UIPasteboardDependency.swift in Sources */,
 				B9D0D7142B03006B00078A93 /* ProgressHUD.swift in Sources */,
 				B9D0D9432B03019E00078A93 /* NetworkEnvironment.swift in Sources */,
+				B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */,
 				B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B9D0D93D2B03019E00078A93 /* FirebaseAuthDependency.swift in Sources */,

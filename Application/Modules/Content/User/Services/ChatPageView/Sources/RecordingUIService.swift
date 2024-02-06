@@ -157,8 +157,8 @@ public final class RecordingUIService {
         durationLabel.text = Float(recordingDuration).durationString
         durationLabel.frame.size.width = durationLabel.intrinsicContentSize.width
 
-        let recordingImage = UIImage(named: Strings.recordingImageName)
-        let recordingImageFilled = UIImage(named: Strings.recordingFilledImageName)
+        let recordingImage = UIImage(resource: .recording)
+        let recordingImageFilled = UIImage(resource: .recordingFilled)
 
         UIView.transition(
             with: imageView,
@@ -236,7 +236,7 @@ public final class RecordingUIService {
             )
         )
 
-        imageView.image = UIImage(named: Strings.recordingImageName)
+        imageView.image = UIImage(resource: .recording)
         return imageView
     }
 

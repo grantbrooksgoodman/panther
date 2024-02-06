@@ -68,8 +68,8 @@ public struct SettingsContentPageView: View {
 
     private var buildInfoButton: some View {
         Group {
-            if viewModel.buildInfoButtonStrings.key == .copyright,
-               let image = colorScheme == .dark ? viewModel.buildInfoButtonDarkBackgroundImage : viewModel.buildInfoButtonLightBackgroundImage {
+            if viewModel.buildInfoButtonStrings.key == .copyright {
+                let image = colorScheme == .dark ? viewModel.buildInfoButtonDarkBackgroundImage : viewModel.buildInfoButtonLightBackgroundImage
                 Image(uiImage: image)
                     .renderingMode(.template)
                     .resizable()

@@ -70,7 +70,7 @@ public struct AudioService {
 
     public func highestQualityVoice(_ languageCode: String) -> AVSpeechSynthesisVoice? {
         func satisfiesConstraints(_ voice: AVSpeechSynthesisVoice) -> Bool {
-            guard voice.quality == .enhanced,
+            guard voice.quality == .enhanced || voice.quality == .premium,
                   !voice.audioFileSettings.isEmpty else { return false }
             return true
         }

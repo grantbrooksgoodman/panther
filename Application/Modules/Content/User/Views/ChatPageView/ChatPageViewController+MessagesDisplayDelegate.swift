@@ -48,7 +48,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         func configureGenericAvatar() {
             avatarView.backgroundColor = UIColor(Colors.displayDelegateGenericAvatarViewBackground)
-            avatarView.image = .init(named: Strings.displayDelegateGenericAvatarViewImageName)
+            avatarView.image = .contact
             avatarView.tintColor = UIColor(Colors.displayDelegateGenericAvatarViewTint)
         }
 

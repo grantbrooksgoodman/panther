@@ -18,7 +18,6 @@ public struct SplashPageView: View {
 
     private typealias Colors = AppConstants.Colors.SplashPageView
     private typealias Floats = AppConstants.CGFloats.SplashPageView
-    private typealias Strings = AppConstants.Strings.SplashPageView
 
     // MARK: - Properties
 
@@ -35,7 +34,7 @@ public struct SplashPageView: View {
 
     public var body: some View {
         VStack {
-            Image(uiImage: UIImage(named: Strings.imageName)!)
+            Image(.hello)
                 .resizable()
                 .renderingMode(colorScheme == .dark ? .template : .original)
                 .foregroundColor(colorScheme == .dark ? Colors.imageDarkForeground : .none)

@@ -35,11 +35,3 @@ public extension AppConstants.Colors {
         public static let signInButtonForeground: Color = .blue
     }
 }
-
-// MARK: - String
-
-public extension AppConstants.Strings {
-    enum WelcomePageView {
-        public static let imageName = "Hello"
-    }
-}

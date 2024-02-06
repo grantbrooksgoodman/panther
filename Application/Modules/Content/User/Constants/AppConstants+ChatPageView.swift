@@ -73,8 +73,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
-        public static let cellDelegateAudioMessageCellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
-
         public static let dataSourceCellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
         public static let dataSourceCellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
 
@@ -113,17 +111,6 @@ public extension AppConstants.Strings {
         public static let dataSourceMessageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
 
         public static let deliveryProgressViewSemanticTag = "DELIVERY_PROGRESS_VIEW"
-
-        public static let displayDelegateGenericAvatarViewImageName = "Contact.png"
-
-        public static let sendButtonAlternateDefaultImageName = "Send (Alternate).png"
-        public static let sendButtonAlternateHighlightedImageName = "Send (Alternate - Highlighted).png"
-
-        public static let sendButtonPrimaryDefaultImageName = "Send.png"
-        public static let sendButtonPrimaryHighlightedImageName = "Send (Highlighted).png"
-
-        public static let recordButtonDefaultImageName = "Record.png"
-        public static let recordButtonHighlightedImageName = "Record (Highlighted).png"
 
         public static let recordButtonSemanticTag = "RECORD_BUTTON"
         public static let sendButtonSemanticTag = "SEND_BUTTON"

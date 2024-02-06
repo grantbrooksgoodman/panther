@@ -39,12 +39,12 @@ public struct InputBarConfigService {
     public func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
         guard forRecording else {
             guard ThemeService.isDefaultThemeApplied else {
-                return .init(named: isHighlighted ? Strings.sendButtonAlternateHighlightedImageName : Strings.sendButtonAlternateDefaultImageName)
+                return isHighlighted ? .sendAlternateHighlighted : .sendAlternate
             }
 
-            return .init(named: isHighlighted ? Strings.sendButtonPrimaryHighlightedImageName : Strings.sendButtonPrimaryDefaultImageName)
+            return isHighlighted ? .sendHighlighted : .send
         }
 
-        return .init(named: isHighlighted ? Strings.recordButtonHighlightedImageName : Strings.recordButtonDefaultImageName)
+        return isHighlighted ? .recordHighlighted : .record
     }
 }

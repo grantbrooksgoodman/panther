@@ -59,9 +59,6 @@ public extension AppConstants.Strings {
 
         public static let imageViewSemanticTag = "IMAGE_VIEW"
 
-        public static let recordingFilledImageName = "Recording (Filled).png"
-        public static let recordingImageName = "Recording.png"
-
         public static let recordingViewSemanticTag = "RECORDING_VIEW"
     }
 }

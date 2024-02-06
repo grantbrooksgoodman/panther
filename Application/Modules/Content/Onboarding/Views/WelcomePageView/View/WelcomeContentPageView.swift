@@ -18,7 +18,6 @@ public struct WelcomeContentPageView: View {
 
     private typealias Colors = AppConstants.Colors.WelcomePageView
     private typealias Floats = AppConstants.CGFloats.WelcomePageView
-    private typealias Strings = AppConstants.Strings.WelcomePageView
 
     // MARK: - Properties
 
@@ -35,7 +34,7 @@ public struct WelcomeContentPageView: View {
 
     public var body: some View {
         VStack {
-            Image(uiImage: UIImage(named: Strings.imageName)!)
+            Image(.hello)
                 .resizable()
                 .renderingMode(colorScheme == .dark ? .template : .original)
                 .foregroundColor(colorScheme == .dark ? Colors.imageDarkForeground : .none)
