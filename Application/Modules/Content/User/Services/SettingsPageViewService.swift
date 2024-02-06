@@ -177,7 +177,7 @@ public final class SettingsPageViewService: Cacheable {
     /// `.longPressGestureRecognized`
     public func setClipboardWithHapticFeedback(_ string: String) {
         uiPasteboard.string = string
-        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        services.haptics.generateFeedback(.heavy)
     }
 
     // MARK: - Developer Mode List Items

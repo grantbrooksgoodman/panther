@@ -92,4 +92,10 @@ public final class ChatPageViewController: MessagesViewController {
 
         return textCell
     }
+
+    // MARK: - UITraitCollection
+
+    override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        viewService.onTraitCollectionDidChange(previousTraitCollection)
+    }
 }

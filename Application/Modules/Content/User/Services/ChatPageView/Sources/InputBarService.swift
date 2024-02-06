@@ -24,12 +24,12 @@ public final class InputBarService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
 
@@ -73,7 +73,7 @@ public final class InputBarService {
                     guard !self.inputBar.sendButton.isRecordButton else { return }
                 }
 
-                self.inputBar.sendButton.tag = self.coreUI.semTag(for: Strings.recordButtonSemanticTag)
+                self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.recordButtonSemanticTag)
 
                 UIView.transition(
                     with: self.inputBar.sendButton,
@@ -109,7 +109,7 @@ public final class InputBarService {
                     guard self.inputBar.sendButton.isRecordButton else { return }
                 }
 
-                self.inputBar.sendButton.tag = self.coreUI.semTag(for: Strings.sendButtonSemanticTag)
+                self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.sendButtonSemanticTag)
                 self.chatPageViewService.gestureRecognizer?.removeInputBarGestureRecognizers()
 
                 UIView.transition(
@@ -148,32 +148,34 @@ public final class InputBarService {
         switch command {
         case .cancelRecording:
             guard !isStoppingRecording,
-                  audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
+                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
-            if let exception = audioService.recording.cancelRecording() {
+            if let exception = services.audio.recording.cancelRecording() {
                 guard !exception.isEqual(toAny: [.couldntRemoveInput, .noAudioRecorderToStop]) else { return nil }
                 return exception
             }
 
+            playRecordingCancellationVibration()
             return nil
 
         case .startRecording:
-            guard !audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
-            audioService.playback.stopPlaying()
+            guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+            services.audio.playback.stopPlaying()
             await chatPageViewService.recordingUI?.showRecordingUI()
-            return audioService.recording.startRecording()
+            services.haptics.generateFeedback(.medium)
+            return services.audio.recording.startRecording()
 
         case .stopRecording:
             guard !isStoppingRecording,
-                  audioService.recording.isInOrWillTransitionToRecordingState else { return nil }
+                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
-            let stopRecordingResult = audioService.recording.stopRecording()
+            let stopRecordingResult = services.audio.recording.stopRecording()
 
             switch stopRecordingResult {
             case let .success(url):
@@ -188,6 +190,7 @@ public final class InputBarService {
 
             case let .failure(exception):
                 guard !exception.isEqual(toAny: [.noAudioRecorderToStop, .transcribeNoSuchFileOrDirectory]) else { return nil }
+                playRecordingCancellationVibration()
                 return exception
             }
         }
@@ -200,6 +203,7 @@ public final class InputBarService {
               let users = conversation.users,
               !text.isBlank else { return nil }
 
+        services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(text)
 
         toggleSendingUI(on: true)
@@ -270,6 +274,14 @@ public final class InputBarService {
         guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.reloadCollectionView()
+    }
+
+    private func playRecordingCancellationVibration() {
+        services.haptics.generateFeedback(.heavy)
+        core.gcd.after(.milliseconds(50)) {
+            self.services.haptics.generateFeedback(.heavy)
+            self.core.gcd.after(.milliseconds(50)) { self.services.haptics.generateFeedback(.heavy) }
+        }
     }
 
     private func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {

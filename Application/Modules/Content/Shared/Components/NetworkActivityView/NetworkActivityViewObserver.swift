@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import UIKit
 
 /* 3rd-party */
 import Redux
@@ -41,6 +40,7 @@ public final class NetworkActivityViewObserver: Observer {
     public func onChange(of observable: Observable<Any>) {
         @Dependency(\.build) var build: Build
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
+        @Dependency(\.commonServices.haptics) var haptics: HapticsService
 
         Logger.log(
             "\(observable.value as? Nil != nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -58,7 +58,7 @@ public final class NetworkActivityViewObserver: Observer {
                build.developerModeEnabled,
                let indicatesNetworkActivity,
                indicatesNetworkActivity {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                haptics.generateFeedback(.medium)
             }
 
             let taskID = UUID()

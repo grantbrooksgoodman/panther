@@ -21,6 +21,7 @@ public final class ChatPageViewService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -67,7 +68,7 @@ public final class ChatPageViewService {
 
         guard !isInstantiatingForPreview else {
             viewController?.messageInputBar.isHidden = true
-            viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+            core.gcd.after(.milliseconds(10)) { self.viewController?.messagesCollectionView.scrollToLastItem(animated: false) }
             return
         }
 
@@ -98,6 +99,17 @@ public final class ChatPageViewService {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
             Logger.log(exception, with: .toast())
         }
+    }
+
+    // MARK: - UITraitCollection
+
+    public func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
+        viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
+        core.ui.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+        viewController?.navigationController?.isNavigationBarHidden = true
+        viewController?.navigationController?.isNavigationBarHidden = false
+        reloadCollectionView()
     }
 
     // MARK: - Auxiliary

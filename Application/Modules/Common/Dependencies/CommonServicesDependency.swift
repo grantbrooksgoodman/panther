@@ -26,6 +26,14 @@ public enum CommonServicesDependency: DependencyKey {
                 contactPairArchive: .init(),
                 sync: .init()
             ),
+            haptics: .init(
+                heavyImpactFeedbackGenerator: .init(style: .heavy),
+                lightImpactFeedbackGenerator: .init(style: .light),
+                mediumImpactFeedbackGenerator: .init(style: .medium),
+                rigidImpactFeedbackGenerator: .init(style: .rigid),
+                selectionFeedbackGenerator: .init(),
+                softImpactFeedbackGenerator: .init(style: .soft)
+            ),
             invite: .init(),
             metadata: .init(),
             networkActivityIndicator: .init(),

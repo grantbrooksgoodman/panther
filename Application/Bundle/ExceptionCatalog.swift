@@ -24,6 +24,7 @@ public enum AppException: String {
     case genericStorageError = "C81B"
     case kAFAssistantError = "F59D"
     case noAudioRecorderToStop = "E44E"
+    case notAuthorizedForContacts = "B7FC"
     case notRegisteredForPushNotifications = "FB09"
     case noSpeechDetected = "24F2"
     case noUserWithHashes = "1181"
@@ -38,7 +39,6 @@ public enum AppException: String {
     case avFoundationError = "EA73"
     case contactAccessDenied = "F6E6"
     case couldntRemoveInput = "F9A1"
-    case notAuthorizedForContacts = "16AA"
     case transcribeNoSuchFileOrDirectory = "5BBC"
 }
 

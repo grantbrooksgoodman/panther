@@ -85,7 +85,7 @@ public final class NotificationService {
                 for pushToken in pushTokens {
                     if let exception = await sendNotification(
                         title: currentUser.phoneNumber.formattedString(),
-                        body: body ?? "🔊 \(Localized(.audioMessage).wrappedValue)",
+                        body: body ?? "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)",
                         badgeNumber: badgeNumber,
                         pushToken: pushToken,
                         extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]

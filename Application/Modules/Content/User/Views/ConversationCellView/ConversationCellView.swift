@@ -133,26 +133,32 @@ public struct ConversationCellView: View {
     }
 
     private func chatPageView(forPreview: Bool) -> some View {
+        func configure(_ anyView: AnyView) -> some View {
+            guard ThemeService.isDefaultThemeApplied else {
+                return AnyView(anyView.toolbarBackground(Color.navigationBarBackground, for: .navigationBar))
+            }
+
+            return anyView
+        }
+
         var pageView: AnyView = .init(
             ChatPageView(viewModel.conversation, forPreview: forPreview)
                 .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
                 .ignoresSafeArea(.keyboard)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.cellViewData.titleLabelText)
-                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         )
 
         guard forPreview else {
             pageView = AnyView(
                 pageView
-                    .navigationBarColor(background: .navigationBarBackground, titleText: .navigationBarTitle)
                     .onAppear {
                         viewModel.send(.chatPageViewAppeared)
                     }
             )
-            return pageView
+            return configure(pageView)
         }
 
-        return pageView
+        return configure(pageView)
     }
 }

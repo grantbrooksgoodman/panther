@@ -21,7 +21,7 @@ public struct RegionMenu: View {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
 
@@ -42,7 +42,7 @@ public struct RegionMenu: View {
             isPresented.toggle()
         } label: {
             VStack {
-                Image(uiImage: regionDetailService.image(by: .regionCode(selectedRegionCode)) ?? .init())
+                Image(uiImage: services.regionDetail.image(by: .regionCode(selectedRegionCode)) ?? .init())
                     .resizable()
                     .frame(
                         width: Floats.buttonLabelImageFrameWidth,
@@ -51,7 +51,7 @@ public struct RegionMenu: View {
                     .cornerRadius(Floats.buttonLabelImageCornerRadius)
                     .aspectRatio(contentMode: .fit)
 
-                Text("+\(regionDetailService.callingCode(regionCode: selectedRegionCode) ?? "1")")
+                Text("+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")")
                     .foregroundStyle(Colors.buttonLabelTextForeground)
                     .multilineTextAlignment(.center)
             }
@@ -78,7 +78,7 @@ public struct RegionMenu: View {
                 )
             )
             .frame(maxWidth: .infinity, alignment: .top)
-            .onAppear { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
+            .onAppear { services.haptics.generateFeedback(.medium) }
         }
     }
 }

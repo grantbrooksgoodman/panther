@@ -19,7 +19,7 @@ public protocol Cacheable {
     func clearCache()
 }
 
-public class Cache {
+public final class Cache {
     // MARK: - Properties
 
     private let threadLock = NSLock()

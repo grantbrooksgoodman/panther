@@ -18,6 +18,7 @@ public struct CommonServices {
     public let analytics: AnalyticsService
     public let audio: AudioService
     public let contact: ContactService
+    public let haptics: HapticsService
     public let invite: InviteService
     public let metadata: MetadataService
     public let networkActivityIndicator: NetworkActivityIndicatorService
@@ -36,6 +37,7 @@ public struct CommonServices {
         analytics: AnalyticsService,
         audio: AudioService,
         contact: ContactService,
+        haptics: HapticsService,
         invite: InviteService,
         metadata: MetadataService,
         networkActivityIndicator: NetworkActivityIndicatorService,
@@ -51,6 +53,7 @@ public struct CommonServices {
         self.analytics = analytics
         self.audio = audio
         self.contact = contact
+        self.haptics = haptics
         self.invite = invite
         self.metadata = metadata
         self.networkActivityIndicator = networkActivityIndicator
