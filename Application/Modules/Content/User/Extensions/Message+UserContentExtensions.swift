@@ -28,9 +28,7 @@ extension Message: MessageType {
     public var kind: MessageKind {
         guard hasAudioComponent,
               let audioComponent else { return .text(isFromCurrentUser ? translation.input.value() : translation.output) }
-
-        let fileToUse = isFromCurrentUser ? audioComponent.original : audioComponent.translated
-        return .audio(fileToUse)
+        return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
     }
 
     public var messageId: String { id }
@@ -40,9 +38,7 @@ extension Message: MessageType {
 // swiftformat:enable acronyms
 
 public extension Message {
-    var backgroundColor: UIColor {
-        isFromCurrentUser ? .senderBubble : .receiverBubble
-    }
+    var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
 
     static var empty: Message {
         .init(

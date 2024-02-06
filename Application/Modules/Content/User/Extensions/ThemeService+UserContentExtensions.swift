@@ -10,7 +10,5 @@
 import Foundation
 
 public extension ThemeService {
-    static var isDefaultThemeApplied: Bool {
-        currentTheme == AppTheme.default.theme
-    }
+    static var isDefaultThemeApplied: Bool { currentTheme == AppTheme.default.theme }
 }

@@ -48,7 +48,7 @@ public struct MessageSessionService {
                 with: .init(from: currentUser.languageCode, to: languageCode)
             )
 
-            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.translationDeliveryProgressIncrement)
+            incrementDeliveryProgress(in: conversation, by: Constants.translationDeliveryProgressIncrement)
 
             switch translateResult {
             case let .success(translation):
@@ -96,7 +96,9 @@ public struct MessageSessionService {
 
         switch transcribeResult {
         case let .success(transcription):
-            clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+            if shouldAnimateDeliveryProgress(in: conversation) {
+                clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+            }
 
             let users = users.filter { $0 != currentUser }
             var translations = [Translation]()
@@ -108,7 +110,7 @@ public struct MessageSessionService {
                     with: .init(from: currentUser.languageCode, to: languageCode)
                 )
 
-                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.translationDeliveryProgressIncrement)
+                incrementDeliveryProgress(in: conversation, by: Constants.translationDeliveryProgressIncrement / .init(users.count))
 
                 switch translateResult {
                 case let .success(translation):
@@ -119,7 +121,7 @@ public struct MessageSessionService {
                         languageCode: languageCode
                     )
 
-                    clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.readToFileDeliveryProgressIncrement)
+                    incrementDeliveryProgress(in: conversation, by: Constants.readToFileDeliveryProgressIncrement / .init(users.count))
 
                     switch readToFileResult {
                     case let .success(url):
@@ -178,7 +180,7 @@ public struct MessageSessionService {
         func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
             let addMessagesResult = await clientSession.conversation.addMessages([message], to: conversation)
 
-            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.addMessageDeliveryProgressIncrement)
+            incrementDeliveryProgress(in: conversation, by: Constants.addMessageDeliveryProgressIncrement)
             clientSession.user.startObservingCurrentUserChanges()
 
             switch addMessagesResult {
@@ -198,7 +200,7 @@ public struct MessageSessionService {
             audioComponents: audioComponents
         )
 
-        clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.createMessageDeliveryProgressIncrement)
+        incrementDeliveryProgress(in: conversation, by: Constants.createMessageDeliveryProgressIncrement)
 
         switch createMessageResult {
         case let .success(message):
@@ -207,7 +209,7 @@ public struct MessageSessionService {
                 return .failure(exception)
             }
 
-            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.notifyDeliveryProgressIncrement)
+            incrementDeliveryProgress(in: conversation, by: Constants.notifyDeliveryProgressIncrement)
 
             if let conversation {
                 let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
@@ -218,7 +220,7 @@ public struct MessageSessionService {
 
                 let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
 
-                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.updateValueDeliveryProgressIncrement)
+                incrementDeliveryProgress(in: conversation, by: Constants.updateValueDeliveryProgressIncrement)
 
                 switch updateValueResult {
                 case let .success(conversation):
@@ -237,7 +239,7 @@ public struct MessageSessionService {
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )
 
-                clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: Constants.createConversationDeliveryProgressIncrement)
+                incrementDeliveryProgress(in: conversation, by: Constants.createConversationDeliveryProgressIncrement)
                 clientSession.user.startObservingCurrentUserChanges()
 
                 switch createConversationResult {
@@ -253,5 +255,14 @@ public struct MessageSessionService {
             clientSession.user.startObservingCurrentUserChanges()
             return .failure(exception)
         }
+    }
+
+    private func incrementDeliveryProgress(in conversation: Conversation?, by: Float) {
+        guard shouldAnimateDeliveryProgress(in: conversation) else { return }
+        clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
+    }
+
+    private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {
+        clientSession.conversation.currentConversation?.id.key == conversation?.id.key
     }
 }

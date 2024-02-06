@@ -217,7 +217,9 @@ public final class InputBarService {
 
         configureInputBar(forceUpdate: true)
         toggleSendingUI(on: false)
-        chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
+        if await viewController.currentConversation?.id.key == conversation.id.key {
+            chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
+        }
 
         switch sendTextMessageResult {
         case let .success(conversation):
@@ -304,7 +306,9 @@ public final class InputBarService {
 
         switch sendAudioMessageResult {
         case let .success(conversation):
-            chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
+            if await viewController.currentConversation?.id.key == conversation.id.key {
+                chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
+            }
 
             guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
             clientSession.conversation.setCurrentConversation(conversation)

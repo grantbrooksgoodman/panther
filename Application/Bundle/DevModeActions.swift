@@ -88,7 +88,7 @@ public extension DevModeService {
                         showsCancelButton: false,
                         shouldTranslate: [.none]
                     ).present { _ in
-                        fatalError()
+                        exit(0)
                     }
                     return
                 }

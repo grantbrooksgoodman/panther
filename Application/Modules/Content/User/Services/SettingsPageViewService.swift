@@ -113,7 +113,7 @@ public final class SettingsPageViewService: Cacheable {
 
             Task {
                 _ = await alert.present()
-                fatalError()
+                exit(0)
             }
         }
 
