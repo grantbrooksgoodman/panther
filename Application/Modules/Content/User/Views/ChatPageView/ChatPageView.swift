@@ -26,17 +26,19 @@ public struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Properties
 
     private let conversation: Conversation
+    private let forPreview: Bool
 
     // MARK: - Init
 
-    public init(_ conversation: Conversation) {
+    public init(_ conversation: Conversation, forPreview: Bool) {
         self.conversation = conversation
+        self.forPreview = forPreview
     }
 
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> MessagesViewController {
-        viewService.instantiateViewController(conversation)
+        viewService.instantiateViewController(conversation, forPreview: forPreview)
     }
 
     // MARK: - Update UIViewController

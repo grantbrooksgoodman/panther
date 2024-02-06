@@ -20,6 +20,7 @@ public enum AppException: String {
 
     case currentUserIDNotSet = "EA90"
     case exhaustedAvailablePlatforms = "C526"
+    case fileDoesNotExist = "9207"
     case genericStorageError = "C81B"
     case kAFAssistantError = "F59D"
     case noAudioRecorderToStop = "E44E"
@@ -37,7 +38,6 @@ public enum AppException: String {
     case avFoundationError = "EA73"
     case contactAccessDenied = "F6E6"
     case couldntRemoveInput = "F9A1"
-    case fileDoesNotExist = "BB00"
     case notAuthorizedForContacts = "16AA"
     case transcribeNoSuchFileOrDirectory = "5BBC"
 }

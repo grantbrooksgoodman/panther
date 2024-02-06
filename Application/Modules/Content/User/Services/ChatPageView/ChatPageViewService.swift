@@ -31,12 +31,14 @@ public final class ChatPageViewService {
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
+    private var isInstantiatingForPreview = false
     private var viewController: ChatPageViewController?
 
     // MARK: - Instantiate View Controller
 
-    public func instantiateViewController(_ conversation: Conversation) -> MessagesViewController {
+    public func instantiateViewController(_ conversation: Conversation, forPreview: Bool) -> MessagesViewController {
         clientSession.conversation.setCurrentConversation(conversation)
+        isInstantiatingForPreview = forPreview
 
         let viewController = chatPageViewControllerFactory.buildViewController()
         self.viewController = viewController
@@ -61,9 +63,17 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidAppear() {
+        typingIndicator?.startCheckingForTypingIndicatorChanges()
+
+        guard !isInstantiatingForPreview else {
+            viewController?.messageInputBar.isHidden = true
+            viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+            return
+        }
+
         gestureRecognizer?.configureInputBarGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
-        typingIndicator?.startCheckingForTypingIndicatorChanges()
+        viewController?.becomeFirstResponder()
         viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
 

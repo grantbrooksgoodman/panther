@@ -56,6 +56,7 @@ public final class TypingIndicatorService {
 
     @objc
     private func checkForTypingIndicatorChanges() {
+        // TODO: Ensure not waiting to update conversation – if about to add a message, NSInternalInconsistencyException.
         @Persistent(.currentUserID) var currentUserID: String?
         guard let conversation = viewController.currentConversation,
               conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {

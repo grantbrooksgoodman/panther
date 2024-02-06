@@ -59,14 +59,13 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             return
         }
 
-        if let imageData = contactPair.contact.imageData,
-           let image = UIImage(data: imageData) {
-            avatarView.image = image
-        } else {
-            let firstInitial = contactPair.contact.firstName.firstUppercase
-            let lastInitial = contactPair.contact.lastName.firstUppercase
-            avatarView.set(avatar: .init(initials: "\(firstInitial) \(lastInitial)"))
+        guard let imageData = contactPair.contact.imageData,
+              let image = UIImage(data: imageData) else {
+            avatarView.set(avatar: .init(initials: contactPair.contact.initials))
+            return
         }
+
+        avatarView.image = image
     }
 
     // MARK: - Detector Attributes
@@ -76,11 +75,9 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         and message: MessageType,
         at indexPath: IndexPath
     ) -> [NSAttributedString.Key: Any] {
-        @Dependency(\.uiApplication) var uiApplication: UIApplication
-
         guard let message = message as? Message else { return .init() }
 
-        let isDarkMode = uiApplication.interfaceStyle == .dark
+        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
         let primaryColor = UIColor(Colors.displayDelegateDetectorAttributesPrimaryForeground)
         let alternateColor = UIColor(Colors.displayDelegateDetectorAttributesAlternateForeground)
         let colorToUse = message.isFromCurrentUser ? primaryColor : (isDarkMode ? primaryColor : alternateColor)

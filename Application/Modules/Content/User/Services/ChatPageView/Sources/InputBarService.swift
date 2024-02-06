@@ -217,6 +217,7 @@ public final class InputBarService {
 
         switch sendTextMessageResult {
         case let .success(conversation):
+            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -266,6 +267,7 @@ public final class InputBarService {
             users: conversation.users
         )
 
+        guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.reloadCollectionView()
     }
@@ -292,6 +294,7 @@ public final class InputBarService {
         case let .success(conversation):
             chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
 
+            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -343,6 +346,7 @@ public final class InputBarService {
 
         switch updateValueResult {
         case let .success(conversation):
+            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
             clientSession.conversation.setCurrentConversation(conversation)
             return nil
 

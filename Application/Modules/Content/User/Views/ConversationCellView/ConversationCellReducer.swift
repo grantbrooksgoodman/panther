@@ -54,6 +54,7 @@ public struct ConversationCellReducer: Reducer {
         // Other
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
+        @Localized(.delete) public var deleteConversationButtonText: String
         public var isPresentingUserInfoAlert = false
 
         /* MARK: Init */
@@ -76,6 +77,7 @@ public struct ConversationCellReducer: Reducer {
             state.cellViewData = cellViewData
 
         case .action(.chatPageViewAppeared):
+            // TODO: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
             let conversation = state.conversation
 
             guard let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),

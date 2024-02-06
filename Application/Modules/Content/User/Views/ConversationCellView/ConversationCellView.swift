@@ -35,7 +35,7 @@ public struct ConversationCellView: View {
     public var body: some View {
         ZStack {
             NavigationLink {
-                chatPageView
+                chatPageView(forPreview: false)
             } label: {
                 EmptyView()
             }
@@ -44,6 +44,15 @@ public struct ConversationCellView: View {
             .opacity(Floats.navigationLinkOpacity)
 
             cellView
+        }
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.send(.deleteConversationButtonTapped)
+            } label: {
+                Label(viewModel.deleteConversationButtonText, systemImage: Strings.deleteConversationButtonImageSystemName)
+            }
+        } preview: {
+            chatPageView(forPreview: true)
         }
         .frame(height: Floats.frameHeight)
         .swipeActions(allowsFullSwipe: false) {
@@ -123,16 +132,27 @@ public struct ConversationCellView: View {
         }
     }
 
-    private var chatPageView: some View {
-        ChatPageView(viewModel.conversation)
-            .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
-            .ignoresSafeArea(.keyboard)
-            .navigationBarColor(background: .navigationBarBackground, titleText: .navigationBarTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(viewModel.cellViewData.titleLabelText)
-            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
-            .onAppear {
-                viewModel.send(.chatPageViewAppeared)
-            }
+    private func chatPageView(forPreview: Bool) -> some View {
+        var pageView: AnyView = .init(
+            ChatPageView(viewModel.conversation, forPreview: forPreview)
+                .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
+                .ignoresSafeArea(.keyboard)
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle(viewModel.cellViewData.titleLabelText)
+                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
+        )
+
+        guard forPreview else {
+            pageView = AnyView(
+                pageView
+                    .navigationBarColor(background: .navigationBarBackground, titleText: .navigationBarTitle)
+                    .onAppear {
+                        viewModel.send(.chatPageViewAppeared)
+                    }
+            )
+            return pageView
+        }
+
+        return pageView
     }
 }

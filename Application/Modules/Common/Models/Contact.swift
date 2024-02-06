@@ -51,6 +51,14 @@ public struct Contact: Codable, EncodedHashable, Equatable {
         return .init()
     }
 
+    public var initials: String {
+        fullName.components(separatedBy: " ").reduce(into: [String]()) { partialResult, string in
+            if let firstLetter = string.components.first?.uppercased() {
+                partialResult.append(firstLetter)
+            }
+        }.joined()
+    }
+
     // MARK: - Init
 
     public init(

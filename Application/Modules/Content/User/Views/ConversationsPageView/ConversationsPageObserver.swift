@@ -101,7 +101,22 @@ public struct ConversationsPageObserver: Observer {
                       .filter({ !$0.isFromCurrentUser })
                       .filter({ $0.readDate == nil }),
                       !missingMessages.isEmpty else {
+                    guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
                     clientSession.conversation.setCurrentConversation(updatedConversation)
+
+                    let currentAmountOfReadMessages = currentConversation
+                        .messages?
+                        .filter { updatedConversation.messages?.contains($0) ?? false }
+                        .compactMap(\.readDate)
+                        .count
+
+                    let updatedAmountOfReadMessages = updatedConversation
+                        .messages?
+                        .compactMap(\.readDate)
+                        .count
+
+                    guard currentAmountOfReadMessages != updatedAmountOfReadMessages else { return }
+                    chatPageViewService.reloadCollectionView() // Reload to display updated read date.
                     return
                 }
 
@@ -109,6 +124,7 @@ public struct ConversationsPageObserver: Observer {
 
                 switch updateReadDateResult {
                 case let .success(conversation):
+                    guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
                     clientSession.conversation.setCurrentConversation(conversation)
                     chatPageViewService.reloadCollectionView()
 

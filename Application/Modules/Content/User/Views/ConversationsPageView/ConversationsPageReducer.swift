@@ -100,14 +100,6 @@ public struct ConversationsPageReducer: Reducer {
 
             viewService.viewAppeared()
 
-            // swiftlint:disable all
-            @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
-            coreGCD.after(.seconds(1)) {
-                print("Hello world compressed hash: \("Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world".encodedHash)")
-//                print("Hello world compact hash: \("Hello world".encodedHash)")
-            }
-            // swiftlint:enable all
-
             return .task {
                 let result = await translator.resolve(ConversationsPageViewStrings.self)
                 return .resolveReturned(result)
