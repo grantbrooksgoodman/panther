@@ -275,6 +275,7 @@
 		B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C62B1A42980016948C /* TranscriptionService.swift */; };
 		B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C82B1A42A20016948C /* PlaybackService.swift */; };
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
+		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF12AC0C5F00077D1BC /* TranslationMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF02AC0C5F00077D1BC /* TranslationMap.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BB3CF72AC1486D0077D1BC /* AKTranslationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF62AC1486D0077D1BC /* AKTranslationDelegate.swift */; };
@@ -282,9 +283,9 @@
 		B9BD952B2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BEC83A2AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */; };
-		B9BF37F62B6DAEB800024548 /* DeliveryProgressionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */; };
+		B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */; };
 		B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */; };
-		B9BF37FE2B6DC06600024548 /* ClientSessionConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* ClientSessionConstants.swift */; };
+		B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */; };
 		B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F229BEC263009DCE29 /* DevModeAction.swift */; };
 		B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F429BEC266009DCE29 /* DevModeService.swift */; };
 		B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582FE29BECA8D009DCE29 /* Timeout.swift */; };
@@ -1064,6 +1065,7 @@
 		B9B193C62B1A42980016948C /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		B9B193C82B1A42A20016948C /* PlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackService.swift; sourceTree = "<group>"; };
 		B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVSpeechSynthesizerDependency.swift; sourceTree = "<group>"; };
+		B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDeliveryService.swift; sourceTree = "<group>"; };
 		B9BB3CF02AC0C5F00077D1BC /* TranslationMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationMap.swift; sourceTree = "<group>"; };
 		B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatedLabelStringCollection.swift; sourceTree = "<group>"; };
 		B9BB3CF62AC1486D0077D1BC /* AKTranslationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKTranslationDelegate.swift; sourceTree = "<group>"; };
@@ -1071,9 +1073,9 @@
 		B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioMessagePlaybackService.swift"; sourceTree = "<group>"; };
 		B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioFile.swift"; sourceTree = "<group>"; };
 		B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+CoreExtensions.swift"; sourceTree = "<group>"; };
-		B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressionService.swift; sourceTree = "<group>"; };
+		B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressIndicatorService.swift; sourceTree = "<group>"; };
 		B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressIndicatorProtocol.swift; sourceTree = "<group>"; };
-		B9BF37FD2B6DC06600024548 /* ClientSessionConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionConstants.swift; sourceTree = "<group>"; };
+		B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+MessageSessionService.swift"; sourceTree = "<group>"; };
 		B9C582F229BEC263009DCE29 /* DevModeAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevModeAction.swift; sourceTree = "<group>"; };
 		B9C582F429BEC266009DCE29 /* DevModeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevModeService.swift; sourceTree = "<group>"; };
 		B9C582FE29BECA8D009DCE29 /* Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timeout.swift; sourceTree = "<group>"; };
@@ -2353,9 +2355,10 @@
 			isa = PBXGroup;
 			children = (
 				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
-				B9BF37F52B6DAEB800024548 /* DeliveryProgressionService.swift */,
+				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
 				B9627C622B6EC325004EE9DA /* GestureRecognizerService.swift */,
 				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
+				B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
@@ -2373,7 +2376,7 @@
 		B9BF37FC2B6DC05C00024548 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
-				B9BF37FD2B6DC06600024548 /* ClientSessionConstants.swift */,
+				B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -3916,6 +3919,7 @@
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
 				B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */,
 				B93BCDF32AADA47400AA16FE /* BuildConfig.swift in Sources */,
+				B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */,
 				B9E7D46E2AAD117A00FAF2A9 /* Core.swift in Sources */,
 				B9E7D4762AAD35CE00FAF2A9 /* Date+CoreExtensions.swift in Sources */,
 				B9F5609D2B69A4A0009ABDD5 /* AppGroupDefaultsDependency.swift in Sources */,
@@ -3963,7 +3967,7 @@
 				B9E0E0F52B20E9C000C14274 /* AudioMessageReference.swift in Sources */,
 				B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */,
 				B9D0D93A2B03019E00078A93 /* FirebaseDatabaseDependency.swift in Sources */,
-				B9BF37FE2B6DC06600024548 /* ClientSessionConstants.swift in Sources */,
+				B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */,
 				B9E7D4742AAD359000FAF2A9 /* Array+CoreExtensions.swift in Sources */,
 				B93CAEAC2AF4622500C03BF4 /* Toast+Style.swift in Sources */,
 				B980E8B42B225F380090F141 /* User+Serializable.swift in Sources */,
@@ -4006,7 +4010,7 @@
 				B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */,
 				B900B5442B1ACC6100BA2F1D /* Contact.swift in Sources */,
 				B9C5E9132AB161B6004D79DA /* EmptyReducer.swift in Sources */,
-				B9BF37F62B6DAEB800024548 /* DeliveryProgressionService.swift in Sources */,
+				B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */,
 				A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */,
 				B9E0E0F32B20E89B00C14274 /* Message.swift in Sources */,
 				B90249D42B5745BF00D62855 /* AppConstants+PermissionPageView.swift in Sources */,

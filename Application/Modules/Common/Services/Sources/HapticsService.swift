@@ -55,24 +55,26 @@ public struct HapticsService {
     // MARK: - Methods
 
     public func generateFeedback(_ style: HapticFeedbackStyle) {
-        switch style {
-        case .heavy:
-            heavyImpactFeedbackGenerator.impactOccurred()
+        Task { @MainActor in
+            switch style {
+            case .heavy:
+                heavyImpactFeedbackGenerator.impactOccurred()
 
-        case .light:
-            lightImpactFeedbackGenerator.impactOccurred()
+            case .light:
+                lightImpactFeedbackGenerator.impactOccurred()
 
-        case .medium:
-            mediumImpactFeedbackGenerator.impactOccurred()
+            case .medium:
+                mediumImpactFeedbackGenerator.impactOccurred()
 
-        case .rigid:
-            rigidImpactFeedbackGenerator.impactOccurred()
+            case .rigid:
+                rigidImpactFeedbackGenerator.impactOccurred()
 
-        case .selection:
-            selectionFeedbackGenerator.selectionChanged()
+            case .selection:
+                selectionFeedbackGenerator.selectionChanged()
 
-        case .soft:
-            softImpactFeedbackGenerator.impactOccurred()
+            case .soft:
+                softImpactFeedbackGenerator.impactOccurred()
+            }
         }
     }
 }

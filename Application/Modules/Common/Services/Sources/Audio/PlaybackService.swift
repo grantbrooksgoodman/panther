@@ -27,10 +27,11 @@ public final class PlaybackService {
 
     private var failedToFinishPlayingEffect: (() -> Void)?
     private var finishedPlayingEffect: (() -> Void)?
+    private var stopPlayingEffect: (() -> Void)?
 
     // MARK: - Computed Properties
 
-    public var isPlaying: Bool { avQueuePlayer.items().isEmpty }
+    public var isPlaying: Bool { !avQueuePlayer.items().isEmpty }
 
     // MARK: - Object Lifecycle
 
@@ -64,9 +65,8 @@ public final class PlaybackService {
     }
 
     public func stopPlaying() {
-        stopObservingPlayerState()
         avQueuePlayer.removeAllItems()
-        currentPlayerItem = nil
+        didStopPlaying()
     }
 
     // MARK: - Side Effects
@@ -79,6 +79,11 @@ public final class PlaybackService {
     /// Sets an effect to be run once, upon the next posting of `AVPlayerItemDidPlayToEndTime` notification.
     public func onFinishedPlaying(_ effect: @escaping () -> Void) {
         finishedPlayingEffect = effect
+    }
+
+    /// Sets an effect to be run once, upon the next call to `stopPlaying()`.
+    public func onStopPlaying(_ effect: @escaping () -> Void) {
+        stopPlayingEffect = effect
     }
 
     // MARK: - Auxiliary
@@ -96,6 +101,15 @@ public final class PlaybackService {
     private func didFinishPlaying() {
         finishedPlayingEffect?()
         finishedPlayingEffect = nil
+
+        stopObservingPlayerState()
+        currentPlayerItem = nil
+    }
+
+    @objc
+    private func didStopPlaying() {
+        stopPlayingEffect?()
+        stopPlayingEffect = nil
 
         stopObservingPlayerState()
         currentPlayerItem = nil

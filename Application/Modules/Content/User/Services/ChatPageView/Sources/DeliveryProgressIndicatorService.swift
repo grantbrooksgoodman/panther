@@ -1,5 +1,5 @@
 //
-//  DeliveryProgressionService.swift
+//  DeliveryProgressIndicatorService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 02/02/2024.
@@ -13,7 +13,7 @@ import UIKit
 /* 3rd-party */
 import Redux
 
-public final class DeliveryProgressionService: DeliveryProgressIndicator {
+public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageView

@@ -50,8 +50,9 @@ public final class AudioMessagePlaybackService {
     // MARK: - Did Tap Play Button
 
     public func didTapPlayButton(in cell: AudioMessageCell) -> Exception? {
-        guard let message = message(for: cell),
-              let audioFile = audioFile(for: message),
+        guard let message = message(for: cell) else { return nil }
+        let fallbackAudioFile = message.isFromCurrentUser ? message.audioComponent?.original : message.audioComponent?.translated
+        guard let audioFile = audioFile(for: message) ?? fallbackAudioFile,
               !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
 
         services.haptics.generateFeedback(.medium)
@@ -83,7 +84,7 @@ public final class AudioMessagePlaybackService {
 
         return services.audio.playback.playAudio(url: audioFile.url)
     }
-    
+
     // MARK: - Stop Playback
 
     public func stopPlayback() {
@@ -143,13 +144,27 @@ public final class AudioMessagePlaybackService {
             guard let cell = cell as? AudioMessageCell,
                   cell.playButton.isSelected || cell.progressView.progress > 0 else { continue }
 
+            func setDefaultDurationLabelText() {
+                cell.durationLabel.text = Strings.cellDefaultDurationLabelText
+            }
+
             cell.playButton.isSelected = false
             cell.progressView.progress = 0
 
-            guard let message = message(for: cell),
-                  let audioFile = audioFile(for: message) else {
-                cell.durationLabel.text = Strings.cellDefaultDurationLabelText
+            guard let message = message(for: cell) else {
+                setDefaultDurationLabelText()
                 continue
+            }
+
+            let fallbackAudioFile = message.isFromCurrentUser ? message.audioComponent?.original : message.audioComponent?.translated
+            guard let audioFile = audioFile(for: message) ?? fallbackAudioFile else {
+                setDefaultDurationLabelText()
+                continue
+            }
+
+            guard fallbackAudioFile == nil else {
+                cell.durationLabel.text = fallbackAudioFile?.duration.durationString ?? Strings.cellDefaultDurationLabelText
+                return
             }
 
             notificationCenter.addObserver(

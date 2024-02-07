@@ -90,27 +90,6 @@ extension ChatPageViewController: MessagesDataSource {
         return messages[indexPath.section].sentDate.chatPageMessageSeparatorAttributedDateString
     }
 
-    // MARK: - Configure Audio Cell
-
-    public func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
-        guard let message = message as? Message else { return }
-        cell.playButton.isEnabled = !message.isMock // TODO: Audit this.
-
-        guard message.isFromCurrentUser else {
-            cell.durationLabel.textColor = .accent
-            cell.playButton.tintColor = .accent
-            cell.progressView.progressTintColor = .accent
-            cell.progressView.trackTintColor = nil
-            return
-        }
-
-        guard ThemeService.isDefaultThemeApplied else { return }
-        cell.progressView.trackTintColor = message
-            .backgroundColor
-            .darker(by: Floats.dataSourceAudioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage)?
-            .withAlphaComponent(Floats.dataSourceAudioCellProgressViewDefaultThemeTrackTintColorAlphaComponent)
-    }
-
     // MARK: - Message Bottom Label Attributed Text
 
     public func messageBottomLabelAttributedText(

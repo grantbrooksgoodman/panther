@@ -20,7 +20,6 @@ public enum AppException: String {
 
     case currentUserIDNotSet = "EA90"
     case exhaustedAvailablePlatforms = "C526"
-    case fileDoesNotExist = "9207"
     case genericStorageError = "C81B"
     case kAFAssistantError = "F59D"
     case noAudioRecorderToStop = "E44E"
@@ -32,6 +31,7 @@ public enum AppException: String {
     case noValueExists = "BE3A"
     case sameBadgeNumber = "E1C7"
     case sameTranslationInputOutput = "6CEB"
+    case storageItemDoesNotExist = "9207"
     case timedOut = "801F"
 
     // FIXME: All of the below need regeneration.

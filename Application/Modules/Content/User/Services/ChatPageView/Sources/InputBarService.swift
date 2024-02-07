@@ -14,7 +14,6 @@ import UIKit
 import InputBarAccessoryView
 import Redux
 
-// swiftlint:disable:next type_body_length
 public final class InputBarService {
     // MARK: - Constants Accessors
 
@@ -186,7 +185,7 @@ public final class InputBarService {
                     )
                 }
 
-                return await sendAudioMessage(inputFile)
+                return await chatPageViewService.messageDelivery?.sendAudioMessage(inputFile)
 
             case let .failure(exception):
                 guard !exception.isEqual(toAny: [.noAudioRecorderToStop, .transcribeNoSuchFileOrDirectory]) else { return nil }
@@ -199,38 +198,7 @@ public final class InputBarService {
     // MARK: - Did Press Send Button
 
     public func didPressSendButton(with text: String) async -> Exception? {
-        guard let conversation = await viewController.currentConversation,
-              let users = conversation.users,
-              !text.isBlank else { return nil }
-
-        services.haptics.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(text)
-
-        toggleSendingUI(on: true)
-        chatPageViewService.deliveryProgression?.startAnimatingDeliveryProgress()
-
-        let sendTextMessageResult = await clientSession.message.sendTextMessage(
-            text,
-            toUsers: users,
-            inConversation: conversation
-        )
-
-        configureInputBar(forceUpdate: true)
-        toggleSendingUI(on: false)
-        if await viewController.currentConversation?.id.key == conversation.id.key {
-            chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
-        }
-
-        switch sendTextMessageResult {
-        case let .success(conversation):
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
-            clientSession.conversation.setCurrentConversation(conversation)
-            chatPageViewService.reloadCollectionView()
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
+        await chatPageViewService.messageDelivery?.sendTextMessage(text)
     }
 
     // MARK: - Text View Did Change
@@ -249,88 +217,11 @@ public final class InputBarService {
 
     // MARK: - Auxiliary
 
-    private func addMockMessageToCurrentConversation(_ text: String) {
-        guard let conversation = viewController.currentConversation,
-              var messages = conversation.messages,
-              let currentUser = clientSession.user.currentUser else { return }
-
-        messages.append(.init(
-            UserContentConstants.newMessageID,
-            fromAccountID: currentUser.id,
-            hasAudioComponent: false,
-            audioComponents: nil,
-            translations: [.init(input: .init(text), output: text, languagePair: .system)],
-            readDate: nil,
-            sentDate: Date()
-        ))
-
-        let newConversation: Conversation = .init(
-            conversation.id,
-            messageIDs: conversation.messageIDs,
-            messages: messages,
-            lastModifiedDate: conversation.lastModifiedDate,
-            participants: conversation.participants,
-            users: conversation.users
-        )
-
-        guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
-        clientSession.conversation.setCurrentConversation(newConversation)
-        chatPageViewService.reloadCollectionView()
-    }
-
     private func playRecordingCancellationVibration() {
         services.haptics.generateFeedback(.heavy)
         core.gcd.after(.milliseconds(50)) {
             self.services.haptics.generateFeedback(.heavy)
             self.core.gcd.after(.milliseconds(50)) { self.services.haptics.generateFeedback(.heavy) }
-        }
-    }
-
-    private func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
-        guard let conversation = await viewController.currentConversation,
-              let users = conversation.users else { return nil }
-
-        // TODO: Support mock audio messages.
-//        addMockMessageToCurrentConversation(text)
-
-        toggleSendingUI(on: true)
-
-        let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
-            inputFile,
-            toUsers: users,
-            inConversation: conversation
-        )
-
-        configureInputBar(forceUpdate: true)
-        toggleSendingUI(on: false)
-
-        switch sendAudioMessageResult {
-        case let .success(conversation):
-            if await viewController.currentConversation?.id.key == conversation.id.key {
-                chatPageViewService.deliveryProgression?.stopAnimatingDeliveryProgress()
-            }
-
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
-            clientSession.conversation.setCurrentConversation(conversation)
-            chatPageViewService.reloadCollectionView()
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
-    }
-
-    private func toggleSendingUI(on: Bool) {
-        Task { @MainActor in
-            if on {
-                inputBar.inputTextView.text = ""
-                inputBar.sendButton.startAnimating()
-            } else {
-                inputBar.sendButton.stopAnimating()
-            }
-
-            inputBar.inputTextView.tintColor = on ? UIColor(Colors.inputBarInputTextViewTint) : .accent
-            inputBar.sendButton.isUserInteractionEnabled = on ? false : true
         }
     }
 

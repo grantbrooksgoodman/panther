@@ -190,7 +190,7 @@ public struct AudioMessageService {
         if let exception = await networking.storage.deleteItem(
             at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(AudioFileExtension.m4a.rawValue)"
         ) {
-            guard !exception.isEqual(to: .fileDoesNotExist) else { return nil }
+            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
             return exception
         }
 
