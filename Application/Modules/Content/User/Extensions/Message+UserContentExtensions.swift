@@ -12,6 +12,7 @@ import UIKit
 
 /* 3rd-party */
 import MessageKit
+import Redux
 
 // swiftformat:disable acronyms
 
@@ -64,4 +65,12 @@ public extension Message {
     }
 
     var isMock: Bool { id == UserContentConstants.newMessageID }
+
+    var isPlayingMessage: Bool {
+        @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?
+        guard hasAudioComponent,
+              audioComponent != nil,
+              let playingMessage else { return false }
+        return playingMessage.id == id
+    }
 }

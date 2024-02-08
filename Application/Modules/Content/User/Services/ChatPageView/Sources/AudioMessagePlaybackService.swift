@@ -28,11 +28,13 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Properties
 
+    public private(set) var playingCell: AudioMessageCell?
+    public private(set) var playingMessage: Message?
+
     private let viewController: ChatPageViewController
 
     private var cellsAwaitingDurationLabelSet = [URL: AudioMessageCell]()
     private var playbackTimer: Timer?
-    private var playingCell: AudioMessageCell?
 
     // MARK: - Init
 
@@ -58,11 +60,12 @@ public final class AudioMessagePlaybackService {
         services.haptics.generateFeedback(.medium)
 
         func deselectCellAndStopPlaybackTimer() {
-            cell.durationLabel.text = audioFile.duration.durationString
-            cell.playButton.isSelected = false
-            cell.progressView.progress = 0
+            (playingCell ?? cell).durationLabel.text = audioFile.duration.durationString
+            (playingCell ?? cell).playButton.isSelected = false
+            (playingCell ?? cell).progressView.progress = 0
 
             playingCell = nil
+            playingMessage = nil
             stopPlaybackTimer()
         }
 
@@ -74,6 +77,7 @@ public final class AudioMessagePlaybackService {
 
         resetVisibleCells()
         playingCell = cell
+        playingMessage = message
         startPlaybackTimer()
 
         cell.playButton.isSelected = true
@@ -83,6 +87,12 @@ public final class AudioMessagePlaybackService {
         services.audio.playback.onFinishedPlaying { deselectCellAndStopPlaybackTimer() }
 
         return services.audio.playback.playAudio(url: audioFile.url)
+    }
+
+    // MARK: - Set Playing Cell
+
+    public func setPlayingCell(_ playingCell: AudioMessageCell) {
+        self.playingCell = playingCell
     }
 
     // MARK: - Stop Playback
@@ -139,6 +149,7 @@ public final class AudioMessagePlaybackService {
 
     private func resetVisibleCells() {
         playingCell = nil
+        playingMessage = nil
 
         for cell in viewController.messagesCollectionView.visibleCells {
             guard let cell = cell as? AudioMessageCell,

@@ -41,6 +41,15 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         cell.playButton.setImage(.play.withRenderingMode(.alwaysTemplate), for: .normal)
         cell.playButton.setImage(.stop.withRenderingMode(.alwaysTemplate), for: .selected)
 
+        func setPlayingCellIfNeeded() {
+            @Dependency(\.chatPageViewService.audioMessagePlayback) var audioMessagePlaybackService: AudioMessagePlaybackService?
+            guard message.isPlayingMessage else { return }
+            audioMessagePlaybackService?.setPlayingCell(cell)
+            cell.playButton.isSelected = true
+        }
+
+        defer { setPlayingCellIfNeeded() }
+
         guard message.isFromCurrentUser else {
             cell.durationLabel.textColor = .accent
             cell.playButton.tintColor = .accent
