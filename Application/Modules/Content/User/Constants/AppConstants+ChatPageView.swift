@@ -51,6 +51,9 @@ public extension AppConstants.CGFloats {
         public static let layoutDelegateCellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
         public static let layoutDelegateMessageTopLabelHeight: CGFloat = 15
 
+        public static let messageAttributedTextParagraphLineSpacing: CGFloat = 1.25
+        public static let messageAttributedTextSystemFontSize: CGFloat = 18
+
         public static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         public static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
 
@@ -97,6 +100,10 @@ public extension AppConstants.Colors {
 
         public static let inputBarSendButtonRecordTint: Color = .init(uiColor: .red)
         public static let inputBarSendButtonTextTint: Color = .init(uiColor: .systemBlue)
+
+        public static let messageAttributedTextCurrentUserForeground: Color = .init(uiColor: .white)
+        public static let messageAttributedTextDarkForeground: Color = .init(uiColor: .white)
+        public static let messageAttributedTextLightForeground: Color = .init(uiColor: .white)
 
         public static let messageSeparatorAttributedDateStringBoldAttributesForeground: Color = .init(uiColor: .gray)
         public static let messageSeparatorAttributedDateStringStandardAttributesForeground: Color = .init(uiColor: .lightGray)

@@ -90,9 +90,10 @@ extension Message: Serializable {
         let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
         let references = translationReferences.compactMap { TranslationReference($0) }
 
+        // TODO: Fuzzy on what effect making translations idempotent has.
         let getTranslationsResult = await getTranslations(
             references: references,
-            makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode }
+            makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode } && references.count > 1
         )
 
         switch getTranslationsResult {

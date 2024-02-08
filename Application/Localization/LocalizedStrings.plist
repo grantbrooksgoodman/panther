@@ -6027,6 +6027,471 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>星期二</string>
 	</dict>
+	<key>version</key>
+	<dict>
+		<key>af</key>
+		<string>Weergawe</string>
+		<key>ar</key>
+		<string>إصدار</string>
+		<key>az</key>
+		<string>Versiya</string>
+		<key>be</key>
+		<string>Версія</string>
+		<key>bg</key>
+		<string>Версия</string>
+		<key>bn</key>
+		<string>সংস্করণ</string>
+		<key>bs</key>
+		<string>Verzija</string>
+		<key>ca</key>
+		<string>Versió</string>
+		<key>cs</key>
+		<string>Verze</string>
+		<key>cy</key>
+		<string>Fersiwn</string>
+		<key>da</key>
+		<string>Version</string>
+		<key>de</key>
+		<string>Ausführung</string>
+		<key>el</key>
+		<string>Εκδοχή</string>
+		<key>en</key>
+		<string>Version</string>
+		<key>eo</key>
+		<string>Versio</string>
+		<key>es</key>
+		<string>Versión</string>
+		<key>et</key>
+		<string>Versioon</string>
+		<key>eu</key>
+		<string>Bertsioa</string>
+		<key>fa</key>
+		<string>نسخه</string>
+		<key>fi</key>
+		<string>Versio</string>
+		<key>fr</key>
+		<string>Version</string>
+		<key>ga</key>
+		<string>Leagan</string>
+		<key>gd</key>
+		<string>Tionndadh</string>
+		<key>gl</key>
+		<string>Versión</string>
+		<key>gu</key>
+		<string>સંસ્કરણ</string>
+		<key>he</key>
+		<string>גִרְסָה</string>
+		<key>hi</key>
+		<string>संस्करण</string>
+		<key>hr</key>
+		<string>Verzija</string>
+		<key>ht</key>
+		<string>Version</string>
+		<key>hu</key>
+		<string>Változat</string>
+		<key>hy</key>
+		<string>Տարբերակ</string>
+		<key>id</key>
+		<string>Versi: kapan</string>
+		<key>is</key>
+		<string>Útgáfa</string>
+		<key>it</key>
+		<string>Versione</string>
+		<key>ja</key>
+		<string>バージョン</string>
+		<key>ka</key>
+		<string>Ვერსია</string>
+		<key>kk</key>
+		<string>Нұсқа</string>
+		<key>kn</key>
+		<string>ಆವೃತ್ತಿ</string>
+		<key>ko</key>
+		<string>버전</string>
+		<key>ky</key>
+		<string>Версия</string>
+		<key>lt</key>
+		<string>Versija</string>
+		<key>mg</key>
+		<string>Malagasy Bible</string>
+		<key>mi</key>
+		<string>Putanga</string>
+		<key>mk</key>
+		<string>Верзија</string>
+		<key>ml</key>
+		<string>പതിപ്പ്</string>
+		<key>mn</key>
+		<string>Хувилбар</string>
+		<key>mt</key>
+		<string>Verżjoni</string>
+		<key>ne</key>
+		<string>संस्करण</string>
+		<key>nl</key>
+		<string>Versie</string>
+		<key>no</key>
+		<string>Versjon</string>
+		<key>pa</key>
+		<string>ਸੰਸਕਰਣ</string>
+		<key>pl</key>
+		<string>Wersja</string>
+		<key>pt</key>
+		<string>Versão</string>
+		<key>ro</key>
+		<string>Versiune</string>
+		<key>ru</key>
+		<string>Версия</string>
+		<key>si</key>
+		<string>පිටපත</string>
+		<key>sk</key>
+		<string>Verzia</string>
+		<key>sl</key>
+		<string>Različica</string>
+		<key>sq</key>
+		<string>Version</string>
+		<key>sr</key>
+		<string>Верзија</string>
+		<key>su</key>
+		<string>Vérsi</string>
+		<key>sv</key>
+		<string>Version</string>
+		<key>sw</key>
+		<string>Toleo</string>
+		<key>ta</key>
+		<string>பதிப்பு</string>
+		<key>te</key>
+		<string>సంస్కరణ: Telugu</string>
+		<key>tg</key>
+		<string>Версия</string>
+		<key>th</key>
+		<string>เวอร์ชัน</string>
+		<key>tl</key>
+		<string>Bersyon</string>
+		<key>tr</key>
+		<string>Sürüm</string>
+		<key>tt</key>
+		<string>Вариант</string>
+		<key>uk</key>
+		<string>Версія</string>
+		<key>ur</key>
+		<string>ورژن</string>
+		<key>uz</key>
+		<string>Versiya</string>
+		<key>vi</key>
+		<string>Phiên bản</string>
+		<key>yi</key>
+		<string>ווערסיע</string>
+		<key>zh</key>
+		<string>版本</string>
+	</dict>
+	<key>view_original</key>
+	<dict>
+		<key>af</key>
+		<string>Bekyk Oorspronklike</string>
+		<key>ar</key>
+		<string>مشاهدة النسخة الأصلية</string>
+		<key>az</key>
+		<string>Orijinala Baxın</string>
+		<key>be</key>
+		<string>Паглядзець Арыгінал</string>
+		<key>bg</key>
+		<string>Вижте Оригинала</string>
+		<key>bn</key>
+		<string>আসল দেখুন</string>
+		<key>bs</key>
+		<string>Pogledaj Original</string>
+		<key>ca</key>
+		<string>Veure L&apos;original</string>
+		<key>cs</key>
+		<string>Zobrazit Originál</string>
+		<key>cy</key>
+		<string>Gweld Gwreiddiol</string>
+		<key>da</key>
+		<string>Se Original</string>
+		<key>de</key>
+		<string>Original Anzeigen</string>
+		<key>el</key>
+		<string>Προβολή Πρωτότυπου</string>
+		<key>en</key>
+		<string>View Original</string>
+		<key>eo</key>
+		<string>Vidi Originalo</string>
+		<key>es</key>
+		<string>Ver Original</string>
+		<key>et</key>
+		<string>Vaata Originaali</string>
+		<key>eu</key>
+		<string>Ikusi Jatorrizkoa</string>
+		<key>fa</key>
+		<string>مشاهده اصل</string>
+		<key>fi</key>
+		<string>Näytä Alkuperäinen</string>
+		<key>fr</key>
+		<string>Afficher L&apos;original</string>
+		<key>ga</key>
+		<string>Féach Bunaidh</string>
+		<key>gd</key>
+		<string>Sealladh Tùsail</string>
+		<key>gl</key>
+		<string>Ver Orixinal</string>
+		<key>gu</key>
+		<string>મૂળ જુઓ</string>
+		<key>he</key>
+		<string>צפה במקור</string>
+		<key>hi</key>
+		<string>मूल देखें</string>
+		<key>hr</key>
+		<string>Pogledaj Izvornik</string>
+		<key>ht</key>
+		<string>Gade orijinal la</string>
+		<key>hu</key>
+		<string>Eredeti Megtekintése</string>
+		<key>hy</key>
+		<string>Դիտել Բնօրինակը</string>
+		<key>id</key>
+		<string>Lihat Asli</string>
+		<key>is</key>
+		<string>Skoða Upprunalega</string>
+		<key>it</key>
+		<string>Visualizza Originale</string>
+		<key>ja</key>
+		<string>オリジナルを表示</string>
+		<key>ka</key>
+		<string>Ორიგინალის Ნახვა</string>
+		<key>kk</key>
+		<string>Түпнұсқаны Көру</string>
+		<key>kn</key>
+		<string>ಮೂಲವನ್ನು ವೀಕ್ಷಿಸಿ</string>
+		<key>ko</key>
+		<string>원본보기</string>
+		<key>ky</key>
+		<string>Түпнускаларды Көрүү</string>
+		<key>lt</key>
+		<string>Žiūrėti Originalą</string>
+		<key>mg</key>
+		<string>Jereo ny Original</string>
+		<key>mi</key>
+		<string>Tiro Taketake</string>
+		<key>mk</key>
+		<string>Прикажи го оригиналот</string>
+		<key>ml</key>
+		<string>ഒറിജിനൽ കാണുക</string>
+		<key>mn</key>
+		<string>Эхийг Харах</string>
+		<key>mt</key>
+		<string>Ara L-Oriġinali</string>
+		<key>ne</key>
+		<string>मूल हेर्नुहोस्</string>
+		<key>nl</key>
+		<string>Origineel Bekijken</string>
+		<key>no</key>
+		<string>Se Originalen</string>
+		<key>pa</key>
+		<string>ਅਸਲੀ ਦੇਖੋ</string>
+		<key>pl</key>
+		<string>Zobacz Oryginał</string>
+		<key>pt</key>
+		<string>Ver Original</string>
+		<key>ro</key>
+		<string>Vizualizare Originală</string>
+		<key>ru</key>
+		<string>Посмотреть Оригинал</string>
+		<key>si</key>
+		<string>ඔරිජිනල් බලන්න</string>
+		<key>sk</key>
+		<string>Zobraziť Originál</string>
+		<key>sl</key>
+		<string>Ogled Izvirnika</string>
+		<key>sq</key>
+		<string>Shiko Origjinalin</string>
+		<key>sr</key>
+		<string>Погледај Оригинал</string>
+		<key>su</key>
+		<string>Témbongkeun Asli</string>
+		<key>sv</key>
+		<string>Visa Original</string>
+		<key>sw</key>
+		<string>Tazama Asili</string>
+		<key>ta</key>
+		<string>அசல் பார்க்க</string>
+		<key>te</key>
+		<string>అసలు చూడండి</string>
+		<key>tg</key>
+		<string>Намоиши Аслӣ</string>
+		<key>th</key>
+		<string>ดูต้นฉบับ</string>
+		<key>tl</key>
+		<string>Tingnan ang Orihinal</string>
+		<key>tr</key>
+		<string>Orijinali Görüntüle</string>
+		<key>tt</key>
+		<string>Оригиналь Карау</string>
+		<key>uk</key>
+		<string>Переглянути Оригінал</string>
+		<key>ur</key>
+		<string>اصل دیکھیں</string>
+		<key>uz</key>
+		<string>Asl nusxani ko&apos;rish</string>
+		<key>vi</key>
+		<string>Xem bản gốc</string>
+		<key>yi</key>
+		<string>View Original</string>
+		<key>zh</key>
+		<string>查看原文</string>
+	</dict>
+	<key>view_translation</key>
+	<dict>
+		<key>af</key>
+		<string>Bekyk Vertaling</string>
+		<key>ar</key>
+		<string>عرض الترجمة</string>
+		<key>az</key>
+		<string>Tərcümə Baxın</string>
+		<key>be</key>
+		<string>Праглядзець Пераклад</string>
+		<key>bg</key>
+		<string>Вижте Превода</string>
+		<key>bn</key>
+		<string>অনুবাদ দেখুন</string>
+		<key>bs</key>
+		<string>Pogledaj Prevod</string>
+		<key>ca</key>
+		<string>Veure Traducció</string>
+		<key>cs</key>
+		<string>Zobrazit Překlad</string>
+		<key>cy</key>
+		<string>Gweld Cyfieithiad</string>
+		<key>da</key>
+		<string>Se Oversættelse</string>
+		<key>de</key>
+		<string>Übersetzung Anzeigen</string>
+		<key>el</key>
+		<string>Προβολή Μετάφρασης</string>
+		<key>en</key>
+		<string>View Translation</string>
+		<key>eo</key>
+		<string>Vidi Tradukadon</string>
+		<key>es</key>
+		<string>Ver Traducción</string>
+		<key>et</key>
+		<string>Vaata Tõlget</string>
+		<key>eu</key>
+		<string>Ikusi Itzulpena</string>
+		<key>fa</key>
+		<string>مشاهده ترجمه</string>
+		<key>fi</key>
+		<string>Näytä Käännös</string>
+		<key>fr</key>
+		<string>Afficher la traduction</string>
+		<key>ga</key>
+		<string>Féach ar Aistriúchán</string>
+		<key>gd</key>
+		<string>Seall Eadar-theangachadh</string>
+		<key>gl</key>
+		<string>Ver Tradución</string>
+		<key>gu</key>
+		<string>અનુવાદ જુઓ</string>
+		<key>he</key>
+		<string>צפה בתרגום</string>
+		<key>hi</key>
+		<string>अनुवाद देखें</string>
+		<key>hr</key>
+		<string>Prikaži Prijevod</string>
+		<key>ht</key>
+		<string>Gade Tradiksyon</string>
+		<key>hu</key>
+		<string>Fordítás Megtekintése</string>
+		<key>hy</key>
+		<string>Դիտել Թարգմանությունը</string>
+		<key>id</key>
+		<string>Lihat Terjemahan</string>
+		<key>is</key>
+		<string>Skoða Þýðingu</string>
+		<key>it</key>
+		<string>Visualizza Traduzione</string>
+		<key>ja</key>
+		<string>翻訳を見る</string>
+		<key>ka</key>
+		<string>Თარგმანის Ნახვა</string>
+		<key>kk</key>
+		<string>Аударманы Көру</string>
+		<key>kn</key>
+		<string>ಅನುವಾದವನ್ನು ವೀಕ್ಷಿಸಿ</string>
+		<key>ko</key>
+		<string>번역 보기</string>
+		<key>ky</key>
+		<string>Translation View</string>
+		<key>lt</key>
+		<string>Žiūrėti Vertimą</string>
+		<key>mg</key>
+		<string>Jereo ny Dikanteny</string>
+		<key>mi</key>
+		<string>Tiro Whakamaori</string>
+		<key>mk</key>
+		<string>Погледнете го преводот</string>
+		<key>ml</key>
+		<string>വിവർത്തനം കാണുക</string>
+		<key>mn</key>
+		<string>Орчуулга Үзэх</string>
+		<key>mt</key>
+		<string>Ara Traduzzjoni</string>
+		<key>ne</key>
+		<string>अनुवाद हेर्नुहोस्</string>
+		<key>nl</key>
+		<string>Vertaling Bekijken</string>
+		<key>no</key>
+		<string>Se Oversettelse</string>
+		<key>pa</key>
+		<string>ਅਨੁਵਾਦ ਦੇਖੋ</string>
+		<key>pl</key>
+		<string>Wyświetl Tłumaczenie</string>
+		<key>pt</key>
+		<string>Ver Tradução</string>
+		<key>ro</key>
+		<string>Vedeți Traducerea</string>
+		<key>ru</key>
+		<string>Посмотреть Перевод</string>
+		<key>si</key>
+		<string>පරිවර්තනය බලන්න</string>
+		<key>sk</key>
+		<string>Zobraziť Preklad</string>
+		<key>sl</key>
+		<string>Ogled Prevoda</string>
+		<key>sq</key>
+		<string>Shiko Përkthimin</string>
+		<key>sr</key>
+		<string>Погледај Превод</string>
+		<key>su</key>
+		<string>Témbongkeun Tarjamahan</string>
+		<key>sv</key>
+		<string>Visa Översättning</string>
+		<key>sw</key>
+		<string>Tazama Tafsiri</string>
+		<key>ta</key>
+		<string>மொழிபெயர்ப்பைக் காண்க</string>
+		<key>te</key>
+		<string>అనువాదాన్ని వీక్షించండి</string>
+		<key>tg</key>
+		<string>Намоиши Тарҷума</string>
+		<key>th</key>
+		<string>ดูคำแปล</string>
+		<key>tl</key>
+		<string>Tingnan ang Pagsasalin</string>
+		<key>tr</key>
+		<string>Çeviriyi Görüntüle</string>
+		<key>tt</key>
+		<string>Тәрҗемәне Карау</string>
+		<key>uk</key>
+		<string>Переглянути Переклад</string>
+		<key>ur</key>
+		<string>ترجمہ دیکھیں</string>
+		<key>uz</key>
+		<string>Tarjimani Ko&apos;rish</string>
+		<key>vi</key>
+		<string>Xem bản dịch</string>
+		<key>yi</key>
+		<string>View איבערזעצונג</string>
+		<key>zh</key>
+		<string>查看翻译</string>
+	</dict>
 	<key>wednesday</key>
 	<dict>
 		<key>af</key>
@@ -6336,161 +6801,6 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>נעכטן</string>
 		<key>zh</key>
 		<string>昨天</string>
-	</dict>
-	<key>version</key>
-	<dict>
-		<key>af</key>
-		<string>Weergawe</string>
-		<key>ar</key>
-		<string>إصدار</string>
-		<key>az</key>
-		<string>Versiya</string>
-		<key>be</key>
-		<string>Версія</string>
-		<key>bg</key>
-		<string>Версия</string>
-		<key>bn</key>
-		<string>সংস্করণ</string>
-		<key>bs</key>
-		<string>Verzija</string>
-		<key>ca</key>
-		<string>Versió</string>
-		<key>cs</key>
-		<string>Verze</string>
-		<key>cy</key>
-		<string>Fersiwn</string>
-		<key>da</key>
-		<string>Version</string>
-		<key>de</key>
-		<string>Ausführung</string>
-		<key>el</key>
-		<string>Εκδοχή</string>
-		<key>en</key>
-		<string>Version</string>
-		<key>eo</key>
-		<string>Versio</string>
-		<key>es</key>
-		<string>Versión</string>
-		<key>et</key>
-		<string>Versioon</string>
-		<key>eu</key>
-		<string>Bertsioa</string>
-		<key>fa</key>
-		<string>نسخه</string>
-		<key>fi</key>
-		<string>Versio</string>
-		<key>fr</key>
-		<string>Version</string>
-		<key>ga</key>
-		<string>Leagan</string>
-		<key>gd</key>
-		<string>Tionndadh</string>
-		<key>gl</key>
-		<string>Versión</string>
-		<key>gu</key>
-		<string>સંસ્કરણ</string>
-		<key>he</key>
-		<string>גִרְסָה</string>
-		<key>hi</key>
-		<string>संस्करण</string>
-		<key>hr</key>
-		<string>Verzija</string>
-		<key>ht</key>
-		<string>Version</string>
-		<key>hu</key>
-		<string>Változat</string>
-		<key>hy</key>
-		<string>Տարբերակ</string>
-		<key>id</key>
-		<string>Versi: kapan</string>
-		<key>is</key>
-		<string>Útgáfa</string>
-		<key>it</key>
-		<string>Versione</string>
-		<key>ja</key>
-		<string>バージョン</string>
-		<key>ka</key>
-		<string>Ვერსია</string>
-		<key>kk</key>
-		<string>Нұсқа</string>
-		<key>kn</key>
-		<string>ಆವೃತ್ತಿ</string>
-		<key>ko</key>
-		<string>버전</string>
-		<key>ky</key>
-		<string>Версия</string>
-		<key>lt</key>
-		<string>Versija</string>
-		<key>mg</key>
-		<string>Malagasy Bible</string>
-		<key>mi</key>
-		<string>Putanga</string>
-		<key>mk</key>
-		<string>Верзија</string>
-		<key>ml</key>
-		<string>പതിപ്പ്</string>
-		<key>mn</key>
-		<string>Хувилбар</string>
-		<key>mt</key>
-		<string>Verżjoni</string>
-		<key>ne</key>
-		<string>संस्करण</string>
-		<key>nl</key>
-		<string>Versie</string>
-		<key>no</key>
-		<string>Versjon</string>
-		<key>pa</key>
-		<string>ਸੰਸਕਰਣ</string>
-		<key>pl</key>
-		<string>Wersja</string>
-		<key>pt</key>
-		<string>Versão</string>
-		<key>ro</key>
-		<string>Versiune</string>
-		<key>ru</key>
-		<string>Версия</string>
-		<key>si</key>
-		<string>පිටපත</string>
-		<key>sk</key>
-		<string>Verzia</string>
-		<key>sl</key>
-		<string>Različica</string>
-		<key>sq</key>
-		<string>Version</string>
-		<key>sr</key>
-		<string>Верзија</string>
-		<key>su</key>
-		<string>Vérsi</string>
-		<key>sv</key>
-		<string>Version</string>
-		<key>sw</key>
-		<string>Toleo</string>
-		<key>ta</key>
-		<string>பதிப்பு</string>
-		<key>te</key>
-		<string>సంస్కరణ: Telugu</string>
-		<key>tg</key>
-		<string>Версия</string>
-		<key>th</key>
-		<string>เวอร์ชัน</string>
-		<key>tl</key>
-		<string>Bersyon</string>
-		<key>tr</key>
-		<string>Sürüm</string>
-		<key>tt</key>
-		<string>Вариант</string>
-		<key>uk</key>
-		<string>Версія</string>
-		<key>ur</key>
-		<string>ورژن</string>
-		<key>uz</key>
-		<string>Versiya</string>
-		<key>vi</key>
-		<string>Phiên bản</string>
-		<key>yi</key>
-		<string>ווערסיע</string>
-		<key>zh</key>
-		<string>版本</string>
 	</dict>
 </dict>
 </plist>

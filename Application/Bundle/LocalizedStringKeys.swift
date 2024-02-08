@@ -64,6 +64,8 @@ public enum LocalizedStringKey: String {
     case yesterday
 
     case version
+    case viewOriginal
+    case viewTranslation
 
     // MARK: - Properties
 

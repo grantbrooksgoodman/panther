@@ -23,5 +23,6 @@ public extension AppConstants.Strings {
     enum MenuService {
         public static let copyActionIdentifierRawValue = "copy"
         public static let speakActionIdentifierRawValue = "speak"
+        public static let viewAlterateActionIdentifierRawValue = "view_alternate"
     }
 }

@@ -92,21 +92,35 @@ public final class MenuService {
         let message = messages[index]
 
         var actions = [UIAction]()
+        guard !message.hasAudioComponent else { return .init(children: actions) }
 
-        if !message.hasAudioComponent {
-            actions = [
-                .init(
-                    title: Localized(.copy).wrappedValue,
-                    identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
-                    handler: handleAction(_:)
-                ),
-                .init(
-                    title: avSpeechSynthesizer.isSpeaking ? Localized(.stopSpeaking).wrappedValue : Localized(.speak).wrappedValue,
-                    identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
-                    handler: handleAction(_:)
-                ),
-            ]
-        }
+        actions = [
+            .init(
+                title: Localized(.copy).wrappedValue,
+                identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ),
+            .init(
+                title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ),
+        ]
+
+        guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser else { return .init(children: actions) }
+
+        let isDisplayingAlternate = chatPageViewService.alternateMessage?.isDisplayingAlternate(for: message) ?? false
+        let actionTitle = Localized(
+            message.isFromCurrentUser ? (isDisplayingAlternate ? .viewOriginal : .viewTranslation) : (isDisplayingAlternate ? .viewTranslation : .viewOriginal)
+        ).wrappedValue
+
+        actions.append(
+            .init(
+                title: actionTitle,
+                identifier: .init(rawValue: Strings.viewAlterateActionIdentifierRawValue),
+                handler: handleAction(_:)
+            )
+        )
 
         return .init(children: actions)
     }
@@ -114,8 +128,8 @@ public final class MenuService {
     // MARK: - Action Handlers
 
     private func handleCopyAction() {
-        guard let selectedMessage else { return }
-        uiPasteboard.string = selectedMessage.isFromCurrentUser ? selectedMessage.translation.input.value() : selectedMessage.translation.output
+        guard let selectedCell = selectedCell as? TextMessageCell else { return }
+        uiPasteboard.string = selectedCell.messageLabel.text
     }
 
     private func handleSpeakAction() {
@@ -140,6 +154,11 @@ public final class MenuService {
         avSpeechSynthesizer.speak(utterance)
     }
 
+    private func handleViewAlternateAction() {
+        guard let selectedCell else { return }
+        chatPageViewService.alternateMessage?.toggleAlternate(for: selectedCell)
+    }
+
     // MARK: - Auxiliary
 
     private func handleAction(_ action: UIAction) {
@@ -151,6 +170,9 @@ public final class MenuService {
 
         case Strings.speakActionIdentifierRawValue:
             handleSpeakAction()
+
+        case Strings.viewAlterateActionIdentifierRawValue:
+            handleViewAlternateAction()
 
         default: ()
         }
@@ -165,12 +187,11 @@ public final class MenuService {
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell else { return }
 
-        self.selectedCell = selectedCell
-
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),
               let containerSuperview = selectedCell.messageContainerView.superview else { return }
 
+        self.selectedCell = selectedCell
         selectedCell.messageContainerView.addInteraction(menuInteraction)
 
         let configuration: UIEditMenuConfiguration = .init(

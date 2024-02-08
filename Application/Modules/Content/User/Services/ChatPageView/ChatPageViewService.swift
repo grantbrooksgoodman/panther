@@ -33,6 +33,7 @@ public final class ChatPageViewService {
 
     // MARK: - Properties
 
+    public private(set) var alternateMessage: AlternateMessageService?
     public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
     public private(set) var inputBar: InputBarService?
@@ -60,6 +61,7 @@ public final class ChatPageViewService {
         deliveryProgressIndicator = deliveryProgressIndicatorService
         clientSession.registerDeliveryProgressIndicator(deliveryProgressIndicatorService)
 
+        alternateMessage = .init(viewController)
         audioMessagePlayback = .init(viewController)
         inputBar = .init(viewController)
         inputBarGestureRecognizer = .init(viewController)
@@ -113,6 +115,7 @@ public final class ChatPageViewService {
             }
         }
 
+        alternateMessage?.restoreAllAlternates()
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         audioService.playback.stopPlaying()
         if let exception = audioService.recording.cancelRecording() {

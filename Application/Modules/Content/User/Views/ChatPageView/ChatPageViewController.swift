@@ -93,13 +93,6 @@ public final class ChatPageViewController: MessagesViewController {
             }
         }
 
-//        guard currentMessage.isDisplayingAlternate else { return textCell }
-//        textCell.messageLabel.font = textCell.messageLabel.font.withTraits(traits: .traitItalic)
-//
-//        guard textCell.messageLabel.maxNumberOfLines <= 1 else { return textCell }
-//        textCell.messageContainerView.frame.size.width = textCell.messageLabel.intrinsicContentSize.width
-//        textCell.messageLabel.frame.size.width = textCell.messageLabel.intrinsicContentSize.width
-
         return textCell
     }
 
