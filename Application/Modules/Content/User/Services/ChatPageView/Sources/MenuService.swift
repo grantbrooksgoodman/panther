@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
@@ -18,17 +19,39 @@ public final class MenuService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.MenuService
-    
+    private typealias Strings = AppConstants.Strings.MenuService
+
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices.audio) private var audioService: AudioService
+    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
+
     // MARK: - Properties
 
     public private(set) var isShowingMenu = false
 
+    private let menuInteraction: UIEditMenuInteraction
     private let viewController: ChatPageViewController
+
+    private var selectedCell: MessageContentCell?
+
+    // MARK: - Computed Properties
+
+    private var selectedMessage: Message? {
+        guard let selectedCell,
+              let indexPath = viewController.messagesCollectionView.indexPath(for: selectedCell),
+              let messages = viewController.currentConversation?.messages,
+              messages.count > indexPath.section else { return nil }
+        return messages[indexPath.section]
+    }
 
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        menuInteraction = .init(delegate: viewController)
     }
 
     // MARK: - Set Is Showing Menu
@@ -40,10 +63,25 @@ public final class MenuService {
     // MARK: - Configure Menu Gesture Recognizer
 
     public func configureMenuGestureRecognizer() {
+        func addOrEnable(_ gestureRecognizer: UIGestureRecognizer) {
+            guard let existingGestureRecognizer = viewController.messagesCollectionView.gestureRecognizers?.first(where: { $0 == gestureRecognizer }) else {
+                viewController.messagesCollectionView.addGestureRecognizer(gestureRecognizer)
+                return
+            }
+
+            existingGestureRecognizer.isEnabled = true
+        }
+
         let longPressGesture: UILongPressGestureRecognizer = .init(target: self, action: #selector(longPressGestureRecognized))
         longPressGesture.delaysTouchesBegan = true
         longPressGesture.minimumPressDuration = Floats.longPressGestureMinimumPressDuration
-        viewController.messagesCollectionView.addGestureRecognizer(longPressGesture)
+        addOrEnable(longPressGesture)
+    }
+
+    // MARK: - Dismiss Menu
+
+    public func dismissMenu() {
+        menuInteraction.dismissMenu()
     }
 
     // MARK: - Menu for Message
@@ -59,7 +97,12 @@ public final class MenuService {
             actions = [
                 .init(
                     title: Localized(.copy).wrappedValue,
-                    identifier: .init(rawValue: .init(index)),
+                    identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
+                    handler: handleAction(_:)
+                ),
+                .init(
+                    title: avSpeechSynthesizer.isSpeaking ? Localized(.stopSpeaking).wrappedValue : Localized(.speak).wrappedValue,
+                    identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
                     handler: handleAction(_:)
                 ),
             ]
@@ -70,23 +113,44 @@ public final class MenuService {
 
     // MARK: - Action Handlers
 
-    private func handleCopyAction(_ id: UIAction.Identifier) {
-        @Dependency(\.uiPasteboard) var uiPasteboard: UIPasteboard
+    private func handleCopyAction() {
+        guard let selectedMessage else { return }
+        uiPasteboard.string = selectedMessage.isFromCurrentUser ? selectedMessage.translation.input.value() : selectedMessage.translation.output
+    }
 
-        guard let index = Int(id.rawValue),
-              let messages = viewController.currentConversation?.messages,
-              messages.count > index else { return }
+    private func handleSpeakAction() {
+        guard let selectedCell = selectedCell as? TextMessageCell,
+              let selectedMessage,
+              let messageLabelText = selectedCell.messageLabel.text else { return }
 
-        let message = messages[index]
-        uiPasteboard.string = message.isFromCurrentUser ? message.translation.input.value() : message.translation.output
+        avSpeechSynthesizer.delegate = viewController
+
+        guard !avSpeechSynthesizer.isSpeaking else {
+            avSpeechSynthesizer.stopSpeaking(at: .immediate)
+            return
+        }
+
+        chatPageViewService.audioMessagePlayback?.stopPlayback()
+
+        let utterance: AVSpeechUtterance = .init(string: messageLabelText)
+        let languagePair = selectedMessage.translation.languagePair
+        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? languagePair.from : languagePair.to
+
+        utterance.voice = audioService.highestQualityVoice(utteranceLanguageCode)
+        avSpeechSynthesizer.speak(utterance)
     }
 
     // MARK: - Auxiliary
 
     private func handleAction(_ action: UIAction) {
-        switch action.title {
-        case Localized(.copy).wrappedValue:
-            handleCopyAction(action.identifier)
+        dismissMenu()
+
+        switch action.identifier.rawValue {
+        case Strings.copyActionIdentifierRawValue:
+            handleCopyAction()
+
+        case Strings.speakActionIdentifierRawValue:
+            handleSpeakAction()
 
         default: ()
         }
@@ -101,20 +165,22 @@ public final class MenuService {
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell else { return }
 
-        let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
-        guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
+        self.selectedCell = selectedCell
 
-        let editMenuInteraction = UIEditMenuInteraction(delegate: viewController)
-        selectedCell.messageContainerView.addInteraction(editMenuInteraction)
+        let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
+        guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),
+              let containerSuperview = selectedCell.messageContainerView.superview else { return }
+
+        selectedCell.messageContainerView.addInteraction(menuInteraction)
 
         let configuration: UIEditMenuConfiguration = .init(
             identifier: indexPath.section,
             sourcePoint: .init(
                 x: convertedTouchPoint.x,
-                y: selectedCell.messageContainerView.superview!.frame.minY
+                y: containerSuperview.frame.minY
             )
         )
 
-        editMenuInteraction.presentEditMenu(with: configuration)
+        menuInteraction.presentEditMenu(with: configuration)
     }
 }

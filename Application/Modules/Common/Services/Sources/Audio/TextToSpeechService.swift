@@ -121,7 +121,7 @@ public struct TextToSpeechService {
         let filePath = fileManager.documentsDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputCAF)")
 
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = audioService.highestQualityVoice(languageCode)
+        utterance.voice = audioService.highestQualityVoice(languageCode, mustIncludeAudioFileSettings: true)
 
         var output: AVAudioFile?
 

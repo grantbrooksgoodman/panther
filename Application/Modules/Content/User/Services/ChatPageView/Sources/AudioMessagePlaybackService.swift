@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
@@ -22,6 +23,7 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.chatPageViewService.recordingUI) private var recordingUIService: RecordingUIService?
     @Dependency(\.commonServices) private var services: CommonServices
@@ -74,6 +76,8 @@ public final class AudioMessagePlaybackService {
             services.audio.playback.stopPlaying()
             return nil
         }
+
+        avSpeechSynthesizer.stopSpeaking(at: .immediate)
 
         resetVisibleCells()
         playingCell = cell
@@ -131,6 +135,12 @@ public final class AudioMessagePlaybackService {
         guard let userInfo = notification.userInfo,
               let duration = userInfo[Strings.durationNotificationUserInfoKey] as? Float,
               let url = userInfo[Strings.urlNotificationUserInfoKey] as? URL else { return }
+
+        notificationCenter.removeObserver(
+            self,
+            name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
+            object: AudioFile(url)
+        )
 
         Task { @MainActor in
             for (audioFileURL, cell) in cellsAwaitingDurationLabelSet where audioFileURL == url {

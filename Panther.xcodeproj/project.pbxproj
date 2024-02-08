@@ -120,6 +120,7 @@
 		B92646962B747BAB00E0F385 /* AppConstants+MenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */; };
 		B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B928F3CD2B17FE5700006BFD /* MetadataService.swift */; };
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
+		B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */; };
 		B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */; };
 		B9334E082B48E54700C667E5 /* RegionMenuObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E072B48E54700C667E5 /* RegionMenuObserver.swift */; };
 		B93457072AABF9F200944602 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457062AABF9F200944602 /* Localization.swift */; };
@@ -915,6 +916,7 @@
 		B928F3CD2B17FE5700006BFD /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataService.swift; sourceTree = "<group>"; };
 		B92949382AC525AD00BAF8C9 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
+		B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+AVSpeechSynthesizerDelegate.swift"; sourceTree = "<group>"; };
 		B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuReducer.swift; sourceTree = "<group>"; };
 		B9334E072B48E54700C667E5 /* RegionMenuObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuObserver.swift; sourceTree = "<group>"; };
 		B93457062AABF9F200944602 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
@@ -1697,6 +1699,7 @@
 			children = (
 				B90C91072B69C9ED008DFE59 /* ChatPageView.swift */,
 				B90C91092B69CA72008DFE59 /* ChatPageViewController.swift */,
+				B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */,
 				B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */,
 				B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */,
 				B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */,
@@ -3952,6 +3955,7 @@
 				B91688EB290490CD004C80A2 /* Exception.swift in Sources */,
 				B9334E082B48E54700C667E5 /* RegionMenuObserver.swift in Sources */,
 				B9F47AFE2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift in Sources */,
+				B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */,
 				B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */,
 				B93BCDF72AAF937500AA16FE /* FileManager+CoreExtensions.swift in Sources */,
 				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,

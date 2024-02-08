@@ -4632,6 +4632,316 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>发生错误。请稍后再试。</string>
 	</dict>
+	<key>speak</key>
+	<dict>
+		<key>af</key>
+		<string>Praat</string>
+		<key>ar</key>
+		<string>يتكلم</string>
+		<key>az</key>
+		<string>Danış</string>
+		<key>be</key>
+		<string>Казаць</string>
+		<key>bg</key>
+		<string>Говори</string>
+		<key>bn</key>
+		<string>কথা বলুন</string>
+		<key>bs</key>
+		<string>Govori</string>
+		<key>ca</key>
+		<string>Parla</string>
+		<key>cs</key>
+		<string>Mluvit</string>
+		<key>cy</key>
+		<string>Siaradwch</string>
+		<key>da</key>
+		<string>Tale</string>
+		<key>de</key>
+		<string>Sprechen</string>
+		<key>el</key>
+		<string>Μιλώ</string>
+		<key>en</key>
+		<string>Speak</string>
+		<key>eo</key>
+		<string>Paroli</string>
+		<key>es</key>
+		<string>Hablar</string>
+		<key>et</key>
+		<string>Rääkige</string>
+		<key>eu</key>
+		<string>Hitz egin</string>
+		<key>fa</key>
+		<string>صحبت</string>
+		<key>fi</key>
+		<string>Puhua</string>
+		<key>fr</key>
+		<string>Parlez</string>
+		<key>ga</key>
+		<string>Labhair</string>
+		<key>gd</key>
+		<string>Labhair</string>
+		<key>gl</key>
+		<string>Fala</string>
+		<key>gu</key>
+		<string>બોલો</string>
+		<key>he</key>
+		<string>לְדַבֵּר</string>
+		<key>hi</key>
+		<string>बोलना</string>
+		<key>hr</key>
+		<string>Govoriti</string>
+		<key>ht</key>
+		<string>Pale</string>
+		<key>hu</key>
+		<string>Beszél</string>
+		<key>hy</key>
+		<string>Խոսեք</string>
+		<key>id</key>
+		<string>Berbicara</string>
+		<key>is</key>
+		<string>Tala</string>
+		<key>it</key>
+		<string>Parlare</string>
+		<key>ja</key>
+		<string>話す</string>
+		<key>ka</key>
+		<string>Ილაპარაკე</string>
+		<key>kk</key>
+		<string>Сөйлеу</string>
+		<key>kn</key>
+		<string>ಮಾತನಾಡು</string>
+		<key>ko</key>
+		<string>말하다</string>
+		<key>ky</key>
+		<string>Сүйлө</string>
+		<key>lt</key>
+		<string>Kalbėk</string>
+		<key>mg</key>
+		<string>Mitenena</string>
+		<key>mi</key>
+		<string>Korero</string>
+		<key>mk</key>
+		<string>Зборувај</string>
+		<key>ml</key>
+		<string>സംസാരിക്കുക</string>
+		<key>mn</key>
+		<string>Ярих</string>
+		<key>mt</key>
+		<string>Tkellem</string>
+		<key>ne</key>
+		<string>बोल्नुहोस्</string>
+		<key>nl</key>
+		<string>Spreken</string>
+		<key>no</key>
+		<string>Snakke</string>
+		<key>pa</key>
+		<string>ਬੋਲੋ</string>
+		<key>pl</key>
+		<string>Mówić</string>
+		<key>pt</key>
+		<string>Falar</string>
+		<key>ro</key>
+		<string>Vorbi</string>
+		<key>ru</key>
+		<string>Разговаривать</string>
+		<key>si</key>
+		<string>කතා කරන්න</string>
+		<key>sk</key>
+		<string>Hovorte</string>
+		<key>sl</key>
+		<string>Govoriti</string>
+		<key>sq</key>
+		<string>Fol</string>
+		<key>sr</key>
+		<string>Говорити</string>
+		<key>su</key>
+		<string>Nyarita</string>
+		<key>sv</key>
+		<string>Tala</string>
+		<key>sw</key>
+		<string>Ongea</string>
+		<key>ta</key>
+		<string>பேசு</string>
+		<key>te</key>
+		<string>మాట్లాడండి</string>
+		<key>tg</key>
+		<string>Сухан</string>
+		<key>th</key>
+		<string>พูด</string>
+		<key>tl</key>
+		<string>Magsalita</string>
+		<key>tr</key>
+		<string>Konuşmak</string>
+		<key>tt</key>
+		<string>Сөйлә</string>
+		<key>uk</key>
+		<string>Говорити</string>
+		<key>ur</key>
+		<string>بولو</string>
+		<key>uz</key>
+		<string>Gapiring</string>
+		<key>vi</key>
+		<string>Nói chuyện</string>
+		<key>yi</key>
+		<string>רעדן</string>
+		<key>zh</key>
+		<string>说话</string>
+	</dict>
+	<key>stop_speaking</key>
+	<dict>
+		<key>af</key>
+		<string>Hou op Praat</string>
+		<key>ar</key>
+		<string>توقف عن الكلام</string>
+		<key>az</key>
+		<string>Danışmağı Dayandırın</string>
+		<key>be</key>
+		<string>Перастань Гаварыць</string>
+		<key>bg</key>
+		<string>Спрете да говорите</string>
+		<key>bn</key>
+		<string>কথা বলা বন্ধ করুন</string>
+		<key>bs</key>
+		<string>Prestani Govoriti</string>
+		<key>ca</key>
+		<string>Deixa de parlar</string>
+		<key>cs</key>
+		<string>Přestaň Mluvit</string>
+		<key>cy</key>
+		<string>Stopiwch Siarad</string>
+		<key>da</key>
+		<string>Stop med at tale</string>
+		<key>de</key>
+		<string>Hör auf zu reden</string>
+		<key>el</key>
+		<string>Σταμάτα να μιλάς</string>
+		<key>en</key>
+		<string>Stop Speaking</string>
+		<key>eo</key>
+		<string>Ĉesu Paroli</string>
+		<key>es</key>
+		<string>Para de Hablar</string>
+		<key>et</key>
+		<string>Lõpeta Rääkimine</string>
+		<key>eu</key>
+		<string>Hitz egiteari utzi</string>
+		<key>fa</key>
+		<string>صحبت کردن را متوقف کنید</string>
+		<key>fi</key>
+		<string>Lopeta Puhuminen</string>
+		<key>fr</key>
+		<string>Arrête de parler</string>
+		<key>ga</key>
+		<string>Stop ag Labhairt</string>
+		<key>gd</key>
+		<string>Stad a bhruidhinn</string>
+		<key>gl</key>
+		<string>Deixa de falar</string>
+		<key>gu</key>
+		<string>બોલવાનું બંધ કરો</string>
+		<key>he</key>
+		<string>תפסיק לדבר</string>
+		<key>hi</key>
+		<string>बोलना बंद करो</string>
+		<key>hr</key>
+		<string>Prestani Govoriti</string>
+		<key>ht</key>
+		<string>Sispann Pale</string>
+		<key>hu</key>
+		<string>Hagyd abba a beszédet</string>
+		<key>hy</key>
+		<string>Դադարեք Խոսել</string>
+		<key>id</key>
+		<string>Berhenti Berbicara</string>
+		<key>is</key>
+		<string>Hættu að tala</string>
+		<key>it</key>
+		<string>Smettila di parlare</string>
+		<key>ja</key>
+		<string>話すのをやめる</string>
+		<key>ka</key>
+		<string>Შეწყვიტე Საუბარი</string>
+		<key>kk</key>
+		<string>Сөйлеуді Тоқтату</string>
+		<key>kn</key>
+		<string>ಮಾತನಾಡುವುದನ್ನು ನಿಲ್ಲಿಸಿ</string>
+		<key>ko</key>
+		<string>그만 말해</string>
+		<key>ky</key>
+		<string>Сүйлөгөндү Токтот</string>
+		<key>lt</key>
+		<string>Nustokite Kalbėti</string>
+		<key>mg</key>
+		<string>Atsaharo ny fitenenana</string>
+		<key>mi</key>
+		<string>Kati te Korero</string>
+		<key>mk</key>
+		<string>Престани да зборуваш</string>
+		<key>ml</key>
+		<string>സംസാരിക്കുന്നത് നിർത്തുക</string>
+		<key>mn</key>
+		<string>Ярихаа Боль</string>
+		<key>mt</key>
+		<string>Stop Speaking</string>
+		<key>ne</key>
+		<string>बोल्न बन्द गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Stop met praten</string>
+		<key>no</key>
+		<string>Slutt å snakke</string>
+		<key>pa</key>
+		<string>ਬੋਲਣਾ ਬੰਦ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Przestań Mówić</string>
+		<key>pt</key>
+		<string>Pare de Falar</string>
+		<key>ro</key>
+		<string>Nu mai vorbi</string>
+		<key>ru</key>
+		<string>Прекрати Говорить</string>
+		<key>si</key>
+		<string>කතා කිරීම නවත්වන්න</string>
+		<key>sk</key>
+		<string>Prestaňte Hovoriť</string>
+		<key>sl</key>
+		<string>Nehaj Govoriti</string>
+		<key>sq</key>
+		<string>Ndaloni së foluri</string>
+		<key>sr</key>
+		<string>Престани да говориш</string>
+		<key>su</key>
+		<string>Eureun Nyarita</string>
+		<key>sv</key>
+		<string>Sluta Prata</string>
+		<key>sw</key>
+		<string>Acha Kusema</string>
+		<key>ta</key>
+		<string>பேசுவதை நிறுத்து</string>
+		<key>te</key>
+		<string>మాట్లాడటం ఆపు</string>
+		<key>tg</key>
+		<string>Суханро бас кунед</string>
+		<key>th</key>
+		<string>หยุดพูด</string>
+		<key>tl</key>
+		<string>Tumigil sa pagsasalita</string>
+		<key>tr</key>
+		<string>Konuşmayı Bırak</string>
+		<key>tt</key>
+		<string>Сөйләшүне Туктат</string>
+		<key>uk</key>
+		<string>Припиніть Говорити</string>
+		<key>ur</key>
+		<string>بولنا بند کرو</string>
+		<key>uz</key>
+		<string>Gapirishni Toxtating</string>
+		<key>vi</key>
+		<string>Ngừng Nói</string>
+		<key>yi</key>
+		<string>האַלטן גערעדט</string>
+		<key>zh</key>
+		<string>停止说话</string>
+	</dict>
 	<key>sunday</key>
 	<dict>
 		<key>af</key>

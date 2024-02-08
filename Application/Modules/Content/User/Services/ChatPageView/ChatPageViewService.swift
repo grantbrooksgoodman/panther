@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
@@ -18,6 +19,7 @@ public final class ChatPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
+    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -102,6 +104,7 @@ public final class ChatPageViewService {
             }
         }
 
+        avSpeechSynthesizer.stopSpeaking(at: .immediate)
         audioService.playback.stopPlaying()
         if let exception = audioService.recording.cancelRecording() {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
@@ -124,13 +127,6 @@ public final class ChatPageViewService {
 
     public func reloadCollectionView() {
         Task { @MainActor in
-            guard !audioService.playback.isPlaying else {
-                audioService.playback.onFailedToFinishPlaying { self.reloadCollectionView() }
-                audioService.playback.onFinishedPlaying { self.reloadCollectionView() }
-                audioService.playback.onStopPlaying { self.reloadCollectionView() }
-                return
-            }
-
             viewController?.messagesCollectionView.reloadDataAndKeepOffset()
         }
     }

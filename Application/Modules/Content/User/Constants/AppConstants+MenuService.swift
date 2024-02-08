@@ -16,3 +16,12 @@ public extension AppConstants.CGFloats {
         public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
     }
 }
+
+// MARK: - String
+
+public extension AppConstants.Strings {
+    enum MenuService {
+        public static let copyActionIdentifierRawValue = "copy"
+        public static let speakActionIdentifierRawValue = "speak"
+    }
+}
