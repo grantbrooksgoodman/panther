@@ -84,7 +84,7 @@
 		B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */; };
 		B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */; };
 		B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */; };
-		B90CA62D2B701E4E001C776E /* AppConstants+GestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CA62C2B701E4E001C776E /* AppConstants+GestureRecognizerService.swift */; };
+		B90CA62D2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CA62C2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift */; };
 		B90CCC092AC74478001C326F /* CoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CCC082AC74478001C326F /* CoreConstants.swift */; };
 		B90F331F2AE4D41A002A9284 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90F331D2AE4D41A002A9284 /* HeaderView.swift */; };
 		B90F33202AE4D41A002A9284 /* HeaderView+DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90F331E2AE4D41A002A9284 /* HeaderView+DataModels.swift */; };
@@ -115,6 +115,9 @@
 		B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */; };
 		B925A0942B6480A400111413 /* UIPasteboardDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B925A0932B6480A400111413 /* UIPasteboardDependency.swift */; };
 		B9260BBA2AC4105C00824A7C /* BuildDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9260BB92AC4105C00824A7C /* BuildDependency.swift */; };
+		B92646922B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92646912B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift */; };
+		B92646942B7466B000E0F385 /* MenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92646932B7466B000E0F385 /* MenuService.swift */; };
+		B92646962B747BAB00E0F385 /* AppConstants+MenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */; };
 		B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B928F3CD2B17FE5700006BFD /* MetadataService.swift */; };
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */; };
@@ -170,7 +173,7 @@
 		B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */; };
 		B95887172B323B00007FB37B /* FadeInViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887162B323B00007FB37B /* FadeInViewModifier.swift */; };
 		B961A8EF2ACA8346007508EC /* ViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B961A8EE2ACA8346007508EC /* ViewObserver.swift */; };
-		B9627C632B6EC325004EE9DA /* GestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C622B6EC325004EE9DA /* GestureRecognizerService.swift */; };
+		B9627C632B6EC325004EE9DA /* InputBarGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */; };
 		B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */; };
 		B9627C672B6F2111004EE9DA /* InputBarConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */; };
 		B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C682B6F2353004EE9DA /* InputBarConfigServiceDependency.swift */; };
@@ -801,7 +804,7 @@
 		B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageView.swift"; sourceTree = "<group>"; };
 		B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThemeService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+UserContentExtensions.swift"; sourceTree = "<group>"; };
-		B90CA62C2B701E4E001C776E /* AppConstants+GestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+GestureRecognizerService.swift"; sourceTree = "<group>"; };
+		B90CA62C2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+InputBarGestureRecognizerService.swift"; sourceTree = "<group>"; };
 		B90CCC082AC74478001C326F /* CoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreConstants.swift; sourceTree = "<group>"; };
 		B90F331D2AE4D41A002A9284 /* HeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		B90F331E2AE4D41A002A9284 /* HeaderView+DataModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "HeaderView+DataModels.swift"; sourceTree = "<group>"; };
@@ -906,6 +909,9 @@
 		B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerDomains.swift; sourceTree = "<group>"; };
 		B925A0932B6480A400111413 /* UIPasteboardDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPasteboardDependency.swift; sourceTree = "<group>"; };
 		B9260BB92AC4105C00824A7C /* BuildDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDependency.swift; sourceTree = "<group>"; };
+		B92646912B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+UIEditMenuInteractionDelegate.swift"; sourceTree = "<group>"; };
+		B92646932B7466B000E0F385 /* MenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuService.swift; sourceTree = "<group>"; };
+		B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+MenuService.swift"; sourceTree = "<group>"; };
 		B928F3CD2B17FE5700006BFD /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataService.swift; sourceTree = "<group>"; };
 		B92949382AC525AD00BAF8C9 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
@@ -963,7 +969,7 @@
 		B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B95887162B323B00007FB37B /* FadeInViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeInViewModifier.swift; sourceTree = "<group>"; };
 		B961A8EE2ACA8346007508EC /* ViewObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewObserver.swift; sourceTree = "<group>"; };
-		B9627C622B6EC325004EE9DA /* GestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerService.swift; sourceTree = "<group>"; };
+		B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarGestureRecognizerService.swift; sourceTree = "<group>"; };
 		B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordButtonCommand.swift; sourceTree = "<group>"; };
 		B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarConfigService.swift; sourceTree = "<group>"; };
 		B9627C682B6F2353004EE9DA /* InputBarConfigServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarConfigServiceDependency.swift; sourceTree = "<group>"; };
@@ -1696,6 +1702,7 @@
 				B90C910B2B69CD18008DFE59 /* ChatPageViewController+MessagesDataSource.swift */,
 				B90C91132B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift */,
 				B90C91152B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift */,
+				B92646912B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift */,
 				B9F3C4C32B6B59C600109CC5 /* ChatPageViewController+UITextViewDelegate.swift */,
 			);
 			path = ChatPageView;
@@ -2356,8 +2363,9 @@
 			children = (
 				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
-				B9627C622B6EC325004EE9DA /* GestureRecognizerService.swift */,
+				B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */,
 				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
+				B92646932B7466B000E0F385 /* MenuService.swift */,
 				B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
@@ -3275,7 +3283,8 @@
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
-				B90CA62C2B701E4E001C776E /* AppConstants+GestureRecognizerService.swift */,
+				B90CA62C2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift */,
+				B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */,
 				B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingView.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
@@ -4002,7 +4011,7 @@
 				B90249D62B57533900D62855 /* StatusIndicatorButton.swift in Sources */,
 				B90243EB2B27746500448809 /* NetworkPaths.swift in Sources */,
 				B93BCDD22AAD8BBF00AA16FE /* Primitives+CoreExtensions.swift in Sources */,
-				B90CA62D2B701E4E001C776E /* AppConstants+GestureRecognizerService.swift in Sources */,
+				B90CA62D2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift in Sources */,
 				B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */,
 				B9DCCAAF2B3618EA00532B12 /* Exception+CoreNetworkingExtensions.swift in Sources */,
 				B9E7D4482AAC258500FAF2A9 /* BuildInfoOverlayViewService.swift in Sources */,
@@ -4133,6 +4142,7 @@
 				B9F47AE82B576EF500D86C67 /* ConversationsPageView.swift in Sources */,
 				B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SampleContentPageView.swift in Sources */,
+				B92646922B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift in Sources */,
 				B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */,
 				B964465C2B157DFB008E674A /* RootReducer.swift in Sources */,
 				A286879C28A4A09600A34912 /* Reachability.swift in Sources */,
@@ -4153,6 +4163,7 @@
 				B9CC831B2AB0F6B800255116 /* QuickViewerDependency.swift in Sources */,
 				B96EDD8D2B635A6000CB925B /* SettingsPageViewService.swift in Sources */,
 				B99195812B47CB6F00BD5BBC /* InstructionViewStrings.swift in Sources */,
+				B92646942B7466B000E0F385 /* MenuService.swift in Sources */,
 				B961A8EF2ACA8346007508EC /* ViewObserver.swift in Sources */,
 				B93CAEB02AF4624000C03BF4 /* Toast+ColorPalette.swift in Sources */,
 				B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */,
@@ -4215,6 +4226,7 @@
 				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
 				B97DB5732AF45F6C002C2679 /* ToastViewModifier.swift in Sources */,
+				B92646962B747BAB00E0F385 /* AppConstants+MenuService.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
 				B9E0E0F92B20EFDB00C14274 /* FirebaseStorageDependency.swift in Sources */,
 				B992BCD82A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift in Sources */,
@@ -4271,7 +4283,7 @@
 				B980E8AF2B225EE40090F141 /* Message+Serializable.swift in Sources */,
 				B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */,
 				B963F1CA2B23D7250087DB83 /* Participant+Serializable.swift in Sources */,
-				B9627C632B6EC325004EE9DA /* GestureRecognizerService.swift in Sources */,
+				B9627C632B6EC325004EE9DA /* InputBarGestureRecognizerService.swift in Sources */,
 				B96446602B157E3E008E674A /* RootNavigationView.swift in Sources */,
 				B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */,
 				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,

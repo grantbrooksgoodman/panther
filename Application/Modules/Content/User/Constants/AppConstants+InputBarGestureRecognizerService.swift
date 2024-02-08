@@ -1,5 +1,5 @@
 //
-//  AppConstants+GestureRecognizerService.swift
+//  AppConstants+InputBarGestureRecognizerService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 04/02/2024.
@@ -12,7 +12,7 @@ import Foundation
 // MARK: - CGFloat
 
 public extension AppConstants.CGFloats {
-    enum GestureRecognizerService {
+    enum InputBarGestureRecognizerService {
         public static let errorToastPerpetuationDuration: CGFloat = 3
         public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
         public static let millisecondsDelay: CGFloat = 500 // swiftlint:disable:next identifier_name
@@ -23,7 +23,7 @@ public extension AppConstants.CGFloats {
 // MARK: - String
 
 public extension AppConstants.Strings {
-    enum GestureRecognizerService { // swiftlint:disable:next line_length
+    enum InputBarGestureRecognizerService { // swiftlint:disable:next line_length
         public static let audioMessagesUnsupportedAlertMessage = "Audio messages are unsupported for your language.\n\nPlease check back later in a future update!" // swiftlint:disable:next identifier_name
         public static let audioMessagesUnsupportedAlertCancelButtonTitle = "OK"
         public static let noSpeechDetectedExceptionDescriptor = "No speech detected"

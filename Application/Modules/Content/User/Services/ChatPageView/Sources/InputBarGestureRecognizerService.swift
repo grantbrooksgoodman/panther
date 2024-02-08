@@ -1,5 +1,5 @@
 //
-//  GestureRecognizerService.swift
+//  InputBarGestureRecognizerService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 03/02/2024.
@@ -15,11 +15,11 @@ import AlertKit
 import InputBarAccessoryView
 import Redux
 
-public final class GestureRecognizerService {
+public final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.GestureRecognizerService
-    private typealias Strings = AppConstants.Strings.GestureRecognizerService
+    private typealias Floats = AppConstants.CGFloats.InputBarGestureRecognizerService
+    private typealias Strings = AppConstants.Strings.InputBarGestureRecognizerService
 
     // MARK: - Dependencies
 

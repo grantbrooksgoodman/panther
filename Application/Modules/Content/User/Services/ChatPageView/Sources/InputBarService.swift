@@ -100,7 +100,7 @@ public final class InputBarService {
                     self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
                     self.inputBar.sendButton.tintColor = UIColor(Colors.inputBarSendButtonRecordTint)
                 } completion: { _ in
-                    self.chatPageViewService.gestureRecognizer?.configureInputBarGestureRecognizers()
+                    self.chatPageViewService.inputBarGestureRecognizer?.configureInputBarGestureRecognizers()
                 }
 
             case false:
@@ -109,7 +109,7 @@ public final class InputBarService {
                 }
 
                 self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.sendButtonSemanticTag)
-                self.chatPageViewService.gestureRecognizer?.removeInputBarGestureRecognizers()
+                self.chatPageViewService.inputBarGestureRecognizer?.removeInputBarGestureRecognizers()
 
                 UIView.transition(
                     with: self.inputBar.sendButton,

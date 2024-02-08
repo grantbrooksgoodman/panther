@@ -28,8 +28,9 @@ public final class ChatPageViewService {
 
     public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
-    public private(set) var gestureRecognizer: GestureRecognizerService?
     public private(set) var inputBar: InputBarService?
+    public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
+    public private(set) var menu: MenuService?
     public private(set) var messageDelivery: MessageDeliveryService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
@@ -51,8 +52,9 @@ public final class ChatPageViewService {
         clientSession.registerDeliveryProgressIndicator(deliveryProgressIndicatorService)
 
         audioMessagePlayback = .init(viewController)
-        gestureRecognizer = .init(viewController)
         inputBar = .init(viewController)
+        inputBarGestureRecognizer = .init(viewController)
+        menu = .init(viewController)
         messageDelivery = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
@@ -76,8 +78,10 @@ public final class ChatPageViewService {
             return
         }
 
-        gestureRecognizer?.configureInputBarGestureRecognizers()
+        inputBarGestureRecognizer?.configureInputBarGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
+        menu?.configureMenuGestureRecognizer()
+
         viewController?.becomeFirstResponder()
         viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
