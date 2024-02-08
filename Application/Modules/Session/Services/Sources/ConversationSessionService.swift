@@ -12,7 +12,12 @@ import Foundation
 /* 3rd-party */
 import Redux
 
+// swiftlint:disable:next type_body_length
 public final class ConversationSessionService {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.ConversationSessionService
+
     // MARK: - Dependencies
 
     @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
@@ -22,7 +27,9 @@ public final class ConversationSessionService {
 
     public private(set) var currentConversation: Conversation?
 
+    private var completeMessageArray: [Message]?
     @Persistent(.currentUserID) private var currentUserID: String?
+    private var messageOffset = Floats.defaultMessageOffset
 
     // MARK: - Add Messages
 
@@ -50,7 +57,27 @@ public final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     public func setCurrentConversation(_ currentConversation: Conversation) {
-        self.currentConversation = currentConversation.withMessagesSortedByAscendingSentDate
+        completeMessageArray = currentConversation.messages?.sortedByAscendingSentDate
+        self.currentConversation = withMessagesOffset(currentConversation.withMessagesSortedByAscendingSentDate)
+    }
+
+    // MARK: - Message Offset
+
+    public func incrementMessageOffset() {
+        guard let currentConversation else { return }
+        messageOffset += Floats.messageOffsetIncrement
+        self.currentConversation = .init(
+            currentConversation.id,
+            messageIDs: currentConversation.messageIDs,
+            messages: completeMessageArray,
+            lastModifiedDate: currentConversation.lastModifiedDate,
+            participants: currentConversation.participants,
+            users: currentConversation.users
+        )
+    }
+
+    public func resetMessageOffset() {
+        messageOffset = Floats.defaultMessageOffset
     }
 
     // MARK: - Update Messages / Last Modified Date
@@ -328,5 +355,19 @@ public final class ConversationSessionService {
         }
 
         return nil
+    }
+
+    private func withMessagesOffset(_ conversation: Conversation) -> Conversation {
+        guard let messages = conversation.messages else { return conversation }
+        var amountToGet = Int(messageOffset)
+        while amountToGet >= messages.count { amountToGet -= 1 }
+        return .init(
+            conversation.id,
+            messageIDs: conversation.messageIDs,
+            messages: messages.reversed()[0 ... amountToGet].reversed(),
+            lastModifiedDate: conversation.lastModifiedDate,
+            participants: conversation.participants,
+            users: conversation.users
+        )
     }
 }

@@ -28,6 +28,8 @@ public final class MessageDeliveryService {
 
     // MARK: - Properties
 
+    public private(set) var isSendingMessage = false
+
     private let viewController: ChatPageViewController
 
     // MARK: - Init
@@ -53,6 +55,7 @@ public final class MessageDeliveryService {
         guard let conversation = await viewController.currentConversation,
               let users = conversation.users else { return nil }
 
+        isSendingMessage = true
         toggleSendingUI(on: true)
 
         typealias Strings = AppConstants.Strings.MessageSessionService
@@ -71,6 +74,7 @@ public final class MessageDeliveryService {
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
         toggleSendingUI(on: false)
+        isSendingMessage = false
 
         switch sendAudioMessageResult {
         case let .success(conversation):
@@ -98,6 +102,7 @@ public final class MessageDeliveryService {
         services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(audioFile: nil, text: text)
 
+        isSendingMessage = true
         toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
@@ -109,6 +114,7 @@ public final class MessageDeliveryService {
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
         toggleSendingUI(on: false)
+        isSendingMessage = false
         if await viewController.currentConversation?.id.key == conversation.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }

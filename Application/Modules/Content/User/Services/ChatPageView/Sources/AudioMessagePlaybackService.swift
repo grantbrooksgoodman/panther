@@ -19,6 +19,7 @@ public final class AudioMessagePlaybackService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.AudioMessagePlaybackService
+    private typealias Floats = AppConstants.CGFloats.AudioMessagePlaybackService
     private typealias Strings = AppConstants.Strings.AudioMessagePlaybackService
 
     // MARK: - Dependencies
@@ -202,7 +203,7 @@ public final class AudioMessagePlaybackService {
     private func startPlaybackTimer() {
         stopPlaybackTimer()
         playbackTimer = .scheduledTimer(
-            timeInterval: 0.1,
+            timeInterval: Floats.playbackTimerTimeInterval,
             target: self,
             selector: #selector(animatePlaybackProgress),
             userInfo: nil,

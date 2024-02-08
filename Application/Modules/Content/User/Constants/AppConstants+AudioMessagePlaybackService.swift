@@ -10,6 +10,14 @@
 import Foundation
 import SwiftUI
 
+// MARK: - CGFloat
+
+public extension AppConstants.CGFloats {
+    enum AudioMessagePlaybackService {
+        public static let playbackTimerTimeInterval: CGFloat = 0.1
+    }
+}
+
 // MARK: - Color
 
 public extension AppConstants.Colors {

@@ -62,6 +62,8 @@ public extension AppConstants.CGFloats {
         public static let messageSeparatorAttributedDateStringWeekdayComparator: CGFloat = -604_800
         public static let messageSeparatorAttributedDateStringYesterdayComparator: CGFloat = -86400
 
+        public static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
+
         public static let textCellMessageLabelLeftTextInset: CGFloat = 15
         public static let textCellMessageLabelRightTextInset: CGFloat = 1
 

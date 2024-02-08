@@ -110,6 +110,8 @@
 		B920F1872AD77128002FC1C2 /* Calendar+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F1862AD77128002FC1C2 /* Calendar+CoreExtensions.swift */; };
 		B920F1892AD7C243002FC1C2 /* Locale+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F1882AD7C243002FC1C2 /* Locale+CoreExtensions.swift */; };
 		B920F18B2AD7C93A002FC1C2 /* LocaleDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F18A2AD7C93A002FC1C2 /* LocaleDependency.swift */; };
+		B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B923CA9E2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift */; };
+		B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */; };
 		B92409812AB2C5AB004CF4C0 /* Breadcrumbs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409802AB2C5AB004CF4C0 /* Breadcrumbs.swift */; };
 		B92409832AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409822AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift */; };
 		B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */; };
@@ -905,6 +907,8 @@
 		B920F1862AD77128002FC1C2 /* Calendar+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B920F1882AD7C243002FC1C2 /* Locale+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B920F18A2AD7C93A002FC1C2 /* LocaleDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocaleDependency.swift; sourceTree = "<group>"; };
+		B923CA9E2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ConversationSessionService.swift"; sourceTree = "<group>"; };
+		B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageViewService.swift"; sourceTree = "<group>"; };
 		B92409802AB2C5AB004CF4C0 /* Breadcrumbs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Breadcrumbs.swift; sourceTree = "<group>"; };
 		B92409822AB2D6C3004CF4C0 /* BreadcrumbsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbsDependency.swift; sourceTree = "<group>"; };
 		B92409842AB2DFC0004CF4C0 /* LoggerDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerDomains.swift; sourceTree = "<group>"; };
@@ -2387,6 +2391,7 @@
 		B9BF37FC2B6DC05C00024548 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
+				B923CA9E2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift */,
 				B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */,
 			);
 			path = Constants;
@@ -3283,6 +3288,7 @@
 				B9BD952A2B72D0F6009C1CB8 /* AppConstants+AudioMessagePlaybackService.swift */,
 				B9F47AF52B585FE400D86C67 /* AppConstants+AvatarImageView.swift */,
 				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
+				B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */,
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
@@ -3944,6 +3950,7 @@
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
 				B9E1BBA12B315C7C00ADEA71 /* NetworkActivityView.swift in Sources */,
 				B96EDDA12B63907C00CB925B /* SettingsContentPageView+StaticListItems.swift in Sources */,
+				B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */,
 				B90249D22B57459700D62855 /* PermissionContentPageView.swift in Sources */,
 				B99195772B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift in Sources */,
 				B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */,
@@ -4254,6 +4261,7 @@
 				B937D07D2B2237470058F00E /* SerializableProtocol.swift in Sources */,
 				B94657752AABC66F0091193B /* RootView.swift in Sources */,
 				B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */,
+				B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */,
 				B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */,
 				B918222C2B6DEE540068BDAB /* AppConstants+UIViewShimmerEffect.swift in Sources */,
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,

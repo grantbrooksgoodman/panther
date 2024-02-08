@@ -16,6 +16,11 @@ import MessageKit
 import Redux
 
 public final class ChatPageViewService {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService
+    private typealias Strings = AppConstants.Strings.ChatPageViewService
+
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
@@ -43,7 +48,9 @@ public final class ChatPageViewService {
     // MARK: - Instantiate View Controller
 
     public func instantiateViewController(_ conversation: Conversation, forPreview: Bool) -> MessagesViewController {
+        clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
+
         isInstantiatingForPreview = forPreview
 
         let viewController = chatPageViewControllerFactory.buildViewController()
@@ -76,7 +83,9 @@ public final class ChatPageViewService {
 
         guard !isInstantiatingForPreview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(10)) { self.viewController?.messagesCollectionView.scrollToLastItem(animated: false) }
+            core.gcd.after(.milliseconds(Floats.scrollToLastItemMillisecondsDelay)) {
+                self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+            }
             return
         }
 
@@ -112,6 +121,17 @@ public final class ChatPageViewService {
         }
     }
 
+    // MARK: - UIScrollView
+
+    public func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
+        loadMoreMessages(fromScrollToTop: false)
+    }
+
+    public func onScrollViewDidScrollToTop() {
+        loadMoreMessages(fromScrollToTop: true)
+    }
+
     // MARK: - UITraitCollection
 
     public func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -131,8 +151,26 @@ public final class ChatPageViewService {
         }
     }
 
+    private func loadMoreMessages(fromScrollToTop: Bool) {
+        guard !(messageDelivery?.isSendingMessage ?? false) else { return }
+
+        let previousMessageCount = clientSession.conversation.currentConversation?.messages?.count
+        clientSession.conversation.incrementMessageOffset()
+        guard previousMessageCount != clientSession.conversation.currentConversation?.messages?.count else { return }
+        reloadCollectionView()
+
+        guard fromScrollToTop else { return }
+        core.gcd.after(.milliseconds(Floats.loadMoreMessagesMillisecondsDelay)) {
+            self.viewController?.messagesCollectionView.scrollToItem(
+                at: .init(row: 0, section: 0),
+                at: .top,
+                animated: true
+            )
+        }
+    }
+
     private func toggleBuildInfoOverlay(on: Bool) {
-        guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow else { return }
+        guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: Strings.buildInfoOverlayWindowSemanticTag) as? UIWindow else { return }
         overlayWindow.isHidden = !on
     }
 }

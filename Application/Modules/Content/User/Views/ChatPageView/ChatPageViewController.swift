@@ -54,6 +54,16 @@ public final class ChatPageViewController: MessagesViewController {
         viewService.onViewDidDisappear()
     }
 
+    // MARK: - UIScrollView
+
+    override public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        viewService.onScrollViewDidEndDecelerating(scrollView)
+    }
+
+    override public func scrollViewDidScrollToTop(_: UIScrollView) {
+        viewService.onScrollViewDidScrollToTop()
+    }
+
     // MARK: - UICollectionView
 
     override public func collectionView(

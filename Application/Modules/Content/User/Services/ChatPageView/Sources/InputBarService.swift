@@ -219,9 +219,9 @@ public final class InputBarService {
 
     private func playRecordingCancellationVibration() {
         services.haptics.generateFeedback(.heavy)
-        core.gcd.after(.milliseconds(50)) {
+        core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) {
             self.services.haptics.generateFeedback(.heavy)
-            self.core.gcd.after(.milliseconds(50)) { self.services.haptics.generateFeedback(.heavy) }
+            self.core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { self.services.haptics.generateFeedback(.heavy) }
         }
     }
 
