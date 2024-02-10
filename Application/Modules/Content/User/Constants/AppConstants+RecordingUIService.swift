@@ -1,5 +1,5 @@
 //
-//  AppConstants+RecordingView.swift
+//  AppConstants+RecordingUIService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 03/02/2024.
@@ -13,7 +13,7 @@ import SwiftUI
 // MARK: - CGFloat
 
 public extension AppConstants.CGFloats {
-    enum RecordingView {
+    enum RecordingUIService {
         public static let cancelLabelFontSize: CGFloat = 17
         public static let cancelLabelFrameHeight: CGFloat = 20
         public static let cancelLabelOffsetIncrement: CGFloat = 10
@@ -38,7 +38,7 @@ public extension AppConstants.CGFloats {
 // MARK: - Color
 
 public extension AppConstants.Colors {
-    enum RecordingView {
+    enum RecordingUIService {
         public static let cancelLabelTextColor: Color = .init(uiColor: .gray)
         public static let durationLabelTextColor: Color = .init(uiColor: .gray)
         public static let recordingViewLayerBorderColor: Color = .init(uiColor: .systemGray)
@@ -48,7 +48,7 @@ public extension AppConstants.Colors {
 // MARK: - String
 
 public extension AppConstants.Strings {
-    enum RecordingView {
+    enum RecordingUIService {
         public static let cancelLabelFontName = "SFUIText-Semibold"
         public static let cancelLabelSemanticTag = "CANCEL_LABEL"
         public static let cancelLabelTextPrefix = "< "

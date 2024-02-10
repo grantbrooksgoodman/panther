@@ -6182,6 +6182,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>版本</string>
 	</dict>
+	<key>view_as_audio</key>
+	<dict>
+		<key>af</key>
+		<string>Bekyk as Oudio</string>
+		<key>ar</key>
+		<string>عرض كملف صوتي</string>
+		<key>az</key>
+		<string>Audio kimi Baxın</string>
+		<key>be</key>
+		<string>Праглядзець як Аўдыя</string>
+		<key>bg</key>
+		<string>Преглед като Аудио</string>
+		<key>bn</key>
+		<string>অডিও হিসেবে দেখুন</string>
+		<key>bs</key>
+		<string>Prikaži kao Audio</string>
+		<key>ca</key>
+		<string>Veure com a àudio</string>
+		<key>cs</key>
+		<string>Zobrazit jako Zvuk</string>
+		<key>cy</key>
+		<string>Gweld fel Sain</string>
+		<key>da</key>
+		<string>Se som Lyd</string>
+		<key>de</key>
+		<string>Als audio Ansehen</string>
+		<key>el</key>
+		<string>Προβολή ως Ήχος</string>
+		<key>en</key>
+		<string>View as Audio</string>
+		<key>eo</key>
+		<string>Vidi kiel Aŭdio</string>
+		<key>es</key>
+		<string>Ver como Audio</string>
+		<key>et</key>
+		<string>Vaata helina</string>
+		<key>eu</key>
+		<string>Ikusi audio Gisa</string>
+		<key>fa</key>
+		<string>مشاهده به صورت صوتی</string>
+		<key>fi</key>
+		<string>Näytä äänenä</string>
+		<key>fr</key>
+		<string>Afficher en tant qu&apos;audio</string>
+		<key>ga</key>
+		<string>Féach mar Fuaime</string>
+		<key>gd</key>
+		<string>Seall mar Fhuaime</string>
+		<key>gl</key>
+		<string>Ver como Audio</string>
+		<key>gu</key>
+		<string>ઑડિઓ તરીકે જુઓ</string>
+		<key>he</key>
+		<string>הצג כשמע</string>
+		<key>hi</key>
+		<string>ऑडियो के रूप में देखें</string>
+		<key>hr</key>
+		<string>Pogledaj kao Audio</string>
+		<key>ht</key>
+		<string>Gade kòm Odyo</string>
+		<key>hu</key>
+		<string>Megtekintés hangként</string>
+		<key>hy</key>
+		<string>Դիտել որպես Աուդիո</string>
+		<key>id</key>
+		<string>Lihat sebagai Audio</string>
+		<key>is</key>
+		<string>Skoða sem Hljóð</string>
+		<key>it</key>
+		<string>Visualizza come Audio</string>
+		<key>ja</key>
+		<string>オーディオとして表示</string>
+		<key>ka</key>
+		<string>Იხილეთ როგორც Აუდიო</string>
+		<key>kk</key>
+		<string>Аудио ретінде Көру</string>
+		<key>kn</key>
+		<string>ಆಡಿಯೋ ಆಗಿ ವೀಕ್ಷಿಸಿ</string>
+		<key>ko</key>
+		<string>오디오로 보기</string>
+		<key>ky</key>
+		<string>Аудио катары Көрүү</string>
+		<key>lt</key>
+		<string>Žiūrėti kaip garso įrašą</string>
+		<key>mg</key>
+		<string>Jereo ho Audio</string>
+		<key>mi</key>
+		<string>Tirohia hei Ororongo</string>
+		<key>mk</key>
+		<string>Прикажи како Аудио</string>
+		<key>ml</key>
+		<string>ഓഡിയോ ആയി കാണുക</string>
+		<key>mn</key>
+		<string>Аудио хэлбэрээр Үзэх</string>
+		<key>mt</key>
+		<string>Ara bħala Awdjo</string>
+		<key>ne</key>
+		<string>अडियोको रूपमा हेर्नुहोस्</string>
+		<key>nl</key>
+		<string>Weergeven als Audio</string>
+		<key>no</key>
+		<string>Vis som Lyd</string>
+		<key>pa</key>
+		<string>ਆਡੀਓ ਦੇ ਤੌਰ &apos;ਤੇ ਦੇਖੋ</string>
+		<key>pl</key>
+		<string>Wyświetl jako Dźwięk</string>
+		<key>pt</key>
+		<string>Ver como Áudio</string>
+		<key>ro</key>
+		<string>Vizualizați ca Audio</string>
+		<key>ru</key>
+		<string>Просмотреть как Аудио</string>
+		<key>si</key>
+		<string>Audio ලෙස බලන්න</string>
+		<key>sk</key>
+		<string>Zobraziť ako Zvuk</string>
+		<key>sl</key>
+		<string>Ogled kot Zvok</string>
+		<key>sq</key>
+		<string>Shiko si Audio</string>
+		<key>sr</key>
+		<string>Прикажи као Аудио</string>
+		<key>su</key>
+		<string>Témbongkeun salaku Audio</string>
+		<key>sv</key>
+		<string>Visa som Ljud</string>
+		<key>sw</key>
+		<string>Tazama kama Sauti</string>
+		<key>ta</key>
+		<string>ஆடியோவாக பார்க்கவும்</string>
+		<key>te</key>
+		<string>ఆడియోగా వీక్షించండి</string>
+		<key>tg</key>
+		<string>Намоиш ҳамчун Аудио</string>
+		<key>th</key>
+		<string>ดูเป็นเสียง</string>
+		<key>tl</key>
+		<string>Tingnan bilang Audio</string>
+		<key>tr</key>
+		<string>Ses olarak Görüntüle</string>
+		<key>tt</key>
+		<string>Аудио итеп Карау</string>
+		<key>uk</key>
+		<string>Переглянути як Аудіо</string>
+		<key>ur</key>
+		<string>آڈیو کے بطور دیکھیں</string>
+		<key>uz</key>
+		<string>Audio sifatida Ko&apos;rish</string>
+		<key>vi</key>
+		<string>Xem dưới dạng âm thanh</string>
+		<key>yi</key>
+		<string>זען ווי אַודיאָ</string>
+		<key>zh</key>
+		<string>视音频</string>
+	</dict>
 	<key>view_original</key>
 	<dict>
 		<key>af</key>
@@ -6336,6 +6491,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>View Original</string>
 		<key>zh</key>
 		<string>查看原文</string>
+	</dict>
+	<key>view_transcription</key>
+	<dict>
+		<key>af</key>
+		<string>Bekyk Transkripsie</string>
+		<key>ar</key>
+		<string>مشاهدة ملف النسخ</string>
+		<key>az</key>
+		<string>Transkripsiyaya Baxın</string>
+		<key>be</key>
+		<string>Праглядзець Транскрыпцыю</string>
+		<key>bg</key>
+		<string>Преглед на транскрипция</string>
+		<key>bn</key>
+		<string>ট্রান্সক্রিপশন দেখুন</string>
+		<key>bs</key>
+		<string>Pogledaj Transkripciju</string>
+		<key>ca</key>
+		<string>Veure Transcripció</string>
+		<key>cs</key>
+		<string>Zobrazit Přepis</string>
+		<key>cy</key>
+		<string>Gweld Trawsgrifiad</string>
+		<key>da</key>
+		<string>Se Transskription</string>
+		<key>de</key>
+		<string>Transkription Anzeigen</string>
+		<key>el</key>
+		<string>Προβολή Μεταγραφής</string>
+		<key>en</key>
+		<string>View Transcription</string>
+		<key>eo</key>
+		<string>Vidi Transskribon</string>
+		<key>es</key>
+		<string>Ver Transcripción</string>
+		<key>et</key>
+		<string>Vaata Transkriptsiooni</string>
+		<key>eu</key>
+		<string>Ikusi Transkripzioa</string>
+		<key>fa</key>
+		<string>مشاهده رونویسی</string>
+		<key>fi</key>
+		<string>Näytä Transkriptio</string>
+		<key>fr</key>
+		<string>Afficher la transcription</string>
+		<key>ga</key>
+		<string>Féach ar Trascríobh</string>
+		<key>gd</key>
+		<string>Seall an tar-sgrìobhadh</string>
+		<key>gl</key>
+		<string>Ver Transcrición</string>
+		<key>gu</key>
+		<string>ટ્રાંસ્ક્રિપ્શન જુઓ</string>
+		<key>he</key>
+		<string>הצג תמלול</string>
+		<key>hi</key>
+		<string>ट्रांसक्रिप्शन देखें</string>
+		<key>hr</key>
+		<string>Prikaži Transkripciju</string>
+		<key>ht</key>
+		<string>Gade Transkripsyon</string>
+		<key>hu</key>
+		<string>Átírás Megtekintése</string>
+		<key>hy</key>
+		<string>Դիտել Տառադարձումը</string>
+		<key>id</key>
+		<string>Lihat Transkripsi</string>
+		<key>is</key>
+		<string>Skoða Umritun</string>
+		<key>it</key>
+		<string>Visualizza Trascrizione</string>
+		<key>ja</key>
+		<string>文字起こしを見る</string>
+		<key>ka</key>
+		<string>Ტრანსკრიფციის Ნახვა</string>
+		<key>kk</key>
+		<string>Транскрипцияны Көру</string>
+		<key>kn</key>
+		<string>ಪ್ರತಿಲೇಖನವನ್ನು ವೀಕ್ಷಿಸಿ</string>
+		<key>ko</key>
+		<string>전사 보기</string>
+		<key>ky</key>
+		<string>Транскрипцияны Көрүү</string>
+		<key>lt</key>
+		<string>Žiūrėti Transkripciją</string>
+		<key>mg</key>
+		<string>Jereo ny Transcription</string>
+		<key>mi</key>
+		<string>Tirohia Whakamaoritanga</string>
+		<key>mk</key>
+		<string>Погледнете ја транскрипцијата</string>
+		<key>ml</key>
+		<string>ട്രാൻസ്ക്രിപ്ഷൻ കാണുക</string>
+		<key>mn</key>
+		<string>Сийрүүлгийг Харах</string>
+		<key>mt</key>
+		<string>Ara Traskrizzjoni</string>
+		<key>ne</key>
+		<string>ट्रान्सक्रिप्शन हेर्नुहोस्</string>
+		<key>nl</key>
+		<string>Transcriptie Bekijken</string>
+		<key>no</key>
+		<string>Se Transkripsjon</string>
+		<key>pa</key>
+		<string>ਟ੍ਰਾਂਸਕ੍ਰਿਪਸ਼ਨ ਦੇਖੋ</string>
+		<key>pl</key>
+		<string>Zobacz Transkrypcję</string>
+		<key>pt</key>
+		<string>Ver Transcrição</string>
+		<key>ro</key>
+		<string>Vedeți Transcrierea</string>
+		<key>ru</key>
+		<string>Посмотреть Транскрипцию</string>
+		<key>si</key>
+		<string>පිටපත බලන්න</string>
+		<key>sk</key>
+		<string>Zobraziť Prepis</string>
+		<key>sl</key>
+		<string>Ogled Prepisa</string>
+		<key>sq</key>
+		<string>Shikoni Transkriptimin</string>
+		<key>sr</key>
+		<string>Прикажи Транскрипцију</string>
+		<key>su</key>
+		<string>Témbongkeun Transkripsi</string>
+		<key>sv</key>
+		<string>Visa Transkription</string>
+		<key>sw</key>
+		<string>Tazama Unukuzi</string>
+		<key>ta</key>
+		<string>டிரான்ஸ்கிரிப்ஷனைக் காண்க</string>
+		<key>te</key>
+		<string>లిప్యంతరీకరణను వీక్షించండి</string>
+		<key>tg</key>
+		<string>Дидани Транскрипт</string>
+		<key>th</key>
+		<string>ดูการถอดความ</string>
+		<key>tl</key>
+		<string>Tingnan ang Transkripsyon</string>
+		<key>tr</key>
+		<string>Transkripsiyonu Görüntüle</string>
+		<key>tt</key>
+		<string>Транскрипцияне Карау</string>
+		<key>uk</key>
+		<string>Переглянути Транскрипцію</string>
+		<key>ur</key>
+		<string>ٹرانسکرپشن دیکھیں</string>
+		<key>uz</key>
+		<string>Transkripsiyani Ko‘rish</string>
+		<key>vi</key>
+		<string>Xem bản chép lời</string>
+		<key>yi</key>
+		<string>זען טראַנסקריפּציע</string>
+		<key>zh</key>
+		<string>查看转录</string>
 	</dict>
 	<key>view_translation</key>
 	<dict>

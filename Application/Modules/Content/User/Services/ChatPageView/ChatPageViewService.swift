@@ -115,7 +115,9 @@ public final class ChatPageViewService {
             }
         }
 
-        alternateMessage?.restoreAllAlternates()
+        alternateMessage?.restoreAllAlternateTextMessageIDs()
+        alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
+
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         audioService.playback.stopPlaying()
         if let exception = audioService.recording.cancelRecording() {

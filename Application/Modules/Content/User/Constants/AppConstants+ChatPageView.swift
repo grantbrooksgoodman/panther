@@ -16,61 +16,40 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum ChatPageView {
-        public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
-        public static let dataSourceAudioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
-
-        public static let dataSourceCellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
-        public static let dataSourceCellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
-
-        public static let dataSourceMessageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
-
-        public static let deliveryProgressAnimationDelay: CGFloat = 1
-        public static let deliveryProgressAnimationDuration: CGFloat = 0.2
-
-        public static let deliveryProgressTimerProgressIncrement: CGFloat = 0.001
-        public static let deliveryProgressTimerProgressIncrementThreshold: CGFloat = 0.9
-
-        public static let deliveryProgressTimerTimeInterval: CGFloat = 0.01
-        public static let deliveryProgressViewFrameHeight: CGFloat = 2
-
-        public static let displayDelegateMessageStyleCustomLayerCornerRadius: CGFloat = 10
-
-        public static let inputBarLayerBorderWidth: CGFloat = 0.5
-        public static let inputBarLayerCornerRadius: CGFloat = 15
-
-        public static let inputBarSendButtonOnSelectedTransformScaleX: CGFloat = 1.1
-        public static let inputBarSendButtonOnSelectedTransformScaleY: CGFloat = 1.1
-
-        public static let inputBarSendButtonSizeHeight: CGFloat = 30
-        public static let inputBarSendButtonSizeWidth: CGFloat = 30
-
-        public static let inputBarTransitionAnimationDuration: CGFloat = 0.3
-
-        public static let layoutDelegateCellBottomLabelHeight: CGFloat = 20
-        public static let layoutDelegateCellTopLabelHeight: CGFloat = 25
-        public static let layoutDelegateCellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
-        public static let layoutDelegateMessageTopLabelHeight: CGFloat = 15
-
-        public static let messageAttributedTextParagraphLineSpacing: CGFloat = 1.25
-        public static let messageAttributedTextSystemFontSize: CGFloat = 18
+        /* MARK: ChatPageView */
 
         public static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         public static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
 
-        public static let messageSeparatorAttributedDateStringBoldAttributesSystemFontSize: CGFloat = 12
-        public static let messageSeparatorAttributedDateStringStandardAttributesSystemFontSize: CGFloat = 12
-
-        public static let messageSeparatorAttributedDateStringUnderYearPrimaryComparator: CGFloat = -604_800
-        public static let messageSeparatorAttributedDateStringUnderYearSecondaryComparator: CGFloat = -31_540_000
-        public static let messageSeparatorAttributedDateStringWeekdayComparator: CGFloat = -604_800
-        public static let messageSeparatorAttributedDateStringYesterdayComparator: CGFloat = -86400
-
-        public static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
-
         public static let textCellMessageLabelLeftTextInset: CGFloat = 15
         public static let textCellMessageLabelRightTextInset: CGFloat = 1
 
-        public static let typingIndicatorTimerTimeInterval: CGFloat = 3
+        /* MARK: MessagesDataSource */
+
+        enum MessagesDataSource {
+            public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
+            public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
+
+            public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
+        }
+
+        /* MARK: MessagesDisplayDelegate */
+
+        enum MessagesDisplayDelegate {
+            public static let audioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
+            public static let audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
+
+            public static let messageStyleCustomLayerCornerRadius: CGFloat = 10
+        }
+
+        /* MARK: MessagesLayoutDelegate */
+
+        enum MessagesLayoutDelegate {
+            public static let cellBottomLabelHeight: CGFloat = 20
+            public static let cellTopLabelHeight: CGFloat = 25
+            public static let cellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
+            public static let messageTopLabelHeight: CGFloat = 15
+        }
     }
 }
 
@@ -78,35 +57,25 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
-        public static let dataSourceCellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
-        public static let dataSourceCellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+        /* MARK: MessagesDataSource */
 
-        public static let dataSourceCurrentUserAudioTintColor: Color = .init(uiColor: .white)
-        public static let dataSourceMessageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
+        enum MessagesDataSource {
+            public static let cellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
+            public static let cellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
 
-        public static let displayDelegateDetectorAttributesAlternateForeground: Color = .init(uiColor: .black)
-        public static let displayDelegateDetectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
+            public static let currentUserAudioTintColor: Color = .init(uiColor: .white)
+            public static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
+        }
 
-        public static let displayDelegateGenericAvatarViewBackground: Color = .init(uiColor: .clear)
-        public static let displayDelegateGenericAvatarViewTint: Color = .init(uiColor: .gray)
+        /* MARK: MessagesDisplayDelegate */
 
-        public static let inputBarContentViewRecordLayerBorder: Color = .init(uiColor: .clear)
-        public static let inputBarContentViewTextLayerBorder: Color = .init(uiColor: .systemGray)
+        enum MessagesDisplayDelegate {
+            public static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
+            public static let detectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
 
-        public static let inputBarInputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
-        public static let inputBarInputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
-
-        public static let inputBarInputTextViewTint: Color = .init(uiColor: .clear)
-
-        public static let inputBarSendButtonRecordTint: Color = .init(uiColor: .red)
-        public static let inputBarSendButtonTextTint: Color = .init(uiColor: .systemBlue)
-
-        public static let messageAttributedTextCurrentUserForeground: Color = .init(uiColor: .white)
-        public static let messageAttributedTextDarkForeground: Color = .init(uiColor: .white)
-        public static let messageAttributedTextLightForeground: Color = .init(uiColor: .white)
-
-        public static let messageSeparatorAttributedDateStringBoldAttributesForeground: Color = .init(uiColor: .gray)
-        public static let messageSeparatorAttributedDateStringStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+            public static let genericAvatarViewBackground: Color = .init(uiColor: .clear)
+            public static let genericAvatarViewTint: Color = .init(uiColor: .gray)
+        }
     }
 }
 
@@ -114,15 +83,18 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatPageView {
-        public static let cellDelegateDateSelectionURLString = "calshow:"
-        public static let cellDelegatePhoneNumberSelectionURLString = "tel://"
+        /* MARK: MessagesDataSource */
 
-        public static let dataSourceMessageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
+        enum MessagesDataSource {
+            public static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
+        }
 
-        public static let deliveryProgressViewSemanticTag = "DELIVERY_PROGRESS_VIEW"
+        /* MARK: MessageCellDelegate */
 
-        public static let recordButtonSemanticTag = "RECORD_BUTTON"
-        public static let sendButtonSemanticTag = "SEND_BUTTON"
+        enum MessageCellDelegate {
+            public static let dateSelectionURLString = "calshow:"
+            public static let phoneNumberSelectionURLString = "tel://"
+        }
     }
 }
 

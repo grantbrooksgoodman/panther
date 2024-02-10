@@ -15,12 +15,6 @@ import MessageKit
 import Redux
 
 public struct ChatPageViewControllerFactory {
-    // MARK: - Constants Accessors
-
-    private typealias Colors = AppConstants.Colors.ChatPageView
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-    private typealias Strings = AppConstants.Strings.ChatPageView
-
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -58,6 +52,8 @@ public struct ChatPageViewControllerFactory {
     }
 
     public func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
+        typealias Floats = AppConstants.CGFloats.ChatPageView
+
         guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
 
         layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
@@ -76,6 +72,9 @@ public struct ChatPageViewControllerFactory {
     }
 
     private func configureDeliveryProgressView(_ viewController: ChatPageViewController) {
+        typealias Floats = AppConstants.CGFloats.DeliveryProgressIndicatorService
+        typealias Strings = AppConstants.Strings.DeliveryProgressIndicatorService
+
         guard let mainScreen = uiApplication.mainScreen else { return }
 
         let deliveryProgressView: UIProgressView = .init(
@@ -83,7 +82,7 @@ public struct ChatPageViewControllerFactory {
                 x: 0,
                 y: 0,
                 width: mainScreen.bounds.width,
-                height: Floats.deliveryProgressViewFrameHeight
+                height: Floats.viewFrameHeight
             )
         )
 
@@ -91,11 +90,15 @@ public struct ChatPageViewControllerFactory {
         deliveryProgressView.progressTintColor = .accent
         deliveryProgressView.progressViewStyle = .bar
 
-        deliveryProgressView.tag = coreUI.semTag(for: Strings.deliveryProgressViewSemanticTag)
+        deliveryProgressView.tag = coreUI.semTag(for: Strings.viewSemanticTag)
         viewController.view.addSubview(deliveryProgressView)
     }
 
     public func configureInitialInputBar(_ viewController: ChatPageViewController) {
+        typealias Colors = AppConstants.Colors.InputBarService
+        typealias Floats = AppConstants.CGFloats.InputBarService
+        typealias Strings = AppConstants.Strings.InputBarService
+
         let inputBar = viewController.messageInputBar
 
         inputBar.backgroundView.backgroundColor = .inputBarBackground
@@ -106,26 +109,26 @@ public struct ChatPageViewControllerFactory {
         let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
 
         // swiftlint:disable line_length
-        let contentViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputBarContentViewRecordLayerBorder : Colors.inputBarContentViewTextLayerBorder).cgColor
-        let inputTextViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputBarInputTextViewRecordLayerBorder : Colors.inputBarInputTextViewRecordLayerBorder).cgColor
+        let contentViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.contentViewRecordLayerBorder : Colors.contentViewTextLayerBorder).cgColor
+        let inputTextViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputTextViewRecordLayerBorder : Colors.inputTextViewRecordLayerBorder).cgColor
         // swiftlint:enable line_length
 
         inputBar.contentView.clipsToBounds = true
         inputBar.contentView.layer.borderColor = contentViewBorderColor
-        inputBar.contentView.layer.borderWidth = Floats.inputBarLayerBorderWidth
-        inputBar.contentView.layer.cornerRadius = Floats.inputBarLayerCornerRadius
+        inputBar.contentView.layer.borderWidth = Floats.layerBorderWidth
+        inputBar.contentView.layer.cornerRadius = Floats.layerCornerRadius
 
         inputBar.inputTextView.clipsToBounds = true
         inputBar.inputTextView.layer.borderColor = inputTextViewBorderColor
-        inputBar.inputTextView.layer.borderWidth = Floats.inputBarLayerBorderWidth
-        inputBar.inputTextView.layer.cornerRadius = Floats.inputBarLayerCornerRadius
+        inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+        inputBar.inputTextView.layer.cornerRadius = Floats.layerCornerRadius
 
         inputBar.inputTextView.delegate = viewController
         inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         inputBar.inputTextView.tintColor = .accent
 
         inputBar.sendButton.setSize(
-            .init(width: Floats.inputBarSendButtonSizeWidth, height: Floats.inputBarSendButtonSizeHeight),
+            .init(width: Floats.sendButtonSizeWidth, height: Floats.sendButtonSizeHeight),
             animated: false
         )
 
@@ -145,12 +148,12 @@ public struct ChatPageViewControllerFactory {
         let sendButtonSemanticTag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
 
         inputBar.sendButton.tag = canConfigureInputBarForRecording ? recordButtonSemanticTag : sendButtonSemanticTag
-        inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.inputBarSendButtonRecordTint) : .init(Colors.inputBarSendButtonTextTint)
+        inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
 
         inputBar.sendButton
             .onSelected { $0.transform = CGAffineTransform(
-                scaleX: Floats.inputBarSendButtonOnSelectedTransformScaleX,
-                y: Floats.inputBarSendButtonOnSelectedTransformScaleY
+                scaleX: Floats.sendButtonOnSelectedTransformScaleX,
+                y: Floats.sendButtonOnSelectedTransformScaleY
             ) }
             .onDeselected { $0.transform = .identity }
     }

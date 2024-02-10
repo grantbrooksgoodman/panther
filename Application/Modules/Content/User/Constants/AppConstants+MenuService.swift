@@ -21,6 +21,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Strings {
     enum MenuService {
+        public static let audioMessageActionIdentifierRawValue = "audio_message"
         public static let copyActionIdentifierRawValue = "copy"
         public static let speakActionIdentifierRawValue = "speak"
         public static let viewAlterateActionIdentifierRawValue = "view_alternate"

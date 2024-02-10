@@ -15,22 +15,22 @@ import Redux
 
 public extension Date { // swiftlint:disable:next identifier_name
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {
-        typealias Floats = AppConstants.CGFloats.ChatPageView
+        typealias Floats = AppConstants.CGFloats.UserContentExtensions.Date
 
         func attributedForChatPageMessageSeparator(_ string: String, separatorIndex: Int) -> NSAttributedString {
             let attributed = NSMutableAttributedString(string: string)
 
-            typealias Colors = AppConstants.Colors.ChatPageView
+            typealias Colors = AppConstants.Colors.UserContentExtensions.Date
             typealias Key = NSAttributedString.Key
 
             let boldAttributes: [Key: Any] = [
-                .font: UIFont.boldSystemFont(ofSize: Floats.messageSeparatorAttributedDateStringBoldAttributesSystemFontSize),
-                .foregroundColor: UIColor(Colors.messageSeparatorAttributedDateStringBoldAttributesForeground),
+                .font: UIFont.boldSystemFont(ofSize: Floats.chatPageMessageSeparatorAttributedDateStringBoldAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground),
             ]
 
             let standardAttributes: [Key: Any] = [
-                .font: UIFont.systemFont(ofSize: Floats.messageSeparatorAttributedDateStringStandardAttributesSystemFontSize),
-                .foregroundColor: UIColor(Colors.messageSeparatorAttributedDateStringStandardAttributesForeground),
+                .font: UIFont.systemFont(ofSize: Floats.chatPageMessageSeparatorAttributedDateStringStandardAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground),
             ]
 
             let boldAttributeRange = NSRange(location: 0, length: separatorIndex)
@@ -65,11 +65,11 @@ public extension Date { // swiftlint:disable:next identifier_name
             @Localized(.today) var separator: String
             let string = "\(separator) \(timeString)"
             return attributedForChatPageMessageSeparator(string, separatorIndex: separator.count)
-        } else if distance == Floats.messageSeparatorAttributedDateStringYesterdayComparator {
+        } else if distance == Floats.chatPageMessageSeparatorAttributedDateStringYesterdayComparator {
             @Localized(.yesterday) var separator: String
             let string = "\(separator) \(timeString)"
             return attributedForChatPageMessageSeparator(string, separatorIndex: separator.count)
-        } else if distance >= Floats.messageSeparatorAttributedDateStringWeekdayComparator {
+        } else if distance >= Floats.chatPageMessageSeparatorAttributedDateStringWeekdayComparator {
             let weekdayString = weekdayString()
             let currentWeekdayString = Date().weekdayString()
 
@@ -80,8 +80,8 @@ public extension Date { // swiftlint:disable:next identifier_name
 
             let string = "\(underYearString) \(timeString)"
             return attributedForChatPageMessageSeparator(string, separatorIndex: underYearStringSeparatorIndex + 1)
-        } else if distance < Floats.messageSeparatorAttributedDateStringUnderYearPrimaryComparator,
-                  distance > Floats.messageSeparatorAttributedDateStringUnderYearSecondaryComparator {
+        } else if distance < Floats.chatPageMessageSeparatorAttributedDateStringUnderYearPrimaryComparator,
+                  distance > Floats.chatPageMessageSeparatorAttributedDateStringUnderYearSecondaryComparator {
             let string = "\(underYearString) \(timeString)"
             return attributedForChatPageMessageSeparator(string, separatorIndex: underYearStringSeparatorIndex + 1)
         }

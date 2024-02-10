@@ -14,11 +14,19 @@ import MessageKit
 import Redux
 
 public final class AlternateMessageService {
+    // MARK: - Types
+
+    public enum AlternateMessageType {
+        case alternateText
+        case audioTranscription
+    }
+
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
 
-    private var alternateMessageIDs = [String]()
+    private var alternateTextMessageIDs = [String]()
+    private var audioTranscriptionMessageIDs = [String]()
 
     // MARK: - Init
 
@@ -26,33 +34,70 @@ public final class AlternateMessageService {
         self.viewController = viewController
     }
 
-    // MARK: - Is Displaying Alternate
+    // MARK: - Is Displaying
 
-    public func isDisplayingAlternate(for message: Message) -> Bool {
-        alternateMessageIDs.contains(message.id)
+    public func isDisplayingAlternateText(for message: Message) -> Bool {
+        alternateTextMessageIDs.contains(message.id)
     }
 
-    // MARK: - Restore All Alternates
-
-    public func restoreAllAlternates() {
-        alternateMessageIDs = []
+    public func isDisplayingAudioTranscription(for message: Message) -> Bool {
+        audioTranscriptionMessageIDs.contains(message.id)
     }
 
-    // MARK: - Toggle Alternate
+    // MARK: - Restore All
 
-    public func toggleAlternate(for cell: MessageContentCell) {
+    public func restoreAllAlternateTextMessageIDs() {
+        alternateTextMessageIDs = []
+    }
+
+    public func restoreAllAudioTranscriptionMessageIDs() {
+        audioTranscriptionMessageIDs = []
+    }
+
+    // MARK: - Toggle
+
+    public func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let messages = viewController.currentConversation?.messages,
               messages.count > indexPath.section else { return }
         let message = messages[indexPath.section]
 
-        defer { viewController.messagesCollectionView.reloadItems(at: [indexPath]) }
+        func append() {
+            switch type {
+            case .alternateText:
+                alternateTextMessageIDs.append(message.id)
 
-        guard !alternateMessageIDs.contains(message.id) else {
-            alternateMessageIDs.removeAll(where: { $0 == message.id })
-            return
+            case .audioTranscription:
+                audioTranscriptionMessageIDs.append(message.id)
+            }
         }
 
-        alternateMessageIDs.append(message.id)
+        func remove() {
+            switch type {
+            case .alternateText:
+                alternateTextMessageIDs.removeAll(where: { $0 == message.id })
+
+            case .audioTranscription:
+                audioTranscriptionMessageIDs.removeAll(where: { $0 == message.id })
+            }
+        }
+
+        defer { viewController.messagesCollectionView.reloadItems(at: [indexPath]) }
+
+        switch type {
+        case .alternateText:
+            guard !alternateTextMessageIDs.contains(message.id) else {
+                remove()
+                return
+            }
+
+        case .audioTranscription:
+            guard !audioTranscriptionMessageIDs.contains(message.id) else {
+                remove()
+                return
+            }
+        }
+
+        append()
     }
 }

@@ -29,33 +29,36 @@ extension Message: MessageType {
     public var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
 
+        typealias Colors = AppConstants.Colors.UserContentExtensions.Message
+
+        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
+        let nonCurrentUserForegroundColor = isDarkMode ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
+        let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
+
         guard hasAudioComponent,
               let audioComponent else {
-            guard alternateMessageService?.isDisplayingAlternate(for: self) ?? false else {
+            guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
                 return .text(isFromCurrentUser ? translation.input.value() : translation.output)
             }
 
-            typealias Colors = AppConstants.Colors.ChatPageView
-            typealias Floats = AppConstants.CGFloats.ChatPageView
-
-            let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-            let nonCurrentUserForegroundColor = isDarkMode ? Colors.messageAttributedTextDarkForeground : Colors.messageAttributedTextLightForeground
-
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.lineSpacing = Floats.messageAttributedTextParagraphLineSpacing
             return .attributedText(
-                .init(
-                    string: isFromCurrentUser ? translation.output : translation.input.value(),
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: Floats.messageAttributedTextSystemFontSize).italicized,
-                        .foregroundColor: UIColor(isFromCurrentUser ? Colors.messageAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor),
-                        .paragraphStyle: paragraphStyle,
-                    ]
+                .messageCellString(
+                    isFromCurrentUser ? translation.output : translation.input.value(),
+                    foregroundColor: attributedStringForegroundColor
                 )
             )
         }
 
-        return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
+        guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
+            return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
+        }
+
+        return .attributedText(
+            .messageCellString(
+                isFromCurrentUser ? translation.input.value() : translation.output,
+                foregroundColor: attributedStringForegroundColor
+            )
+        )
     }
 
     public var messageId: String { id }

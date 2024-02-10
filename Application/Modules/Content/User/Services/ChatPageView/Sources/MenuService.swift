@@ -92,7 +92,20 @@ public final class MenuService {
         let message = messages[index]
 
         var actions = [UIAction]()
-        guard !message.hasAudioComponent else { return .init(children: actions) }
+        guard !message.hasAudioComponent else {
+            let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
+            let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
+
+            actions = [
+                .init(
+                    title: actionTitle,
+                    identifier: .init(rawValue: Strings.audioMessageActionIdentifierRawValue),
+                    handler: handleAction(_:)
+                ),
+            ]
+
+            return .init(children: actions)
+        }
 
         actions = [
             .init(
@@ -109,9 +122,9 @@ public final class MenuService {
 
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser else { return .init(children: actions) }
 
-        let isDisplayingAlternate = chatPageViewService.alternateMessage?.isDisplayingAlternate(for: message) ?? false
-        let actionTitle = Localized(
-            message.isFromCurrentUser ? (isDisplayingAlternate ? .viewOriginal : .viewTranslation) : (isDisplayingAlternate ? .viewTranslation : .viewOriginal)
+        let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: message) ?? false
+        let actionTitle = Localized( // swiftlint:disable:next line_length
+            message.isFromCurrentUser ? (isDisplayingAlternateText ? .viewOriginal : .viewTranslation) : (isDisplayingAlternateText ? .viewTranslation : .viewOriginal)
         ).wrappedValue
 
         actions.append(
@@ -126,6 +139,11 @@ public final class MenuService {
     }
 
     // MARK: - Action Handlers
+
+    private func handleAudioMessageAction() {
+        guard let selectedCell else { return }
+        chatPageViewService.alternateMessage?.toggle(.audioTranscription, for: selectedCell)
+    }
 
     private func handleCopyAction() {
         guard let selectedCell = selectedCell as? TextMessageCell else { return }
@@ -148,7 +166,10 @@ public final class MenuService {
 
         let utterance: AVSpeechUtterance = .init(string: messageLabelText)
         let languagePair = selectedMessage.translation.languagePair
-        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? languagePair.from : languagePair.to
+        let isDisplayingAlternate = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
+        let currentUserUttteranceLanguageCode = isDisplayingAlternate ? languagePair.to : languagePair.from
+        let notCurrentUserUttteranceLanguageCode = isDisplayingAlternate ? languagePair.from : languagePair.to
+        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUttteranceLanguageCode : notCurrentUserUttteranceLanguageCode
 
         utterance.voice = audioService.highestQualityVoice(utteranceLanguageCode)
         avSpeechSynthesizer.speak(utterance)
@@ -156,7 +177,7 @@ public final class MenuService {
 
     private func handleViewAlternateAction() {
         guard let selectedCell else { return }
-        chatPageViewService.alternateMessage?.toggleAlternate(for: selectedCell)
+        chatPageViewService.alternateMessage?.toggle(.alternateText, for: selectedCell)
     }
 
     // MARK: - Auxiliary
@@ -165,6 +186,9 @@ public final class MenuService {
         dismissMenu()
 
         switch action.identifier.rawValue {
+        case Strings.audioMessageActionIdentifierRawValue:
+            handleAudioMessageAction()
+
         case Strings.copyActionIdentifierRawValue:
             handleCopyAction()
 
@@ -185,7 +209,12 @@ public final class MenuService {
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
 
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
-              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell else { return }
+              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
+              let messages = viewController.currentConversation?.messages,
+              messages.count > indexPath.section else { return }
+
+        let message = messages[indexPath.section]
+        guard message.id != UserContentConstants.newMessageID else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),

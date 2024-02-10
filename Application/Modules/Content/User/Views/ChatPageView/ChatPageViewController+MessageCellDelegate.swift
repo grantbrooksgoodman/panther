@@ -17,19 +17,19 @@ import Redux
 extension ChatPageViewController: MessageCellDelegate {
     // MARK: - Constants Accessors
 
-    private typealias Strings = AppConstants.Strings.ChatPageView
+    private typealias Strings = AppConstants.Strings.ChatPageView.MessageCellDelegate
 
     // MARK: - Did Select Date
 
     public func didSelectDate(_ date: Date) {
-        guard let url = URL(string: "\(Strings.cellDelegateDateSelectionURLString)\(date.timeIntervalSinceReferenceDate)") else { return }
+        guard let url = URL(string: "\(Strings.dateSelectionURLString)\(date.timeIntervalSinceReferenceDate)") else { return }
         didSelectURL(url)
     }
 
     // MARK: - Did Select Phone Number
 
     public func didSelectPhoneNumber(_ phoneNumber: String) {
-        guard let url = URL(string: "\(Strings.cellDelegatePhoneNumberSelectionURLString)\(phoneNumber.digits)") else { return }
+        guard let url = URL(string: "\(Strings.phoneNumberSelectionURLString)\(phoneNumber.digits)") else { return }
         didSelectURL(url)
     }
 

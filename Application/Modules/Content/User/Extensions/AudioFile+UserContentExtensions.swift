@@ -13,12 +13,10 @@ import Foundation
 import MessageKit
 
 extension AudioFile: AudioItem {
-    // MARK: - Constants Accessors
-
-    private typealias Floats = AppConstants.CGFloats.AudioItem
-
-    // MARK: - Properties
-
     public var duration: Float { contentDuration ?? 0 }
-    public var size: CGSize { .init(width: Floats.sizeWidth, height: Floats.sizeHeight) }
+
+    public var size: CGSize {
+        typealias Floats = AppConstants.CGFloats.UserContentExtensions.AudioItem
+        return .init(width: Floats.sizeWidth, height: Floats.sizeHeight)
+    }
 }

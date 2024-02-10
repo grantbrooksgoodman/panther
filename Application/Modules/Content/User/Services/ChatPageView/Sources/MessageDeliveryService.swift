@@ -17,7 +17,7 @@ import Translator
 public final class MessageDeliveryService {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.ChatPageView
+    private typealias Colors = AppConstants.Colors.MessageDeliveryService
 
     // MARK: - Dependencies
 
@@ -83,6 +83,7 @@ public final class MessageDeliveryService {
             }
 
             guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
+            chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -122,6 +123,7 @@ public final class MessageDeliveryService {
         switch sendTextMessageResult {
         case let .success(conversation):
             guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
+            chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -188,6 +190,7 @@ public final class MessageDeliveryService {
         )
 
         guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
+        chatPageViewService.menu?.dismissMenu()
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.reloadCollectionView()
     }

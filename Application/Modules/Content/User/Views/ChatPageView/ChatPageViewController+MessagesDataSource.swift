@@ -17,9 +17,9 @@ import Redux
 extension ChatPageViewController: MessagesDataSource {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.ChatPageView
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-    private typealias Strings = AppConstants.Strings.ChatPageView
+    private typealias Colors = AppConstants.Colors.ChatPageView.MessagesDataSource
+    private typealias Floats = AppConstants.CGFloats.ChatPageView.MessagesDataSource
+    private typealias Strings = AppConstants.Strings.ChatPageView.MessagesDataSource
 
     // MARK: - Properties
 
@@ -39,7 +39,7 @@ extension ChatPageViewController: MessagesDataSource {
     ) -> UIColor {
         guard let message = message as? Message,
               message.isFromCurrentUser else { return .accent }
-        return UIColor(Colors.dataSourceCurrentUserAudioTintColor)
+        return UIColor(Colors.currentUserAudioTintColor)
     }
 
     // MARK: - Cell Bottom Label Attributed Text
@@ -57,8 +57,8 @@ extension ChatPageViewController: MessagesDataSource {
               !message.isMock else { return nil }
 
         let boldAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: Floats.dataSourceCellBottomLabelAttributedTextBoldAttributesSystemFontSize),
-            .foregroundColor: UIColor(Colors.dataSourceCellBottomLabelAttributedTextBoldAttributesForeground),
+            .font: UIFont.boldSystemFont(ofSize: Floats.cellBottomLabelAttributedTextBoldAttributesSystemFontSize),
+            .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextBoldAttributesForeground),
         ]
 
         guard let readDate = message.readDate else {
@@ -71,8 +71,8 @@ extension ChatPageViewController: MessagesDataSource {
         let readString = "\(Localized(.read).wrappedValue) \(readDate.formattedShortString)"
         return readString.attributed(
             mainAttributes: [
-                .font: UIFont.systemFont(ofSize: Floats.dataSourceCellBottomLabelAttributedTextStandardAttributesSystemFontSize),
-                .foregroundColor: UIColor(Colors.dataSourceCellBottomLabelAttributedTextStandardAttributesForeground),
+                .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextStandardAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextStandardAttributesForeground),
             ],
             alternateAttributes: boldAttributes,
             alternateAttributeRange: [Localized(.read).wrappedValue]
@@ -139,13 +139,13 @@ extension ChatPageViewController: MessagesDataSource {
               let matchingUser = users.first(where: { $0.id == message.fromAccountID }) else { return nil }
 
         let font: UIFont = .init(
-            name: Strings.dataSourceMessageTopLabelAttributedTextAttributesFontName,
-            size: Floats.dataSourceMessageTopLabelAttributedTextAttributesFontSize
-        ) ?? .systemFont(ofSize: Floats.dataSourceMessageTopLabelAttributedTextAttributesFontSize)
+            name: Strings.messageTopLabelAttributedTextAttributesFontName,
+            size: Floats.messageTopLabelAttributedTextAttributesFontSize
+        ) ?? .systemFont(ofSize: Floats.messageTopLabelAttributedTextAttributesFontSize)
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
-            .foregroundColor: UIColor(Colors.dataSourceMessageTopLabelAttributedTextAttributesForeground),
+            .foregroundColor: UIColor(Colors.messageTopLabelAttributedTextAttributesForeground),
         ]
 
         let isDefaultTheme = ThemeService.isDefaultThemeApplied

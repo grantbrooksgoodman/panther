@@ -15,7 +15,7 @@ import MessageKit
 extension ChatPageViewController: MessagesLayoutDelegate {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
+    private typealias Floats = AppConstants.CGFloats.ChatPageView.MessagesLayoutDelegate
 
     // MARK: - Cell Bottom Label Height
 
@@ -30,7 +30,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
               let message = message as? Message,
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser else { return 0 }
-        return Floats.layoutDelegateCellBottomLabelHeight
+        return Floats.cellBottomLabelHeight
     }
 
     // MARK: - Cell Top Label Height
@@ -40,7 +40,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-        guard indexPath.section != 0 else { return Floats.layoutDelegateCellTopLabelHeight }
+        guard indexPath.section != 0 else { return Floats.cellTopLabelHeight }
 
         guard let messages = currentConversation?.messages,
               let message = message as? Message,
@@ -48,8 +48,8 @@ extension ChatPageViewController: MessagesLayoutDelegate {
               indexPath.section - 1 > -1 else { return 0 }
 
         let previousSentDate = messages[indexPath.section - 1].sentDate // TODO: Audit this.
-        guard message.sentDate.seconds(from: previousSentDate) > Int(Floats.layoutDelegateCellTopLabelHeightSentDateSecondsComparator) else { return 0 }
-        return Floats.layoutDelegateCellTopLabelHeight
+        guard message.sentDate.seconds(from: previousSentDate) > Int(Floats.cellTopLabelHeightSentDateSecondsComparator) else { return 0 }
+        return Floats.cellTopLabelHeight
     }
 
     // MARK: - Message Top Label Height
@@ -70,6 +70,6 @@ extension ChatPageViewController: MessagesLayoutDelegate {
             return 0
         }
 
-        return message.isFromCurrentUser ? 0 : Floats.layoutDelegateMessageTopLabelHeight
+        return message.isFromCurrentUser ? 0 : Floats.messageTopLabelHeight
     }
 }

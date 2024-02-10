@@ -16,8 +16,8 @@ import Redux
 public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-    private typealias Strings = AppConstants.Strings.ChatPageView
+    private typealias Floats = AppConstants.CGFloats.DeliveryProgressIndicatorService
+    private typealias Strings = AppConstants.Strings.DeliveryProgressIndicatorService
 
     // MARK: - Dependencies
 
@@ -32,7 +32,7 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Computed Properties
 
     private var progressView: UIProgressView? {
-        viewController.view.firstSubview(for: Strings.deliveryProgressViewSemanticTag) as? UIProgressView
+        viewController.view.firstSubview(for: Strings.viewSemanticTag) as? UIProgressView
     }
 
     // MARK: - Init
@@ -46,7 +46,7 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     public func incrementDeliveryProgress(by: Float) {
         mainQueue.async {
             guard let progressView = self.progressView else { return }
-            UIView.animate(withDuration: Floats.deliveryProgressAnimationDuration) {
+            UIView.animate(withDuration: Floats.animationDuration) {
                 progressView.setProgress(progressView.progress + by, animated: true)
             }
         }
@@ -55,11 +55,11 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     public func startAnimatingDeliveryProgress() {
         mainQueue.async {
             guard let progressView = self.progressView else { return }
-            UIView.animate(withDuration: Floats.deliveryProgressAnimationDuration) {
+            UIView.animate(withDuration: Floats.animationDuration) {
                 progressView.alpha = 1
             } completion: { _ in
                 self.deliveryProgressTimer = .scheduledTimer(
-                    timeInterval: Floats.deliveryProgressTimerTimeInterval,
+                    timeInterval: Floats.timerTimeInterval,
                     target: self,
                     selector: #selector(self._incrementDeliveryProgress),
                     userInfo: nil,
@@ -76,8 +76,8 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         mainQueue.async {
             self.progressView?.setProgress(1, animated: true)
             UIView.animate(
-                withDuration: Floats.deliveryProgressAnimationDuration,
-                delay: Floats.deliveryProgressAnimationDelay
+                withDuration: Floats.animationDuration,
+                delay: Floats.animationDelay
             ) {
                 self.progressView?.alpha = 0
             } completion: { _ in
@@ -94,8 +94,8 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
               let deliveryProgressTimer,
               deliveryProgressTimer.isValid else { return }
 
-        let incrementValue = Floats.deliveryProgressTimerProgressIncrement
-        let threshold = Floats.deliveryProgressTimerProgressIncrementThreshold
+        let incrementValue = Floats.timerProgressIncrement
+        let threshold = Floats.timerProgressIncrementThreshold
 
         guard progressView.progress + .init(incrementValue) < .init(threshold) else { return }
         incrementDeliveryProgress(by: .init(incrementValue))

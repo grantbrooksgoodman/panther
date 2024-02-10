@@ -17,9 +17,8 @@ import Redux
 extension ChatPageViewController: MessagesDisplayDelegate {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.ChatPageView
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-    private typealias Strings = AppConstants.Strings.ChatPageView
+    private typealias Colors = AppConstants.Colors.ChatPageView.MessagesDisplayDelegate
+    private typealias Floats = AppConstants.CGFloats.ChatPageView.MessagesDisplayDelegate
 
     // MARK: - Background Color
 
@@ -61,8 +60,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         guard ThemeService.isDefaultThemeApplied else { return }
         cell.progressView.trackTintColor = message
             .backgroundColor
-            .darker(by: Floats.dataSourceAudioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage)?
-            .withAlphaComponent(Floats.dataSourceAudioCellProgressViewDefaultThemeTrackTintColorAlphaComponent)
+            .darker(by: Floats.audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage)?
+            .withAlphaComponent(Floats.audioCellProgressViewDefaultThemeTrackTintColorAlphaComponent)
     }
 
     // MARK: - Configure Avatar View
@@ -79,9 +78,9 @@ extension ChatPageViewController: MessagesDisplayDelegate {
               !message.isFromCurrentUser else { return }
 
         func configureGenericAvatar() {
-            avatarView.backgroundColor = UIColor(Colors.displayDelegateGenericAvatarViewBackground)
+            avatarView.backgroundColor = UIColor(Colors.genericAvatarViewBackground)
             avatarView.image = .contact
-            avatarView.tintColor = UIColor(Colors.displayDelegateGenericAvatarViewTint)
+            avatarView.tintColor = UIColor(Colors.genericAvatarViewTint)
         }
 
         guard let users = currentConversation?.users,
@@ -110,8 +109,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         guard let message = message as? Message else { return .init() }
 
         let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        let primaryColor = UIColor(Colors.displayDelegateDetectorAttributesPrimaryForeground)
-        let alternateColor = UIColor(Colors.displayDelegateDetectorAttributesAlternateForeground)
+        let primaryColor = UIColor(Colors.detectorAttributesPrimaryForeground)
+        let alternateColor = UIColor(Colors.detectorAttributesAlternateForeground)
         let colorToUse = message.isFromCurrentUser ? primaryColor : (isDarkMode ? primaryColor : alternateColor)
 
         var attributes: [NSAttributedString.Key: Any] = [
@@ -144,7 +143,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         guard let message = message as? Message else { return .none }
 
         guard ThemeService.isDefaultThemeApplied else {
-            return .custom { $0.layer.cornerRadius = Floats.displayDelegateMessageStyleCustomLayerCornerRadius }
+            return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius }
         }
 
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)

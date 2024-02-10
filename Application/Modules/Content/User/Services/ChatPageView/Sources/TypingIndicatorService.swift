@@ -15,7 +15,7 @@ import Redux
 public final class TypingIndicatorService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
+    private typealias Floats = AppConstants.CGFloats.TypingIndicatorService
 
     // MARK: - Properties
 
@@ -39,7 +39,7 @@ public final class TypingIndicatorService {
 
     public func startCheckingForTypingIndicatorChanges() {
         typingIndicatorTimer = .scheduledTimer(
-            timeInterval: .init(Floats.typingIndicatorTimerTimeInterval),
+            timeInterval: .init(Floats.timerTimeInterval),
             target: self,
             selector: #selector(checkForTypingIndicatorChanges),
             userInfo: nil,

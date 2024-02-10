@@ -17,9 +17,9 @@ import Redux
 public final class InputBarService {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.ChatPageView
-    private typealias Floats = AppConstants.CGFloats.ChatPageView
-    private typealias Strings = AppConstants.Strings.ChatPageView
+    private typealias Colors = AppConstants.Colors.InputBarService
+    private typealias Floats = AppConstants.CGFloats.InputBarService
+    private typealias Strings = AppConstants.Strings.InputBarService
 
     // MARK: - Dependencies
 
@@ -76,11 +76,11 @@ public final class InputBarService {
 
                 UIView.transition(
                     with: self.inputBar.sendButton,
-                    duration: Floats.inputBarTransitionAnimationDuration,
+                    duration: Floats.transitionAnimationDuration,
                     options: [.transitionCrossDissolve]
                 ) {
-                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.inputBarContentViewRecordLayerBorder).cgColor
-                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputBarInputTextViewRecordLayerBorder).cgColor
+                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.contentViewRecordLayerBorder).cgColor
+                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputTextViewRecordLayerBorder).cgColor
 
                     self.inputBar.sendButton.setImage(
                         self.inputBarConfigService.sendButtonImage(
@@ -98,7 +98,7 @@ public final class InputBarService {
                     )
 
                     self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
-                    self.inputBar.sendButton.tintColor = UIColor(Colors.inputBarSendButtonRecordTint)
+                    self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
                 } completion: { _ in
                     self.chatPageViewService.inputBarGestureRecognizer?.configureInputBarGestureRecognizers()
                 }
@@ -113,11 +113,11 @@ public final class InputBarService {
 
                 UIView.transition(
                     with: self.inputBar.sendButton,
-                    duration: Floats.inputBarTransitionAnimationDuration,
+                    duration: Floats.transitionAnimationDuration,
                     options: [.transitionCrossDissolve]
                 ) {
-                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.inputBarContentViewTextLayerBorder).cgColor
-                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputBarInputTextViewTextLayerBorder).cgColor
+                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.contentViewTextLayerBorder).cgColor
+                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputTextViewTextLayerBorder).cgColor
 
                     self.inputBar.sendButton.setImage(
                         self.inputBarConfigService.sendButtonImage(

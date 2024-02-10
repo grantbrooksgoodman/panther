@@ -16,7 +16,7 @@ import Redux
 public extension InputBarSendButton {
     var isRecordButton: Bool {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
-        typealias Strings = AppConstants.Strings.ChatPageView
+        typealias Strings = AppConstants.Strings.InputBarService
 
         let imageMatches = image(for: .normal) == .record
         let tagMatches = tag == coreUI.semTag(for: Strings.recordButtonSemanticTag)
