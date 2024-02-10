@@ -26,11 +26,14 @@ public final class MenuService {
     @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
     // MARK: - Properties
 
     public private(set) var isShowingMenu = false
+    public private(set) var speakingCell: MessageContentCell?
+    public private(set) var speakingMessage: Message?
 
     private let menuInteraction: UIEditMenuInteraction
     private let viewController: ChatPageViewController
@@ -54,10 +57,23 @@ public final class MenuService {
         menuInteraction = .init(delegate: viewController)
     }
 
+    // MARK: - Reset Speaking Cell
+
+    public func resetSpeakingCell() {
+        speakingCell = nil
+        speakingMessage = nil
+    }
+
     // MARK: - Set Is Showing Menu
 
     public func setIsShowingMenu(_ isShowingMenu: Bool) {
         self.isShowingMenu = isShowingMenu
+    }
+
+    // MARK: - Set Speaking Cell
+
+    public func setSpeakingCell(_ speakingCell: MessageContentCell) {
+        self.speakingCell = speakingCell
     }
 
     // MARK: - Configure Menu Gesture Recognizer
@@ -120,7 +136,10 @@ public final class MenuService {
             ),
         ]
 
-        guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser else { return .init(children: actions) }
+        guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
+              let otherUser = viewController.currentConversation?.users?.first,
+              otherUser.languageCode != currentUser?.languageCode,
+              !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }
 
         let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: message) ?? false
         let actionTitle = Localized( // swiftlint:disable:next line_length
@@ -164,15 +183,18 @@ public final class MenuService {
 
         chatPageViewService.audioMessagePlayback?.stopPlayback()
 
-        let utterance: AVSpeechUtterance = .init(string: messageLabelText)
+        let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
         let languagePair = selectedMessage.translation.languagePair
-        let isDisplayingAlternate = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
-        let currentUserUttteranceLanguageCode = isDisplayingAlternate ? languagePair.to : languagePair.from
-        let notCurrentUserUttteranceLanguageCode = isDisplayingAlternate ? languagePair.from : languagePair.to
-        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUttteranceLanguageCode : notCurrentUserUttteranceLanguageCode
+        let currentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.to : languagePair.from
+        let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
+        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
 
+        let utterance: AVSpeechUtterance = .init(string: messageLabelText)
         utterance.voice = audioService.highestQualityVoice(utteranceLanguageCode)
         avSpeechSynthesizer.speak(utterance)
+
+        speakingCell = selectedCell
+        speakingMessage = selectedMessage
     }
 
     private func handleViewAlternateAction() {

@@ -93,6 +93,10 @@ public final class ChatPageViewController: MessagesViewController {
             }
         }
 
+        if currentMessage.isSpeakingMessage {
+            viewService.menu?.setSpeakingCell(textCell)
+        }
+
         return textCell
     }
 

@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
@@ -23,6 +24,7 @@ public final class InputBarService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
@@ -162,6 +164,7 @@ public final class InputBarService {
 
         case .startRecording:
             guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+            avSpeechSynthesizer.stopSpeaking(at: .immediate)
             chatPageViewService.audioMessagePlayback?.stopPlayback()
             await chatPageViewService.recordingUI?.showRecordingUI()
             services.haptics.generateFeedback(.medium)
@@ -198,7 +201,8 @@ public final class InputBarService {
     // MARK: - Did Press Send Button
 
     public func didPressSendButton(with text: String) async -> Exception? {
-        await chatPageViewService.messageDelivery?.sendTextMessage(text)
+        avSpeechSynthesizer.stopSpeaking(at: .immediate)
+        return await chatPageViewService.messageDelivery?.sendTextMessage(text)
     }
 
     // MARK: - Text View Did Change

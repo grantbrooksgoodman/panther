@@ -24,6 +24,12 @@ public extension AppConstants.CGFloats {
         public static let textCellMessageLabelLeftTextInset: CGFloat = 15
         public static let textCellMessageLabelRightTextInset: CGFloat = 1
 
+        /* MARK: AVSpeechSynthesizerDelegate */
+
+        enum AVSpeechSynthesizerDelegate {
+            public static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
+        }
+
         /* MARK: MessagesDataSource */
 
         enum MessagesDataSource {
@@ -57,6 +63,14 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
+        /* MARK: AVSpeechSynthesizerDelegate */
+
+        enum AVSpeechSynthesizerDelegate {
+            public static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
+            public static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
+            public static let willSpeakRangeOfSpeechStringWhite: Color = .init(uiColor: .white)
+        }
+
         /* MARK: MessagesDataSource */
 
         enum MessagesDataSource {

@@ -102,4 +102,10 @@ public extension Message {
               let playingMessage else { return false }
         return playingMessage.id == id
     }
+
+    var isSpeakingMessage: Bool {
+        @Dependency(\.chatPageViewService.menu?.speakingMessage) var speakingMessage: Message?
+        guard let speakingMessage else { return false }
+        return speakingMessage.id == id
+    }
 }
