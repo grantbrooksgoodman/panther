@@ -14,6 +14,12 @@ import Foundation
 public extension AppConstants.CGFloats {
     enum MenuService {
         public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
+
+        // swiftlint:disable:next identifier_name
+        public static let messageContainerViewBackgroundColorDarkeningPercentage: CGFloat = 20 // swiftlint:disable:next identifier_name
+        public static let messageContainerViewBackgroundColorLighteningPercentage: CGFloat = 10
+
+        public static let selectionAnimationDuration: CGFloat = 0.2
     }
 }
 

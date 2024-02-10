@@ -358,9 +358,10 @@ public final class ConversationSessionService {
     }
 
     private func withMessagesOffset(_ conversation: Conversation) -> Conversation {
-        guard let messages = conversation.messages else { return conversation }
-        var amountToGet = Int(messageOffset)
-        while amountToGet >= messages.count { amountToGet -= 1 }
+        let amountToGet = Int(messageOffset)
+        guard let messages = conversation.messages,
+              messages.count > amountToGet else { return conversation }
+
         return .init(
             conversation.id,
             messageIDs: conversation.messageIDs,

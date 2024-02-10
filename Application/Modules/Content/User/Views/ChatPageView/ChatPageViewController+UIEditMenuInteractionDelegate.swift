@@ -34,7 +34,8 @@ extension ChatPageViewController: UIEditMenuInteractionDelegate {
         animator: UIEditMenuInteractionAnimating
     ) {
         @Dependency(\.chatPageViewService.menu) var menuService: MenuService?
-        menuService?.setIsShowingMenu(false)
+        guard let indexPathSection = configuration.identifier as? Int else { return }
+        menuService?.setIsShowingMenu(false, at: indexPathSection)
     }
 
     // MARK: - Will Present Menu for Configuration
@@ -45,6 +46,7 @@ extension ChatPageViewController: UIEditMenuInteractionDelegate {
         animator: UIEditMenuInteractionAnimating
     ) {
         @Dependency(\.chatPageViewService.menu) var menuService: MenuService?
-        menuService?.setIsShowingMenu(true)
+        guard let indexPathSection = configuration.identifier as? Int else { return }
+        menuService?.setIsShowingMenu(true, at: indexPathSection)
     }
 }

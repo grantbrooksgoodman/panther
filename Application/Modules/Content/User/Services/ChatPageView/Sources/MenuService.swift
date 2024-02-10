@@ -23,10 +23,10 @@ public final class MenuService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
     // MARK: - Properties
@@ -66,8 +66,11 @@ public final class MenuService {
 
     // MARK: - Set Is Showing Menu
 
-    public func setIsShowingMenu(_ isShowingMenu: Bool) {
+    public func setIsShowingMenu(_ isShowingMenu: Bool, at index: Int) {
         self.isShowingMenu = isShowingMenu
+
+        guard !isShowingMenu else { return }
+        animateDeselection(forCellAt: index)
     }
 
     // MARK: - Set Speaking Cell
@@ -190,7 +193,7 @@ public final class MenuService {
         let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
 
         let utterance: AVSpeechUtterance = .init(string: messageLabelText)
-        utterance.voice = audioService.highestQualityVoice(utteranceLanguageCode)
+        utterance.voice = services.audio.highestQualityVoice(utteranceLanguageCode)
         avSpeechSynthesizer.speak(utterance)
 
         speakingCell = selectedCell
@@ -203,6 +206,39 @@ public final class MenuService {
     }
 
     // MARK: - Auxiliary
+
+    private func animateDeselection(forCellAt index: Int) {
+        let collectionView = viewController.messagesCollectionView
+        guard let cell = collectionView.visibleCells.first(where: { collectionView.indexPath(for: $0)?.section == index }) as? MessageContentCell,
+              let messages = viewController.currentConversation?.messages,
+              messages.count > index else { return }
+
+        let message = messages[index]
+
+        UIView.animate(withDuration: Floats.selectionAnimationDuration) {
+            cell.messageContainerView.backgroundColor = message.backgroundColor
+        }
+    }
+
+    private func animateSelectionForSelectedCell() {
+        guard let selectedCell else { return }
+
+        let backgroundColor = selectedCell.messageContainerView.backgroundColor
+        guard backgroundColor?.resolvedColor(with: .current) == .senderBubble.resolvedColor(with: .current) ||
+            backgroundColor == .receiverBubble else { return }
+
+        UIView.animate(withDuration: Floats.selectionAnimationDuration) {
+            guard backgroundColor == .receiverBubble,
+                  UITraitCollection.current.userInterfaceStyle == .dark else {
+                selectedCell.messageContainerView.backgroundColor = backgroundColor?.darker(by: Floats.messageContainerViewBackgroundColorDarkeningPercentage)
+                return
+            }
+
+            selectedCell.messageContainerView.backgroundColor = backgroundColor?.lighter(by: Floats.messageContainerViewBackgroundColorLighteningPercentage)
+        }
+
+        services.haptics.generateFeedback(.selection)
+    }
 
     private func handleAction(_ action: UIAction) {
         dismissMenu()
@@ -253,6 +289,7 @@ public final class MenuService {
             )
         )
 
+        animateSelectionForSelectedCell()
         menuInteraction.presentEditMenu(with: configuration)
     }
 }
