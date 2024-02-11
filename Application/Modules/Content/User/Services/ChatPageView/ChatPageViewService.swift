@@ -156,6 +156,22 @@ public final class ChatPageViewService {
         }
     }
 
+    public func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
+        func reloadItems() {
+            Task { @MainActor in
+                viewController?.messagesCollectionView.reloadItems(at: indexPaths)
+            }
+        }
+
+        guard let messageDelivery,
+              messageDelivery.isSendingMessage else {
+            reloadItems()
+            return
+        }
+
+        messageDelivery.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
+    }
+
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !(messageDelivery?.isSendingMessage ?? false) else { return }
 

@@ -42,12 +42,12 @@ public final class InputBarService {
     // MARK: - Computed Properties
 
     public var shouldEnableSendButton: Bool {
-        let isConversationEmpty = viewController.currentConversation?.id.key == UserContentConstants.newConversationID
+        let isConversationMock = viewController.currentConversation?.isMock ?? true
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
         let isTextViewTextBlank = inputBar.inputTextView.text.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty }
-        return !isConversationEmpty && !isTextViewTextBlank
+        guard isSendButtonConfiguredForText else { return !isConversationMock }
+        return !isConversationMock && !isTextViewTextBlank
     }
 
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
@@ -107,7 +107,10 @@ public final class InputBarService {
 
             case false:
                 if !forceUpdate {
-                    guard self.inputBar.sendButton.isRecordButton else { return }
+                    guard self.inputBar.sendButton.isRecordButton else {
+                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+                        return
+                    }
                 }
 
                 self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.sendButtonSemanticTag)

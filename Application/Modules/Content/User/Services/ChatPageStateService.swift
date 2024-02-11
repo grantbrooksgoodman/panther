@@ -27,10 +27,10 @@ public final class ChatPageStateService {
     }
 
     // Dictionary
-    public private(set) var uponIsPresentedChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
-    public private(set) var uponIsPresentedChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
-    public private(set) var uponIsWaitingToUpdateConversationsChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
-    public private(set) var uponIsWaitingToUpdateConversationsChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsPresentedChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsPresentedChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsWaitingToUpdateConversationsChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
+    private var uponIsWaitingToUpdateConversationsChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
 
     // MARK: - Init
 

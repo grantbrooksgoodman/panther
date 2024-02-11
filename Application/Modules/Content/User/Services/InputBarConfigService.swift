@@ -29,8 +29,8 @@ public struct InputBarConfigService {
         guard let currentUser = clientSession.user.currentUser,
               let conversation = clientSession.conversation.currentConversation else { return false }
 
-        guard currentUser.canSendAudioMessages else { return !(audioService.acknowledgedAudioMessagesUnsupported ?? false) }
-        guard let users = conversation.users else { return !conversation.isMock /* TODO: Audit this. */ }
+        guard currentUser.canSendAudioMessages,
+              let users = conversation.users else { return !(audioService.acknowledgedAudioMessagesUnsupported ?? false) }
         return users.allSatisfy { currentUser.canSendAudioMessages(to: $0) /* TODO: Potential to be unlocked in removing this requirement. */ }
     }
 

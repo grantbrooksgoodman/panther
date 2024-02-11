@@ -22,14 +22,14 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didCancel utterance: AVSpeechUtterance
     ) {
-        @Dependency(\.chatPageViewService.menu) var menuService: MenuService?
-        menuService?.dismissMenu()
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        chatPageViewService.menu?.dismissMenu()
 
-        guard let speakingCell = menuService?.speakingCell,
+        guard let speakingCell = chatPageViewService.menu?.speakingCell,
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
-        messagesCollectionView.reloadItems(at: [indexPath])
-        menuService?.resetSpeakingCell()
+        chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
+        chatPageViewService.menu?.resetSpeakingCell()
     }
 
     // MARK: - Did Finish Utterance
@@ -38,14 +38,14 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didFinish utterance: AVSpeechUtterance
     ) {
-        @Dependency(\.chatPageViewService.menu) var menuService: MenuService?
-        menuService?.dismissMenu()
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        chatPageViewService.menu?.dismissMenu()
 
-        guard let speakingCell = menuService?.speakingCell,
+        guard let speakingCell = chatPageViewService.menu?.speakingCell,
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
-        messagesCollectionView.reloadItems(at: [indexPath])
-        menuService?.resetSpeakingCell()
+        chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
+        chatPageViewService.menu?.resetSpeakingCell()
     }
 
     // MARK: - Will Speak Range of Speech String

@@ -136,7 +136,7 @@ private struct RegionPickerView: View {
             }
             .header(.text(.init(viewModel.headerLabelText)), showsDivider: false)
             .background(Color.navigationBarBackground)
-            .ignoresSafeArea(.all)
+            .ignoresSafeArea()
             .onAppear {
                 selectedRegionTitle = viewModel.selectedRegionTitle ?? ""
             }

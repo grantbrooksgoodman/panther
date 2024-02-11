@@ -31,6 +31,13 @@ public struct ConversationsContentPageView: View {
         )
     }
 
+    private var newChatSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingNewChatSheet,
+            sendAction: { .isPresentingNewChatSheetChanged($0) }
+        )
+    }
+
     private var settingsSheetBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPresentingSettingsSheet,
@@ -83,6 +90,14 @@ public struct ConversationsContentPageView: View {
                 )
             )
         }
+        .sheet(isPresented: newChatSheetBinding) {
+            NewChatPageView(
+                .init(
+                    initialState: .init(newChatSheetBinding),
+                    reducer: NewChatPageReducer()
+                )
+            )
+        }
         .sheet(isPresented: settingsSheetBinding) {
             SettingsPageView(
                 .init(
@@ -93,7 +108,6 @@ public struct ConversationsContentPageView: View {
         }
     }
 
-    @ToolbarContentBuilder
     private var composeToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
@@ -109,7 +123,6 @@ public struct ConversationsContentPageView: View {
         }
     }
 
-    @ToolbarContentBuilder
     private var settingsToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {

@@ -10,6 +10,17 @@
 import Foundation
 
 public extension Conversation {
+    static var empty: Conversation {
+        .init(
+            .init(key: UserContentConstants.newConversationID, hash: ""),
+            messageIDs: [],
+            messages: nil,
+            lastModifiedDate: .init(),
+            participants: [],
+            users: nil
+        )
+    }
+
     var isMock: Bool { id.key == UserContentConstants.newConversationID }
 
     var withMessagesSortedByAscendingSentDate: Conversation {

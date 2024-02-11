@@ -262,7 +262,8 @@ public final class MenuService {
 
     @objc
     private func longPressGestureRecognized(recognizer: UILongPressGestureRecognizer) {
-        guard !isShowingMenu else { return }
+        guard !isShowingMenu,
+              !(chatPageViewService.messageDelivery?.isSendingMessage ?? false) else { return }
 
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
 

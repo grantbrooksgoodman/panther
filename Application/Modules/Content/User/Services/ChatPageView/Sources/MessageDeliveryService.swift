@@ -28,9 +28,14 @@ public final class MessageDeliveryService {
 
     // MARK: - Properties
 
-    public private(set) var isSendingMessage = false
+    public private(set) var isSendingMessage = false {
+        didSet { didSetIsSendingMessage() }
+    }
 
     private let viewController: ChatPageViewController
+
+    private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
+    private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
 
     // MARK: - Init
 
@@ -47,6 +52,22 @@ public final class MessageDeliveryService {
             name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
             object: nil
         )
+    }
+
+    // MARK: - Add Effect
+
+    /// Adds an effect to be run once, upon a change in value of `isSendingMessage`.
+    public func addEffectUponIsSendingMessage(
+        changedTo state: Bool,
+        id: MessageDeliveryServiceEffectID,
+        _ effect: @escaping () -> Void
+    ) {
+        guard state else {
+            uponIsSendingMessageChangedToFalse[id] = effect
+            return
+        }
+
+        uponIsSendingMessageChangedToTrue[id] = effect
     }
 
     // MARK: - Send Audio Message
@@ -193,6 +214,20 @@ public final class MessageDeliveryService {
         chatPageViewService.menu?.dismissMenu()
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.reloadCollectionView()
+    }
+
+    private func didSetIsSendingMessage() {
+        switch isSendingMessage {
+        case true:
+            guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
+            uponIsSendingMessageChangedToTrue.values.forEach { $0() }
+            uponIsSendingMessageChangedToTrue = .init()
+
+        case false:
+            guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
+            uponIsSendingMessageChangedToFalse.values.forEach { $0() }
+            uponIsSendingMessageChangedToFalse = .init()
+        }
     }
 
     @objc

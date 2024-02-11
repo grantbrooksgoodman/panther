@@ -111,7 +111,6 @@ public struct SettingsContentPageView: View {
         .padding(.top, Floats.contactDetailViewTopPadding)
     }
 
-    @ToolbarContentBuilder
     private var doneButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
             Button(viewModel.doneToolbarButtonText) {

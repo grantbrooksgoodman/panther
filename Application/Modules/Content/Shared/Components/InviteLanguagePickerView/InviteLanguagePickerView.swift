@@ -66,7 +66,7 @@ public struct InviteLanguagePickerView: View {
             showsDivider: false
         )
         .background(Color.navigationBarBackground)
-        .ignoresSafeArea(.all)
+        .ignoresSafeArea()
     }
 
     private func listView(languageNames: [String: String]) -> some View {

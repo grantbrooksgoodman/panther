@@ -57,6 +57,8 @@ public final class AlternateMessageService {
     // MARK: - Toggle
 
     public func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let messages = viewController.currentConversation?.messages,
               messages.count > indexPath.section else { return }
@@ -82,7 +84,7 @@ public final class AlternateMessageService {
             }
         }
 
-        defer { viewController.messagesCollectionView.reloadItems(at: [indexPath]) }
+        defer { chatPageViewService.reloadItemsWhenSafe(at: [indexPath]) }
 
         switch type {
         case .alternateText:
