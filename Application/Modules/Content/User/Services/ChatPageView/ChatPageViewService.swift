@@ -43,18 +43,17 @@ public final class ChatPageViewService {
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
-    private var isInstantiatingForPreview = false
+    private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
 
     // MARK: - Instantiate View Controller
 
-    public func instantiateViewController(_ conversation: Conversation, forPreview: Bool) -> MessagesViewController {
+    public func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
 
-        isInstantiatingForPreview = forPreview
-
-        let viewController = chatPageViewControllerFactory.buildViewController()
+        self.configuration = configuration
+        let viewController = chatPageViewControllerFactory.buildViewController(configuration)
         self.viewController = viewController
 
         let deliveryProgressIndicatorService = DeliveryProgressIndicatorService(viewController)
@@ -83,7 +82,7 @@ public final class ChatPageViewService {
     public func onViewDidAppear() {
         typingIndicator?.startCheckingForTypingIndicatorChanges()
 
-        guard !isInstantiatingForPreview else {
+        guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
             core.gcd.after(.milliseconds(Floats.scrollToLastItemMillisecondsDelay)) {
                 self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)

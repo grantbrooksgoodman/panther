@@ -35,7 +35,7 @@ public struct ConversationCellView: View {
     public var body: some View {
         ZStack {
             NavigationLink {
-                chatPageView(forPreview: false)
+                chatPageView(configuration: .default)
             } label: {
                 EmptyView()
             }
@@ -52,7 +52,7 @@ public struct ConversationCellView: View {
                 Label(viewModel.deleteConversationButtonText, systemImage: Strings.deleteConversationButtonImageSystemName)
             }
         } preview: {
-            chatPageView(forPreview: true)
+            chatPageView(configuration: .preview)
         }
         .frame(height: Floats.frameHeight)
         .swipeActions(allowsFullSwipe: false) {
@@ -132,7 +132,7 @@ public struct ConversationCellView: View {
         }
     }
 
-    private func chatPageView(forPreview: Bool) -> some View {
+    private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
         func configure(_ anyView: AnyView) -> some View {
             guard ThemeService.isDefaultThemeApplied else {
                 return AnyView(anyView.toolbarBackground(Color.navigationBarBackground, for: .navigationBar))
@@ -142,14 +142,14 @@ public struct ConversationCellView: View {
         }
 
         var pageView: AnyView = .init(
-            ChatPageView(viewModel.conversation, forPreview: forPreview)
+            ChatPageView(viewModel.conversation, configuration: configuration)
                 .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
                 .ignoresSafeArea(.keyboard)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.cellViewData.titleLabelText)
         )
 
-        guard forPreview else {
+        guard configuration == .preview else {
             pageView = AnyView(
                 pageView
                     .onAppear {

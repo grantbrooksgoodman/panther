@@ -294,6 +294,8 @@
 		B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */; };
 		B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */; };
 		B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D2572B79687F00119B85 /* NewChatPageReducer.swift */; };
+		B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D25A2B796AC000119B85 /* RecipientBar.swift */; };
+		B9C0D25D2B796AC800119B85 /* RecipientBarReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D25C2B796AC800119B85 /* RecipientBarReducer.swift */; };
 		B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F229BEC263009DCE29 /* DevModeAction.swift */; };
 		B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F429BEC266009DCE29 /* DevModeService.swift */; };
 		B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582FE29BECA8D009DCE29 /* Timeout.swift */; };
@@ -608,6 +610,7 @@
 		B9E1BBA42B315D7E00ADEA71 /* NetworkActivityViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBA32B315D7E00ADEA71 /* NetworkActivityViewModifier.swift */; };
 		B9E1BBA62B315ED500ADEA71 /* NetworkActivityReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBA52B315ED500ADEA71 /* NetworkActivityReducer.swift */; };
 		B9E1BBAC2B31614100ADEA71 /* NetworkActivityViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BBAB2B31614100ADEA71 /* NetworkActivityViewObserver.swift */; };
+		B9E5F3582B7AD71200A5069B /* AppConstants+RecipientBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E5F3572B7AD71200A5069B /* AppConstants+RecipientBar.swift */; };
 		B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7A32B125BB0000BC88D /* UserService.swift */; };
 		B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AC2B125E17000BC88D /* ConversationID.swift */; };
 		B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AE2B125FC0000BC88D /* User.swift */; };
@@ -1099,6 +1102,8 @@
 		B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressIndicatorProtocol.swift; sourceTree = "<group>"; };
 		B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+MessageSessionService.swift"; sourceTree = "<group>"; };
 		B9C0D2572B79687F00119B85 /* NewChatPageReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewChatPageReducer.swift; sourceTree = "<group>"; };
+		B9C0D25A2B796AC000119B85 /* RecipientBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBar.swift; sourceTree = "<group>"; };
+		B9C0D25C2B796AC800119B85 /* RecipientBarReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarReducer.swift; sourceTree = "<group>"; };
 		B9C582F229BEC263009DCE29 /* DevModeAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevModeAction.swift; sourceTree = "<group>"; };
 		B9C582F429BEC266009DCE29 /* DevModeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevModeService.swift; sourceTree = "<group>"; };
 		B9C582FE29BECA8D009DCE29 /* Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timeout.swift; sourceTree = "<group>"; };
@@ -1413,6 +1418,7 @@
 		B9E1BBA32B315D7E00ADEA71 /* NetworkActivityViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityViewModifier.swift; sourceTree = "<group>"; };
 		B9E1BBA52B315ED500ADEA71 /* NetworkActivityReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityReducer.swift; sourceTree = "<group>"; };
 		B9E1BBAB2B31614100ADEA71 /* NetworkActivityViewObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityViewObserver.swift; sourceTree = "<group>"; };
+		B9E5F3572B7AD71200A5069B /* AppConstants+RecipientBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBar.swift"; sourceTree = "<group>"; };
 		B9E6D7A32B125BB0000BC88D /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		B9E6D7AC2B125E17000BC88D /* ConversationID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationID.swift; sourceTree = "<group>"; };
 		B9E6D7AE2B125FC0000BC88D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -2397,6 +2403,15 @@
 			path = Constants;
 			sourceTree = "<group>";
 		};
+		B9C0D2592B796AAC00119B85 /* RecipientBar */ = {
+			isa = PBXGroup;
+			children = (
+				B9C0D25A2B796AC000119B85 /* RecipientBar.swift */,
+				B9C0D25C2B796AC800119B85 /* RecipientBarReducer.swift */,
+			);
+			path = RecipientBar;
+			sourceTree = "<group>";
+		};
 		B9C582F129BEC24B009DCE29 /* Developer Mode */ = {
 			isa = PBXGroup;
 			children = (
@@ -3302,6 +3317,7 @@
 		B9F47AF02B585FAB00D86C67 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B9C0D2592B796AAC00119B85 /* RecipientBar */,
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
@@ -3326,6 +3342,7 @@
 				B996C32F2B76FCB3004C91F6 /* AppConstants+InputBarService.swift */,
 				B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */,
 				B996C32B2B76FBAE004C91F6 /* AppConstants+MessageDeliveryService.swift */,
+				B9E5F3572B7AD71200A5069B /* AppConstants+RecipientBar.swift */,
 				B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingUIService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
@@ -4073,6 +4090,7 @@
 				B90F33202AE4D41A002A9284 /* HeaderView+DataModels.swift in Sources */,
 				B963F1C62B23D6480087DB83 /* Conversation+Serializable.swift in Sources */,
 				B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */,
+				B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */,
 				B9C9560E2B64578B001C7E01 /* BuildInfoButtonStrings.swift in Sources */,
 				A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */,
 				B90249C22B573A4F00D62855 /* AuthCodePageView.swift in Sources */,
@@ -4207,6 +4225,7 @@
 				B9988BFF2AC4C72800C4924C /* RuntimeStorage.swift in Sources */,
 				B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */,
 				B9E0E0F72B20EA0200C14274 /* AudioFile.swift in Sources */,
+				B9C0D25D2B796AC800119B85 /* RecipientBarReducer.swift in Sources */,
 				B97DB5772AF4602B002C2679 /* Font+CoreExtensions.swift in Sources */,
 				B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */,
 				B93BCDED2AAD9DAC00AA16FE /* Task+CoreExtensions.swift in Sources */,
@@ -4244,6 +4263,7 @@
 				B991957F2B47CB4000BD5BBC /* InstructionView.swift in Sources */,
 				B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */,
 				B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */,
+				B9E5F3582B7AD71200A5069B /* AppConstants+RecipientBar.swift in Sources */,
 				B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */,
 				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,

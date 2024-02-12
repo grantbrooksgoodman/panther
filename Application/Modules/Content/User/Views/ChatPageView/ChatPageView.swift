@@ -19,26 +19,34 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
     public typealias UIViewControllerType = MessagesViewController
 
+    // MARK: - Types
+
+    public enum Configuration {
+        case `default`
+        case newChat
+        case preview
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var viewService: ChatPageViewService
 
     // MARK: - Properties
 
+    private let configuration: Configuration
     private let conversation: Conversation
-    private let forPreview: Bool
 
     // MARK: - Init
 
-    public init(_ conversation: Conversation, forPreview: Bool) {
+    public init(_ conversation: Conversation, configuration: Configuration) {
         self.conversation = conversation
-        self.forPreview = forPreview
+        self.configuration = configuration
     }
 
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> MessagesViewController {
-        viewService.instantiateViewController(conversation, forPreview: forPreview)
+        viewService.instantiateViewController(conversation, configuration: configuration)
     }
 
     // MARK: - Update UIViewController

@@ -8,7 +8,7 @@
 
 /* Native */
 import Foundation
-import UIKit
+import SwiftUI
 
 /* 3rd-party */
 import MessageKit
@@ -23,7 +23,7 @@ public struct ChatPageViewControllerFactory {
 
     // MARK: - Build View Controller
 
-    public func buildViewController() -> ChatPageViewController {
+    public func buildViewController(_ configuration: ChatPageView.Configuration) -> ChatPageViewController {
         let viewController = ChatPageViewController()
 
         viewController.messagesCollectionView.messageCellDelegate = viewController
@@ -40,18 +40,20 @@ public struct ChatPageViewControllerFactory {
         configureDeliveryProgressView(viewController)
         configureInitialInputBar(viewController)
 
+        guard configuration == .newChat else { return viewController }
+        configureRecipientBar(viewController)
         return viewController
     }
 
     // MARK: - UI Configuration
 
-    public func configureBackgroundColor(_ viewController: ChatPageViewController) {
+    private func configureBackgroundColor(_ viewController: ChatPageViewController) {
         viewController.messagesCollectionView.backgroundColor = .background
         viewController.messagesCollectionView.backgroundView?.backgroundColor = .background
         viewController.view.backgroundColor = .background
     }
 
-    public func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
+    private func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
         typealias Floats = AppConstants.CGFloats.ChatPageView
 
         guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
@@ -94,7 +96,7 @@ public struct ChatPageViewControllerFactory {
         viewController.view.addSubview(deliveryProgressView)
     }
 
-    public func configureInitialInputBar(_ viewController: ChatPageViewController) {
+    private func configureInitialInputBar(_ viewController: ChatPageViewController) {
         typealias Colors = AppConstants.Colors.InputBarService
         typealias Floats = AppConstants.CGFloats.InputBarService
         typealias Strings = AppConstants.Strings.InputBarService
@@ -156,5 +158,36 @@ public struct ChatPageViewControllerFactory {
                 y: Floats.sendButtonOnSelectedTransformScaleY
             ) }
             .onDeselected { $0.transform = .identity }
+    }
+
+    private func configureRecipientBar(_ viewController: ChatPageViewController) {
+        typealias Floats = AppConstants.CGFloats.RecipientBar
+
+        viewController.messagesCollectionView.contentInset.top = Floats.frameMaxHeight
+        viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameMaxHeight
+
+        Task { @MainActor in
+            let recipientBarHostingController = UIHostingController(
+                rootView: RecipientBar(
+                    .init(
+                        initialState: .init(),
+                        reducer: RecipientBarReducer()
+                    )
+                )
+            )
+
+            recipientBarHostingController.view.translatesAutoresizingMaskIntoConstraints = false
+
+            viewController.addChild(recipientBarHostingController)
+            viewController.view.addSubview(recipientBarHostingController.view)
+
+            NSLayoutConstraint.activate([
+                recipientBarHostingController.view.heightAnchor.constraint(equalToConstant: Floats.frameMaxHeight),
+                recipientBarHostingController.view.topAnchor.constraint(equalTo: viewController.view.topAnchor),
+                recipientBarHostingController.view.widthAnchor.constraint(equalTo: viewController.view.widthAnchor),
+            ])
+
+            recipientBarHostingController.didMove(toParent: viewController)
+        }
     }
 }

@@ -38,7 +38,7 @@ public struct NewChatPageView: View {
     public var body: some View {
         NavigationView {
             VStack {
-                ChatPageView(viewModel.conversation, forPreview: false)
+                ChatPageView(viewModel.conversation, configuration: .newChat)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .interactiveDismissDisabled()
