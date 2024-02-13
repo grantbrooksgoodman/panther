@@ -22,6 +22,7 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageViewService.recipientBar?.actionHandler) private var actionHandlerService: RecipientBarActionHandlerService?
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
 
     // MARK: - Properties
@@ -30,14 +31,14 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
-    public var selectContactButton: UIButton? { recipientBar?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    public var tableView: UITableView? { recipientBar?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     public var textField: UITextField? { recipientBar?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
-    public var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
     private var recipientBar: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
     private var screenWidth: CGFloat { getScreenWidth() }
+    private var selectContactButton: UIButton? { recipientBar?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
+    private var tableView: UITableView? { recipientBar?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
+    private var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
 
     // MARK: - Init
 
@@ -135,12 +136,17 @@ public final class RecipientBarLayoutService {
     // MARK: - View Builders
 
     private func buildSelectContactButton() -> UIButton? {
-        guard let recipientBar else { return nil }
+        guard let actionHandlerService,
+              let recipientBar else { return nil }
 
         let selectContactButton: UIButton = .init(type: .contactAdd)
         selectContactButton.tintColor = .accent
 
-//        selectContactButton.addTarget(self, action: #selector(selectContactButtonAction), for: .touchUpInside)
+        selectContactButton.addTarget(
+            actionHandlerService,
+            action: #selector(actionHandlerService.selectContactButtonTapped),
+            for: .touchUpInside
+        )
         selectContactButton.isEnabled = false
 
         selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
@@ -165,7 +171,8 @@ public final class RecipientBarLayoutService {
     }
 
     private func buildTextField() -> UITextField? {
-        guard let recipientBar,
+        guard let actionHandlerService,
+              let recipientBar,
               let toLabel else { return nil }
 
         let textField: UITextField = .init(frame: .init(
@@ -173,8 +180,12 @@ public final class RecipientBarLayoutService {
             size: .init(width: screenWidth - Floats.textFieldWidthDecrement, height: Floats.frameHeight)
         ))
 
-//        recipientTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-//        recipientTextField.delegate = self
+        textField.addTarget(
+            actionHandlerService,
+            action: #selector(actionHandlerService.textFieldChanged(_:)),
+            for: .editingChanged
+        )
+//        textField.delegate = self
 
         textField.center.x = recipientBar.center.x
         textField.frame.origin.x = toLabel.frame.maxX + Floats.textFieldXOriginIncrement

@@ -1,5 +1,5 @@
 //
-//  RecipientBarService.swift
+//  RecipientBarActionHandlerService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 12/02/2024.
@@ -13,11 +13,8 @@ import UIKit
 /* 3rd-party */
 import Redux
 
-public final class RecipientBarService {
+public final class RecipientBarActionHandlerService {
     // MARK: - Properties
-
-    public let actionHandler: RecipientBarActionHandlerService
-    public let layout: RecipientBarLayoutService
 
     private let viewController: ChatPageViewController
 
@@ -25,13 +22,13 @@ public final class RecipientBarService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
-        actionHandler = .init(viewController)
-        layout = .init(viewController)
     }
 
-    // MARK: - Methods
+    // MARK: - Action Handlers
 
-    public func onLayoutSubviews() {
-        layout.textField?.becomeFirstResponder()
-    }
+    @objc
+    public func selectContactButtonTapped() {}
+
+    @objc
+    public func textFieldChanged(_ textField: UITextField) {}
 }

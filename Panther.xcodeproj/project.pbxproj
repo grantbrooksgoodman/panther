@@ -32,6 +32,7 @@
 		A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */; };
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
 		A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */; };
+		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
 		B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */; };
@@ -772,6 +773,7 @@
 		A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light Italic).otf"; sourceTree = "<group>"; };
 		A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
+		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVQueuePlayerDependency.swift; sourceTree = "<group>"; };
 		B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
@@ -1670,6 +1672,7 @@
 		B90071CD2B7B33DA00BE8654 /* InputBar */ = {
 			isa = PBXGroup;
 			children = (
+				B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */,
 				B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */,
 				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
 			);
@@ -1679,6 +1682,7 @@
 		B90071CE2B7B33DF00BE8654 /* RecipientBar */ = {
 			isa = PBXGroup;
 			children = (
+				B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */,
 				B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */,
 				B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */,
 			);
@@ -3420,7 +3424,6 @@
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
-				B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */,
 				B96EDD8C2B635A6000CB925B /* SettingsPageViewService.swift */,
 			);
 			path = Services;
@@ -4341,6 +4344,7 @@
 				B9D0D9432B03019E00078A93 /* NetworkEnvironment.swift in Sources */,
 				B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */,
 				B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */,
+				B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B9D0D93D2B03019E00078A93 /* FirebaseAuthDependency.swift in Sources */,
 				B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */,
