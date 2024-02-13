@@ -31,13 +31,13 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
+    public var tableView: UITableView? { viewController.messagesCollectionView.superview?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     public var textField: UITextField? { recipientBar?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
     private var recipientBar: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
     private var screenWidth: CGFloat { getScreenWidth() }
     private var selectContactButton: UIButton? { recipientBar?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    private var tableView: UITableView? { recipientBar?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     private var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
 
     // MARK: - Init

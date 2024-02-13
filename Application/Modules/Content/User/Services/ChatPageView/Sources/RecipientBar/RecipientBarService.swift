@@ -18,6 +18,7 @@ public final class RecipientBarService {
 
     public let actionHandler: RecipientBarActionHandlerService
     public let layout: RecipientBarLayoutService
+    public let tableView: RecipientBarTableViewService
 
     private let viewController: ChatPageViewController
 
@@ -27,11 +28,13 @@ public final class RecipientBarService {
         self.viewController = viewController
         actionHandler = .init(viewController)
         layout = .init(viewController)
+        tableView = .init(viewController)
     }
 
     // MARK: - Methods
 
     public func onLayoutSubviews() {
         layout.textField?.becomeFirstResponder()
+        tableView.reloadData()
     }
 }

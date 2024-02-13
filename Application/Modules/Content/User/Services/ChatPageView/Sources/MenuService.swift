@@ -194,6 +194,7 @@ public final class MenuService {
 
         let utterance: AVSpeechUtterance = .init(string: messageLabelText)
         utterance.voice = services.audio.highestQualityVoice(utteranceLanguageCode)
+        services.audio.activateAudioSession()
         avSpeechSynthesizer.speak(utterance)
 
         speakingCell = selectedCell

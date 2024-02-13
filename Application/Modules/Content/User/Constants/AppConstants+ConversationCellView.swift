@@ -16,7 +16,8 @@ public extension AppConstants.CGFloats {
     enum ConversationCellView {
         public static let avatarImageViewTopPadding: CGFloat = 10
 
-        public static let chevronImageAndDateLabelHStackSpacing: CGFloat = 0
+        public static let chevronImageAndDateLabelHStackSpacing: CGFloat = 0 // swiftlint:disable:next identifier_name
+        public static let chevronImageForegroundColorAdjustmentPercentage: CGFloat = 60
         public static let chevronImageSystemFontSize: CGFloat = 14
 
         public static let dateLabelPaddingTrailing: CGFloat = 6
@@ -28,7 +29,7 @@ public extension AppConstants.CGFloats {
         public static let navigationLinkOpacity: CGFloat = 0
 
         // swiftlint:disable:next identifier_name
-        public static let subtitleLabelForegroundColorAdjustmentPercentage: CGFloat = 6
+        public static let subtitleLabelForegroundColorAdjustmentPercentage: CGFloat = 3
         public static let subtitleLabelLineLimit: CGFloat = 2
         public static let subtitleLabelSystemFontSize: CGFloat = 14
         public static let subtitleLabelXOffset: CGFloat = 1.5

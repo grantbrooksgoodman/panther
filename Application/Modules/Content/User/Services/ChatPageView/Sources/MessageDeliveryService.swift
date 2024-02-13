@@ -73,8 +73,8 @@ public final class MessageDeliveryService {
     // MARK: - Send Audio Message
 
     public func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
-        guard let conversation = await viewController.currentConversation,
-              let users = conversation.users else { return nil }
+        guard let fullConversation = clientSession.conversation.fullConversation,
+              let users = fullConversation.users else { return nil }
 
         isSendingMessage = true
         toggleSendingUI(on: true)
@@ -90,7 +90,7 @@ public final class MessageDeliveryService {
         let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
             inputFile,
             toUsers: users,
-            inConversation: conversation
+            inConversation: fullConversation
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
@@ -117,8 +117,8 @@ public final class MessageDeliveryService {
     // MARK: - Send Text Message
 
     public func sendTextMessage(_ text: String) async -> Exception? {
-        guard let conversation = await viewController.currentConversation,
-              let users = conversation.users,
+        guard let fullConversation = clientSession.conversation.fullConversation,
+              let users = fullConversation.users,
               !text.isBlank else { return nil }
 
         services.haptics.generateFeedback(.medium)
@@ -131,13 +131,13 @@ public final class MessageDeliveryService {
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
-            inConversation: conversation
+            inConversation: fullConversation
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
         toggleSendingUI(on: false)
         isSendingMessage = false
-        if await viewController.currentConversation?.id.key == conversation.id.key {
+        if await viewController.currentConversation?.id.key == fullConversation.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
 

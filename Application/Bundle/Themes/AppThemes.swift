@@ -65,7 +65,7 @@ public enum AppTheme: CaseIterable {
         let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0xE5E5EA), variant: .init(hex: 0x27252A)))
 
         let titleText = Item(type: .titleText, set: .init(primary: .black, variant: .white))
-        let subtitleText = Item(type: .subtitleText, set: .init(primary: .black, variant: .white))
+        let subtitleText = Item(type: .subtitleText, set: .init(primary: .gray))
 
         return [
             accent,

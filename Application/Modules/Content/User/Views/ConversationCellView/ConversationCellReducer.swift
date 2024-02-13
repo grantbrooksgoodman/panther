@@ -43,19 +43,30 @@ public struct ConversationCellReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        // Color
-        public var chevronImageForegroundColor: Color = .init(uiColor: .subtitleText.lighter(by: 60) ?? .subtitleText)
+        public var cellViewData: ConversationCellViewData = .empty
+        public var conversation: Conversation
+        @Localized(.delete) public var deleteConversationButtonText: String
+        public var isPresentingUserInfoAlert = false
+
+        /* MARK: Computed Properties */
+
+        public var chevronImageForegroundColor: Color {
+            guard UITraitCollection.current.userInterfaceStyle == .dark else {
+                return .init(
+                    uiColor: .titleText.lighter(by: AppConstants.CGFloats.ConversationCellView.chevronImageForegroundColorAdjustmentPercentage) ?? .titleText
+                )
+            }
+
+            return .init(
+                uiColor: .titleText.darker(by: AppConstants.CGFloats.ConversationCellView.chevronImageForegroundColorAdjustmentPercentage) ?? .titleText
+            )
+        }
+
         public var subtitleLabelTextForegroundColor: Color = .init(
             uiColor: .subtitleText.lighter(
                 by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
             ) ?? .subtitleText
         )
-
-        // Other
-        public var cellViewData: ConversationCellViewData = .empty
-        public var conversation: Conversation
-        @Localized(.delete) public var deleteConversationButtonText: String
-        public var isPresentingUserInfoAlert = false
 
         /* MARK: Init */
 

@@ -115,6 +115,23 @@ extension ChatPageViewController: MessagesDataSource {
         return messages[indexPath.section]
     }
 
+    // MARK: - Message Timestamp Label Attributed Text
+
+    public func messageTimestampLabelAttributedText(
+        for message: MessageType,
+        at indexPath: IndexPath
+    ) -> NSAttributedString? {
+        guard let messages = currentConversation?.messages,
+              indexPath.section < messages.count else { return nil }
+        return .init(
+            string: DateFormatter.localizedString(from: messages[indexPath.section].sentDate, dateStyle: .none, timeStyle: .short),
+            attributes: [
+                .font: UIFont.systemFont(ofSize: Floats.messageTimestampLabelAttributedTextAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.messageTimestampLabelAttributedTextAttributesForeground),
+            ]
+        )
+    }
+
     // MARK: - Message Top Label Attributed Text
 
     public func messageTopLabelAttributedText(

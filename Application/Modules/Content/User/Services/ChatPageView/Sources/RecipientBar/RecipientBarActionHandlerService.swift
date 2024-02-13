@@ -30,5 +30,9 @@ public final class RecipientBarActionHandlerService {
     public func selectContactButtonTapped() {}
 
     @objc
-    public func textFieldChanged(_ textField: UITextField) {}
+    public func textFieldChanged(_ textField: UITextField) {
+        @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
+        guard let text = textField.text else { return }
+        tableViewService?.setQuery(text)
+    }
 }

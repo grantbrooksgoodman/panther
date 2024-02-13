@@ -33,6 +33,7 @@
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
 		A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */; };
 		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
+		B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */; };
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
 		B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */; };
@@ -774,6 +775,7 @@
 		A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
+		B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientBarTableViewService.swift; sourceTree = "<group>"; };
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVQueuePlayerDependency.swift; sourceTree = "<group>"; };
 		B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
@@ -1672,9 +1674,9 @@
 		B90071CD2B7B33DA00BE8654 /* InputBar */ = {
 			isa = PBXGroup;
 			children = (
+				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
 				B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */,
 				B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */,
-				B903CA732B6C2F3500A238A4 /* InputBarService.swift */,
 			);
 			path = InputBar;
 			sourceTree = "<group>";
@@ -1682,9 +1684,10 @@
 		B90071CE2B7B33DF00BE8654 /* RecipientBar */ = {
 			isa = PBXGroup;
 			children = (
+				B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */,
 				B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */,
 				B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */,
-				B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */,
+				B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */,
 			);
 			path = RecipientBar;
 			sourceTree = "<group>";
@@ -4017,6 +4020,7 @@
 				B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */,
 				B9EA3A8A2AC6BB3700674147 /* NotificationCenterDependency.swift in Sources */,
 				B996C32A2B76FAD3004C91F6 /* AppConstants+DeliveryProgressIndicatorService.swift in Sources */,
+				B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
 				B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */,

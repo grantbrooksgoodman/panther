@@ -8,5 +8,22 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
+import Redux
+
+extension RecipientBar: UITableViewDelegate {
+    // MARK: - Did Select Row
+
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {}
+
+    // MARK: - Scroll View Did Scroll
+
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        @Dependency(\.chatPageViewService.recipientBar?.layout) var layoutService: RecipientBarLayoutService?
+        guard let textField = layoutService?.textField,
+              textField.isFirstResponder else { return }
+        textField.resignFirstResponder()
+    }
+}

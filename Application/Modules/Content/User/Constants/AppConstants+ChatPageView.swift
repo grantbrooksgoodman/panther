@@ -36,6 +36,7 @@ public extension AppConstants.CGFloats {
             public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
             public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
 
+            public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 1
             public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
         }
 
@@ -78,6 +79,8 @@ public extension AppConstants.Colors {
             public static let cellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
 
             public static let currentUserAudioTintColor: Color = .init(uiColor: .white)
+
+            public static let messageTimestampLabelAttributedTextAttributesForeground: Color = .init(uiColor: .lightGray)
             public static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
         }
 

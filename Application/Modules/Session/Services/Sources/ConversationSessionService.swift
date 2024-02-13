@@ -31,6 +31,21 @@ public final class ConversationSessionService {
     @Persistent(.currentUserID) private var currentUserID: String?
     private var messageOffset = Floats.defaultMessageOffset
 
+    // MARK: - Computed Properties
+
+    /// The value of `currentConversation` with the fully populated `messages` array.
+    public var fullConversation: Conversation? {
+        guard let currentConversation else { return nil }
+        return .init(
+            currentConversation.id,
+            messageIDs: currentConversation.messageIDs,
+            messages: completeMessageArray,
+            lastModifiedDate: currentConversation.lastModifiedDate,
+            participants: currentConversation.participants,
+            users: currentConversation.users
+        )
+    }
+
     // MARK: - Add Messages
 
     public func addMessages(_ messages: [Message], to conversation: Conversation) async -> Callback<Conversation, Exception> {
@@ -64,16 +79,9 @@ public final class ConversationSessionService {
     // MARK: - Message Offset
 
     public func incrementMessageOffset() {
-        guard let currentConversation else { return }
+        guard let fullConversation else { return }
         messageOffset += Floats.messageOffsetIncrement
-        self.currentConversation = .init(
-            currentConversation.id,
-            messageIDs: currentConversation.messageIDs,
-            messages: completeMessageArray,
-            lastModifiedDate: currentConversation.lastModifiedDate,
-            participants: currentConversation.participants,
-            users: currentConversation.users
-        )
+        currentConversation = withMessagesOffset(fullConversation)
     }
 
     public func resetMessageOffset() {
