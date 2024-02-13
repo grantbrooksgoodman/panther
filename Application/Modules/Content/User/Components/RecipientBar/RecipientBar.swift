@@ -8,59 +8,32 @@
 
 /* Native */
 import Foundation
-import SwiftUI
+import UIKit
 
 /* 3rd-party */
 import Redux
 
-public struct RecipientBar: View {
-    // MARK: - Constants Accessors
-
-    private typealias Colors = AppConstants.Colors.RecipientBar
-    private typealias Floats = AppConstants.CGFloats.RecipientBar
-
+public final class RecipientBar: UIView {
     // MARK: - Properties
 
-    @StateObject private var viewModel: ViewModel<RecipientBarReducer>
-
-    // MARK: - Bindings
-
-    private var textFieldTextBinding: Binding<String> {
-        viewModel.binding(
-            for: \.textFieldText,
-            sendAction: { .textFieldTextChanged($0) }
-        )
-    }
+    private let service: RecipientBarService
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<RecipientBarReducer>) {
-        _viewModel = .init(wrappedValue: viewModel)
+    public init(service: RecipientBarService) {
+        self.service = service
+        super.init(frame: service.layout.viewFrame)
     }
 
-    // MARK: - View
+    @available(*, unavailable)
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    public var body: some View {
-        VStack {
-            Divider()
-            Spacer()
+    // MARK: - Layout Subviews
 
-            HStack {
-                Text("To:")
-
-                TextField(text: textFieldTextBinding) {
-                    EmptyView()
-                }
-            }
-            .padding(.horizontal, Floats.hStackHorizontalPadding)
-
-            Spacer()
-            Divider()
-        }
-        .frame(maxWidth: .infinity, maxHeight: Floats.frameMaxHeight)
-        .background(Colors.background)
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
-        }
+    override public func layoutSubviews() {
+        service.layout.layoutSubviews()
+        service.onLayoutSubviews()
     }
 }

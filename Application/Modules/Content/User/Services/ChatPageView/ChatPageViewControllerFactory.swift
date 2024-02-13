@@ -23,7 +23,7 @@ public struct ChatPageViewControllerFactory {
 
     // MARK: - Build View Controller
 
-    public func buildViewController(_ configuration: ChatPageView.Configuration) -> ChatPageViewController {
+    public func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
 
         viewController.messagesCollectionView.messageCellDelegate = viewController
@@ -40,12 +40,22 @@ public struct ChatPageViewControllerFactory {
         configureDeliveryProgressView(viewController)
         configureInitialInputBar(viewController)
 
-        guard configuration == .newChat else { return viewController }
-        configureRecipientBar(viewController)
         return viewController
     }
 
     // MARK: - UI Configuration
+
+    public func configureRecipientBar(_ viewController: ChatPageViewController, service: RecipientBarService) {
+        typealias Floats = AppConstants.CGFloats.RecipientBarLayoutService
+        typealias Strings = AppConstants.Strings.RecipientBarLayoutService
+
+        viewController.messagesCollectionView.contentInset.top = Floats.frameHeight
+        viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameHeight
+
+        let recipientBar = RecipientBar(service: service)
+        recipientBar.tag = coreUI.semTag(for: Strings.recipientBarSemanticTag)
+        viewController.view.addSubview(recipientBar)
+    }
 
     private func configureBackgroundColor(_ viewController: ChatPageViewController) {
         viewController.messagesCollectionView.backgroundColor = .background
@@ -158,36 +168,5 @@ public struct ChatPageViewControllerFactory {
                 y: Floats.sendButtonOnSelectedTransformScaleY
             ) }
             .onDeselected { $0.transform = .identity }
-    }
-
-    private func configureRecipientBar(_ viewController: ChatPageViewController) {
-        typealias Floats = AppConstants.CGFloats.RecipientBar
-
-        viewController.messagesCollectionView.contentInset.top = Floats.frameMaxHeight
-        viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameMaxHeight
-
-        Task { @MainActor in
-            let recipientBarHostingController = UIHostingController(
-                rootView: RecipientBar(
-                    .init(
-                        initialState: .init(),
-                        reducer: RecipientBarReducer()
-                    )
-                )
-            )
-
-            recipientBarHostingController.view.translatesAutoresizingMaskIntoConstraints = false
-
-            viewController.addChild(recipientBarHostingController)
-            viewController.view.addSubview(recipientBarHostingController.view)
-
-            NSLayoutConstraint.activate([
-                recipientBarHostingController.view.heightAnchor.constraint(equalToConstant: Floats.frameMaxHeight),
-                recipientBarHostingController.view.topAnchor.constraint(equalTo: viewController.view.topAnchor),
-                recipientBarHostingController.view.widthAnchor.constraint(equalTo: viewController.view.widthAnchor),
-            ])
-
-            recipientBarHostingController.didMove(toParent: viewController)
-        }
     }
 }

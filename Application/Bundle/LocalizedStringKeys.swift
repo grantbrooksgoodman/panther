@@ -60,6 +60,8 @@ public enum LocalizedStringKey: String {
     case friday
     case saturday
 
+    case to
+
     case today
     case yesterday
 

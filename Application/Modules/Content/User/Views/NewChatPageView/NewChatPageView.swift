@@ -39,6 +39,7 @@ public struct NewChatPageView: View {
         NavigationView {
             VStack {
                 ChatPageView(viewModel.conversation, configuration: .newChat)
+                    .ignoresSafeArea(.keyboard)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .interactiveDismissDisabled()

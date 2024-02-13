@@ -40,6 +40,7 @@ public final class ChatPageViewService {
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
     public private(set) var menu: MenuService?
     public private(set) var messageDelivery: MessageDeliveryService?
+    public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
@@ -53,7 +54,7 @@ public final class ChatPageViewService {
         clientSession.conversation.setCurrentConversation(conversation)
 
         self.configuration = configuration
-        let viewController = chatPageViewControllerFactory.buildViewController(configuration)
+        let viewController = chatPageViewControllerFactory.buildViewController()
         self.viewController = viewController
 
         let deliveryProgressIndicatorService = DeliveryProgressIndicatorService(viewController)
@@ -68,6 +69,12 @@ public final class ChatPageViewService {
         messageDelivery = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
+
+        guard configuration == .newChat else { return viewController }
+
+        let recipientBarService = RecipientBarService(viewController)
+        recipientBar = recipientBarService
+        chatPageViewControllerFactory.configureRecipientBar(viewController, service: recipientBarService)
 
         return viewController
     }
