@@ -27,6 +27,7 @@ public enum LocalizedStringKey: String {
     case holdDownToRecord
 
     case multiple
+    case myAccount
     case newMessage
 
     case noEmail

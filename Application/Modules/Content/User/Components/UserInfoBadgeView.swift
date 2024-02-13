@@ -18,7 +18,7 @@ public struct UserInfoBadgeView: View {
 
     // MARK: - Properties
 
-    private let action: () -> Void
+    private let action: (() -> Void)?
     private let flagImage: UIImage
     private let user: User
 
@@ -26,7 +26,7 @@ public struct UserInfoBadgeView: View {
 
     // MARK: - Init
 
-    public init(_ user: User, action: @escaping () -> Void) {
+    public init(_ user: User, action: (() -> Void)? = nil) {
         self.user = user
         self.action = action
 
@@ -43,39 +43,48 @@ public struct UserInfoBadgeView: View {
 
     public var body: some View {
         Rectangle()
-            .overlay(buttonView, alignment: .center)
+            .overlay(contentView, alignment: .center)
             .frame(maxWidth: Floats.bodyMaxWidth, maxHeight: Floats.bodyMaxHeight)
             .foregroundStyle(colorScheme == .dark ? Colors.bodyDarkForeground : Colors.bodyLightForeground)
             .roundedCorners(Floats.bodyCornerRadius)
     }
 
-    private var buttonView: some View {
-        Button(action: action) {
-            HStack(alignment: .center, spacing: Floats.labelViewHStackSpacing) {
-                Text(user.languageCode.uppercased())
-                    .font(.system(size: Floats.labelViewTextSystemFontSize).bold())
-                    .foregroundStyle(Color.titleText)
-                    .shadow(
-                        color: Colors.labelViewTextShadow,
-                        radius: Floats.labelViewTextShadowRadius
-                    )
-                    .frame(
-                        width: Floats.labelViewTextFrameWidth,
-                        height: Floats.labelViewTextFrameHeight,
-                        alignment: .center
-                    )
-                    .opacity(Floats.labelViewTextOpacity)
-
-                Image(uiImage: flagImage)
-                    .resizable()
-                    .frame(
-                        width: Floats.labelViewImageFrameWidth,
-                        height: Floats.labelViewImageFrameHeight,
-                        alignment: .center
-                    )
-                    .roundedCorners(Floats.labelViewImageCornerRadius)
+    @ViewBuilder
+    private var contentView: some View {
+        if let action {
+            Button(action: action) {
+                labelView
             }
+            .buttonStyle(HighPriorityButtonStyle())
+        } else {
+            labelView
         }
-        .buttonStyle(HighPriorityButtonStyle())
+    }
+
+    private var labelView: some View {
+        HStack(alignment: .center, spacing: Floats.labelViewHStackSpacing) {
+            Text(user.languageCode.uppercased())
+                .font(.system(size: Floats.labelViewTextSystemFontSize).bold())
+                .foregroundStyle(Color.titleText)
+                .shadow(
+                    color: Colors.labelViewTextShadow,
+                    radius: Floats.labelViewTextShadowRadius
+                )
+                .frame(
+                    width: Floats.labelViewTextFrameWidth,
+                    height: Floats.labelViewTextFrameHeight,
+                    alignment: .center
+                )
+                .opacity(Floats.labelViewTextOpacity)
+
+            Image(uiImage: flagImage)
+                .resizable()
+                .frame(
+                    width: Floats.labelViewImageFrameWidth,
+                    height: Floats.labelViewImageFrameHeight,
+                    alignment: .center
+                )
+                .roundedCorners(Floats.labelViewImageCornerRadius)
+        }
     }
 }

@@ -34,6 +34,9 @@
 		A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2CB728199D3C0089DEA1 /* SystemInformation.swift */; };
 		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
 		B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */; };
+		B90071EB2B7C0CA800BE8654 /* ContactPairCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */; };
+		B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */; };
+		B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */; };
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
 		B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */; };
@@ -776,6 +779,9 @@
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
 		B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientBarTableViewService.swift; sourceTree = "<group>"; };
+		B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPairCellView.swift; sourceTree = "<group>"; };
+		B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ContactPairCellView.swift"; sourceTree = "<group>"; };
+		B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactPair+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVQueuePlayerDependency.swift; sourceTree = "<group>"; };
 		B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
@@ -3356,6 +3362,7 @@
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
+				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
 				B96EDD9A2B63825C00CB925B /* StaticListView.swift */,
 				B9F47AF72B58609300D86C67 /* UserInfoBadgeView.swift */,
 			);
@@ -3370,6 +3377,7 @@
 				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
 				B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */,
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
+				B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
 				B996C3292B76FAD3004C91F6 /* AppConstants+DeliveryProgressIndicatorService.swift */,
@@ -3403,6 +3411,7 @@
 			children = (
 				B903CA6D2B6C2DA300A238A4 /* Array+UserContentExtensions.swift */,
 				B90C910F2B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift */,
+				B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */,
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
 				B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */,
 				B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */,
@@ -4070,6 +4079,7 @@
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,
 				B9D0D9462B03019E00078A93 /* CoreDatabase.swift in Sources */,
 				B9E7D41A2AAC0FC500FAF2A9 /* FileManagerDependency.swift in Sources */,
+				B90071EB2B7C0CA800BE8654 /* ContactPairCellView.swift in Sources */,
 				B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */,
 				B9E0E0F52B20E9C000C14274 /* AudioMessageReference.swift in Sources */,
 				B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */,
@@ -4180,6 +4190,7 @@
 				B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */,
+				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
 				B9D0D9472B03019E00078A93 /* Database.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
 				B9E7D42B2AAC1F4000FAF2A9 /* AppConstants.swift in Sources */,
@@ -4414,6 +4425,7 @@
 				B96EDD9B2B63825C00CB925B /* StaticListView.swift in Sources */,
 				B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */,
 				B9AF12502ACE4AF50045C54C /* EncodedHashable.swift in Sources */,
+				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,

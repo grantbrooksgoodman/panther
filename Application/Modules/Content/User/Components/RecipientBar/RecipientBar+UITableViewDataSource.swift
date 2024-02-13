@@ -8,7 +8,7 @@
 
 /* Native */
 import Foundation
-import UIKit
+import SwiftUI
 
 /* 3rd-party */
 import Redux
@@ -30,9 +30,11 @@ extension RecipientBar: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: Strings.tableViewCellReuseIdentifier, for: indexPath)
 
         guard let tableViewService,
-              tableViewService.sections.count > indexPath.row else { return cell }
+              tableViewService.sections.count > indexPath.row,
+              let contactPair = tableViewService.sections[indexPath.row].contactPairs.first else { return cell }
 
-        cell.textLabel?.text = tableViewService.sections[indexPath.row].contactPairs.first?.contact.fullName
+        cell.contentConfiguration = UIHostingConfiguration { ContactPairCellView(contactPair: contactPair) }
+        cell.isUserInteractionEnabled = !contactPair.containsCurrentUser
 
         return cell
     }

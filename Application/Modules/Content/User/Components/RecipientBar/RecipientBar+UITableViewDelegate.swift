@@ -16,7 +16,13 @@ import Redux
 extension RecipientBar: UITableViewDelegate {
     // MARK: - Did Select Row
 
-    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {}
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
+        guard let sections = recipientBarService?.tableView.sections,
+              sections.count > indexPath.row,
+              let contactPair = sections[indexPath.row].contactPairs.first else { return }
+        recipientBarService?.selectContactPair(contactPair)
+    }
 
     // MARK: - Scroll View Did Scroll
 

@@ -88,10 +88,10 @@ public final class RecipientBarTableViewService {
         }
 
         func sortedByLastName(_ contactPairs: [ContactPair]) -> [ContactPair] {
-            contactPairs.sorted(by: { $0.contact.lastName < $1.contact.lastName })
+            contactPairs.unique.sorted(by: { $0.contact.lastName < $1.contact.lastName })
         }
 
-        let dictionary: Dictionary = .init(grouping: queriedContactPairs, by: { groupTitle(for: $0.contact) })
+        let dictionary: Dictionary = .init(grouping: queriedContactPairs.unique, by: { groupTitle(for: $0.contact) })
         let sortedKeys = Array(dictionary.keys).alphabeticallySorted
         return sortedKeys.map { TableViewSection(
             letter: $0,

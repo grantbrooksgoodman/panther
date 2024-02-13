@@ -1862,6 +1862,161 @@
 		<key>zh</key>
 		<string>多种的</string>
 	</dict>
+	<key>my_account</key>
+	<dict>
+		<key>af</key>
+		<string>(My Rekening)</string>
+		<key>ar</key>
+		<string>(حسابي)</string>
+		<key>az</key>
+		<string>(Mənim Hesabım)</string>
+		<key>be</key>
+		<string>(Мой Рахунак)</string>
+		<key>bg</key>
+		<string>(Моят Акаунт)</string>
+		<key>bn</key>
+		<string>(আমার অ্যাকাউন্ট)</string>
+		<key>bs</key>
+		<string>(Moj Nalog)</string>
+		<key>ca</key>
+		<string>(El meu compte)</string>
+		<key>cs</key>
+		<string>(Můj Účet)</string>
+		<key>cy</key>
+		<string>(Fy Nghyfrif )</string>
+		<key>da</key>
+		<string>(Min Konto)</string>
+		<key>de</key>
+		<string>(Mein Konto)</string>
+		<key>el</key>
+		<string>(Ο λογαριασμός μου)</string>
+		<key>en</key>
+		<string>(Me)</string>
+		<key>eo</key>
+		<string>(Mia Konto)</string>
+		<key>es</key>
+		<string>(Mi Cuenta)</string>
+		<key>et</key>
+		<string>(Minu Konto)</string>
+		<key>eu</key>
+		<string>(Nire Kontua)</string>
+		<key>fa</key>
+		<string>(حساب من)</string>
+		<key>fi</key>
+		<string>(Oma Tili)</string>
+		<key>fr</key>
+		<string>(Mon Compte)</string>
+		<key>ga</key>
+		<string>(Mo Chuntas)</string>
+		<key>gd</key>
+		<string>(Mo Chunntas)</string>
+		<key>gl</key>
+		<string>(A miña conta)</string>
+		<key>gu</key>
+		<string>(મારું એકાઉન્ટ)</string>
+		<key>he</key>
+		<string>(החשבון שלי)</string>
+		<key>hi</key>
+		<string>(मेरा खाता)</string>
+		<key>hr</key>
+		<string>(Moj Račun)</string>
+		<key>ht</key>
+		<string>(Kont mwen an)</string>
+		<key>hu</key>
+		<string>(Fiókom)</string>
+		<key>hy</key>
+		<string>(Իմ Հաշիվը)</string>
+		<key>id</key>
+		<string>(Akun Saya)</string>
+		<key>is</key>
+		<string>(Reikningurinn Minn)</string>
+		<key>it</key>
+		<string>(Il mio conto)</string>
+		<key>ja</key>
+		<string>(マイアカウント)</string>
+		<key>ka</key>
+		<string>(ჩემი Ანგარიში)</string>
+		<key>kk</key>
+		<string>(Менің Тіркелгім)</string>
+		<key>kn</key>
+		<string>(ನನ್ನ ಖಾತೆ)</string>
+		<key>ko</key>
+		<string>(내 계정)</string>
+		<key>ky</key>
+		<string>(Менин Аккаунтум)</string>
+		<key>lt</key>
+		<string>(Mano Paskyra)</string>
+		<key>mg</key>
+		<string>(Kaontiko)</string>
+		<key>mi</key>
+		<string>(Taku Kaute)</string>
+		<key>mk</key>
+		<string>(Моја Сметка)</string>
+		<key>ml</key>
+		<string>(എന്റെ അക്കൗണ്ട്)</string>
+		<key>mn</key>
+		<string>(Миний Данс)</string>
+		<key>mt</key>
+		<string>(Il-Kont Tiegħi)</string>
+		<key>ne</key>
+		<string>(मेरो खाता)</string>
+		<key>nl</key>
+		<string>(Mijn Account)</string>
+		<key>no</key>
+		<string>(Min Konto)</string>
+		<key>pa</key>
+		<string>(ਮੇਰਾ ਖਾਤਾ)</string>
+		<key>pl</key>
+		<string>(Moje Konto)</string>
+		<key>pt</key>
+		<string>(Minha Conta)</string>
+		<key>ro</key>
+		<string>(Contul Meu)</string>
+		<key>ru</key>
+		<string>(Мой Аккаунт)</string>
+		<key>si</key>
+		<string>(මගේ ගිණුම)</string>
+		<key>sk</key>
+		<string>(Môj Účet)</string>
+		<key>sl</key>
+		<string>(Moj Račun)</string>
+		<key>sq</key>
+		<string>(Llogaria Ime)</string>
+		<key>sr</key>
+		<string>(Мој Налог)</string>
+		<key>su</key>
+		<string>(Akun Abdi)</string>
+		<key>sv</key>
+		<string>(Mitt Konto)</string>
+		<key>sw</key>
+		<string>(Akaunti Yangu)</string>
+		<key>ta</key>
+		<string>(எனது கணக்கு)</string>
+		<key>te</key>
+		<string>(నా ఖాతా)</string>
+		<key>tg</key>
+		<string>(Ҳисоби Ман)</string>
+		<key>th</key>
+		<string>(บัญชีของฉัน)</string>
+		<key>tl</key>
+		<string>(Aking Account)</string>
+		<key>tr</key>
+		<string>(Hesabım)</string>
+		<key>tt</key>
+		<string>(Минем Хисап)</string>
+		<key>uk</key>
+		<string>(Мій обліковий запис)</string>
+		<key>ur</key>
+		<string>(میرا اکاؤنٹ)</string>
+		<key>uz</key>
+		<string>(Mening Hisobim)</string>
+		<key>vi</key>
+		<string>(Tài khoản của tôi)</string>
+		<key>yi</key>
+		<string>(מייַן חשבון)</string>
+		<key>zh</key>
+		<string>(我的帐户)</string>
+	</dict>
 	<key>new_message</key>
 	<dict>
 		<key>af</key>

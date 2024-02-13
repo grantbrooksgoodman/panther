@@ -22,6 +22,8 @@ public final class RecipientBarService {
 
     private let viewController: ChatPageViewController
 
+    private var selectedContactPairs = [ContactPair]()
+
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
@@ -31,7 +33,17 @@ public final class RecipientBarService {
         tableView = .init(viewController)
     }
 
-    // MARK: - Methods
+    // MARK: - Contact Pair Selection
+
+    public func deselectContactPair(_ contactPair: ContactPair) {
+        selectedContactPairs.removeAll(where: { $0 == contactPair })
+    }
+
+    public func selectContactPair(_ contactPair: ContactPair) {
+        selectedContactPairs.append(contactPair)
+    }
+
+    // MARK: - On Layout Subviews
 
     public func onLayoutSubviews() {
         layout.textField?.becomeFirstResponder()
