@@ -31,8 +31,7 @@ extension Message: MessageType {
 
         typealias Colors = AppConstants.Colors.UserContentExtensions.Message
 
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        let nonCurrentUserForegroundColor = isDarkMode ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
+        let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
         guard hasAudioComponent,

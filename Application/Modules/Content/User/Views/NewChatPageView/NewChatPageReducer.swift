@@ -32,8 +32,12 @@ public struct NewChatPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        public var conversation: Conversation = .empty
+        // String
         public var doneToolbarButtonText = ""
+        @Localized(.newMessage) public var navigationTitle: String
+
+        // Other
+        public var conversation: Conversation = .empty
         public var isPresented: Binding<Bool>
 
         /* MARK: Init */
@@ -48,10 +52,12 @@ public struct NewChatPageReducer: Reducer {
             let sameConversation = left.conversation == right.conversation
             let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
+            let sameNavigationTitle = left.navigationTitle == right.navigationTitle
 
             guard sameConversation,
                   sameDoneToolbarButtonText,
-                  sameIsPresented else { return false }
+                  sameIsPresented,
+                  sameNavigationTitle else { return false }
 
             return true
         }

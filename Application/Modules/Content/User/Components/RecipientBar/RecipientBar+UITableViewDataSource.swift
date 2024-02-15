@@ -14,13 +14,6 @@ import SwiftUI
 import Redux
 
 extension RecipientBar: UITableViewDataSource {
-    // MARK: - Section Index Titles
-
-    public func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
-        return tableViewService?.sections.map(\.letter)
-    }
-
     // MARK: - Cell for Row at Index Path
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -29,9 +22,7 @@ extension RecipientBar: UITableViewDataSource {
         typealias Strings = AppConstants.Strings.RecipientBarLayoutService
         let cell = tableView.dequeueReusableCell(withIdentifier: Strings.tableViewCellReuseIdentifier, for: indexPath)
 
-        guard let tableViewService,
-              tableViewService.sections.count > indexPath.row,
-              let contactPair = tableViewService.sections[indexPath.row].contactPairs.first else { return cell }
+        guard let contactPair = tableViewService?.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return cell }
 
         cell.contentConfiguration = UIHostingConfiguration { ContactPairCellView(contactPair: contactPair) }
         cell.isUserInteractionEnabled = !contactPair.containsCurrentUser
@@ -43,6 +34,13 @@ extension RecipientBar: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
+        return tableViewService?.sections.itemAt(section)?.contactPairs.count ?? 0
+    }
+
+    // MARK: - Number of Sections
+
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
         return tableViewService?.sections.count ?? 0
     }
 
@@ -50,8 +48,6 @@ extension RecipientBar: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
-        guard let tableViewService,
-              tableViewService.sections.count > section else { return nil }
-        return tableViewService.sections[section].letter
+        return tableViewService?.sections.itemAt(section)?.letter
     }
 }

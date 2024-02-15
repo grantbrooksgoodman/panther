@@ -37,8 +37,8 @@ public extension AppConstants.CGFloats {
         public static let textFieldReconfigurationInitialLevelWidthDecrement: CGFloat = 40
         public static let textFieldReconfigurationNotInitialLevelWidthDecrement: CGFloat = 10
 
-        public static let textFieldReconfigurationNotRecipientBarXOriginIncrement: CGFloat = 2
-        public static let textFieldReconfigurationRecipientBarXOriginIncrement: CGFloat = 5
+        public static let textFieldReconfigurationNotToLabelXOriginIncrement: CGFloat = 2
+        public static let textFieldReconfigurationToLabelXOriginIncrement: CGFloat = 5
         // swiftlint:enable identifier_name
     }
 }

@@ -51,7 +51,7 @@ public struct ConversationCellReducer: Reducer {
         /* MARK: Computed Properties */
 
         public var chevronImageForegroundColor: Color {
-            guard UITraitCollection.current.userInterfaceStyle == .dark else {
+            guard ThemeService.isDarkModeActive else {
                 return .init(
                     uiColor: .titleText.lighter(by: AppConstants.CGFloats.ConversationCellView.chevronImageForegroundColorAdjustmentPercentage) ?? .titleText
                 )

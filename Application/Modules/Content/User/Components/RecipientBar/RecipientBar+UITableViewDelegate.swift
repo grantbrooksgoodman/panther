@@ -18,9 +18,7 @@ extension RecipientBar: UITableViewDelegate {
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
-        guard let sections = recipientBarService?.tableView.sections,
-              sections.count > indexPath.row,
-              let contactPair = sections[indexPath.row].contactPairs.first else { return }
+        guard let contactPair = recipientBarService?.tableView.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return }
         recipientBarService?.contactSelectionUI.selectContactPair(contactPair)
     }
 

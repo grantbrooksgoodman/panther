@@ -32,7 +32,7 @@ public final class RecipientBarLayoutService {
     // MARK: - Computed Properties
 
     public var screenWidth: CGFloat { getScreenWidth() }
-    public var tableView: UITableView? { viewController.messagesCollectionView.superview?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
+    public var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     public var textField: UITextField? { recipientBar?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
     public var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
@@ -61,14 +61,20 @@ public final class RecipientBarLayoutService {
     // MARK: - UI Configuration
 
     public func configureBorders() {
+        func satisfiesConstraints(_ layer: CALayer) -> Bool {
+            guard layer.backgroundColor == UIColor(Colors.darkBorder).cgColor || layer.backgroundColor == UIColor(Colors.lightBorder).cgColor,
+                  layer.frame.height == Floats.borderHeight else { return false }
+            return true
+        }
+
         guard let recipientBar else { return }
 
-        var borderColor = UIColor(UITraitCollection.current.userInterfaceStyle == .dark ? Colors.darkBorder : Colors.lightBorder).cgColor
+        var borderColor = UIColor(ThemeService.isDarkModeActive ? Colors.darkBorder : Colors.lightBorder).cgColor
         if ThemeService.currentTheme != AppTheme.default.theme {
             borderColor = UIColor(Colors.darkBorder).cgColor
         }
 
-        recipientBar.layer.sublayers?.removeAll(where: { $0.backgroundColor == borderColor && $0.frame.height == Floats.borderHeight })
+        recipientBar.layer.sublayers?.removeAll(where: { satisfiesConstraints($0) })
 
         let bottomBorder = CALayer()
         let topBorder = CALayer()
@@ -92,8 +98,7 @@ public final class RecipientBarLayoutService {
     private func configureBackgroundColor() {
         let darkBackground: UIColor = ThemeService.currentTheme == AppTheme.default.theme ? .listViewBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        recipientBar?.backgroundColor = isDarkMode ? darkBackground : lightBackground
+        recipientBar?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
     }
 
     private func configureSelectContactButton() {
@@ -105,11 +110,10 @@ public final class RecipientBarLayoutService {
     }
 
     private func configureTableView() {
-        guard let superview = viewController.messagesCollectionView.superview,
-              superview.subviews.filter({ $0 is UITableView }).isEmpty, // TODO: Audit this.
+        guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty, // TODO: Audit this.
               let tableView = buildTableView() else { return }
         tableView.tag = coreUI.semTag(for: Strings.tableViewSemanticTag)
-        superview.addSubview(tableView) // TODO: Needs additional configuration.
+        viewController.view.addSubview(tableView) // TODO: Needs additional configuration.
     }
 
     private func configureTextField() {
@@ -131,8 +135,8 @@ public final class RecipientBarLayoutService {
     // MARK: - Auxiliary
 
     private func getScreenWidth() -> CGFloat {
-        @Dependency(\.uiApplication.mainScreen) var mainScreen: UIScreen?
-        return mainScreen?.bounds.width ?? UIScreen.main.bounds.width
+        @Dependency(\.uiApplication.mainScreen?.bounds.width) var mainScreenWidth: CGFloat?
+        return mainScreenWidth ?? UIScreen.main.bounds.width
     }
 
     // MARK: - View Builders
@@ -162,10 +166,10 @@ public final class RecipientBarLayoutService {
     }
 
     private func buildTableView() -> UITableView? {
-        guard let superviewFrame = viewController.messagesCollectionView.superview?.frame else { return nil }
-        let tableView: UITableView = .init(frame: superviewFrame)
+        let tableView: UITableView = .init(frame: viewController.view.frame)
 
         tableView.alpha = 0
+        tableView.contentInset.bottom = Floats.frameHeight
         tableView.frame.origin.y += Floats.frameHeight
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: Strings.tableViewCellReuseIdentifier)
 

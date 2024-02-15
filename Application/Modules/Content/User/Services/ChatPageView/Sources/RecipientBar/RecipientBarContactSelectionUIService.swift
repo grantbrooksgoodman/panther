@@ -85,10 +85,11 @@ public final class RecipientBarContactSelectionUIService {
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.
         func configureContactView(forSublevels sublevels: Int) -> Bool {
             func configureContactView(onSublevel sublevel: Int) -> Bool {
-                guard let furthestTrailingView = findContactView(.furthestTrailing(onSublevel: sublevel)) else { return false }
+                guard let furthestTrailingView = firstContactView(.furthestTrailing(onSublevel: sublevel)) else { return false }
                 guard shouldAddNewSublevel(for: furthestTrailingView) else {
                     contactView.frame.origin.x = furthestTrailingView.frame.maxX + Floats.adjacentViewSpacing
                     contactView.frame.origin.y = furthestTrailingView.frame.origin.y
+                    reconfigureRecipientBar(forSublevel: sublevel)
                     return true
                 }
 
@@ -114,7 +115,7 @@ public final class RecipientBarContactSelectionUIService {
 
         selectedContactPairs.append(contactPair)
         defer { addSubview() }
-        guard let furthestTrailingView = findContactView(.furthestTrailing(onSublevel: nil)) else { return }
+        guard let furthestTrailingView = firstContactView(.furthestTrailing(onSublevel: nil)) else { return }
 
         guard shouldAddNewSublevel(for: furthestTrailingView) else {
             guard configureContactView(forSublevels: Int(Floats.sublevelCount)) else {
@@ -137,12 +138,10 @@ public final class RecipientBarContactSelectionUIService {
     // MARK: - On Superfluous Backspace
 
     public func onSuperflousBackspace() {
-        guard let recipientBar else { return }
-
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.
         func configureTextField(forSublevels sublevels: Int) -> Bool {
             func configureTextField(onSublevel sublevel: Int) -> Bool {
-                guard let furthestTrailingView = findContactView(.furthestTrailing(onSublevel: sublevel)) else { return false }
+                guard let furthestTrailingView = firstContactView(.furthestTrailing(onSublevel: sublevel)) else { return false }
                 reconfigureRecipientBar(forSublevel: sublevel)
                 reconfigureTextField(relativeTo: furthestTrailingView)
                 return true
@@ -152,16 +151,17 @@ public final class RecipientBarContactSelectionUIService {
             return false
         }
 
-        guard let firstView = findContactView(.onSameLevelAsTextField) else { return }
-        guard isHighlighted(viewID: firstView.identifier) else {
-            toggleIsHighlighted(viewID: firstView.identifier)
+        guard let firstContactView = firstContactView(.onSameLevelAsTextField) else { return }
+        guard isHighlighted(viewID: firstContactView.identifier) else {
+            toggleIsHighlighted(viewID: firstContactView.identifier)
             return
         }
 
-        deselectContactPair(withViewID: firstView.identifier)
+        deselectContactPair(withViewID: firstContactView.identifier)
 
-        guard !configureTextField(forSublevels: Int(Floats.sublevelCount)) else { return }
-        reconfigureTextField(relativeTo: recipientBar)
+        guard !configureTextField(forSublevels: Int(Floats.sublevelCount)),
+              let toLabel = service?.layout.toLabel else { return }
+        reconfigureTextField(relativeTo: toLabel)
     }
 
     // MARK: - View Highlighting
@@ -180,8 +180,7 @@ public final class RecipientBarContactSelectionUIService {
         switch isHighlighted(viewID: contactHash) {
         case true:
             contactLabel.textColor = .accent
-            let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-            let selectionColor = UIColor(isDarkMode ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
             contactView.backgroundColor = selectionColor
             contactView.layer.borderColor = selectionColor.cgColor
 
@@ -197,8 +196,7 @@ public final class RecipientBarContactSelectionUIService {
             guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
             contactLabel.textColor = .accent
 
-            let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-            let selectionColor = UIColor(isDarkMode ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
             contactView.backgroundColor = selectionColor
             contactView.layer.borderColor = selectionColor.cgColor
         }
@@ -206,7 +204,7 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Auxiliary
 
-    private func findContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
+    private func firstContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
         var subviews = contactViews
 
         switch configuration {
@@ -224,10 +222,13 @@ public final class RecipientBarContactSelectionUIService {
     }
 
     private func reconfigureRecipientBar(forSublevel sublevel: Int) {
-        guard let recipientBar else { return }
+        guard let recipientBar,
+              let tableView = service?.layout.tableView else { return }
         typealias Floats = AppConstants.CGFloats.RecipientBarLayoutService
-        recipientBar.frame.size.height = Floats.frameHeight + value(for: sublevel)
+        let recipientBarFrameHeight = Floats.frameHeight + value(for: sublevel)
+        recipientBar.frame.size.height = recipientBarFrameHeight
         service?.layout.configureBorders()
+        tableView.contentInset.bottom = recipientBarFrameHeight
     }
 
     private func reconfigureTextField(relativeTo view: UIView) {
@@ -238,21 +239,22 @@ public final class RecipientBarContactSelectionUIService {
         typealias Strings = AppConstants.Strings.RecipientBarLayoutService
 
         let isOnInitialLevel = (textField.center.y == toLabel.center.y || view.frame.maxY == Floats.initialLevelMaxY)
-        let relatedViewIsRecipientBar = view.tag == coreUI.semTag(for: Strings.recipientBarSemanticTag)
+        let isRelativeViewToLabel = view.tag == coreUI.semTag(for: Strings.toLabelSemanticTag)
 
         // swiftlint:disable line_length
         let widthDecrement = isOnInitialLevel ? Floats.textFieldReconfigurationInitialLevelWidthDecrement : Floats.textFieldReconfigurationNotInitialLevelWidthDecrement
-        let xOriginIncrement = relatedViewIsRecipientBar ? Floats.textFieldReconfigurationRecipientBarXOriginIncrement : Floats.textFieldReconfigurationNotRecipientBarXOriginIncrement
+        let xOriginIncrement = isRelativeViewToLabel ? Floats.textFieldReconfigurationToLabelXOriginIncrement : Floats.textFieldReconfigurationNotToLabelXOriginIncrement
         // swiftlint:enable line_length
 
-        textField.frame.origin.x = (relatedViewIsRecipientBar ? toLabel : view).frame.maxX + xOriginIncrement
+        textField.frame.origin.x = view.frame.maxX + xOriginIncrement
         textField.frame.size.width = (recipientBar.frame.maxX - textField.frame.origin.x) - widthDecrement
         textField.center.y = view.center.y
     }
 
     @objc
     private func tapGestureRecognized(recognizer: UITapGestureRecognizer) {
-        guard let contactView = recognizer.view else { return }
+        guard let contactView = recognizer.view,
+              contactView.identifier == firstContactView(.onSameLevelAsTextField)?.identifier else { return }
         toggleIsHighlighted(viewID: contactView.identifier)
     }
 
@@ -271,8 +273,7 @@ public final class RecipientBarContactSelectionUIService {
             size: .init(width: 0, height: Floats.contactViewFrameHeight)
         ))
 
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        let selectionColor = UIColor(isDarkMode ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+        let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
 
         contactView.backgroundColor = selectionColor
         contactView.center.y = recipientBar.center.y

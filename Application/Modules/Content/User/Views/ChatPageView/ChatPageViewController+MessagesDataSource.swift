@@ -144,11 +144,9 @@ extension ChatPageViewController: MessagesDataSource {
               currentConversation.participants.count > 2,
               let messages = currentConversation.messages,
               let message = message as? Message,
-              !message.isFromCurrentUser,
-              messages.count > indexPath.section else { return nil }
+              !message.isFromCurrentUser else { return nil }
 
-        if indexPath.section - 1 > -1,
-           messages[indexPath.section - 1].fromAccountID == message.fromAccountID {
+        if messages.itemAt(indexPath.section - 1)?.fromAccountID == message.fromAccountID {
             return nil
         }
 

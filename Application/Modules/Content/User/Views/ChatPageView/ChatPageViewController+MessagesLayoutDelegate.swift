@@ -44,10 +44,8 @@ extension ChatPageViewController: MessagesLayoutDelegate {
 
         guard let messages = currentConversation?.messages,
               let message = message as? Message,
-              messages.count > indexPath.section,
-              indexPath.section - 1 > -1 else { return 0 }
+              let previousSentDate = messages.itemAt(indexPath.section - 1)?.sentDate else { return 0 }
 
-        let previousSentDate = messages[indexPath.section - 1].sentDate // TODO: Audit this.
         guard message.sentDate.seconds(from: previousSentDate) > Int(Floats.cellTopLabelHeightSentDateSecondsComparator) else { return 0 }
         return Floats.cellTopLabelHeight
     }
@@ -64,9 +62,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
               let messages = currentConversation.messages,
               let message = message as? Message else { return 0 }
 
-        if messages.count > indexPath.section,
-           indexPath.section - 1 > -1,
-           messages[indexPath.section - 1].fromAccountID == message.fromAccountID {
+        if messages.itemAt(indexPath.section - 1)?.fromAccountID == message.fromAccountID {
             return 0
         }
 

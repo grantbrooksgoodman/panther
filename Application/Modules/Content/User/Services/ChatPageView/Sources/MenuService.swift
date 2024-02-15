@@ -44,10 +44,8 @@ public final class MenuService {
 
     private var selectedMessage: Message? {
         guard let selectedCell,
-              let indexPath = viewController.messagesCollectionView.indexPath(for: selectedCell),
-              let messages = viewController.currentConversation?.messages,
-              messages.count > indexPath.section else { return nil }
-        return messages[indexPath.section]
+              let indexPath = viewController.messagesCollectionView.indexPath(for: selectedCell) else { return nil }
+        return viewController.currentConversation?.messages?.itemAt(indexPath.section)
     }
 
     // MARK: - Init
@@ -106,9 +104,7 @@ public final class MenuService {
     // MARK: - Menu for Message
 
     public func menuForMessage(at index: Int) -> UIMenu? {
-        guard let messages = viewController.currentConversation?.messages,
-              messages.count > index else { return nil }
-        let message = messages[index]
+        guard let message = viewController.currentConversation?.messages?.itemAt(index) else { return nil }
 
         var actions = [UIAction]()
         guard !message.hasAudioComponent else {
@@ -211,10 +207,7 @@ public final class MenuService {
     private func animateDeselection(forCellAt index: Int) {
         let collectionView = viewController.messagesCollectionView
         guard let cell = collectionView.visibleCells.first(where: { collectionView.indexPath(for: $0)?.section == index }) as? MessageContentCell,
-              let messages = viewController.currentConversation?.messages,
-              messages.count > index else { return }
-
-        let message = messages[index]
+              let message = viewController.currentConversation?.messages?.itemAt(index) else { return }
 
         UIView.animate(withDuration: Floats.selectionAnimationDuration) {
             cell.messageContainerView.backgroundColor = message.backgroundColor
@@ -230,7 +223,7 @@ public final class MenuService {
 
         UIView.animate(withDuration: Floats.selectionAnimationDuration) {
             guard backgroundColor == .receiverBubble,
-                  UITraitCollection.current.userInterfaceStyle == .dark else {
+                  ThemeService.isDarkModeActive else {
                 selectedCell.messageContainerView.backgroundColor = backgroundColor?.darker(by: Floats.messageContainerViewBackgroundColorDarkeningPercentage)
                 return
             }
@@ -270,10 +263,8 @@ public final class MenuService {
 
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
-              let messages = viewController.currentConversation?.messages,
-              messages.count > indexPath.section else { return }
+              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
 
-        let message = messages[indexPath.section]
         guard message.id != UserContentConstants.newMessageID else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)

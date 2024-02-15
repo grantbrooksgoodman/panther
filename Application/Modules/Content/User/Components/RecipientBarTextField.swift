@@ -29,7 +29,7 @@ public final class RecipientBarTextField: UITextField {
     // MARK: - Delete Backward
 
     override public func deleteBackward() {
-        if (text ?? "").isBlank { _onSuperfluousBackspace?() }
+        if (text ?? "").isEmpty { _onSuperfluousBackspace?() }
         super.deleteBackward()
     }
 

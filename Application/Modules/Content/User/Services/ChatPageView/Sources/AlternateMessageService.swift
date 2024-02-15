@@ -60,9 +60,7 @@ public final class AlternateMessageService {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-              let messages = viewController.currentConversation?.messages,
-              messages.count > indexPath.section else { return }
-        let message = messages[indexPath.section]
+              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
 
         func append() {
             switch type {

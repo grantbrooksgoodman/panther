@@ -63,7 +63,7 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
               let labelFont = speakingCell.messageLabel.font,
               let labelText = speakingCell.messageLabel.text else { return }
 
-        let shouldUseWhite = speakingMessage.isFromCurrentUser || UITraitCollection.current.userInterfaceStyle == .dark
+        let shouldUseWhite = speakingMessage.isFromCurrentUser || ThemeService.isDarkModeActive
         let attributedString = NSMutableAttributedString(string: labelText)
 
         guard characterRange.lowerBound >= 0,

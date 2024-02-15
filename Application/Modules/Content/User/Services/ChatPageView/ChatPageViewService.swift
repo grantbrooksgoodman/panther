@@ -84,6 +84,10 @@ public final class ChatPageViewService {
     public func onViewWillAppear() {
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
+
+        if configuration == .newChat {
+            viewController?.messageInputBar.inputTextView.placeholder = ""
+        }
     }
 
     public func onViewDidAppear() {

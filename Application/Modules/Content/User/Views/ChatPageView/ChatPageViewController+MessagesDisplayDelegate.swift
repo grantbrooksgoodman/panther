@@ -108,10 +108,9 @@ extension ChatPageViewController: MessagesDisplayDelegate {
     ) -> [NSAttributedString.Key: Any] {
         guard let message = message as? Message else { return .init() }
 
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
         let primaryColor = UIColor(Colors.detectorAttributesPrimaryForeground)
         let alternateColor = UIColor(Colors.detectorAttributesAlternateForeground)
-        let colorToUse = message.isFromCurrentUser ? primaryColor : (isDarkMode ? primaryColor : alternateColor)
+        let colorToUse = message.isFromCurrentUser ? primaryColor : (ThemeService.isDarkModeActive ? primaryColor : alternateColor)
 
         var attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: colorToUse,

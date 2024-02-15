@@ -78,22 +78,19 @@ public final class ChatPageViewController: MessagesViewController {
         genericCell.tag = indexPath.section
 
         guard let textCell = genericCell as? TextMessageCell,
-              let messages = currentConversation?.messages,
-              messages.count > indexPath.section else { return genericCell }
-
-        let currentMessage = messages[indexPath.section]
+              let message = currentConversation?.messages?.itemAt(indexPath.section) else { return genericCell }
 
         if !ThemeService.isDefaultThemeApplied /* , */
         /*! currentMessage.isDisplayingAlternate */ {
             typealias Floats = AppConstants.CGFloats.ChatPageView
-            if currentMessage.isFromCurrentUser {
+            if message.isFromCurrentUser {
                 textCell.messageLabel.textInsets.right = Floats.textCellMessageLabelRightTextInset
             } else {
                 textCell.messageLabel.textInsets.left = Floats.textCellMessageLabelLeftTextInset
             }
         }
 
-        if currentMessage.isSpeakingMessage {
+        if message.isSpeakingMessage {
             viewService.menu?.setSpeakingCell(textCell)
         }
 

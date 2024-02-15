@@ -88,7 +88,6 @@
 		B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */; };
 		B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */; };
 		B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */; };
-		B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */; };
 		B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */; };
 		B90CA62D2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CA62C2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift */; };
 		B90CCC092AC74478001C326F /* CoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CCC082AC74478001C326F /* CoreConstants.swift */; };
@@ -183,6 +182,7 @@
 		B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887122B3234BE007FB37B /* SplashPageViewService.swift */; };
 		B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */; };
 		B95887172B323B00007FB37B /* FadeInViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95887162B323B00007FB37B /* FadeInViewModifier.swift */; };
+		B95E75B82B7DC2C80026FD64 /* ThemeService+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E75B72B7DC2C80026FD64 /* ThemeService+CoreExtensions.swift */; };
 		B961A8EF2ACA8346007508EC /* ViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B961A8EE2ACA8346007508EC /* ViewObserver.swift */; };
 		B9627C632B6EC325004EE9DA /* InputBarGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */; };
 		B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */; };
@@ -835,7 +835,6 @@
 		B90C91172B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+MessageCellDelegate.swift"; sourceTree = "<group>"; };
 		B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatPageView.swift"; sourceTree = "<group>"; };
-		B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThemeService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B90CA62C2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+InputBarGestureRecognizerService.swift"; sourceTree = "<group>"; };
 		B90CCC082AC74478001C326F /* CoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreConstants.swift; sourceTree = "<group>"; };
@@ -1006,6 +1005,7 @@
 		B95887122B3234BE007FB37B /* SplashPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageViewService.swift; sourceTree = "<group>"; };
 		B95887142B3234F4007FB37B /* SplashPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B95887162B323B00007FB37B /* FadeInViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FadeInViewModifier.swift; sourceTree = "<group>"; };
+		B95E75B72B7DC2C80026FD64 /* ThemeService+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThemeService+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B961A8EE2ACA8346007508EC /* ViewObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewObserver.swift; sourceTree = "<group>"; };
 		B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarGestureRecognizerService.swift; sourceTree = "<group>"; };
 		B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordButtonCommand.swift; sourceTree = "<group>"; };
@@ -2497,6 +2497,7 @@
 				B93BCDD12AAD8BBF00AA16FE /* Primitives+CoreExtensions.swift */,
 				B93BCDD52AAD8BD700AA16FE /* Sequence+CoreExtensions.swift */,
 				B93BCDEC2AAD9DAC00AA16FE /* Task+CoreExtensions.swift */,
+				B95E75B72B7DC2C80026FD64 /* ThemeService+CoreExtensions.swift */,
 				B93BCDEE2AAD9F8E00AA16FE /* TranslatorService+CoreExtensions.swift */,
 				B93BCDDB2AAD8BFB00AA16FE /* UIKit+CoreExtensions.swift */,
 				B992BCD72A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift */,
@@ -3429,7 +3430,6 @@
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
-				B90C91212B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift */,
 				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
 				B923CAA22B758A870042D3E4 /* UIFont+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
@@ -4131,6 +4131,7 @@
 				B93BCDD22AAD8BBF00AA16FE /* Primitives+CoreExtensions.swift in Sources */,
 				B98C3BA32B7AF6AD00CDA3E9 /* RecipientBarService.swift in Sources */,
 				B98C3BA52B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift in Sources */,
+				B95E75B82B7DC2C80026FD64 /* ThemeService+CoreExtensions.swift in Sources */,
 				B90CA62D2B701E4E001C776E /* AppConstants+InputBarGestureRecognizerService.swift in Sources */,
 				B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */,
 				B9DCCAAF2B3618EA00532B12 /* Exception+CoreNetworkingExtensions.swift in Sources */,
@@ -4272,7 +4273,6 @@
 				B9E7D4202AAC1ED700FAF2A9 /* SampleContentPageView.swift in Sources */,
 				B90071F12B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift in Sources */,
 				B92646922B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift in Sources */,
-				B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */,
 				B964465C2B157DFB008E674A /* RootReducer.swift in Sources */,
 				A286879C28A4A09600A34912 /* Reachability.swift in Sources */,
 				B9E7D4222AAC1ED700FAF2A9 /* SamplePageReducer.swift in Sources */,
@@ -4702,7 +4702,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.jaguar;
+				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.panther;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_VERSION = 5.0;
@@ -4730,7 +4730,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.jaguar;
+				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.panther;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -4760,7 +4760,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.jaguar.NotificationExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.panther.NotificationExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
