@@ -12,7 +12,7 @@ import Foundation
 public extension Conversation {
     static var empty: Conversation {
         .init(
-            .init(key: UserContentConstants.newConversationID, hash: ""),
+            .init(key: "", hash: ""),
             messageIDs: [],
             messages: nil,
             lastModifiedDate: .init(),
@@ -21,7 +21,19 @@ public extension Conversation {
         )
     }
 
+    var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
     var isMock: Bool { id.key == UserContentConstants.newConversationID }
+
+    static var mock: Conversation {
+        .init(
+            .init(key: UserContentConstants.newConversationID, hash: ""),
+            messageIDs: [],
+            messages: nil,
+            lastModifiedDate: .init(),
+            participants: [],
+            users: nil
+        )
+    }
 
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(

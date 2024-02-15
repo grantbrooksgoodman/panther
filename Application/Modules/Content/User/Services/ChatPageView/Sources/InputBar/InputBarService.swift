@@ -42,12 +42,12 @@ public final class InputBarService {
     // MARK: - Computed Properties
 
     public var shouldEnableSendButton: Bool {
-        let isConversationMock = viewController.currentConversation?.isMock ?? true
+        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
         let isTextViewTextBlank = inputBar.inputTextView.text.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationMock }
-        return !isConversationMock && !isTextViewTextBlank
+        guard isSendButtonConfiguredForText else { return !isConversationEmpty }
+        return !isConversationEmpty && !isTextViewTextBlank
     }
 
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
@@ -57,12 +57,6 @@ public final class InputBarService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
-    }
-
-    // MARK: - Become First Responder
-
-    public func becomeFirstResponder() {
-        inputBar.inputTextView.becomeFirstResponder()
     }
 
     // MARK: - Configure Input Bar

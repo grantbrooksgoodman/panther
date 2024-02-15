@@ -23,14 +23,21 @@ extension ChatPageViewController: UITextViewDelegate {
             .first(where: { $0.primaryLanguage!.lowercased().hasPrefix(RuntimeStorage.languageCode) })
     }
 
-    // MARK: - Methods
+    // MARK: - Should Change Text in Range
 
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
         return !recordingService.isInOrWillTransitionToRecordingState
     }
 
-    public func textViewDidBeginEditing(_ textView: UITextView) {}
+    // MARK: - Did Begin Editing
+
+    public func textViewDidBeginEditing(_ textView: UITextView) {
+        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var contactSelectionUIService: RecipientBarContactSelectionUIService?
+        contactSelectionUIService?.unhighlightAllViews()
+    }
+
+    // MARK: - Did Change
 
     public func textViewDidChange(_ textView: UITextView) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?

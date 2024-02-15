@@ -7,13 +7,15 @@
 //
 
 /* Native */
+import AVFAudio
 import Foundation
 import UIKit
 
 /* 3rd-party */
 import Redux
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
+
 public final class RecipientBarContactSelectionUIService {
     // MARK: - Types
 
@@ -30,9 +32,11 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.user) private var userService: UserService
 
     // MARK: - Properties
@@ -70,6 +74,7 @@ public final class RecipientBarContactSelectionUIService {
         guard let sublevel = range.first(where: { firstContactView(.furthestTrailing(onSublevel: $0)) != nil }) else { return }
         view = firstContactView(.furthestTrailing(onSublevel: sublevel))
         reconfigureRecipientBar(forSublevel: sublevel)
+        reconfigureCollectionView()
     }
 
     public func selectContactPair(_ contactPair: ContactPair) {
@@ -83,11 +88,14 @@ public final class RecipientBarContactSelectionUIService {
 
             recipientBar.addSubview(contactView)
 
+            viewController.messagesCollectionView.isHidden = true
             chatPageViewService.recipientBar?.tableView.setQuery("")
             tableView.frame.origin.y = recipientBar.frame.maxY
 
             reconfigureTextField(relativeTo: contactView)
             textField.text = nil
+
+            reconfigureCollectionView()
         }
 
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.
@@ -148,7 +156,8 @@ public final class RecipientBarContactSelectionUIService {
     public func unhighlightAllViews() {
         for contactView in contactViews {
             guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
-            contactLabel.textColor = contactLabel.textColor == UIColor(Colors.contactViewRedText) ? UIColor(Colors.contactViewRedText) : .accent
+            let redColor = UIColor(Colors.contactViewRedText)
+            contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
 
             let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
             contactView.backgroundColor = selectionColor
@@ -165,6 +174,7 @@ public final class RecipientBarContactSelectionUIService {
                 guard let furthestTrailingView = firstContactView(.furthestTrailing(onSublevel: sublevel)) else { return false }
                 reconfigureRecipientBar(forSublevel: sublevel)
                 reconfigureTextField(relativeTo: furthestTrailingView)
+                reconfigureCollectionView()
                 return true
             }
 
@@ -183,6 +193,7 @@ public final class RecipientBarContactSelectionUIService {
         guard !configureTextField(forSublevels: Int(Floats.sublevelCount)),
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
         reconfigureTextField(relativeTo: toLabel)
+        reconfigureCollectionView()
     }
 
     // MARK: - Text Field Should Return
@@ -192,13 +203,15 @@ public final class RecipientBarContactSelectionUIService {
             guard !text.isBlank else {
                 guard !selectedContactPairs.filter({ $0.isMock }).isEmpty else {
                     unhighlightAllViews()
-                    chatPageViewService.inputBar?.becomeFirstResponder()
+                    viewController.messageInputBar.inputTextView.becomeFirstResponder()
                     return
                 }
 
                 unhighlightAllViews()
                 deselectMockContactPairs()
-                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) { self.chatPageViewService.inputBar?.becomeFirstResponder() }
+                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
+                    self.viewController.messageInputBar.inputTextView.becomeFirstResponder()
+                }
                 return
             }
 
@@ -214,7 +227,8 @@ public final class RecipientBarContactSelectionUIService {
             switch getUsersResult {
             case let .success(users):
                 guard let firstUser = users.first else { return } // TODO: Need action for multiple users.
-                guard let contactPair = contactPairArchive.getValue(userNumberHash: firstUser.phoneNumber.nationalNumberString.digits.encodedHash) else {
+                let userNumberHash = firstUser.phoneNumber.nationalNumberString.digits.encodedHash
+                guard let contactPair = services.contact.contactPairArchive.getValue(userNumberHash: userNumberHash) else {
                     selectContactPair(.withUser(firstUser))
                     return
                 }
@@ -253,6 +267,10 @@ public final class RecipientBarContactSelectionUIService {
             contactView.backgroundColor = contactLabel.textColor == redColor ? redColor : .accent
             contactView.layer.borderColor = contactLabel.textColor == redColor ? redColor.cgColor : UIColor.accent.cgColor
             contactLabel.textColor = UIColor(Colors.contactViewHighlightedText)
+
+            guard let textField = chatPageViewService.recipientBar?.layout.textField,
+                  !textField.isFirstResponder else { return }
+            textField.becomeFirstResponder()
         }
     }
 
@@ -277,6 +295,59 @@ public final class RecipientBarContactSelectionUIService {
                 .filter { $0.center.y == textField.center.y }
                 .sorted(by: { $0.frame.maxX > $1.frame.maxX })
                 .first
+        }
+    }
+
+    private func reconfigureCollectionView() {
+        Task { @MainActor in
+            var shouldReload = false
+
+            func setInsetsAndReload() {
+                Task { @MainActor in
+                    chatPageViewService.alternateMessage?.restoreAllAlternateTextMessageIDs()
+                    chatPageViewService.alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
+
+                    avSpeechSynthesizer.stopSpeaking(at: .immediate)
+                    chatPageViewService.audioMessagePlayback?.stopPlayback()
+
+                    Task { await chatPageViewService.recordingUI?.hideRecordingUI() }
+                    _ = services.audio.recording.cancelRecording()
+
+                    chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+                    viewController.messagesCollectionView.isHidden = false
+
+                    guard let recipientBar,
+                          shouldReload else { return }
+
+                    viewController.messagesCollectionView.contentInset.top = recipientBar.frame.maxY
+                    viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = recipientBar.frame.maxY
+                    viewController.messagesCollectionView.reloadData()
+                    viewController.messagesCollectionView.scrollToLastItem(animated: false)
+                }
+            }
+
+            let isPreviousConversationEmpty = (clientSession.conversation.currentConversation ?? .empty).isEmpty
+            let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
+
+            guard let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter({ $0.users != nil }) else { return }
+            let userIDs = selectedContactPairs.map(\.numberPairs).reduce([], +).map(\.users).reduce([], +).map(\.id)
+
+            viewController.messageInputBar.inputTextView.text = ""
+            if let exception = await chatPageViewService.inputBar?.textViewDidChange(to: "") {
+                Logger.log(exception, with: .toast())
+            }
+
+            defer { setInsetsAndReload() }
+
+            guard let existingConversation = conversations.sortedByLatestMessageSentDate
+                .first(where: { userIDs.sorted() == $0.users!.map(\.id).sorted() }) else {
+                clientSession.conversation.setCurrentConversation(selectedContactPairs.isEmpty ? .empty : .mock)
+                shouldReload = !isPreviousConversationEmpty
+                return
+            }
+
+            clientSession.conversation.setCurrentConversation(existingConversation)
+            shouldReload = existingConversation.id.key != previousConversationIDKey
         }
     }
 
@@ -368,3 +439,5 @@ public final class RecipientBarContactSelectionUIService {
         return contactView
     }
 }
+
+// swiftlint:enable file_length type_body_length

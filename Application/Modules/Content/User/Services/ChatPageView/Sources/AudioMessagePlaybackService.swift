@@ -73,8 +73,7 @@ public final class AudioMessagePlaybackService {
         }
 
         guard !cell.playButton.isSelected else {
-            resetVisibleCells()
-            services.audio.playback.stopPlaying()
+            stopPlayback()
             return nil
         }
 
