@@ -37,6 +37,8 @@
 		B90071EB2B7C0CA800BE8654 /* ContactPairCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */; };
 		B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */; };
 		B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */; };
+		B90071F12B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071F02B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift */; };
+		B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */; };
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
 		B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */; };
@@ -591,6 +593,7 @@
 		B9D0D9472B03019E00078A93 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92E2B03019E00078A93 /* Database.swift */; };
 		B9D0D9482B03019E00078A93 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9302B03019E00078A93 /* Auth.swift */; };
 		B9D0D9512B0310C800078A93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */; };
+		B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarContactSelectionUIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarContactSelectionUIService.swift */; };
 		B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71062AD3891700EAC88B /* UserDefaultsKeyDomain.swift */; };
 		B9DB71092AD3897200EAC88B /* StoredItemKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71082AD3897200EAC88B /* StoredItemKeyDomain.swift */; };
 		B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */; };
@@ -782,6 +785,8 @@
 		B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPairCellView.swift; sourceTree = "<group>"; };
 		B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ContactPairCellView.swift"; sourceTree = "<group>"; };
 		B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactPair+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B90071F02B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarContactSelectionUIService.swift; sourceTree = "<group>"; };
+		B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarTextField.swift; sourceTree = "<group>"; };
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVQueuePlayerDependency.swift; sourceTree = "<group>"; };
 		B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
@@ -1408,6 +1413,7 @@
 		B9D0D92E2B03019E00078A93 /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B9D0D9302B03019E00078A93 /* Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarContactSelectionUIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBarContactSelectionUIService.swift"; sourceTree = "<group>"; };
 		B9DB71062AD3891700EAC88B /* UserDefaultsKeyDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyDomain.swift; sourceTree = "<group>"; };
 		B9DB71082AD3897200EAC88B /* StoredItemKeyDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredItemKeyDomain.swift; sourceTree = "<group>"; };
 		B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationArchiveService.swift; sourceTree = "<group>"; };
@@ -1692,6 +1698,7 @@
 			children = (
 				B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */,
 				B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */,
+				B90071F02B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift */,
 				B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */,
 				B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */,
 			);
@@ -3363,6 +3370,7 @@
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
+				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
 				B96EDD9A2B63825C00CB925B /* StaticListView.swift */,
 				B9F47AF72B58609300D86C67 /* UserInfoBadgeView.swift */,
 			);
@@ -3385,6 +3393,7 @@
 				B996C32F2B76FCB3004C91F6 /* AppConstants+InputBarService.swift */,
 				B92646952B747BAB00E0F385 /* AppConstants+MenuService.swift */,
 				B996C32B2B76FBAE004C91F6 /* AppConstants+MessageDeliveryService.swift */,
+				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarContactSelectionUIService.swift */,
 				B98C3BA62B7B11C300CDA3E9 /* AppConstants+RecipientBarLayoutService.swift */,
 				B918222F2B6EBC3A0068BDAB /* AppConstants+RecordingUIService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
@@ -4109,6 +4118,7 @@
 				B93457092AABFB3700944602 /* Localized.swift in Sources */,
 				B900B54C2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift in Sources */,
 				B9D0D9402B03019E00078A93 /* Array+CoreNetworkingExtensions.swift in Sources */,
+				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
 				B93BCDD62AAD8BD700AA16FE /* Sequence+CoreExtensions.swift in Sources */,
 				B9E0E0FC2B20F03300C14274 /* CoreStorage.swift in Sources */,
@@ -4175,6 +4185,7 @@
 				B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */,
 				B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */,
 				B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */,
+				B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarContactSelectionUIService.swift in Sources */,
 				B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */,
 				A286879F28A4A1CB00A34912 /* AKReportDelegate.swift in Sources */,
 				B94388692B3217B6002D94FF /* ConversationSessionService.swift in Sources */,
@@ -4259,6 +4270,7 @@
 				B9F47AE82B576EF500D86C67 /* ConversationsPageView.swift in Sources */,
 				B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SampleContentPageView.swift in Sources */,
+				B90071F12B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift in Sources */,
 				B92646922B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift in Sources */,
 				B90C91222B6AF13B008DFE59 /* ThemeService+UserContentExtensions.swift in Sources */,
 				B964465C2B157DFB008E674A /* RootReducer.swift in Sources */,

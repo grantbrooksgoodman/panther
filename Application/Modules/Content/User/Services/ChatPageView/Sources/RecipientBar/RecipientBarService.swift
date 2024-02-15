@@ -17,30 +17,20 @@ public final class RecipientBarService {
     // MARK: - Properties
 
     public let actionHandler: RecipientBarActionHandlerService
+    public let contactSelectionUI: RecipientBarContactSelectionUIService
     public let layout: RecipientBarLayoutService
     public let tableView: RecipientBarTableViewService
 
     private let viewController: ChatPageViewController
-
-    private var selectedContactPairs = [ContactPair]()
 
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
+        contactSelectionUI = .init(viewController)
         layout = .init(viewController)
         tableView = .init(viewController)
-    }
-
-    // MARK: - Contact Pair Selection
-
-    public func deselectContactPair(_ contactPair: ContactPair) {
-        selectedContactPairs.removeAll(where: { $0 == contactPair })
-    }
-
-    public func selectContactPair(_ contactPair: ContactPair) {
-        selectedContactPairs.append(contactPair)
     }
 
     // MARK: - On Layout Subviews

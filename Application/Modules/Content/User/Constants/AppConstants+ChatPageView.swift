@@ -36,7 +36,7 @@ public extension AppConstants.CGFloats {
             public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
             public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
 
-            public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 1
+            public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 12
             public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
         }
 

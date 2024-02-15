@@ -21,7 +21,7 @@ extension RecipientBar: UITableViewDelegate {
         guard let sections = recipientBarService?.tableView.sections,
               sections.count > indexPath.row,
               let contactPair = sections[indexPath.row].contactPairs.first else { return }
-        recipientBarService?.selectContactPair(contactPair)
+        recipientBarService?.contactSelectionUI.selectContactPair(contactPair)
     }
 
     // MARK: - Scroll View Did Scroll

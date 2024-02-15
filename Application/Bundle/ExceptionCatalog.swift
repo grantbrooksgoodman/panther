@@ -22,6 +22,7 @@ public enum AppException: String {
     case exhaustedAvailablePlatforms = "C526"
     case genericStorageError = "C81B"
     case kAFAssistantError = "F59D"
+    case mismatchedHashAndCallingCode = "D339"
     case noAudioRecorderToStop = "E44E"
     case notAuthorizedForContacts = "B7FC"
     case notRegisteredForPushNotifications = "FB09"

@@ -36,7 +36,7 @@ public struct ConversationsPageViewService {
     public func reloadData() async -> Callback<[Conversation], Exception> {
         func syncContactPairArchive() async -> Exception? {
             if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
-               !exception.isEqual(to: .notAuthorizedForContacts) {
+               !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
                 return exception
             }
 

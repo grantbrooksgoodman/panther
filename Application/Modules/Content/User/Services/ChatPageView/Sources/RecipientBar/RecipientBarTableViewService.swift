@@ -23,7 +23,7 @@ public final class RecipientBarTableViewService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageViewService.recipientBar?.layout) private var layoutService: RecipientBarLayoutService?
+    @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
 
@@ -53,7 +53,7 @@ public final class RecipientBarTableViewService {
         guard let contactPairs,
               !contactPairs.isEmpty,
               let recipientBar,
-              let tableView = layoutService?.tableView else { return }
+              let tableView = service?.layout.tableView else { return }
 
         if tableView.dataSource == nil { tableView.dataSource = recipientBar }
         if tableView.delegate == nil { tableView.delegate = recipientBar }
@@ -65,7 +65,8 @@ public final class RecipientBarTableViewService {
     // MARK: - Set Query
 
     public func setQuery(_ query: String) {
-        guard let tableView = layoutService?.tableView else { return }
+        guard let recipientBar,
+              let tableView = service?.layout.tableView else { return }
 
         guard !query.isBlank else {
             tableView.alpha = 0
@@ -73,7 +74,11 @@ public final class RecipientBarTableViewService {
             return
         }
 
-        queriedContactPairs = (contactPairs ?? []).filter { "\($0.contact)".lowercased().contains(query.lowercased()) }
+        queriedContactPairs = (contactPairs ?? [])
+            .filter { "\($0.contact)".lowercased().contains(query.lowercased()) }
+            .filter { !(service?.contactSelectionUI.selectedContactPairs ?? []).contains($0) }
+
+        tableView.frame.origin.y = recipientBar.frame.maxY
         tableView.alpha = 1
         tableView.reloadData()
     }

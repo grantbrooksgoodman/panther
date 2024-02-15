@@ -22,8 +22,8 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageViewService.recipientBar?.actionHandler) private var actionHandlerService: RecipientBarActionHandlerService?
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
 
@@ -31,14 +31,14 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
+    public var screenWidth: CGFloat { getScreenWidth() }
     public var tableView: UITableView? { viewController.messagesCollectionView.superview?.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     public var textField: UITextField? { recipientBar?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
+    public var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
     private var recipientBar: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
-    private var screenWidth: CGFloat { getScreenWidth() }
     private var selectContactButton: UIButton? { recipientBar?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    private var toLabel: UILabel? { recipientBar?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
 
     // MARK: - Init
 
@@ -46,7 +46,7 @@ public final class RecipientBarLayoutService {
         self.viewController = viewController
     }
 
-    // MARK: - Layout
+    // MARK: - Layout Subviews
 
     public func layoutSubviews() {
         configureBackgroundColor()
@@ -58,14 +58,9 @@ public final class RecipientBarLayoutService {
         configureTextField()
     }
 
-    private func configureBackgroundColor() {
-        let darkBackground: UIColor = ThemeService.currentTheme == AppTheme.default.theme ? .listViewBackground : .background
-        let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        recipientBar?.backgroundColor = isDarkMode ? darkBackground : lightBackground
-    }
+    // MARK: - UI Configuration
 
-    private func configureBorders() {
+    public func configureBorders() {
         guard let recipientBar else { return }
 
         var borderColor = UIColor(UITraitCollection.current.userInterfaceStyle == .dark ? Colors.darkBorder : Colors.lightBorder).cgColor
@@ -92,6 +87,13 @@ public final class RecipientBarLayoutService {
 
         recipientBar.layer.addSublayer(bottomBorder)
         recipientBar.layer.addSublayer(topBorder)
+    }
+
+    private func configureBackgroundColor() {
+        let darkBackground: UIColor = ThemeService.currentTheme == AppTheme.default.theme ? .listViewBackground : .background
+        let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
+        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
+        recipientBar?.backgroundColor = isDarkMode ? darkBackground : lightBackground
     }
 
     private func configureSelectContactButton() {
@@ -136,7 +138,7 @@ public final class RecipientBarLayoutService {
     // MARK: - View Builders
 
     private func buildSelectContactButton() -> UIButton? {
-        guard let actionHandlerService,
+        guard let actionHandlerService = service?.actionHandler,
               let recipientBar else { return nil }
 
         let selectContactButton: UIButton = .init(type: .contactAdd)
@@ -171,21 +173,22 @@ public final class RecipientBarLayoutService {
     }
 
     private func buildTextField() -> UITextField? {
-        guard let actionHandlerService,
-              let recipientBar,
+        guard let recipientBar,
+              let service,
               let toLabel else { return nil }
 
-        let textField: UITextField = .init(frame: .init(
+        let textField: RecipientBarTextField = .init(frame: .init(
             origin: .zero,
             size: .init(width: screenWidth - Floats.textFieldWidthDecrement, height: Floats.frameHeight)
         ))
+        textField.onSuperfluousBackspace { service.contactSelectionUI.onSuperflousBackspace() }
 
         textField.addTarget(
-            actionHandlerService,
-            action: #selector(actionHandlerService.textFieldChanged(_:)),
+            service.actionHandler,
+            action: #selector(service.actionHandler.textFieldChanged(_:)),
             for: .editingChanged
         )
-//        textField.delegate = self
+        textField.delegate = recipientBar
 
         textField.center.x = recipientBar.center.x
         textField.frame.origin.x = toLabel.frame.maxX + Floats.textFieldXOriginIncrement

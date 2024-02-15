@@ -11,6 +11,13 @@ import Foundation
 import UIKit
 
 public extension UIView {
+    // MARK: - Properties
+
+    /// Leverages the `focusGroupIdentifier` property for use as a secondary identifier, separate from the view's `tag`.
+    var identifier: String { focusGroupIdentifier ?? .init() }
+
+    // MARK: - Methods
+
     func addShimmerEffect() {
         typealias Colors = AppConstants.Colors.UserContentExtensions.UIView
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.UIView
@@ -57,5 +64,9 @@ public extension UIView {
 
     func removeShimmerEffect() {
         layer.mask = nil
+    }
+
+    func setIdentifier(_ identifier: String) {
+        focusGroupIdentifier = identifier
     }
 }

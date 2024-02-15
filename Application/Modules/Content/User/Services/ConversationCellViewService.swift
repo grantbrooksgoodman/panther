@@ -49,7 +49,10 @@ public final class ConversationCellViewService {
                 contactImage = UIImage(data: imageData)
             }
         } else {
-            titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)
+            let callingCode = lastUser.phoneNumber.callingCode
+            var formattedString = lastUser.phoneNumber.formattedString(useFailsafe: false)
+            if !formattedString.hasPrefix(callingCode) { formattedString = "+\(callingCode) \(formattedString.trimmingLeadingWhitespace)" }
+            titleLabelText = formattedString
         }
 
         // TODO: If >1 other user, set avatar image to number of users.
