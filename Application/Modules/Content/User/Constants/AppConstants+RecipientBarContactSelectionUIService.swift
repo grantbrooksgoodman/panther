@@ -16,7 +16,11 @@ public extension AppConstants.CGFloats {
     enum RecipientBarContactSelectionUIService {
         public static let adjacentViewSpacing: CGFloat = 2
 
-        public static let contactViewCornerRadius: CGFloat = 10
+        public static let becomeFirstResponderDelayMilliseconds: CGFloat = 10
+
+        public static let contactLabelSystemFontSize: CGFloat = 16
+
+        public static let contactViewCornerRadius: CGFloat = 6
         public static let contactViewFrameHeight: CGFloat = 30
         public static let contactViewFrameXOrigin: CGFloat = 40
         public static let contactViewMaximumWidthDivisor: CGFloat = 2
@@ -37,8 +41,7 @@ public extension AppConstants.CGFloats {
         public static let textFieldReconfigurationInitialLevelWidthDecrement: CGFloat = 40
         public static let textFieldReconfigurationNotInitialLevelWidthDecrement: CGFloat = 10
 
-        public static let textFieldReconfigurationNotToLabelXOriginIncrement: CGFloat = 2
-        public static let textFieldReconfigurationToLabelXOriginIncrement: CGFloat = 5
+        public static let textFieldReconfigurationXOriginIncrement: CGFloat = 4
         // swiftlint:enable identifier_name
     }
 }
@@ -50,7 +53,7 @@ public extension AppConstants.Colors {
         public static let contactViewDarkSelection: Color = .init(uiColor: .init(hex: 0x2A2A2C))
         public static let contactViewHighlightedText: Color = .init(uiColor: .white)
         public static let contactViewLightSelection: Color = .init(uiColor: .init(hex: 0xECF0F1))
-        public static let contactViewRedText: Color = .init(uiColor: .systemRed)
+        public static let contactViewRedText: Color = .init(uiColor: .systemGreen)
     }
 }
 

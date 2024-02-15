@@ -10,12 +10,80 @@
 import Foundation
 
 public extension ContactPair {
+    // MARK: - Properties
+
     var containsCurrentUser: Bool {
         @Persistent(.currentUserID) var currentUserID: String?
         return numberPairs.map { $0.users.map(\.id) }.reduce([], +).allSatisfy { $0 == currentUserID }
     }
 
-    var firstUser: User? {
-        numberPairs.map(\.users).reduce([], +).first
+    static var empty: ContactPair { mock(withName: "") }
+
+    var firstUser: User? { numberPairs.map(\.users).reduce([], +).first }
+
+    var isMock: Bool {
+        guard contact.id.isBlank,
+              contact.lastName.isBlank,
+              contact.phoneNumbers.isEmpty,
+              contact.imageData == nil,
+              numberPairs.count == 1,
+              let firstNumberPair = numberPairs.first,
+              firstNumberPair.phoneNumber.compiledNumberString.isBlank,
+              firstNumberPair.users.count == 1,
+              let firstUser = firstNumberPair.users.first,
+              firstUser.id.isBlank,
+              firstUser.badgeNumber == 0,
+              firstUser.conversationIDs == nil,
+              firstUser.languageCode.isBlank,
+              firstUser.phoneNumber.compiledNumberString.isBlank,
+              firstUser.pushTokens == nil else { return false }
+        return true
+    }
+
+    // MARK: - Methods
+
+    static func mock(withName name: String) -> ContactPair {
+        .init(
+            contact: .init(
+                "",
+                firstName: name,
+                lastName: "",
+                phoneNumbers: [],
+                imageData: nil
+            ),
+            numberPairs: [
+                .init(
+                    phoneNumber: .init(""),
+                    users: [
+                        .init(
+                            "",
+                            badgeNumber: 0,
+                            conversationIDs: nil,
+                            languageCode: "",
+                            phoneNumber: .init(""),
+                            pushTokens: nil
+                        ),
+                    ]
+                ),
+            ]
+        )
+    }
+
+    static func withUser(_ user: User) -> ContactPair {
+        .init(
+            contact: .init(
+                "",
+                firstName: user.phoneNumber.formattedString(),
+                lastName: "",
+                phoneNumbers: [user.phoneNumber],
+                imageData: nil
+            ),
+            numberPairs: [
+                .init(
+                    phoneNumber: user.phoneNumber,
+                    users: [user]
+                ),
+            ]
+        )
     }
 }

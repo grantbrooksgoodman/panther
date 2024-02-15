@@ -59,6 +59,12 @@ public final class InputBarService {
         self.viewController = viewController
     }
 
+    // MARK: - Become First Responder
+
+    public func becomeFirstResponder() {
+        inputBar.inputTextView.becomeFirstResponder()
+    }
+
     // MARK: - Configure Input Bar
 
     public func configureInputBar(

@@ -13,6 +13,7 @@ import UIKit
 /* 3rd-party */
 import Redux
 
+// swiftlint:disable:next type_body_length
 public final class RecipientBarContactSelectionUIService {
     // MARK: - Types
 
@@ -29,8 +30,10 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
+    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.networking.services.user) private var userService: UserService
 
     // MARK: - Properties
 
@@ -58,24 +61,29 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Contact Pair Selection
 
-    public func deselectContactPair(withViewID contactHash: String) {
-        selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
-        for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
+    public func deselectMockContactPairs() {
+        selectedContactPairs.filter { $0.isMock }.map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
+        guard let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
+        var view = firstContactView(.onSameLevelAsTextField)
+        defer { reconfigureTextField(relativeTo: view ?? toLabel) }
+        let range = (1 ... Int(Floats.sublevelCount)).reversed()
+        guard let sublevel = range.first(where: { firstContactView(.furthestTrailing(onSublevel: $0)) != nil }) else { return }
+        view = firstContactView(.furthestTrailing(onSublevel: sublevel))
+        reconfigureRecipientBar(forSublevel: sublevel)
     }
 
     public func selectContactPair(_ contactPair: ContactPair) {
-        guard let contactView = buildContactView(contactPair.contact.fullName),
+        guard let contactView = buildContactView(contactPair.contact.fullName, useRedTextColor: contactPair.isMock),
               let recipientBar,
               selectedContactPairs.count < Int(Floats.selectedContactPairsMaximum) else { return }
 
         func addSubview() {
-            guard let tableView = service?.layout.tableView,
-                  let textField = service?.layout.textField else { return }
+            guard let tableView = chatPageViewService.recipientBar?.layout.tableView,
+                  let textField = chatPageViewService.recipientBar?.layout.textField else { return }
 
             recipientBar.addSubview(contactView)
-            unhighlightAllCells()
 
-            service?.tableView.setQuery("")
+            chatPageViewService.recipientBar?.tableView.setQuery("")
             tableView.frame.origin.y = recipientBar.frame.maxY
 
             reconfigureTextField(relativeTo: contactView)
@@ -113,6 +121,8 @@ public final class RecipientBarContactSelectionUIService {
             deselectContactPair(withViewID: lastViewID)
         }
 
+        deselectMockContactPairs()
+
         selectedContactPairs.append(contactPair)
         defer { addSubview() }
         guard let furthestTrailingView = firstContactView(.furthestTrailing(onSublevel: nil)) else { return }
@@ -133,6 +143,17 @@ public final class RecipientBarContactSelectionUIService {
         }
 
         addSubview()
+    }
+
+    public func unhighlightAllViews() {
+        for contactView in contactViews {
+            guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
+            contactLabel.textColor = contactLabel.textColor == UIColor(Colors.contactViewRedText) ? UIColor(Colors.contactViewRedText) : .accent
+
+            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+            contactView.backgroundColor = selectionColor
+            contactView.layer.borderColor = selectionColor.cgColor
+        }
     }
 
     // MARK: - On Superfluous Backspace
@@ -160,8 +181,50 @@ public final class RecipientBarContactSelectionUIService {
         deselectContactPair(withViewID: firstContactView.identifier)
 
         guard !configureTextField(forSublevels: Int(Floats.sublevelCount)),
-              let toLabel = service?.layout.toLabel else { return }
+              let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
         reconfigureTextField(relativeTo: toLabel)
+    }
+
+    // MARK: - Text Field Should Return
+
+    public func textFieldShouldReturn(_ text: String) {
+        Task { @MainActor in
+            guard !text.isBlank else {
+                guard !selectedContactPairs.filter({ $0.isMock }).isEmpty else {
+                    unhighlightAllViews()
+                    chatPageViewService.inputBar?.becomeFirstResponder()
+                    return
+                }
+
+                unhighlightAllViews()
+                deselectMockContactPairs()
+                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) { self.chatPageViewService.inputBar?.becomeFirstResponder() }
+                return
+            }
+
+            let phoneNumber = PhoneNumber(text)
+            guard !phoneNumber.compiledNumberString.isBlank,
+                  text.digits.count == text.count else {
+                selectContactPair(.mock(withName: text))
+                return
+            }
+
+            let getUsersResult = await userService.getUsers(phoneNumber: phoneNumber)
+
+            switch getUsersResult {
+            case let .success(users):
+                guard let firstUser = users.first else { return } // TODO: Need action for multiple users.
+                guard let contactPair = contactPairArchive.getValue(userNumberHash: firstUser.phoneNumber.nationalNumberString.digits.encodedHash) else {
+                    selectContactPair(.withUser(firstUser))
+                    return
+                }
+
+                selectContactPair(contactPair)
+
+            case .failure:
+                selectContactPair(.mock(withName: text))
+            }
+        }
     }
 
     // MARK: - View Highlighting
@@ -177,32 +240,28 @@ public final class RecipientBarContactSelectionUIService {
         guard let contactView = contactViews.first(where: { $0.identifier == contactHash }),
               let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { return }
 
+        let redColor = UIColor(Colors.contactViewRedText)
+
         switch isHighlighted(viewID: contactHash) {
         case true:
-            contactLabel.textColor = .accent
             let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+            contactLabel.textColor = contactView.backgroundColor == redColor ? redColor : .accent
             contactView.backgroundColor = selectionColor
             contactView.layer.borderColor = selectionColor.cgColor
 
         case false:
+            contactView.backgroundColor = contactLabel.textColor == redColor ? redColor : .accent
+            contactView.layer.borderColor = contactLabel.textColor == redColor ? redColor.cgColor : UIColor.accent.cgColor
             contactLabel.textColor = UIColor(Colors.contactViewHighlightedText)
-            contactView.backgroundColor = .accent
-            contactView.layer.borderColor = UIColor.accent.cgColor
-        }
-    }
-
-    private func unhighlightAllCells() {
-        for contactView in contactViews {
-            guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
-            contactLabel.textColor = .accent
-
-            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
-            contactView.backgroundColor = selectionColor
-            contactView.layer.borderColor = selectionColor.cgColor
         }
     }
 
     // MARK: - Auxiliary
+
+    private func deselectContactPair(withViewID contactHash: String) {
+        selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
+        for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
+    }
 
     private func firstContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
         var subviews = contactViews
@@ -213,7 +272,7 @@ public final class RecipientBarContactSelectionUIService {
             return subviews.sorted(by: { $0.frame.maxX > $1.frame.maxX }).first
 
         case .onSameLevelAsTextField:
-            guard let textField = service?.layout.textField else { return nil }
+            guard let textField = chatPageViewService.recipientBar?.layout.textField else { return nil }
             return subviews
                 .filter { $0.center.y == textField.center.y }
                 .sorted(by: { $0.frame.maxX > $1.frame.maxX })
@@ -223,30 +282,23 @@ public final class RecipientBarContactSelectionUIService {
 
     private func reconfigureRecipientBar(forSublevel sublevel: Int) {
         guard let recipientBar,
-              let tableView = service?.layout.tableView else { return }
+              let tableView = chatPageViewService.recipientBar?.layout.tableView else { return }
         typealias Floats = AppConstants.CGFloats.RecipientBarLayoutService
         let recipientBarFrameHeight = Floats.frameHeight + value(for: sublevel)
         recipientBar.frame.size.height = recipientBarFrameHeight
-        service?.layout.configureBorders()
+        chatPageViewService.recipientBar?.layout.configureBorders()
         tableView.contentInset.bottom = recipientBarFrameHeight
     }
 
     private func reconfigureTextField(relativeTo view: UIView) {
         guard let recipientBar,
-              let textField = service?.layout.textField,
-              let toLabel = service?.layout.toLabel else { return }
+              let textField = chatPageViewService.recipientBar?.layout.textField,
+              let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
 
-        typealias Strings = AppConstants.Strings.RecipientBarLayoutService
-
-        let isOnInitialLevel = (textField.center.y == toLabel.center.y || view.frame.maxY == Floats.initialLevelMaxY)
-        let isRelativeViewToLabel = view.tag == coreUI.semTag(for: Strings.toLabelSemanticTag)
-
-        // swiftlint:disable line_length
+        let isOnInitialLevel = (textField.center.y == toLabel.center.y || view.frame.maxY == Floats.initialLevelMaxY) // swiftlint:disable:next line_length
         let widthDecrement = isOnInitialLevel ? Floats.textFieldReconfigurationInitialLevelWidthDecrement : Floats.textFieldReconfigurationNotInitialLevelWidthDecrement
-        let xOriginIncrement = isRelativeViewToLabel ? Floats.textFieldReconfigurationToLabelXOriginIncrement : Floats.textFieldReconfigurationNotToLabelXOriginIncrement
-        // swiftlint:enable line_length
 
-        textField.frame.origin.x = view.frame.maxX + xOriginIncrement
+        textField.frame.origin.x = view.frame.maxX + Floats.textFieldReconfigurationXOriginIncrement
         textField.frame.size.width = (recipientBar.frame.maxX - textField.frame.origin.x) - widthDecrement
         textField.center.y = view.center.y
     }
@@ -262,9 +314,9 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - View Builders
 
-    private func buildContactView(_ text: String, useRedTextColor: Bool = false) -> UIView? {
+    private func buildContactView(_ text: String, useRedTextColor: Bool) -> UIView? {
         guard let recipientBar,
-              let toLabel = service?.layout.toLabel else { return nil }
+              let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return nil }
 
         // Create contact view
 
@@ -291,6 +343,8 @@ public final class RecipientBarContactSelectionUIService {
         // Create contact label
 
         let contactLabel: UILabel = .init()
+        contactLabel.font = .systemFont(ofSize: Floats.contactLabelSystemFontSize)
+
         contactLabel.text = text
         contactLabel.textAlignment = .center
         contactLabel.textColor = useRedTextColor ? UIColor(Colors.contactViewRedText) : .accent
@@ -298,7 +352,7 @@ public final class RecipientBarContactSelectionUIService {
         contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
         contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width
 
-        if let maximumWidth = service?.layout.screenWidth {
+        if let maximumWidth = chatPageViewService.recipientBar?.layout.screenWidth {
             while contactLabel.frame.size.width >= maximumWidth / Floats.contactViewMaximumWidthDivisor { contactLabel.frame.size.width -= 1 }
         }
 
@@ -308,8 +362,8 @@ public final class RecipientBarContactSelectionUIService {
         contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
         contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
 
-        contactView.tag = coreUI.semTag(for: Strings.contactViewSemanticTag)
-        contactLabel.tag = coreUI.semTag(for: Strings.contactLabelSemanticTag)
+        contactView.tag = core.ui.semTag(for: Strings.contactViewSemanticTag)
+        contactLabel.tag = core.ui.semTag(for: Strings.contactLabelSemanticTag)
 
         return contactView
     }

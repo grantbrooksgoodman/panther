@@ -10,8 +10,15 @@
 import Foundation
 import UIKit
 
+/* 3rd-party */
+import Redux
+
 extension RecipientBar: UITextFieldDelegate {
     // MARK: - Text Field Should Return
 
-    public func textFieldShouldReturn(_ textField: UITextField) -> Bool { true }
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var contactSelectionUIService: RecipientBarContactSelectionUIService?
+        contactSelectionUIService?.textFieldShouldReturn(textField.text ?? "")
+        return true
+    }
 }
