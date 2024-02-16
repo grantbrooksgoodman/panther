@@ -17,9 +17,9 @@ import Redux
 public final class RecordingUIService {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.RecordingUIService
-    private typealias Floats = AppConstants.CGFloats.RecordingUIService
-    private typealias Strings = AppConstants.Strings.RecordingUIService
+    private typealias Colors = AppConstants.Colors.ChatPageViewService.RecordingUI
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecordingUI
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.RecordingUI
 
     // MARK: - Dependencies
 

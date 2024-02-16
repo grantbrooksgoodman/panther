@@ -14,10 +14,6 @@ import UIKit
 import Redux
 
 public struct InputBarConfigService {
-    // MARK: - Constants Accessors
-
-    private typealias Strings = AppConstants.Strings.ChatPageView
-
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService

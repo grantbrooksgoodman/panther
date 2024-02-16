@@ -16,21 +16,15 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum ChatPageView {
-        /* MARK: ChatPageView */
-
         public static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         public static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
 
         public static let textCellMessageLabelLeftTextInset: CGFloat = 15
         public static let textCellMessageLabelRightTextInset: CGFloat = 1
 
-        /* MARK: AVSpeechSynthesizerDelegate */
-
         enum AVSpeechSynthesizerDelegate {
             public static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
         }
-
-        /* MARK: MessagesDataSource */
 
         enum MessagesDataSource {
             public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
@@ -40,16 +34,12 @@ public extension AppConstants.CGFloats {
             public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
         }
 
-        /* MARK: MessagesDisplayDelegate */
-
         enum MessagesDisplayDelegate {
             public static let audioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
             public static let audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
 
             public static let messageStyleCustomLayerCornerRadius: CGFloat = 10
         }
-
-        /* MARK: MessagesLayoutDelegate */
 
         enum MessagesLayoutDelegate {
             public static let cellBottomLabelHeight: CGFloat = 20
@@ -64,15 +54,11 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
-        /* MARK: AVSpeechSynthesizerDelegate */
-
         enum AVSpeechSynthesizerDelegate {
             public static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
             public static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
             public static let willSpeakRangeOfSpeechStringWhite: Color = .init(uiColor: .white)
         }
-
-        /* MARK: MessagesDataSource */
 
         enum MessagesDataSource {
             public static let cellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
@@ -83,8 +69,6 @@ public extension AppConstants.Colors {
             public static let messageTimestampLabelAttributedTextAttributesForeground: Color = .init(uiColor: .lightGray)
             public static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
         }
-
-        /* MARK: MessagesDisplayDelegate */
 
         enum MessagesDisplayDelegate {
             public static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
@@ -100,13 +84,9 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatPageView {
-        /* MARK: MessagesDataSource */
-
         enum MessagesDataSource {
             public static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
         }
-
-        /* MARK: MessageCellDelegate */
 
         enum MessageCellDelegate {
             public static let dateSelectionURLString = "calshow:"

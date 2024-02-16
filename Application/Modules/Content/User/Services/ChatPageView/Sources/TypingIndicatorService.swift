@@ -13,10 +13,6 @@ import Foundation
 import Redux
 
 public final class TypingIndicatorService {
-    // MARK: - Constants Accessors
-
-    private typealias Floats = AppConstants.CGFloats.TypingIndicatorService
-
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
@@ -38,6 +34,7 @@ public final class TypingIndicatorService {
     // MARK: - Public
 
     public func startCheckingForTypingIndicatorChanges() {
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
         typingIndicatorTimer = .scheduledTimer(
             timeInterval: .init(Floats.timerTimeInterval),
             target: self,

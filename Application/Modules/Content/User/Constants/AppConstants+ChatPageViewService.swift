@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 // MARK: - CGFloat
 
@@ -15,6 +16,110 @@ public extension AppConstants.CGFloats {
     enum ChatPageViewService {
         public static let loadMoreMessagesMillisecondsDelay: CGFloat = 200
         public static let scrollToLastItemMillisecondsDelay: CGFloat = 10
+
+        enum AudioMessagePlayback {
+            public static let playbackTimerTimeInterval: CGFloat = 0.1
+        }
+
+        enum DeliveryProgressIndicator {
+            public static let animationDelay: CGFloat = 1
+            public static let animationDuration: CGFloat = 0.2
+
+            public static let timerProgressIncrement: CGFloat = 0.001
+            public static let timerProgressIncrementThreshold: CGFloat = 0.9
+
+            public static let timerTimeInterval: CGFloat = 0.01
+            public static let viewFrameHeight: CGFloat = 2
+        }
+
+        enum InputBar {
+            public static let layerBorderWidth: CGFloat = 0.5
+            public static let layerCornerRadius: CGFloat = 15
+
+            // swiftlint:disable:next identifier_name
+            public static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
+
+            public static let sendButtonOnSelectedTransformScaleX: CGFloat = 1.1
+            public static let sendButtonOnSelectedTransformScaleY: CGFloat = 1.1
+
+            public static let sendButtonSizeHeight: CGFloat = 30
+            public static let sendButtonSizeWidth: CGFloat = 30
+
+            public static let transitionAnimationDuration: CGFloat = 0.3
+        }
+
+        enum InputBarGestureRecognizer {
+            public static let errorToastPerpetuationDuration: CGFloat = 3
+            public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
+            public static let millisecondsDelay: CGFloat = 500 // swiftlint:disable:next identifier_name
+            public static let recordingInstructionToastPerpetuationDuration: CGFloat = 2.5
+        }
+
+        enum Menu {
+            public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
+
+            // swiftlint:disable:next identifier_name
+            public static let messageContainerViewBackgroundColorDarkeningPercentage: CGFloat = 20 // swiftlint:disable:next identifier_name
+            public static let messageContainerViewBackgroundColorLighteningPercentage: CGFloat = 10
+
+            public static let selectionAnimationDuration: CGFloat = 0.2
+        }
+
+        enum RecordingUI {
+            public static let cancelLabelFontSize: CGFloat = 17
+            public static let cancelLabelFrameHeight: CGFloat = 20
+            public static let cancelLabelOffsetIncrement: CGFloat = 10
+
+            public static let durationLabelFontSize: CGFloat = 17
+            public static let durationLabelFrameHeight: CGFloat = 20
+
+            public static let hideAnimationDuration: CGFloat = 0.2
+            public static let showAnimationDuration: CGFloat = 0.3
+
+            public static let imageViewFrameHeight: CGFloat = 30
+            public static let imageViewFrameWidth: CGFloat = 30
+            public static let imageViewFrameXOriginIncrement: CGFloat = 5
+
+            public static let recordingViewLayerBorderWidth: CGFloat = 0.5
+            public static let recordingViewLayerCornerRadius: CGFloat = 15
+
+            public static let transitionAnimationDuration: CGFloat = 0.2
+        }
+
+        enum TypingIndicator {
+            public static let timerTimeInterval: CGFloat = 3
+        }
+    }
+}
+
+// MARK: - Color
+
+public extension AppConstants.Colors {
+    enum ChatPageViewService {
+        enum AudioMessagePlayback {
+            public static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
+        }
+
+        enum InputBar {
+            public static let contentViewRecordLayerBorder: Color = .init(uiColor: .clear)
+            public static let contentViewTextLayerBorder: Color = .init(uiColor: .systemGray)
+
+            public static let inputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
+            public static let inputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
+
+            public static let sendButtonRecordTint: Color = .init(uiColor: .red)
+            public static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
+        }
+
+        enum MessageDelivery {
+            public static let inputBarInputTextViewTint: Color = .init(uiColor: .clear)
+        }
+
+        enum RecordingUI {
+            public static let cancelLabelTextColor: Color = .init(uiColor: .gray)
+            public static let durationLabelTextColor: Color = .init(uiColor: .gray)
+            public static let recordingViewLayerBorderColor: Color = .init(uiColor: .systemGray)
+        }
     }
 }
 
@@ -23,5 +128,45 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Strings {
     enum ChatPageViewService {
         public static let buildInfoOverlayWindowSemanticTag = "BUILD_INFO_OVERLAY_WINDOW"
+
+        enum AudioMessagePlayback {
+            public static let cellDefaultDurationLabelText = "0:00"
+        }
+
+        enum DeliveryProgressIndicator {
+            public static let viewSemanticTag = "DELIVERY_PROGRESS_VIEW"
+        }
+
+        enum InputBar {
+            public static let recordButtonSemanticTag = "RECORD_BUTTON"
+            public static let sendButtonSemanticTag = "SEND_BUTTON"
+        }
+
+        enum InputBarGestureRecognizer { // swiftlint:disable:next line_length
+            public static let audioMessagesUnsupportedAlertMessage = "Audio messages are unsupported for your language.\n\nPlease check back later in a future update!" // swiftlint:disable:next identifier_name
+            public static let audioMessagesUnsupportedAlertCancelButtonTitle = "OK"
+            public static let noSpeechDetectedExceptionDescriptor = "No speech detected"
+        }
+
+        enum Menu {
+            public static let audioMessageActionIdentifierRawValue = "audio_message"
+            public static let copyActionIdentifierRawValue = "copy"
+            public static let speakActionIdentifierRawValue = "speak"
+            public static let viewAlterateActionIdentifierRawValue = "view_alternate"
+        }
+
+        enum RecordingUI {
+            public static let cancelLabelFontName = "SFUIText-Semibold"
+            public static let cancelLabelSemanticTag = "CANCEL_LABEL"
+            public static let cancelLabelTextPrefix = "< "
+
+            public static let durationLabelFontName = "SFUIText-Semibold"
+            public static let durationLabelInitialText = "0:00"
+            public static let durationLabelSemanticTag = "DURATION_LABEL"
+
+            public static let imageViewSemanticTag = "IMAGE_VIEW"
+
+            public static let recordingViewSemanticTag = "RECORDING_VIEW"
+        }
     }
 }

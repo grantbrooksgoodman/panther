@@ -18,9 +18,9 @@ import Redux
 public final class InputBarService {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.InputBarService
-    private typealias Floats = AppConstants.CGFloats.InputBarService
-    private typealias Strings = AppConstants.Strings.InputBarService
+    private typealias Colors = AppConstants.Colors.ChatPageViewService.InputBar
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
 
     // MARK: - Dependencies
 

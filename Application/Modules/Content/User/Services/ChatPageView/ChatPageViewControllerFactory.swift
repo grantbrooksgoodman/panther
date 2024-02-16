@@ -46,8 +46,8 @@ public struct ChatPageViewControllerFactory {
     // MARK: - UI Configuration
 
     public func configureRecipientBar(_ viewController: ChatPageViewController, service: RecipientBarService) {
-        typealias Floats = AppConstants.CGFloats.RecipientBarLayoutService
-        typealias Strings = AppConstants.Strings.RecipientBarLayoutService
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.Layout
+        typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.Layout
 
         viewController.messagesCollectionView.contentInset.top = Floats.frameHeight
         viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameHeight
@@ -84,8 +84,8 @@ public struct ChatPageViewControllerFactory {
     }
 
     private func configureDeliveryProgressView(_ viewController: ChatPageViewController) {
-        typealias Floats = AppConstants.CGFloats.DeliveryProgressIndicatorService
-        typealias Strings = AppConstants.Strings.DeliveryProgressIndicatorService
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
+        typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
         guard let mainScreen = uiApplication.mainScreen else { return }
 
@@ -107,9 +107,9 @@ public struct ChatPageViewControllerFactory {
     }
 
     private func configureInitialInputBar(_ viewController: ChatPageViewController) {
-        typealias Colors = AppConstants.Colors.InputBarService
-        typealias Floats = AppConstants.CGFloats.InputBarService
-        typealias Strings = AppConstants.Strings.InputBarService
+        typealias Colors = AppConstants.Colors.ChatPageViewService.InputBar
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
+        typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
 
         let inputBar = viewController.messageInputBar
 

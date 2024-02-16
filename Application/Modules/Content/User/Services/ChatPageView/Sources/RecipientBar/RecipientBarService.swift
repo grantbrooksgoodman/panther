@@ -17,6 +17,7 @@ public final class RecipientBarService {
     // MARK: - Properties
 
     public let actionHandler: RecipientBarActionHandlerService
+    public let config: RecipientBarConfigService
     public let contactSelectionUI: RecipientBarContactSelectionUIService
     public let layout: RecipientBarLayoutService
     public let tableView: RecipientBarTableViewService
@@ -28,6 +29,7 @@ public final class RecipientBarService {
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
+        config = .init(viewController)
         contactSelectionUI = .init(viewController)
         layout = .init(viewController)
         tableView = .init(viewController)

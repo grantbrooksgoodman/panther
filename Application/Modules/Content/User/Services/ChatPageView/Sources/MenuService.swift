@@ -18,8 +18,8 @@ import Redux
 public final class MenuService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.MenuService
-    private typealias Strings = AppConstants.Strings.MenuService
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.Menu
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.Menu
 
     // MARK: - Dependencies
 

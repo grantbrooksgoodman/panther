@@ -15,10 +15,6 @@ import Redux
 import Translator
 
 public final class MessageDeliveryService {
-    // MARK: - Constants Accessors
-
-    private typealias Colors = AppConstants.Colors.MessageDeliveryService
-
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -257,6 +253,7 @@ public final class MessageDeliveryService {
                 viewController.messageInputBar.sendButton.stopAnimating()
             }
 
+            typealias Colors = AppConstants.Colors.ChatPageViewService.MessageDelivery
             viewController.messageInputBar.inputTextView.tintColor = on ? UIColor(Colors.inputBarInputTextViewTint) : .accent
             viewController.messageInputBar.sendButton.isUserInteractionEnabled = on ? false : true
         }

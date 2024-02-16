@@ -16,14 +16,10 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum UserContentExtensions {
-        /* MARK: AudioItem */
-
         enum AudioItem {
             public static let sizeHeight: CGFloat = 40
             public static let sizeWidth: CGFloat = 160
         }
-
-        /* MARK: Date */
 
         enum Date {
             public static let chatPageMessageSeparatorAttributedDateStringBoldAttributesSystemFontSize: CGFloat = 12
@@ -35,14 +31,10 @@ public extension AppConstants.CGFloats {
             public static let chatPageMessageSeparatorAttributedDateStringYesterdayComparator: CGFloat = -86400
         }
 
-        /* MARK: NSAttributedString */
-
         enum NSAttributedString {
             public static let messageCellStringParagraphLineSpacing: CGFloat = 1.25
             public static let messageCellStringSystemFontSize: CGFloat = 18
         }
-
-        /* MARK: UIView */
 
         enum UIView {
             public static let shimmerEffectAnimationDuration: CGFloat = 1.5
@@ -68,22 +60,16 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum UserContentExtensions {
-        /* MARK: Date */
-
         enum Date {
             public static let chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground: Color = .init(uiColor: .gray)
             public static let chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground: Color = .init(uiColor: .lightGray)
         }
-
-        /* MARK: Message */
 
         enum Message {
             public static let kindAttributedTextCurrentUserForeground: Color = .init(uiColor: .white)
             public static let kindAttributedTextDarkForeground: Color = .init(uiColor: .white)
             public static let kindAttributedTextLightForeground: Color = .init(uiColor: .black)
         }
-
-        /* MARK: UIView */
 
         enum UIView {
             public static let shimmerEffectDark: Color = .init(uiColor: .black)
@@ -96,8 +82,6 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum UserContentExtensions {
-        /* MARK: UIView */
-
         enum UIView {
             public static let shimmerEffectAnimationKeyPath = "locations"
             public static let shimmerEffectGradientLayerAnimationKey = "shimmer"

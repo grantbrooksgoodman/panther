@@ -17,8 +17,8 @@ extension RecipientBar: UITextFieldDelegate {
     // MARK: - Should Return
 
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var contactSelectionUIService: RecipientBarContactSelectionUIService?
-        contactSelectionUIService?.textFieldShouldReturn(textField.text ?? "")
+        @Dependency(\.chatPageViewService.recipientBar?.actionHandler) var actionHandlerService: RecipientBarActionHandlerService?
+        actionHandlerService?.textFieldShouldReturn(textField.text ?? "")
         return true
     }
 }

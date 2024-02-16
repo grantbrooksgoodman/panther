@@ -16,8 +16,8 @@ import Redux
 public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.DeliveryProgressIndicatorService
-    private typealias Strings = AppConstants.Strings.DeliveryProgressIndicatorService
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
     // MARK: - Dependencies
 

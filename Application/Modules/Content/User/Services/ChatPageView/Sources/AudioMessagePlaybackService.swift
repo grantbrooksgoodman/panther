@@ -18,9 +18,9 @@ import Redux
 public final class AudioMessagePlaybackService {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.AudioMessagePlaybackService
-    private typealias Floats = AppConstants.CGFloats.AudioMessagePlaybackService
-    private typealias Strings = AppConstants.Strings.AudioMessagePlaybackService
+    private typealias Colors = AppConstants.Colors.ChatPageViewService.AudioMessagePlayback
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.AudioMessagePlayback
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.AudioMessagePlayback
 
     // MARK: - Dependencies
 

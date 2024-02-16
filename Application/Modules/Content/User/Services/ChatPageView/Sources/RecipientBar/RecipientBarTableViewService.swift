@@ -36,11 +36,6 @@ public final class RecipientBarTableViewService {
 
     public var sections: [TableViewSection] { getSections() }
 
-    private var recipientBar: RecipientBar? {
-        typealias Strings = AppConstants.Strings.RecipientBarLayoutService
-        return viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar
-    }
-
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
@@ -52,11 +47,11 @@ public final class RecipientBarTableViewService {
     public func reloadData() {
         guard let contactPairs,
               !contactPairs.isEmpty,
-              let recipientBar,
+              let recipientBarView = service?.layout.recipientBarView,
               let tableView = service?.layout.tableView else { return }
 
-        if tableView.dataSource == nil { tableView.dataSource = recipientBar }
-        if tableView.delegate == nil { tableView.delegate = recipientBar }
+        if tableView.dataSource == nil { tableView.dataSource = recipientBarView }
+        if tableView.delegate == nil { tableView.delegate = recipientBarView }
 
         queriedContactPairs = contactPairs
         tableView.reloadData()
@@ -65,7 +60,7 @@ public final class RecipientBarTableViewService {
     // MARK: - Set Query
 
     public func setQuery(_ query: String) {
-        guard let recipientBar,
+        guard let recipientBarView = service?.layout.recipientBarView,
               let tableView = service?.layout.tableView else { return }
 
         guard !query.isBlank else {
@@ -78,7 +73,7 @@ public final class RecipientBarTableViewService {
             .filter { "\($0.contact)".lowercased().contains(query.lowercased()) }
             .filter { !(service?.contactSelectionUI.selectedContactPairs ?? []).contains($0) }
 
-        tableView.frame.origin.y = recipientBar.frame.maxY
+        tableView.frame.origin.y = recipientBarView.frame.maxY
         tableView.alpha = 1
         tableView.reloadData()
     }

@@ -18,8 +18,8 @@ import Redux
 public final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.InputBarGestureRecognizerService
-    private typealias Strings = AppConstants.Strings.InputBarGestureRecognizerService
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBarGestureRecognizer
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.InputBarGestureRecognizer
 
     // MARK: - Dependencies
 

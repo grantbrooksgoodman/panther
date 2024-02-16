@@ -19,7 +19,7 @@ extension RecipientBar: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
 
-        typealias Strings = AppConstants.Strings.RecipientBarLayoutService
+        typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.Layout
         let cell = tableView.dequeueReusableCell(withIdentifier: Strings.tableViewCellReuseIdentifier, for: indexPath)
 
         guard let contactPair = tableViewService?.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return cell }
