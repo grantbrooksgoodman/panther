@@ -84,7 +84,7 @@ public struct ConversationCellReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
-            guard let cellViewData = viewService.cellViewData(for: state.conversation) else { return .none }
+            guard let cellViewData = ConversationCellViewData(state.conversation) else { return .none }
             state.cellViewData = cellViewData
 
         case .action(.chatPageViewAppeared):

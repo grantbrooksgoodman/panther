@@ -17,7 +17,6 @@ import Redux
 public final class ConversationCellViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
@@ -26,68 +25,6 @@ public final class ConversationCellViewService {
     public private(set) var badgeDecrementAmount = 0
 
     // MARK: - Methods
-
-    /// `.viewAppeared`
-    public func cellViewData(for conversation: Conversation) -> ConversationCellViewData? {
-        guard let users = conversation.users,
-              let lastUser = users.last else { return nil }
-
-        var titleLabelText: String
-        var subtitleLabelText = ""
-        var dateLabelText = ""
-        var contactImage: UIImage?
-        var isShowingUnreadIndicator = false
-        var otherUser: User?
-
-        // Set title label text
-        if let contactPair = users
-            .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.encodedHash) })
-            .sorted(by: { $0.contact.fullName < $1.contact.fullName })
-            .first {
-            titleLabelText = contactPair.contact.fullName
-            if let imageData = contactPair.contact.imageData {
-                contactImage = UIImage(data: imageData)
-            }
-        } else {
-            let callingCode = lastUser.phoneNumber.callingCode
-            var formattedString = lastUser.phoneNumber.formattedString(useFailsafe: false)
-            if !formattedString.hasPrefix(callingCode) { formattedString = "+\(callingCode) \(formattedString.trimmingLeadingWhitespace)" }
-            titleLabelText = formattedString
-        }
-
-        // TODO: If >1 other user, set avatar image to number of users.
-        if users.count > 1 {
-            titleLabelText += " + \(users.count - 1)"
-        } else if let firstUser = users.first {
-            otherUser = firstUser
-        }
-
-        // Set date & subtitle label text
-        if let lastMessage = conversation.messages?.last {
-            dateLabelText = lastMessage.sentDate.formattedShortString
-
-            if lastMessage.audioComponent == nil {
-                let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
-                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
-            } else {
-                subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
-            }
-        }
-
-        // Set unread indicator status
-        if let lastMessageFromOtherUsers = conversation.messages?.filter({ !$0.isFromCurrentUser }).last {
-            isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
-        }
-
-        return .init(
-            titleLabelText: titleLabelText,
-            subtitleLabelText: subtitleLabelText,
-            dateLabelText: dateLabelText,
-            contactImage: contactImage,
-            isShowingUnreadIndicator: isShowingUnreadIndicator,
-            otherUser: otherUser
-        )
-    }
 
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.

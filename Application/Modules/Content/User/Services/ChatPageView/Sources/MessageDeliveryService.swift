@@ -74,6 +74,7 @@ public final class MessageDeliveryService {
 
         isSendingMessage = true
         toggleSendingUI(on: true)
+        chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
 
         typealias Strings = AppConstants.Strings.MessageSessionService
         notificationCenter.addObserver(
@@ -106,6 +107,7 @@ public final class MessageDeliveryService {
             return nil
 
         case let .failure(exception):
+            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
             return exception
         }
     }
@@ -209,6 +211,7 @@ public final class MessageDeliveryService {
         guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
         chatPageViewService.menu?.dismissMenu()
         clientSession.conversation.setCurrentConversation(newConversation)
+        chatPageViewService.recipientBar?.layout.removeFromSuperview()
         chatPageViewService.reloadCollectionView()
     }
 

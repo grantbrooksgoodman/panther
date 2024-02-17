@@ -78,7 +78,7 @@ public final class RecipientBarConfigService {
                     avSpeechSynthesizer.stopSpeaking(at: .immediate)
                     chatPageViewService.audioMessagePlayback?.stopPlayback()
 
-                    Task { await chatPageViewService.recordingUI?.hideRecordingUI() }
+                    await chatPageViewService.recordingUI?.hideRecordingUI()
                     _ = recordingService.cancelRecording()
 
                     chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
@@ -102,10 +102,9 @@ public final class RecipientBarConfigService {
             guard let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter({ $0.users != nil }) else { return }
             let userIDs = contactSelectionUIService.selectedContactPairs.map(\.numberPairs).reduce([], +).map(\.users).reduce([], +).map(\.id)
 
-            viewController.messageInputBar.inputTextView.text = ""
-            if let exception = await chatPageViewService.inputBar?.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toast())
-            }
+            // FIXME: Observed bugs with this disabled, but iMessage does it this way.
+//            viewController.messageInputBar.inputTextView.text = ""
+            _ = await chatPageViewService.inputBar?.textViewDidChange(to: "")
 
             defer { setInsetsAndReload() }
 

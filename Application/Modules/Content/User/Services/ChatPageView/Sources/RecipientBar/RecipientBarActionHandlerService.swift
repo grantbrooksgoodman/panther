@@ -71,6 +71,11 @@ public final class RecipientBarActionHandlerService {
     // MARK: - Selector Action Handlers
 
     @objc
+    public func doneButtonTapped() {
+        Observables.newChatSheetDismissed.trigger()
+    }
+
+    @objc
     public func selectContactButtonTapped() {}
 
     @objc

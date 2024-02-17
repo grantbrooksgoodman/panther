@@ -29,6 +29,8 @@ public final class RecipientBarLayoutService {
 
     private let viewController: ChatPageViewController
 
+    private var wasTextFieldFirstResponder = false
+
     // MARK: - Computed Properties
 
     public var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
@@ -56,6 +58,54 @@ public final class RecipientBarLayoutService {
         configureTableView()
         configureToLabel()
         configureTextField()
+    }
+
+    // MARK: - Remove from Superview
+
+    public func removeFromSuperview() {
+        Task { @MainActor in
+            recipientBarView?.removeFromSuperview()
+            viewController.messagesCollectionView.contentInset.top = 0
+            viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = 0
+
+            guard let actionHandlerService = service?.actionHandler,
+                  let parent = viewController.parent else { return }
+
+            let doneButton = UIBarButtonItem(
+                title: Localized(.done).wrappedValue,
+                style: .done,
+                target: actionHandlerService,
+                action: #selector(actionHandlerService.doneButtonTapped)
+            )
+
+            doneButton.tintColor = .accent
+            parent.navigationItem.rightBarButtonItem = doneButton
+
+            guard let conversation = viewController.currentConversation,
+                  let cellViewData = ConversationCellViewData(conversation) else { return }
+
+            parent.navigationItem.title = cellViewData.titleLabelText
+        }
+    }
+
+    // MARK: - Set Is User Interaction Enabled
+
+    public func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
+        Task { @MainActor in
+            guard let recipientBarView,
+                  let textField else { return }
+
+            switch isUserInteractionEnabled {
+            case true:
+                recipientBarView.isUserInteractionEnabled = true
+                guard wasTextFieldFirstResponder else { return }
+                textField.becomeFirstResponder()
+
+            case false:
+                wasTextFieldFirstResponder = textField.isFirstResponder
+                recipientBarView.isUserInteractionEnabled = false
+            }
+        }
     }
 
     // MARK: - UI Configuration

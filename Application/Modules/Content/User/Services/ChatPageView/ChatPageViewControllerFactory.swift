@@ -60,7 +60,7 @@ public struct ChatPageViewControllerFactory {
     private func configureBackgroundColor(_ viewController: ChatPageViewController) {
         viewController.messagesCollectionView.backgroundColor = .background
         viewController.messagesCollectionView.backgroundView?.backgroundColor = .background
-        viewController.view.backgroundColor = .background
+        viewController.view.backgroundColor = viewController.messagesCollectionView.backgroundColor
     }
 
     private func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
