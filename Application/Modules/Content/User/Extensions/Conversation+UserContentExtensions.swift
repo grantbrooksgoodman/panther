@@ -10,6 +10,8 @@
 import Foundation
 
 public extension Conversation {
+    // MARK: - Properties
+
     static var empty: Conversation {
         .init(
             .init(key: "", hash: ""),
@@ -24,17 +26,6 @@ public extension Conversation {
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
     var isMock: Bool { id.key == UserContentConstants.newConversationID }
 
-    static var mock: Conversation {
-        .init(
-            .init(key: UserContentConstants.newConversationID, hash: ""),
-            messageIDs: [],
-            messages: nil,
-            lastModifiedDate: .init(),
-            participants: [],
-            users: nil
-        )
-    }
-
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
             id,
@@ -42,6 +33,19 @@ public extension Conversation {
             messages: messages?.sortedByAscendingSentDate,
             lastModifiedDate: lastModifiedDate,
             participants: participants,
+            users: users
+        )
+    }
+
+    // MARK: - Methods
+
+    static func mock(withUsers users: [User]) -> Conversation {
+        .init(
+            .init(key: UserContentConstants.newConversationID, hash: ""),
+            messageIDs: [],
+            messages: nil,
+            lastModifiedDate: .init(),
+            participants: [],
             users: users
         )
     }

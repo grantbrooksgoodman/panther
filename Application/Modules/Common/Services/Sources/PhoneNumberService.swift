@@ -71,7 +71,7 @@ public struct PhoneNumberService {
             matches.append(code)
         }
 
-        return matches.isEmpty ? nil : matches
+        return matches.isEmpty ? nil : matches.sorted()
     }
 
     // MARK: - Example National Number String

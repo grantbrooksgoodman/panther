@@ -105,7 +105,7 @@ public final class RecipientBarActionHandlerService {
 
             let phoneNumber = PhoneNumber(text)
             guard !phoneNumber.compiledNumberString.isBlank,
-                  text.digits.count == text.count else {
+                  text.digits.count == text.trimmingWhitespace.count else {
                 contactSelectionUIService.selectContactPair(.mock(withName: text))
                 return
             }

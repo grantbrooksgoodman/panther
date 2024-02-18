@@ -101,14 +101,15 @@ public final class NotificationService {
             return nil
         }
 
+        var exceptions = [Exception]()
         for user in users {
             if let exception = await notify(user, of: message),
                !exception.isEqual(to: .notRegisteredForPushNotifications) {
-                return exception
+                exceptions.append(exception)
             }
         }
 
-        return nil
+        return exceptions.compiledException
     }
 
     // MARK: - Respond to Notification

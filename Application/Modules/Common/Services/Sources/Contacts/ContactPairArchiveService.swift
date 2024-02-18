@@ -61,6 +61,28 @@ public final class ContactPairArchiveService {
         Observables.updatedContactPairArchive.trigger()
     }
 
+    public func addValues(_ contactPairs: [ContactPair]) {
+        var values = archive ?? .init()
+
+        for contactPair in contactPairs where !values.contains(contactPair) {
+            values.removeAll(where: { $0.contact.id == contactPair.contact.id })
+            values.append(contactPair)
+
+            Logger.log(
+                .init(
+                    "Added contact pair to persisted archive.",
+                    extraParams: ["FullName": contactPair.contact.fullName,
+                                  "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.formattedString() ?? ""],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .contacts
+            )
+        }
+
+        archive = values
+        Observables.updatedContactPairArchive.trigger()
+    }
+
     // MARK: - Removal
 
     public func clearArchive() {

@@ -80,10 +80,7 @@ public struct ConversationCellViewData: Equatable {
                 contactImage = UIImage(data: imageData)
             }
         } else {
-            let callingCode = lastUser.phoneNumber.callingCode
-            var formattedString = lastUser.phoneNumber.formattedString(useFailsafe: false)
-            if !formattedString.hasPrefix(callingCode) { formattedString = "+\(callingCode) \(formattedString.trimmingLeadingWhitespace)" }
-            titleLabelText = formattedString
+            titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)
         }
 
         // TODO: If >1 other user, set avatar image to number of users.

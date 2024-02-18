@@ -115,8 +115,11 @@ public final class MessageDeliveryService {
     // MARK: - Send Text Message
 
     public func sendTextMessage(_ text: String) async -> Exception? {
-        guard let fullConversation = clientSession.conversation.fullConversation,
-              let users = fullConversation.users,
+        let fullConversation = clientSession.conversation.fullConversation
+        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
+        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+
+        guard !users.isEmpty,
               !text.isBlank else { return nil }
 
         services.haptics.generateFeedback(.medium)
@@ -129,19 +132,23 @@ public final class MessageDeliveryService {
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
-            inConversation: fullConversation
+            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
         toggleSendingUI(on: false)
         isSendingMessage = false
-        if await viewController.currentConversation?.id.key == fullConversation.id.key {
+        if await viewController.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
 
         switch sendTextMessageResult {
         case let .success(conversation):
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
+            if let currentConversation = clientSession.conversation.currentConversation,
+               !currentConversation.isMock {
+                guard currentConversation.id.key == conversation.id.key else { return nil }
+            }
+
             chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
@@ -161,8 +168,9 @@ public final class MessageDeliveryService {
         assert(audioFile != nil || text != nil, "No values provided.")
 
         guard let conversation = viewController.currentConversation,
-              var messages = conversation.messages,
               let currentUser = clientSession.user.currentUser else { return }
+
+        var messages = conversation.messages ?? []
 
         let mockTranslation: Translation = .init(
             input: .init(text ?? ""),
@@ -208,7 +216,11 @@ public final class MessageDeliveryService {
             users: conversation.users
         )
 
-        guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
+        if let currentConversation = clientSession.conversation.currentConversation,
+           !currentConversation.isMock {
+            guard currentConversation.id.key == conversation.id.key else { return }
+        }
+
         chatPageViewService.menu?.dismissMenu()
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.recipientBar?.layout.removeFromSuperview()

@@ -12,7 +12,8 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable file_length type_body_length
+
 public final class UserService: Cacheable {
     // MARK: - Dependencies
 
@@ -311,6 +312,9 @@ public final class UserService: Cacheable {
                     mismatchedHashes?.append(contentsOf: possibleHashes)
                     mismatchedHashes = mismatchedHashes?.unique
 
+                    // TODO: May need to modify this logic to allow user to select calling code if needed.
+                    // PhoneNumber instances always resolve a calling code – even if it wasn't included initially – and it might be wrong sometimes.
+
                     return .failure(.init(
                         "There are matching hashes for this number, but no users have any of the possible calling codes.",
                         extraParams: ["PhoneNumber": phoneNumber],
@@ -397,3 +401,5 @@ private extension Cache {
         value(forKey: .userService(key))
     }
 }
+
+// swiftlint:enable file_length type_body_length

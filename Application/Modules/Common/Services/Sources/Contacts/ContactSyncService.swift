@@ -37,6 +37,7 @@ public final class ContactSyncService {
                     domain: .contacts,
                     metadata: [self, #file, #function, #line]
                 )
+                services.contact.contactPairArchive.clearArchive()
                 return await updateContactPairArchive()
             }
 
@@ -128,12 +129,13 @@ public final class ContactSyncService {
                 return nil
             }
 
+            var contactPairs = [ContactPair]()
             for contact in needingFetch {
                 let getUsersResult = await networking.services.user.getUsers(phoneNumbers: contact.phoneNumbers)
 
                 switch getUsersResult {
                 case let .success(numberPairs):
-                    services.contact.contactPairArchive.addValue(.init(contact: contact, numberPairs: numberPairs))
+                    contactPairs.append(.init(contact: contact, numberPairs: numberPairs))
 
                 case let .failure(exception):
                     let possibleHashes = services.phoneNumber.possibleHashes(for: contact.phoneNumbers.compiledNumberStrings.unique) ?? []
@@ -149,6 +151,7 @@ public final class ContactSyncService {
                 }
             }
 
+            services.contact.contactPairArchive.addValues(contactPairs)
             Logger.log(
                 "Successfully updated contact pair archive.",
                 domain: .contacts,

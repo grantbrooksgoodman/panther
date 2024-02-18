@@ -80,9 +80,13 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
             callingCode = callingCodeFromCountryCode
         }
 
-        let resolvedCallingCode = callingCode ?? services.phoneNumber.deviceCallingCode
+        var resolvedCallingCode = callingCode ?? services.phoneNumber.deviceCallingCode
         if numberValue.hasPrefix(resolvedCallingCode) {
             numberValue = numberValue.dropPrefix(resolvedCallingCode.count)
+        }
+
+        if !services.phoneNumber.numberIsValidLength(numberValue.count, for: resolvedCallingCode) {
+            resolvedCallingCode = services.phoneNumber.possibleCallingCodes(for: numberValue)?.first ?? resolvedCallingCode
         }
 
         if let possibleRegionCodes = services.regionDetail.regionCodes(by: .callingCode(resolvedCallingCode)),
@@ -124,13 +128,14 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
 
     public func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
         let regionCode = regionCode ?? self.regionCode
+        let partiallyFormatted = partiallyFormatted(forRegion: regionCode)
 
-        let fullFormatAttempt = formattedString(regionCode: regionCode, includeCallingCode: true, useFailsafe: useFailsafe)
-        if fullFormatAttempt.contains("+") || fullFormatAttempt.contains(" ") {
-            return fullFormatAttempt
+        guard !partiallyFormatted.digits.hasPrefix(callingCode) else {
+            guard !partiallyFormatted.hasPrefix("+") else { return partiallyFormatted }
+            return "+\(partiallyFormatted.trimmingLeadingWhitespace)"
         }
 
-        return partiallyFormatted(forRegion: regionCode)
+        return "+\(callingCode) \(partiallyFormatted.trimmingLeadingWhitespace)"
     }
 
     public func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
