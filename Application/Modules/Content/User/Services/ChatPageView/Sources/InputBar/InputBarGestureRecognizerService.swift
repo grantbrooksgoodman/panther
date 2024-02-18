@@ -24,7 +24,7 @@ public final class InputBarGestureRecognizerService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -118,7 +118,7 @@ public final class InputBarGestureRecognizerService {
             /// - NOTE: Fixes a bug in which an immediate release of the button would fail to stop recording.
             @Sendable
             func doubleCheckState() {
-                coreGCD.after(.milliseconds(Floats.millisecondsDelay)) {
+                core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
                     Task { @MainActor in
                         guard self.services.audio.recording.isInOrWillTransitionToRecordingState else { return }
                         Logger.log(
@@ -159,7 +159,7 @@ public final class InputBarGestureRecognizerService {
             self.services.audio.acknowledgedAudioMessagesUnsupported = true
             self.chatPageViewService.inputBar?.configureInputBar(forRecording: false)
 
-            self.coreGCD.after(.milliseconds(Floats.millisecondsDelay)) {
+            self.core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
                 guard isKeyboardFirstResponder else {
                     self.viewController.becomeFirstResponder()
                     return
@@ -203,11 +203,18 @@ public final class InputBarGestureRecognizerService {
 
     @objc
     private func showRecordingInstructionToast() {
-        Observables.rootViewToast.value = .init(
-            .banner(style: .info, appearanceEdge: .bottom, showsDismissButton: false),
-            message: Localized(.holdDownToRecord).wrappedValue,
-            perpetuation: .ephemeral(.seconds(Floats.recordingInstructionToastPerpetuationDuration))
-        )
+        switch chatPageViewService.configuration {
+        case .newChat:
+            services.haptics.generateFeedback(.rigid)
+            core.hud.flashRecordingInstruction()
+
+        default:
+            Observables.rootViewToast.value = .init(
+                .banner(style: .info, appearanceEdge: .bottom, showsDismissButton: false),
+                message: Localized(.holdDownToRecord).wrappedValue,
+                perpetuation: .ephemeral(.seconds(Floats.recordingInstructionToastPerpetuationDuration))
+            )
+        }
     }
 
     // MARK: - Auxiliary
@@ -224,18 +231,32 @@ public final class InputBarGestureRecognizerService {
         }
 
         guard exception.descriptor == Strings.noSpeechDetectedExceptionDescriptor else {
-            Observables.rootViewToast.value = .init(
-                .banner(style: .error, appearanceEdge: .bottom, showsDismissButton: false),
-                message: Localized(.tryAgain).wrappedValue,
-                perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-            )
+            switch chatPageViewService.configuration {
+            case .newChat:
+                services.haptics.generateFeedback(.rigid)
+                core.hud.flash(Localized(.tryAgain).wrappedValue, image: .exclamation)
+
+            default:
+                Observables.rootViewToast.value = .init(
+                    .banner(style: .error, appearanceEdge: .bottom, showsDismissButton: false),
+                    message: Localized(.tryAgain).wrappedValue,
+                    perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
+                )
+            }
             return
         }
 
-        Observables.rootViewToast.value = .init(
-            .banner(style: .warning, appearanceEdge: .bottom, showsDismissButton: false),
-            message: Localized(.noSpeechDetected).wrappedValue,
-            perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-        )
+        switch chatPageViewService.configuration {
+        case .newChat:
+            services.haptics.generateFeedback(.rigid)
+            core.hud.flashNoSpeechDetected()
+
+        default:
+            Observables.rootViewToast.value = .init(
+                .banner(style: .warning, appearanceEdge: .bottom, showsDismissButton: false),
+                message: Localized(.noSpeechDetected).wrappedValue,
+                perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
+            )
+        }
     }
 }

@@ -62,6 +62,8 @@ public enum AlertIcon: CaseIterable {
     case privacy
     case cart
     case search
+    case mic
+    case micSlash
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,6 +89,8 @@ extension AlertIcon {
         case .privacy: return UIImage(systemName: "hand.raised.fill")
         case .cart: return UIImage(systemName: "cart.fill")
         case .search: return UIImage(systemName: "magnifyingglass")
+        case .mic: return UIImage(systemName: "mic.fill")
+        case .micSlash: return UIImage(systemName: "mic.slash.fill")
         }
     }
 }
