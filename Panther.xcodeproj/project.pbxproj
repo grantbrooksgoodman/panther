@@ -234,6 +234,9 @@
 		B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */; };
 		B98C3BA32B7AF6AD00CDA3E9 /* RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */; };
 		B98C3BA52B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */; };
+		B990F5A62B81C60300C7BE00 /* ContactSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A52B81C60300C7BE00 /* ContactSelectorView.swift */; };
+		B990F5A82B81C60B00C7BE00 /* ContactSelectorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A72B81C60B00C7BE00 /* ContactSelectorReducer.swift */; };
+		B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */; };
 		B99195732B47C7B600BD5BBC /* SelectLanguagePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195722B47C7B600BD5BBC /* SelectLanguagePageReducer.swift */; };
 		B99195752B47C7BD00BD5BBC /* SelectLanguagePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195742B47C7BD00BD5BBC /* SelectLanguagePageViewStrings.swift */; };
 		B99195772B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195762B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift */; };
@@ -1048,6 +1051,9 @@
 		B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITableViewDelegate.swift"; sourceTree = "<group>"; };
 		B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarService.swift; sourceTree = "<group>"; };
 		B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarLayoutService.swift; sourceTree = "<group>"; };
+		B990F5A52B81C60300C7BE00 /* ContactSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorView.swift; sourceTree = "<group>"; };
+		B990F5A72B81C60B00C7BE00 /* ContactSelectorReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorReducer.swift; sourceTree = "<group>"; };
+		B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatPageObserver.swift; sourceTree = "<group>"; };
 		B99195722B47C7B600BD5BBC /* SelectLanguagePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLanguagePageReducer.swift; sourceTree = "<group>"; };
 		B99195742B47C7BD00BD5BBC /* SelectLanguagePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLanguagePageViewStrings.swift; sourceTree = "<group>"; };
 		B99195762B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLanguageContentPageView.swift; sourceTree = "<group>"; };
@@ -2236,6 +2242,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		B990F5A42B81C5F600C7BE00 /* ContactSelectorView */ = {
+			isa = PBXGroup;
+			children = (
+				B990F5A72B81C60B00C7BE00 /* ContactSelectorReducer.swift */,
+				B990F5A52B81C60300C7BE00 /* ContactSelectorView.swift */,
+			);
+			path = ContactSelectorView;
+			sourceTree = "<group>";
+		};
 		B99195702B47C79500BD5BBC /* SelectLanguagePageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3244,6 +3259,7 @@
 		B9EC04BA2B783CE400A16700 /* NewChatPageView */ = {
 			isa = PBXGroup;
 			children = (
+				B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */,
 				B9C0D2572B79687F00119B85 /* NewChatPageReducer.swift */,
 				B9EC04BC2B783D7A00A16700 /* NewChatPageView.swift */,
 			);
@@ -3313,7 +3329,6 @@
 			isa = PBXGroup;
 			children = (
 				B90C91062B69C9E4008DFE59 /* ChatPageView */,
-				B9F47AFF2B5864D600D86C67 /* ConversationCellView */,
 				B9F47AE32B576EC700D86C67 /* ConversationsPageView */,
 				B9EC04BA2B783CE400A16700 /* NewChatPageView */,
 				B9EC04C62B79671300A16700 /* SettingsPageView */,
@@ -3353,6 +3368,8 @@
 		B9F47AF02B585FAB00D86C67 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B990F5A42B81C5F600C7BE00 /* ContactSelectorView */,
+				B9F47AFF2B5864D600D86C67 /* ConversationCellView */,
 				B9C0D2592B796AAC00119B85 /* RecipientBar */,
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
@@ -4234,6 +4251,7 @@
 				B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+CoreNetworkingExtensions.swift in Sources */,
+				B990F5A82B81C60B00C7BE00 /* ContactSelectorReducer.swift in Sources */,
 				B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */,
 				B9EC04CF2B79674800A16700 /* SettingsPageViewStrings.swift in Sources */,
 				B9C5830129BECB0C009DCE29 /* DeviceShakeViewModifier.swift in Sources */,
@@ -4301,6 +4319,7 @@
 				B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */,
 				B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */,
 				B964465E2B157E1A008E674A /* RootViewObserver.swift in Sources */,
+				B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */,
 				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,
 				B918222E2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift in Sources */,
@@ -4424,6 +4443,7 @@
 				B9DB71092AD3897200EAC88B /* StoredItemKeyDomain.swift in Sources */,
 				B91689092AC760AA00AF403D /* MainQueueDependency.swift in Sources */,
 				B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */,
+				B990F5A62B81C60300C7BE00 /* ContactSelectorView.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
 				B93CAEA72AF4620700C03BF4 /* Toast+Type.swift in Sources */,
 			);

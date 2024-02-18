@@ -21,6 +21,7 @@ public struct NewChatPageReducer: Reducer {
 
         case conversationChanged(Conversation)
         case isPresentedChanged(Bool)
+        case isPresentingContactSelectorSheetChanged(Bool)
     }
 
     // MARK: - Feedback
@@ -32,13 +33,16 @@ public struct NewChatPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        // Bool
+        public var isPresented: Binding<Bool>
+        public var isPresentingContactSelectorSheet = false
+
         // String
         public var doneToolbarButtonText = ""
         @Localized(.newMessage) public var navigationTitle: String
 
         // Other
         public var conversation: Conversation = .empty
-        public var isPresented: Binding<Bool>
 
         /* MARK: Init */
 
@@ -52,11 +56,13 @@ public struct NewChatPageReducer: Reducer {
             let sameConversation = left.conversation == right.conversation
             let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
+            let sameIsPresentingContactSelectorSheet = left.isPresentingContactSelectorSheet == right.isPresentingContactSelectorSheet
             let sameNavigationTitle = left.navigationTitle == right.navigationTitle
 
             guard sameConversation,
                   sameDoneToolbarButtonText,
                   sameIsPresented,
+                  sameIsPresentingContactSelectorSheet,
                   sameNavigationTitle else { return false }
 
             return true
@@ -79,6 +85,9 @@ public struct NewChatPageReducer: Reducer {
 
         case let .action(.isPresentedChanged(isPresented)):
             state.isPresented.wrappedValue = isPresented
+
+        case let .action(.isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet)):
+            state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet
         }
 
         return .none

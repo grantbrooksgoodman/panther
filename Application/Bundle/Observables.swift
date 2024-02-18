@@ -15,6 +15,7 @@ public enum ObservableKey: String {
 
     /* Add cases here to define new values for Observer instances. */
 
+    case contactSelectorPresentationPending
     case isNetworkActivityOccurring
     case newChatSheetDismissed
     case traitCollectionChanged
@@ -35,6 +36,7 @@ public enum ObservableKey: String {
 public enum Observables {
     /* Add new properties conforming to Observable here. */
 
+    public static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
     public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
     public static let newChatSheetDismissed: Observable<Nil> = .init(key: .newChatSheetDismissed)
     public static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)

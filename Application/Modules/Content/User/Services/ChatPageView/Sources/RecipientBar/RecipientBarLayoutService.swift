@@ -203,7 +203,6 @@ public final class RecipientBarLayoutService {
             action: #selector(actionHandlerService.selectContactButtonTapped),
             for: .touchUpInside
         )
-        selectContactButton.isEnabled = false
 
         selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
         selectContactButton.frame.size.width = selectContactButton.intrinsicContentSize.width

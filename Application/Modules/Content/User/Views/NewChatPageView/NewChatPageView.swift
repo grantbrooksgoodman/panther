@@ -16,9 +16,17 @@ import Redux
 public struct NewChatPageView: View {
     // MARK: - Properties
 
+    @StateObject private var observer: ViewObserver<NewChatPageObserver>
     @StateObject private var viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Bindings
+
+    private var contactSelectorSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingContactSelectorSheet,
+            sendAction: { .isPresentingContactSelectorSheetChanged($0) }
+        )
+    }
 
     private var conversationBinding: Binding<Conversation> {
         viewModel.binding(
@@ -31,6 +39,7 @@ public struct NewChatPageView: View {
 
     public init(_ viewModel: ViewModel<NewChatPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
@@ -49,6 +58,14 @@ public struct NewChatPageView: View {
             .toolbar {
                 doneToolbarButton
             }
+        }
+        .sheet(isPresented: contactSelectorSheetBinding) {
+            ContactSelectorView(
+                .init(
+                    initialState: .init(contactSelectorSheetBinding),
+                    reducer: ContactSelectorReducer()
+                )
+            )
         }
         .onFirstAppear {
             viewModel.send(.viewAppeared)

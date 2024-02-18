@@ -76,7 +76,9 @@ public final class RecipientBarActionHandlerService {
     }
 
     @objc
-    public func selectContactButtonTapped() {}
+    public func selectContactButtonTapped() {
+        Observables.contactSelectorPresentationPending.trigger()
+    }
 
     @objc
     public func textFieldChanged(_ textField: UITextField) {
