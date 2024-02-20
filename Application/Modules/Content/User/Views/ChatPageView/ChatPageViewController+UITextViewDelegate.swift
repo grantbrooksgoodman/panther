@@ -33,8 +33,9 @@ extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Did Begin Editing
 
     public func textViewDidBeginEditing(_ textView: UITextView) {
-        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var contactSelectionUIService: RecipientBarContactSelectionUIService?
-        contactSelectionUIService?.unhighlightAllViews()
+        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
+        guard let inputBarService else { return }
+        inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)
     }
 
     // MARK: - Did Change

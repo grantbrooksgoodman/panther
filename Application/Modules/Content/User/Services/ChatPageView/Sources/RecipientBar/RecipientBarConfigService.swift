@@ -81,7 +81,6 @@ public final class RecipientBarConfigService {
                     await chatPageViewService.recordingUI?.hideRecordingUI()
                     _ = recordingService.cancelRecording()
 
-                    chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
                     viewController.messagesCollectionView.isHidden = false
 
                     guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
@@ -110,8 +109,19 @@ public final class RecipientBarConfigService {
 
             guard let existingConversation = conversations.sortedByLatestMessageSentDate
                 .first(where: { users.map(\.id).sorted() == $0.users!.map(\.id).sorted() }) else {
-                clientSession.conversation.setCurrentConversation(contactSelectionUIService.selectedContactPairs.isEmpty ? .empty : .mock(withUsers: users))
-                shouldReload = !isPreviousConversationEmpty
+                defer { shouldReload = !isPreviousConversationEmpty }
+
+                guard !contactSelectionUIService.selectedContactPairs.isEmpty else {
+                    clientSession.conversation.setCurrentConversation(.empty)
+                    return
+                }
+
+                guard !contactSelectionUIService.selectedContactPairs.allSatisfy(\.isMock) else {
+                    clientSession.conversation.setCurrentConversation(.empty(withUsers: users))
+                    return
+                }
+
+                clientSession.conversation.setCurrentConversation(.mock(withUsers: users))
                 return
             }
 
@@ -149,5 +159,7 @@ public final class RecipientBarConfigService {
 
     // MARK: - Auxiliary
 
-    private func value(for sublevel: Int) -> CGFloat { Floats.sublevelMultiplier * (sublevel - 1 < 0 ? 1 : .init(sublevel) - 1) }
+    private func value(for sublevel: Int) -> CGFloat {
+        Floats.sublevelMultiplier * (sublevel - 1 < 0 ? 1 : .init(sublevel) - 1)
+    }
 }

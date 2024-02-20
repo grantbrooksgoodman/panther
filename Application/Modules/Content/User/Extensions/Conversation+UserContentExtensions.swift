@@ -39,6 +39,17 @@ public extension Conversation {
 
     // MARK: - Methods
 
+    static func empty(withUsers users: [User]) -> Conversation {
+        .init(
+            .init(key: "", hash: ""),
+            messageIDs: [],
+            messages: nil,
+            lastModifiedDate: .init(),
+            participants: [],
+            users: users
+        )
+    }
+
     static func mock(withUsers users: [User]) -> Conversation {
         .init(
             .init(key: UserContentConstants.newConversationID, hash: ""),

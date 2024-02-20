@@ -90,6 +90,7 @@ public final class RecipientBarActionHandlerService {
     public func textFieldShouldReturn(_ text: String) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
+
             guard !text.isBlank else {
                 guard !contactSelectionUIService.selectedContactPairs.filter({ $0.isMock }).isEmpty else {
                     contactSelectionUIService.unhighlightAllViews()

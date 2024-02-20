@@ -14,8 +14,8 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum ChatPageViewService {
-        public static let loadMoreMessagesMillisecondsDelay: CGFloat = 200
-        public static let scrollToLastItemMillisecondsDelay: CGFloat = 10
+        public static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
+        public static let scrollToLastItemDelayMilliseconds: CGFloat = 10
 
         enum AudioMessagePlayback {
             public static let playbackTimerTimeInterval: CGFloat = 0.1

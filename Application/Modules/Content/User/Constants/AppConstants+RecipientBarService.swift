@@ -44,6 +44,8 @@ public extension AppConstants.CGFloats.ChatPageViewService {
             public static let contactViewWidthIncrement: CGFloat = 10
             public static let contactViewXOriginIncrement: CGFloat = 5
 
+            public static let labelRepresentationAnimationDuration: CGFloat = 0.3
+
             public static let recipientBarMaxXDecrement: CGFloat = 60
             public static let recipientBarReconfigurationSublevel: CGFloat = 2
 
@@ -65,6 +67,10 @@ public extension AppConstants.CGFloats.ChatPageViewService {
             public static let toLabelFontSize: CGFloat = 14
             public static let toLabelXOrigin: CGFloat = 15
         }
+
+        enum UITextFieldDelegate { // swiftlint:disable:next identifier_name
+            public static let toggleLabelRepresentationDelayMilliseconds: CGFloat = 10
+        }
     }
 }
 
@@ -77,6 +83,8 @@ public extension AppConstants.Colors.ChatPageViewService {
             public static let contactViewHighlightedText: Color = .init(uiColor: .white)
             public static let contactViewLightSelection: Color = .init(uiColor: .init(hex: 0xECF0F1))
             public static let contactViewRedText: Color = .init(uiColor: .systemGreen)
+
+            public static let labelRepresentationColor: Color = .init(uiColor: .clear)
         }
 
         enum Layout {

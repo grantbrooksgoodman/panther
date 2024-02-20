@@ -95,7 +95,7 @@ public final class ChatPageViewService {
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(Floats.scrollToLastItemMillisecondsDelay)) {
+            core.gcd.after(.milliseconds(Floats.scrollToLastItemDelayMilliseconds)) {
                 self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
             }
             return
@@ -191,7 +191,7 @@ public final class ChatPageViewService {
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
-        core.gcd.after(.milliseconds(Floats.loadMoreMessagesMillisecondsDelay)) {
+        core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) {
             self.viewController?.messagesCollectionView.scrollToItem(
                 at: .init(row: 0, section: 0),
                 at: .top,

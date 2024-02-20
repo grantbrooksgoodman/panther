@@ -243,7 +243,6 @@ public final class RecipientBarLayoutService {
         )
         textField.delegate = recipientBarView
 
-        textField.center.x = recipientBarView.center.x
         textField.frame.origin.x = toLabel.frame.maxX + Floats.textFieldXOriginIncrement
 
         textField.autocorrectionType = .no

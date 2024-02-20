@@ -208,6 +208,20 @@ public final class InputBarService {
         return await chatPageViewService.messageDelivery?.sendTextMessage(text)
     }
 
+    // MARK: - Set Send Button Is Enabled
+
+    public func setSendButtonIsEnabled(_ sendButtonIsEnabled: Bool) {
+        mainQueue.async {
+            UIView.transition(
+                with: self.inputBar.sendButton,
+                duration: Floats.transitionAnimationDuration,
+                options: [.transitionCrossDissolve]
+            ) {
+                self.inputBar.sendButton.isEnabled = sendButtonIsEnabled
+            }
+        }
+    }
+
     // MARK: - Text View Did Change
 
     public func textViewDidChange(to text: String) async -> Exception? {

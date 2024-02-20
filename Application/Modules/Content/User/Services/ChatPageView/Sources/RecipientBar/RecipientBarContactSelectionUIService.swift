@@ -38,6 +38,10 @@ public final class RecipientBarContactSelectionUIService {
         return recipientBarView.subviews(for: Strings.contactViewSemanticTag)
     }
 
+    private var contactViewSelectionColor: UIColor {
+        .init(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
+    }
+
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
@@ -141,6 +145,47 @@ public final class RecipientBarContactSelectionUIService {
         addSubview()
     }
 
+    // MARK: - Label Representation
+
+    public func toggleLabelRepresentation(on: Bool) {
+        guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return }
+        UIView.animate(withDuration: Floats.labelRepresentationAnimationDuration) {
+            for (index, contactView) in self.contactViews.sorted(by: { $0.frame.maxX < $1.frame.maxX && $0.frame.maxY < $1.frame.maxY }).enumerated() {
+                contactView.backgroundColor = on ? UIColor(Colors.labelRepresentationColor) : self.contactViewSelectionColor
+                contactView.layer.borderColor = on ? UIColor(Colors.labelRepresentationColor).cgColor : self.contactViewSelectionColor.cgColor
+
+                guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
+                let redColor = UIColor(Colors.contactViewRedText)
+                contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
+                guard index < self.contactViews.count - 1 else { continue }
+
+                var labelText = (contactLabel.text ?? "")
+                while labelText.hasSuffix(",") { labelText = labelText.dropSuffix() }
+                contactLabel.text = on ? "\(labelText)," : labelText
+
+                contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
+                var width = contactLabel.intrinsicContentSize.width
+                while width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { width -= 1 }
+                contactLabel.frame.size.width = width
+
+                guard !on else { continue }
+
+                contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
+                contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
+            }
+        } completion: { _ in
+            self.contactViews.forEach { $0.gestureRecognizers?.forEach { $0.isEnabled = !on } }
+
+            guard on else {
+                recipientBarView.gestureRecognizers?.removeAll()
+                return
+            }
+
+            let labelRepresentationTapGesture: UITapGestureRecognizer = .init(target: self, action: #selector(self.labelRepresentationTapGestureRecognized))
+            recipientBarView.addGestureRecognizer(labelRepresentationTapGesture)
+        }
+    }
+
     // MARK: - View Highlighting
 
     public func isHighlighted(viewID contactHash: String) -> Bool {
@@ -158,10 +203,9 @@ public final class RecipientBarContactSelectionUIService {
 
         switch isHighlighted(viewID: contactHash) {
         case true:
-            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
             contactLabel.textColor = contactView.backgroundColor == redColor ? redColor : .accent
-            contactView.backgroundColor = selectionColor
-            contactView.layer.borderColor = selectionColor.cgColor
+            contactView.backgroundColor = contactViewSelectionColor
+            contactView.layer.borderColor = contactViewSelectionColor.cgColor
 
         case false:
             contactView.backgroundColor = contactLabel.textColor == redColor ? redColor : .accent
@@ -180,19 +224,23 @@ public final class RecipientBarContactSelectionUIService {
             let redColor = UIColor(Colors.contactViewRedText)
             contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
 
-            let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
-            contactView.backgroundColor = selectionColor
-            contactView.layer.borderColor = selectionColor.cgColor
+            contactView.backgroundColor = contactViewSelectionColor
+            contactView.layer.borderColor = contactViewSelectionColor.cgColor
         }
     }
 
     // MARK: - Auxiliary
 
     @objc
-    private func tapGestureRecognized(recognizer: UITapGestureRecognizer) {
+    private func contactViewTapGestureRecognized(recognizer: UITapGestureRecognizer) {
         guard let contactView = recognizer.view,
               contactView.identifier == chatPageViewService.recipientBar?.config.firstContactView(.onSameLevelAsTextField)?.identifier else { return }
         toggleIsHighlighted(viewID: contactView.identifier)
+    }
+
+    @objc
+    private func labelRepresentationTapGestureRecognized() {
+        chatPageViewService.recipientBar?.layout.textField?.becomeFirstResponder()
     }
 
     // MARK: - View Builders
@@ -208,20 +256,18 @@ public final class RecipientBarContactSelectionUIService {
             size: .init(width: 0, height: Floats.contactViewFrameHeight)
         ))
 
-        let selectionColor = UIColor(ThemeService.isDarkModeActive ? Colors.contactViewDarkSelection : Colors.contactViewLightSelection)
-
-        contactView.backgroundColor = selectionColor
+        contactView.backgroundColor = contactViewSelectionColor
         contactView.center.y = recipientBarView.center.y
         contactView.isUserInteractionEnabled = true
 
-        contactView.layer.borderColor = selectionColor.cgColor
+        contactView.layer.borderColor = contactViewSelectionColor.cgColor
         contactView.layer.borderWidth = 1
         contactView.layer.cornerRadius = Floats.contactViewCornerRadius
 
         contactView.frame.origin.x = toLabel.frame.maxX + Floats.contactViewXOriginIncrement
 
-        let tapGesture: UITapGestureRecognizer = .init(target: self, action: #selector(tapGestureRecognized))
-        contactView.addGestureRecognizer(tapGesture)
+        let contactViewTapGesture: UITapGestureRecognizer = .init(target: self, action: #selector(contactViewTapGestureRecognized))
+        contactView.addGestureRecognizer(contactViewTapGesture)
 
         // Create contact label
 
