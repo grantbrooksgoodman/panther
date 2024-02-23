@@ -203,18 +203,11 @@ public final class InputBarGestureRecognizerService {
 
     @objc
     private func showRecordingInstructionToast() {
-        switch chatPageViewService.configuration {
-        case .newChat:
-            services.haptics.generateFeedback(.rigid)
-            core.hud.flashRecordingInstruction()
-
-        default:
-            Observables.rootViewToast.value = .init(
-                .banner(style: .info, appearanceEdge: .bottom, showsDismissButton: false),
-                message: Localized(.holdDownToRecord).wrappedValue,
-                perpetuation: .ephemeral(.seconds(Floats.recordingInstructionToastPerpetuationDuration))
-            )
-        }
+        Observables.rootViewToast.value = .init(
+            .banner(style: .info, appearanceEdge: .bottom, showsDismissButton: false),
+            message: Localized(.holdDownToRecord).wrappedValue,
+            perpetuation: .ephemeral(.seconds(Floats.recordingInstructionToastPerpetuationDuration))
+        )
     }
 
     // MARK: - Auxiliary
@@ -231,32 +224,18 @@ public final class InputBarGestureRecognizerService {
         }
 
         guard exception.descriptor == Strings.noSpeechDetectedExceptionDescriptor else {
-            switch chatPageViewService.configuration {
-            case .newChat:
-                services.haptics.generateFeedback(.rigid)
-                core.hud.flash(Localized(.tryAgain).wrappedValue, image: .exclamation)
-
-            default:
-                Observables.rootViewToast.value = .init(
-                    .banner(style: .error, appearanceEdge: .bottom, showsDismissButton: false),
-                    message: Localized(.tryAgain).wrappedValue,
-                    perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-                )
-            }
+            Observables.rootViewToast.value = .init(
+                .banner(style: .error, appearanceEdge: .bottom, showsDismissButton: false),
+                message: Localized(.tryAgain).wrappedValue,
+                perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
+            )
             return
         }
 
-        switch chatPageViewService.configuration {
-        case .newChat:
-            services.haptics.generateFeedback(.rigid)
-            core.hud.flashNoSpeechDetected()
-
-        default:
-            Observables.rootViewToast.value = .init(
-                .banner(style: .warning, appearanceEdge: .bottom, showsDismissButton: false),
-                message: Localized(.noSpeechDetected).wrappedValue,
-                perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-            )
-        }
+        Observables.rootViewToast.value = .init(
+            .banner(style: .warning, appearanceEdge: .bottom, showsDismissButton: false),
+            message: Localized(.noSpeechDetected).wrappedValue,
+            perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
+        )
     }
 }

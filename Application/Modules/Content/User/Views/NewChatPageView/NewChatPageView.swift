@@ -58,6 +58,7 @@ public struct NewChatPageView: View {
             .toolbar {
                 doneToolbarButton
             }
+            .preferredStatusBarStyle(.lightContent)
         }
         .sheet(isPresented: contactSelectorSheetBinding) {
             ContactSelectorView(

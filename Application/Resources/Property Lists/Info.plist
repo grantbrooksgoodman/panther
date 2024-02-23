@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1708399441</string>
+	<string>1708630429</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleReleaseVersion</key>
-	<string>5604</string>
+	<string>5861</string>
 	<key>CFBundleShortReleaseVersionString</key>
 	<string>2.0.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.37.112</string>
+	<string>2.39.117</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>17307</string>
+	<string>17564</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>IsReleaseBuild</key>
@@ -89,6 +89,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDarkContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

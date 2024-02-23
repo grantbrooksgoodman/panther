@@ -40,7 +40,6 @@ public struct InviteLanguagePickerReducer: Reducer {
 
         // Bool
         public var isDoneHeaderItemEnabled = false
-        public var isPresented: Binding<Bool>
 
         // String
         @Localized(.cancel) public var cancelHeaderItemText: String
@@ -65,37 +64,7 @@ public struct InviteLanguagePickerReducer: Reducer {
 
         /* MARK: Init */
 
-        public init(_ isPresented: Binding<Bool>) {
-            self.isPresented = isPresented
-        }
-
-        /* MARK: Equatable Conformance */
-
-        public static func == (left: State, right: State) -> Bool {
-            let sameCancelHeaderItemText = left.cancelHeaderItemText == right.cancelHeaderItemText
-            let sameDoneHeaderItemText = left.doneHeaderItemText == right.doneHeaderItemText
-            let sameIsDoneHeaderItemEnabled = left.isDoneHeaderItemEnabled == right.isDoneHeaderItemEnabled
-            let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
-            let sameLocalizedLanguageNames = left.localizedLanguageNames == right.localizedLanguageNames
-            let sameQueriedLanguageNames = left.queriedLanguageNames == right.queriedLanguageNames
-            let sameNavigationTitle = left.navigationTitle == right.navigationTitle
-            let sameNoResultsLabelText = left.noResultsLabelText == right.noResultsLabelText
-            let sameSearchQuery = left.searchQuery == right.searchQuery
-            let sameSelectedLanguageCode = left.selectedLanguageCode == right.selectedLanguageCode
-
-            guard sameCancelHeaderItemText,
-                  sameDoneHeaderItemText,
-                  sameIsPresented,
-                  sameIsDoneHeaderItemEnabled,
-                  sameLocalizedLanguageNames,
-                  sameQueriedLanguageNames,
-                  sameNavigationTitle,
-                  sameNoResultsLabelText,
-                  sameSearchQuery,
-                  sameSelectedLanguageCode else { return false }
-
-            return true
-        }
+        public init() {}
     }
 
     // MARK: - Init
@@ -107,10 +76,11 @@ public struct InviteLanguagePickerReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.cancelHeaderItemTapped):
-            state.isPresented.wrappedValue = false
+            RootSheets.dismiss()
 
         case .action(.doneHeaderItemTapped):
-            state.isPresented.wrappedValue = false
+            RootSheets.dismiss()
+
             let languageCode = state.selectedLanguageCode
             coreGCD.after(.seconds(2)) {
                 Task {

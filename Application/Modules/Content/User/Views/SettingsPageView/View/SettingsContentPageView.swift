@@ -58,6 +58,7 @@ public struct SettingsContentPageView: View {
                 .toolbar {
                     doneButton
                 }
+                .preferredStatusBarStyle(.lightContent)
             }
             .accentColor(Color.accent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

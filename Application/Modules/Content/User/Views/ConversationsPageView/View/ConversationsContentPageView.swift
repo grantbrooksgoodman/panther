@@ -24,13 +24,6 @@ public struct ConversationsContentPageView: View {
 
     // MARK: - Bindings
 
-    private var inviteLanguagePickerSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingInviteLanguagePickerSheet,
-            sendAction: { .isPresentingInviteLanguagePickerSheetChanged($0) }
-        )
-    }
-
     private var newChatSheetBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPresentingNewChatSheet,
@@ -82,14 +75,7 @@ public struct ConversationsContentPageView: View {
                 .id(viewModel.viewID)
             }
         }
-        .sheet(isPresented: inviteLanguagePickerSheetBinding) {
-            InviteLanguagePickerView(
-                .init(
-                    initialState: .init(inviteLanguagePickerSheetBinding),
-                    reducer: InviteLanguagePickerReducer()
-                )
-            )
-        }
+        .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
         .sheet(isPresented: newChatSheetBinding) {
             NewChatPageView(
                 .init(

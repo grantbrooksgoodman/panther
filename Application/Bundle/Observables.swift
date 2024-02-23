@@ -8,6 +8,8 @@
 
 /* Native */
 import Foundation
+
+/* 3rd-party */
 import Redux
 
 public enum ObservableKey: String {
@@ -19,7 +21,6 @@ public enum ObservableKey: String {
     case isNetworkActivityOccurring
     case newChatSheetDismissed
     case traitCollectionChanged
-    case translatedInvitationPending
     case updatedContactPairArchive
     case updatedCurrentUser
 
@@ -27,6 +28,7 @@ public enum ObservableKey: String {
 
     case breadcrumbsDidCapture
     case isDeveloperModeEnabled
+    case rootViewSheet
     case rootViewToast
     case rootViewToastAction
     case themedViewAppearanceChanged
@@ -40,7 +42,6 @@ public enum Observables {
     public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
     public static let newChatSheetDismissed: Observable<Nil> = .init(key: .newChatSheetDismissed)
     public static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)
-    public static let translatedInvitationPending: Observable<Nil> = .init(key: .translatedInvitationPending)
     public static let updatedContactPairArchive: Observable<Nil> = .init(key: .updatedContactPairArchive)
     public static let updatedCurrentUser: Observable<Nil> = .init(key: .updatedCurrentUser)
 }

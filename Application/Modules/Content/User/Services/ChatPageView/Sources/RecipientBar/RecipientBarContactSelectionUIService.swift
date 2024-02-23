@@ -53,6 +53,8 @@ public final class RecipientBarContactSelectionUIService {
     public func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
+        guard selectedContactPairs.isEmpty else { return }
+        viewController.messageInputBar.inputTextView.placeholder = ""
     }
 
     public func deselectMockContactPairs() {
@@ -74,6 +76,12 @@ public final class RecipientBarContactSelectionUIService {
               let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               selectedContactPairs.count < Int(Floats.selectedContactPairsMaximum) else { return }
 
+        guard !selectedContactPairs.contains(contactPair) else {
+            chatPageViewService.recipientBar?.layout.textField?.text = ""
+            chatPageViewService.recipientBar?.tableView.setQuery("")
+            return
+        }
+
         func addSubview() {
             guard let tableView = chatPageViewService.recipientBar?.layout.tableView,
                   let textField = chatPageViewService.recipientBar?.layout.textField else { return }
@@ -88,6 +96,9 @@ public final class RecipientBarContactSelectionUIService {
             textField.text = nil
 
             configService.reconfigureCollectionView()
+
+            guard !contactPair.isMock else { return }
+            viewController.messageInputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         }
 
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.

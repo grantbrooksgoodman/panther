@@ -226,9 +226,7 @@ public struct SettingsPageReducer: Reducer {
         case let .inviteFriendsButtonTappedReturned(.success(wantsToTranslate)):
             guard wantsToTranslate else { return .none }
             state.isPresented.wrappedValue = false
-            coreGCD.after(.milliseconds(200)) {
-                Observables.translatedInvitationPending.trigger()
-            }
+            coreGCD.after(.seconds(2)) { RootSheets.present(.inviteLanguagePicker) }
 
         case let .inviteFriendsButtonTappedReturned(.failure(exception)):
             Logger.log(exception, with: .toast())

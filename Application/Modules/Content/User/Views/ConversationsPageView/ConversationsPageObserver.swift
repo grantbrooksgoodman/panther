@@ -28,7 +28,6 @@ public struct ConversationsPageObserver: Observer {
     public let id = UUID()
     public let observedValues: [any ObservableProtocol] = [
         Observables.newChatSheetDismissed,
-        Observables.translatedInvitationPending,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
@@ -56,9 +55,6 @@ public struct ConversationsPageObserver: Observer {
         switch observable.key {
         case .newChatSheetDismissed:
             send(.isPresentingNewChatSheetChanged(false))
-
-        case .translatedInvitationPending:
-            send(.isPresentingInviteLanguagePickerSheetChanged(true))
 
         case .updatedContactPairArchive:
             send(.updatedContactPairArchive)

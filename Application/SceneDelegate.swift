@@ -28,8 +28,12 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
     // UIWindow
     public var window: UIWindow?
 
-    private var buildInfoOverlayWindow: UIWindow!
-    private var expiryOverlayWindow: UIWindow!
+    // MARK: - Computed Properties
+
+    private var buildInfoOverlayWindow: UIWindow? {
+        @Dependency(\.uiApplication.keyWindow) var keyWindow: UIWindow?
+        return keyWindow?.firstSubview(for: "BUILD_INFO_OVERLAY_WINDOW") as? UIWindow
+    }
 
     // MARK: - UIScene
 
@@ -40,31 +44,26 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
 
         @Dependency(\.build) var build: Build
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
-        @Dependency(\.uiApplication) var uiApplication: UIApplication
 
         // Create the SwiftUI view that provides the window contents.
-        let contentView = RootView(
-            .init(
-                initialState: .init(),
-                reducer: RootReducer()
-            )
-        ).showsNetworkActivity()
+        let contentView = RootView()
 
         // Use a UIHostingController as window root view controller.
         guard let windowScene = scene as? UIWindowScene else { return }
 
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = UIHostingController(rootView: contentView)
-        window.makeKeyAndVisible()
-        self.window = window
+        let keyWindow = UIWindow(windowScene: windowScene)
+        keyWindow.rootViewController = UIHostingController(rootView: contentView)
+        keyWindow.makeKeyAndVisible()
+        window = keyWindow
 
         guard build.stage != .generalRelease else { return }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: nil)
         tapGesture.delegate = self
 
-        let bounds = window.screen.bounds
-        buildInfoOverlayWindow = UIWindow()
+        let bounds = keyWindow.screen.bounds
+
+        let buildInfoOverlayWindow = PassthroughWindow()
         buildInfoOverlayWindow.frame = CGRect(
             x: 0,
             y: bounds.maxY - 100,
@@ -74,11 +73,29 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
 
         let buildInfoOverlayView = BuildInfoOverlayView(.init(initialState: .init(), reducer: BuildInfoOverlayReducer()))
         buildInfoOverlayWindow.rootViewController = UIHostingController(rootView: buildInfoOverlayView)
+
         buildInfoOverlayWindow.isHidden = false
         buildInfoOverlayWindow.tag = coreUI.semTag(for: "BUILD_INFO_OVERLAY_WINDOW")
 
-        window.addGestureRecognizer(tapGesture)
-        window.addSubview(buildInfoOverlayWindow)
+        keyWindow.addGestureRecognizer(tapGesture)
+        keyWindow.addSubview(buildInfoOverlayWindow)
+
+        let rootWindow = PassthroughWindow(windowScene: windowScene)
+        let rootView = RootWindow(.init(initialState: .init(), reducer: RootReducer())).showsNetworkActivity()
+        rootWindow.rootViewController = UIHostingController(rootView: rootView)
+
+        rootWindow.isHidden = false
+        rootWindow.tag = coreUI.semTag(for: "ROOT_WINDOW")
+
+        keyWindow.addSubview(rootWindow)
+
+        defer {
+            buildInfoOverlayWindow.backgroundColor = .clear
+            buildInfoOverlayWindow.rootViewController?.view.backgroundColor = .clear
+
+            rootWindow.backgroundColor = .clear
+            rootWindow.rootViewController?.view.backgroundColor = .clear
+        }
 
         @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
         if let shouldHide = hidesBuildInfoOverlay,
@@ -93,7 +110,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
 
         if build.expiryDate.comparator == Date().comparator,
            build.timebombActive {
-            expiryOverlayWindow = UIWindow()
+            let expiryOverlayWindow = UIWindow()
             expiryOverlayWindow.frame = CGRect(
                 x: 0,
                 y: 0,
@@ -104,11 +121,8 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
             expiryOverlayWindow.isHidden = false
             expiryOverlayWindow.tag = coreUI.semTag(for: "EXPIRY_OVERLAY_WINDOW")
 
-            window.addSubview(expiryOverlayWindow)
+            keyWindow.addSubview(expiryOverlayWindow)
         }
-
-        buildInfoOverlayWindow.backgroundColor = .clear
-        buildInfoOverlayWindow.rootViewController?.view.backgroundColor = .clear
     }
 
     public func sceneDidDisconnect(_ scene: UIScene) {
@@ -166,7 +180,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         touchTimer = nil
 
         UIView.animate(withDuration: 0.2) {
-            self.buildInfoOverlayWindow.alpha = 0.35
+            self.buildInfoOverlayWindow?.alpha = 0.35
         } completion: { _ in
             guard self.touchTimer == nil else { return }
             self.touchTimer = .scheduledTimer(
@@ -188,7 +202,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         touchTimer = nil
 
         UIView.animate(withDuration: 0.2) {
-            self.buildInfoOverlayWindow.alpha = 1
+            self.buildInfoOverlayWindow?.alpha = 1
         }
     }
 }
