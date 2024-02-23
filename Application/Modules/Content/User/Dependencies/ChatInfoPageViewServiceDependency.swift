@@ -1,0 +1,26 @@
+//
+//  ChatInfoPageViewServiceDependency.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 23/02/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+/* 3rd-party */
+import Redux
+
+public enum ChatInfoPageViewServiceDependency: DependencyKey {
+    public static func resolve(_: DependencyValues) -> ChatInfoPageViewService {
+        .init()
+    }
+}
+
+public extension DependencyValues {
+    var chatInfoPageViewService: ChatInfoPageViewService {
+        get { self[ChatInfoPageViewServiceDependency.self] }
+        set { self[ChatInfoPageViewServiceDependency.self] = newValue }
+    }
+}

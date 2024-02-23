@@ -132,6 +132,17 @@ public struct ConversationCellView: View {
         }
     }
 
+    private var chatInfoButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.send(.chatInfoButtonTapped)
+            } label: {
+                Image(systemName: Strings.chatInfoButtonImageSystemName)
+            }
+            .foregroundStyle(Color.accent)
+        }
+    }
+
     private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
         func configure(_ anyView: AnyView) -> some View {
             guard ThemeService.isDefaultThemeApplied else {
@@ -147,6 +158,9 @@ public struct ConversationCellView: View {
                 .ignoresSafeArea(.keyboard)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.cellViewData.titleLabelText)
+                .toolbar {
+                    chatInfoButton
+                }
         )
 
         guard configuration == .preview else {

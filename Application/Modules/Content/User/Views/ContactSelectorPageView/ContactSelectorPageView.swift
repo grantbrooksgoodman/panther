@@ -1,5 +1,5 @@
 //
-//  ContactSelectorView.swift
+//  ContactSelectorPageView.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 17/02/2024.
@@ -13,14 +13,14 @@ import SwiftUI
 /* 3rd-party */
 import Redux
 
-public struct ContactSelectorView: View {
+public struct ContactSelectorPageView: View {
     // MARK: - Properties
 
-    @StateObject private var viewModel: ViewModel<ContactSelectorReducer>
+    @StateObject private var viewModel: ViewModel<ContactSelectorPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ContactSelectorReducer>) {
+    public init(_ viewModel: ViewModel<ContactSelectorPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 

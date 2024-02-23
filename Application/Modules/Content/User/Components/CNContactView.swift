@@ -29,7 +29,9 @@ public struct CNContactView: UIViewControllerRepresentable {
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> CNContactViewController {
-        .init(for: cnContact)
+        let contactViewController: CNContactViewController = .init(for: cnContact)
+        contactViewController.view.superview?.superview?.backgroundColor = .listViewBackground
+        return contactViewController
     }
 
     // MARK: - Update UIViewController

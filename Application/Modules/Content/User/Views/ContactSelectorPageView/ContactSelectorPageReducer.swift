@@ -1,5 +1,5 @@
 //
-//  ContactSelectorReducer.swift
+//  ContactSelectorPageReducer.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 17/02/2024.
@@ -13,7 +13,7 @@ import SwiftUI
 /* 3rd-party */
 import Redux
 
-public struct ContactSelectorReducer: Reducer {
+public struct ContactSelectorPageReducer: Reducer {
     // MARK: - Actions
 
     public enum Action {

@@ -61,10 +61,10 @@ public struct NewChatPageView: View {
             .preferredStatusBarStyle(.lightContent)
         }
         .sheet(isPresented: contactSelectorSheetBinding) {
-            ContactSelectorView(
+            ContactSelectorPageView(
                 .init(
                     initialState: .init(contactSelectorSheetBinding),
-                    reducer: ContactSelectorReducer()
+                    reducer: ContactSelectorPageReducer()
                 )
             )
         }

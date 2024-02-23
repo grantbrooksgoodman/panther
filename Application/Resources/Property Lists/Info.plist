@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1708630429</string>
+	<string>1708732627</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleReleaseVersion</key>
-	<string>5861</string>
+	<string>5888</string>
 	<key>CFBundleShortReleaseVersionString</key>
 	<string>2.0.0</string>
 	<key>CFBundleShortVersionString</key>
@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>17564</string>
+	<string>17591</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>IsReleaseBuild</key>

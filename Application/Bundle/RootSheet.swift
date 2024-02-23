@@ -15,6 +15,7 @@ public enum RootSheet {
 
     /* Add cases here to expose new views for presentation on the root sheet. */
 
+    case chatInfoPageView
     case inviteLanguagePicker
 
     // MARK: - Properties
@@ -22,6 +23,15 @@ public enum RootSheet {
     @MainActor
     public var view: AnyView {
         switch self {
+        case .chatInfoPageView:
+            return .init(
+                ChatInfoPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: ChatInfoPageReducer()
+                    )
+                ))
+
         case .inviteLanguagePicker:
             return .init(
                 InviteLanguagePickerView(
@@ -29,8 +39,7 @@ public enum RootSheet {
                         initialState: .init(),
                         reducer: InviteLanguagePickerReducer()
                     )
-                )
-            )
+                ))
         }
     }
 }

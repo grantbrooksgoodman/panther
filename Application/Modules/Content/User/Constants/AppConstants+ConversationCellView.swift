@@ -60,6 +60,7 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ConversationCellView {
+        public static let chatInfoButtonImageSystemName = "info.circle"
         public static let chevronImageSystemName = "chevron.forward"
         public static let deleteConversationButtonImageSystemName = "trash"
     }
