@@ -7,7 +7,6 @@
 //
 
 /* Native */
-import Contacts
 import Foundation
 
 /* 3rd-party */
@@ -16,12 +15,16 @@ import Redux
 public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
+
+        case doneToolbarButtonTapped
+        case traitCollectionChanged
     }
 
     // MARK: - Feedback
@@ -41,6 +44,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Properties */
 
+        @Localized(.done) public var doneToolbarButtonText: String
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -58,6 +62,12 @@ public struct ChatInfoPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loaded
+
+        case .action(.doneToolbarButtonTapped):
+            RootSheets.dismiss()
+
+        case .action(.traitCollectionChanged):
+            coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
         }
 
         return .none

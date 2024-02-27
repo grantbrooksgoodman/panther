@@ -22,6 +22,8 @@ public struct NewChatPageReducer: Reducer {
         case conversationChanged(Conversation)
         case isPresentedChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
+
+        case doneToolbarButtonTapped
     }
 
     // MARK: - Feedback
@@ -82,6 +84,9 @@ public struct NewChatPageReducer: Reducer {
 
         case let .action(.conversationChanged(conversation)):
             state.conversation = conversation
+
+        case .action(.doneToolbarButtonTapped):
+            state.isPresented.wrappedValue = false
 
         case let .action(.isPresentedChanged(isPresented)):
             state.isPresented.wrappedValue = isPresented

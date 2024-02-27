@@ -132,10 +132,10 @@ public struct ConversationCellView: View {
         }
     }
 
-    private var chatInfoButton: some ToolbarContent {
+    private var chatInfoToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.send(.chatInfoButtonTapped)
+                viewModel.send(.chatInfoToolbarButtonTapped)
             } label: {
                 Image(systemName: Strings.chatInfoButtonImageSystemName)
             }
@@ -159,7 +159,7 @@ public struct ConversationCellView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.cellViewData.titleLabelText)
                 .toolbar {
-                    chatInfoButton
+                    chatInfoToolbarButton
                 }
         )
 

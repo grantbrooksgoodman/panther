@@ -10,9 +10,6 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import Redux
-
 public final class RecipientBar: UIView {
     // MARK: - Properties
 

@@ -74,9 +74,9 @@ public struct NewChatPageView: View {
     }
 
     private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .destructiveAction) {
+        ToolbarItem(placement: .topBarTrailing) {
             Button(viewModel.doneToolbarButtonText) {
-                viewModel.send(.isPresentedChanged(false))
+                viewModel.send(.doneToolbarButtonTapped)
             }
             .foregroundStyle(Color.accent)
         }

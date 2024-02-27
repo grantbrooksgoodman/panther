@@ -28,13 +28,35 @@ public struct ChatInfoContentPageView: View {
 
     public var body: some View {
         ThemedView {
-            VStack {
-                Text("Hello world")
+            NavigationView {
+                VStack {
+                    Text("Hello world")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.listViewBackground)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    doneToolbarButton
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
+            .accentColor(Color.accent)
+            .interactiveDismissDisabled(true)
+            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
-        .header(isThemed: true)
+        .onTraitCollectionChange { viewModel.send(.traitCollectionChanged) }
+        .redrawsOnTraitCollectionChange()
         .preferredStatusBarStyle(.lightContent)
+    }
+
+    private var doneToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.send(.doneToolbarButtonTapped)
+            } label: {
+                Text(viewModel.doneToolbarButtonText)
+                    .bold()
+                    .foregroundStyle(Color.accent)
+            }
+        }
     }
 }

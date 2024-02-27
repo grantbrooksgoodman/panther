@@ -24,7 +24,7 @@ public struct ConversationCellReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case chatInfoButtonTapped
+        case chatInfoToolbarButtonTapped
         case chatPageViewAppeared
         case deleteConversationButtonTapped
         case userInfoBadgeTapped
@@ -88,7 +88,7 @@ public struct ConversationCellReducer: Reducer {
             guard let cellViewData = ConversationCellViewData(state.conversation) else { return .none }
             state.cellViewData = cellViewData
 
-        case .action(.chatInfoButtonTapped):
+        case .action(.chatInfoToolbarButtonTapped):
             RootSheets.present(.chatInfoPageView)
 
         case .action(.chatPageViewAppeared):

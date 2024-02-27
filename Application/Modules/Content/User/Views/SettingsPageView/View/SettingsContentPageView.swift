@@ -56,7 +56,7 @@ public struct SettingsContentPageView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.navigationTitle)
                 .toolbar {
-                    doneButton
+                    doneToolbarButton
                 }
                 .preferredStatusBarStyle(.lightContent)
             }
@@ -112,12 +112,15 @@ public struct SettingsContentPageView: View {
         .padding(.top, Floats.contactDetailViewTopPadding)
     }
 
-    private var doneButton: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button(viewModel.doneToolbarButtonText) {
+    private var doneToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
                 viewModel.send(.doneToolbarButtonTapped)
+            } label: {
+                Text(viewModel.doneToolbarButtonText)
+                    .bold()
+                    .foregroundStyle(Color.accent)
             }
-            .foregroundStyle(Color.accent)
         }
     }
 
