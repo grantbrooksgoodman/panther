@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import AlertKit
@@ -17,8 +18,34 @@ public struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.uiApplication.keyWindow?.rootViewController) private var keyViewController: UIViewController?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+
+    // MARK: - Present Invitation Prompt
+
+    public func presentInvitationPrompt() async -> Exception? {
+        guard let presentInviteLanguagePicker = await promptToTranslate() else { return nil }
+
+        guard presentInviteLanguagePicker else {
+            if let exception = await composeInvitation(languageCode: nil) {
+                return exception
+            }
+
+            return nil
+        }
+
+        Task { @MainActor in
+            keyViewController?.dismiss(animated: true)
+        }
+
+        coreGCD.after(.seconds(2)) {
+            RootSheets.present(.inviteLanguagePicker)
+        }
+
+        return nil
+    }
 
     // MARK: - Compose Invitation
 
@@ -64,7 +91,7 @@ public struct InviteService {
     // MARK: - Prompt to Translate
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
-    public func promptToTranslate() async -> Bool? {
+    private func promptToTranslate() async -> Bool? {
         let message = "Would you like *\(build.finalName)* to translate the invitation message into another language?"
         let actions: [AKAction] = [.init(
             title: "Yes, translate",

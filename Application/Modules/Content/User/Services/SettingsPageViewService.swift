@@ -130,20 +130,8 @@ public final class SettingsPageViewService: Cacheable {
         }
     }
 
-    public func inviteFriendsButtonTapped() async -> Callback<Bool, Exception> {
-        if let wantsToTranslate = await services.invite.promptToTranslate() {
-            guard wantsToTranslate else {
-                if let exception = await services.invite.composeInvitation(languageCode: nil) {
-                    return .failure(exception)
-                }
-
-                return .success(false)
-            }
-
-            return .success(true)
-        }
-
-        return .success(false)
+    public func inviteFriendsButtonTapped() async -> Exception? {
+        await services.invite.presentInvitationPrompt()
     }
 
     public func leaveReviewButtonTapped() {

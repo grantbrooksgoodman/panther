@@ -34,6 +34,8 @@ public final class InputBarService {
 
     // MARK: - Properties
 
+    public private(set) var isForcingAppearance = false
+
     private let viewController: ChatPageViewController
 
     private var isStoppingRecording = false
@@ -204,13 +206,53 @@ public final class InputBarService {
     // MARK: - Did Press Send Button
 
     public func didPressSendButton(with text: String) async -> Exception? {
+        if let currentConversation = await viewController.currentConversation {
+            guard !currentConversation.isEmpty else {
+                Logger.log(
+                    "Intercepted invalid send button press bug.",
+                    domain: .bugPrevention,
+                    metadata: [self, #file, #function, #line]
+                )
+                return nil
+            }
+        }
+
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         return await chatPageViewService.messageDelivery?.sendTextMessage(text)
+    }
+
+    // MARK: - Force Appearance
+
+    /// - NOTE: Fixes a bug in which the dismissal of the contact selector sheet would cause the input bar to hide.
+    public func forceAppearance() {
+        guard let textField = chatPageViewService.recipientBar?.layout.textField else { return }
+
+        viewController.view.isUserInteractionEnabled = false
+        isForcingAppearance = true
+
+        Logger.log(
+            "Intercepted input bar disappearance bug.",
+            domain: .bugPrevention,
+            metadata: [self, #file, #function, #line]
+        )
+
+        while !viewController.messageInputBar.inputTextView.isFirstResponder {
+            guard viewController.messageInputBar.inputTextView.canBecomeFirstResponder else { return }
+            viewController.messageInputBar.inputTextView.becomeFirstResponder()
+        }
+
+        core.gcd.after(.milliseconds(Floats.forceAppearanceDelayMilliseconds)) {
+            while !textField.isFirstResponder { textField.becomeFirstResponder() }
+            self.viewController.view.isUserInteractionEnabled = true
+            self.isForcingAppearance = false
+        }
     }
 
     // MARK: - Set Send Button Is Enabled
 
     public func setSendButtonIsEnabled(_ sendButtonIsEnabled: Bool) {
+        guard inputBar.sendButton.isEnabled != sendButtonIsEnabled else { return }
+
         mainQueue.async {
             UIView.transition(
                 with: self.inputBar.sendButton,

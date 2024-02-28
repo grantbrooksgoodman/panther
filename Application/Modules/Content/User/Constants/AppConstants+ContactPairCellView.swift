@@ -22,6 +22,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ContactPairCellView {
-        public static let labelCurrentUserForeground: Color = .init(uiColor: .systemGray4)
+        public static let labelDisabledForeground: Color = .init(uiColor: .systemGray4)
     }
 }

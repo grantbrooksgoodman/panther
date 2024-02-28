@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import Redux
 
 public extension ContactPair {
     // MARK: - Properties
@@ -38,6 +39,11 @@ public extension ContactPair {
               firstUser.phoneNumber.compiledNumberString.isBlank,
               firstUser.pushTokens == nil else { return false }
         return true
+    }
+
+    var isSelected: Bool {
+        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
+        return (selectedContactPairs ?? []).contains(self)
     }
 
     // MARK: - Methods

@@ -69,9 +69,7 @@ public final class RecipientBarTableViewService {
             return
         }
 
-        queriedContactPairs = (contactPairs ?? [])
-            .filter { "\($0.contact)".lowercased().contains(query.lowercased()) }
-            .filter { !(service?.contactSelectionUI.selectedContactPairs ?? []).contains($0) }
+        queriedContactPairs = (contactPairs ?? []).queried(by: query)
 
         tableView.frame.origin.y = recipientBarView.frame.maxY
         tableView.alpha = 1
@@ -81,17 +79,11 @@ public final class RecipientBarTableViewService {
     // MARK: - Auxiliary
 
     private func getSections() -> [TableViewSection] {
-        func groupTitle(for contact: Contact) -> String {
-            guard contact.lastName.hasPrefix("+"),
-                  !contact.lastName.digits.isBlank else { return .init(contact.lastName.prefix(1)) }
-            return "#"
-        }
-
         func sortedByLastName(_ contactPairs: [ContactPair]) -> [ContactPair] {
             contactPairs.unique.sorted(by: { $0.contact.lastName < $1.contact.lastName })
         }
 
-        let dictionary: Dictionary = .init(grouping: queriedContactPairs.unique, by: { groupTitle(for: $0.contact) })
+        let dictionary: Dictionary = .init(grouping: queriedContactPairs.unique, by: { $0.contact.tableViewSectionTitle })
         let sortedKeys = Array(dictionary.keys).alphabeticallySorted
         return sortedKeys.map { TableViewSection(
             letter: $0,

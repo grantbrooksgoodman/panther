@@ -23,7 +23,7 @@ public final class RecipientBarContactSelectionUIService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.coreKit) private var core: CoreKit
 
     // MARK: - Properties
 
@@ -70,7 +70,22 @@ public final class RecipientBarContactSelectionUIService {
         configService.reconfigureCollectionView()
     }
 
-    public func selectContactPair(_ contactPair: ContactPair) {
+    public func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserID,
+              !contactPair.numberPairs.map(\.users).reduce([], +).map(\.id).contains(currentUserID) else {
+            Logger.log(
+                .init(
+                    "Attempted to select contact pair containing current user.",
+                    isReportable: false,
+                    metadata: [self, #file, #function, #line]
+                ),
+                with: .toast(isPersistent: false)
+            )
+
+            return
+        }
+
         guard let configService = chatPageViewService.recipientBar?.config,
               let contactView = buildContactView(contactPair.contact.fullName, useRedTextColor: contactPair.isMock),
               let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
@@ -99,6 +114,9 @@ public final class RecipientBarContactSelectionUIService {
 
             guard !contactPair.isMock else { return }
             viewController.messageInputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
+
+            guard performInputBarFix else { return }
+            chatPageViewService.inputBar?.forceAppearance()
         }
 
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.
@@ -159,6 +177,9 @@ public final class RecipientBarContactSelectionUIService {
     // MARK: - Label Representation
 
     public func toggleLabelRepresentation(on: Bool) {
+        guard let inputBarService = chatPageViewService.inputBar,
+              !inputBarService.isForcingAppearance else { return }
+
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return }
         UIView.animate(withDuration: Floats.labelRepresentationAnimationDuration) {
             for (index, contactView) in self.contactViews.sorted(by: { $0.frame.maxX < $1.frame.maxX && $0.frame.maxY < $1.frame.maxY }).enumerated() {
@@ -166,7 +187,7 @@ public final class RecipientBarContactSelectionUIService {
                 contactView.layer.borderColor = on ? UIColor(Colors.labelRepresentationColor).cgColor : self.contactViewSelectionColor.cgColor
 
                 guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
-                let redColor = UIColor(Colors.contactViewRedText)
+                let redColor = UIColor(Colors.contactViewRedText) // FIXME: This should never happen anyway.
                 contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
                 guard index < self.contactViews.count - 1 else { continue }
 
@@ -300,8 +321,8 @@ public final class RecipientBarContactSelectionUIService {
         contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
         contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
 
-        contactView.tag = coreUI.semTag(for: Strings.contactViewSemanticTag)
-        contactLabel.tag = coreUI.semTag(for: Strings.contactLabelSemanticTag)
+        contactView.tag = core.ui.semTag(for: Strings.contactViewSemanticTag)
+        contactLabel.tag = core.ui.semTag(for: Strings.contactLabelSemanticTag)
 
         return contactView
     }

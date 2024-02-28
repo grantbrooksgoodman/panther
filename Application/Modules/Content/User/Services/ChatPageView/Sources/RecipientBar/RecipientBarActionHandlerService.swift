@@ -11,18 +11,20 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import AlertKit
 import Redux
 
 public final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ActionHandler
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ActionHandler
 
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.user) private var userService: UserService
 
     // MARK: - Properties
@@ -77,7 +79,62 @@ public final class RecipientBarActionHandlerService {
 
     @objc
     public func selectContactButtonTapped() {
-        Observables.contactSelectorPresentationPending.trigger()
+        Task { @MainActor in
+            func presentCTA() {
+                coreGCD.after(.milliseconds(500)) {
+                    Task { await self.services.permission.presentCTA(for: .contacts) }
+                }
+            }
+
+            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+
+            guard services.permission.contactPermissionStatus == .granted else {
+                let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
+
+                switch requestPermissionResult {
+                case let .success(status):
+                    guard status == .granted else {
+                        presentCTA()
+                        return
+                    }
+
+                    if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true) { Logger.log(exception, with: .toast()) }
+                    selectContactButtonTapped()
+
+                case let .failure(exception):
+                    guard !exception.isEqual(to: .contactAccessDenied) else {
+                        presentCTA()
+                        return
+                    }
+
+                    Logger.log(exception, with: .toast())
+                }
+
+                return
+            }
+
+            guard !(contactPairArchive ?? []).isEmpty else {
+                let inviteAlert: AKAlert = .init(
+                    message: Strings.inviteAlertMessage,
+                    actions: [.init(title: Strings.inviteAlertActionTitle, style: .preferred)],
+                    sender: chatPageViewService.recipientBar?.layout.selectContactButton
+                )
+
+                inviteAlert.present { actionID in
+                    guard actionID != -1 else { return }
+
+                    Task {
+                        if let exception = await self.services.invite.presentInvitationPrompt() {
+                            Logger.log(exception, with: .toast())
+                        }
+                    }
+                }
+
+                return
+            }
+
+            Observables.contactSelectorPresentationPending.trigger()
+        }
     }
 
     @objc
@@ -119,7 +176,7 @@ public final class RecipientBarActionHandlerService {
             case let .success(users):
                 guard let firstUser = users.first else { return } // TODO: Need action for multiple users.
                 let userNumberHash = firstUser.phoneNumber.nationalNumberString.digits.encodedHash
-                guard let contactPair = contactPairArchive.getValue(userNumberHash: userNumberHash) else {
+                guard let contactPair = services.contact.contactPairArchive.getValue(userNumberHash: userNumberHash) else {
                     contactSelectionUIService.selectContactPair(.withUser(firstUser))
                     return
                 }

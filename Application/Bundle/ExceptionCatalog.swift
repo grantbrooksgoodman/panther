@@ -18,6 +18,7 @@ import Redux
 public enum AppException: String {
     /* Add new cases here. */
 
+    case contactAccessDenied = "C8DC"
     case currentUserIDNotSet = "EA90"
     case exhaustedAvailablePlatforms = "C526"
     case genericStorageError = "C81B"
@@ -38,7 +39,6 @@ public enum AppException: String {
     // FIXME: All of the below need regeneration.
 
     case avFoundationError = "EA73"
-    case contactAccessDenied = "F6E6"
     case couldntRemoveInput = "F9A1"
     case transcribeNoSuchFileOrDirectory = "5BBC"
 }
@@ -50,6 +50,9 @@ public extension Exception {
     func userFacingDescriptor(for descriptor: String) -> String? {
         // swiftlint:disable line_length
         switch descriptor {
+        case "Attempted to select contact pair containing current user.":
+            return "Cannot start a conversation with yourself."
+
         case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
             return "The format of the phone number is incorrect. Please verify that you haven't included the country code."
 

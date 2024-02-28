@@ -14,11 +14,12 @@ import UIKit
 import Redux
 
 extension RecipientBar: UITextFieldDelegate {
-    // MARK: - Should End Editing
+    // MARK: - Should Begin Editing
 
-    public func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        @Dependency(\.chatPageViewService.recipientBar?.actionHandler) var actionHandlerService: RecipientBarActionHandlerService?
-        actionHandlerService?.textFieldShouldReturn(textField.text ?? "")
+    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        @Dependency(\.chatPageViewService.recipientBar?.layout.tableView) var recipientBarTableView: UITableView?
+        guard let recipientBarTableView else { return true }
+        recipientBarTableView.setContentOffset(recipientBarTableView.contentOffset, animated: false)
         return true
     }
 

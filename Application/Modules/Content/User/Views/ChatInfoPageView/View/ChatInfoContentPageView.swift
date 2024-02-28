@@ -43,9 +43,14 @@ public struct ChatInfoContentPageView: View {
             .interactiveDismissDisabled(true)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
-        .onTraitCollectionChange { viewModel.send(.traitCollectionChanged) }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
         .redrawsOnTraitCollectionChange()
         .preferredStatusBarStyle(.lightContent)
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
     }
 
     private var doneToolbarButton: some ToolbarContent {

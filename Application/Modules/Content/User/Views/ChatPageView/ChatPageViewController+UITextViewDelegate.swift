@@ -23,19 +23,34 @@ extension ChatPageViewController: UITextViewDelegate {
             .first(where: { $0.primaryLanguage!.lowercased().hasPrefix(RuntimeStorage.languageCode) })
     }
 
-    // MARK: - Should Change Text in Range
+    // MARK: - Should Begin Editing
 
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
-        return !recordingService.isInOrWillTransitionToRecordingState
+    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
+        recipientBarService?.actionHandler.textFieldShouldReturn(recipientBarService?.layout.textField?.text ?? "")
+        return true
     }
 
     // MARK: - Did Begin Editing
 
     public func textViewDidBeginEditing(_ textView: UITextView) {
-        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
-        guard let inputBarService else { return }
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
+
+        typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
+        coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) {
+            chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: true)
+        }
+
+        guard let inputBarService = chatPageViewService.inputBar else { return }
         inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)
+    }
+
+    // MARK: - Should Change Text in Range
+
+    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
+        return !recordingService.isInOrWillTransitionToRecordingState
     }
 
     // MARK: - Did Change

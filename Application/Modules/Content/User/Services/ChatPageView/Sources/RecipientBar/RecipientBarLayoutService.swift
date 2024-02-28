@@ -22,7 +22,7 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
@@ -34,13 +34,13 @@ public final class RecipientBarLayoutService {
     // MARK: - Computed Properties
 
     public var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
+    public var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
     public var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
     public var textField: UITextField? { recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
     public var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
     private var screenWidth: CGFloat { getScreenWidth() }
-    private var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
 
     // MARK: - Init
 
@@ -155,14 +155,14 @@ public final class RecipientBarLayoutService {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.selectContactButtonSemanticTag).isEmpty,
               let selectContactButton = buildSelectContactButton() else { return }
-        selectContactButton.tag = coreUI.semTag(for: Strings.selectContactButtonSemanticTag)
+        selectContactButton.tag = core.ui.semTag(for: Strings.selectContactButtonSemanticTag)
         recipientBarView.addSubview(selectContactButton)
     }
 
     private func configureTableView() {
         guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty, // TODO: Audit this.
               let tableView = buildTableView() else { return }
-        tableView.tag = coreUI.semTag(for: Strings.tableViewSemanticTag)
+        tableView.tag = core.ui.semTag(for: Strings.tableViewSemanticTag)
         viewController.view.addSubview(tableView) // TODO: Needs additional configuration.
     }
 
@@ -170,7 +170,7 @@ public final class RecipientBarLayoutService {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.textFieldSemanticTag).isEmpty,
               let textField = buildTextField() else { return }
-        textField.tag = coreUI.semTag(for: Strings.textFieldSemanticTag)
+        textField.tag = core.ui.semTag(for: Strings.textFieldSemanticTag)
         recipientBarView.addSubview(textField)
     }
 
@@ -178,7 +178,7 @@ public final class RecipientBarLayoutService {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.toLabelSemanticTag).isEmpty,
               let toLabel = buildToLabel() else { return }
-        toLabel.tag = coreUI.semTag(for: Strings.toLabelSemanticTag)
+        toLabel.tag = core.ui.semTag(for: Strings.toLabelSemanticTag)
         recipientBarView.addSubview(toLabel)
     }
 

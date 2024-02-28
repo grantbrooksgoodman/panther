@@ -39,14 +39,14 @@ public struct ContactPairCellView: View {
             } label: {
                 labelView
             }
-            .disabled(contactPair.containsCurrentUser)
+            .disabled(contactPair.containsCurrentUser || contactPair.isSelected)
         } else {
             labelView
         }
     }
 
     private var labelView: some View {
-        let foregroundColor = contactPair.containsCurrentUser ? Colors.labelCurrentUserForeground : .titleText
+        let foregroundColor = (contactPair.containsCurrentUser || contactPair.isSelected) ? Colors.labelDisabledForeground : .titleText
 
         return HStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline, spacing: Floats.hStackSpacing) {

@@ -18,7 +18,6 @@ public struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
@@ -45,7 +44,7 @@ public struct SettingsPageReducer: Reducer {
 
     public enum Feedback {
         case fetchCnContactForCurrentUserReturned(Callback<CNContact, Exception>)
-        case inviteFriendsButtonTappedReturned(Callback<Bool, Exception>)
+        case inviteFriendsButtonTappedReturned(Exception?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -223,12 +222,8 @@ public struct SettingsPageReducer: Reducer {
             state.viewID = UUID()
             Logger.log(exception)
 
-        case let .inviteFriendsButtonTappedReturned(.success(wantsToTranslate)):
-            guard wantsToTranslate else { return .none }
-            state.isPresented.wrappedValue = false
-            coreGCD.after(.seconds(2)) { RootSheets.present(.inviteLanguagePicker) }
-
-        case let .inviteFriendsButtonTappedReturned(.failure(exception)):
+        case let .inviteFriendsButtonTappedReturned(exception):
+            guard let exception else { return .none }
             Logger.log(exception, with: .toast())
 
         case let .resolveReturned(.success(strings)):

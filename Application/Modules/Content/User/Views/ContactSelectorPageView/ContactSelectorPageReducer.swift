@@ -14,24 +14,60 @@ import SwiftUI
 import Redux
 
 public struct ContactSelectorPageReducer: Reducer {
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.commonServices.invite) private var inviteService: InviteService
+    @Dependency(\.uiApplication.keyWindow?.rootViewController) private var keyViewController: UIViewController?
+
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
 
+        case cancelToolbarButtonTapped
+        case inviteToolbarButtonTapped
+
         case isPresentedChanged(Bool)
+        case searchQueryChanged(String)
+        case selectedContactPairChanged(ContactPair)
+
+        case traitCollectionChanged
     }
 
     // MARK: - Feedback
 
-    public enum Feedback {}
+    public enum Feedback {
+        case presentInvitationPromptReturned(Exception?)
+    }
 
     // MARK: - State
 
     public struct State: Equatable {
         /* MARK: Properties */
 
+        // String
+        @Localized(.cancel) public var cancelToolbarButtonText: String
+        @Localized(.done) public var doneToolbarButtonText: String
+        @Localized(.invite) public var inviteToolbarButtonText: String
+        @Localized(.contacts) public var navigationTitle: String
+        @Localized(.noResults) public var noResultsLabelText: String
+        public var searchQuery = ""
+
+        // Other
         public var isPresented: Binding<Bool>
+        public var selectedContactPair: ContactPair?
+
+        /* MARK: Computed Properties */
+
+        public var contactPairs: [ContactPair] {
+            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+            return contactPairArchive ?? .init()
+        }
+
+        public var queriedContactPairs: [ContactPair] { contactPairs.queried(by: searchQuery) }
+        public var sections: [String: [ContactPair]] { .init(grouping: queriedContactPairs, by: { $0.contact.tableViewSectionTitle }) }
 
         /* MARK: Init */
 
@@ -42,9 +78,29 @@ public struct ContactSelectorPageReducer: Reducer {
         /* MARK: Equatable Conformance */
 
         public static func == (left: State, right: State) -> Bool {
+            let sameCancelToolbarButtonText = left.cancelToolbarButtonText == right.cancelToolbarButtonText
+            let sameContactPairs = left.contactPairs == right.contactPairs
+            let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
+            let sameInviteToolbarButtonText = left.inviteToolbarButtonText == right.inviteToolbarButtonText
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
+            let sameNavigationTitle = left.navigationTitle == right.navigationTitle
+            let sameNoResultsLabelText = left.noResultsLabelText == right.noResultsLabelText
+            let sameQueriedContactPairs = left.queriedContactPairs == right.queriedContactPairs
+            let sameSearchQuery = left.searchQuery == right.searchQuery
+            let sameSections = left.sections == right.sections
+            let sameSelectedContactPair = left.selectedContactPair == right.selectedContactPair
 
-            guard sameIsPresented else { return false }
+            guard sameCancelToolbarButtonText,
+                  sameContactPairs,
+                  sameDoneToolbarButtonText,
+                  sameInviteToolbarButtonText,
+                  sameIsPresented,
+                  sameNavigationTitle,
+                  sameNoResultsLabelText,
+                  sameQueriedContactPairs,
+                  sameSearchQuery,
+                  sameSections,
+                  sameSelectedContactPair else { return false }
 
             return true
         }
@@ -61,8 +117,35 @@ public struct ContactSelectorPageReducer: Reducer {
         case .action(.viewAppeared):
             break
 
+        case .action(.cancelToolbarButtonTapped):
+            state.isPresented.wrappedValue = false
+            chatPageViewService.inputBar?.forceAppearance()
+
+        case .action(.inviteToolbarButtonTapped):
+            return .task {
+                let result = await inviteService.presentInvitationPrompt()
+                return .presentInvitationPromptReturned(result)
+            }
+
         case let .action(.isPresentedChanged(isPresented)):
             state.isPresented.wrappedValue = isPresented
+
+        case let .action(.searchQueryChanged(searchQuery)):
+            state.searchQuery = searchQuery
+
+        case let .action(.selectedContactPairChanged(selectedContactPair)):
+            state.selectedContactPair = selectedContactPair
+            state.isPresented.wrappedValue = false
+            core.gcd.after(.milliseconds(100)) {
+                chatPageViewService.recipientBar?.contactSelectionUI.selectContactPair(selectedContactPair, performInputBarFix: true)
+            }
+
+        case .action(.traitCollectionChanged):
+            core.ui.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+
+        case let .feedback(.presentInvitationPromptReturned(exception)):
+            guard let exception else { return .none }
+            Logger.log(exception, with: .toast())
         }
 
         return .none

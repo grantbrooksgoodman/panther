@@ -47,6 +47,10 @@ public extension AppConstants.CGFloats {
             public static let cellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
             public static let messageTopLabelHeight: CGFloat = 15
         }
+
+        enum UITextViewDelegate {
+            public static let toggleLabelRepresentationDelayMilliseconds: CGFloat = 10
+        }
     }
 }
 

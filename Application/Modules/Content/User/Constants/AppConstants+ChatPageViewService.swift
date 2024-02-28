@@ -33,6 +33,8 @@ public extension AppConstants.CGFloats {
         }
 
         enum InputBar {
+            public static let forceAppearanceDelayMilliseconds: CGFloat = 200
+
             public static let layerBorderWidth: CGFloat = 0.5
             public static let layerCornerRadius: CGFloat = 15
 

@@ -17,6 +17,7 @@ public enum LocalizedStringKey: String {
     case audioMessage
 
     case cancel
+    case contacts
     case copy
 
     case delete
@@ -25,6 +26,7 @@ public enum LocalizedStringKey: String {
     case done
 
     case holdDownToRecord
+    case invite
 
     case multiple
     case myAccount

@@ -151,6 +151,7 @@ public final class ChatPageViewService {
 
     public func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
+        recipientBar?.contactSelectionUI.unhighlightAllViews()
         viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
         core.ui.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
         viewController?.navigationController?.isNavigationBarHidden = true
