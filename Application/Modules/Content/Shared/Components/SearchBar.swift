@@ -19,8 +19,8 @@ public struct SearchBar: View {
 
     // MARK: - Properties
 
-    // ColorScheme
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
+    // CGFloat
+    private let bottomPadding: CGFloat
 
     // String
     @Binding private var query: String
@@ -28,8 +28,12 @@ public struct SearchBar: View {
 
     // MARK: - Init
 
-    public init(_ query: Binding<String>) {
+    public init(
+        _ query: Binding<String>,
+        bottomPadding: CGFloat = AppConstants.CGFloats.SearchBar.defaultBottomPadding
+    ) {
         _query = query
+        self.bottomPadding = bottomPadding
     }
 
     // MARK: - View
@@ -57,9 +61,11 @@ public struct SearchBar: View {
                 }
             }
             .padding(.horizontal, Floats.innerHStackHorizontalPadding)
-            .background(colorScheme == .dark ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
+            .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
             .cornerRadius(Floats.innerHStackCornerRadius)
         }
+        .padding(.bottom, bottomPadding)
         .padding([.leading, .trailing])
+        .background(Color.navigationBarBackground)
     }
 }

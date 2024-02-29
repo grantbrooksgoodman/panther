@@ -43,9 +43,7 @@ public struct ContactSelectorPageView: View {
     public var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ThemedView { SearchBar(searchQueryBinding) }
-                    .padding(.bottom, Floats.searchBarBottomPadding)
-                    .background(Color.navigationBarBackground)
+                SearchBar(searchQueryBinding)
 
                 if !viewModel.queriedContactPairs.isEmpty {
                     listView

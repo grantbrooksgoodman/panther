@@ -36,7 +36,6 @@ public extension AppConstants.CGFloats {
 
         public static let listViewCellLabelSystemFontSize: CGFloat = 17
         public static let noResultsLabelSystemFontSize: CGFloat = 18
-        public static let searchBarBottomPadding: CGFloat = 7
         public static let selectedCellImageLeadingPadding: CGFloat = 3
     }
 }

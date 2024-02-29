@@ -22,8 +22,6 @@ public struct UserInfoBadgeView: View {
     private let flagImage: UIImage
     private let user: User
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
-
     // MARK: - Init
 
     public init(_ user: User, action: (() -> Void)? = nil) {
@@ -45,7 +43,7 @@ public struct UserInfoBadgeView: View {
         Rectangle()
             .overlay(contentView, alignment: .center)
             .frame(maxWidth: Floats.bodyMaxWidth, maxHeight: Floats.bodyMaxHeight)
-            .foregroundStyle(colorScheme == .dark ? Colors.bodyDarkForeground : Colors.bodyLightForeground)
+            .foregroundStyle(ThemeService.isDarkModeActive ? Colors.bodyDarkForeground : Colors.bodyLightForeground)
             .roundedCorners(Floats.bodyCornerRadius)
     }
 

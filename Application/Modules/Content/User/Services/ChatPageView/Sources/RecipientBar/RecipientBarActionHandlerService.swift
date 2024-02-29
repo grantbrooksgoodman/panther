@@ -114,6 +114,15 @@ public final class RecipientBarActionHandlerService {
             }
 
             guard !(contactPairArchive ?? []).isEmpty else {
+                if let exception = await services.contact.sync.syncContactPairArchive() {
+                    Logger.log(exception, with: .toast())
+                }
+
+                guard (contactPairArchive ?? []).isEmpty else {
+                    selectContactButtonTapped()
+                    return
+                }
+
                 let inviteAlert: AKAlert = .init(
                     message: Strings.inviteAlertMessage,
                     actions: [.init(title: Strings.inviteAlertActionTitle, style: .preferred)],
@@ -144,21 +153,23 @@ public final class RecipientBarActionHandlerService {
 
     // MARK: - Text Field Should Return
 
-    public func textFieldShouldReturn(_ text: String) {
+    public func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
             guard !text.isBlank else {
                 guard !contactSelectionUIService.selectedContactPairs.filter({ $0.isMock }).isEmpty else {
                     contactSelectionUIService.unhighlightAllViews()
-                    viewController.messageInputBar.inputTextView.becomeFirstResponder()
+                    guard makeInputBarFirstResponder else { return }
+                    self.chatPageViewService.inputBar?.becomeFirstResponder()
                     return
                 }
 
                 contactSelectionUIService.unhighlightAllViews()
                 contactSelectionUIService.deselectMockContactPairs()
+                guard makeInputBarFirstResponder else { return }
                 coreGCD.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
-                    self.viewController.messageInputBar.inputTextView.becomeFirstResponder()
+                    self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
                 return
             }

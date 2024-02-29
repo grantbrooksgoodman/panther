@@ -25,7 +25,6 @@ public struct RegionMenu: View {
 
     // MARK: - Properties
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @State private var isPresented = false
     @Binding private var selectedRegionCode: String
 
@@ -41,31 +40,34 @@ public struct RegionMenu: View {
         Button {
             isPresented.toggle()
         } label: {
-            VStack {
-                Image(uiImage: services.regionDetail.image(by: .regionCode(selectedRegionCode)) ?? .init())
-                    .resizable()
-                    .frame(
-                        width: Floats.buttonLabelImageFrameWidth,
-                        height: Floats.buttonLabelImageFrameHeight
-                    )
-                    .cornerRadius(Floats.buttonLabelImageCornerRadius)
-                    .aspectRatio(contentMode: .fit)
+            ThemedView {
+                VStack {
+                    Image(uiImage: services.regionDetail.image(by: .regionCode(selectedRegionCode)) ?? .init())
+                        .resizable()
+                        .frame(
+                            width: Floats.buttonLabelImageFrameWidth,
+                            height: Floats.buttonLabelImageFrameHeight
+                        )
+                        .cornerRadius(Floats.buttonLabelImageCornerRadius)
+                        .aspectRatio(contentMode: .fit)
 
-                Text("+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")")
-                    .foregroundStyle(Colors.buttonLabelTextForeground)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(
-                minWidth: Floats.buttonLabelVStackFrameMinWidth,
-                minHeight: Floats.buttonLabelVStackFrameMinHeight
-            )
-            .background(
-                RoundedRectangle(
-                    cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
+                    Text("+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")")
+                        .foregroundStyle(Colors.buttonLabelTextForeground)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(
+                    minWidth: Floats.buttonLabelVStackFrameMinWidth,
+                    minHeight: Floats.buttonLabelVStackFrameMinHeight
                 )
-            )
-            .foregroundStyle(colorScheme == .dark ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground)
-            .shadow(radius: Floats.buttonLabelVStackShadowRadius)
+                .background(
+                    RoundedRectangle(
+                        cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
+                    )
+                )
+                .foregroundStyle(ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground)
+                .shadow(radius: Floats.buttonLabelVStackShadowRadius)
+            }
+            .redrawsOnTraitCollectionChange()
         }
         .popover(isPresented: $isPresented) {
             RegionPickerView(
@@ -122,8 +124,6 @@ private struct RegionPickerView: View {
         if viewModel.isPresented.wrappedValue {
             ScrollViewReader { proxy in
                 SearchBar(searchQueryBinding)
-                    .padding(.bottom, Floats.searchBarBottomPadding)
-                    .background(Color.navigationBarBackground)
 
                 if let regionTitles = viewModel.queriedRegionTitles {
                     listView(regionTitles: regionTitles)

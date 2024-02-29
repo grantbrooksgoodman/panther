@@ -21,7 +21,6 @@ public struct SplashPageView: View {
 
     // MARK: - Properties
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @StateObject private var viewModel: ViewModel<SplashPageReducer>
 
     // MARK: - Init
@@ -36,8 +35,8 @@ public struct SplashPageView: View {
         VStack {
             Image(.hello)
                 .resizable()
-                .renderingMode(colorScheme == .dark ? .template : .original)
-                .foregroundColor(colorScheme == .dark ? Colors.imageDarkForeground : .none)
+                .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
                 .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                 .padding(.bottom, Floats.padding)
 

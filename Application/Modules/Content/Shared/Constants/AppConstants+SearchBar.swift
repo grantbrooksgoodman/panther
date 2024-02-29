@@ -15,6 +15,7 @@ import SwiftUI
 public extension AppConstants.CGFloats {
     enum SearchBar {
         public static let clearButtonImageOpacity: CGFloat = 1
+        public static let defaultBottomPadding: CGFloat = 8
 
         public static let innerHStackCornerRadius: CGFloat = 10
         public static let innerHStackHorizontalPadding: CGFloat = 8

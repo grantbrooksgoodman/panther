@@ -24,8 +24,6 @@ public struct SettingsContentPageView: View {
 
     @ObservedObject public var viewModel: ViewModel<SettingsPageReducer>
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
-
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<SettingsPageReducer>) {
@@ -70,7 +68,7 @@ public struct SettingsContentPageView: View {
     private var buildInfoButton: some View {
         Group {
             if viewModel.buildInfoButtonStrings.key == .copyright {
-                let image = colorScheme == .dark ? viewModel.buildInfoButtonDarkBackgroundImage : viewModel.buildInfoButtonLightBackgroundImage
+                let image = ThemeService.isDarkModeActive ? viewModel.buildInfoButtonDarkBackgroundImage : viewModel.buildInfoButtonLightBackgroundImage
                 Image(uiImage: image)
                     .renderingMode(.template)
                     .resizable()

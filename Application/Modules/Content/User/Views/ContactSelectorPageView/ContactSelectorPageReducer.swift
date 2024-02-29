@@ -141,7 +141,7 @@ public struct ContactSelectorPageReducer: Reducer {
             }
 
         case .action(.traitCollectionChanged):
-            core.ui.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+            core.ui.setNavigationBarAppearance()
 
         case let .feedback(.presentInvitationPromptReturned(exception)):
             guard let exception else { return .none }

@@ -23,7 +23,6 @@ public struct StaticListView: View {
 
     private let items: [StaticListItem]
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @State private var selectedItem: StaticListItem?
 
     // MARK: - Init
@@ -39,7 +38,7 @@ public struct StaticListView: View {
             VStack(alignment: .center, spacing: 0) {
                 List {
                     ForEach(items, id: \.self) { item in
-                        if colorScheme == .dark {
+                        if ThemeService.isDarkModeActive {
                             cellView(item)
                                 .listRowBackground(selectedItem == item ? Colors.cellViewSelectedDarkBackground : Colors.cellViewDefaultDarkBackground)
                         } else {
@@ -73,7 +72,7 @@ public struct StaticListView: View {
     @ViewBuilder
     private func cellView(_ item: StaticListItem) -> some View {
         if let action = item.action {
-            if colorScheme == .dark {
+            if ThemeService.isDarkModeActive {
                 Button {} label: {
                     labelView(item)
                 }

@@ -21,7 +21,6 @@ public struct WelcomeContentPageView: View {
 
     // MARK: - Properties
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @ObservedObject private var viewModel: ViewModel<WelcomePageReducer>
 
     // MARK: - Init
@@ -36,8 +35,8 @@ public struct WelcomeContentPageView: View {
         VStack {
             Image(.hello)
                 .resizable()
-                .renderingMode(colorScheme == .dark ? .template : .original)
-                .foregroundColor(colorScheme == .dark ? Colors.imageDarkForeground : .none)
+                .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
                 .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                 .padding(.bottom, Floats.imageBottomPadding)
 

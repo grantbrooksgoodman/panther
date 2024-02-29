@@ -16,6 +16,7 @@ public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.chatPageViewService.inputBar?) private var inputBarService: InputBarService?
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
@@ -45,6 +46,7 @@ public struct ChatInfoPageReducer: Reducer {
         /* MARK: Properties */
 
         @Localized(.done) public var doneToolbarButtonText: String
+        public var inputBarWasFirstResponder = false
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -62,12 +64,16 @@ public struct ChatInfoPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loaded
+            state.inputBarWasFirstResponder = inputBarService?.isFirstResponder ?? false
+            coreUI.resignFirstResponder()
 
         case .action(.doneToolbarButtonTapped):
             RootSheets.dismiss()
+            guard state.inputBarWasFirstResponder else { return .none }
+            inputBarService?.becomeFirstResponder()
 
         case .action(.traitCollectionChanged):
-            coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+            coreUI.setNavigationBarAppearance()
         }
 
         return .none

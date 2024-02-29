@@ -43,6 +43,7 @@ public final class InputBarService {
 
     // MARK: - Computed Properties
 
+    public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
     public var shouldEnableSendButton: Bool {
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
@@ -148,6 +149,15 @@ public final class InputBarService {
         }
     }
 
+    // MARK: - Become First Responder
+
+    public func becomeFirstResponder() {
+        while !inputBar.inputTextView.isFirstResponder {
+            guard inputBar.inputTextView.canBecomeFirstResponder else { return }
+            inputBar.inputTextView.becomeFirstResponder()
+        }
+    }
+
     // MARK: - Did Press Record Button
 
     public func didPressRecordButton(with command: RecordButtonCommand) async -> Exception? {
@@ -236,9 +246,9 @@ public final class InputBarService {
             metadata: [self, #file, #function, #line]
         )
 
-        while !viewController.messageInputBar.inputTextView.isFirstResponder {
-            guard viewController.messageInputBar.inputTextView.canBecomeFirstResponder else { return }
-            viewController.messageInputBar.inputTextView.becomeFirstResponder()
+        while !inputBar.inputTextView.isFirstResponder {
+            guard inputBar.inputTextView.canBecomeFirstResponder else { return }
+            inputBar.inputTextView.becomeFirstResponder()
         }
 
         core.gcd.after(.milliseconds(Floats.forceAppearanceDelayMilliseconds)) {
@@ -251,7 +261,9 @@ public final class InputBarService {
     // MARK: - Set Send Button Is Enabled
 
     public func setSendButtonIsEnabled(_ sendButtonIsEnabled: Bool) {
-        guard inputBar.sendButton.isEnabled != sendButtonIsEnabled else { return }
+        if !isForcingAppearance {
+            guard inputBar.sendButton.isEnabled != sendButtonIsEnabled else { return }
+        }
 
         mainQueue.async {
             UIView.transition(

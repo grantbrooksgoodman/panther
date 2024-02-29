@@ -35,7 +35,6 @@ public final class ChatPageViewService {
 
     public private(set) var alternateMessage: AlternateMessageService?
     public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
-    public private(set) var configuration: ChatPageView.Configuration = .default
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
     public private(set) var inputBar: InputBarService?
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
@@ -45,6 +44,7 @@ public final class ChatPageViewService {
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
+    private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
 
     // MARK: - Instantiate View Controller
@@ -153,7 +153,7 @@ public final class ChatPageViewService {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
         recipientBar?.contactSelectionUI.unhighlightAllViews()
         viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
-        core.ui.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+        core.ui.setNavigationBarAppearance()
         viewController?.navigationController?.isNavigationBarHidden = true
         viewController?.navigationController?.isNavigationBarHidden = false
         reloadCollectionView()

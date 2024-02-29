@@ -27,7 +27,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
     public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
-        recipientBarService?.actionHandler.textFieldShouldReturn(recipientBarService?.layout.textField?.text ?? "")
+        recipientBarService?.actionHandler.textFieldShouldReturn(recipientBarService?.layout.textField?.text ?? "", makeInputBarFirstResponder: false)
         return true
     }
 

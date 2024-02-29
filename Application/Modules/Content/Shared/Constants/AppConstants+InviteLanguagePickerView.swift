@@ -17,7 +17,6 @@ public extension AppConstants.CGFloats {
         public static let cellLabelSystemFontSize: CGFloat = 17
         public static let headerItemSystemFontSize: CGFloat = 17
         public static let noResultsLabelSystemFontSize: CGFloat = 18
-        public static let searchBarBottomPadding: CGFloat = 7
     }
 }
 

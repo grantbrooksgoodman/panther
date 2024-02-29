@@ -46,8 +46,6 @@ public struct InviteLanguagePickerView: View {
     public var body: some View {
         ScrollViewReader { _ in
             SearchBar(searchQueryBinding)
-                .padding(.bottom, Floats.searchBarBottomPadding)
-                .background(Color.navigationBarBackground)
 
             VStack {
                 if viewModel.queriedLanguageNames.isEmpty,

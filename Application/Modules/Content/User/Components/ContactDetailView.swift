@@ -29,8 +29,6 @@ public struct ContactDetailView: View {
     // Other
     private let image: UIImage?
 
-    @Environment(\.colorScheme) private var colorScheme: ColorScheme
-
     // MARK: - Init
 
     public init(
@@ -71,7 +69,7 @@ public struct ContactDetailView: View {
             }
         }
         .padding()
-        .background(colorScheme == .dark ? Colors.darkBackground : Colors.lightBackground)
+        .background(ThemeService.isDarkModeActive ? Colors.darkBackground : Colors.lightBackground)
         .cornerRadius(Floats.cornerRadius)
     }
 }

@@ -22,7 +22,7 @@ public struct ConversationsPageViewService {
     // MARK: - Methods
 
     public func viewAppeared() {
-        coreUI.setNavigationBarAppearance(backgroundColor: .navigationBarBackground, titleColor: .navigationBarTitle)
+        coreUI.setNavigationBarAppearance()
         userSession.startObservingCurrentUserChanges()
 
         Task {
