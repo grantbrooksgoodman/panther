@@ -21,12 +21,18 @@ public struct HostedTranslationService {
     // MARK: - Properties
 
     public let archiver: HostedTranslationArchiver
+    public let languageRecognition: LanguageRecognitionService
     public let legacy: LegacyTranslationService
 
     // MARK: - Init
 
-    public init(archiver: HostedTranslationArchiver, legacy: LegacyTranslationService) {
+    public init(
+        archiver: HostedTranslationArchiver,
+        languageRecognition: LanguageRecognitionService,
+        legacy: LegacyTranslationService
+    ) {
         self.archiver = archiver
+        self.languageRecognition = languageRecognition
         self.legacy = legacy
     }
 
@@ -131,6 +137,18 @@ public struct HostedTranslationService {
             }
 
             return .success(archivedTranslation.withSanitizedOutput)
+        }
+
+        if languageRecognition.matchConfidence(for: input.value(), inLanguage: languagePair.to) > 0.8 {
+            let translation: Translation = .init(
+                input: input,
+                output: input.value(),
+                languagePair: languagePair
+            )
+
+            await archiver.addToHostedArchive(translation)
+            TranslationArchiver.addToArchive(translation)
+            return .success(translation)
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(

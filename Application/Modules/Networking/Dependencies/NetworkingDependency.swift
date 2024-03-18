@@ -31,6 +31,7 @@ public enum NetworkingDependency: DependencyKey {
                 ),
                 translation: .init(
                     archiver: .init(),
+                    languageRecognition: .init(),
                     legacy: .init()
                 ),
                 user: .init(legacy: .init())

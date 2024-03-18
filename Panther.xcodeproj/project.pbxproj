@@ -291,6 +291,9 @@
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
+		B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */; };
+		B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */; };
+		B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */; };
 		B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */; };
 		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
 		B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */; };
@@ -1123,6 +1126,9 @@
 		B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberKitDependency.swift; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDefaultsKeys.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
+		B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageRecognitionService.swift; sourceTree = "<group>"; };
+		B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLLanguageRecognizerDependency.swift; sourceTree = "<group>"; };
+		B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextCheckerDependency.swift; sourceTree = "<group>"; };
 		B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+InputBarAccessoryViewDelegate.swift"; sourceTree = "<group>"; };
 		B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewService.swift; sourceTree = "<group>"; };
 		B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -2094,6 +2100,7 @@
 			children = (
 				B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */,
 				B9E6D7EC2B1293CB000BC88D /* HostedTranslationService.swift */,
+				B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */,
 				B90244042B27ABC200448809 /* LegacyTranslationService.swift */,
 			);
 			path = Services;
@@ -2856,7 +2863,9 @@
 				B9D0D91B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift */,
 				B9E0E0F82B20EFDB00C14274 /* FirebaseStorageDependency.swift */,
 				B9D0D9192B03019E00078A93 /* NetworkingDependency.swift */,
+				B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */,
 				B980E8AA2B2251BD0090F141 /* StandardDateFormatterDependency.swift */,
+				B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -4084,6 +4093,7 @@
 				B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
+				B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */,
 				B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */,
 				B96D44012B8495EC00C66B46 /* PassthroughWindow.swift in Sources */,
 				B93BCDF32AADA47400AA16FE /* BuildConfig.swift in Sources */,
@@ -4126,6 +4136,7 @@
 				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
 				B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */,
+				B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */,
 				B9E7D4292AAC1F0400FAF2A9 /* CoreConstants+FailureView.swift in Sources */,
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,
 				B9D0D9462B03019E00078A93 /* CoreDatabase.swift in Sources */,
@@ -4494,6 +4505,7 @@
 				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
+				B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,
 				B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,
