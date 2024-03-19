@@ -211,6 +211,7 @@ public final class MessageDeliveryService {
             conversation.id,
             messageIDs: conversation.messageIDs,
             messages: messages,
+            name: conversation.name,
             lastModifiedDate: conversation.lastModifiedDate,
             participants: conversation.participants,
             users: conversation.users

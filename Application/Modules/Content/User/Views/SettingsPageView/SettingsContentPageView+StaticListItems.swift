@@ -18,17 +18,6 @@ public extension SettingsContentPageView {
 
     // MARK: - Properties
 
-    var changeLanguageListItem: StaticListItem {
-        .init(
-            title: viewModel.strings.value(for: .changeLanguageButtonText),
-            imageData: (.init(systemName: Strings.changeLanguageButtonImageSystemName), Colors.changeLanguageButtonImageForeground),
-            destination: {
-                // TODO: Link to change language page view.
-                EmptyView()
-            }
-        )
-    }
-
     var changeThemeListItem: StaticListItem {
         .init(
             title: viewModel.strings.value(for: .changeThemeButtonText),

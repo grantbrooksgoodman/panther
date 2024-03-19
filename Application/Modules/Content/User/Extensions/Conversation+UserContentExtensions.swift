@@ -17,6 +17,7 @@ public extension Conversation {
             .init(key: "", hash: ""),
             messageIDs: [],
             messages: nil,
+            name: .bangQualifiedEmpty,
             lastModifiedDate: .init(),
             participants: [],
             users: nil
@@ -31,6 +32,7 @@ public extension Conversation {
             id,
             messageIDs: messageIDs,
             messages: messages?.sortedByAscendingSentDate,
+            name: name,
             lastModifiedDate: lastModifiedDate,
             participants: participants,
             users: users
@@ -44,6 +46,7 @@ public extension Conversation {
             .init(key: "", hash: ""),
             messageIDs: [],
             messages: nil,
+            name: .bangQualifiedEmpty,
             lastModifiedDate: .init(),
             participants: [],
             users: users
@@ -55,6 +58,7 @@ public extension Conversation {
             .init(key: UserContentConstants.newConversationID, hash: ""),
             messageIDs: [],
             messages: nil,
+            name: .bangQualifiedEmpty,
             lastModifiedDate: .init(),
             participants: [],
             users: users

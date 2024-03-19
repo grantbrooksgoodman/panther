@@ -128,7 +128,6 @@ public struct SettingsContentPageView: View {
             [
                 inviteFriendsListItem,
                 leaveReviewListItem,
-                sendFeedbackListItem,
             ]
         )
         .padding(.bottom, Floats.staticListViewBottomPadding)
@@ -136,8 +135,8 @@ public struct SettingsContentPageView: View {
 
         StaticListView(
             [
-                changeLanguageListItem,
                 changeThemeListItem,
+                sendFeedbackListItem,
             ]
         )
         .padding(.bottom, Floats.staticListViewBottomPadding)

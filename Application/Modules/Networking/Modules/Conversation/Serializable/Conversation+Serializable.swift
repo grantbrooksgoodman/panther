@@ -24,6 +24,7 @@ extension Conversation: Serializable {
         case id
         case encodedHash = "hash"
         case messages
+        case name
         case lastModifiedDate = "lastModified"
         case participants
     }
@@ -37,6 +38,7 @@ extension Conversation: Serializable {
             Keys.id.rawValue: id.encoded,
             Keys.encodedHash.rawValue: encodedHash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
+            Keys.name.rawValue: name,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
             Keys.participants.rawValue: participants.map(\.encoded),
         ]
@@ -51,6 +53,7 @@ extension Conversation: Serializable {
         guard let id = data[Keys.id.rawValue] as? String,
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               let messageIDs = data[Keys.messages.rawValue] as? [String],
+              let name = data[Keys.name.rawValue] as? String,
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
               let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
@@ -97,6 +100,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs,
                 messages: nil,
+                name: name,
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil
@@ -120,6 +124,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
                 messages: .init(),
+                name: name,
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil
@@ -141,6 +146,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs,
                 messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
+                name: name,
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: nil

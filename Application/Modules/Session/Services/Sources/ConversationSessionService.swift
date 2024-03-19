@@ -40,6 +40,7 @@ public final class ConversationSessionService {
             currentConversation.id,
             messageIDs: currentConversation.messageIDs,
             messages: completeMessageArray,
+            name: currentConversation.name,
             lastModifiedDate: currentConversation.lastModifiedDate,
             participants: currentConversation.participants,
             users: currentConversation.users
@@ -118,6 +119,7 @@ public final class ConversationSessionService {
                         .init(key: conversation.id.key, hash: string),
                         messageIDs: conversation.messageIDs,
                         messages: conversation.messages,
+                        name: conversation.name,
                         lastModifiedDate: conversation.lastModifiedDate,
                         participants: conversation.participants,
                         users: conversation.users
@@ -374,6 +376,7 @@ public final class ConversationSessionService {
             conversation.id,
             messageIDs: conversation.messageIDs,
             messages: messages.reversed()[0 ... amountToGet].reversed(),
+            name: conversation.name,
             lastModifiedDate: conversation.lastModifiedDate,
             participants: conversation.participants,
             users: conversation.users

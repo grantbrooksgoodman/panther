@@ -27,6 +27,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // Other
     public let id: ConversationID
     public let lastModifiedDate: Date
+    public let name: String
 
     // MARK: - Computed Properties
 
@@ -34,6 +35,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
         factors.append(dateFormatter.string(from: lastModifiedDate))
+        factors.append(name)
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
         factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
@@ -46,6 +48,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         _ id: ConversationID,
         messageIDs: [String],
         messages: [Message]?,
+        name: String,
         lastModifiedDate: Date,
         participants: [Participant],
         users: [User]?
@@ -53,6 +56,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         self.id = id
         self.messageIDs = messageIDs
         self.messages = messages
+        self.name = name
         self.lastModifiedDate = lastModifiedDate
         self.participants = participants
         self.users = users
@@ -171,12 +175,14 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         let sameID = left.id == right.id
         let sameLastModifiedDate = left.lastModifiedDate == right.lastModifiedDate
         let sameMessages = left.messages == right.messages
+        let sameName = left.name == right.name
         let sameParticipants = left.participants == right.participants
         let sameUsers = left.users == right.users
 
         guard sameID,
               sameLastModifiedDate,
               sameMessages,
+              sameName,
               sameParticipants,
               sameUsers else { return false }
 

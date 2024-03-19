@@ -24,6 +24,7 @@ extension Conversation: Updatable {
         [
             .lastModifiedDate,
             .messages,
+            .name,
             .participants,
         ]
     }
@@ -44,6 +45,7 @@ extension Conversation: Updatable {
                 id,
                 messageIDs: messageIDs,
                 messages: messages,
+                name: name,
                 lastModifiedDate: dateFormatter.date(from: value) ?? lastModifiedDate,
                 participants: participants,
                 users: users
@@ -55,6 +57,19 @@ extension Conversation: Updatable {
                 id,
                 messageIDs: value.map(\.id).unique,
                 messages: value.uniquedByID,
+                name: name,
+                lastModifiedDate: lastModifiedDate,
+                participants: participants,
+                users: users
+            ))
+
+        case .name:
+            guard let value = value as? String else { return nil }
+            return updateIDHash(.init(
+                id,
+                messageIDs: messageIDs,
+                messages: messages,
+                name: value,
                 lastModifiedDate: lastModifiedDate,
                 participants: participants,
                 users: users
@@ -66,6 +81,7 @@ extension Conversation: Updatable {
                 id,
                 messageIDs: messageIDs,
                 messages: messages,
+                name: name,
                 lastModifiedDate: lastModifiedDate,
                 participants: value,
                 users: users
@@ -159,6 +175,7 @@ extension Conversation: Updatable {
             .init(key: conversation.id.key, hash: conversation.encodedHash),
             messageIDs: messageIDs,
             messages: conversation.messages,
+            name: conversation.name,
             lastModifiedDate: conversation.lastModifiedDate,
             participants: conversation.participants,
             users: conversation.users
