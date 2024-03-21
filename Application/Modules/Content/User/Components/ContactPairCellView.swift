@@ -13,7 +13,6 @@ import SwiftUI
 public struct ContactPairCellView: View {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.ContactPairCellView
     private typealias Floats = AppConstants.CGFloats.ContactPairCellView
 
     // MARK: - Properties
@@ -46,7 +45,7 @@ public struct ContactPairCellView: View {
     }
 
     private var labelView: some View {
-        let foregroundColor = (contactPair.containsCurrentUser || contactPair.isSelected) ? Colors.labelDisabledForeground : .titleText
+        let foregroundColor = (contactPair.containsCurrentUser || contactPair.isSelected) ? Color.disabled : .titleText
 
         return HStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline, spacing: Floats.hStackSpacing) {

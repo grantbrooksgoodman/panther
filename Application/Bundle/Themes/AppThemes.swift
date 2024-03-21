@@ -54,6 +54,7 @@ public enum AppTheme: CaseIterable {
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: .white, variant: .black))
+        let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))
 
         let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: .white, variant: .init(hex: 0x1A1A1C)))
@@ -70,6 +71,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            disabled,
             listViewBackground,
             inputBarBackground,
             navigationBarBackground,
@@ -87,6 +89,7 @@ public enum AppTheme: CaseIterable {
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: backgroundColor))
+        let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
@@ -103,6 +106,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            disabled,
             listViewBackground,
             inputBarBackground,
             navigationBarBackground,
@@ -120,6 +124,7 @@ public enum AppTheme: CaseIterable {
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: backgroundColor))
+        let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
@@ -136,6 +141,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            disabled,
             listViewBackground,
             inputBarBackground,
             navigationBarBackground,
@@ -153,6 +159,7 @@ public enum AppTheme: CaseIterable {
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: backgroundColor))
+        let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
@@ -169,6 +176,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            disabled,
             listViewBackground,
             inputBarBackground,
             navigationBarBackground,
@@ -186,6 +194,7 @@ public enum AppTheme: CaseIterable {
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
         let background = Item(type: .background, set: .init(primary: backgroundColor))
+        let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
@@ -202,6 +211,7 @@ public enum AppTheme: CaseIterable {
         return [
             accent,
             background,
+            disabled,
             listViewBackground,
             inputBarBackground,
             navigationBarBackground,

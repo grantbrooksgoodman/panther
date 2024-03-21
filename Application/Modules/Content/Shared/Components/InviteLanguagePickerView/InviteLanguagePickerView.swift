@@ -125,7 +125,7 @@ public struct InviteLanguagePickerView: View {
             .init(text: .init(
                 viewModel.doneHeaderItemText,
                 font: .system(size: Floats.headerItemSystemFontSize, weight: .semibold),
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? .accent : Colors.doneHeaderItemDisabledForeground
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? .accent : .disabled
             )) {
                 if viewModel.isDoneHeaderItemEnabled {
                     viewModel.send(.doneHeaderItemTapped)

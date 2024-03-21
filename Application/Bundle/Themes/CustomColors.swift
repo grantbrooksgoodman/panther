@@ -17,6 +17,7 @@ import UIKit
 public enum ColoredItemType: String, Equatable {
     case accent
     case background
+    case disabled
     case listViewBackground
 
     case inputBarBackground
@@ -37,6 +38,7 @@ public enum ColoredItemType: String, Equatable {
 public extension UIColor {
     static var accent: UIColor { theme.color(for: .accent) }
     static var background: UIColor { theme.color(for: .background) }
+    static var disabled: UIColor { theme.color(for: .disabled) }
     static var listViewBackground: UIColor { theme.color(for: .listViewBackground) }
 
     static var inputBarBackground: UIColor { theme.color(for: .inputBarBackground) }
@@ -59,6 +61,7 @@ public extension UIColor {
 public extension Color {
     static var accent: Color { .init(uiColor: .accent) }
     static var background: Color { .init(uiColor: .background) }
+    static var disabled: Color { .init(uiColor: .disabled) }
     static var listViewBackground: Color { .init(uiColor: .listViewBackground) }
 
     static var inputBarBackground: Color { .init(uiColor: .inputBarBackground) }

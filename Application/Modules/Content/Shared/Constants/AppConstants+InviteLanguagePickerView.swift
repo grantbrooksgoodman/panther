@@ -24,7 +24,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum InviteLanguagePickerView {
-        public static let doneHeaderItemDisabledForeground: Color = .init(uiColor: .systemGray2)
         public static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
         public static let selectedCellImageForeground: Color = .green
     }

@@ -52,8 +52,12 @@ public struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Properties */
 
-        @Localized(.done) public var doneToolbarButtonText: String
+        // Bool
         public var inputBarWasFirstResponder = false
+        public var isChangeNameButtonEnabled = true
+
+        // Other
+        @Localized(.done) public var doneToolbarButtonText: String
         public var viewState: ViewState = .loading
         public var viewID = UUID()
 
@@ -96,6 +100,7 @@ public struct ChatInfoPageReducer: Reducer {
             coreUI.resignFirstResponder()
 
         case .action(.changeNameButtonTapped):
+            state.isChangeNameButtonEnabled = false
             return .task {
                 let result = await viewService.presentChangeNameAlert()
                 return .changeNameAlertDismissed(input: result)
@@ -112,7 +117,10 @@ public struct ChatInfoPageReducer: Reducer {
         case let .feedback(.changeNameAlertDismissed(input: input)):
             guard let input,
                   let conversation = state.conversation,
-                  input != conversation.name else { return .none }
+                  input != conversation.name else {
+                state.isChangeNameButtonEnabled = true
+                return .none
+            }
 
             let sanitizedInput = input.isBangQualifiedEmpty ? .bangQualifiedEmpty : input
             return .task {
@@ -125,10 +133,12 @@ public struct ChatInfoPageReducer: Reducer {
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
             }
+            state.isChangeNameButtonEnabled = true
             state.viewID = UUID()
 
         case let .feedback(.updateValueReturned(.failure(exception))):
             Logger.log(exception, with: .toast())
+            state.isChangeNameButtonEnabled = true
         }
 
         return .none

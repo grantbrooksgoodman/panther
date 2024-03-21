@@ -17,11 +17,3 @@ public extension AppConstants.CGFloats {
         public static let hStackSpacing: CGFloat = 3.5
     }
 }
-
-// MARK: - Color
-
-public extension AppConstants.Colors {
-    enum ContactPairCellView {
-        public static let labelDisabledForeground: Color = .init(uiColor: .systemGray4)
-    }
-}
