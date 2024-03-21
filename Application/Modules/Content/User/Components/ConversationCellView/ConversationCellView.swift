@@ -85,7 +85,7 @@ public struct ConversationCellView: View {
                     .opacity(viewModel.cellViewData.isShowingUnreadIndicator ? 1 : 0)
                     .padding(.trailing, Floats.unreadIndicatorViewTrailingPadding)
 
-                AvatarImageView(viewModel.cellViewData.contactImage)
+                AvatarImageView(viewModel.avatarImageViewConfig)
                     .padding(.top, Floats.avatarImageViewTopPadding)
 
                 ZStack {

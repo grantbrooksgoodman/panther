@@ -183,6 +183,13 @@ public final class ChatPageViewService {
         messageDelivery.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
     }
 
+    public func setNavigationTitle(_ navigationTitle: String) {
+        Task { @MainActor in
+            guard let parent = viewController?.parent else { return }
+            parent.navigationItem.title = navigationTitle
+        }
+    }
+
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !(messageDelivery?.isSendingMessage ?? false) else { return }
 

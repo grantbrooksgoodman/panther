@@ -119,7 +119,8 @@ public struct ContactSelectorPageReducer: Reducer {
 
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false
-            chatPageViewService.inputBar?.forceAppearance()
+            core.ui.resignFirstResponder()
+            core.gcd.after(.milliseconds(10)) { chatPageViewService.inputBar?.forceAppearance() }
 
         case .action(.inviteToolbarButtonTapped):
             return .task {

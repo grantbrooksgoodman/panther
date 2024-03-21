@@ -111,13 +111,33 @@ public final class MenuService {
             let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
             let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
 
-            actions = [
+            if isDisplayingAudioTranscription {
+                actions.append(
+                    .init(
+                        title: Localized(.copy).wrappedValue,
+                        identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
+                        handler: handleAction(_:)
+                    )
+                )
+
+                if message.isFromCurrentUser {
+                    actions.append(
+                        .init(
+                            title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                            identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
+                            handler: handleAction(_:)
+                        )
+                    )
+                }
+            }
+
+            actions.append(
                 .init(
                     title: actionTitle,
                     identifier: .init(rawValue: Strings.audioMessageActionIdentifierRawValue),
                     handler: handleAction(_:)
-                ),
-            ]
+                )
+            )
 
             return .init(children: actions)
         }

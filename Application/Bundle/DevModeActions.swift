@@ -208,10 +208,21 @@ public extension DevModeService {
 
     static var setCurrentUserIDAction: DevModeAction {
         func setCurrentUserID() {
+            @Dependency(\.alertKitCore) var akCore: AKCore
             @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
             @Dependency(\.rootNavigationCoordinator) var navigationCoordinator: RootNavigationCoordinator
             @Persistent(.currentUserID) var currentUserID: String?
 
+            func setLanguageCode(_ code: String) {
+                guard akCore.languageCodeIsLocked else {
+                    akCore.lockLanguageCode(to: code)
+                    return
+                }
+
+                akCore.unlockLanguageCode(andSetTo: code)
+            }
+
+            setLanguageCode("en")
             let textFieldAlert = AKTextFieldAlert(
                 message: "Set Current User ID",
                 actions: [.init(title: "Done", style: .preferred)],
@@ -224,6 +235,8 @@ public extension DevModeService {
             )
 
             textFieldAlert.presentTextFieldAlert { inputString, actionID in
+                setLanguageCode(RuntimeStorage.languageCode)
+
                 guard actionID != -1,
                       let inputString,
                       !inputString.isBlank else { return }

@@ -60,7 +60,7 @@ public struct ConversationsContentPageView: View {
                             )
                         }
                     }
-                    .background(Color.background)
+                    .background(ThemeService.isDefaultThemeApplied ? Color.background : nil)
                     .listStyle(.plain)
                     .navigationTitle(viewModel.strings.value(for: .navigationTitle))
                     .refreshable {

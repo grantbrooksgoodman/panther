@@ -6,13 +6,14 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
 /* 3rd-party */
 import Redux
 
-// swiftlint:disable:next type_body_length
 public final class ConversationSessionService {
     // MARK: - Constants Accessors
 
@@ -89,9 +90,8 @@ public final class ConversationSessionService {
         messageOffset = Floats.defaultMessageOffset
     }
 
-    // MARK: - Update Messages / Last Modified Date
+    // MARK: - Value Updating
 
-    // swiftlint:disable:next function_body_length
     public func updateConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
 
@@ -100,82 +100,6 @@ public final class ConversationSessionService {
             domain: .conversation,
             metadata: [self, #file, #function, #line]
         )
-
-        func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-            func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-                let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
-                let getValuesResult = await networking.database.getValues(at: hashKeyPath)
-
-                switch getValuesResult {
-                case let .success(values):
-                    guard let string = values as? String else {
-                        return .failure(.init(
-                            "Failed to typecast values to string.",
-                            metadata: [self, #file, #function, #line]
-                        ))
-                    }
-
-                    return .success(.init(
-                        .init(key: conversation.id.key, hash: string),
-                        messageIDs: conversation.messageIDs,
-                        messages: conversation.messages,
-                        name: conversation.name,
-                        lastModifiedDate: conversation.lastModifiedDate,
-                        participants: conversation.participants,
-                        users: conversation.users
-                    ))
-
-                case let .failure(exception):
-                    return .failure(exception)
-                }
-            }
-
-            let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.participants.rawValue)"
-            let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard let array = values as? [String] else {
-                    return .failure(.init(
-                        "Failed to typecast values to array.",
-                        metadata: [self, #file, #function, #line]
-                    ))
-                }
-
-                var participants = [Participant]()
-
-                for value in array {
-                    let decodeResult = await Participant.decode(from: value)
-
-                    switch decodeResult {
-                    case let .success(participant):
-                        participants.append(participant)
-
-                    case let .failure(exception):
-                        return .failure(exception)
-                    }
-                }
-
-                guard participants.count == array.count else {
-                    return .failure(.init(
-                        "Mismatched ratio returned.",
-                        metadata: [self, #file, #function, #line]
-                    ))
-                }
-
-                guard let conversation = conversation.modifyKey(.participants, withValue: participants) else {
-                    return .failure(.typeMismatch(
-                        key: Conversation.SerializationKeys.participants.rawValue,
-                        [self, #file, #function, #line]
-                    ))
-                }
-
-                return await updateHash(conversation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
 
         if let currentUserID {
             guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUserID }),
@@ -190,7 +114,7 @@ public final class ConversationSessionService {
                     domain: .conversation
                 )
 
-                return await updateParticipants(conversation)
+                return await updateMetadata(conversation)
             }
         }
 
@@ -222,7 +146,7 @@ public final class ConversationSessionService {
             filteredMessageIDs = filteredMessageIDs.unique
 
             guard !filteredMessageIDs.isEmpty else {
-                return await updateParticipants(conversation)
+                return await updateMetadata(conversation)
             }
 
             let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)
@@ -234,11 +158,137 @@ public final class ConversationSessionService {
                     return .failure(.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line]))
                 }
 
-                return await updateParticipants(modified)
+                return await updateMetadata(modified)
 
             case let .failure(exception):
                 return .failure(exception)
             }
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: hashKeyPath)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let string = values as? String else {
+                return .failure(.init(
+                    "Failed to typecast values to string.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            return .success(.init(
+                .init(key: conversation.id.key, hash: string),
+                messageIDs: conversation.messageIDs,
+                messages: conversation.messages,
+                name: conversation.name,
+                lastModifiedDate: conversation.lastModifiedDate,
+                participants: conversation.participants,
+                users: conversation.users
+            ))
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func updateMetadata(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let updateParticipantsResult = await updateParticipants(conversation)
+
+        switch updateParticipantsResult {
+        case let .success(conversation):
+            let updateNameResult = await updateName(conversation)
+
+            switch updateNameResult {
+            case let .success(conversation):
+                return await updateHash(conversation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func updateName(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let nameKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.name.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: nameKeyPath)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let string = values as? String else {
+                return .failure(.init(
+                    "Failed to typecast values to string.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            guard let conversation = conversation.modifyKey(.name, withValue: string) else {
+                return .failure(.typeMismatch(
+                    key: Conversation.SerializationKeys.name.rawValue,
+                    [self, #file, #function, #line]
+                ))
+            }
+
+            return .success(conversation)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.participants.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let array = values as? [String] else {
+                return .failure(.init(
+                    "Failed to typecast values to array.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            var participants = [Participant]()
+
+            for value in array {
+                let decodeResult = await Participant.decode(from: value)
+
+                switch decodeResult {
+                case let .success(participant):
+                    participants.append(participant)
+
+                case let .failure(exception):
+                    return .failure(exception)
+                }
+            }
+
+            guard participants.count == array.count else {
+                return .failure(.init(
+                    "Mismatched ratio returned.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            guard let conversation = conversation.modifyKey(.participants, withValue: participants) else {
+                return .failure(.typeMismatch(
+                    key: Conversation.SerializationKeys.participants.rawValue,
+                    [self, #file, #function, #line]
+                ))
+            }
+
+            return .success(conversation)
 
         case let .failure(exception):
             return .failure(exception)
@@ -383,3 +433,5 @@ public final class ConversationSessionService {
         )
     }
 }
+
+// swiftlint:enable file_length type_body_length

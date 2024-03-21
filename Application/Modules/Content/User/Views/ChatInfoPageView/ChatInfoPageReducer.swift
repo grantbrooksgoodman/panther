@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import Redux
@@ -15,8 +16,9 @@ import Redux
 public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.chatPageViewService.inputBar?) private var inputBarService: InputBarService?
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
@@ -24,13 +26,18 @@ public struct ChatInfoPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
+        case changeNameButtonTapped
+
         case doneToolbarButtonTapped
         case traitCollectionChanged
     }
 
     // MARK: - Feedback
 
-    public enum Feedback {}
+    public enum Feedback {
+        case changeNameAlertDismissed(input: String?)
+        case updateValueReturned(Callback<Conversation, Exception>)
+    }
 
     // MARK: - State
 
@@ -48,6 +55,27 @@ public struct ChatInfoPageReducer: Reducer {
         @Localized(.done) public var doneToolbarButtonText: String
         public var inputBarWasFirstResponder = false
         public var viewState: ViewState = .loading
+        public var viewID = UUID()
+
+        /* MARK: Computed Properties */
+
+        public var avatarImage: UIImage? { cellViewData?.contactImage }
+
+        public var cellViewData: ConversationCellViewData? {
+            guard let conversation,
+                  let cellViewData: ConversationCellViewData = .init(conversation) else { return nil }
+            return cellViewData
+        }
+
+        public var chatTitleLabelText: String {
+            guard let cellViewData else { return "" }
+            return cellViewData.titleLabelText
+        }
+
+        public var conversation: Conversation? {
+            @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
+            return currentConversation
+        }
 
         /* MARK: Init */
 
@@ -64,16 +92,43 @@ public struct ChatInfoPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loaded
-            state.inputBarWasFirstResponder = inputBarService?.isFirstResponder ?? false
+            state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
             coreUI.resignFirstResponder()
+
+        case .action(.changeNameButtonTapped):
+            return .task {
+                let result = await viewService.presentChangeNameAlert()
+                return .changeNameAlertDismissed(input: result)
+            }
 
         case .action(.doneToolbarButtonTapped):
             RootSheets.dismiss()
             guard state.inputBarWasFirstResponder else { return .none }
-            inputBarService?.becomeFirstResponder()
+            chatPageViewService.inputBar?.becomeFirstResponder()
 
         case .action(.traitCollectionChanged):
             coreUI.setNavigationBarAppearance()
+
+        case let .feedback(.changeNameAlertDismissed(input: input)):
+            guard let input,
+                  let conversation = state.conversation,
+                  input != conversation.name else { return .none }
+
+            let sanitizedInput = input.isBangQualifiedEmpty ? .bangQualifiedEmpty : input
+            return .task {
+                let result = await conversation.updateValue(sanitizedInput.trimmingBorderedWhitespace, forKey: .name)
+                return .updateValueReturned(result)
+            }
+
+        case let .feedback(.updateValueReturned(.success(conversation))):
+            conversationSession.setCurrentConversation(conversation)
+            if let titleLabelText = state.cellViewData?.titleLabelText {
+                chatPageViewService.setNavigationTitle(titleLabelText)
+            }
+            state.viewID = UUID()
+
+        case let .feedback(.updateValueReturned(.failure(exception))):
+            Logger.log(exception, with: .toast())
         }
 
         return .none

@@ -71,7 +71,9 @@ public struct ConversationCellViewData: Equatable {
         var otherUser: User?
 
         // Set title label text
-        if let contactPair = users
+        if !conversation.name.isBangQualifiedEmpty {
+            titleLabelText = conversation.name
+        } else if let contactPair = users
             .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.encodedHash) })
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
@@ -84,10 +86,12 @@ public struct ConversationCellViewData: Equatable {
         }
 
         // TODO: If >1 other user, set avatar image to number of users.
-        if users.count > 1 {
-            titleLabelText += " + \(users.count - 1)"
-        } else if let firstUser = users.first {
-            otherUser = firstUser
+        if conversation.name.isBangQualifiedEmpty {
+            if users.count > 1 {
+                titleLabelText += " + \(users.count - 1)"
+            } else if let firstUser = users.first {
+                otherUser = firstUser
+            }
         }
 
         // Set date & subtitle label text

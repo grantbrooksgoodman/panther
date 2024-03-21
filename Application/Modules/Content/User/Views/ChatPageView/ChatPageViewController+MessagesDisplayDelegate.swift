@@ -19,6 +19,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     private typealias Colors = AppConstants.Colors.ChatPageView.MessagesDisplayDelegate
     private typealias Floats = AppConstants.CGFloats.ChatPageView.MessagesDisplayDelegate
+    private typealias Strings = AppConstants.Strings.ChatPageView.MessagesDisplayDelegate
 
     // MARK: - Background Color
 
@@ -79,7 +80,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         func configureGenericAvatar() {
             avatarView.backgroundColor = UIColor(Colors.genericAvatarViewBackground)
-            avatarView.image = .contact
+            avatarView.image = .init(systemName: Strings.avatarViewImageSystemName)
             avatarView.tintColor = UIColor(Colors.genericAvatarViewTint)
         }
 
