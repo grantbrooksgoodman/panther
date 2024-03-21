@@ -51,6 +51,10 @@ public extension String {
         isBlank || self == .bangQualifiedEmpty
     }
 
+    var isBlank: Bool {
+        lowercasedTrimmingWhitespaceAndNewlines.isEmpty
+    }
+
     var prependingCurrentEnvironment: String {
         @Dependency(\.networking.config.environment.shortString) var environmentString: String
         return "\(environmentString)/\(trimmingBorderedForwardSlashes)"

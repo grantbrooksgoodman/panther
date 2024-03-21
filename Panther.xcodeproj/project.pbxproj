@@ -594,7 +594,6 @@
 		B9D0D93A2B03019E00078A93 /* FirebaseDatabaseDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D91A2B03019E00078A93 /* FirebaseDatabaseDependency.swift */; };
 		B9D0D93B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D91B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift */; };
 		B9D0D93D2B03019E00078A93 /* FirebaseAuthDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D91D2B03019E00078A93 /* FirebaseAuthDependency.swift */; };
-		B9D0D93E2B03019E00078A93 /* Exception+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D91F2B03019E00078A93 /* Exception+CommonExtensions.swift */; };
 		B9D0D93F2B03019E00078A93 /* String+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9202B03019E00078A93 /* String+CoreNetworkingExtensions.swift */; };
 		B9D0D9402B03019E00078A93 /* Array+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9212B03019E00078A93 /* Array+CoreNetworkingExtensions.swift */; };
 		B9D0D9412B03019E00078A93 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9252B03019E00078A93 /* Networking.swift */; };
@@ -644,7 +643,6 @@
 		B9E6D7B42B126188000BC88D /* PhoneNumberService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */; };
 		B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B32B126188000BC88D /* RegionDetailService.swift */; };
 		B9E6D7B82B12626F000BC88D /* CommonPropertyLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */; };
-		B9E6D7C22B126390000BC88D /* String+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7C12B126390000BC88D /* String+CommonExtensions.swift */; };
 		B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */; };
 		B9E6D7CC2B1284EC000BC88D /* PermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */; };
 		B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */; };
@@ -1430,7 +1428,6 @@
 		B9D0D91A2B03019E00078A93 /* FirebaseDatabaseDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseDatabaseDependency.swift; sourceTree = "<group>"; };
 		B9D0D91B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebasePhoneAuthProviderDependency.swift; sourceTree = "<group>"; };
 		B9D0D91D2B03019E00078A93 /* FirebaseAuthDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseAuthDependency.swift; sourceTree = "<group>"; };
-		B9D0D91F2B03019E00078A93 /* Exception+CommonExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Exception+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9202B03019E00078A93 /* String+CoreNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CoreNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9212B03019E00078A93 /* Array+CoreNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+CoreNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9252B03019E00078A93 /* Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
@@ -1479,7 +1476,6 @@
 		B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneNumberService.swift; sourceTree = "<group>"; };
 		B9E6D7B32B126188000BC88D /* RegionDetailService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegionDetailService.swift; sourceTree = "<group>"; };
 		B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPropertyLists.swift; sourceTree = "<group>"; };
-		B9E6D7C12B126390000BC88D /* String+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B9E6D7C82B1274D8000BC88D /* LegacyUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUserService.swift; sourceTree = "<group>"; };
 		B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermissionService.swift; sourceTree = "<group>"; };
 		B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNotificationCenterDependency.swift; sourceTree = "<group>"; };
@@ -3105,9 +3101,7 @@
 			children = (
 				B900B53F2B1AC96000BA2F1D /* Array+CommonExtensions.swift */,
 				B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */,
-				B9D0D91F2B03019E00078A93 /* Exception+CommonExtensions.swift */,
 				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
-				B9E6D7C12B126390000BC88D /* String+CommonExtensions.swift */,
 				B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */,
 			);
 			path = Extensions;
@@ -4313,7 +4307,6 @@
 				B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */,
 				B9627C672B6F2111004EE9DA /* InputBarConfigService.swift in Sources */,
 				B97DB56D2AF45F11002C2679 /* SwipeViewModifier.swift in Sources */,
-				B9D0D93E2B03019E00078A93 /* Exception+CommonExtensions.swift in Sources */,
 				B94388642B3210A7002D94FF /* NetworkActivityIndicatorService.swift in Sources */,
 				B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
@@ -4416,7 +4409,6 @@
 				B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */,
 				B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */,
 				B92409812AB2C5AB004CF4C0 /* Breadcrumbs.swift in Sources */,
-				B9E6D7C22B126390000BC88D /* String+CommonExtensions.swift in Sources */,
 				B9EFBA102B2691E600624794 /* CacheStrategy.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
 				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
