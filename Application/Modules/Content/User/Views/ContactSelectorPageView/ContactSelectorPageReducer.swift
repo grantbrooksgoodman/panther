@@ -19,7 +19,6 @@ public struct ContactSelectorPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
-    @Dependency(\.uiApplication.keyWindow?.rootViewController) private var keyViewController: UIViewController?
 
     // MARK: - Actions
 

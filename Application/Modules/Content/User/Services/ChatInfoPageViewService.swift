@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import Contacts
 import Foundation
 import UIKit
 
@@ -14,13 +15,121 @@ import UIKit
 import AlertKit
 import Redux
 
-public struct ChatInfoPageViewService {
+public final class ChatInfoPageViewService: Cacheable {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
 
-    // MARK: - Methods
+    // MARK: - Properties
 
+    public var cache: Cache
+    public var emptyCache: Cache
+
+    // MARK: - Init
+
+    public init() {
+        emptyCache = .init(
+            [
+                .participantsForEncodedConversationIDs: ["": []],
+            ]
+        )
+        cache = emptyCache
+    }
+
+    // MARK: - Get Chat Participants
+
+    /// `.viewAppeared`
+    public func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
+        guard let currentConversation else {
+            return .failure(.init("No current conversation.", metadata: [self, #file, #function, #line]))
+        }
+
+        if let cachedValue = cache.value(forKey: .participantsForEncodedConversationIDs) as? [String: [ChatParticipant]],
+           let participants = cachedValue[currentConversation.id.encoded] {
+            return .success(participants)
+        }
+
+        guard let users = currentConversation.users else {
+            if let exception = await self.currentConversation?.setUsers() {
+                return .failure(exception)
+            }
+
+            return await getChatParticipants()
+        }
+
+        var chatParticipants = [ChatParticipant]()
+
+        for user in users {
+            let firstCnContactResult = await contactService.firstCnContact(for: user.phoneNumber)
+
+            switch firstCnContactResult {
+            case let .success(cnContact):
+                let contactPair: ContactPair = .init(
+                    contact: .init(cnContact),
+                    numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                )
+
+                chatParticipants.append(
+                    .init(
+                        displayName: contactPair.contact.fullName,
+                        cnContactContainer: .init(cnContact.mutableCopy() as? CNMutableContact),
+                        contactPair: contactPair
+                    )
+                )
+
+            case .failure:
+                let cnContact = CNMutableContact()
+                cnContact.phoneNumbers.append(
+                    .init(
+                        label: nil,
+                        value: .init(stringValue: user.phoneNumber.compiledNumberString)
+                    )
+                )
+
+                let contactPair: ContactPair = .init(
+                    contact: .init(cnContact),
+                    numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                )
+
+                chatParticipants.append(
+                    .init(
+                        displayName: contactPair.contact.fullName,
+                        cnContactContainer: .init(cnContact, isUnknown: true),
+                        contactPair: contactPair
+                    )
+                )
+            }
+        }
+
+        var withAlphabeticalPrefix = [ChatParticipant]()
+        var withoutAlphabeticalPrefix = [ChatParticipant]()
+
+        for participant in chatParticipants {
+            if let firstCharacter = participant.displayName.first,
+               firstCharacter.isLetter {
+                withAlphabeticalPrefix.append(participant)
+            } else {
+                withoutAlphabeticalPrefix.append(participant)
+            }
+        }
+
+        func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] { participants.sorted(by: { $0.displayName < $1.displayName }) }
+        let sortedParticipants = sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
+
+        if var cachedValue = cache.value(forKey: .participantsForEncodedConversationIDs) as? [String: [ChatParticipant]] {
+            cachedValue[currentConversation.id.encoded] = sortedParticipants
+            cache.set(cachedValue, forKey: .participantsForEncodedConversationIDs)
+        } else {
+            cache.set([currentConversation.id.encoded: sortedParticipants], forKey: .participantsForEncodedConversationIDs)
+        }
+
+        return .success(sortedParticipants)
+    }
+
+    // MARK: - Present Change Name Alert
+
+    /// `.changeNameButtonTapped`
     public func presentChangeNameAlert() async -> String? {
         var conversationName = ""
         if let name = currentConversation?.name,
@@ -41,5 +150,38 @@ public struct ChatInfoPageViewService {
         let presentTextFieldAlertResult = await alert.presentTextFieldAlert()
         guard presentTextFieldAlertResult.actionID != -1 else { return nil }
         return presentTextFieldAlertResult.input
+    }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        CacheDomain.ChatInfoPageViewServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .chatInfoPageViewService($0)) }
+        cache = emptyCache
+    }
+}
+
+/* MARK: Cache */
+
+public extension CacheDomain {
+    enum ChatInfoPageViewServiceCacheDomainKey: String, CaseIterable, Equatable {
+        case participantsForEncodedConversationIDs
+    }
+}
+
+private extension Cache {
+    convenience init(_ objects: [CacheDomain.ChatInfoPageViewServiceCacheDomainKey: Any]) {
+        var mappedObjects = [CacheDomain: Any]()
+        objects.forEach { object in
+            mappedObjects[.chatInfoPageViewService(object.key)] = object.value
+        }
+        self.init(mappedObjects)
+    }
+
+    func set(_ value: Any, forKey key: CacheDomain.ChatInfoPageViewServiceCacheDomainKey) {
+        set(value, forKey: .chatInfoPageViewService(key))
+    }
+
+    func value(forKey key: CacheDomain.ChatInfoPageViewServiceCacheDomainKey) -> Any? {
+        value(forKey: .chatInfoPageViewService(key))
     }
 }

@@ -15,6 +15,7 @@ import Foundation
 public enum CacheDomain: Equatable, Hashable {
     // MARK: - Cases
 
+    case chatInfoPageViewService(ChatInfoPageViewServiceCacheDomainKey)
     case commonPropertyLists(CommonPropertyListsCacheDomainKey)
     case contactService(ContactServiceCacheDomainKey)
     case regionDetailService(RegionDetailServiceCacheDomainKey)
@@ -25,6 +26,9 @@ public enum CacheDomain: Equatable, Hashable {
 
     public var rawValue: String {
         switch self {
+        case let .chatInfoPageViewService(key):
+            return key.rawValue
+
         case let .commonPropertyLists(key):
             return key.rawValue
 

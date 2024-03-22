@@ -14,7 +14,7 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum VerifyNumberPageView {
-        public static let backButtonFontSize: CGFloat = 15
+        public static let backButtonLabelFontSize: CGFloat = 15
         public static let backButtonTopPadding: CGFloat = 2
 
         public static let bottomPadding: CGFloat = 30

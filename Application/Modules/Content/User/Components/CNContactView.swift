@@ -11,7 +11,43 @@ import ContactsUI
 import Foundation
 import SwiftUI
 
-public struct CNContactView: UIViewControllerRepresentable {
+/* 3rd-party */
+import Redux
+
+public struct CNContactView: View {
+    // MARK: - Properties
+
+    private let cnContact: CNContact
+    private let isUnknown: Bool
+
+    // MARK: - Init
+
+    public init(_ cnContact: CNContact, isUnknown: Bool = false) {
+        self.cnContact = cnContact
+        self.isUnknown = isUnknown
+    }
+
+    // MARK: - View
+
+    public var body: some View {
+        Group {
+            if #available(iOS 17.0, *) {
+                _CNContactView(cnContact, isUnknown: isUnknown)
+                    .navigationBarBackButtonHidden()
+                    .navigationTitle("\u{2800}")
+            } else {
+                _CNContactView(cnContact, isUnknown: isUnknown)
+            }
+        }
+        .background(Color.listViewBackground)
+    }
+}
+
+private struct _CNContactView: UIViewControllerRepresentable {
+    // MARK: - Dependencies
+
+    @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
+
     // MARK: - Type Aliases
 
     public typealias UIViewControllerType = CNContactViewController
@@ -19,17 +55,25 @@ public struct CNContactView: UIViewControllerRepresentable {
     // MARK: - Properties
 
     private let cnContact: CNContact
+    private let isUnknown: Bool
 
     // MARK: - Init
 
-    public init(_ cnContact: CNContact) {
+    public init(_ cnContact: CNContact, isUnknown: Bool) {
         self.cnContact = cnContact
+        self.isUnknown = isUnknown
     }
 
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> CNContactViewController {
-        .init(for: cnContact)
+        if isUnknown {
+            let viewController: CNContactViewController = .init(forUnknownContact: cnContact)
+            viewController.contactStore = cnContactStore
+            return viewController
+        }
+
+        return .init(for: cnContact)
     }
 
     // MARK: - Update UIViewController

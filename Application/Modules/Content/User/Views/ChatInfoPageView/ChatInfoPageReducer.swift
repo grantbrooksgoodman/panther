@@ -19,6 +19,7 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
+    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
@@ -27,8 +28,11 @@ public struct ChatInfoPageReducer: Reducer {
         case viewAppeared
 
         case changeNameButtonTapped
+        case chatInfoCellTapped
 
+        case doneHeaderItemTapped
         case doneToolbarButtonTapped
+
         case traitCollectionChanged
     }
 
@@ -36,6 +40,8 @@ public struct ChatInfoPageReducer: Reducer {
 
     public enum Feedback {
         case changeNameAlertDismissed(input: String?)
+        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
+        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updateValueReturned(Callback<Conversation, Exception>)
     }
 
@@ -52,12 +58,17 @@ public struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Properties */
 
+        // Array
+        public var chatParticipants = [ChatParticipant]()
+        public var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
+        public var visibleParticipants = [ChatParticipant]()
+
         // Bool
         public var inputBarWasFirstResponder = false
         public var isChangeNameButtonEnabled = true
 
         // Other
-        @Localized(.done) public var doneToolbarButtonText: String
+        @Localized(.done) public var doneButtonText: String
         public var viewState: ViewState = .loading
         public var viewID = UUID()
 
@@ -71,6 +82,18 @@ public struct ChatInfoPageReducer: Reducer {
             return cellViewData
         }
 
+        public var chatInfoCellImageSystemName: String {
+            "chevron.\(visibleParticipants.isEmpty ? "right" : "down").circle"
+        }
+
+        public var chatInfoCellSubtitleLabelText: String {
+            chatParticipants.map { $0.displayName }.joined(separator: ", ")
+        }
+
+        public var chatInfoCellTitleLabelText: String {
+            "\(chatParticipants.count) \(strings.value(for: .participantCountLabelText))"
+        }
+
         public var chatTitleLabelText: String {
             guard let cellViewData else { return "" }
             return cellViewData.titleLabelText
@@ -79,6 +102,11 @@ public struct ChatInfoPageReducer: Reducer {
         public var conversation: Conversation? {
             @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
             return currentConversation
+        }
+
+        public var singleCnContactContainer: CNContactContainer? {
+            guard chatParticipants.count == 1 else { return nil }
+            return chatParticipants.first?.cnContactContainer
         }
 
         /* MARK: Init */
@@ -94,30 +122,65 @@ public struct ChatInfoPageReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
-        case .action(.viewAppeared):
-            state.viewState = .loaded
+        case let .action(action):
+            return reduce(into: &state, for: action)
+
+        case let .feedback(feedback):
+            return reduce(into: &state, for: feedback)
+        }
+    }
+
+    // MARK: - Reduce Action
+
+    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+        switch action {
+        case .viewAppeared:
+            state.viewState = .loading
             state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
             coreUI.resignFirstResponder()
 
-        case .action(.changeNameButtonTapped):
+            let getChatParticipantsTask: Effect<Feedback> = .task {
+                let result = await viewService.getChatParticipants()
+                return .getChatParticipantsReturned(result)
+            }
+
+            return .task {
+                let result = await translator.resolve(ChatInfoPageViewStrings.self)
+                return .resolveReturned(result)
+            }.merge(with: getChatParticipantsTask)
+
+        case .changeNameButtonTapped:
             state.isChangeNameButtonEnabled = false
             return .task {
                 let result = await viewService.presentChangeNameAlert()
                 return .changeNameAlertDismissed(input: result)
             }
 
-        case .action(.doneToolbarButtonTapped):
+        case .chatInfoCellTapped:
+            state.visibleParticipants = state.visibleParticipants.isEmpty ? state.chatParticipants : []
+
+        case .doneHeaderItemTapped,
+             .doneToolbarButtonTapped:
             RootSheets.dismiss()
             guard state.inputBarWasFirstResponder else { return .none }
             chatPageViewService.inputBar?.becomeFirstResponder()
 
-        case .action(.traitCollectionChanged):
+        case .traitCollectionChanged:
             coreUI.setNavigationBarAppearance()
+        }
 
-        case let .feedback(.changeNameAlertDismissed(input: input)):
+        return .none
+    }
+
+    // MARK: - Reduce Feedback
+
+    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
+        switch feedback {
+        case let .changeNameAlertDismissed(input: input):
             guard let input,
                   let conversation = state.conversation,
-                  input != conversation.name else {
+                  input != conversation.name,
+                  !(input.isBangQualifiedEmpty && conversation.name.isBangQualifiedEmpty) else {
                 state.isChangeNameButtonEnabled = true
                 return .none
             }
@@ -128,7 +191,21 @@ public struct ChatInfoPageReducer: Reducer {
                 return .updateValueReturned(result)
             }
 
-        case let .feedback(.updateValueReturned(.success(conversation))):
+        case let .getChatParticipantsReturned(.success(chatParticipants)):
+            state.chatParticipants = chatParticipants
+            state.viewState = .loaded
+
+        case let .getChatParticipantsReturned(.failure(exception)):
+            Logger.log(exception)
+            state.viewState = .error(exception)
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+
+        case let .updateValueReturned(.success(conversation)):
             conversationSession.setCurrentConversation(conversation)
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
@@ -136,11 +213,17 @@ public struct ChatInfoPageReducer: Reducer {
             state.isChangeNameButtonEnabled = true
             state.viewID = UUID()
 
-        case let .feedback(.updateValueReturned(.failure(exception))):
+        case let .updateValueReturned(.failure(exception)):
             Logger.log(exception, with: .toast())
             state.isChangeNameButtonEnabled = true
         }
 
         return .none
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.ChatInfoPageViewStringKey) -> String {
+        (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

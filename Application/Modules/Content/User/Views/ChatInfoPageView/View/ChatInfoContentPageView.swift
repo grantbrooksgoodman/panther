@@ -2,8 +2,8 @@
 //  ChatInfoContentPageView.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman.
-//  Copyright © NEOTechnica Corporation. All rights reserved.
+//  Created by Grant Brooks Goodman on 23/02/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */
@@ -14,6 +14,10 @@ import SwiftUI
 import Redux
 
 public struct ChatInfoContentPageView: View {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.ChatInfoPageView
+
     // MARK: - Properties
 
     @ObservedObject private var viewModel: ViewModel<ChatInfoPageReducer>
@@ -24,33 +28,108 @@ public struct ChatInfoContentPageView: View {
         self.viewModel = viewModel
     }
 
-    // MARK: - View
+    // MARK: - Body
 
     public var body: some View {
         ThemedView {
             NavigationView {
-                VStack {
-                    Text("Hello world")
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.listViewBackground)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    doneToolbarButton
-                }
+                contentView
+                    .id(viewModel.viewID)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.listViewBackground)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        doneToolbarButton
+                    }
             }
             .accentColor(Color.accent)
-            .interactiveDismissDisabled(true)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
+    }
+
+    // MARK: - Content View
+
+    @ViewBuilder
+    private var contentView: some View {
+        if let cnContactContainer = viewModel.singleCnContactContainer {
+            CNContactView(
+                cnContactContainer.cnContact,
+                isUnknown: cnContactContainer.isUnknown
+            )
+            .offset(y: Floats.singleCnContactViewYOffset)
+            .header(rightItem: doneHeaderItem, isThemed: true)
+            .toolbar(.hidden)
+        } else {
+            VStack {
+                AvatarImageView(
+                    .singleImage(viewModel.avatarImage),
+                    size: .init(
+                        width: Floats.largeAvatarImageViewSizeWidth,
+                        height: Floats.largeAvatarImageViewSizeHeight
+                    )
+                )
+                .padding(.bottom, 1)
+                .padding(.top, Floats.avatarImageViewTopPadding)
+                .padding(.horizontal, Floats.avatarImageViewHorizontalPadding)
+
+                Text(viewModel.chatTitleLabelText)
+                    .font(.sanFrancisco(.bold, size: Floats.chatTitleLabelFontSize))
+                    .padding(.bottom, 1)
+                    .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
+
+                Button {
+                    viewModel.send(.changeNameButtonTapped)
+                } label: {
+                    Text(viewModel.strings.value(for: .changeNameButtonText))
+                        .font(.sanFrancisco(size: Floats.changeNameButtonLabelFontSize))
+                        .foregroundStyle(viewModel.isChangeNameButtonEnabled ? Color.accent : .disabled)
+                }
+                .disabled(!viewModel.isChangeNameButtonEnabled)
+                .padding(.bottom, 1)
+                .padding(.horizontal, Floats.changeNameButtonHorizontalPadding)
+
+                listView
+
+                Spacer()
+            }
         }
-        .redrawsOnTraitCollectionChange()
-        .preferredStatusBarStyle(.lightContent)
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
+    }
+
+    // MARK: - Chat Info Cell
+
+    private var chatInfoCell: some View {
+        Button {
+            viewModel.send(.chatInfoCellTapped)
+        } label: {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading) {
+                    Text(viewModel.chatInfoCellTitleLabelText)
+                        .font(.sanFrancisco(.semibold, size: Floats.chatInfoCellTitleLabelFontSize))
+                        .padding(.bottom, 1)
+
+                    Text(viewModel.chatInfoCellSubtitleLabelText)
+                        .lineLimit(1)
+                        .font(.sanFrancisco(size: Floats.chatInfoCellSubtitleLabelFontSize))
+                        .foregroundStyle(Color.subtitleText)
+                }
+
+                Spacer()
+
+                Image(systemName: viewModel.chatInfoCellImageSystemName)
+                    .foregroundStyle(Color.subtitleText)
+            }
         }
+        .foregroundStyle(Color.titleText)
+    }
+
+    // MARK: - Done Header/Toolbar Buttons
+
+    private var doneHeaderItem: HeaderView.PeripheralButtonType {
+        .text(
+            .init(text: .init(viewModel.doneButtonText)) {
+                viewModel.send(.doneHeaderItemTapped)
+            }
+        )
     }
 
     private var doneToolbarButton: some ToolbarContent {
@@ -58,10 +137,59 @@ public struct ChatInfoContentPageView: View {
             Button {
                 viewModel.send(.doneToolbarButtonTapped)
             } label: {
-                Text(viewModel.doneToolbarButtonText)
+                Text(viewModel.doneButtonText)
                     .bold()
                     .foregroundStyle(Color.accent)
             }
         }
+    }
+
+    // MARK: - List View
+
+    private var listView: some View {
+        List {
+            ForEach(-1 ..< viewModel.visibleParticipants.count, id: \.self) { index in
+                if index == -1 {
+                    chatInfoCell
+                } else if let participant = viewModel.visibleParticipants.itemAt(index),
+                          let cnContactContainer = participant.cnContactContainer {
+                    NavigationLink(
+                        destination:
+                        CNContactView(
+                            cnContactContainer.cnContact,
+                            isUnknown: cnContactContainer.isUnknown
+                        )
+                    ) {
+                        participantView(participant)
+                    }
+                }
+            }
+        }
+        .animation(.default, value: viewModel.visibleParticipants)
+        .offset(y: Floats.listViewYOffset)
+    }
+
+    // MARK: - Participant View
+
+    private func participantView(_ participant: ChatParticipant) -> some View {
+        HStack(alignment: .center) {
+            AvatarImageView(
+                .singleImage(participant.thumbnailImage),
+                size: .init(
+                    width: Floats.smallAvatarImageViewSizeWidth,
+                    height: Floats.smallAvatarImageViewSizeHeight
+                )
+            )
+            .padding(.trailing, Floats.smallAvatarImageViewTrailingPadding)
+
+            Text(participant.displayName)
+                .font(.sanFrancisco(.semibold, size: Floats.participantViewDisplayNameLabelFontSize))
+        }
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.ChatInfoPageViewStringKey) -> String {
+        (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

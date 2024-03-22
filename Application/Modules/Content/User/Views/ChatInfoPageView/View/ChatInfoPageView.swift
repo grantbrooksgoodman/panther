@@ -30,13 +30,22 @@ public struct ChatInfoPageView: View {
         Group {
             switch viewModel.viewState {
             case .loading:
-                ProgressPageView()
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.listViewBackground)
+
             case .loaded:
                 ChatInfoContentPageView(viewModel)
+
             case let .error(exception):
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
+        .redrawsOnTraitCollectionChange()
+        .preferredStatusBarStyle(.lightContent)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

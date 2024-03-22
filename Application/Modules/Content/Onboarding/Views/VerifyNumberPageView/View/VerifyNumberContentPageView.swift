@@ -91,7 +91,7 @@ public struct VerifyNumberContentPageView: View {
                 .disabled(!viewModel.isBackButtonEnabled)
                 .padding(.top, Floats.backButtonTopPadding)
                 .foregroundStyle(Colors.backButtonForeground)
-                .font(.system(size: Floats.backButtonFontSize))
+                .font(.system(size: Floats.backButtonLabelFontSize))
             }
             .padding(.bottom, Floats.bottomPadding)
 

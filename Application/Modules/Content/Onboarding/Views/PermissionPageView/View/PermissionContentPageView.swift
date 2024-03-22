@@ -73,7 +73,7 @@ public struct PermissionContentPageView: View {
                 Text(viewModel.strings.value(for: .backButtonText))
             }
             .disabled(!viewModel.isBackButtonEnabled)
-            .font(.system(size: Floats.backButtonFontSize))
+            .font(.system(size: Floats.backButtonLabelFontSize))
             .foregroundStyle(Colors.backButtonForeground)
             .padding(.top, Floats.backButtonTopPadding)
 

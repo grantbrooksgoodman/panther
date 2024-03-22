@@ -74,7 +74,7 @@ public struct SelectLanguageContentPageView: View {
                 } label: {
                     Text(viewModel.strings.value(for: .backButtonText))
                 }
-                .font(.system(size: Floats.backButtonFontSize))
+                .font(.system(size: Floats.backButtonLabelFontSize))
                 .foregroundStyle(Colors.backButtonForeground)
                 .padding(.top, Floats.backButtonTopPadding)
             }
