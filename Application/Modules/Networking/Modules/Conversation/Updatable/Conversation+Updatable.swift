@@ -22,9 +22,8 @@ extension Conversation: Updatable {
 
     public var updatableKeys: [SerializationKeys] {
         [
-            .lastModifiedDate,
             .messages,
-            .name,
+            .metadata,
             .participants,
         ]
     }
@@ -39,38 +38,24 @@ extension Conversation: Updatable {
              .id:
             return nil
 
-        case .lastModifiedDate:
-            guard let value = value as? String else { return nil }
-            return updateIDHash(.init(
-                id,
-                messageIDs: messageIDs,
-                messages: messages,
-                name: name,
-                lastModifiedDate: dateFormatter.date(from: value) ?? lastModifiedDate,
-                participants: participants,
-                users: users
-            ))
-
         case .messages:
             guard let value = value as? [Message] else { return nil }
             return updateIDHash(.init(
                 id,
                 messageIDs: value.map(\.id).unique,
                 messages: value.uniquedByID,
-                name: name,
-                lastModifiedDate: lastModifiedDate,
+                metadata: metadata,
                 participants: participants,
                 users: users
             ))
 
-        case .name:
-            guard let value = value as? String else { return nil }
+        case .metadata:
+            guard let value = value as? ConversationMetadata else { return nil }
             return updateIDHash(.init(
                 id,
                 messageIDs: messageIDs,
                 messages: messages,
-                name: value,
-                lastModifiedDate: lastModifiedDate,
+                metadata: value,
                 participants: participants,
                 users: users
             ))
@@ -81,8 +66,7 @@ extension Conversation: Updatable {
                 id,
                 messageIDs: messageIDs,
                 messages: messages,
-                name: name,
-                lastModifiedDate: lastModifiedDate,
+                metadata: metadata,
                 participants: value,
                 users: users
             ))
@@ -175,8 +159,7 @@ extension Conversation: Updatable {
             .init(key: conversation.id.key, hash: conversation.encodedHash),
             messageIDs: messageIDs,
             messages: conversation.messages,
-            name: conversation.name,
-            lastModifiedDate: conversation.lastModifiedDate,
+            metadata: conversation.metadata,
             participants: conversation.participants,
             users: conversation.users
         )

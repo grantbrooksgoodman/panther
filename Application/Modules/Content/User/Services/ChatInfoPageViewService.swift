@@ -132,7 +132,7 @@ public final class ChatInfoPageViewService: Cacheable {
     /// `.changeNameButtonTapped`
     public func presentChangeNameAlert() async -> String? {
         var conversationName = ""
-        if let name = currentConversation?.name,
+        if let name = currentConversation?.metadata.name,
            !name.isBangQualifiedEmpty {
             conversationName = name
         }

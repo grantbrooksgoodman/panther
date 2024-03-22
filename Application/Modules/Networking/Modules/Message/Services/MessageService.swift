@@ -213,7 +213,13 @@ public struct MessageService {
 
             guard updateConversationHash else { return nil }
 
-            let updateValueResult = await conversation.updateValue(dateFormatter.string(from: Date()), forKey: .lastModifiedDate)
+            let newMetadata: ConversationMetadata = .init(
+                name: conversation.metadata.name,
+                imageData: conversation.metadata.imageData,
+                lastModifiedDate: Date()
+            )
+
+            let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)
 
             switch updateValueResult {
             case .success:

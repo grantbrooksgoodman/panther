@@ -53,8 +53,7 @@ public struct ConversationService {
             .init(key: id, hash: ""),
             messageIDs: [firstMessage.id],
             messages: [firstMessage],
-            name: .bangQualifiedEmpty,
-            lastModifiedDate: Date(),
+            metadata: .empty,
             participants: participants,
             users: nil
         )
@@ -80,8 +79,7 @@ public struct ConversationService {
             conversationID,
             messageIDs: mockConversation.messageIDs,
             messages: mockConversation.messages,
-            name: mockConversation.name,
-            lastModifiedDate: mockConversation.lastModifiedDate,
+            metadata: mockConversation.metadata,
             participants: mockConversation.participants,
             users: mockConversation.users
         )

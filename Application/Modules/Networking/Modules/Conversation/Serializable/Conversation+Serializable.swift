@@ -24,22 +24,19 @@ extension Conversation: Serializable {
         case id
         case encodedHash = "hash"
         case messages
-        case name
-        case lastModifiedDate = "lastModified"
+        case metadata
         case participants
     }
 
     // MARK: - Properties
 
     public var encoded: [String: Any] {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
         return [
             Keys.id.rawValue: id.encoded,
             Keys.encodedHash.rawValue: encodedHash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
-            Keys.name.rawValue: name,
-            Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
+            Keys.metadata.rawValue: metadata.encoded,
             Keys.participants.rawValue: participants.map(\.encoded),
         ]
     }
@@ -51,18 +48,16 @@ extension Conversation: Serializable {
         @Dependency(\.networking.services.message) var messageService: MessageService
 
         guard let id = data[Keys.id.rawValue] as? String,
+              let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
-              let messageIDs = data[Keys.messages.rawValue] as? [String],
-              let name = data[Keys.name.rawValue] as? String,
-              let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
-              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString) else {
+              let messageIDs = data[Keys.messages.rawValue] as? [String] else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var conversationID: ConversationID?
-        let decodeResult = await ConversationID.decode(from: id)
+        let decodeConversationIDResult = await ConversationID.decode(from: id)
 
-        switch decodeResult {
+        switch decodeConversationIDResult {
         case let .success(decodedConversationID):
             conversationID = decodedConversationID
 
@@ -72,6 +67,21 @@ extension Conversation: Serializable {
 
         guard let conversationID else {
             return .failure(.init("Failed to decode conversation ID.", metadata: [self, #file, #function, #line]))
+        }
+
+        var metadata: ConversationMetadata?
+        let decodeConversationMetadataResult = await ConversationMetadata.decode(from: encodedMetadata)
+
+        switch decodeConversationMetadataResult {
+        case let .success(decodedConversationMetadata):
+            metadata = decodedConversationMetadata
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+
+        guard let metadata else {
+            return .failure(.init("Failed to decode conversation metadata.", metadata: [self, #file, #function, #line]))
         }
 
         var participants = [Participant]()
@@ -100,8 +110,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs,
                 messages: nil,
-                name: name,
-                lastModifiedDate: lastModifiedDate,
+                metadata: metadata,
                 participants: participants,
                 users: nil
             )
@@ -124,8 +133,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
                 messages: .init(),
-                name: name,
-                lastModifiedDate: lastModifiedDate,
+                metadata: metadata,
                 participants: participants,
                 users: nil
             )
@@ -146,8 +154,7 @@ extension Conversation: Serializable {
                 conversationID,
                 messageIDs: messageIDs,
                 messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
-                name: name,
-                lastModifiedDate: lastModifiedDate,
+                metadata: metadata,
                 participants: participants,
                 users: nil
             )

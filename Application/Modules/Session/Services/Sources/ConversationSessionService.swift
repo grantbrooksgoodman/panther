@@ -21,7 +21,6 @@ public final class ConversationSessionService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
@@ -41,8 +40,7 @@ public final class ConversationSessionService {
             currentConversation.id,
             messageIDs: currentConversation.messageIDs,
             messages: completeMessageArray,
-            name: currentConversation.name,
-            lastModifiedDate: currentConversation.lastModifiedDate,
+            metadata: currentConversation.metadata,
             participants: currentConversation.participants,
             users: currentConversation.users
         )
@@ -114,7 +112,7 @@ public final class ConversationSessionService {
                     domain: .conversation
                 )
 
-                return await updateMetadata(conversation)
+                return await updateData(conversation)
             }
         }
 
@@ -146,7 +144,7 @@ public final class ConversationSessionService {
             filteredMessageIDs = filteredMessageIDs.unique
 
             guard !filteredMessageIDs.isEmpty else {
-                return await updateMetadata(conversation)
+                return await updateData(conversation)
             }
 
             let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)
@@ -158,7 +156,27 @@ public final class ConversationSessionService {
                     return .failure(.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line]))
                 }
 
-                return await updateMetadata(modified)
+                return await updateData(modified)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func updateData(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let updateParticipantsResult = await updateParticipants(conversation)
+
+        switch updateParticipantsResult {
+        case let .success(conversation):
+            let updateMetadataResult = await updateMetadata(conversation)
+
+            switch updateMetadataResult {
+            case let .success(conversation):
+                return await updateHash(conversation)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -187,8 +205,7 @@ public final class ConversationSessionService {
                 .init(key: conversation.id.key, hash: string),
                 messageIDs: conversation.messageIDs,
                 messages: conversation.messages,
-                name: conversation.name,
-                lastModifiedDate: conversation.lastModifiedDate,
+                metadata: conversation.metadata,
                 participants: conversation.participants,
                 users: conversation.users
             ))
@@ -199,47 +216,35 @@ public final class ConversationSessionService {
     }
 
     private func updateMetadata(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let updateParticipantsResult = await updateParticipants(conversation)
-
-        switch updateParticipantsResult {
-        case let .success(conversation):
-            let updateNameResult = await updateName(conversation)
-
-            switch updateNameResult {
-            case let .success(conversation):
-                return await updateHash(conversation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func updateName(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
-        let nameKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.name.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: nameKeyPath)
+        let metadataKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.metadata.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: metadataKeyPath)
 
         switch getValuesResult {
         case let .success(values):
-            guard let string = values as? String else {
+            guard let dictionary = values as? [String: Any] else {
                 return .failure(.init(
-                    "Failed to typecast values to string.",
+                    "Failed to typecast values to dictionary.",
                     metadata: [self, #file, #function, #line]
                 ))
             }
 
-            guard let conversation = conversation.modifyKey(.name, withValue: string) else {
-                return .failure(.typeMismatch(
-                    key: Conversation.SerializationKeys.name.rawValue,
-                    [self, #file, #function, #line]
-                ))
-            }
+            let decodeResult = await ConversationMetadata.decode(from: dictionary)
 
-            return .success(conversation)
+            switch decodeResult {
+            case let .success(metadata):
+                guard let conversation = conversation.modifyKey(.metadata, withValue: metadata) else {
+                    return .failure(.typeMismatch(
+                        key: Conversation.SerializationKeys.metadata.rawValue,
+                        [self, #file, #function, #line]
+                    ))
+                }
+
+                return .success(conversation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
 
         case let .failure(exception):
             return .failure(exception)
@@ -362,7 +367,13 @@ public final class ConversationSessionService {
             return exception
         }
 
-        let updateValueResult = await conversation.updateValue(dateFormatter.string(from: Date()), forKey: .lastModifiedDate)
+        let newMetadata: ConversationMetadata = .init(
+            name: conversation.metadata.name,
+            imageData: conversation.metadata.imageData,
+            lastModifiedDate: Date()
+        )
+
+        let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)
 
         switch updateValueResult {
         case .success:
@@ -426,8 +437,7 @@ public final class ConversationSessionService {
             conversation.id,
             messageIDs: conversation.messageIDs,
             messages: messages.reversed()[0 ... amountToGet].reversed(),
-            name: conversation.name,
-            lastModifiedDate: conversation.lastModifiedDate,
+            metadata: conversation.metadata,
             participants: conversation.participants,
             users: conversation.users
         )

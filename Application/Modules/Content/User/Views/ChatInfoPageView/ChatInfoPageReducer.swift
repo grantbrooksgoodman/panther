@@ -179,15 +179,21 @@ public struct ChatInfoPageReducer: Reducer {
         case let .changeNameAlertDismissed(input: input):
             guard let input,
                   let conversation = state.conversation,
-                  input != conversation.name,
-                  !(input.isBangQualifiedEmpty && conversation.name.isBangQualifiedEmpty) else {
+                  input != conversation.metadata.name,
+                  !(input.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else {
                 state.isChangeNameButtonEnabled = true
                 return .none
             }
 
             let sanitizedInput = input.isBangQualifiedEmpty ? .bangQualifiedEmpty : input
+            let newMetadata: ConversationMetadata = .init(
+                name: sanitizedInput.trimmingBorderedWhitespace,
+                imageData: conversation.metadata.imageData,
+                lastModifiedDate: conversation.metadata.lastModifiedDate
+            )
+
             return .task {
-                let result = await conversation.updateValue(sanitizedInput.trimmingBorderedWhitespace, forKey: .name)
+                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result)
             }
 

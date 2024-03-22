@@ -26,16 +26,16 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     // Other
     public let id: ConversationID
-    public let lastModifiedDate: Date
-    public let name: String
+    public let metadata: ConversationMetadata
 
     // MARK: - Computed Properties
 
     public var hashFactors: [String] {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
-        factors.append(dateFormatter.string(from: lastModifiedDate))
-        factors.append(name)
+        factors.append(metadata.name)
+        factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
+        factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
         factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
@@ -48,16 +48,14 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         _ id: ConversationID,
         messageIDs: [String],
         messages: [Message]?,
-        name: String,
-        lastModifiedDate: Date,
+        metadata: ConversationMetadata,
         participants: [Participant],
         users: [User]?
     ) {
         self.id = id
         self.messageIDs = messageIDs
         self.messages = messages
-        self.name = name
-        self.lastModifiedDate = lastModifiedDate
+        self.metadata = metadata
         self.participants = participants
         self.users = users
     }
@@ -173,16 +171,14 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     public static func == (left: Conversation, right: Conversation) -> Bool {
         let sameID = left.id == right.id
-        let sameLastModifiedDate = left.lastModifiedDate == right.lastModifiedDate
         let sameMessages = left.messages == right.messages
-        let sameName = left.name == right.name
+        let sameMetadata = left.metadata == right.metadata
         let sameParticipants = left.participants == right.participants
         let sameUsers = left.users == right.users
 
         guard sameID,
-              sameLastModifiedDate,
               sameMessages,
-              sameName,
+              sameMetadata,
               sameParticipants,
               sameUsers else { return false }
 
