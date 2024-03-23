@@ -51,11 +51,6 @@ public struct ConversationCellReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        public var avatarImageViewConfig: AvatarImageView.Configuration {
-            guard conversation.participants.count == 2 else { return .badge(count: conversation.participants.count - 1) }
-            return .singleImage(cellViewData.contactImage)
-        }
-
         public var chevronImageForegroundColor: Color {
             guard ThemeService.isDarkModeActive else {
                 return .init(

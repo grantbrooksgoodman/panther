@@ -16,6 +16,14 @@ import AlertKit
 import Redux
 
 public final class ChatInfoPageViewService: Cacheable {
+    // MARK: - Types
+
+    public enum MetadataChangeType {
+        case changePhoto
+        case name(String)
+        case removePhoto
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
@@ -127,29 +135,62 @@ public final class ChatInfoPageViewService: Cacheable {
         return .success(sortedParticipants)
     }
 
-    // MARK: - Present Change Name Alert
+    // MARK: - Present Change Metadata Action Sheet
 
-    /// `.changeNameButtonTapped`
-    public func presentChangeNameAlert() async -> String? {
-        var conversationName = ""
-        if let name = currentConversation?.metadata.name,
-           !name.isBangQualifiedEmpty {
-            conversationName = name
+    /// `.changeMetadataButtonTapped`
+    public func presentChangeMetadataActionSheet() async -> MetadataChangeType? {
+        func presentChangeNameAlert() async -> String? {
+            var conversationName = ""
+            if let name = currentConversation?.metadata.name,
+               !name.isBangQualifiedEmpty {
+                conversationName = name
+            }
+
+            let alert: AKTextFieldAlert = .init(
+                message: "Choose a new name for this conversation:",
+                actions: [.init(title: "Done", style: .preferred)],
+                textFieldAttributes: [
+                    .editingMode: UITextField.ViewMode.always,
+                    .sampleText: conversationName,
+                ],
+                networkDependent: true
+            )
+
+            let presentTextFieldAlertResult = await alert.presentTextFieldAlert()
+            guard presentTextFieldAlertResult.actionID != -1 else { return nil }
+            return presentTextFieldAlertResult.input
         }
 
-        let alert: AKTextFieldAlert = .init(
-            message: "Choose a new name for this conversation:",
-            actions: [.init(title: "Done", style: .preferred)],
-            textFieldAttributes: [
-                .editingMode: UITextField.ViewMode.always,
-                .sampleText: conversationName,
-            ],
-            networkDependent: true
-        )
+        var actions: [AKAction] = [
+            .init(title: "Change name", style: .default),
+            .init(title: "Change photo", style: .default),
+        ]
 
-        let presentTextFieldAlertResult = await alert.presentTextFieldAlert()
-        guard presentTextFieldAlertResult.actionID != -1 else { return nil }
-        return presentTextFieldAlertResult.input
+        if currentConversation?.metadata.imageData != nil {
+            actions.append(.init(title: "Remove photo", style: .destructive))
+        }
+
+        let actionSheet: AKActionSheet = .init(actions: actions)
+
+        let actionID = await actionSheet.present()
+        guard actionID != -1 else { return nil }
+
+        switch actionID {
+        case actions[0].identifier:
+            if let string = await presentChangeNameAlert() {
+                return .name(string)
+            }
+
+        case actions[1].identifier:
+            return .changePhoto
+
+        case actions[2].identifier:
+            return .removePhoto
+
+        default: ()
+        }
+
+        return nil
     }
 
     // MARK: - Clear Cache

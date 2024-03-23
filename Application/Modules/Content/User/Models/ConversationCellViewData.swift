@@ -22,9 +22,9 @@ public struct ConversationCellViewData: Equatable {
     public let titleLabelText: String
 
     // Other
-    public let contactImage: UIImage?
     public let isShowingUnreadIndicator: Bool
     public let otherUser: User?
+    public let thumbnailImage: UIImage?
 
     // MARK: - Computed Properties
 
@@ -33,9 +33,9 @@ public struct ConversationCellViewData: Equatable {
             titleLabelText: "",
             subtitleLabelText: "",
             dateLabelText: "",
-            contactImage: nil,
             isShowingUnreadIndicator: false,
-            otherUser: nil
+            otherUser: nil,
+            thumbnailImage: nil
         )
     }
 
@@ -45,16 +45,16 @@ public struct ConversationCellViewData: Equatable {
         titleLabelText: String,
         subtitleLabelText: String,
         dateLabelText: String,
-        contactImage: UIImage?,
         isShowingUnreadIndicator: Bool,
-        otherUser: User?
+        otherUser: User?,
+        thumbnailImage: UIImage?
     ) {
         self.titleLabelText = titleLabelText
         self.subtitleLabelText = subtitleLabelText
         self.dateLabelText = dateLabelText
-        self.contactImage = contactImage
         self.isShowingUnreadIndicator = isShowingUnreadIndicator
         self.otherUser = otherUser
+        self.thumbnailImage = thumbnailImage
     }
 
     public init?(_ conversation: Conversation) {
@@ -66,7 +66,7 @@ public struct ConversationCellViewData: Equatable {
         var titleLabelText: String
         var subtitleLabelText = ""
         var dateLabelText = ""
-        var contactImage: UIImage?
+        var thumbnailImage: UIImage?
         var isShowingUnreadIndicator = false
         var otherUser: User?
 
@@ -78,20 +78,24 @@ public struct ConversationCellViewData: Equatable {
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
             titleLabelText = contactPair.contact.fullName
-            if let imageData = contactPair.contact.imageData {
-                contactImage = UIImage(data: imageData)
+            if let imageData = contactPair.contact.imageData,
+               users.count == 1 {
+                thumbnailImage = UIImage(data: imageData)
             }
         } else {
             titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)
         }
 
-        // TODO: If >1 other user, set avatar image to number of users.
         if conversation.metadata.name.isBangQualifiedEmpty {
             if users.count > 1 {
                 titleLabelText += " + \(users.count - 1)"
             } else if let firstUser = users.first {
                 otherUser = firstUser
             }
+        }
+
+        if users.count > 1 {
+            thumbnailImage = conversation.metadata.image ?? thumbnailImage
         }
 
         // Set date & subtitle label text
@@ -115,9 +119,9 @@ public struct ConversationCellViewData: Equatable {
             titleLabelText: titleLabelText,
             subtitleLabelText: subtitleLabelText,
             dateLabelText: dateLabelText,
-            contactImage: contactImage,
             isShowingUnreadIndicator: isShowingUnreadIndicator,
-            otherUser: otherUser
+            otherUser: otherUser,
+            thumbnailImage: thumbnailImage
         )
     }
 }

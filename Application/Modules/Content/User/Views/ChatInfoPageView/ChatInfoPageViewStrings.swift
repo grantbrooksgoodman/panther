@@ -13,7 +13,7 @@ public extension TranslatedLabelStringCollection {
     enum ChatInfoPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
-        case changeNameButtonText = "Change name"
+        case changeMetadataButtonText = "Change name and photo"
         case participantCountLabelText = "people"
 
         // MARK: - Properties

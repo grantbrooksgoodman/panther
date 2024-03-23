@@ -11,13 +11,6 @@ import Foundation
 import SwiftUI
 
 public struct AvatarImageView: View {
-    // MARK: - Types
-
-    public enum Configuration {
-        case badge(count: Int)
-        case singleImage(_ image: UIImage? = nil)
-    }
-
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.AvatarImageView
@@ -26,13 +19,19 @@ public struct AvatarImageView: View {
 
     // MARK: - Properties
 
-    private let configuration: Configuration
+    private let badgeCount: Int
+    private let image: UIImage?
     private let size: CGSize
 
     // MARK: - Init
 
-    public init(_ configuration: Configuration, size: CGSize? = nil) {
-        self.configuration = configuration
+    public init(
+        _ image: UIImage?,
+        badgeCount: Int = 0,
+        size: CGSize? = nil
+    ) {
+        self.image = image
+        self.badgeCount = badgeCount
         self.size = size ?? .init(width: Floats.frameWidth, height: Floats.frameHeight)
     }
 
@@ -40,46 +39,35 @@ public struct AvatarImageView: View {
 
     public var body: some View {
         Group {
-            switch configuration {
-            case .badge:
-                Image(systemName: Strings.badgeImageSystemName)
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .clipShape(Circle())
+            } else {
+                Image(
+                    systemName: (badgeCount < 2 && badgeCount != -1) ? Strings.defaultImageSystemName : Strings.badgeImageSystemName)
                     .resizable()
                     .foregroundStyle(Colors.imageForeground)
-
-            case let .singleImage(image):
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .clipShape(Circle())
-                } else {
-                    Image(systemName: Strings.defaultImageSystemName)
-                        .resizable()
-                        .foregroundStyle(Colors.imageForeground)
-                }
             }
         }
         .font(.system(size: Floats.systemFontSize))
         .frame(width: size.width, height: size.height)
         .cornerRadius(Floats.cornerRadius)
         .overlay {
-            switch configuration {
-            case let .badge(count):
-                badgeView(count)
+            if badgeCount > 1 {
+                badgeView
                     .offset(
                         x: Floats.badgeViewOffsetX,
                         y: Floats.badgeViewOffsetY
                     )
-
-            default:
-                EmptyView()
             }
         }
     }
 
     @ViewBuilder
-    private func badgeView(_ badgeNumber: Int) -> some View {
-        let badgeContentView = Text("\(badgeNumber)")
+    private var badgeView: some View {
+        let badgeContentView = Text("\(badgeCount)")
             .font(.system(size: Floats.badgeViewLabelSystemFontSize).bold())
             .foregroundStyle(Color.titleText)
             .shadow(

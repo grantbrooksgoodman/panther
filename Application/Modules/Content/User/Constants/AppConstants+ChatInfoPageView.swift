@@ -17,8 +17,8 @@ public extension AppConstants.CGFloats {
         public static let avatarImageViewHorizontalPadding: CGFloat = 10
         public static let avatarImageViewTopPadding: CGFloat = 20
 
-        public static let changeNameButtonHorizontalPadding: CGFloat = 10
-        public static let changeNameButtonLabelFontSize: CGFloat = 15
+        public static let changeMetadataButtonHorizontalPadding: CGFloat = 10
+        public static let changeMetadataButtonLabelFontSize: CGFloat = 15
 
         public static let chatInfoCellTitleLabelFontSize: CGFloat = 17
         public static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15

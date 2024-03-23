@@ -22,6 +22,15 @@ public struct ChatInfoContentPageView: View {
 
     @ObservedObject private var viewModel: ViewModel<ChatInfoPageReducer>
 
+    // MARK: - Bindings
+
+    private var imagePickerSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingImagePickerSheet,
+            sendAction: { .isPresentingImagePickerSheetChanged($0) }
+        )
+    }
+
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
@@ -44,6 +53,13 @@ public struct ChatInfoContentPageView: View {
             }
             .accentColor(Color.accent)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
+            .sheet(isPresented: imagePickerSheetBinding) {
+                ImagePickerView(.photoLibrary) { image in
+                    viewModel.send(.selectedImageChanged(image))
+                } onDismiss: {
+                    viewModel.send(.isPresentingImagePickerSheetChanged(false))
+                }
+            }
         }
     }
 
@@ -62,7 +78,8 @@ public struct ChatInfoContentPageView: View {
         } else {
             VStack {
                 AvatarImageView(
-                    .singleImage(viewModel.avatarImage),
+                    viewModel.avatarImage,
+                    badgeCount: -1,
                     size: .init(
                         width: Floats.largeAvatarImageViewSizeWidth,
                         height: Floats.largeAvatarImageViewSizeHeight
@@ -78,15 +95,15 @@ public struct ChatInfoContentPageView: View {
                     .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 
                 Button {
-                    viewModel.send(.changeNameButtonTapped)
+                    viewModel.send(.changeMetadataButtonTapped)
                 } label: {
-                    Text(viewModel.strings.value(for: .changeNameButtonText))
-                        .font(.sanFrancisco(size: Floats.changeNameButtonLabelFontSize))
-                        .foregroundStyle(viewModel.isChangeNameButtonEnabled ? Color.accent : .disabled)
+                    Text(viewModel.strings.value(for: .changeMetadataButtonText))
+                        .font(.sanFrancisco(size: Floats.changeMetadataButtonLabelFontSize))
+                        .foregroundStyle(viewModel.isChangeMetadataButtonEnabled ? Color.accent : .disabled)
                 }
-                .disabled(!viewModel.isChangeNameButtonEnabled)
+                .disabled(!viewModel.isChangeMetadataButtonEnabled)
                 .padding(.bottom, 1)
-                .padding(.horizontal, Floats.changeNameButtonHorizontalPadding)
+                .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
 
                 listView
 
@@ -174,7 +191,7 @@ public struct ChatInfoContentPageView: View {
     private func participantView(_ participant: ChatParticipant) -> some View {
         HStack(alignment: .center) {
             AvatarImageView(
-                .singleImage(participant.thumbnailImage),
+                participant.thumbnailImage,
                 size: .init(
                     width: Floats.smallAvatarImageViewSizeWidth,
                     height: Floats.smallAvatarImageViewSizeHeight

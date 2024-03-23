@@ -27,19 +27,21 @@ public struct ChatInfoPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case changeNameButtonTapped
+        case changeMetadataButtonTapped
         case chatInfoCellTapped
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
 
+        case isPresentingImagePickerSheetChanged(Bool)
+        case selectedImageChanged(UIImage)
         case traitCollectionChanged
     }
 
     // MARK: - Feedback
 
     public enum Feedback {
-        case changeNameAlertDismissed(input: String?)
+        case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
         case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updateValueReturned(Callback<Conversation, Exception>)
@@ -65,16 +67,18 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Bool
         public var inputBarWasFirstResponder = false
-        public var isChangeNameButtonEnabled = true
+        public var isChangeMetadataButtonEnabled = true
+        public var isPresentingImagePickerSheet = false
 
         // Other
         @Localized(.done) public var doneButtonText: String
+        public var preferredStatusBarStyle: UIStatusBarStyle = .lightContent
         public var viewState: ViewState = .loading
         public var viewID = UUID()
 
         /* MARK: Computed Properties */
 
-        public var avatarImage: UIImage? { cellViewData?.contactImage }
+        public var avatarImage: UIImage? { cellViewData?.thumbnailImage }
 
         public var cellViewData: ConversationCellViewData? {
             guard let conversation,
@@ -149,11 +153,11 @@ public struct ChatInfoPageReducer: Reducer {
                 return .resolveReturned(result)
             }.merge(with: getChatParticipantsTask)
 
-        case .changeNameButtonTapped:
-            state.isChangeNameButtonEnabled = false
+        case .changeMetadataButtonTapped:
+            state.isChangeMetadataButtonEnabled = false
             return .task {
-                let result = await viewService.presentChangeNameAlert()
-                return .changeNameAlertDismissed(input: result)
+                let result = await viewService.presentChangeMetadataActionSheet()
+                return .changeMetadataActionSheetDismissed(result)
             }
 
         case .chatInfoCellTapped:
@@ -164,6 +168,36 @@ public struct ChatInfoPageReducer: Reducer {
             RootSheets.dismiss()
             guard state.inputBarWasFirstResponder else { return .none }
             chatPageViewService.inputBar?.becomeFirstResponder()
+
+        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet):
+            state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
+            if !isPresentingImagePickerSheet,
+               !ThemeService.isDarkModeActive {
+                state.preferredStatusBarStyle = .darkContent
+            }
+            state.isChangeMetadataButtonEnabled = true
+
+        case let .selectedImageChanged(image):
+            guard let conversation = state.conversation,
+                  let imageData = image.dataCompressed(toKB: 100) else {
+                Logger.log(
+                    .init("Failed to compress image.", metadata: [self, #file, #function, #line]),
+                    with: .toast()
+                )
+                state.isChangeMetadataButtonEnabled = true
+                return .none
+            }
+
+            let newMetadata: ConversationMetadata = .init(
+                name: conversation.metadata.name,
+                imageData: imageData,
+                lastModifiedDate: conversation.metadata.lastModifiedDate
+            )
+
+            return .task {
+                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
+                return .updateValueReturned(result)
+            }
 
         case .traitCollectionChanged:
             coreUI.setNavigationBarAppearance()
@@ -176,18 +210,17 @@ public struct ChatInfoPageReducer: Reducer {
 
     private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
         switch feedback {
-        case let .changeNameAlertDismissed(input: input):
-            guard let input,
-                  let conversation = state.conversation,
-                  input != conversation.metadata.name,
-                  !(input.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else {
-                state.isChangeNameButtonEnabled = true
+        case let .changeMetadataActionSheetDismissed(.name(name)):
+            guard let conversation = state.conversation,
+                  name != conversation.metadata.name,
+                  !(name.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else {
+                state.isChangeMetadataButtonEnabled = true
                 return .none
             }
 
-            let sanitizedInput = input.isBangQualifiedEmpty ? .bangQualifiedEmpty : input
+            let sanitizedName = name.isBangQualifiedEmpty ? .bangQualifiedEmpty : name
             let newMetadata: ConversationMetadata = .init(
-                name: sanitizedInput.trimmingBorderedWhitespace,
+                name: sanitizedName.trimmingBorderedWhitespace,
                 imageData: conversation.metadata.imageData,
                 lastModifiedDate: conversation.metadata.lastModifiedDate
             )
@@ -197,8 +230,33 @@ public struct ChatInfoPageReducer: Reducer {
                 return .updateValueReturned(result)
             }
 
+        case .changeMetadataActionSheetDismissed(.changePhoto):
+            state.isPresentingImagePickerSheet = true
+
+        case .changeMetadataActionSheetDismissed(.removePhoto):
+            guard let conversation = state.conversation else {
+                state.isChangeMetadataButtonEnabled = true
+                return .none
+            }
+
+            let newMetadata: ConversationMetadata = .init(
+                name: conversation.metadata.name,
+                imageData: nil,
+                lastModifiedDate: conversation.metadata.lastModifiedDate
+            )
+
+            return .task {
+                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
+                return .updateValueReturned(result)
+            }
+
+        case .changeMetadataActionSheetDismissed(.none):
+            state.isChangeMetadataButtonEnabled = true
+            return .none
+
         case let .getChatParticipantsReturned(.success(chatParticipants)):
             state.chatParticipants = chatParticipants
+            state.visibleParticipants = chatParticipants
             state.viewState = .loaded
 
         case let .getChatParticipantsReturned(.failure(exception)):
@@ -216,12 +274,12 @@ public struct ChatInfoPageReducer: Reducer {
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
             }
-            state.isChangeNameButtonEnabled = true
+            state.isChangeMetadataButtonEnabled = true
             state.viewID = UUID()
 
         case let .updateValueReturned(.failure(exception)):
             Logger.log(exception, with: .toast())
-            state.isChangeNameButtonEnabled = true
+            state.isChangeMetadataButtonEnabled = true
         }
 
         return .none

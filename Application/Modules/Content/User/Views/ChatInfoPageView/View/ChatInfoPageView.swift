@@ -45,7 +45,7 @@ public struct ChatInfoPageView: View {
             viewModel.send(.traitCollectionChanged)
         }
         .redrawsOnTraitCollectionChange()
-        .preferredStatusBarStyle(.lightContent)
+        .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : viewModel.preferredStatusBarStyle)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }
