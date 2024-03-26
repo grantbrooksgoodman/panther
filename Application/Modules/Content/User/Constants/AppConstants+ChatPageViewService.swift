@@ -19,6 +19,7 @@ public extension AppConstants.CGFloats {
 
         enum AudioMessagePlayback {
             public static let playbackTimerTimeInterval: CGFloat = 0.1
+            public static let playNextMessageDelayMilliseconds: CGFloat = 100
         }
 
         enum DeliveryProgressIndicator {

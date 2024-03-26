@@ -43,7 +43,7 @@ public struct SettingsPageReducer: Reducer {
     // MARK: - Feedback
 
     public enum Feedback {
-        case fetchCnContactForCurrentUserReturned(Callback<CNContact, Exception>)
+        case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
         case inviteFriendsButtonTappedReturned(Exception?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
@@ -101,7 +101,7 @@ public struct SettingsPageReducer: Reducer {
             let sameBuildInfoButtonDarkBackgroundImage = left.buildInfoButtonDarkBackgroundImage == right.buildInfoButtonDarkBackgroundImage
             let sameBuildInfoButtonLightBackgroundImage = left.buildInfoButtonLightBackgroundImage == right.buildInfoButtonLightBackgroundImage
             let sameBuildInfoButtonStrings = left.buildInfoButtonStrings == right.buildInfoButtonStrings
-            let sameCnContact = left.cnContact == right.cnContact
+            let sameCNContact = left.cnContact == right.cnContact
             let sameContactDetailViewImage = left.contactDetailViewImage == right.contactDetailViewImage
             let sameContactDetailViewSubtitleLabelText = left.contactDetailViewSubtitleLabelText == right.contactDetailViewSubtitleLabelText
             let sameContactDetailViewTitleLabelText = left.contactDetailViewTitleLabelText == right.contactDetailViewTitleLabelText
@@ -116,7 +116,7 @@ public struct SettingsPageReducer: Reducer {
             guard sameBuildInfoButtonDarkBackgroundImage,
                   sameBuildInfoButtonLightBackgroundImage,
                   sameBuildInfoButtonStrings,
-                  sameCnContact,
+                  sameCNContact,
                   sameContactDetailViewImage,
                   sameContactDetailViewSubtitleLabelText,
                   sameContactDetailViewTitleLabelText,
@@ -156,18 +156,19 @@ public struct SettingsPageReducer: Reducer {
             state.viewState = .loading
             state.developerModeListItems = viewService.developerModeListItems()
 
-            let fetchCnContactForCurrentUserTask: Effect<Feedback> = .task {
-                let result = await viewService.fetchCnContactForCurrentUser()
-                return .fetchCnContactForCurrentUserReturned(result)
+            let fetchCNContactForCurrentUserTask: Effect<Feedback> = .task {
+                let result = await viewService.fetchCNContactForCurrentUser()
+                return .fetchCNContactForCurrentUserReturned(result)
             }
 
             return .task {
                 let result = await translator.resolve(SettingsPageViewStrings.self)
                 return .resolveReturned(result)
-            }.merge(with: fetchCnContactForCurrentUserTask)
+            }.merge(with: fetchCNContactForCurrentUserTask)
 
         case .buildInfoButtonTapped:
             state.buildInfoButtonStrings = state.buildInfoButtonStrings.next
+            state.viewID = UUID()
 
         case .changeThemeButtonTapped:
             viewService.changeThemeButtonTapped()
@@ -204,7 +205,7 @@ public struct SettingsPageReducer: Reducer {
 
     private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
         switch feedback {
-        case let .fetchCnContactForCurrentUserReturned(.success(cnContact)):
+        case let .fetchCNContactForCurrentUserReturned(.success(cnContact)):
             state.cnContact = cnContact
 
             let contact = Contact(cnContact)
@@ -217,7 +218,7 @@ public struct SettingsPageReducer: Reducer {
 
             state.viewID = UUID()
 
-        case let .fetchCnContactForCurrentUserReturned(.failure(exception)):
+        case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
             state.viewID = UUID()
             Logger.log(exception)

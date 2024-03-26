@@ -25,6 +25,7 @@ public final class AudioMessagePlaybackService {
     // MARK: - Dependencies
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.chatPageViewService.recordingUI) private var recordingUIService: RecordingUIService?
     @Dependency(\.commonServices) private var services: CommonServices
@@ -62,7 +63,7 @@ public final class AudioMessagePlaybackService {
 
         services.haptics.generateFeedback(.medium)
 
-        func deselectCellAndStopPlaybackTimer() {
+        func deselectCellAndStopPlaybackTimer(playNextMessage: Bool) {
             (playingCell ?? cell).durationLabel.text = audioFile.duration.durationString
             (playingCell ?? cell).playButton.isSelected = false
             (playingCell ?? cell).progressView.progress = 0
@@ -70,6 +71,10 @@ public final class AudioMessagePlaybackService {
             playingCell = nil
             playingMessage = nil
             stopPlaybackTimer()
+
+            guard playNextMessage,
+                  let nextAudioCell = nextAudioMessageCell(after: cell) else { return }
+            coreGCD.after(.milliseconds(Floats.playNextMessageDelayMilliseconds)) { _ = self.didTapPlayButton(in: nextAudioCell) }
         }
 
         guard !cell.playButton.isSelected else {
@@ -87,8 +92,8 @@ public final class AudioMessagePlaybackService {
         cell.playButton.isSelected = true
         cell.progressView.tintColor = message.isFromCurrentUser ? UIColor(Colors.cellCurrentUserProgressViewTint) : .accent
 
-        services.audio.playback.onFailedToFinishPlaying { deselectCellAndStopPlaybackTimer() }
-        services.audio.playback.onFinishedPlaying { deselectCellAndStopPlaybackTimer() }
+        services.audio.playback.onFailedToFinishPlaying { deselectCellAndStopPlaybackTimer(playNextMessage: false) }
+        services.audio.playback.onFinishedPlaying { deselectCellAndStopPlaybackTimer(playNextMessage: true) }
 
         return services.audio.playback.playAudio(url: audioFile.url)
     }
@@ -155,6 +160,12 @@ public final class AudioMessagePlaybackService {
               let messages = viewController.currentConversation?.messages,
               indexPath.section < messages.count else { return nil }
         return messages[indexPath.section]
+    }
+
+    public func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {
+        guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
+        let nextIndexPath: IndexPath = .init(row: indexPath.row, section: indexPath.section + 1)
+        return viewController.messagesCollectionView.cellForItem(at: nextIndexPath) as? AudioMessageCell
     }
 
     private func resetVisibleCells() {

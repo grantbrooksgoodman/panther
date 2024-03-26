@@ -69,9 +69,9 @@ public final class ChatInfoPageViewService: Cacheable {
         var chatParticipants = [ChatParticipant]()
 
         for user in users {
-            let firstCnContactResult = await contactService.firstCnContact(for: user.phoneNumber)
+            let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
 
-            switch firstCnContactResult {
+            switch firstCNContactResult {
             case let .success(cnContact):
                 let contactPair: ContactPair = .init(
                     contact: .init(cnContact),

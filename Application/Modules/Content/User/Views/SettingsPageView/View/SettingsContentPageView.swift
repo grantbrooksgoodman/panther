@@ -56,13 +56,14 @@ public struct SettingsContentPageView: View {
                 .toolbar {
                     doneToolbarButton
                 }
-                .preferredStatusBarStyle(.lightContent)
             }
             .accentColor(Color.accent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .interactiveDismissDisabled(true)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
+        .id(viewModel.viewID)
+        .preferredStatusBarStyle(.lightContent)
     }
 
     private var buildInfoButton: some View {

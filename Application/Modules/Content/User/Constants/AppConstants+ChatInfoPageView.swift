@@ -36,6 +36,6 @@ public extension AppConstants.CGFloats {
         public static let smallAvatarImageViewSizeWidth: CGFloat = 40
         public static let smallAvatarImageViewTrailingPadding: CGFloat = 2
 
-        public static let singleCnContactViewYOffset: CGFloat = -7.5
+        public static let singleCNContactViewYOffset: CGFloat = -7.5
     }
 }

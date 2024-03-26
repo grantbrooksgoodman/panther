@@ -14,7 +14,7 @@ import Foundation
 import Redux
 
 public extension ContactService {
-    func firstCnContact(for phoneNumber: PhoneNumber) async -> Callback<CNContact, Exception> {
+    func firstCNContact(for phoneNumber: PhoneNumber) async -> Callback<CNContact, Exception> {
         @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
 
         let commonParams = ["PhoneNumber": phoneNumber.encoded]
@@ -25,7 +25,7 @@ public extension ContactService {
 
             switch fetchAllContactsResult {
             case .success:
-                return await firstCnContact(for: phoneNumber)
+                return await firstCNContact(for: phoneNumber)
 
             case let .failure(exception):
                 return .failure(exception.appending(extraParams: commonParams))

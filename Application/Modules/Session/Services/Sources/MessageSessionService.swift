@@ -216,7 +216,6 @@ public struct MessageSessionService {
         case let .success(message):
             if let exception = await services.notification.notify(otherUsers, of: message) {
                 Logger.log(exception)
-                clientSession.user.startObservingCurrentUserChanges()
             }
 
             incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)

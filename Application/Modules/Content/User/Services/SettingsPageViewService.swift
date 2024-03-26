@@ -228,7 +228,7 @@ public final class SettingsPageViewService: Cacheable {
     // MARK: - Fetch CNContact for Current User
 
     /// `.viewAppeared`
-    public func fetchCnContactForCurrentUser() async -> Callback<CNContact, Exception> {
+    public func fetchCNContactForCurrentUser() async -> Callback<CNContact, Exception> {
         if let cachedValue = cache.value(forKey: .cnContactForCurrentUser) as? CNContact {
             return .success(cachedValue)
         }
@@ -240,9 +240,9 @@ public final class SettingsPageViewService: Cacheable {
             ))
         }
 
-        let firstCnContactResult = await services.contact.firstCnContact(for: currentUser.phoneNumber)
+        let firstCNContactResult = await services.contact.firstCNContact(for: currentUser.phoneNumber)
 
-        switch firstCnContactResult {
+        switch firstCNContactResult {
         case let .success(cnContact):
             cache.set(cnContact, forKey: .cnContactForCurrentUser)
             return .success(cnContact)

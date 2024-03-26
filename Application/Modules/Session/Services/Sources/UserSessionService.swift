@@ -153,6 +153,7 @@ public final class UserSessionService {
                 return
             }
 
+            // TODO: Shouldn't this be the other way around?
             for id in currentConversationIDStrings where !updatedConversationIDStrings.contains(id) {
                 self.networking.services.conversation.archive.removeValue(idKey: id)
             }

@@ -67,12 +67,12 @@ public struct ChatInfoContentPageView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        if let cnContactContainer = viewModel.singleCnContactContainer {
+        if let cnContactContainer = viewModel.singleCNContactContainer {
             CNContactView(
                 cnContactContainer.cnContact,
                 isUnknown: cnContactContainer.isUnknown
             )
-            .offset(y: Floats.singleCnContactViewYOffset)
+            .offset(y: Floats.singleCNContactViewYOffset)
             .header(rightItem: doneHeaderItem, isThemed: true)
             .toolbar(.hidden)
         } else {
@@ -91,6 +91,7 @@ public struct ChatInfoContentPageView: View {
 
                 Text(viewModel.chatTitleLabelText)
                     .font(.sanFrancisco(.bold, size: Floats.chatTitleLabelFontSize))
+                    .multilineTextAlignment(.center)
                     .padding(.bottom, 1)
                     .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 

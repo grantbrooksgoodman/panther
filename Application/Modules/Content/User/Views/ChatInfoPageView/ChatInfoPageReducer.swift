@@ -108,7 +108,7 @@ public struct ChatInfoPageReducer: Reducer {
             return currentConversation
         }
 
-        public var singleCnContactContainer: CNContactContainer? {
+        public var singleCNContactContainer: CNContactContainer? {
             guard chatParticipants.count == 1 else { return nil }
             return chatParticipants.first?.cnContactContainer
         }
