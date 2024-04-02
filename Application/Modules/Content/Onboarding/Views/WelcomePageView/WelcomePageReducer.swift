@@ -17,6 +17,7 @@ public struct WelcomePageReducer: Reducer {
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
+    @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
 
     // MARK: - Actions
@@ -66,6 +67,7 @@ public struct WelcomePageReducer: Reducer {
         case .action(.viewAppeared):
             state.viewState = .loading
             coreUtilities.restoreDeviceLanguageCode()
+            onboardingService.flushValues()
 
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)
@@ -76,7 +78,7 @@ public struct WelcomePageReducer: Reducer {
             navigationCoordinator.setPage(.onboarding(.selectLanguage))
 
         case .action(.signInButtonTapped):
-            navigationCoordinator.setPage(.sample)
+            navigationCoordinator.setPage(.onboarding(.signIn))
 
         case let .feedback(.resolveReturned(.success(strings))):
             state.strings = strings

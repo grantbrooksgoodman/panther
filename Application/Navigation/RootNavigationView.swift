@@ -31,6 +31,9 @@ public extension RootView {
                 case .welcome:
                     withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
 
+                case .signIn:
+                    withTransition { SignInPageView(.init(initialState: .init(), reducer: SignInPageReducer())) }
+
                 case .selectLanguage:
                     withTransition { SelectLanguagePageView(.init(initialState: .init(), reducer: SelectLanguagePageReducer())) }
 

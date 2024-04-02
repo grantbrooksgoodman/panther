@@ -41,9 +41,9 @@ public struct WelcomeContentPageView: View {
                 .padding(.bottom, Floats.imageBottomPadding)
 
             Text(viewModel.strings.value(for: .instructionLabelText))
-                .padding(.vertical, Floats.instructionLabelVerticalPadding)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
             Button {
                 viewModel.send(.continueButtonTapped)

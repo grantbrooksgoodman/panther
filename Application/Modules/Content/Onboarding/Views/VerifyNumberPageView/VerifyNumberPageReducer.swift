@@ -22,7 +22,6 @@ public struct VerifyNumberPageReducer: Reducer {
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-    @Dependency(\.verifyNumberPageViewService) private var viewService: VerifyNumberPageViewService
 
     // MARK: - Actions
 
@@ -44,6 +43,7 @@ public struct VerifyNumberPageReducer: Reducer {
         case accountExistsAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case updateRegionMenuViewID
         case verifyPhoneNumberReturned(Callback<String, Exception>)
     }
 
@@ -70,10 +70,16 @@ public struct VerifyNumberPageReducer: Reducer {
 
         // Other
         public var instructionViewStrings: InstructionViewStrings = .empty
+        public var regionMenuViewID = UUID()
         public var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
         public var viewState: ViewState = .loading
 
         /* MARK: Computed Properties */
+
+        public var numberIsValidLength: Bool {
+            @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
+            return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
+        }
 
         public var phoneNumber: PhoneNumber {
             @Dependency(\.commonServices) var services: CommonServices
@@ -101,7 +107,9 @@ public struct VerifyNumberPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loading
-            state.selectedRegionCode = services.regionDetail.deviceRegionCode
+            state.selectedRegionCode = onboardingService.regionCode ?? services.regionDetail.deviceRegionCode
+            state.phoneNumberString = onboardingService.phoneNumber?.partiallyFormatted(forRegion: state.selectedRegionCode) ?? ""
+            state.isContinueButtonEnabled = state.numberIsValidLength
 
             return .task {
                 let result = await networking.services.translation.resolve(VerifyNumberPageViewStrings.self)
@@ -118,9 +126,9 @@ public struct VerifyNumberPageReducer: Reducer {
             coreUI.resignFirstResponder()
             uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
-            let phoneNumber: PhoneNumber = .init(state.phoneNumberString)
+            let phoneNumber = state.phoneNumber
             return .task {
-                let result = await viewService.accountExists(for: phoneNumber)
+                let result = await onboardingService.accountExists(for: phoneNumber)
                 return .accountExistsReturned(result)
             }
 
@@ -129,32 +137,28 @@ public struct VerifyNumberPageReducer: Reducer {
 
         case let .action(.phoneNumberStringChanged(phoneNumberString)):
             state.phoneNumberString = phoneNumberString
-            state.isContinueButtonEnabled = services.phoneNumber.numberIsValidLength(
-                phoneNumberString.digits.count,
-                for: state.phoneNumber.callingCode
-            )
+            state.isContinueButtonEnabled = state.numberIsValidLength
 
         case let .action(.selectedRegionCodeChanged(selectedRegionCode)):
             state.selectedRegionCode = selectedRegionCode
+            return .task(delay: .milliseconds(500)) {
+                .updateRegionMenuViewID
+            }
 
         case let .feedback(.accountExistsAlertDismissed(cancelled: cancelled)):
             state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = services.phoneNumber.numberIsValidLength(
-                state.phoneNumberString.digits.count,
-                for: state.phoneNumber.callingCode
-            )
+            state.isContinueButtonEnabled = state.numberIsValidLength
 
             if !cancelled {
-                // TODO: Navigate to sign in page with same number.
                 onboardingService.setPhoneNumber(state.phoneNumber)
-                navigationCoordinator.setPage(.sample)
+                navigationCoordinator.setPage(.onboarding(.signIn))
             }
 
         case let .feedback(.accountExistsReturned(accountExists)):
             if accountExists {
                 uiApplication.keyWindow?.removeOverlay()
                 return .task {
-                    let result = await viewService.presentAccountExistsAlert()
+                    let result = await onboardingService.presentAccountExistsAlert()
                     return .accountExistsAlertDismissed(cancelled: result)
                 }
             } else {
@@ -175,7 +179,14 @@ public struct VerifyNumberPageReducer: Reducer {
 
         case let .feedback(.resolveReturned(.failure(exception))):
             Logger.log(exception)
+            state.instructionViewStrings = .init(
+                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
             state.viewState = .loaded
+
+        case .feedback(.updateRegionMenuViewID):
+            state.regionMenuViewID = UUID()
 
         case let .feedback(.verifyPhoneNumberReturned(.success(authID))):
             uiApplication.keyWindow?.removeOverlay()
@@ -193,10 +204,7 @@ public struct VerifyNumberPageReducer: Reducer {
             uiApplication.keyWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = services.phoneNumber.numberIsValidLength(
-                state.phoneNumberString.digits.count,
-                for: state.phoneNumber.callingCode
-            )
+            state.isContinueButtonEnabled = state.numberIsValidLength
 
             Logger.log(exception, with: .toast())
         }

@@ -187,8 +187,8 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     // MARK: - Hashable Conformance
 
-    // FIXME: May need to add a UUID to prevent the occasional collision.
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(hashFactors)
+        hasher.combine(id.key)
+        hasher.combine(id.hash)
     }
 }

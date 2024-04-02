@@ -125,6 +125,10 @@ public struct SelectLanguagePageReducer: Reducer {
 
         case let .feedback(.resolveReturned(.failure(exception))):
             Logger.log(exception)
+            state.instructionViewStrings = .init(
+                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
             state.viewState = .loaded
         }
 

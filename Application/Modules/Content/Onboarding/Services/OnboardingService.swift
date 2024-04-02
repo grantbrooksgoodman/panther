@@ -10,9 +10,15 @@
 import Foundation
 
 /* 3rd-party */
+import AlertKit
 import Redux
 
 public final class OnboardingService {
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices.notification) var notificationService: NotificationService
+    @Dependency(\.networking.services.user) var userService: UserService
+
     // MARK: - Properties
 
     // PhoneNumber
@@ -49,9 +55,6 @@ public final class OnboardingService {
     // MARK: - Create User
 
     public func createUser() async -> Exception? {
-        @Dependency(\.commonServices.notification) var notificationService: NotificationService
-        @Dependency(\.networking.services.user) var userService: UserService
-
         guard let languageCode,
               let phoneNumber,
               let userID else {
@@ -77,5 +80,52 @@ public final class OnboardingService {
         case let .failure(exception):
             return exception
         }
+    }
+
+    // MARK: - User Collision Detection
+
+    public func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
+        let getUserIDsResult = await userService.getUserIDs(phoneNumber: phoneNumber)
+
+        switch getUserIDsResult {
+        case .success:
+            return true
+
+        case let .failure(exception):
+            Logger.log(exception)
+            return false
+        }
+    }
+
+    /// - Returns: `true` if the user selected the cancel option.
+    public func presentAccountDoesNotExistAlert() async -> Bool {
+        let alert: AKAlert = .init(
+            message: "There is no account registered with this phone number. Please sign up instead.",
+            actions: [.init(title: "Sign Up", style: .preferred)]
+        )
+
+        let actionID = await alert.present()
+        return actionID == -1
+    }
+
+    /// - Returns: `true` if the user selected the cancel option.
+    public func presentAccountExistsAlert() async -> Bool {
+        let alert: AKAlert = .init(
+            message: "There is already an account registered with this phone number. Please sign in instead.",
+            actions: [.init(title: "Sign In", style: .preferred)]
+        )
+
+        let actionID = await alert.present()
+        return actionID == -1
+    }
+
+    // MARK: - Auxiliary
+
+    public func flushValues() {
+        authID = nil
+        languageCode = nil
+        phoneNumber = nil
+        regionCode = nil
+        userID = nil
     }
 }

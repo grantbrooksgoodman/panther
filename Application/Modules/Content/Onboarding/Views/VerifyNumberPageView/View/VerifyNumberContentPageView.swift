@@ -64,13 +64,14 @@ public struct VerifyNumberContentPageView: View {
                     RegionMenu(selectedRegionCodeBinding)
                         .padding(.leading, Floats.regionMenuLeadingPadding)
                         .padding(.trailing, Floats.regionMenuTrailingPadding)
+                        .id(viewModel.regionMenuViewID)
 
                     PhoneNumberTextField(
                         phoneNumberStringBinding,
                         regionCode: selectedRegionCodeBinding
                     )
-                    .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
                     .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
+                    .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
                 }
 
                 Button {
@@ -89,9 +90,9 @@ public struct VerifyNumberContentPageView: View {
                     Text(viewModel.strings.value(for: .backButtonText))
                 }
                 .disabled(!viewModel.isBackButtonEnabled)
-                .padding(.top, Floats.backButtonTopPadding)
-                .foregroundStyle(Colors.backButtonForeground)
                 .font(.system(size: Floats.backButtonLabelFontSize))
+                .foregroundStyle(Colors.backButtonForeground)
+                .padding(.top, Floats.backButtonTopPadding)
             }
             .padding(.bottom, Floats.bottomPadding)
 
