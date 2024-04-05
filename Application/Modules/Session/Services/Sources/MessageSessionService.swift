@@ -101,8 +101,8 @@ public struct MessageSessionService {
                 name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
                 object: self,
                 userInfo: [
+                    Strings.conversationIDKeyNotificationUserInfoKey: conversation?.id.key ?? CommonConstants.newConversationID,
                     Strings.inputFileNotificationUserInfoKey: inputFile,
-                    Strings.transcriptionNotificationUserInfoKey: transcription,
                 ]
             )
 

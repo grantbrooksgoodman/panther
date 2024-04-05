@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import Redux
 
-public final class ContactSyncService {
+public struct ContactSyncService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: Networking

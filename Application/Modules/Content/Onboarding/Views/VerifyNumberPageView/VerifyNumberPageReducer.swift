@@ -128,7 +128,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
             let phoneNumber = state.phoneNumber
             return .task {
-                let result = await onboardingService.accountExists(for: phoneNumber)
+                let result = await networking.services.user.accountExists(for: phoneNumber)
                 return .accountExistsReturned(result)
             }
 

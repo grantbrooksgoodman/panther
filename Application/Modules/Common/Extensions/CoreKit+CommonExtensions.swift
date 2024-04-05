@@ -27,6 +27,7 @@ public extension CoreKit.GCD {
 
 public extension CoreKit.Utilities {
     func clearCaches() {
+        @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
         @Dependency(\.commonServices) var commonServices: CommonServices
         @Dependency(\.networking.services) var networkServices: NetworkServices
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
@@ -35,6 +36,7 @@ public extension CoreKit.Utilities {
         networkServices.conversation.archive.clearArchive()
         TranslationArchiver.clearArchive()
 
+        chatInfoPageViewService.clearCache()
         commonServices.contact.clearCache()
         commonServices.propertyLists.clearCache()
         commonServices.regionDetail.clearCache()

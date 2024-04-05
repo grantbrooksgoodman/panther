@@ -15,6 +15,7 @@ import UIKit
 import InputBarAccessoryView
 import Redux
 
+// swiftlint:disable:next type_body_length
 public final class InputBarService {
     // MARK: - Constants Accessors
 
@@ -30,6 +31,7 @@ public final class InputBarService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -203,7 +205,7 @@ public final class InputBarService {
                     )
                 }
 
-                return await chatPageViewService.messageDelivery?.sendAudioMessage(inputFile)
+                return await messageDeliveryService.sendAudioMessage(inputFile)
 
             case let .failure(exception):
                 guard !exception.isEqual(toAny: [.noAudioRecorderToStop, .transcribeNoSuchFileOrDirectory]) else { return nil }
@@ -228,7 +230,7 @@ public final class InputBarService {
         }
 
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
-        return await chatPageViewService.messageDelivery?.sendTextMessage(text)
+        return await messageDeliveryService.sendTextMessage(text)
     }
 
     // MARK: - Force Appearance
@@ -246,11 +248,7 @@ public final class InputBarService {
             metadata: [self, #file, #function, #line]
         )
 
-        while !inputBar.inputTextView.isFirstResponder {
-            guard inputBar.inputTextView.canBecomeFirstResponder else { return }
-            inputBar.inputTextView.becomeFirstResponder()
-        }
-
+        becomeFirstResponder()
         core.gcd.after(.milliseconds(Floats.forceAppearanceDelayMilliseconds)) {
             while !textField.isFirstResponder { textField.becomeFirstResponder() }
             self.viewController.view.isUserInteractionEnabled = true
@@ -288,6 +286,22 @@ public final class InputBarService {
         }
 
         return nil
+    }
+
+    // MARK: - Toggle Sending UI
+
+    public func toggleSendingUI(on: Bool) {
+        mainQueue.async {
+            if on {
+                self.inputBar.inputTextView.text = ""
+                self.inputBar.sendButton.startAnimating()
+            } else {
+                self.inputBar.sendButton.stopAnimating()
+            }
+
+            self.inputBar.inputTextView.tintColor = on ? UIColor(Colors.inputTextViewTint) : .accent
+            self.inputBar.sendButton.isUserInteractionEnabled = on ? false : true
+        }
     }
 
     // MARK: - Auxiliary

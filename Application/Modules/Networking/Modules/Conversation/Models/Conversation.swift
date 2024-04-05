@@ -132,8 +132,6 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.commonServices.notification) var notificationService: NotificationService
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard !messages.isEmpty else {
             return .failure(.init(

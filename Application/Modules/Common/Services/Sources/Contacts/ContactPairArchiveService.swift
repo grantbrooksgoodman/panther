@@ -39,28 +39,6 @@ public final class ContactPairArchiveService {
 
     // MARK: - Addition
 
-    public func addValue(_ contactPair: ContactPair) {
-        var values = archive ?? .init()
-
-        guard !values.contains(contactPair) else { return }
-
-        values.removeAll(where: { $0.contact.id == contactPair.contact.id })
-        values.append(contactPair)
-        archive = values
-
-        Logger.log(
-            .init(
-                "Added contact pair to persisted archive.",
-                extraParams: ["FullName": contactPair.contact.fullName,
-                              "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.formattedString() ?? ""],
-                metadata: [self, #file, #function, #line]
-            ),
-            domain: .contacts
-        )
-
-        Observables.updatedContactPairArchive.trigger()
-    }
-
     public func addValues(_ contactPairs: [ContactPair]) {
         var values = archive ?? .init()
 
@@ -113,6 +91,11 @@ public final class ContactPairArchiveService {
 
     public func getValue(contactHash: String) -> ContactPair? {
         archive?.first(where: { $0.contact.encodedHash == contactHash })
+    }
+
+    public func getValue(phoneNumber: PhoneNumber) -> ContactPair? {
+        archive?
+            .first(where: { $0.contact.phoneNumbers.map(\.compiledNumberString).contains(phoneNumber.compiledNumberString) })
     }
 
     public func getValue(userNumberHash: String) -> ContactPair? {

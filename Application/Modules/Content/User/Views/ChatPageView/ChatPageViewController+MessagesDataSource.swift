@@ -165,7 +165,7 @@ extension ChatPageViewController: MessagesDataSource {
 
         let isDefaultTheme = ThemeService.isDefaultThemeApplied
 
-        guard let contactPair = contactPairArchive.getValue(userNumberHash: matchingUser.phoneNumber.nationalNumberString.digits.encodedHash) else {
+        guard let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
             return .init(string: "\(isDefaultTheme ? "   " : "")\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
         }
 

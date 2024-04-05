@@ -86,7 +86,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         guard let users = currentConversation?.users,
               let matchingUser = users.first(where: { $0.id == message.fromAccountID }), // TODO: Cache the below value.
-              let contactPair = contactPairArchive.getValue(userNumberHash: matchingUser.phoneNumber.nationalNumberString.digits.encodedHash) else {
+              let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
             configureGenericAvatar()
             return
         }

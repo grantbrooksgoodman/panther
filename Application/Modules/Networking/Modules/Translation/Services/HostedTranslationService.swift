@@ -102,6 +102,7 @@ public struct HostedTranslationService {
         return .success(translations)
     }
 
+    // swiftlint:disable:next function_body_length
     public func translate(
         _ input: TranslationInput,
         with languagePair: LanguagePair,
@@ -139,7 +140,10 @@ public struct HostedTranslationService {
             return .success(archivedTranslation.withSanitizedOutput)
         }
 
-        if languageRecognition.matchConfidence(for: input.value(), inLanguage: languagePair.to) > 0.8 {
+        let sameInputOutputLanguage = languageRecognition.matchConfidence(for: input.value(), inLanguage: languagePair.to) > 0.8
+        let hasUnicodeLetters = input.value().rangeOfCharacter(from: .letters) != nil
+
+        if sameInputOutputLanguage || !hasUnicodeLetters {
             let translation: Translation = .init(
                 input: input,
                 output: input.value(),

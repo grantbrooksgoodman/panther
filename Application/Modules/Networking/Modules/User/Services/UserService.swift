@@ -51,17 +51,12 @@ public final class UserService: Cacheable {
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) async -> Callback<User, Exception> {
-        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
-
-        switch getUserIDsResult {
-        case .success:
+        if await accountExists(for: phoneNumber) {
             return .failure(.init(
                 "User already exists for this phone number.",
                 extraParams: ["PhoneNumber": phoneNumber.encoded],
                 metadata: [self, #file, #function, #line]
             ))
-
-        default: ()
         }
 
         let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(phoneNumber.nationalNumberString.digits.encodedHash)"
@@ -104,6 +99,30 @@ public final class UserService: Cacheable {
         }
 
         return .success(mockUser)
+    }
+
+    // MARK: - Collision Detection
+
+    public func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
+        let getUserIDsResult = await getUserIDs(phoneNumber: phoneNumber)
+
+        switch getUserIDsResult {
+        case let .success(userIDs):
+            let getUsersResult = await getUsers(ids: userIDs)
+
+            switch getUsersResult {
+            case let .success(users):
+                return users.contains(where: { $0.phoneNumber.callingCode == phoneNumber.callingCode })
+
+            case let .failure(exception):
+                Logger.log(exception)
+                return true
+            }
+
+        case let .failure(exception):
+            Logger.log(exception)
+            return false
+        }
     }
 
     // MARK: - Retrieval by Hash
@@ -290,6 +309,8 @@ public final class UserService: Cacheable {
         }
     }
 
+    // TODO: Need a rework of this to work with raw strings. That's the only way to expose multiple users under the same number.
+    // This method's callback is actually kind of pointless, it'll never return an array with a count > 1 because it matches strictly by calling code.
     public func getUsers(phoneNumber: PhoneNumber) async -> Callback<[User], Exception> {
         var matches = [User]()
 

@@ -14,6 +14,7 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum ChatPageViewService {
+        public static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
         public static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
         public static let scrollToLastItemDelayMilliseconds: CGFloat = 10
 
@@ -58,7 +59,8 @@ public extension AppConstants.CGFloats {
             public static let recordingInstructionToastPerpetuationDuration: CGFloat = 2.5
         }
 
-        enum Menu {
+        enum Menu { // swiftlint:disable:next identifier_name
+            public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
             public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
 
             // swiftlint:disable:next identifier_name
@@ -109,13 +111,10 @@ public extension AppConstants.Colors {
 
             public static let inputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
             public static let inputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
+            public static let inputTextViewTint: Color = .init(uiColor: .clear)
 
             public static let sendButtonRecordTint: Color = .init(uiColor: .red)
             public static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
-        }
-
-        enum MessageDelivery {
-            public static let inputBarInputTextViewTint: Color = .init(uiColor: .clear)
         }
 
         enum RecordingUI {

@@ -83,7 +83,7 @@ public extension Message {
                 ),
             ],
             readDate: nil,
-            sentDate: .init()
+            sentDate: .init(timeIntervalSince1970: 0)
         )
     }
 
@@ -92,7 +92,7 @@ public extension Message {
         return fromAccountID == currentUserID
     }
 
-    var isMock: Bool { id == UserContentConstants.newMessageID }
+    var isMock: Bool { id == CommonConstants.newMessageID }
 
     var isPlayingMessage: Bool {
         @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?

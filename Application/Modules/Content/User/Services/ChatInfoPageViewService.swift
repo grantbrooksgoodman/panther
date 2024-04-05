@@ -91,7 +91,7 @@ public final class ChatInfoPageViewService: Cacheable {
                 cnContact.phoneNumbers.append(
                     .init(
                         label: nil,
-                        value: .init(stringValue: user.phoneNumber.compiledNumberString)
+                        value: .init(stringValue: user.phoneNumber.formattedString())
                     )
                 )
 

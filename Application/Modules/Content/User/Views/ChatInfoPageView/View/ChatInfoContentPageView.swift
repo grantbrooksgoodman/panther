@@ -202,6 +202,10 @@ public struct ChatInfoContentPageView: View {
 
             Text(participant.displayName)
                 .font(.sanFrancisco(.semibold, size: Floats.participantViewDisplayNameLabelFontSize))
+
+            if let firstUser = participant.contactPair?.firstUser {
+                UserInfoBadgeView(firstUser)
+            }
         }
     }
 }

@@ -12,9 +12,5 @@ import Foundation
 import Translator
 
 extension TranslationInput: Validatable {
-    public var isWellFormed: Bool {
-        let notBlank = !value().isBlank
-        let hasUnicodeLetters = value().rangeOfCharacter(from: .letters) != nil
-        return notBlank && hasUnicodeLetters
-    }
+    public var isWellFormed: Bool { !value().isBlank }
 }

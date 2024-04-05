@@ -153,21 +153,19 @@ public final class RecipientBarActionHandlerService {
 
     // MARK: - Text Field Should Return
 
-    public func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
+    public func textFieldShouldReturn(_ text: String) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
             guard !text.isBlank else {
                 guard !contactSelectionUIService.selectedContactPairs.filter({ $0.isMock }).isEmpty else {
                     contactSelectionUIService.unhighlightAllViews()
-                    guard makeInputBarFirstResponder else { return }
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                     return
                 }
 
                 contactSelectionUIService.unhighlightAllViews()
                 contactSelectionUIService.deselectMockContactPairs()
-                guard makeInputBarFirstResponder else { return }
                 coreGCD.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
@@ -186,8 +184,8 @@ public final class RecipientBarActionHandlerService {
             switch getUsersResult {
             case let .success(users):
                 guard let firstUser = users.first else { return } // TODO: Need action for multiple users.
-                let userNumberHash = firstUser.phoneNumber.nationalNumberString.digits.encodedHash
-                guard let contactPair = services.contact.contactPairArchive.getValue(userNumberHash: userNumberHash) else {
+
+                guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: phoneNumber) else {
                     contactSelectionUIService.selectContactPair(.withUser(firstUser))
                     return
                 }

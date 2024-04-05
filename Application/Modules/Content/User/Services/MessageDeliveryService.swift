@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import UIKit
 
 /* 3rd-party */
 import Redux
@@ -19,8 +18,8 @@ public final class MessageDeliveryService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
-    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
 
@@ -28,16 +27,8 @@ public final class MessageDeliveryService {
         didSet { didSetIsSendingMessage() }
     }
 
-    private let viewController: ChatPageViewController
-
     private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
     private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
-
-    // MARK: - Init
-
-    public init(_ viewController: ChatPageViewController) {
-        self.viewController = viewController
-    }
 
     // MARK: - Object Lifecycle
 
@@ -69,11 +60,14 @@ public final class MessageDeliveryService {
     // MARK: - Send Audio Message
 
     public func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
-        guard let fullConversation = clientSession.conversation.fullConversation,
-              let users = fullConversation.users else { return nil }
+        let fullConversation = clientSession.conversation.fullConversation
+        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
+        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+
+        guard !users.isEmpty else { return nil }
 
         isSendingMessage = true
-        toggleSendingUI(on: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
 
         typealias Strings = AppConstants.Strings.MessageSessionService
@@ -87,20 +81,23 @@ public final class MessageDeliveryService {
         let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
             inputFile,
             toUsers: users,
-            inConversation: fullConversation
+            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        toggleSendingUI(on: false)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
         isSendingMessage = false
+        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+            chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+        }
 
         switch sendAudioMessageResult {
         case let .success(conversation):
-            if await viewController.currentConversation?.id.key == conversation.id.key {
-                chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+            if let currentConversation = clientSession.conversation.currentConversation,
+               !currentConversation.isMock {
+                guard currentConversation.id.key == conversation.id.key else { return nil }
             }
 
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
             chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
@@ -122,11 +119,11 @@ public final class MessageDeliveryService {
         guard !users.isEmpty,
               !text.isBlank else { return nil }
 
-        services.haptics.generateFeedback(.medium)
+        hapticsService.generateFeedback(.medium)
         addMockMessageToCurrentConversation(audioFile: nil, text: text)
 
         isSendingMessage = true
-        toggleSendingUI(on: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
@@ -136,9 +133,9 @@ public final class MessageDeliveryService {
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        toggleSendingUI(on: false)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
         isSendingMessage = false
-        if await viewController.currentConversation?.id.key == fullConversation?.id.key {
+        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
 
@@ -167,7 +164,7 @@ public final class MessageDeliveryService {
     ) {
         assert(audioFile != nil || text != nil, "No values provided.")
 
-        guard let conversation = viewController.currentConversation,
+        guard let conversation = clientSession.conversation.currentConversation,
               let currentUser = clientSession.user.currentUser else { return }
 
         var messages = conversation.messages ?? []
@@ -187,7 +184,7 @@ public final class MessageDeliveryService {
             )
 
             messages.append(.init(
-                UserContentConstants.newMessageID,
+                CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 hasAudioComponent: true,
                 audioComponents: [mockAudioMessageReference],
@@ -197,7 +194,7 @@ public final class MessageDeliveryService {
             ))
         } else {
             messages.append(.init(
-                UserContentConstants.newMessageID,
+                CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 hasAudioComponent: false,
                 audioComponents: nil,
@@ -245,32 +242,19 @@ public final class MessageDeliveryService {
     private func postedTranscriptionSucceededNotification(_ notification: Notification) {
         typealias Strings = AppConstants.Strings.MessageSessionService
 
-        // TODO: Make use of the transcription for menu item.
         guard let userInfo = notification.userInfo,
-              let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile /* ,
-               let transcription = userInfo[Strings.transcriptionNotificationUserInfoKey] as? String */ else { return }
+              let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
+              let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile else { return }
 
-        addMockMessageToCurrentConversation(audioFile: inputFile, text: nil)
-
-        notificationCenter.removeObserver(
-            self,
-            name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-            object: nil
-        )
-    }
-
-    private func toggleSendingUI(on: Bool) {
-        Task { @MainActor in
-            if on {
-                viewController.messageInputBar.inputTextView.text = ""
-                viewController.messageInputBar.sendButton.startAnimating()
-            } else {
-                viewController.messageInputBar.sendButton.stopAnimating()
-            }
-
-            typealias Colors = AppConstants.Colors.ChatPageViewService.MessageDelivery
-            viewController.messageInputBar.inputTextView.tintColor = on ? UIColor(Colors.inputBarInputTextViewTint) : .accent
-            viewController.messageInputBar.sendButton.isUserInteractionEnabled = on ? false : true
+        defer {
+            notificationCenter.removeObserver(
+                self,
+                name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
+                object: nil
+            )
         }
+
+        guard conversationIDKey == clientSession.conversation.currentConversation?.id.key else { return }
+        addMockMessageToCurrentConversation(audioFile: inputFile, text: nil)
     }
 }

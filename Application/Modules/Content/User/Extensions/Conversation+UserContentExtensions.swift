@@ -24,7 +24,7 @@ public extension Conversation {
     }
 
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
-    var isMock: Bool { id.key == UserContentConstants.newConversationID }
+    var isMock: Bool { id.key == CommonConstants.newConversationID }
 
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
@@ -52,7 +52,7 @@ public extension Conversation {
 
     static func mock(withUsers users: [User]) -> Conversation {
         .init(
-            .init(key: UserContentConstants.newConversationID, hash: ""),
+            .init(key: CommonConstants.newConversationID, hash: ""),
             messageIDs: [],
             messages: nil,
             metadata: .empty,

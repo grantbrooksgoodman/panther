@@ -74,7 +74,7 @@ public struct ConversationCellViewData: Equatable {
         if !conversation.metadata.name.isBangQualifiedEmpty {
             titleLabelText = conversation.metadata.name
         } else if let contactPair = users
-            .compactMap({ contactPairArchive.getValue(userNumberHash: $0.phoneNumber.nationalNumberString.digits.encodedHash) })
+            .compactMap({ contactPairArchive.getValue(phoneNumber: $0.phoneNumber) })
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
             titleLabelText = contactPair.contact.fullName

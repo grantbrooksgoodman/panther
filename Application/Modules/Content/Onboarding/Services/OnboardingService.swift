@@ -82,20 +82,7 @@ public final class OnboardingService {
         }
     }
 
-    // MARK: - User Collision Detection
-
-    public func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
-        let getUserIDsResult = await userService.getUserIDs(phoneNumber: phoneNumber)
-
-        switch getUserIDsResult {
-        case .success:
-            return true
-
-        case let .failure(exception):
-            Logger.log(exception)
-            return false
-        }
-    }
+    // MARK: - Alert Presentation
 
     /// - Returns: `true` if the user selected the cancel option.
     public func presentAccountDoesNotExistAlert() async -> Bool {

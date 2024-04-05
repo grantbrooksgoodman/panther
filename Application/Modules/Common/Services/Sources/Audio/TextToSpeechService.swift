@@ -20,7 +20,6 @@ public struct TextToSpeechService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
@@ -53,6 +52,28 @@ public struct TextToSpeechService {
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    // MARK: - Highest Quality Voice
+
+    public func highestQualityVoice(
+        _ languageCode: String,
+        mustIncludeAudioFileSettings: Bool = false
+    ) -> AVSpeechSynthesisVoice? {
+        func satisfiesConstraints(_ voice: AVSpeechSynthesisVoice) -> Bool {
+            if mustIncludeAudioFileSettings {
+                guard voice.quality == .enhanced || voice.quality == .premium,
+                      !voice.audioFileSettings.isEmpty else { return false }
+            } else {
+                guard voice.quality == .enhanced || voice.quality == .premium else { return false }
+            }
+
+            return true
+        }
+
+        return AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.lowercased().hasPrefix(languageCode.lowercased()) }
+            .first(where: { satisfiesConstraints($0) }) ?? .init(language: languageCode)
     }
 
     // MARK: - Capabilities
@@ -121,7 +142,7 @@ public struct TextToSpeechService {
         let filePath = fileManager.documentsDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputCAF)")
 
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = audioService.highestQualityVoice(languageCode, mustIncludeAudioFileSettings: true)
+        utterance.voice = highestQualityVoice(languageCode, mustIncludeAudioFileSettings: true)
 
         var output: AVAudioFile?
 

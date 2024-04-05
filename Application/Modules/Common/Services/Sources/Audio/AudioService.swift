@@ -67,24 +67,4 @@ public struct AudioService {
 
         return nil
     }
-
-    public func highestQualityVoice(
-        _ languageCode: String,
-        mustIncludeAudioFileSettings: Bool = false
-    ) -> AVSpeechSynthesisVoice? {
-        func satisfiesConstraints(_ voice: AVSpeechSynthesisVoice) -> Bool {
-            if mustIncludeAudioFileSettings {
-                guard voice.quality == .enhanced || voice.quality == .premium,
-                      !voice.audioFileSettings.isEmpty else { return false }
-            } else {
-                guard voice.quality == .enhanced || voice.quality == .premium else { return false }
-            }
-
-            return true
-        }
-
-        return AVSpeechSynthesisVoice.speechVoices()
-            .filter { $0.language.lowercased().hasPrefix(languageCode.lowercased()) }
-            .first(where: { satisfiesConstraints($0) }) ?? .init(language: languageCode)
-    }
 }

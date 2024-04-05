@@ -163,7 +163,7 @@ public final class RecipientBarLayoutService {
         guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty, // TODO: Audit this.
               let tableView = buildTableView() else { return }
         tableView.tag = core.ui.semTag(for: Strings.tableViewSemanticTag)
-        viewController.view.addSubview(tableView) // TODO: Needs additional configuration.
+        viewController.view.addSubview(tableView)
     }
 
     private func configureTextField() {

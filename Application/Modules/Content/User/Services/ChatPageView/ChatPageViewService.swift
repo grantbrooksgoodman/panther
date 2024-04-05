@@ -29,6 +29,7 @@ public final class ChatPageViewService {
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -39,7 +40,6 @@ public final class ChatPageViewService {
     public private(set) var inputBar: InputBarService?
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
     public private(set) var menu: MenuService?
-    public private(set) var messageDelivery: MessageDeliveryService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
@@ -66,7 +66,6 @@ public final class ChatPageViewService {
         inputBar = .init(viewController)
         inputBarGestureRecognizer = .init(viewController)
         menu = .init(viewController)
-        messageDelivery = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
 
@@ -88,6 +87,8 @@ public final class ChatPageViewService {
         if configuration == .newChat {
             viewController?.messageInputBar.inputTextView.placeholder = ""
         }
+
+        viewController?.messageInputBar.alpha = messageDeliveryService.isSendingMessage ? 0 : 1
     }
 
     public func onViewDidAppear() {
@@ -103,7 +104,17 @@ public final class ChatPageViewService {
 
         inputBarGestureRecognizer?.configureInputBarGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
+        inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
         menu?.configureMenuGestureRecognizer()
+
+        if messageDeliveryService.isSendingMessage {
+            inputBar?.becomeFirstResponder()
+            core.ui.resignFirstResponder()
+
+            UIView.animate(withDuration: Floats.inputBarAppearanceAnimationDuration) {
+                self.viewController?.messageInputBar.alpha = 1
+            }
+        }
 
         viewController?.becomeFirstResponder()
         viewController?.messagesCollectionView.scrollToLastItem(animated: true)
@@ -174,13 +185,12 @@ public final class ChatPageViewService {
             }
         }
 
-        guard let messageDelivery,
-              messageDelivery.isSendingMessage else {
+        guard messageDeliveryService.isSendingMessage else {
             reloadItems()
             return
         }
 
-        messageDelivery.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
+        messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
     }
 
     public func setNavigationTitle(_ navigationTitle: String) {
@@ -191,7 +201,7 @@ public final class ChatPageViewService {
     }
 
     private func loadMoreMessages(fromScrollToTop: Bool) {
-        guard !(messageDelivery?.isSendingMessage ?? false) else { return }
+        guard !messageDeliveryService.isSendingMessage else { return }
 
         let previousMessageCount = clientSession.conversation.currentConversation?.messages?.count
         clientSession.conversation.incrementMessageOffset()

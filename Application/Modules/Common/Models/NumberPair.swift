@@ -9,6 +9,7 @@
 /* Native */
 import Foundation
 
+// TODO: Need to either use phone number strings or conform PhoneNumber to not auto-resolve a calling code.
 public struct NumberPair: Codable, Equatable {
     // MARK: - Properties
 

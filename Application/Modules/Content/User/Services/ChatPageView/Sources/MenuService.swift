@@ -26,6 +26,8 @@ public final class MenuService {
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.networking.services.translation.languageRecognition) private var languageRecognitionService: LanguageRecognitionService
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
@@ -156,6 +158,7 @@ public final class MenuService {
         ]
 
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
+              message.translation.input.value().rangeOfCharacter(from: .letters) != nil,
               let otherUser = viewController.currentConversation?.users?.first,
               otherUser.languageCode != currentUser?.languageCode,
               !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }
@@ -206,10 +209,20 @@ public final class MenuService {
         let languagePair = selectedMessage.translation.languagePair
         let currentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.to : languagePair.from
         let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
-        let utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
+
+        var utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
+        if languageRecognitionService.matchConfidence(
+            for: messageLabelText,
+            inLanguage: utteranceLanguageCode
+        ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold) {
+            utteranceLanguageCode = [
+                currentUserUtteranceLanguageCode,
+                notCurrentUserUtteranceLanguageCode,
+            ].first(where: { $0 != utteranceLanguageCode }) ?? utteranceLanguageCode
+        }
 
         let utterance: AVSpeechUtterance = .init(string: messageLabelText)
-        utterance.voice = services.audio.highestQualityVoice(utteranceLanguageCode)
+        utterance.voice = services.audio.textToSpeech.highestQualityVoice(utteranceLanguageCode, mustIncludeAudioFileSettings: true)
         services.audio.activateAudioSession()
         avSpeechSynthesizer.speak(utterance)
 
@@ -277,7 +290,7 @@ public final class MenuService {
     @objc
     private func longPressGestureRecognized(recognizer: UILongPressGestureRecognizer) {
         guard !isShowingMenu,
-              !(chatPageViewService.messageDelivery?.isSendingMessage ?? false) else { return }
+              !messageDeliveryService.isSendingMessage else { return }
 
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
 
@@ -285,7 +298,7 @@ public final class MenuService {
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
 
-        guard message.id != UserContentConstants.newMessageID else { return }
+        guard message.id != CommonConstants.newMessageID else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),
