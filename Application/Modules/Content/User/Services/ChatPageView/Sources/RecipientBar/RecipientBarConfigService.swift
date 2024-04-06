@@ -130,6 +130,29 @@ public final class RecipientBarConfigService {
         }
     }
 
+    // MARK: - Reconfigure Last Contact View
+
+    public func reconfigureLastContactView() {
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ContactSelectionUI
+        typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ContactSelectionUI
+
+        guard let contactView = firstContactView(.onSameLevelAsTextField),
+              let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel,
+              let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return }
+
+        var labelText = (contactLabel.text ?? "")
+        while labelText.hasSuffix(",") { labelText = labelText.dropSuffix() }
+        contactLabel.text = labelText
+
+        contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
+        contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width
+
+        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { contactLabel.frame.size.width -= 1 }
+
+        contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
+        contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
+    }
+
     // MARK: - Reconfigure Recipient Bar
 
     public func reconfigureRecipientBar(forSublevel sublevel: Int) {

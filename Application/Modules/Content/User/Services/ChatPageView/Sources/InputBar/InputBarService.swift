@@ -171,6 +171,7 @@ public final class InputBarService {
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
+            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
             if let exception = services.audio.recording.cancelRecording() {
                 guard !exception.isEqual(toAny: [.couldntRemoveInput, .noAudioRecorderToStop]) else { return nil }
                 return exception
@@ -184,6 +185,7 @@ public final class InputBarService {
             avSpeechSynthesizer.stopSpeaking(at: .immediate)
             chatPageViewService.audioMessagePlayback?.stopPlayback()
             await chatPageViewService.recordingUI?.showRecordingUI()
+            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
             services.haptics.generateFeedback(.medium)
             return services.audio.recording.startRecording()
 
@@ -194,6 +196,7 @@ public final class InputBarService {
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
+            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
             let stopRecordingResult = services.audio.recording.stopRecording()
 
             switch stopRecordingResult {

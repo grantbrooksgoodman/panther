@@ -72,8 +72,15 @@ public struct SplashPageViewService {
             }
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
-            guard randomBool, randomBool, randomBool else { return nil }
-            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: randomBool && randomBool),
+            @Persistent(.didClearCaches) var didClearCaches: Bool?
+            let mustUpdateContactPairArchive = didClearCaches ?? false
+            didClearCaches = nil
+
+            if !mustUpdateContactPairArchive {
+                guard randomBool, randomBool, randomBool else { return nil }
+            }
+
+            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: mustUpdateContactPairArchive || (randomBool && randomBool)),
                !exception.isEqual(to: .notAuthorizedForContacts) {
                 return exception
             }

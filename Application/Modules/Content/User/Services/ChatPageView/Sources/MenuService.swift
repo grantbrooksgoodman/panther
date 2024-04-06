@@ -290,7 +290,8 @@ public final class MenuService {
     @objc
     private func longPressGestureRecognized(recognizer: UILongPressGestureRecognizer) {
         guard !isShowingMenu,
-              !messageDeliveryService.isSendingMessage else { return }
+              !messageDeliveryService.isSendingMessage,
+              !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
 
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
 

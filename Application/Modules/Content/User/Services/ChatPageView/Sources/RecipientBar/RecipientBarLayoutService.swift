@@ -95,6 +95,8 @@ public final class RecipientBarLayoutService {
             guard let recipientBarView,
                   let textField else { return }
 
+            configureCancelBarButtonItem(isUserInteractionEnabled)
+
             switch isUserInteractionEnabled {
             case true:
                 recipientBarView.isUserInteractionEnabled = true
@@ -149,6 +151,23 @@ public final class RecipientBarLayoutService {
         let darkBackground: UIColor = ThemeService.currentTheme == AppTheme.default.theme ? .listViewBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
         recipientBarView?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
+    }
+
+    private func configureCancelBarButtonItem(_ isEnabled: Bool) {
+        guard let actionHandlerService = service?.actionHandler,
+              let parent = viewController.parent else { return }
+
+        let cancelButton = UIBarButtonItem(
+            title: Localized(.cancel).wrappedValue,
+            style: .plain,
+            target: actionHandlerService,
+            action: #selector(actionHandlerService.doneButtonTapped)
+        )
+
+        cancelButton.isEnabled = isEnabled
+        cancelButton.tintColor = .accent
+
+        parent.navigationItem.rightBarButtonItem = cancelButton
     }
 
     private func configureSelectContactButton() {

@@ -39,6 +39,7 @@ public enum LocalizedStringKey: String {
     case noSpeechDetected
 
     case read
+    case rebuildingIndices
     case reportBug
     case somethingWentWrong
     case tapToReport

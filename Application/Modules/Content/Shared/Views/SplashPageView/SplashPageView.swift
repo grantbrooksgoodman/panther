@@ -21,6 +21,7 @@ public struct SplashPageView: View {
 
     // MARK: - Properties
 
+    @State private var rebuildingIndicesLabelOpacity: CGFloat = 1
     @StateObject private var viewModel: ViewModel<SplashPageReducer>
 
     // MARK: - Init
@@ -39,6 +40,22 @@ public struct SplashPageView: View {
                 .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
                 .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                 .padding(.bottom, Floats.padding)
+
+            if viewModel.isRebuildingIndices {
+                Text(viewModel.rebuildingIndicesLabelText)
+                    .font(.sanFrancisco(.light, size: Floats.rebuildingIndicesLabelFontSize))
+                    .foregroundStyle(Color.subtitleText)
+                    .opacity(rebuildingIndicesLabelOpacity)
+                    .padding(.vertical, Floats.padding)
+                    .onAppear {
+                        withAnimation(
+                            .easeInOut(duration: 1)
+                                .repeatForever(autoreverses: true)
+                        ) {
+                            rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
+                        }
+                    }
+            }
 
             ProgressView()
                 .controlSize(.large)

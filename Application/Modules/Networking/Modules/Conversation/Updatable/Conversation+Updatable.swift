@@ -157,7 +157,7 @@ extension Conversation: Updatable {
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(
             .init(key: conversation.id.key, hash: conversation.encodedHash),
-            messageIDs: messageIDs,
+            messageIDs: conversation.messageIDs,
             messages: conversation.messages,
             metadata: conversation.metadata,
             participants: conversation.participants,

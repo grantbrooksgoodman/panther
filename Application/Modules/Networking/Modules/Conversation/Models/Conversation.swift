@@ -36,6 +36,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
+        factors.append(contentsOf: messageIDs)
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
         factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
@@ -169,12 +170,14 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     public static func == (left: Conversation, right: Conversation) -> Bool {
         let sameID = left.id == right.id
+        let sameMessageIDs = left.messageIDs == right.messageIDs
         let sameMessages = left.messages == right.messages
         let sameMetadata = left.metadata == right.metadata
         let sameParticipants = left.participants == right.participants
         let sameUsers = left.users == right.users
 
         guard sameID,
+              sameMessageIDs,
               sameMessages,
               sameMetadata,
               sameParticipants,

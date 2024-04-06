@@ -103,6 +103,8 @@ public final class SettingsPageViewService: Cacheable {
             defaultsKeysToKeep.append(contentsOf: self.defaultsKeysToKeep)
             defaults.reset(keeping: defaultsKeysToKeep)
 
+            @Persistent(.didClearCaches) var didClearCaches: Bool?
+            didClearCaches = true
             services.analytics.logEvent(.clearCaches)
 
             let alert = AKAlert(

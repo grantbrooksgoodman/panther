@@ -3702,6 +3702,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>见过</string>
 	</dict>
+	<key>rebuilding_indices</key>
+	<dict>
+		<key>af</key>
+		<string>Herbou indekse...</string>
+		<key>ar</key>
+		<string>إعادة بناء الفهارس...</string>
+		<key>az</key>
+		<string>İndekslər yenidən qurulur...</string>
+		<key>be</key>
+		<string>Аднаўленне індэксаў...</string>
+		<key>bg</key>
+		<string>Повторно изграждане на индекси...</string>
+		<key>bn</key>
+		<string>সূচী পুনর্নির্মাণ...</string>
+		<key>bs</key>
+		<string>Obnavljanje indeksa...</string>
+		<key>ca</key>
+		<string>S&apos;estan reconstruint índexs...</string>
+		<key>cs</key>
+		<string>Obnovení indexů...</string>
+		<key>cy</key>
+		<string>Ailadeiladu mynegeion...</string>
+		<key>da</key>
+		<string>Genopbygger indekser...</string>
+		<key>de</key>
+		<string>Indizes neu erstellen...</string>
+		<key>el</key>
+		<string>Ανακατασκευή ευρετηρίων...</string>
+		<key>en</key>
+		<string>Rebuilding indices...</string>
+		<key>eo</key>
+		<string>Rekonstruante indeksojn...</string>
+		<key>es</key>
+		<string>Reconstruyendo índices...</string>
+		<key>et</key>
+		<string>Indekside taastamine...</string>
+		<key>eu</key>
+		<string>Indizeak berreraikitzen...</string>
+		<key>fa</key>
+		<string>بازسازی نمایه ها...</string>
+		<key>fi</key>
+		<string>Muodostetaan indeksejä...</string>
+		<key>fr</key>
+		<string>Reconstruction des index...</string>
+		<key>ga</key>
+		<string>Innéacsanna a atógáil...</string>
+		<key>gd</key>
+		<string>Ag ath-thogail clàran-amais ...</string>
+		<key>gl</key>
+		<string>Reconstruíndo índices...</string>
+		<key>gu</key>
+		<string>અનુક્રમણિકાઓનું પુનઃનિર્માણ...</string>
+		<key>he</key>
+		<string>בונה מחדש אינדקסים...</string>
+		<key>hi</key>
+		<string>अनुक्रमणिका का पुनर्निर्माण...</string>
+		<key>hr</key>
+		<string>Ponovna izgradnja indeksa...</string>
+		<key>ht</key>
+		<string>Rebati endis yo...</string>
+		<key>hu</key>
+		<string>Indexek újraépítése...</string>
+		<key>hy</key>
+		<string>Ինդեքսների վերակառուցում...</string>
+		<key>id</key>
+		<string>Membangun kembali indeks...</string>
+		<key>is</key>
+		<string>Endurbyggja vísitölur...</string>
+		<key>it</key>
+		<string>Ricostruzione degli indici...</string>
+		<key>ja</key>
+		<string>インデックスを再構築しています...</string>
+		<key>ka</key>
+		<string>მიმდინარეობს ინდექსების აღდგენა...</string>
+		<key>kk</key>
+		<string>Индекстерді қалпына келтіру...</string>
+		<key>kn</key>
+		<string>ಮರುನಿರ್ಮಾಣ ಸೂಚ್ಯಂಕಗಳು...</string>
+		<key>ko</key>
+		<string>인덱스 재구축 중...</string>
+		<key>ky</key>
+		<string>Индекстер кайра түзүлүүдө...</string>
+		<key>lt</key>
+		<string>Atkuriami indeksai...</string>
+		<key>mg</key>
+		<string>Manangana tondro...</string>
+		<key>mi</key>
+		<string>Kei te hanga ano i nga taupū...</string>
+		<key>mk</key>
+		<string>Се обновуваат индексите...</string>
+		<key>ml</key>
+		<string>സൂചികകൾ പുനർനിർമ്മിക്കുന്നു...</string>
+		<key>mn</key>
+		<string>Индексүүдийг сэргээж байна...</string>
+		<key>mt</key>
+		<string>Nibnu mill-ġdid l-indiċi...</string>
+		<key>ne</key>
+		<string>अनुक्रमणिका पुनर्निर्माण...</string>
+		<key>nl</key>
+		<string>Indexen opnieuw opbouwen...</string>
+		<key>no</key>
+		<string>Gjenoppbygger indekser...</string>
+		<key>pa</key>
+		<string>ਸੂਚਕਾਂਕ ਦਾ ਮੁੜ ਨਿਰਮਾਣ...</string>
+		<key>pl</key>
+		<string>Odbudowa indeksów...</string>
+		<key>pt</key>
+		<string>Reconstruindo índices...</string>
+		<key>ro</key>
+		<string>Se reconstruiesc indici...</string>
+		<key>ru</key>
+		<string>Восстановление индексов...</string>
+		<key>si</key>
+		<string>දර්ශක නැවත ගොඩනැගීම...</string>
+		<key>sk</key>
+		<string>Obnovenie indexov...</string>
+		<key>sl</key>
+		<string>Ponovna izgradnja indeksov ...</string>
+		<key>sq</key>
+		<string>Rindërtimi i indekseve...</string>
+		<key>sr</key>
+		<string>Обнова индекса...</string>
+		<key>su</key>
+		<string>Ngawangun deui indéks...</string>
+		<key>sv</key>
+		<string>Återskapar index...</string>
+		<key>sw</key>
+		<string>Inaunda upya faharasa...</string>
+		<key>ta</key>
+		<string>குறியீடுகளை மீண்டும் உருவாக்குகிறது...</string>
+		<key>te</key>
+		<string>ఇండెక్స్‌లను పునర్నిర్మిస్తోంది...</string>
+		<key>tg</key>
+		<string>Барқарор кардани индексҳо...</string>
+		<key>th</key>
+		<string>กำลังสร้างดัชนีใหม่...</string>
+		<key>tl</key>
+		<string>Muling pagbuo ng mga index...</string>
+		<key>tr</key>
+		<string>Dizinler yeniden oluşturuluyor...</string>
+		<key>tt</key>
+		<string>Индексларны торгызу ...</string>
+		<key>uk</key>
+		<string>Перебудова індексів...</string>
+		<key>ur</key>
+		<string>اشاریہ جات کی تعمیر نو...</string>
+		<key>uz</key>
+		<string>Indekslar qayta tiklanmoqda...</string>
+		<key>vi</key>
+		<string>Xây dựng lại chỉ số...</string>
+		<key>yi</key>
+		<string>ריבילדינג ינדעקסיז ...</string>
+		<key>zh</key>
+		<string>重建索引...</string>
+	</dict>
 	<key>report_bug</key>
 	<dict>
 		<key>af</key>

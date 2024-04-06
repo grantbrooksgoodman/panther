@@ -15,10 +15,15 @@ import SwiftUI
 public extension AppConstants.CGFloats {
     enum SplashPageView {
         public static let fadeInDelayMilliseconds: CGFloat = 250
+
         public static let imageFrameHeight: CGFloat = 70
         public static let imageFrameWidth: CGFloat = 150
+
         public static let padding: CGFloat = 5
         public static let progressViewScaleEffect: CGFloat = 0.8
+
+        public static let rebuildingIndicesLabelAnimationOpacity: CGFloat = 0.3
+        public static let rebuildingIndicesLabelFontSize: CGFloat = 14
     }
 }
 

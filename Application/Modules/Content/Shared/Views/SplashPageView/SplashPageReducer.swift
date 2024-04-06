@@ -36,6 +36,17 @@ public struct SplashPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
+        /* MARK: Properties */
+
+        public var isRebuildingIndices: Bool {
+            @Persistent(.didClearCaches) var didClearCaches: Bool?
+            return didClearCaches ?? false
+        }
+
+        public var rebuildingIndicesLabelText: String {
+            Localized(.rebuildingIndices).wrappedValue.uppercased()
+        }
+
         /* MARK: Init */
 
         public init() {}

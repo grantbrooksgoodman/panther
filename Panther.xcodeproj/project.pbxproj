@@ -171,6 +171,8 @@
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
 		B94D76822BBB5A3F002B4BC6 /* SignInPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76812BBB5A3F002B4BC6 /* SignInPageViewStrings.swift */; };
 		B94D76842BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76832BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift */; };
+		B94F26542BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */; };
+		B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */; };
 		B952B8EF2B1521660043181F /* HostedTranslationArchiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */; };
 		B952B8F12B1527210043181F /* HostedTranslationServiceExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */; };
 		B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8F22B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift */; };
@@ -1020,6 +1022,8 @@
 		B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageReducer.swift; sourceTree = "<group>"; };
 		B94D76812BBB5A3F002B4BC6 /* SignInPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageViewStrings.swift; sourceTree = "<group>"; };
 		B94D76832BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SignInPageView.swift"; sourceTree = "<group>"; };
+		B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostedTranslationArchiver.swift; sourceTree = "<group>"; };
 		B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostedTranslationServiceExceptions.swift; sourceTree = "<group>"; };
 		B952B8F22B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TranslationInput+CoreNetworkingExtensions.swift"; sourceTree = "<group>"; };
@@ -3534,12 +3538,14 @@
 				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
+				B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
 				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
 				B923CAA22B758A870042D3E4 /* UIFont+UserContentExtensions.swift */,
 				B96C125C2BAE47430063687C /* UIImage+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
+				B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4464,6 +4470,7 @@
 				B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */,
 				B9E1BBAC2B31614100ADEA71 /* NetworkActivityViewObserver.swift in Sources */,
 				B9E6D7F12B12B553000BC88D /* HostedTranslationService+AKTranslationDelegate.swift in Sources */,
+				B94F26542BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift in Sources */,
 				B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */,
 				B9E6D7DC2B1288B2000BC88D /* WelcomeContentPageView.swift in Sources */,
 				B9DCCAA92B36011600532B12 /* UpdatableProtocol.swift in Sources */,
@@ -4513,6 +4520,7 @@
 				B937D07D2B2237470058F00E /* SerializableProtocol.swift in Sources */,
 				B94657752AABC66F0091193B /* RootView.swift in Sources */,
 				B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */,
+				B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */,
 				B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */,
 				B96C12552BAE2E910063687C /* ImagePickerView.swift in Sources */,
 				B96C12572BAE2F8B0063687C /* ImagePickerView+Coordinator.swift in Sources */,

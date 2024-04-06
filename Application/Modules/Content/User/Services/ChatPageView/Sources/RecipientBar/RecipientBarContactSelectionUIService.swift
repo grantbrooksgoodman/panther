@@ -61,8 +61,13 @@ public final class RecipientBarContactSelectionUIService {
         selectedContactPairs.filter { $0.isMock }.map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
         guard let configService = chatPageViewService.recipientBar?.config,
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
+
         var view = configService.firstContactView(.onSameLevelAsTextField)
-        defer { configService.reconfigureTextField(relativeTo: view ?? toLabel) }
+        defer {
+            configService.reconfigureTextField(relativeTo: view ?? toLabel)
+            configService.reconfigureLastContactView()
+        }
+
         let range = (1 ... Int(Floats.sublevelCount)).reversed()
         guard let sublevel = range.first(where: { configService.firstContactView(.furthestTrailing(onSublevel: $0)) != nil }) else { return }
         view = configService.firstContactView(.furthestTrailing(onSublevel: sublevel))
