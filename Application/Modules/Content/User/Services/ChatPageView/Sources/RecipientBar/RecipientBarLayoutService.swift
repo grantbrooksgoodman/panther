@@ -122,7 +122,7 @@ public final class RecipientBarLayoutService {
         guard let recipientBarView else { return }
 
         var borderColor = UIColor(ThemeService.isDarkModeActive ? Colors.darkBorder : Colors.lightBorder).cgColor
-        if ThemeService.currentTheme != AppTheme.default.theme {
+        if !ThemeService.isDefaultThemeApplied {
             borderColor = UIColor(Colors.darkBorder).cgColor
         }
 
@@ -148,7 +148,7 @@ public final class RecipientBarLayoutService {
     }
 
     private func configureBackgroundColor() {
-        let darkBackground: UIColor = ThemeService.currentTheme == AppTheme.default.theme ? .listViewBackground : .background
+        let darkBackground: UIColor = ThemeService.isDefaultThemeApplied ? .listViewBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
         recipientBarView?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
     }

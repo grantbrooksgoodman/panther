@@ -15,14 +15,12 @@ import Redux
 public struct ConversationsPageViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Methods
 
     public func viewAppeared() {
-        coreUI.setNavigationBarAppearance()
         userSession.startObservingCurrentUserChanges()
 
         Task {

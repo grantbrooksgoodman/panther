@@ -37,8 +37,16 @@ public struct SettingsPageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
+        .navigationBarAppearance(.default())
         .onFirstAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
+        .redrawsOnTraitCollectionChange()
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
         }
     }
 }

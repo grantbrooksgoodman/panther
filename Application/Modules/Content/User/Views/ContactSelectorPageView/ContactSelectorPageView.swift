@@ -58,13 +58,7 @@ public struct ContactSelectorPageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(viewModel.navigationTitle)
         }
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
-        }
-        .redrawsOnTraitCollectionChange()
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
-        }
+        .navigationBarAppearance(.themed(showsDivider: false))
     }
 
     private var cancelToolbarButton: some ToolbarContent {

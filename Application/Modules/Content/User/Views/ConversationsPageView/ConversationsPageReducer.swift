@@ -16,7 +16,7 @@ import Redux
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
@@ -29,6 +29,7 @@ public struct ConversationsPageReducer: Reducer {
         case settingsToolbarButtonTapped
 
         case pulledToRefresh
+        case traitCollectionChanged
         case updatedContactPairArchive
         case updatedCurrentUser
 
@@ -95,7 +96,7 @@ public struct ConversationsPageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
-            state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? []
+            state.conversations = conversations ?? []
 
             viewService.viewAppeared()
 
@@ -122,11 +123,13 @@ public struct ConversationsPageReducer: Reducer {
         case .settingsToolbarButtonTapped:
             state.isPresentingSettingsSheet = true
 
-        case .updatedContactPairArchive:
+        case .traitCollectionChanged,
+             .updatedContactPairArchive:
+            NavigationBar.setAppearance(.appDefault)
             state.viewID = UUID()
 
         case .updatedCurrentUser:
-            state.conversations = currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate.unique ?? state.conversations
+            state.conversations = conversations ?? state.conversations
         }
 
         return .none
@@ -137,7 +140,7 @@ public struct ConversationsPageReducer: Reducer {
     private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
         switch feedback {
         case let .reloadDataReturned(.success(conversations)):
-            state.conversations = conversations.visibleForCurrentUser.sortedByLatestMessageSentDate.unique
+            state.conversations = conversations.filteredAndSorted
 
         case let .reloadDataReturned(.failure(exception)):
             Logger.log(exception, with: .toast())

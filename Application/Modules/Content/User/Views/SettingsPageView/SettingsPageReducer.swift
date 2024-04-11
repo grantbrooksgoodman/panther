@@ -38,6 +38,9 @@ public struct SettingsPageReducer: Reducer {
         case signOutButtonTapped
 
         case doneToolbarButtonTapped
+
+        case traitCollectionChanged
+        case viewDisappeared
     }
 
     // MARK: - Feedback
@@ -69,6 +72,10 @@ public struct SettingsPageReducer: Reducer {
         public var developerModeListItems: [StaticListItem]?
         public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
+        // Bool
+        public var isPresented: Binding<Bool>
+        public var traitCollectionChanged = false
+
         // String
         public var contactDetailViewSubtitleLabelText: String?
         public var contactDetailViewTitleLabelText = ""
@@ -79,7 +86,6 @@ public struct SettingsPageReducer: Reducer {
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
         public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
-        public var isPresented: Binding<Bool>
         public var viewID = UUID()
         public var viewState: ViewState = .loading
 
@@ -110,6 +116,7 @@ public struct SettingsPageReducer: Reducer {
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
             let sameNavigationTitle = left.navigationTitle == right.navigationTitle
             let sameStrings = left.strings == right.strings
+            let sameTraitCollectionChanged = left.traitCollectionChanged == right.traitCollectionChanged
             let sameViewID = left.viewID == right.viewID
             let sameViewState = left.viewState == right.viewState
 
@@ -125,6 +132,7 @@ public struct SettingsPageReducer: Reducer {
                   sameIsPresented,
                   sameNavigationTitle,
                   sameStrings,
+                  sameTraitCollectionChanged,
                   sameViewID,
                   sameViewState else { return false }
 
@@ -196,6 +204,14 @@ public struct SettingsPageReducer: Reducer {
 
         case .signOutButtonTapped:
             viewService.signOutButtonTapped()
+
+        case .traitCollectionChanged:
+            state.traitCollectionChanged = true
+
+        case .viewDisappeared:
+            NavigationBar.setAppearance(.appDefault)
+            guard state.traitCollectionChanged else { return .none }
+            Observables.traitCollectionChanged.trigger()
         }
 
         return .none

@@ -35,7 +35,6 @@ public struct ChatInfoPageReducer: Reducer {
 
         case isPresentingImagePickerSheetChanged(Bool)
         case selectedImageChanged(UIImage)
-        case traitCollectionChanged
     }
 
     // MARK: - Feedback
@@ -198,9 +197,6 @@ public struct ChatInfoPageReducer: Reducer {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result)
             }
-
-        case .traitCollectionChanged:
-            coreUI.setNavigationBarAppearance()
         }
 
         return .none

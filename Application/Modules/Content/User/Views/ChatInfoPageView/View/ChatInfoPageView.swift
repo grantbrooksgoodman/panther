@@ -41,10 +41,7 @@ public struct ChatInfoPageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
-        }
-        .redrawsOnTraitCollectionChange()
+        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
         .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : viewModel.preferredStatusBarStyle)
         .onFirstAppear {
             viewModel.send(.viewAppeared)

@@ -26,6 +26,7 @@ public final class InputBarService {
     // MARK: - Dependencies
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
@@ -154,8 +155,10 @@ public final class InputBarService {
     // MARK: - Become First Responder
 
     public func becomeFirstResponder() {
+        guard chatPageState.isPresented else { return }
         while !inputBar.inputTextView.isFirstResponder {
-            guard inputBar.inputTextView.canBecomeFirstResponder else { return }
+            guard chatPageState.isPresented,
+                  inputBar.inputTextView.canBecomeFirstResponder else { break }
             inputBar.inputTextView.becomeFirstResponder()
         }
     }

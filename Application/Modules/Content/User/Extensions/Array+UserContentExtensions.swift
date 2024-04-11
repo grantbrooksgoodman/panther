@@ -21,6 +21,13 @@ public extension Array where Element == ContactPair {
     }
 }
 
+public extension Array where Element == Conversation {
+    /// The unique conversations among the array which are visible for the current user, sorted by latest message sent date.
+    var filteredAndSorted: [Conversation] {
+        visibleForCurrentUser.sortedByLatestMessageSentDate.unique
+    }
+}
+
 public extension Array where Element == Message {
     var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
 }

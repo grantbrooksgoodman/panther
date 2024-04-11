@@ -47,7 +47,10 @@ public struct ConversationsContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView(redrawsOnAppearanceChange: true) {
+        ThemedView(
+            navigationBarAppearance: .appDefault,
+            redrawsOnAppearanceChange: true
+        ) {
             VStack {
                 NavigationView {
                     List {

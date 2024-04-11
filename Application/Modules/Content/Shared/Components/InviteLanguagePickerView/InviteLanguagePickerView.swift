@@ -22,7 +22,6 @@ public struct InviteLanguagePickerView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<InviteLanguagePickerObserver>
     @StateObject private var viewModel: ViewModel<InviteLanguagePickerReducer>
 
     // MARK: - Bindings
@@ -38,7 +37,6 @@ public struct InviteLanguagePickerView: View {
 
     public init(_ viewModel: ViewModel<InviteLanguagePickerReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
@@ -65,7 +63,14 @@ public struct InviteLanguagePickerView: View {
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
+        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
         .preferredStatusBarStyle(.lightContent)
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
+        }
     }
 
     private func listView(languageNames: [String: String]) -> some View {
@@ -93,7 +98,6 @@ public struct InviteLanguagePickerView: View {
                 }
             }
         }
-        .background(Color.listViewBackground)
     }
 
     private var noResultsView: some View {

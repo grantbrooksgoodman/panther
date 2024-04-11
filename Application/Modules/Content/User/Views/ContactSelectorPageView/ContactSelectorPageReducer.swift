@@ -23,16 +23,12 @@ public struct ContactSelectorPageReducer: Reducer {
     // MARK: - Actions
 
     public enum Action {
-        case viewAppeared
-
         case cancelToolbarButtonTapped
         case inviteToolbarButtonTapped
 
         case isPresentedChanged(Bool)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
-
-        case traitCollectionChanged
     }
 
     // MARK: - Feedback
@@ -113,9 +109,6 @@ public struct ContactSelectorPageReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
-        case .action(.viewAppeared):
-            break
-
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false
             core.ui.resignFirstResponder()
@@ -139,9 +132,6 @@ public struct ContactSelectorPageReducer: Reducer {
             core.gcd.after(.milliseconds(100)) {
                 chatPageViewService.recipientBar?.contactSelectionUI.selectContactPair(selectedContactPair, performInputBarFix: true)
             }
-
-        case .action(.traitCollectionChanged):
-            core.ui.setNavigationBarAppearance()
 
         case let .feedback(.presentInvitationPromptReturned(exception)):
             guard let exception else { return .none }

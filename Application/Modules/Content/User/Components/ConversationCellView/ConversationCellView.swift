@@ -147,14 +147,6 @@ public struct ConversationCellView: View {
     }
 
     private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
-        func configure(_ anyView: AnyView) -> some View {
-            guard ThemeService.isDefaultThemeApplied else {
-                return AnyView(anyView.toolbarBackground(Color.navigationBarBackground, for: .navigationBar))
-            }
-
-            return anyView
-        }
-
         var pageView: AnyView = .init(
             ChatPageView(viewModel.conversation, configuration: configuration)
                 .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
@@ -173,9 +165,9 @@ public struct ConversationCellView: View {
                         viewModel.send(.chatPageViewAppeared)
                     }
             )
-            return configure(pageView)
+            return pageView
         }
 
-        return configure(pageView)
+        return pageView
     }
 }

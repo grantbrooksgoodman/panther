@@ -36,8 +36,8 @@ public struct SplashPageView: View {
         VStack {
             Image(.hello)
                 .resizable()
-                .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
-                .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
+                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
+                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
                 .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                 .padding(.bottom, Floats.padding)
 
@@ -64,6 +64,7 @@ public struct SplashPageView: View {
         }
         .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

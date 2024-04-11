@@ -248,6 +248,9 @@
 		B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */; };
 		B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */; };
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
+		B98982462BC7273000E9ED9E /* NavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982452BC7273000E9ED9E /* NavigationBar.swift */; };
+		B98982482BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */; };
+		B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */; };
 		B98C3B9D2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3B9C2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift */; };
 		B98C3B9F2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3B9E2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift */; };
 		B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */; };
@@ -292,7 +295,6 @@
 		B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */; };
 		B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */; };
 		B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C42B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift */; };
-		B998B3CB2B68BB520048241B /* InviteLanguagePickerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */; };
 		B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DB929E4C2AF00117D42 /* CustomColors.swift */; };
 		B99B1DBE29E4C43400117D42 /* ThemeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBD29E4C43400117D42 /* ThemeService.swift */; };
 		B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBF29E4C45000117D42 /* AppThemes.swift */; };
@@ -1098,6 +1100,9 @@
 		B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewData.swift; sourceTree = "<group>"; };
 		B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewServiceDependency.swift; sourceTree = "<group>"; };
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B98982452BC7273000E9ED9E /* NavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBar.swift; sourceTree = "<group>"; };
+		B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarAppearanceViewModifier.swift; sourceTree = "<group>"; };
+		B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationBarAppearance+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B98C3B9C2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITextFieldDelegate.swift"; sourceTree = "<group>"; };
 		B98C3B9E2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITableViewDataSource.swift"; sourceTree = "<group>"; };
 		B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITableViewDelegate.swift"; sourceTree = "<group>"; };
@@ -1141,7 +1146,6 @@
 		B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerView.swift; sourceTree = "<group>"; };
 		B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerReducer.swift; sourceTree = "<group>"; };
 		B998B3C42B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+InviteLanguagePickerView.swift"; sourceTree = "<group>"; };
-		B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerObserver.swift; sourceTree = "<group>"; };
 		B99B1DB929E4C2AF00117D42 /* CustomColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomColors.swift; sourceTree = "<group>"; };
 		B99B1DBD29E4C43400117D42 /* ThemeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeService.swift; sourceTree = "<group>"; };
 		B99B1DBF29E4C45000117D42 /* AppThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemes.swift; sourceTree = "<group>"; };
@@ -2441,7 +2445,6 @@
 		B998B3BF2B68A66B0048241B /* InviteLanguagePickerView */ = {
 			isa = PBXGroup;
 			children = (
-				B998B3CA2B68BB520048241B /* InviteLanguagePickerObserver.swift */,
 				B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */,
 				B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */,
 			);
@@ -3308,6 +3311,7 @@
 				B9AF124F2ACE4AF50045C54C /* EncodedHashable.swift */,
 				B91688EA290490CD004C80A2 /* Exception.swift */,
 				B91688EC2904913D004C80A2 /* Logger.swift */,
+				B98982452BC7273000E9ED9E /* NavigationBar.swift */,
 				B96D44002B8495EC00C66B46 /* PassthroughWindow.swift */,
 				B97381082ACE8A2000ADB173 /* Persistent.swift */,
 				B9CC83182AB0F4BB00255116 /* QuickViewer.swift */,
@@ -3337,6 +3341,7 @@
 				B9C5830029BECB0C009DCE29 /* DeviceShakeViewModifier.swift */,
 				B90F33212AE4D463002A9284 /* HeaderViewModifier.swift */,
 				B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */,
+				B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */,
 				B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */,
 				B95B29452B8D3D9400E930E2 /* RedrawsOnTraitCollectionChangeViewModifier.swift */,
 				B9DDD1552B85896700AB5BD3 /* StatusBarStyleViewModifier.swift */,
@@ -3537,6 +3542,7 @@
 				B918222D2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift */,
 				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
+				B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
 				B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
@@ -4327,6 +4333,7 @@
 				B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */,
 				B93BCDCE2AAD854B00AA16FE /* URLSessionDependency.swift in Sources */,
 				B96D43F92B8484CD00C66B46 /* RootWindowService.swift in Sources */,
+				B98982482BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift in Sources */,
 				B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */,
@@ -4433,7 +4440,6 @@
 				B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */,
 				B974E3982B7EE9EF00A8389E /* RecipientBarConfigService.swift in Sources */,
 				B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */,
-				B998B3CB2B68BB520048241B /* InviteLanguagePickerObserver.swift in Sources */,
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
@@ -4502,6 +4508,7 @@
 				B952B8EF2B1521660043181F /* HostedTranslationArchiver.swift in Sources */,
 				B925A0942B6480A400111413 /* UIPasteboardDependency.swift in Sources */,
 				B9D0D7142B03006B00078A93 /* ProgressHUD.swift in Sources */,
+				B98982462BC7273000E9ED9E /* NavigationBar.swift in Sources */,
 				B9D0D9432B03019E00078A93 /* NetworkEnvironment.swift in Sources */,
 				B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */,
 				B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */,
@@ -4581,6 +4588,7 @@
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
 				B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */,
+				B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,
 				B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,

@@ -28,6 +28,7 @@ public struct ConversationsPageObserver: Observer {
     public let id = UUID()
     public let observedValues: [any ObservableProtocol] = [
         Observables.newChatSheetDismissed,
+        Observables.traitCollectionChanged,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
@@ -55,6 +56,14 @@ public struct ConversationsPageObserver: Observer {
         switch observable.key {
         case .newChatSheetDismissed:
             send(.isPresentingNewChatSheetChanged(false))
+
+        case .traitCollectionChanged:
+            guard !chatPageState.isPresented else {
+                chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { send(.traitCollectionChanged) }
+                return
+            }
+
+            send(.traitCollectionChanged)
 
         case .updatedContactPairArchive:
             send(.updatedContactPairArchive)

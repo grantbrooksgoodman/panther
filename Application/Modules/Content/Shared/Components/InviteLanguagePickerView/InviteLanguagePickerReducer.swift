@@ -27,6 +27,9 @@ public struct InviteLanguagePickerReducer: Reducer {
 
         case searchQueryChanged(String)
         case selectedLanguageCodeChanged(String)
+
+        case traitCollectionChanged
+        case viewDisappeared
     }
 
     // MARK: - Feedback
@@ -40,6 +43,7 @@ public struct InviteLanguagePickerReducer: Reducer {
 
         // Bool
         public var isDoneHeaderItemEnabled = false
+        public var traitCollectionChanged = false
 
         // String
         @Localized(.cancel) public var cancelHeaderItemText: String
@@ -96,6 +100,14 @@ public struct InviteLanguagePickerReducer: Reducer {
         case let .action(.selectedLanguageCodeChanged(selectedLanguageCode)):
             state.selectedLanguageCode = selectedLanguageCode
             state.isDoneHeaderItemEnabled = true
+
+        case .action(.traitCollectionChanged):
+            state.traitCollectionChanged = true
+
+        case .action(.viewDisappeared):
+            NavigationBar.setAppearance(.appDefault)
+            guard state.traitCollectionChanged else { return .none }
+            Observables.traitCollectionChanged.trigger()
         }
 
         return .none

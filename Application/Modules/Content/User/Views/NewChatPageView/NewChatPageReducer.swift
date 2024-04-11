@@ -80,6 +80,7 @@ public struct NewChatPageReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
+            NavigationBar.setAppearance(.themed(showsDivider: false))
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
 
         case let .action(.conversationChanged(conversation)):
