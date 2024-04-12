@@ -33,7 +33,6 @@ public struct SignInPageReducer: Reducer {
         case continueButtonTapped
 
         case didSwipeDown
-        case traitCollectionChanged
 
         case phoneNumberStringChanged(String)
         case selectedRegionCodeChanged(String)
@@ -79,12 +78,9 @@ public struct SignInPageReducer: Reducer {
         public var selectedRegionCode = ""
         public var verificationCode = ""
 
-        // UUID
-        public var imageViewID = UUID()
-        public var regionMenuViewID = UUID()
-
         // Other
         public var configuration: Configuration = .phoneNumber
+        public var regionMenuViewID = UUID()
         public var strings: [TranslationOutputMap] = SignInPageViewStrings.defaultOutputMap
         public var viewState: ViewState = .loading
 
@@ -203,9 +199,6 @@ public struct SignInPageReducer: Reducer {
         case let .verificationCodeChanged(verificationCode):
             state.verificationCode = verificationCode
             state.isContinueButtonEnabled = verificationCode.count == 6
-
-        case .traitCollectionChanged:
-            state.imageViewID = UUID()
         }
 
         return .none

@@ -56,8 +56,6 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         keyWindow.makeKeyAndVisible()
         window = keyWindow
 
-        guard build.stage != .generalRelease else { return }
-
         let tapGesture = UITapGestureRecognizer(target: self, action: nil)
         tapGesture.delegate = self
 
@@ -74,7 +72,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         let buildInfoOverlayView = BuildInfoOverlayView(.init(initialState: .init(), reducer: BuildInfoOverlayReducer()))
         buildInfoOverlayWindow.rootViewController = UIHostingController(rootView: buildInfoOverlayView)
 
-        buildInfoOverlayWindow.isHidden = false
+        buildInfoOverlayWindow.isHidden = build.stage == .generalRelease
         buildInfoOverlayWindow.tag = coreUI.semTag(for: "BUILD_INFO_OVERLAY_WINDOW")
 
         keyWindow.addGestureRecognizer(tapGesture)
@@ -97,17 +95,6 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
             rootWindow.rootViewController?.view.backgroundColor = .clear
         }
 
-        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
-        if let shouldHide = hidesBuildInfoOverlay,
-           shouldHide {
-            guard build.developerModeEnabled else {
-                hidesBuildInfoOverlay = false
-                return
-            }
-
-            buildInfoOverlayWindow.isHidden = shouldHide
-        }
-
         if build.expiryDate.comparator == Date().comparator,
            build.timebombActive {
             let expiryOverlayWindow = UIWindow()
@@ -122,6 +109,19 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
             expiryOverlayWindow.tag = coreUI.semTag(for: "EXPIRY_OVERLAY_WINDOW")
 
             keyWindow.addSubview(expiryOverlayWindow)
+        }
+
+        guard build.stage != .generalRelease else { return }
+
+        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
+        if let shouldHide = hidesBuildInfoOverlay,
+           shouldHide {
+            guard build.developerModeEnabled else {
+                hidesBuildInfoOverlay = false
+                return
+            }
+
+            buildInfoOverlayWindow.isHidden = shouldHide
         }
     }
 

@@ -98,7 +98,6 @@ private struct RegionPickerView: View {
 
     // MARK: - Properties
 
-    @StateObject private var observer: ViewObserver<RegionMenuObserver>
     @State private var selectedRegionTitle = ""
     @StateObject private var viewModel: ViewModel<RegionMenuReducer>
 
@@ -115,7 +114,6 @@ private struct RegionPickerView: View {
 
     public init(_ viewModel: ViewModel<RegionMenuReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
-        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
@@ -125,20 +123,29 @@ private struct RegionPickerView: View {
             ScrollViewReader { proxy in
                 SearchBar(searchQueryBinding)
 
-                if let regionTitles = viewModel.queriedRegionTitles {
-                    listView(regionTitles: regionTitles)
-                        .onAppear {
-                            viewModel.send(.listViewAppeared(proxy: proxy))
-                        }
-                } else {
-                    noResultsView
+                VStack {
+                    if let regionTitles = viewModel.queriedRegionTitles {
+                        listView(regionTitles: regionTitles)
+                            .onAppear {
+                                viewModel.send(.listViewAppeared(proxy: proxy))
+                            }
+                    } else {
+                        noResultsView
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.listViewBackground)
             }
             .header(.text(.init(viewModel.headerLabelText)), showsDivider: false)
             .background(Color.navigationBarBackground)
             .ignoresSafeArea()
             .onAppear {
                 selectedRegionTitle = viewModel.selectedRegionTitle ?? ""
+            }
+            .onTraitCollectionChange {
+                let previousQuery = viewModel.searchQuery
+                viewModel.send(.searchQueryChanged(" "))
+                viewModel.send(.searchQueryChanged(previousQuery.isBlank ? "" : previousQuery))
             }
         } else {
             EmptyView()

@@ -32,37 +32,39 @@ public struct WelcomeContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        VStack {
-            Image(.hello)
-                .resizable()
-                .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
-                .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
-                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                .padding(.bottom, Floats.imageBottomPadding)
+        ThemedView {
+            VStack {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                    .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.imageBottomPadding)
 
-            Text(viewModel.strings.value(for: .instructionLabelText))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
-                .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                Text(viewModel.strings.value(for: .instructionLabelText))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-            Button {
-                viewModel.send(.continueButtonTapped)
-            } label: {
-                Text(viewModel.strings.value(for: .continueButtonText))
-                    .bold()
+                Button {
+                    viewModel.send(.continueButtonTapped)
+                } label: {
+                    Text(viewModel.strings.value(for: .continueButtonText))
+                        .bold()
+                }
+                .foregroundStyle(Colors.continueButtonForeground)
+                .padding(.vertical, Floats.continueButtonVerticalPadding)
+
+                Button {
+                    viewModel.send(.signInButtonTapped)
+                } label: {
+                    Text(viewModel.strings.value(for: .signInButtonText))
+                }
+                .foregroundStyle(Colors.signInButtonForeground)
+                .padding(.vertical, Floats.signInButtonVerticalPadding)
             }
-            .foregroundStyle(Colors.continueButtonForeground)
-            .padding(.vertical, Floats.continueButtonVerticalPadding)
-
-            Button {
-                viewModel.send(.signInButtonTapped)
-            } label: {
-                Text(viewModel.strings.value(for: .signInButtonText))
-            }
-            .foregroundStyle(Colors.signInButtonForeground)
-            .padding(.vertical, Floats.signInButtonVerticalPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

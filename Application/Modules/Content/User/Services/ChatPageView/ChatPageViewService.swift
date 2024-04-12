@@ -25,6 +25,7 @@ public final class ChatPageViewService {
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
+    @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -232,6 +233,6 @@ public final class ChatPageViewService {
 
     private func toggleBuildInfoOverlay(on: Bool) {
         guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: Strings.buildInfoOverlayWindowSemanticTag) as? UIWindow else { return }
-        overlayWindow.isHidden = !on
+        overlayWindow.isHidden = build.stage == .generalRelease || !on
     }
 }

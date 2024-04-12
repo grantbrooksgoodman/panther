@@ -56,70 +56,69 @@ public struct SignInContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        VStack {
-            Image(.hello)
-                .resizable()
-                .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
-                .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
-                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                .padding(.bottom, Floats.imageBottomPadding)
-                .onTraitCollectionChange {
-                    viewModel.send(.traitCollectionChanged)
-                }
+        ThemedView {
+            VStack {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                    .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.imageBottomPadding)
 
-            Text(viewModel.instructionLabelText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
-                .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                Text(viewModel.instructionLabelText)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-            if viewModel.configuration == .phoneNumber {
-                HStack(alignment: .center) {
-                    RegionMenu(selectedRegionCodeBinding)
-                        .padding(.leading, Floats.regionMenuLeadingPadding)
-                        .padding(.trailing, Floats.regionMenuTrailingPadding)
-                        .id(viewModel.regionMenuViewID)
+                if viewModel.configuration == .phoneNumber {
+                    HStack(alignment: .center) {
+                        RegionMenu(selectedRegionCodeBinding)
+                            .padding(.leading, Floats.regionMenuLeadingPadding)
+                            .padding(.trailing, Floats.regionMenuTrailingPadding)
+                            .id(viewModel.regionMenuViewID)
 
-                    PhoneNumberTextField(
-                        phoneNumberStringBinding,
-                        regionCode: selectedRegionCodeBinding
+                        PhoneNumberTextField(
+                            phoneNumberStringBinding,
+                            regionCode: selectedRegionCodeBinding
+                        )
+                        .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
+                        .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
+                    }
+                } else {
+                    GenericTextField(
+                        verificationCodeBinding,
+                        keyboardType: .numberPad,
+                        placeholderText: (Strings.textFieldPlaceholder, nil)
                     )
-                    .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
-                    .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
+                    .padding(.horizontal, Floats.textFieldHorizontalPadding)
+                    .padding(.vertical, Floats.textFieldVerticalPadding)
                 }
-            } else {
-                GenericTextField(
-                    verificationCodeBinding,
-                    keyboardType: .numberPad,
-                    placeholderText: (Strings.textFieldPlaceholder, nil)
-                )
-                .padding(.horizontal, Floats.textFieldHorizontalPadding)
-                .padding(.vertical, Floats.textFieldVerticalPadding)
-            }
 
-            Button {
-                viewModel.send(.continueButtonTapped)
-            } label: {
-                Text(viewModel.continueButtonText)
-                    .bold()
-            }
-            .disabled(!viewModel.isContinueButtonEnabled)
-            .accentColor(Colors.continueButtonAccent)
-            .padding(.top, Floats.continueButtonTopPadding)
+                Button {
+                    viewModel.send(.continueButtonTapped)
+                } label: {
+                    Text(viewModel.continueButtonText)
+                        .bold()
+                }
+                .disabled(!viewModel.isContinueButtonEnabled)
+                .accentColor(Colors.continueButtonAccent)
+                .padding(.top, Floats.continueButtonTopPadding)
 
-            Button {
-                viewModel.send(.backButtonTapped)
-            } label: {
-                Text(viewModel.strings.value(for: .backButtonText))
+                Button {
+                    viewModel.send(.backButtonTapped)
+                } label: {
+                    Text(viewModel.strings.value(for: .backButtonText))
+                }
+                .disabled(!viewModel.isBackButtonEnabled)
+                .font(.system(size: Floats.backButtonLabelFontSize))
+                .foregroundStyle(Colors.backButtonForeground)
+                .padding(.top, Floats.backButtonTopPadding)
             }
-            .disabled(!viewModel.isBackButtonEnabled)
-            .font(.system(size: Floats.backButtonLabelFontSize))
-            .foregroundStyle(Colors.backButtonForeground)
-            .padding(.top, Floats.backButtonTopPadding)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onSwipe(.down) {
-            viewModel.send(.didSwipeDown)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .onSwipe(.down) {
+                viewModel.send(.didSwipeDown)
+            }
         }
     }
 }

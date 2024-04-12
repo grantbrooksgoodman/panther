@@ -10,7 +10,6 @@
 import Foundation
 
 /* 3rd-party */
-import AlertKit
 import Redux
 
 public struct ConversationsPageReducer: Reducer {

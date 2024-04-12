@@ -53,6 +53,8 @@ public struct InviteLanguagePickerView: View {
                     listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.listViewBackground)
             .interactiveDismissDisabled(true)
         }
         .header(

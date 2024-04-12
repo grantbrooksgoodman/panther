@@ -127,7 +127,6 @@
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */; };
 		B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */; };
-		B9334E082B48E54700C667E5 /* RegionMenuObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E072B48E54700C667E5 /* RegionMenuObserver.swift */; };
 		B93457072AABF9F200944602 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457062AABF9F200944602 /* Localization.swift */; };
 		B93457092AABFB3700944602 /* Localized.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457082AABFB3700944602 /* Localized.swift */; };
 		B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */; };
@@ -979,7 +978,6 @@
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+AVSpeechSynthesizerDelegate.swift"; sourceTree = "<group>"; };
 		B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuReducer.swift; sourceTree = "<group>"; };
-		B9334E072B48E54700C667E5 /* RegionMenuObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuObserver.swift; sourceTree = "<group>"; };
 		B93457062AABF9F200944602 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		B93457082AABFB3700944602 /* Localized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localized.swift; sourceTree = "<group>"; };
 		B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStringKeys.swift; sourceTree = "<group>"; };
@@ -1919,7 +1917,6 @@
 			isa = PBXGroup;
 			children = (
 				B991959D2B488DAA00BD5BBC /* RegionMenu.swift */,
-				B9334E072B48E54700C667E5 /* RegionMenuObserver.swift */,
 				B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */,
 			);
 			path = RegionMenu;
@@ -4189,7 +4186,6 @@
 				B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */,
 				B9E7D43F2AAC223700FAF2A9 /* Observables.swift in Sources */,
 				B91688EB290490CD004C80A2 /* Exception.swift in Sources */,
-				B9334E082B48E54700C667E5 /* RegionMenuObserver.swift in Sources */,
 				B9F47AFE2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift in Sources */,
 				B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */,
 				B9E6D7B52B126188000BC88D /* RegionDetailService.swift in Sources */,
