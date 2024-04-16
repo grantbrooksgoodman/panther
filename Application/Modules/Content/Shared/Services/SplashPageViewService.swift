@@ -25,8 +25,9 @@ public struct SplashPageViewService {
     // MARK: - Methods
 
     public func initializeBundle() async -> Exception? {
-        /* MARK: AKTranslationDelegate Setup */
+        /* MARK: AKCore Delegate Setup */
 
+        akCore.register(reportDelegate: ErrorReportingService())
         akCore.register(translationDelegate: hostedTranslationService)
 
         /* MARK: MetadataService Setup */

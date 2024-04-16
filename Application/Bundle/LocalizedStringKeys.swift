@@ -25,6 +25,7 @@ public enum LocalizedStringKey: String {
     case dismiss
     case done
 
+    case errorReportedSuccessfully
     case holdDownToRecord
     case invite
 

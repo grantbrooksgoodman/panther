@@ -23,6 +23,7 @@ public final class MetadataService {
         case pushAPIKey = "pushApiKey"
         case redirectionKey
         case shouldForceUpdate
+        case storageReferenceURL
 
         /* MARK: Properties */
 
@@ -43,6 +44,7 @@ public final class MetadataService {
     public private(set) var pushAPIKey: String?
     public private(set) var redirectionKey: String?
     public private(set) var shouldForceUpdate: Bool?
+    public private(set) var storageReferenceURL: URL?
 
     // MARK: - Resolve All Values
 
@@ -101,6 +103,18 @@ public final class MetadataService {
             switch getShouldForceUpdateResult {
             case let .success(shouldForceUpdate):
                 self.shouldForceUpdate = shouldForceUpdate
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        if storageReferenceURL == nil {
+            let getStorageReferenceURLResult = await getStorageReferenceURL()
+
+            switch getStorageReferenceURLResult {
+            case let .success(storageReferenceURL):
+                self.storageReferenceURL = storageReferenceURL
 
             case let .failure(exception):
                 return exception
@@ -217,6 +231,29 @@ public final class MetadataService {
             }
 
             return .success(shouldForceUpdate)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func getStorageReferenceURL() async -> Callback<URL, Exception> {
+        let getValuesResult = await database.getValues(
+            at: MetadataServiceKey.storageReferenceURL.path,
+            prependingEnvironment: false
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let urlString = values as? String,
+                  let storageReferenceURL = URL(string: urlString) else {
+                return .failure(.init(
+                    "Failed to typecast values to URL.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            return .success(storageReferenceURL)
 
         case let .failure(exception):
             return .failure(exception)

@@ -353,6 +353,12 @@ public enum Logger {
 
         guard exception != nil || data != nil else { return }
 
+        var exception = exception
+        if let unwrappedException = exception,
+           let errorReportingService = akCore.reportDelegate() as? ErrorReportingService {
+            exception?.isReportable = unwrappedException.isReportable && !errorReportingService.reportedErrorDescriptors.contains(unwrappedException.descriptor)
+        }
+
         let descriptor = exception?.descriptor ?? data?.text
         let userFacingDescriptor = exception?.userFacingDescriptor ?? data?.text
         let metadata = exception?.metadata ?? data?.metadata
@@ -411,6 +417,8 @@ public enum Logger {
             ).present()
 
         case let .toast(style: style, isPersistent: isPersistent):
+            let exception = exception
+
             @Sendable
             func showToast(_ userFacingDescriptor: String) {
                 let style = style ?? (exception == nil ? .info : .error)
