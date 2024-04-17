@@ -33,7 +33,8 @@ public struct ChatInfoPageReducer: Reducer {
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
 
-        case isPresentingImagePickerSheetChanged(Bool)
+        case isPresentingCameraPickerSheetChanged(Bool, Exception?)
+        case isPresentingImagePickerSheetChanged(Bool, Exception?)
         case selectedImageChanged(UIImage)
     }
 
@@ -67,6 +68,7 @@ public struct ChatInfoPageReducer: Reducer {
         // Bool
         public var inputBarWasFirstResponder = false
         public var isChangeMetadataButtonEnabled = true
+        public var isPresentingCameraPickerSheet = false
         public var isPresentingImagePickerSheet = false
 
         // Other
@@ -168,8 +170,24 @@ public struct ChatInfoPageReducer: Reducer {
             guard state.inputBarWasFirstResponder else { return .none }
             chatPageViewService.inputBar?.becomeFirstResponder()
 
-        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet):
+        case let .isPresentingCameraPickerSheetChanged(isPresentingCameraPickerSheet, exception):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
+            state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
+
+            if !isPresentingCameraPickerSheet,
+               !ThemeService.isDarkModeActive {
+                state.preferredStatusBarStyle = .darkContent
+            }
+            state.isChangeMetadataButtonEnabled = true
+
+        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet, exception):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
             state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
+
             if !isPresentingImagePickerSheet,
                !ThemeService.isDarkModeActive {
                 state.preferredStatusBarStyle = .darkContent
@@ -226,9 +244,6 @@ public struct ChatInfoPageReducer: Reducer {
                 return .updateValueReturned(result)
             }
 
-        case .changeMetadataActionSheetDismissed(.changePhoto):
-            state.isPresentingImagePickerSheet = true
-
         case .changeMetadataActionSheetDismissed(.removePhoto):
             guard let conversation = state.conversation else {
                 state.isChangeMetadataButtonEnabled = true
@@ -249,6 +264,12 @@ public struct ChatInfoPageReducer: Reducer {
         case .changeMetadataActionSheetDismissed(.none):
             state.isChangeMetadataButtonEnabled = true
             return .none
+
+        case .changeMetadataActionSheetDismissed(.selectPhotoFromCamera):
+            state.isPresentingCameraPickerSheet = true
+
+        case .changeMetadataActionSheetDismissed(.selectPhotoFromLibrary):
+            state.isPresentingImagePickerSheet = true
 
         case let .getChatParticipantsReturned(.success(chatParticipants)):
             state.chatParticipants = chatParticipants

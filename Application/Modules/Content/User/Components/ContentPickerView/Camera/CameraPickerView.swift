@@ -1,8 +1,8 @@
 //
-//  ImagePickerView.swift
+//  CameraPickerView.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 22/03/2024.
+//  Created by Grant Brooks Goodman on 16/04/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -10,25 +10,22 @@
 import Foundation
 import SwiftUI
 
-public struct ImagePickerView: UIViewControllerRepresentable {
+public struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
+    // MARK: - Type Aliases
+
+    public typealias Content = UIImage
+
     // MARK: - Properties
 
-    // Closure
-    private let onDismiss: (() -> Void)?
-    private let onSelection: (UIImage) -> Void
-
-    // Other
-    @Environment(\.presentationMode) private var presentationMode
-    private var sourceType: UIImagePickerController.SourceType
+    public var onDismiss: (Exception?) -> Void
+    public var onSelection: (UIImage) -> Void
 
     // MARK: - Init
 
     public init(
-        _ sourceType: UIImagePickerController.SourceType,
         onSelection: @escaping (UIImage) -> Void,
-        onDismiss: (() -> Void)? = nil
+        onDismiss: @escaping ((Exception?) -> Void)
     ) {
-        self.sourceType = sourceType
         self.onSelection = onSelection
         self.onDismiss = onDismiss
     }
@@ -36,7 +33,7 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     // MARK: - Make Coordinator
 
     public func makeCoordinator() -> Coordinator {
-        .init(onDismiss: _onDismiss, onSelection: onSelection)
+        .init(delegate: self)
     }
 
     // MARK: - Make UIViewController
@@ -44,18 +41,11 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     public func makeUIViewController(context: Context) -> UIImagePickerController {
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = context.coordinator
-        imagePickerController.sourceType = sourceType
+        imagePickerController.sourceType = .camera
         return imagePickerController
     }
 
     // MARK: - Update UIViewController
 
     public func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-
-    // MARK: - Auxiliary
-
-    private func _onDismiss() {
-        presentationMode.wrappedValue.dismiss()
-        onDismiss?()
-    }
 }

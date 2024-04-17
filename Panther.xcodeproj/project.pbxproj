@@ -166,6 +166,11 @@
 		B94657752AABC66F0091193B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657742AABC66F0091193B /* RootView.swift */; };
 		B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946D87B2ACC8A59001D2424 /* AKError+CoreExtensions.swift */; };
 		B946D87E2ACC966E001D2424 /* Duration+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946D87D2ACC966E001D2424 /* Duration+CoreExtensions.swift */; };
+		B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947581B2BCF79EF001E4872 /* CameraPickerView.swift */; };
+		B94758202BCF7A18001E4872 /* CameraPickerView+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947581F2BCF7A18001E4872 /* CameraPickerView+Coordinator.swift */; };
+		B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758212BCF7A35001E4872 /* ContentPickerView.swift */; };
+		B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758242BCF864D001E4872 /* ContentPicker.swift */; };
+		B94758272BCF8689001E4872 /* ContentPickerContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758262BCF8689001E4872 /* ContentPickerContentType.swift */; };
 		B94D767A2BBB5A11002B4BC6 /* SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */; };
 		B94D767E2BBB5A2E002B4BC6 /* SignInContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */; };
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
@@ -209,8 +214,8 @@
 		B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */; };
 		B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */; };
 		B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */; };
-		B96C12552BAE2E910063687C /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96C12542BAE2E910063687C /* ImagePickerView.swift */; };
-		B96C12572BAE2F8B0063687C /* ImagePickerView+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96C12562BAE2F8B0063687C /* ImagePickerView+Coordinator.swift */; };
+		B96C12552BAE2E910063687C /* PhotoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96C12542BAE2E910063687C /* PhotoPickerView.swift */; };
+		B96C12572BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96C12562BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift */; };
 		B96C125D2BAE47430063687C /* UIImage+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96C125C2BAE47430063687C /* UIImage+UserContentExtensions.swift */; };
 		B96D43F52B84610D00C66B46 /* RootWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96D43F42B84610D00C66B46 /* RootWindow.swift */; };
 		B96D43F72B8461BA00C66B46 /* RootReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96D43F62B8461BA00C66B46 /* RootReducer.swift */; };
@@ -1019,6 +1024,11 @@
 		B94657742AABC66F0091193B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		B946D87B2ACC8A59001D2424 /* AKError+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AKError+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B946D87D2ACC966E001D2424 /* Duration+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CoreExtensions.swift"; sourceTree = "<group>"; };
+		B947581B2BCF79EF001E4872 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
+		B947581F2BCF7A18001E4872 /* CameraPickerView+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraPickerView+Coordinator.swift"; sourceTree = "<group>"; };
+		B94758212BCF7A35001E4872 /* ContentPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerView.swift; sourceTree = "<group>"; };
+		B94758242BCF864D001E4872 /* ContentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPicker.swift; sourceTree = "<group>"; };
+		B94758262BCF8689001E4872 /* ContentPickerContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerContentType.swift; sourceTree = "<group>"; };
 		B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageView.swift; sourceTree = "<group>"; };
 		B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInContentPageView.swift; sourceTree = "<group>"; };
 		B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageReducer.swift; sourceTree = "<group>"; };
@@ -1061,8 +1071,8 @@
 		B96969202B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B96A04FA2AC7C0530003FDB0 /* ProgressPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPageView.swift; sourceTree = "<group>"; };
-		B96C12542BAE2E910063687C /* ImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerView.swift; sourceTree = "<group>"; };
-		B96C12562BAE2F8B0063687C /* ImagePickerView+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImagePickerView+Coordinator.swift"; sourceTree = "<group>"; };
+		B96C12542BAE2E910063687C /* PhotoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerView.swift; sourceTree = "<group>"; };
+		B96C12562BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPickerView+Coordinator.swift"; sourceTree = "<group>"; };
 		B96C125C2BAE47430063687C /* UIImage+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B96D43F42B84610D00C66B46 /* RootWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootWindow.swift; sourceTree = "<group>"; };
 		B96D43F62B8461BA00C66B46 /* RootReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootReducer.swift; sourceTree = "<group>"; };
@@ -2103,6 +2113,32 @@
 			path = Navigation;
 			sourceTree = "<group>";
 		};
+		B947581D2BCF79FE001E4872 /* Photo */ = {
+			isa = PBXGroup;
+			children = (
+				B96C12542BAE2E910063687C /* PhotoPickerView.swift */,
+				B96C12562BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift */,
+			);
+			path = Photo;
+			sourceTree = "<group>";
+		};
+		B947581E2BCF7A09001E4872 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				B947581B2BCF79EF001E4872 /* CameraPickerView.swift */,
+				B947581F2BCF7A18001E4872 /* CameraPickerView+Coordinator.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		B94758232BCF8641001E4872 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				B94758242BCF864D001E4872 /* ContentPicker.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		B94D767B2BBB5A15002B4BC6 /* SignInPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -2262,13 +2298,14 @@
 			path = Root;
 			sourceTree = "<group>";
 		};
-		B96C12532BAE2E7F0063687C /* ImagePickerView */ = {
+		B96C12532BAE2E7F0063687C /* ContentPickerView */ = {
 			isa = PBXGroup;
 			children = (
-				B96C12542BAE2E910063687C /* ImagePickerView.swift */,
-				B96C12562BAE2F8B0063687C /* ImagePickerView+Coordinator.swift */,
+				B947581E2BCF7A09001E4872 /* Camera */,
+				B947581D2BCF79FE001E4872 /* Photo */,
+				B94758212BCF7A35001E4872 /* ContentPickerView.swift */,
 			);
-			path = ImagePickerView;
+			path = ContentPickerView;
 			sourceTree = "<group>";
 		};
 		B96FD2AD2B44CE1F00B54791 /* Updatable */ = {
@@ -2316,6 +2353,7 @@
 			isa = PBXGroup;
 			children = (
 				B9C9560D2B64578B001C7E01 /* BuildInfoButtonStrings.swift */,
+				B94758262BCF8689001E4872 /* ContentPickerContentType.swift */,
 				B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */,
 				B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */,
 				B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */,
@@ -3433,6 +3471,7 @@
 				B9F47B2B2B5A072F00D86C67 /* Dependencies */,
 				B9F47B092B586E3500D86C67 /* Extensions */,
 				B98589B32B60514800E549C0 /* Models */,
+				B94758232BCF8641001E4872 /* Protocols */,
 				B9F47B282B5A070700D86C67 /* Services */,
 				B9F47AED2B57857B00D86C67 /* View Modifiers */,
 				B9F47AE22B576E3800D86C67 /* Views */,
@@ -3485,8 +3524,8 @@
 		B9F47AF02B585FAB00D86C67 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B96C12532BAE2E7F0063687C /* ContentPickerView */,
 				B9F47AFF2B5864D600D86C67 /* ConversationCellView */,
-				B96C12532BAE2E7F0063687C /* ImagePickerView */,
 				B9C0D2592B796AAC00119B85 /* RecipientBar */,
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
@@ -4179,6 +4218,7 @@
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
 				B9E1BBA12B315C7C00ADEA71 /* NetworkActivityView.swift in Sources */,
 				B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */,
+				B94758202BCF7A18001E4872 /* CameraPickerView+Coordinator.swift in Sources */,
 				B90249D22B57459700D62855 /* PermissionContentPageView.swift in Sources */,
 				B99195772B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift in Sources */,
 				B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */,
@@ -4290,6 +4330,7 @@
 				B93457072AABF9F200944602 /* Localization.swift in Sources */,
 				B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */,
 				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
+				B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */,
 				B9D0D93F2B03019E00078A93 /* String+CoreNetworkingExtensions.swift in Sources */,
 				B9E7D43D2AAC222600FAF2A9 /* Observable.swift in Sources */,
 				B98C3B9D2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift in Sources */,
@@ -4382,6 +4423,7 @@
 				B99195792B47C7D300BD5BBC /* SelectLanguagePageView.swift in Sources */,
 				B952B8F12B1527210043181F /* HostedTranslationServiceExceptions.swift in Sources */,
 				B9AF12522ACE4DAD0045C54C /* JSONDependencies.swift in Sources */,
+				B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */,
 				B9F5609E2B69A4AF009ABDD5 /* NotificationExtensionConstants.swift in Sources */,
 				B9E6D7DE2B1288B9000BC88D /* WelcomePageView.swift in Sources */,
 				B9EC04C92B79671E00A16700 /* SettingsContentPageView.swift in Sources */,
@@ -4497,8 +4539,10 @@
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
 				B9C6964F2B8961FC005F0BFE /* ChatInfoContentPageView.swift in Sources */,
 				B97DB5732AF45F6C002C2679 /* ToastViewModifier.swift in Sources */,
+				B94758272BCF8689001E4872 /* ContentPickerContentType.swift in Sources */,
 				B9EFBA162B2694C500624794 /* Array+CommonNetworkingExtensions.swift in Sources */,
 				B9E0E0F92B20EFDB00C14274 /* FirebaseStorageDependency.swift in Sources */,
+				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,
 				B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */,
 				B992BCD82A1594C4003BFF2E /* UserDefaults+CoreExtensions.swift in Sources */,
 				B95B29402B8D366100E930E2 /* Notification+CoreExtensions.swift in Sources */,
@@ -4529,8 +4573,8 @@
 				B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */,
 				B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */,
 				B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */,
-				B96C12552BAE2E910063687C /* ImagePickerView.swift in Sources */,
-				B96C12572BAE2F8B0063687C /* ImagePickerView+Coordinator.swift in Sources */,
+				B96C12552BAE2E910063687C /* PhotoPickerView.swift in Sources */,
+				B96C12572BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift in Sources */,
 				B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */,
 				B918222C2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift in Sources */,
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,

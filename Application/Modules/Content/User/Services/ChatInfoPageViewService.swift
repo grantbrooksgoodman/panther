@@ -19,9 +19,10 @@ public final class ChatInfoPageViewService: Cacheable {
     // MARK: - Types
 
     public enum MetadataChangeType {
-        case changePhoto
         case name(String)
         case removePhoto
+        case selectPhotoFromCamera
+        case selectPhotoFromLibrary
     }
 
     // MARK: - Dependencies
@@ -170,7 +171,7 @@ public final class ChatInfoPageViewService: Cacheable {
             actions.append(.init(title: "Remove photo", style: .destructive))
         }
 
-        let actionSheet: AKActionSheet = .init(actions: actions)
+        var actionSheet: AKActionSheet = .init(actions: actions)
 
         let actionID = await actionSheet.present()
         guard actionID != -1 else { return nil }
@@ -182,7 +183,25 @@ public final class ChatInfoPageViewService: Cacheable {
             }
 
         case actions[1].identifier:
-            return .changePhoto
+            actions = [
+                .init(title: "Take photo", style: .default),
+                .init(title: "Choose photo from library", style: .default),
+            ]
+
+            actionSheet = .init(message: "Change photo", actions: actions)
+
+            let actionID = await actionSheet.present()
+            guard actionID != -1 else { return nil }
+
+            switch actionID {
+            case actions[0].identifier:
+                return .selectPhotoFromCamera
+
+            case actions[1].identifier:
+                return .selectPhotoFromLibrary
+
+            default: ()
+            }
 
         case actions[2].identifier:
             return .removePhoto

@@ -1,8 +1,8 @@
 //
-//  ImagePickerView+Coordinator.swift
+//  CameraPickerView+Coordinator.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 22/03/2024.
+//  Created by Grant Brooks Goodman on 16/04/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -10,18 +10,16 @@
 import Foundation
 import UIKit
 
-public extension ImagePickerView {
+public extension CameraPickerView {
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         // MARK: - Properties
 
-        private let onDismiss: () -> Void
-        private let onSelection: (UIImage) -> Void
+        private let delegate: any ContentPicker<UIImage>
 
         // MARK: - Init
 
-        public init(onDismiss: @escaping () -> Void, onSelection: @escaping (UIImage) -> Void) {
-            self.onDismiss = onDismiss
-            self.onSelection = onSelection
+        public init(delegate: any ContentPicker<UIImage>) {
+            self.delegate = delegate
         }
 
         // MARK: - UIImagePickerControllerDelegate Conformance
@@ -30,14 +28,17 @@ public extension ImagePickerView {
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
-            if let image = info[.originalImage] as? UIImage {
-                onSelection(image)
+            guard let image = info[.originalImage] as? UIImage else {
+                delegate.dismiss(.init("Failed to get image data.", metadata: [self, #file, #function, #line]))
+                return
             }
-            onDismiss()
+
+            delegate.onSelection(image)
+            delegate.dismiss()
         }
 
         public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            onDismiss()
+            delegate.dismiss()
         }
     }
 }

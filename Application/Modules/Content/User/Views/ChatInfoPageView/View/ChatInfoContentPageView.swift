@@ -24,10 +24,17 @@ public struct ChatInfoContentPageView: View {
 
     // MARK: - Bindings
 
+    private var cameraPickerSheetBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPresentingCameraPickerSheet,
+            sendAction: { .isPresentingCameraPickerSheetChanged($0, nil) }
+        )
+    }
+
     private var imagePickerSheetBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPresentingImagePickerSheet,
-            sendAction: { .isPresentingImagePickerSheetChanged($0) }
+            sendAction: { .isPresentingImagePickerSheetChanged($0, nil) }
         )
     }
 
@@ -53,11 +60,18 @@ public struct ChatInfoContentPageView: View {
             }
             .accentColor(Color.accent)
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
-            .sheet(isPresented: imagePickerSheetBinding) {
-                ImagePickerView(.photoLibrary) { image in
+            .sheet(isPresented: cameraPickerSheetBinding) {
+                ContentPickerView<UIImage>(.camera) { image in
                     viewModel.send(.selectedImageChanged(image))
-                } onDismiss: {
-                    viewModel.send(.isPresentingImagePickerSheetChanged(false))
+                } onDismiss: { exception in
+                    viewModel.send(.isPresentingCameraPickerSheetChanged(false, exception))
+                }
+            }
+            .sheet(isPresented: imagePickerSheetBinding) {
+                ContentPickerView<UIImage>(.photoLibrary) { image in
+                    viewModel.send(.selectedImageChanged(image))
+                } onDismiss: { exception in
+                    viewModel.send(.isPresentingImagePickerSheetChanged(false, exception))
                 }
             }
         }
