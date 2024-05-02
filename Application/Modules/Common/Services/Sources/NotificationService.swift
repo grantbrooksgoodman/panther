@@ -20,7 +20,7 @@ public final class NotificationService {
     public enum BadgeNumberMutation {
         case decrement(by: Int = 1)
         case increment(by: Int = 1)
-        case set(to: Int = 0)
+        case set(to: Int)
     }
 
     // MARK: - Dependencies

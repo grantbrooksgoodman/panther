@@ -86,7 +86,7 @@ public struct CoreDatabase {
     /**
      Gets values on the server for a given path.
 
-     - Parameter paht: The server path at which to retrieve values.
+     - Parameter path: The server path at which to retrieve values.
      - Parameter timeout: An optional timeout `Duration` for the operation; defaults to 10 seconds.
      - Parameter completion: Returns the Firebase snapshot value.
      */

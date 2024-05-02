@@ -26,12 +26,12 @@ public final class SettingsPageViewService: Cacheable {
     @Dependency(\.build) private var build: Build
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -158,8 +158,27 @@ public final class SettingsPageViewService: Cacheable {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: defaultsKeysToKeep)
+            if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
+                Logger.log(exception)
+            }
 
+            if let currentUser,
+               let pushToken = services.notification.pushToken {
+                let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
+                let updateValueResult = await currentUser.updateValue(
+                    filteredPushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredPushTokens,
+                    forKey: .pushTokens
+                )
+
+                switch updateValueResult {
+                case let .failure(exception):
+                    Logger.log(exception)
+
+                default: ()
+                }
+            }
+
+            defaults.reset(keeping: defaultsKeysToKeep)
             navigationCoordinator.setPage(.onboarding(.welcome))
         }
     }
@@ -176,7 +195,7 @@ public final class SettingsPageViewService: Cacheable {
     public func developerModeListItems() -> [StaticListItem]? {
         func overrideLanguageCodeButtonTapped() {
             guard !akCore.languageCodeIsLocked else {
-                guard let currentUser = userSession.currentUser else { return }
+                guard let currentUser else { return }
                 let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
 
                 RuntimeStorage.remove(.overriddenLanguageCode)
@@ -199,7 +218,7 @@ public final class SettingsPageViewService: Cacheable {
         var items = [StaticListItem]()
 
         if build.developerModeEnabled,
-           let currentUser = userSession.currentUser,
+           let currentUser,
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
             let restoreLanguageCodeString = "\(Strings.restoreLanguageCodeButtonTextPrefix) \(languageName)"
@@ -235,7 +254,7 @@ public final class SettingsPageViewService: Cacheable {
             return .success(cachedValue)
         }
 
-        guard let currentUser = userSession.currentUser else {
+        guard let currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: [self, #file, #function, #line]
