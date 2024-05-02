@@ -163,7 +163,7 @@ public struct ChatPageViewControllerFactory {
         inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
 
         inputBar.sendButton
-            .onSelected { $0.transform = CGAffineTransform(
+            .onSelected { $0.transform = .init(
                 scaleX: Floats.sendButtonOnSelectedTransformScaleX,
                 y: Floats.sendButtonOnSelectedTransformScaleY
             ) }

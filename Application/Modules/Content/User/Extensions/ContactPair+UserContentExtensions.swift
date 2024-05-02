@@ -33,7 +33,6 @@ public extension ContactPair {
               firstNumberPair.users.count == 1,
               let firstUser = firstNumberPair.users.first,
               firstUser.id.isBlank,
-              firstUser.badgeNumber == 0,
               firstUser.conversationIDs == nil,
               firstUser.languageCode.isBlank,
               firstUser.phoneNumber.compiledNumberString.isBlank,
@@ -63,7 +62,6 @@ public extension ContactPair {
                     users: [
                         .init(
                             "",
-                            badgeNumber: 0,
                             conversationIDs: nil,
                             languageCode: "",
                             phoneNumber: .init(""),

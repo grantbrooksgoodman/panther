@@ -15,6 +15,14 @@ import UserNotifications
 import Redux
 
 public final class NotificationService {
+    // MARK: - Types
+
+    public enum BadgeNumberMutation {
+        case decrement(by: Int = 1)
+        case increment(by: Int = 1)
+        case set(to: Int = 0)
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
@@ -28,26 +36,29 @@ public final class NotificationService {
 
     public private(set) var pushToken: String?
 
-    // MARK: - Badge Number
+    // MARK: - Modify Badge Number
 
-    public func resetBadgeNumber() async -> Exception? {
-        do {
-            try await userNotificationCenter.setBadgeCount(0)
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+    public func modifyBadgeNumber(_ mutation: BadgeNumberMutation) async -> Exception? {
+        func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
+            do {
+                try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
+            } catch {
+                return .init(error, metadata: [self, #file, #function, #line])
+            }
+
+            return nil
         }
 
-        return nil
-    }
+        switch mutation {
+        case let .decrement(by: value):
+            return await setBadgeNumber(await uiApplication.applicationIconBadgeNumber - value)
 
-    public func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
-        do {
-            try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+        case let .increment(by: value):
+            return await setBadgeNumber(await uiApplication.applicationIconBadgeNumber + value)
+
+        case let .set(to: value):
+            return await setBadgeNumber(value)
         }
-
-        return nil
     }
 
     // MARK: - Notify Users of Message
@@ -78,24 +89,15 @@ public final class NotificationService {
                 }
             }
 
-            let incrementBadgeNumberResult = await incrementBadgeNumber(for: user)
-
-            switch incrementBadgeNumberResult {
-            case let .success(badgeNumber):
-                for pushToken in pushTokens {
-                    if let exception = await sendNotification(
-                        title: currentUser.phoneNumber.formattedString(),
-                        body: body ?? "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)",
-                        badgeNumber: badgeNumber,
-                        pushToken: pushToken,
-                        extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]
-                    ) {
-                        return exception.appending(extraParams: commonParams)
-                    }
+            for pushToken in pushTokens {
+                if let exception = await sendNotification(
+                    title: currentUser.phoneNumber.formattedString(),
+                    body: body ?? "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)",
+                    pushToken: pushToken,
+                    extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]
+                ) {
+                    return exception.appending(extraParams: commonParams)
                 }
-
-            case let .failure(exception):
-                return exception.appending(extraParams: commonParams)
             }
 
             return nil
@@ -121,12 +123,7 @@ public final class NotificationService {
             metadata: [self, #file, #function, #line]
         )
 
-        var badgeNumber = (userSession.currentUser?.badgeNumber ?? 0) + 1
-        if let notificationBadgeNumber = notification.request.content.badge as? Int {
-            badgeNumber = notificationBadgeNumber
-        }
-
-        if let exception = await setBadgeNumber(badgeNumber) {
+        if let exception = await modifyBadgeNumber(.increment()) {
             return .failure(exception)
         }
 
@@ -158,38 +155,9 @@ public final class NotificationService {
 
     // MARK: - Auxiliary
 
-    private func incrementBadgeNumber(for user: User) async -> Callback<Int, Exception> {
-        let keyPath = "\(networking.config.paths.users)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: keyPath)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let integer = values as? Int else {
-                return .failure(.init(
-                    "Failed to typecast values to integer.",
-                    metadata: [self, #file, #function, #line]
-                ))
-            }
-
-            let updateValueResult = await user.updateValue(integer + 1, forKey: .badgeNumber)
-
-            switch updateValueResult {
-            case let .success(user):
-                return .success(user.badgeNumber)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
     private func sendNotification(
         title: String,
         body: String,
-        badgeNumber: Int,
         pushToken: String,
         extraParams: [String: String]
     ) async -> Exception? {
@@ -201,11 +169,12 @@ public final class NotificationService {
             return await sendNotification(
                 title: title,
                 body: body,
-                badgeNumber: badgeNumber,
                 pushToken: pushToken,
                 extraParams: extraParams
             )
         }
+
+        // TODO: This needs to change to use an OAuth 2.0 credential by June 20th. Notifications will stop working.
 
         guard let url = URL(string: "https://fcm.googleapis.com/fcm/send") else {
             return .init(
@@ -221,11 +190,7 @@ public final class NotificationService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         var payload: [String: Any] = ["mutable_content": true, "to": pushToken]
-        payload["notification"] = [
-            "badge": badgeNumber,
-            "body": body,
-            "title": title,
-        ] as [String: Any]
+        payload["notification"] = ["body": body, "title": title]
         payload["data"] = extraParams
 
         do {

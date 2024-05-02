@@ -26,10 +26,29 @@ public final class User: Codable, Equatable {
     public let languageCode: String
 
     // Other
-    public let badgeNumber: Int
     public let phoneNumber: PhoneNumber
 
     // MARK: - Computed Properties
+
+    /// - Note: This property will return `0` for users other than the current user.
+    public var badgeNumber: Int {
+        get async {
+            func calculateBadgeNumber() async -> Int {
+                @Persistent(.currentUserID) var currentUserID: String?
+                guard id == currentUserID else { return 0 }
+
+                guard let conversations = conversations?.visibleForCurrentUser,
+                      conversations.allSatisfy({ $0.messages != nil }) else {
+                    _ = await conversations?.visibleForCurrentUser.setMessages()
+                    return await calculateBadgeNumber()
+                }
+
+                return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.readDate == nil }.count
+            }
+
+            return await calculateBadgeNumber()
+        }
+    }
 
     public var canSendAudioMessages: Bool {
         @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
@@ -40,14 +59,12 @@ public final class User: Codable, Equatable {
 
     public init(
         _ id: String,
-        badgeNumber: Int,
         conversationIDs: [ConversationID]?,
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id
-        self.badgeNumber = badgeNumber
         self.conversationIDs = conversationIDs
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
@@ -153,7 +170,6 @@ public final class User: Codable, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (left: User, right: User) -> Bool {
-        let sameBadgeNumber = left.badgeNumber == right.badgeNumber
         let sameConversationIDs = left.conversationIDs == right.conversationIDs
         let sameConversations = left.conversations == right.conversations
         let sameID = left.id == right.id
@@ -161,8 +177,7 @@ public final class User: Codable, Equatable {
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
         let samePushTokens = left.pushTokens == right.pushTokens
 
-        guard sameBadgeNumber,
-              sameConversationIDs,
+        guard sameConversationIDs,
               sameConversations,
               sameID,
               sameLanguageCode,

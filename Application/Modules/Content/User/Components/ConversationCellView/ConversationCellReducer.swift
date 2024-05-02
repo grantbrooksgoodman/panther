@@ -17,6 +17,7 @@ public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
@@ -35,7 +36,7 @@ public struct ConversationCellReducer: Reducer {
     public enum Feedback {
         case deleteConversationReturned(Exception?)
         case deletionActionSheetDismissed(cancelled: Bool)
-        case updateCurrentUserBadgeNumberReturned(Exception?)
+        case modifyBadgeNumberReturned(Exception?)
         case updateReadDateReturned(Callback<Conversation, Exception>)
     }
 
@@ -44,6 +45,7 @@ public struct ConversationCellReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        public var badgeDecrementAmount = 0
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
         @Localized(.delete) public var deleteConversationButtonText: String
@@ -103,7 +105,7 @@ public struct ConversationCellReducer: Reducer {
             let unreadMessages = messages.filter { $0.readDate == nil }
             guard !unreadMessages.isEmpty else { return .none }
 
-            viewService.setBadgeDecrementAmount(unreadMessages.count)
+            state.badgeDecrementAmount = unreadMessages.count
             clientSession.user.stopObservingCurrentUserChanges()
             return .task {
                 let result = await conversation.updateReadDate(for: unreadMessages)
@@ -138,23 +140,24 @@ public struct ConversationCellReducer: Reducer {
                 return .deleteConversationReturned(result)
             }
 
-        case let .feedback(.updateCurrentUserBadgeNumberReturned(exception)):
-            defer { viewService.setBadgeDecrementAmount(0) }
-            guard let exception,
-                  !exception.isEqual(to: .sameBadgeNumber) else { return .none }
+        case let .feedback(.modifyBadgeNumberReturned(exception)):
+            defer { state.badgeDecrementAmount = 0 }
+            guard let exception else { return .none }
             Logger.log(exception, with: .toast())
 
         case .feedback(.updateReadDateReturned(.success)):
             Logger.log(
-                "Updated read date for \(viewService.badgeDecrementAmount) message\(viewService.badgeDecrementAmount == 1 ? "" : "s").",
+                "Updated read date for \(state.badgeDecrementAmount) message\(state.badgeDecrementAmount == 1 ? "" : "s").",
                 domain: .conversation,
                 metadata: [self, #file, #function, #line]
             )
 
             clientSession.user.startObservingCurrentUserChanges()
+
+            let badgeDecrementAmount = state.badgeDecrementAmount
             return .task {
-                let result = await viewService.updateCurrentUserBadgeNumber()
-                return .updateCurrentUserBadgeNumberReturned(result)
+                let result = await notificationService.modifyBadgeNumber(.decrement(by: badgeDecrementAmount))
+                return .modifyBadgeNumberReturned(result)
             }
 
         case let .feedback(.updateReadDateReturned(.failure(exception))):

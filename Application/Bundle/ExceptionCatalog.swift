@@ -31,7 +31,6 @@ public enum AppException: String {
     case noUserWithHashes = "1181"
     case noUsersWithPhoneNumbers = "74AA"
     case noValueExists = "BE3A"
-    case sameBadgeNumber = "E1C7"
     case sameTranslationInputOutput = "6CEB"
     case storageItemDoesNotExist = "9207"
     case timedOut = "801F"

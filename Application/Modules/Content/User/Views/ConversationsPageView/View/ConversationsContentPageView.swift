@@ -108,7 +108,6 @@ public struct ConversationsContentPageView: View {
                 )
             }
             .tint(Color.accent)
-//            .disabled(!viewModel.isComposeToolbarButtonEnabled)
         }
     }
 
@@ -123,7 +122,6 @@ public struct ConversationsContentPageView: View {
                 )
             }
             .tint(Color.accent)
-//            .disabled(!viewModel.isSettingsToolbarButtonEnabled)
         }
     }
 }

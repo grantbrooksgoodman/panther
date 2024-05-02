@@ -68,7 +68,7 @@ public struct SplashPageViewService {
                 return exception
             }
 
-            if let exception = await services.notification.setBadgeNumber(currentUser.badgeNumber) {
+            if let exception = await services.notification.modifyBadgeNumber(.set(to: currentUser.badgeNumber)) {
                 return exception
             }
 

@@ -110,26 +110,6 @@ public final class UserSessionService {
                 return
             }
 
-            typealias Keys = User.SerializationKeys
-
-            if let updatedBadgeNumber = dictionary[Keys.badgeNumber.rawValue] as? Int,
-               currentUser.badgeNumber != updatedBadgeNumber {
-                Logger.log(
-                    "Updating current user badge number (\(currentUser.badgeNumber) to \(updatedBadgeNumber)).",
-                    domain: .userSession,
-                    metadata: [self, #file, #function, #line]
-                )
-
-                self.currentUser = .init(
-                    currentUser.id,
-                    badgeNumber: updatedBadgeNumber,
-                    conversationIDs: currentUser.conversationIDs,
-                    languageCode: currentUser.languageCode,
-                    phoneNumber: currentUser.phoneNumber,
-                    pushTokens: currentUser.pushTokens
-                )
-            }
-
             func updateCurrentUser() {
                 Task {
                     if let exception = await self.updateCurrentUser() {
@@ -138,7 +118,7 @@ public final class UserSessionService {
                 }
             }
 
-            guard let updatedConversationIDStrings = dictionary[Keys.conversationIDs.rawValue] as? [String] else { return }
+            guard let updatedConversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { return }
             guard let currentConversationIDStrings = currentUser.conversationIDs?.map(\.encoded) else {
                 updateCurrentUser()
                 return

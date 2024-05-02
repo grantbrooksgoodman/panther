@@ -82,7 +82,6 @@ public final class UserService: Cacheable {
 
         let mockUser: User = .init(
             id,
-            badgeNumber: 0,
             conversationIDs: nil,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
