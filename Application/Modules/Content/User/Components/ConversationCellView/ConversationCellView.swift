@@ -106,7 +106,6 @@ public struct ConversationCellView: View {
                                     UserInfoBadgeView(otherUser) {
                                         viewModel.send(.userInfoBadgeTapped)
                                     }
-                                    .disabled(viewModel.isPresentingUserInfoAlert)
                                 }
                             }
 

@@ -1477,80 +1477,80 @@
 		<string>ದೋಷವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ವರದಿ ಮಾಡಲಾಗಿದೆ</string>
 		<key>ko</key>
 		<string>오류가 성공적으로 보고되었습니다.</string>
-        <key>ky</key>
-        <string>Ката ийгиликтүү кабарланды</string>
-        <key>lt</key>
-        <string>Apie klaidą pranešta sėkmingai</string>
-        <key>mg</key>
-        <string>Nisy hadisoana notaterina soa aman-tsara</string>
-        <key>mi</key>
-        <string>I tutuki pai te hapa</string>
-        <key>mk</key>
-        <string>Успешно пријавена грешка</string>
-        <key>ml</key>
-        <string>പിശക് റിപ്പോർട്ട് ചെയ്തു</string>
-        <key>mn</key>
-        <string>Алдааг амжилттай мэдээлэв</string>
-        <key>mt</key>
-        <string>Żball irrappurtat b'suċċess</string>
-        <key>ne</key>
-        <string>त्रुटि सफलतापूर्वक रिपोर्ट गरियो</string>
-        <key>nl</key>
-        <string>Fout gerapporteerd</string>
-        <key>no</key>
-        <string>Feil rapportert</string>
-        <key>pa</key>
-        <string>ਗਲਤੀ ਸਫਲਤਾਪੂਰਵਕ ਰਿਪੋਰਟ ਕੀਤੀ ਗਈ</string>
-        <key>pl</key>
-        <string>Błąd został zgłoszony pomyślnie</string>
-        <key>pt</key>
-        <string>Erro relatado com sucesso</string>
-        <key>ro</key>
-        <string>Eroare raportată cu succes</string>
-        <key>ru</key>
-        <string>Ошибка зарегистрирована успешно</string>
-        <key>si</key>
-        <string>දෝෂය සාර්ථකව වාර්තා විය</string>
-        <key>sk</key>
-        <string>Chyba bola úspešne nahlásená</string>
-        <key>sl</key>
-        <string>Napaka je bila uspešno prijavljena</string>
-        <key>sq</key>
-        <string>Gabimi u raportua me sukses</string>
-        <key>sr</key>
-        <string>Грешка је успешно пријављена</string>
-        <key>su</key>
-        <string>Kasalahan dilaporkeun suksés</string>
-        <key>sv</key>
-        <string>Fel rapporterades framgångsrikt</string>
-        <key>sw</key>
-        <string>Hitilafu imeripotiwa</string>
-        <key>ta</key>
-        <string>பிழை வெற்றிகரமாகப் புகாரளிக்கப்பட்டது</string>
-        <key>te</key>
-        <string>లోపం విజయవంతంగా నివేదించబడింది</string>
-        <key>tg</key>
-        <string>Хатогӣ бомуваффақият гузориш дода шуд</string>
-        <key>th</key>
-        <string>รายงานข้อผิดพลาดเรียบร้อยแล้ว</string>
-        <key>tl</key>
-        <string>Matagumpay na naiulat ang error</string>
-        <key>tr</key>
-        <string>Hata başarıyla bildirildi</string>
-        <key>tt</key>
-        <string>Хата уңышлы хәбәр ителде</string>
-        <key>uk</key>
-        <string>Про помилку успішно повідомлено</string>
-        <key>ur</key>
-        <string>غلطی کی کامیابی کے ساتھ اطلاع دی گئی۔</string>
-        <key>uz</key>
-        <string>Xato haqida xabar berildi</string>
-        <key>vi</key>
-        <string>Đã báo lỗi thành công</string>
-        <key>yi</key>
-        <string>טעות געמאלדן הצלחה</string>
-        <key>zh</key>
-        <string>错误报告成功</string>
+		<key>ky</key>
+		<string>Ката ийгиликтүү кабарланды</string>
+		<key>lt</key>
+		<string>Apie klaidą pranešta sėkmingai</string>
+		<key>mg</key>
+		<string>Nisy hadisoana notaterina soa aman-tsara</string>
+		<key>mi</key>
+		<string>I tutuki pai te hapa</string>
+		<key>mk</key>
+		<string>Успешно пријавена грешка</string>
+		<key>ml</key>
+		<string>പിശക് റിപ്പോർട്ട് ചെയ്തു</string>
+		<key>mn</key>
+		<string>Алдааг амжилттай мэдээлэв</string>
+		<key>mt</key>
+		<string>Żball irrappurtat b&apos;suċċess</string>
+		<key>ne</key>
+		<string>त्रुटि सफलतापूर्वक रिपोर्ट गरियो</string>
+		<key>nl</key>
+		<string>Fout gerapporteerd</string>
+		<key>no</key>
+		<string>Feil rapportert</string>
+		<key>pa</key>
+		<string>ਗਲਤੀ ਸਫਲਤਾਪੂਰਵਕ ਰਿਪੋਰਟ ਕੀਤੀ ਗਈ</string>
+		<key>pl</key>
+		<string>Błąd został zgłoszony pomyślnie</string>
+		<key>pt</key>
+		<string>Erro relatado com sucesso</string>
+		<key>ro</key>
+		<string>Eroare raportată cu succes</string>
+		<key>ru</key>
+		<string>Ошибка зарегистрирована успешно</string>
+		<key>si</key>
+		<string>දෝෂය සාර්ථකව වාර්තා විය</string>
+		<key>sk</key>
+		<string>Chyba bola úspešne nahlásená</string>
+		<key>sl</key>
+		<string>Napaka je bila uspešno prijavljena</string>
+		<key>sq</key>
+		<string>Gabimi u raportua me sukses</string>
+		<key>sr</key>
+		<string>Грешка је успешно пријављена</string>
+		<key>su</key>
+		<string>Kasalahan dilaporkeun suksés</string>
+		<key>sv</key>
+		<string>Fel rapporterades framgångsrikt</string>
+		<key>sw</key>
+		<string>Hitilafu imeripotiwa</string>
+		<key>ta</key>
+		<string>பிழை வெற்றிகரமாகப் புகாரளிக்கப்பட்டது</string>
+		<key>te</key>
+		<string>లోపం విజయవంతంగా నివేదించబడింది</string>
+		<key>tg</key>
+		<string>Хатогӣ бомуваффақият гузориш дода шуд</string>
+		<key>th</key>
+		<string>รายงานข้อผิดพลาดเรียบร้อยแล้ว</string>
+		<key>tl</key>
+		<string>Matagumpay na naiulat ang error</string>
+		<key>tr</key>
+		<string>Hata başarıyla bildirildi</string>
+		<key>tt</key>
+		<string>Хата уңышлы хәбәр ителде</string>
+		<key>uk</key>
+		<string>Про помилку успішно повідомлено</string>
+		<key>ur</key>
+		<string>غلطی کی کامیابی کے ساتھ اطلاع دی گئی۔</string>
+		<key>uz</key>
+		<string>Xato haqida xabar berildi</string>
+		<key>vi</key>
+		<string>Đã báo lỗi thành công</string>
+		<key>yi</key>
+		<string>טעות געמאלדן הצלחה</string>
+		<key>zh</key>
+		<string>错误报告成功</string>
 	</dict>
 	<key>friday</key>
 	<dict>
@@ -2016,6 +2016,161 @@
 		<string>לאַדן</string>
 		<key>zh</key>
 		<string>邀请</string>
+	</dict>
+	<key>language</key>
+	<dict>
+		<key>af</key>
+		<string>Taal</string>
+		<key>ar</key>
+		<string>لغة</string>
+		<key>az</key>
+		<string>Dil</string>
+		<key>be</key>
+		<string>Мова</string>
+		<key>bg</key>
+		<string>Език</string>
+		<key>bn</key>
+		<string>ভাষা</string>
+		<key>bs</key>
+		<string>Jezik</string>
+		<key>ca</key>
+		<string>Llenguatge</string>
+		<key>cs</key>
+		<string>Jazyk</string>
+		<key>cy</key>
+		<string>Iaith</string>
+		<key>da</key>
+		<string>Sprog</string>
+		<key>de</key>
+		<string>Sprache</string>
+		<key>el</key>
+		<string>Γλώσσα</string>
+		<key>en</key>
+		<string>Language</string>
+		<key>eo</key>
+		<string>Lingvo</string>
+		<key>es</key>
+		<string>Idioma</string>
+		<key>et</key>
+		<string>Keel</string>
+		<key>eu</key>
+		<string>Hizkuntza</string>
+		<key>fa</key>
+		<string>زبان</string>
+		<key>fi</key>
+		<string>Kieli</string>
+		<key>fr</key>
+		<string>Langue</string>
+		<key>ga</key>
+		<string>Teanga</string>
+		<key>gd</key>
+		<string>Cànain</string>
+		<key>gl</key>
+		<string>Lingua</string>
+		<key>gu</key>
+		<string>ભાષા</string>
+		<key>he</key>
+		<string>שפה</string>
+		<key>hi</key>
+		<string>भाषा</string>
+		<key>hr</key>
+		<string>Jezik</string>
+		<key>ht</key>
+		<string>Lang</string>
+		<key>hu</key>
+		<string>Nyelv</string>
+		<key>hy</key>
+		<string>Լեզու</string>
+		<key>id</key>
+		<string>Bahasa</string>
+		<key>is</key>
+		<string>Tungumál</string>
+		<key>it</key>
+		<string>Lingua</string>
+		<key>ja</key>
+		<string>言語</string>
+		<key>ka</key>
+		<string>Ენა</string>
+		<key>kk</key>
+		<string>Тіл</string>
+		<key>kn</key>
+		<string>ಭಾಷೆ</string>
+		<key>ko</key>
+		<string>언어</string>
+		<key>ky</key>
+		<string>Тил</string>
+		<key>lt</key>
+		<string>Kalba</string>
+		<key>mg</key>
+		<string>Fiteny</string>
+		<key>mi</key>
+		<string>Reo</string>
+		<key>mk</key>
+		<string>Јазик</string>
+		<key>ml</key>
+		<string>ഭാഷ</string>
+		<key>mn</key>
+		<string>Хэл</string>
+		<key>mt</key>
+		<string>Lingwa</string>
+		<key>ne</key>
+		<string>भाषा</string>
+		<key>nl</key>
+		<string>Taal</string>
+		<key>no</key>
+		<string>Språk</string>
+		<key>pa</key>
+		<string>ਭਾਸ਼ਾ</string>
+		<key>pl</key>
+		<string>Język</string>
+		<key>pt</key>
+		<string>Linguagem</string>
+		<key>ro</key>
+		<string>Limba</string>
+		<key>ru</key>
+		<string>Язык</string>
+		<key>si</key>
+		<string>භාෂාව</string>
+		<key>sk</key>
+		<string>Jazyk</string>
+		<key>sl</key>
+		<string>Jezik</string>
+		<key>sq</key>
+		<string>Gjuhe</string>
+		<key>sr</key>
+		<string>Језик</string>
+		<key>su</key>
+		<string>Basa</string>
+		<key>sv</key>
+		<string>Språk</string>
+		<key>sw</key>
+		<string>Lugha</string>
+		<key>ta</key>
+		<string>மொழி</string>
+		<key>te</key>
+		<string>భాష</string>
+		<key>tg</key>
+		<string>Забон</string>
+		<key>th</key>
+		<string>ภาษา</string>
+		<key>tl</key>
+		<string>Wika</string>
+		<key>tr</key>
+		<string>Dil</string>
+		<key>tt</key>
+		<string>Тел</string>
+		<key>uk</key>
+		<string>Мова</string>
+		<key>ur</key>
+		<string>زبان</string>
+		<key>uz</key>
+		<string>Til</string>
+		<key>vi</key>
+		<string>Ngôn ngữ</string>
+		<key>yi</key>
+		<string>שפּראַך</string>
+		<key>zh</key>
+		<string>语言</string>
 	</dict>
 	<key>monday</key>
 	<dict>
@@ -4011,6 +4166,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>ריבילדינג ינדעקסיז ...</string>
 		<key>zh</key>
 		<string>重建索引...</string>
+	</dict>
+	<key>region</key>
+	<dict>
+		<key>af</key>
+		<string>Streek</string>
+		<key>ar</key>
+		<string>منطقة</string>
+		<key>az</key>
+		<string>Region</string>
+		<key>be</key>
+		<string>Рэгіён</string>
+		<key>bg</key>
+		<string>Регион</string>
+		<key>bn</key>
+		<string>অঞ্চল</string>
+		<key>bs</key>
+		<string>Region</string>
+		<key>ca</key>
+		<string>Regió</string>
+		<key>cs</key>
+		<string>Kraj</string>
+		<key>cy</key>
+		<string>Rhanbarth</string>
+		<key>da</key>
+		<string>Område</string>
+		<key>de</key>
+		<string>Region</string>
+		<key>el</key>
+		<string>Περιοχή</string>
+		<key>en</key>
+		<string>Region</string>
+		<key>eo</key>
+		<string>Regiono</string>
+		<key>es</key>
+		<string>Región</string>
+		<key>et</key>
+		<string>Piirkond</string>
+		<key>eu</key>
+		<string>Eskualdea</string>
+		<key>fa</key>
+		<string>منطقه</string>
+		<key>fi</key>
+		<string>Alue</string>
+		<key>fr</key>
+		<string>Région</string>
+		<key>ga</key>
+		<string>Réigiún</string>
+		<key>gd</key>
+		<string>Roinn</string>
+		<key>gl</key>
+		<string>Rexión</string>
+		<key>gu</key>
+		<string>પ્રદેશ</string>
+		<key>he</key>
+		<string>אזור</string>
+		<key>hi</key>
+		<string>क्षेत्र</string>
+		<key>hr</key>
+		<string>Regija</string>
+		<key>ht</key>
+		<string>Rejyon</string>
+		<key>hu</key>
+		<string>Vidék</string>
+		<key>hy</key>
+		<string>Տարածաշրջան</string>
+		<key>id</key>
+		<string>Wilayah</string>
+		<key>is</key>
+		<string>Svæði</string>
+		<key>it</key>
+		<string>Regione</string>
+		<key>ja</key>
+		<string>地域</string>
+		<key>ka</key>
+		<string>Რეგიონი</string>
+		<key>kk</key>
+		<string>Аймақ</string>
+		<key>kn</key>
+		<string>ಪ್ರದೇಶ</string>
+		<key>ko</key>
+		<string>지역</string>
+        <key>ky</key>
+        <string>Регион</string>
+        <key>lt</key>
+        <string>Regionas</string>
+        <key>mg</key>
+        <string>Region</string>
+        <key>mi</key>
+        <string>Rohe</string>
+        <key>mk</key>
+        <string>Регионот</string>
+        <key>ml</key>
+        <string>പ്രദേശം</string>
+        <key>mn</key>
+        <string>Бүс нутаг</string>
+        <key>mt</key>
+        <string>Reġjun</string>
+        <key>ne</key>
+        <string>क्षेत्र</string>
+        <key>nl</key>
+        <string>Regio</string>
+        <key>no</key>
+        <string>Region</string>
+        <key>pa</key>
+        <string>ਖੇਤਰ</string>
+        <key>pl</key>
+        <string>Region</string>
+        <key>pt</key>
+        <string>Região</string>
+        <key>ro</key>
+        <string>Regiune</string>
+        <key>ru</key>
+        <string>Область</string>
+        <key>si</key>
+        <string>කලාපයේ</string>
+        <key>sk</key>
+        <string>Región</string>
+        <key>sl</key>
+        <string>Regija</string>
+        <key>sq</key>
+        <string>Rajon</string>
+        <key>sr</key>
+        <string>Регион</string>
+        <key>su</key>
+        <string>Wewengkon</string>
+        <key>sv</key>
+        <string>Område</string>
+        <key>sw</key>
+        <string>Mkoa</string>
+        <key>ta</key>
+        <string>பிராந்தியம்</string>
+        <key>te</key>
+        <string>ప్రాంతం</string>
+        <key>tg</key>
+        <string>Вилоят</string>
+        <key>th</key>
+        <string>ภูมิภาค</string>
+        <key>tl</key>
+        <string>Rehiyon</string>
+        <key>tr</key>
+        <string>Bölge</string>
+        <key>tt</key>
+        <string>Төбәк</string>
+        <key>uk</key>
+        <string>Регіон</string>
+        <key>ur</key>
+        <string>علاقہ</string>
+        <key>uz</key>
+        <string>Mintaqa</string>
+        <key>vi</key>
+        <string>Vùng đất</string>
+        <key>yi</key>
+        <string>געגנט</string>
+        <key>zh</key>
+        <string>地区</string>
 	</dict>
 	<key>report_bug</key>
 	<dict>

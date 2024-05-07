@@ -15,7 +15,7 @@ import Redux
 public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
@@ -66,7 +66,9 @@ public struct WelcomePageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.viewState = .loading
-            coreUtilities.restoreDeviceLanguageCode()
+            core.utils.restoreDeviceLanguageCode()
+            core.ui.overrideUserInterfaceStyle(.unspecified)
+            ThemeService.setTheme(AppTheme.default.theme, checkStyle: false)
             onboardingService.flushValues()
 
             return .task {

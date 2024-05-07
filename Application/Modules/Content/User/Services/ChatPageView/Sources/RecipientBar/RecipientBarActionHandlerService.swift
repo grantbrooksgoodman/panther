@@ -114,11 +114,16 @@ public final class RecipientBarActionHandlerService {
             }
 
             guard !(contactPairArchive ?? []).isEmpty else {
-                if let exception = await services.contact.sync.syncContactPairArchive() {
+                let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
+                selectContactButton?.isEnabled = false
+
+                if let exception = await services.contact.sync.syncContactPairArchive(),
+                   !exception.isEqual(to: .mismatchedHashAndCallingCode) {
                     Logger.log(exception, with: .toast())
                 }
 
                 guard (contactPairArchive ?? []).isEmpty else {
+                    selectContactButton?.isEnabled = true
                     selectContactButtonTapped()
                     return
                 }
@@ -129,6 +134,7 @@ public final class RecipientBarActionHandlerService {
                     sender: chatPageViewService.recipientBar?.layout.selectContactButton
                 )
 
+                selectContactButton?.isEnabled = true
                 inviteAlert.present { actionID in
                     guard actionID != -1 else { return }
 

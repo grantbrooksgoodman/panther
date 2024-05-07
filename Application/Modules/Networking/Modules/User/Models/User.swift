@@ -35,7 +35,9 @@ public final class User: Codable, Equatable {
         get async {
             func calculateBadgeNumber() async -> Int {
                 @Persistent(.currentUserID) var currentUserID: String?
-                guard id == currentUserID else { return 0 }
+                guard id == currentUserID,
+                      let conversationIDs,
+                      !conversationIDs.isEmpty else { return 0 }
 
                 guard let conversations = conversations?.visibleForCurrentUser,
                       conversations.allSatisfy({ $0.messages != nil }) else {

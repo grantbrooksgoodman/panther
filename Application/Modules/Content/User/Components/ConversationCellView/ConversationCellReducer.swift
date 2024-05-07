@@ -49,7 +49,6 @@ public struct ConversationCellReducer: Reducer {
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
         @Localized(.delete) public var deleteConversationButtonText: String
-        public var isPresentingUserInfoAlert = false
 
         /* MARK: Computed Properties */
 
@@ -120,10 +119,7 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case .action(.userInfoBadgeTapped):
-            Logger.log(
-                "User info badge tapped.",
-                metadata: [self, #file, #function, #line]
-            )
+            viewService.presentUserInfoAlert(state.cellViewData)
 
         case let .feedback(.deleteConversationReturned(exception)):
             defer { clientSession.user.startObservingCurrentUserChanges() }
