@@ -13,16 +13,20 @@ import Foundation
 import AlertKit
 import Redux
 
-public struct SplashPageViewService {
+public final class SplashPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.userDefaults) private var defaults: UserDefaults
-    @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
+    @Dependency(\.networking.services) private var networkServices: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
+
+    // MARK: - Properties
+
+    private var didAttemptUserConversion = false
 
     // MARK: - Methods
 
@@ -32,7 +36,7 @@ public struct SplashPageViewService {
         /* MARK: AKCore Delegate Setup */
 
         akCore.register(reportDelegate: ErrorReportingService())
-        akCore.register(translationDelegate: hostedTranslationService)
+        akCore.register(translationDelegate: networkServices.translation)
 
         /* MARK: MetadataService Setup */
 
@@ -100,22 +104,35 @@ public struct SplashPageViewService {
 
     /// `.errorAlertDismissed`
     public func performRetryHandler() {
-        @Persistent(.didClearCaches) var didClearCaches: Bool?
-        guard !(didClearCaches ?? false) else { return }
-        didClearCaches = true
+        @Sendable
+        func clearCaches() {
+            coreUtilities.clearCaches()
+            coreUtilities.eraseDocumentsDirectory()
+            coreUtilities.eraseTemporaryDirectory()
 
-        coreUtilities.clearCaches()
-        coreUtilities.eraseDocumentsDirectory()
-        coreUtilities.eraseTemporaryDirectory()
+            defaults.reset(keeping: [
+                .app(.devModeService(.indicatesNetworkActivity)),
+                .core(.breadcrumbsCaptureEnabled),
+                .core(.breadcrumbsCapturesAllViews),
+                .core(.currentThemeID),
+                .core(.developerModeEnabled),
+                .core(.hidesBuildInfoOverlay),
+            ])
+        }
 
-        defaults.reset(keeping: [
-            .app(.devModeService(.indicatesNetworkActivity)),
-            .core(.breadcrumbsCaptureEnabled),
-            .core(.breadcrumbsCapturesAllViews),
-            .core(.currentThemeID),
-            .core(.developerModeEnabled),
-            .core(.hidesBuildInfoOverlay),
-        ])
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserID,
+              !didAttemptUserConversion else {
+            clearCaches()
+            return
+        }
+
+        didAttemptUserConversion = true
+        Task {
+            if let exception = await networkServices.user.legacy.convertUser(id: currentUserID) {
+                Logger.log(exception)
+            }
+        }
     }
 
     /// `.initializedBundle`

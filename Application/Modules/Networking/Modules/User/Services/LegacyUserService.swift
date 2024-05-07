@@ -20,8 +20,22 @@ public struct LegacyUserService {
 
     // MARK: - Methods
 
+    /// Converts the user with the given `id` to the Panther database schema and removes references to old conversations.
+    /// - Parameter id: The identifier of the user to be converted.
+    /// - Returns: An optional `Exception` describing the error encountered.
+    /// - Warning: This method will clear all open conversations for the legacy user associated with the provided ID.
     public func convertUser(id: String) async -> Exception? {
         let commonParams = ["UserID": id]
+
+        let getUserResult = await networking.services.user.getUser(id: id)
+
+        switch getUserResult {
+        case .success:
+            let exception = Exception("User does not need conversion to new schema.", metadata: [self, #file, #function, #line])
+            return exception.appending(extraParams: commonParams)
+
+        default: ()
+        }
 
         let userPath = "\(networking.config.paths.users)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
@@ -59,6 +73,13 @@ public struct LegacyUserService {
             }
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
+                return exception.appending(extraParams: commonParams)
+            }
+
+            if let exception = await networking.database.setValue(
+                Array.bangQualifiedEmpty,
+                forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
+            ) {
                 return exception.appending(extraParams: commonParams)
             }
 
