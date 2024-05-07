@@ -24,6 +24,10 @@ public struct ConversationsPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
+        case animationAmountChanged(CGFloat)
+        case isPresentingNewChatSheetChanged(Bool)
+        case isPresentingSettingsSheetChanged(Bool)
+
         case composeToolbarButtonTapped
         case settingsToolbarButtonTapped
 
@@ -31,9 +35,6 @@ public struct ConversationsPageReducer: Reducer {
         case traitCollectionChanged
         case updatedContactPairArchive
         case updatedCurrentUser
-
-        case isPresentingNewChatSheetChanged(Bool)
-        case isPresentingSettingsSheetChanged(Bool)
     }
 
     // MARK: - Feedback
@@ -65,6 +66,7 @@ public struct ConversationsPageReducer: Reducer {
         public var isPresentingSettingsSheet = false
 
         // Other
+        public var animationAmount: CGFloat = 1
         public var viewID = UUID()
         public var viewState: ViewState = .loading
 
@@ -103,6 +105,9 @@ public struct ConversationsPageReducer: Reducer {
                 let result = await translator.resolve(ConversationsPageViewStrings.self)
                 return .resolveReturned(result)
             }
+
+        case let .animationAmountChanged(animationAmount):
+            state.animationAmount = animationAmount
 
         case .composeToolbarButtonTapped:
             state.isPresentingNewChatSheet = true

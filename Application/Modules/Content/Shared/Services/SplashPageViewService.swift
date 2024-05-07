@@ -18,12 +18,16 @@ public struct SplashPageViewService {
 
     @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.build) private var build: Build
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.networking.services.translation) private var hostedTranslationService: HostedTranslationService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Methods
 
+    /// `.viewAppeared`,
+    /// `.errorAlertDismissed`
     public func initializeBundle() async -> Exception? {
         /* MARK: AKCore Delegate Setup */
 
@@ -94,6 +98,27 @@ public struct SplashPageViewService {
         }
     }
 
+    /// `.errorAlertDismissed`
+    public func performRetryHandler() {
+        @Persistent(.didClearCaches) var didClearCaches: Bool?
+        guard !(didClearCaches ?? false) else { return }
+        didClearCaches = true
+
+        coreUtilities.clearCaches()
+        coreUtilities.eraseDocumentsDirectory()
+        coreUtilities.eraseTemporaryDirectory()
+
+        defaults.reset(keeping: [
+            .app(.devModeService(.indicatesNetworkActivity)),
+            .core(.breadcrumbsCaptureEnabled),
+            .core(.breadcrumbsCapturesAllViews),
+            .core(.currentThemeID),
+            .core(.developerModeEnabled),
+            .core(.hidesBuildInfoOverlay),
+        ])
+    }
+
+    /// `.initializedBundle`
     /// - Returns: An integer describing the selected action ID.
     public func presentErrorAlert(_ exception: Exception) async -> Int {
         let akError = AKError(exception)

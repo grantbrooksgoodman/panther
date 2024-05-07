@@ -16,6 +16,7 @@ import Redux
 public struct ConversationsContentPageView: View {
     // MARK: - Constants Accessors
 
+    private typealias Floats = AppConstants.CGFloats.ConversationsPageView
     private typealias Strings = AppConstants.Strings.ConversationsPageView
 
     // MARK: - Properties
@@ -102,10 +103,27 @@ public struct ConversationsContentPageView: View {
             Button {
                 viewModel.send(.composeToolbarButtonTapped)
             } label: {
-                Label(
-                    Strings.composeToolbarButtonText,
-                    systemImage: Strings.composeToolbarButtonLabelImageSystemName
-                )
+                if viewModel.conversations.isEmpty {
+                    Label(
+                        Strings.composeToolbarButtonText,
+                        systemImage: Strings.composeToolbarButtonLabelImageSystemName
+                    )
+                    .scaleEffect(viewModel.animationAmount)
+                    .animation(
+                        .linear(duration: Floats.composeToolbarButtonAnimationDuration)
+                            .delay(Floats.composeToolbarButtonAnimationDelay)
+                            .repeatForever(autoreverses: true),
+                        value: viewModel.animationAmount
+                    )
+                    .onAppear {
+                        viewModel.send(.animationAmountChanged(Floats.composeToolbarButtonAnimationAmount))
+                    }
+                } else {
+                    Label(
+                        Strings.composeToolbarButtonText,
+                        systemImage: Strings.composeToolbarButtonLabelImageSystemName
+                    )
+                }
             }
             .tint(Color.accent)
         }

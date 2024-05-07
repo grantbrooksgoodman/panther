@@ -192,7 +192,7 @@ public final class RecipientBarContactSelectionUIService {
                 contactView.layer.borderColor = on ? UIColor(Colors.labelRepresentationColor).cgColor : self.contactViewSelectionColor.cgColor
 
                 guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
-                let redColor = UIColor(Colors.contactViewRedText) // FIXME: This should never happen anyway.
+                let redColor = UIColor(Colors.contactViewRedText) // NIT: This should never happen anyway.
                 contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
                 guard index < self.contactViews.count - 1 else { continue }
 

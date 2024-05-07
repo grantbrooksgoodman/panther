@@ -291,7 +291,6 @@
 		B9931B2F2B8D8D730042E07D /* Contact+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9931B2E2B8D8D730042E07D /* Contact+UserContentExtensions.swift */; };
 		B9931B312B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */; };
 		B995A45D2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */; };
-		B99652DD2AC525EA00C9CD69 /* Redux in Frameworks */ = {isa = PBXBuildFile; productRef = B99652DC2AC525EA00C9CD69 /* Redux */; };
 		B996C3242B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */; };
 		B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */; };
 		B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C8A2B201AA4008CE353 /* CommonServices.swift */; };
@@ -305,6 +304,7 @@
 		B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBF29E4C45000117D42 /* AppThemes.swift */; };
 		B99B1DC229E4C49C00117D42 /* UITheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DC129E4C49C00117D42 /* UITheme.swift */; };
 		B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DC729E4C4BD00117D42 /* UITheme+DataModels.swift */; };
+		B99D8F4F2BE9B41D00872AE9 /* Redux in Frameworks */ = {isa = PBXBuildFile; productRef = B99D8F4E2BE9B41D00872AE9 /* Redux */; };
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
@@ -981,7 +981,6 @@
 		B92646912B74663000E0F385 /* ChatPageViewController+UIEditMenuInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+UIEditMenuInteractionDelegate.swift"; sourceTree = "<group>"; };
 		B92646932B7466B000E0F385 /* MenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuService.swift; sourceTree = "<group>"; };
 		B928F3CD2B17FE5700006BFD /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataService.swift; sourceTree = "<group>"; };
-		B92949382AC525AD00BAF8C9 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+AVSpeechSynthesizerDelegate.swift"; sourceTree = "<group>"; };
 		B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuReducer.swift; sourceTree = "<group>"; };
@@ -1009,7 +1008,6 @@
 		B93CAEAD2AF4623700C03BF4 /* Toast+AppearanceEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Toast+AppearanceEdge.swift"; sourceTree = "<group>"; };
 		B93CAEAF2AF4624000C03BF4 /* Toast+ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Toast+ColorPalette.swift"; sourceTree = "<group>"; };
 		B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnFirstAppearViewModifier.swift; sourceTree = "<group>"; };
-		B941496A2A4F7A8F0097DAE5 /* Redux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Redux; path = ../../XCFrameworks/Redux; sourceTree = "<group>"; };
 		B943885E2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorProtocol.swift; sourceTree = "<group>"; };
 		B94388632B3210A7002D94FF /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
 		B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+NetworkActivityView.swift"; sourceTree = "<group>"; };
@@ -1612,8 +1610,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9DAD8ED2BA95E7C00AAAA03 /* AlertKit.xcframework in Frameworks */,
-				B99652DD2AC525EA00C9CD69 /* Redux in Frameworks */,
 				2A96538A96662BA1D41A40A5 /* Pods_Panther.framework in Frameworks */,
+				B99D8F4F2BE9B41D00872AE9 /* Redux in Frameworks */,
 				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 				B966B86B2B703DC800215555 /* Translator.xcframework in Frameworks */,
 			);
@@ -1653,7 +1651,6 @@
 			children = (
 				A2DF2C5328199B660089DEA1 /* Application */,
 				B9F5608F2B69A465009ABDD5 /* NotificationExtension */,
-				B94149692A4F7A8F0097DAE5 /* Packages */,
 				A2DF2C5228199B660089DEA1 /* Products */,
 				A286879128A49DA600A34912 /* Frameworks */,
 				B715D9B1ECFB89E634B86164 /* Pods */,
@@ -1994,15 +1991,6 @@
 				B93CAEA62AF4620700C03BF4 /* Toast+Type.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		B94149692A4F7A8F0097DAE5 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				B941496A2A4F7A8F0097DAE5 /* Redux */,
-				B92949382AC525AD00BAF8C9 /* Redux */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		B94388612B32104B002D94FF /* Shared */ = {
@@ -3662,8 +3650,8 @@
 			);
 			name = Panther;
 			packageProductDependencies = (
-				B99652DC2AC525EA00C9CD69 /* Redux */,
 				B90C91042B69C95B008DFE59 /* MessageKit */,
+				B99D8F4E2BE9B41D00872AE9 /* Redux */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Panther.app */;
@@ -5054,7 +5042,7 @@
 			package = B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
 		};
-		B99652DC2AC525EA00C9CD69 /* Redux */ = {
+		B99D8F4E2BE9B41D00872AE9 /* Redux */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Redux;
 		};

@@ -94,7 +94,7 @@ public struct ConversationCellReducer: Reducer {
             RootSheets.present(.chatInfoPageView)
 
         case .action(.chatPageViewAppeared):
-            // TODO: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
+            // NIT: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
             let conversation = state.conversation
 
             guard let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),

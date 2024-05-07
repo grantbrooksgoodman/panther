@@ -68,6 +68,7 @@ public struct SplashPageReducer: Reducer {
 
         case let .feedback(.errorAlertDismissed(actionID)):
             guard actionID == -1 else { return .none }
+            viewService.performRetryHandler()
             return .task {
                 let result = await viewService.initializeBundle()
                 return .initializedBundle(result)

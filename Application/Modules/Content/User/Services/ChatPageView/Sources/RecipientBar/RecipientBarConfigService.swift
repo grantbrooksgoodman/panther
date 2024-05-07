@@ -101,7 +101,7 @@ public final class RecipientBarConfigService {
             let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
             let users = contactSelectionUIService.selectedContactPairs.map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
 
-            // FIXME: Observed bugs with this disabled, but iMessage does it this way.
+            // NIT: Observed bugs with this disabled, but iMessage does it this way.
 //            viewController.messageInputBar.inputTextView.text = ""
             _ = await chatPageViewService.inputBar?.textViewDidChange(to: "")
 

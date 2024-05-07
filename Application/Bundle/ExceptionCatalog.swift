@@ -35,7 +35,7 @@ public enum AppException: String {
     case storageItemDoesNotExist = "9207"
     case timedOut = "801F"
 
-    // FIXME: All of the below need regeneration.
+    // TODO: All of the below need regeneration.
 
     case avFoundationError = "EA73"
     case couldntRemoveInput = "F9A1"
