@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1715123790</string>
+	<string>1715189977</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleReleaseVersion</key>
-	<string>7730</string>
+	<string>7783</string>
 	<key>CFBundleShortReleaseVersionString</key>
 	<string>2.0.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.51.154</string>
+	<string>2.0.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -34,23 +34,23 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>19433</string>
+	<string>19486</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>IsReleaseBuild</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Hello needs access to your camera to select an image for group chats.</string>
+	<string>Hello needs access to your camera to select an image for group chats. Your image data is never shared with anyone but the chat participants.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Hello needs access to your contacts to find friends with accounts. Your contacts' information never leaves your device.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Hello needs access to your microphone for speech recognition.</string>
+	<string>Hello needs access to your microphone for audio messages. Your audio data is never shared with anyone but the message recipients.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Hello needs access to your photo library to select images for group chats.</string>
+	<string>Hello needs access to your photo library to select images for group chats. Your image data is never shared with anyone but the chat participants.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Hello needs access to your microphone for speech recognition.</string>
+	<string>Hello needs access to your microphone for audio messages. Your audio data is never shared with anyone but the message recipients.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>San Francisco (Bold Italic).otf</string>

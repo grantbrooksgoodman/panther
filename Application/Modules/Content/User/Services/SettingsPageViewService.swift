@@ -26,12 +26,12 @@ public final class SettingsPageViewService: Cacheable {
     @Dependency(\.build) private var build: Build
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -40,6 +40,7 @@ public final class SettingsPageViewService: Cacheable {
 
     private var defaultsKeysToKeep: [UserDefaultsKeyDomain] {
         [
+            .app(.coreNetworking(.networkEnvironment)),
             .app(.devModeService(.indicatesNetworkActivity)),
             .core(.breadcrumbsCaptureEnabled),
             .core(.breadcrumbsCapturesAllViews),
@@ -132,6 +133,55 @@ public final class SettingsPageViewService: Cacheable {
         }
     }
 
+    public func deleteAccountButtonTapped() {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserID else { return }
+
+        let confirmationAlert: AKConfirmationAlert = .init(
+            title: "Delete Account", // swiftlint:disable:next line_length
+            message: "Are you sure you'd like to delete your account? All user data will be deleted.\n\nIf you wish to continue using *\(build.finalName)*, you will need to create a new account.\n\nAn app restart is required for this process to complete.",
+            confirmationStyle: .destructivePreferred
+        )
+
+        Task {
+            let didConfirm = await confirmationAlert.present()
+            guard didConfirm == 1 else { return }
+
+            let actionSheet: AKActionSheet = .init(actions: [.init(title: "Delete Account", style: .destructivePreferred)])
+            let actionID = await actionSheet.present()
+            guard actionID != -1 else { return }
+
+            await uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+
+            if let exception = await userSession.deleteUserAccount(currentUserID) {
+                await uiApplication.keyWindow?.removeOverlay()
+                Logger.log(exception, with: .toast())
+                return
+            }
+
+            let alert = AKAlert(
+                message: "Your account has been deleted. You must now restart the app.",
+                actions: [.init(title: "Exit", style: .destructivePreferred)],
+                showsCancelButton: false
+            )
+
+            await uiApplication.keyWindow?.removeOverlay()
+            _ = await alert.present()
+
+            if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
+                Logger.log(exception)
+            }
+
+            core.utils.clearCaches()
+            core.utils.eraseDocumentsDirectory()
+            core.utils.eraseTemporaryDirectory()
+
+            defaults.reset(keeping: defaultsKeysToKeep)
+
+            exit(0)
+        }
+    }
+
     public func inviteFriendsButtonTapped() async -> Exception? {
         await services.invite.presentInvitationPrompt()
     }
@@ -162,7 +212,7 @@ public final class SettingsPageViewService: Cacheable {
                 Logger.log(exception)
             }
 
-            if let currentUser,
+            if let currentUser = userSession.currentUser,
                let pushToken = services.notification.pushToken {
                 let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
                 let updateValueResult = await currentUser.updateValue(
@@ -195,7 +245,7 @@ public final class SettingsPageViewService: Cacheable {
     public func developerModeListItems() -> [StaticListItem]? {
         func overrideLanguageCodeButtonTapped() {
             guard !akCore.languageCodeIsLocked else {
-                guard let currentUser else { return }
+                guard let currentUser = userSession.currentUser else { return }
                 let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
 
                 RuntimeStorage.remove(.overriddenLanguageCode)
@@ -218,7 +268,7 @@ public final class SettingsPageViewService: Cacheable {
         var items = [StaticListItem]()
 
         if build.developerModeEnabled,
-           let currentUser,
+           let currentUser = userSession.currentUser,
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
             let restoreLanguageCodeString = "\(Strings.restoreLanguageCodeButtonTextPrefix) \(languageName)"
@@ -254,7 +304,7 @@ public final class SettingsPageViewService: Cacheable {
             return .success(cachedValue)
         }
 
-        guard let currentUser else {
+        guard let currentUser = userSession.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: [self, #file, #function, #line]

@@ -9,11 +9,14 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import Redux
+
 public enum BuildConfig {
     // MARK: - Flags
 
-    public static let loggingEnabled = true
-    public static let timebombActive = true
+    public static let loggingEnabled = false
+    public static let timebombActive = false
 
     // MARK: - Names
 
@@ -24,7 +27,7 @@ public enum BuildConfig {
 
     public static let appStoreReleaseVersion = 2
     public static let dmyFirstCompileDateString = "11112023"
-    public static let stage: Build.Stage = .releaseCandidate
+    public static let stage: Build.Stage = .generalRelease
 
     // MARK: - Other
 
@@ -41,5 +44,10 @@ public enum BuildConfig {
         .user,
         .userSession,
     ]
-    public static let networkEnvironment: NetworkEnvironment = .development
+
+    public static var networkEnvironment: NetworkEnvironment {
+        @Persistent(.networkEnvironment) var networkEnvironment: NetworkEnvironment?
+        networkEnvironment = networkEnvironment ?? .production
+        return networkEnvironment ?? .production
+    }
 }

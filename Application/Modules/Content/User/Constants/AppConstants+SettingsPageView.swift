@@ -36,7 +36,8 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum SettingsPageView {
         public static let changeThemeButtonImageForeground: Color = .purple
-        public static let clearCachesButtonImageForeground: Color = .orange
+        public static let clearCachesButtonImageForeground: Color = .mint
+        public static let deleteAccountButtonImageForeground: Color = .orange
         public static let inviteFriendsButtonImageForeground: Color = .blue
         public static let leaveReviewButtonImageForeground: Color = .yellow // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageForeground: Color = .mint
@@ -55,7 +56,8 @@ public extension AppConstants.Strings {
         public static let buildInfoButtonLightBackgroundImageSystemName = "NT (Black).png"
 
         public static let changeThemeButtonImageSystemName = "eye.square.fill"
-        public static let clearCachesButtonImageSystemName = "trash.square.fill"
+        public static let clearCachesButtonImageSystemName = "command.square.fill"
+        public static let deleteAccountButtonImageSystemName = "trash.square.fill"
         public static let inviteFriendsButtonImageSystemName = "location.square.fill"
         public static let leaveReviewButtonImageSystemName = "star.square.fill" // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageSystemName = "square.text.square.fill"

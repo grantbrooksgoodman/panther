@@ -35,7 +35,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
         guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: { $0.isMock }) || textField.isFirstResponder else { return true }
 
-        recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "")
+        recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "", makeInputBarFirstResponder: false)
         typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
         coreGCD.after(.milliseconds(Floats.setSendButtonIsEnabledDelayMilliseconds)) {
             inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)

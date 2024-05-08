@@ -111,6 +111,7 @@ public final class SplashPageViewService {
             coreUtilities.eraseTemporaryDirectory()
 
             defaults.reset(keeping: [
+                .app(.coreNetworking(.networkEnvironment)),
                 .app(.devModeService(.indicatesNetworkActivity)),
                 .core(.breadcrumbsCaptureEnabled),
                 .core(.breadcrumbsCapturesAllViews),

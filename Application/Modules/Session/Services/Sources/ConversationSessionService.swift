@@ -302,15 +302,17 @@ public final class ConversationSessionService {
 
     // MARK: - Deletion
 
-    public func deleteConversation(_ conversation: Conversation) async -> Exception? {
-        guard conversation.participants
-            .filter({ $0.userID != currentUserID })
-            .allSatisfy(\.hasDeletedConversation) else {
-            guard let currentUserID else {
-                return .init("No current user ID.", metadata: [self, #file, #function, #line])
-            }
+    public func deleteConversation(_ conversation: Conversation, forced: Bool = false) async -> Exception? {
+        if !forced {
+            guard conversation.participants
+                .filter({ $0.userID != currentUserID })
+                .allSatisfy(\.hasDeletedConversation) else {
+                guard let currentUserID else {
+                    return .init("No current user ID.", metadata: [self, #file, #function, #line])
+                }
 
-            return await hideConversation(conversation, forUser: currentUserID)
+                return await hideConversation(conversation, forUser: currentUserID)
+            }
         }
 
         if let exception = await removeConversationFromUsers(

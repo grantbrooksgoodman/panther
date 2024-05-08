@@ -32,6 +32,7 @@ public struct SettingsPageReducer: Reducer {
 
         case changeThemeButtonTapped
         case clearCachesButtonTapped
+        case deleteAccountButtonTapped
         case inviteFriendsButtonTapped
         case leaveReviewButtonTapped
         case sendFeedbackButtonTapped
@@ -183,6 +184,9 @@ public struct SettingsPageReducer: Reducer {
 
         case .clearCachesButtonTapped:
             viewService.clearCachesButtonTapped()
+
+        case .deleteAccountButtonTapped:
+            viewService.deleteAccountButtonTapped()
 
         case .doneToolbarButtonTapped:
             state.isPresented.wrappedValue = false

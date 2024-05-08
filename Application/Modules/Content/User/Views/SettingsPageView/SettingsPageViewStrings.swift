@@ -15,6 +15,7 @@ public extension TranslatedLabelStringCollection {
 
         case changeThemeButtonText = "Change Theme"
         case clearCachesButtonText = "Clear Caches"
+        case deleteAccountButtonText = "Delete Account"
         case inviteFriendsButtonText = "Invite Friends"
         case leaveAReviewButtonText = "Leave a Review"
         case signOutButtonText = "Sign Out"

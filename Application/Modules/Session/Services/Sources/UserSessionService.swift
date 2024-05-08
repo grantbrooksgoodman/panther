@@ -13,10 +13,12 @@ import Foundation
 import FirebaseDatabase
 import Redux
 
+// swiftlint:disable:next type_body_length
 public final class UserSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.networking) private var networking: Networking
@@ -158,6 +160,81 @@ public final class UserSessionService {
 
         currentUserDatabaseReference.removeAllObservers()
         return nil
+    }
+
+    // MARK: - Delete User Account
+
+    public func deleteUserAccount(_ id: String) async -> Exception? {
+        func deleteUser() async -> Exception? {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(networking.config.paths.users)/\(id)") {
+                return exception
+            }
+
+            let getValuesResult = await networking.database.getValues(at: networking.config.paths.deletedUsers)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard var array = values as? [String] else {
+                    return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
+                }
+
+                array.append(id)
+                array = array.filter { $0 != .bangQualifiedEmpty }.unique
+
+                if let exception = await networking.database.setValue(array, forKey: networking.config.paths.deletedUsers) {
+                    return exception
+                }
+
+                return nil
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        let getUserResult = await networking.services.user.getUser(id: id)
+
+        switch getUserResult {
+        case let .success(user):
+            let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(user.phoneNumber.nationalNumberString.digits.encodedHash)"
+            let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard var array = values as? [String] else {
+                    return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
+                }
+
+                array = array.filter { $0 != id }.unique
+
+                if let exception = await networking.database.setValue(
+                    array.isBangQualifiedEmpty ? NSNull() : array,
+                    forKey: userNumberHashesPath
+                ) {
+                    return exception
+                }
+
+            case let .failure(exception):
+                return exception
+            }
+
+            if let exception = await user.setConversations() {
+                return exception
+            }
+
+            guard let conversations = user.conversations else { return await deleteUser() }
+
+            for conversation in conversations {
+                if let exception = await conversationSession.deleteConversation(conversation, forced: true) {
+                    return exception
+                }
+            }
+
+            return await deleteUser()
+
+        case let .failure(exception):
+            return exception
+        }
     }
 
     // MARK: - Get Users for Conversation

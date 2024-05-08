@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A2DF2C5028199B660089DEA1"
-               BuildableName = "Panther.app"
-               BlueprintName = "Panther"
+               BuildableName = "Hello.app"
+               BlueprintName = "Hello"
                ReferencedContainer = "container:Panther.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A2DF2C5028199B660089DEA1"
-            BuildableName = "Panther.app"
-            BlueprintName = "Panther"
+            BuildableName = "Hello.app"
+            BlueprintName = "Hello"
             ReferencedContainer = "container:Panther.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -69,8 +69,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A2DF2C5028199B660089DEA1"
-            BuildableName = "Panther.app"
-            BlueprintName = "Panther"
+            BuildableName = "Hello.app"
+            BlueprintName = "Hello"
             ReferencedContainer = "container:Panther.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

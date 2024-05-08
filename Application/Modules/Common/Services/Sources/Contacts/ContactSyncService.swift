@@ -142,6 +142,7 @@ public struct ContactSyncService {
                     services.contact.contactPairArchive.removeValue(userNumberHashes: possibleHashes)
 
                     if !exception.isEqual(toAny: [
+                        .mismatchedHashAndCallingCode,
                         .noUsersWithPhoneNumbers,
                         .noUserWithHashes,
                         .noValueExists,

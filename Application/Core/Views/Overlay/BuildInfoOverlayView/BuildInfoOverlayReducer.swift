@@ -51,6 +51,22 @@ public struct BuildInfoOverlayReducer: Reducer {
         public var isDeveloperModeEnabled = false
         public var yOffset: CGFloat
 
+        /* MARK: Computed Properties */
+
+        public var networkEnvironmentBasedIndicatorDotColor: Color {
+            @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
+            switch networkEnvironment {
+            case .development:
+                return .green
+
+            case .production:
+                return .red
+
+            case .staging:
+                return .orange
+            }
+        }
+
         /* MARK: Init */
 
         public init(_ yOffset: CGFloat = 0) {
@@ -68,6 +84,7 @@ public struct BuildInfoOverlayReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             state.buildInfoButtonText = "\(build.codeName) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString))"
+            state.developerModeIndicatorDotColor = state.networkEnvironmentBasedIndicatorDotColor
 
             @Persistent(.developerModeEnabled) var defaultsValue: Bool?
             guard let defaultsValue else { return .none }
@@ -93,7 +110,7 @@ public struct BuildInfoOverlayReducer: Reducer {
             viewService.sendFeedbackButtonTapped()
 
         case .feedback(.restoreIndicatorColor):
-            state.developerModeIndicatorDotColor = .orange
+            state.developerModeIndicatorDotColor = state.networkEnvironmentBasedIndicatorDotColor
         }
 
         return .none

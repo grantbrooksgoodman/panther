@@ -19,6 +19,7 @@ public struct NetworkPaths {
         case audioMessageInputs
         case audioTranslations
         case conversations
+        case deletedUsers
         case messages
         case shared
         case translations
@@ -31,6 +32,7 @@ public struct NetworkPaths {
     public let audioMessageInputs = Path.audioMessageInputs.rawValue
     public let audioTranslations = Path.audioTranslations.rawValue
     public let conversations = Path.conversations.rawValue
+    public let deletedUsers = Path.deletedUsers.rawValue
     public let messages = Path.messages.rawValue
     public let shared = Path.shared.rawValue
     public let translations = Path.translations.rawValue

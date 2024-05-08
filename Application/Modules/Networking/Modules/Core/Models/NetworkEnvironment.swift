@@ -8,7 +8,7 @@
 /* Native */
 import Foundation
 
-public enum NetworkEnvironment: String {
+public enum NetworkEnvironment: String, Codable {
     // MARK: - Cases
 
     case development

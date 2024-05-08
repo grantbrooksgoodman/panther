@@ -138,6 +138,7 @@ public struct SettingsContentPageView: View {
             [
                 changeThemeListItem,
                 sendFeedbackListItem,
+                clearCachesListItem,
             ]
         )
         .padding(.bottom, Floats.staticListViewBottomPadding)
@@ -145,7 +146,7 @@ public struct SettingsContentPageView: View {
 
         StaticListView(
             [
-                clearCachesListItem,
+                deleteAccountListItem,
                 signOutListItem,
             ]
         )

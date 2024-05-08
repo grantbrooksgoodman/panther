@@ -120,6 +120,7 @@ public extension DevModeService {
                 eraseDocumentsDirectoryAction,
                 eraseTemporaryDirectoryAction,
                 setCurrentUserIDAction,
+                switchEnvironmentAction,
                 toggleNetworkActivityIndicatorAction,
                 destroyConversationDatabaseAction,
                 resetPushTokensAction,
@@ -251,6 +252,84 @@ public extension DevModeService {
         }
 
         return .init(title: "Set Current User ID", perform: setCurrentUserID)
+    }
+
+    static var switchEnvironmentAction: DevModeAction {
+        func switchEnvironment() {
+            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            @Dependency(\.userDefaults) var defaults: UserDefaults
+            @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
+
+            var actions = [AKAction]()
+            switch networkEnvironment {
+            case .development:
+                actions = [
+                    .init(title: "Switch to Production", style: .destructive),
+                    .init(title: "Switch to Staging", style: .default),
+                ]
+
+            case .production:
+                actions = [
+                    .init(title: "Switch to Development", style: .default),
+                    .init(title: "Switch to Staging", style: .default),
+                ]
+
+            case .staging:
+                actions = [
+                    .init(title: "Switch to Development", style: .default),
+                    .init(title: "Switch to Production", style: .destructive),
+                ]
+            }
+
+            let actionSheet: AKActionSheet = .init(
+                message: "Switch from \(networkEnvironment.description) Environment",
+                actions: actions,
+                shouldTranslate: [.none]
+            )
+
+            actionSheet.present { actionID in
+                guard actionID != -1 else { return }
+                @Persistent(.networkEnvironment) var persistentEnvironment: NetworkEnvironment?
+
+                switch networkEnvironment {
+                case .development:
+                    persistentEnvironment = actionID == actions[0].identifier ? .production : .staging
+
+                case .production:
+                    persistentEnvironment = actionID == actions[0].identifier ? .development : .staging
+
+                case .staging:
+                    persistentEnvironment = actionID == actions[0].identifier ? .development : .production
+                }
+
+                coreUtilities.clearCaches()
+                coreUtilities.eraseDocumentsDirectory()
+                coreUtilities.eraseTemporaryDirectory()
+
+                defaults.reset(keeping: [
+                    .app(.coreNetworking(.networkEnvironment)),
+                    .app(.devModeService(.indicatesNetworkActivity)),
+                    .core(.breadcrumbsCaptureEnabled),
+                    .core(.breadcrumbsCapturesAllViews),
+                    .core(.currentThemeID),
+                    .core(.developerModeEnabled),
+                    .core(.hidesBuildInfoOverlay),
+                ])
+
+                let environmentString = (persistentEnvironment ?? .production).description
+
+                AKAlert(
+                    message: "Switched to \(environmentString) environment. You must now restart the app.",
+                    actions: [.init(title: "Exit", style: .destructivePreferred)],
+                    showsCancelButton: false,
+                    shouldTranslate: [.none]
+                ).present { _ in
+                    exit(0)
+                }
+            }
+        }
+
+        return .init(title: "Switch Environment", perform: switchEnvironment)
     }
 
     static var toggleNetworkActivityIndicatorAction: DevModeAction {

@@ -34,6 +34,14 @@ public extension SettingsContentPageView {
         )
     }
 
+    var deleteAccountListItem: StaticListItem {
+        .init(
+            title: viewModel.strings.value(for: .deleteAccountButtonText),
+            imageData: (.init(systemName: Strings.deleteAccountButtonImageSystemName), Colors.deleteAccountButtonImageForeground),
+            action: { viewModel.send(.deleteAccountButtonTapped) }
+        )
+    }
+
     var inviteFriendsListItem: StaticListItem {
         .init(
             title: viewModel.strings.value(for: .inviteFriendsButtonText),
