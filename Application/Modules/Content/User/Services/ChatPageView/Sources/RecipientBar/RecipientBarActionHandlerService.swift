@@ -86,7 +86,8 @@ public final class RecipientBarActionHandlerService {
                 }
             }
 
-            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+            let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
+            selectContactButton?.isEnabled = true
 
             guard services.permission.contactPermissionStatus == .granted else {
                 let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
@@ -113,8 +114,9 @@ public final class RecipientBarActionHandlerService {
                 return
             }
 
+            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+
             guard !(contactPairArchive ?? []).isEmpty else {
-                let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
                 selectContactButton?.isEnabled = false
 
                 if let exception = await services.contact.sync.syncContactPairArchive(),
@@ -123,7 +125,6 @@ public final class RecipientBarActionHandlerService {
                 }
 
                 guard (contactPairArchive ?? []).isEmpty else {
-                    selectContactButton?.isEnabled = true
                     selectContactButtonTapped()
                     return
                 }

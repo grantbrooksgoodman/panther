@@ -164,7 +164,7 @@ public final class MessageDeliveryService {
     ) {
         assert(audioFile != nil || text != nil, "No values provided.")
 
-        guard let conversation = clientSession.conversation.currentConversation,
+        guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else { return }
 
         var messages = conversation.messages ?? []
@@ -213,7 +213,7 @@ public final class MessageDeliveryService {
             users: conversation.users
         )
 
-        if let currentConversation = clientSession.conversation.currentConversation,
+        if let currentConversation = clientSession.conversation.fullConversation,
            !currentConversation.isMock {
             guard currentConversation.id.key == conversation.id.key else { return }
         }
