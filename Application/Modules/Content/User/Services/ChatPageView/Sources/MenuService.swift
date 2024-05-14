@@ -121,16 +121,16 @@ public final class MenuService {
                         handler: handleAction(_:)
                     )
                 )
+            }
 
-                if message.isFromCurrentUser {
-                    actions.append(
-                        .init(
-                            title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
-                            identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
-                            handler: handleAction(_:)
-                        )
+            if avSpeechSynthesizer.isSpeaking || (isDisplayingAudioTranscription && message.isFromCurrentUser) {
+                actions.append(
+                    .init(
+                        title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                        identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
+                        handler: handleAction(_:)
                     )
-                }
+                )
             }
 
             actions.append(

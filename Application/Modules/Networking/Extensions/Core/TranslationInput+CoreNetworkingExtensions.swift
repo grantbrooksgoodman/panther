@@ -14,3 +14,27 @@ import Translator
 extension TranslationInput: Validatable {
     public var isWellFormed: Bool { !value().isBlank }
 }
+
+public extension TranslationInput {
+    /// Tokenizes detected addresses, links, and phone numbers.
+    var withTaggedDetectorAttributes: TranslationInput {
+        var stringValue = value()
+
+        let detectorType: NSTextCheckingResult.CheckingType = [
+            .address,
+            .link,
+            .phoneNumber,
+        ]
+
+        guard let dataDetector = try? NSDataDetector(types: detectorType.rawValue) else { return self }
+
+        for taggableString in dataDetector.matches(
+            in: stringValue,
+            range: .init(location: 0, length: stringValue.utf16.count)
+        ).compactMap({ Range($0.range, in: value()) }).compactMap({ String(value()[$0]) }) {
+            stringValue = stringValue.replacingOccurrences(of: taggableString, with: "*\(taggableString)*")
+        }
+
+        return .init(stringValue, alternate: alternate)
+    }
+}

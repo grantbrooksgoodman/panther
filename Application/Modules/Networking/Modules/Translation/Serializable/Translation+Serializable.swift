@@ -28,9 +28,8 @@ extension Translation: Serializable {
         @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
 
         func addToArchive(_ translation: Translation) {
-            let sanitizedTranslation = translation.withSanitizedOutput
             guard translation.input.value() != translation.output else { return }
-            TranslationArchiver.addToArchive(sanitizedTranslation)
+            TranslationArchiver.addToArchive(translation.sanitized)
         }
 
         switch data.type {
@@ -58,7 +57,7 @@ extension Translation: Serializable {
                 withReference: hash,
                 languagePair: data.languagePair
             ) {
-                return .success(archivedTranslation.withSanitizedOutput)
+                return .success(archivedTranslation.sanitized)
             }
 
             let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(

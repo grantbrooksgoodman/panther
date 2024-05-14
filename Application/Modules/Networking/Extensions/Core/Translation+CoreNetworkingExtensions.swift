@@ -39,9 +39,9 @@ public extension Translation {
         .init(self)
     }
 
-    var withSanitizedOutput: Translation {
+    var sanitized: Translation {
         .init(
-            input: input,
+            input: .init(input.original.sanitized, alternate: input.alternate?.sanitized),
             output: output.sanitized,
             languagePair: languagePair
         )

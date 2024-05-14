@@ -88,7 +88,7 @@ public struct HostedTranslationService {
 
             switch translateResult {
             case let .success(translation):
-                translations.append(translation.withSanitizedOutput)
+                translations.append(translation.sanitized)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -108,6 +108,9 @@ public struct HostedTranslationService {
         with languagePair: LanguagePair,
         hud hudConfig: (appearsAfter: Duration, isModal: Bool)? = nil
     ) async -> Callback<Translation, Exception> {
+        // TODO: Audit sanitization.
+        let input = input.withTaggedDetectorAttributes
+
         if let exception = TranslationValidator.validate(
             inputs: [input],
             languagePair: languagePair,
@@ -117,11 +120,13 @@ public struct HostedTranslationService {
         }
 
         if languagePair.isIdempotent {
-            return .success(.init(
+            let translation: Translation = .init(
                 input: input,
-                output: input.value().sanitized,
+                output: input.value(),
                 languagePair: languagePair
-            ))
+            )
+
+            return .success(translation.sanitized)
         }
 
         if let archivedTranslation = TranslationArchiver.getFromArchive(input, languagePair: languagePair) {
@@ -137,7 +142,7 @@ public struct HostedTranslationService {
                 )
             }
 
-            return .success(archivedTranslation.withSanitizedOutput)
+            return .success(archivedTranslation.sanitized)
         }
 
         let sameInputOutputLanguage = languageRecognition.matchConfidence(for: input.value(), inLanguage: languagePair.to) > 0.8
@@ -152,7 +157,7 @@ public struct HostedTranslationService {
 
             await archiver.addToHostedArchive(translation)
             TranslationArchiver.addToArchive(translation)
-            return .success(translation)
+            return .success(translation.sanitized)
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(
@@ -174,7 +179,7 @@ public struct HostedTranslationService {
                 )
             }
 
-            let sanitizedTranslation = translation.withSanitizedOutput
+            let sanitizedTranslation = translation.sanitized
             if translation.input.value() != translation.output {
                 TranslationArchiver.addToArchive(sanitizedTranslation)
             }
@@ -201,7 +206,7 @@ public struct HostedTranslationService {
                     return .failure(exception)
                 }
 
-                let sanitizedTranslation = translation.withSanitizedOutput
+                let sanitizedTranslation = translation.sanitized
                 if translation.input.value() != translation.output {
                     await archiver.addToHostedArchive(translation)
                     TranslationArchiver.addToArchive(sanitizedTranslation)
@@ -222,8 +227,7 @@ public struct HostedTranslationService {
 
                 await archiver.addToHostedArchive(translation)
                 TranslationArchiver.addToArchive(translation)
-
-                return .success(translation)
+                return .success(translation.sanitized)
             }
         }
     }
