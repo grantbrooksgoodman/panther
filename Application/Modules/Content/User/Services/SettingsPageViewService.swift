@@ -134,9 +134,6 @@ public final class SettingsPageViewService: Cacheable {
     }
 
     public func deleteAccountButtonTapped() {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else { return }
-
         let confirmationAlert: AKConfirmationAlert = .init(
             title: "Delete Account", // swiftlint:disable:next line_length
             message: "Are you sure you'd like to delete your account? All user data will be deleted.\n\nIf you wish to continue using *\(build.finalName)*, you will need to create a new account.\n\nAn app restart is required for this process to complete.",
@@ -153,7 +150,7 @@ public final class SettingsPageViewService: Cacheable {
 
             await uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
-            if let exception = await userSession.deleteUserAccount(currentUserID) {
+            if let exception = await userSession.deleteAccount() {
                 await uiApplication.keyWindow?.removeOverlay()
                 Logger.log(exception, with: .toast())
                 return

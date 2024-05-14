@@ -162,11 +162,15 @@ public final class UserSessionService {
         return nil
     }
 
-    // MARK: - Delete User Account
+    // MARK: - Delete Account
 
-    public func deleteUserAccount(_ id: String) async -> Exception? {
+    public func deleteAccount() async -> Exception? {
+        guard let currentUserID else {
+            return .init("Current user ID has not been set.", metadata: [self, #file, #function, #line])
+        }
+
         func deleteUser() async -> Exception? {
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(networking.config.paths.users)/\(id)") {
+            if let exception = await networking.database.setValue(NSNull(), forKey: "\(networking.config.paths.users)/\(currentUserID)") {
                 return exception
             }
 
@@ -178,7 +182,7 @@ public final class UserSessionService {
                     return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
                 }
 
-                array.append(id)
+                array.append(currentUserID)
                 array = array.filter { $0 != .bangQualifiedEmpty }.unique
 
                 if let exception = await networking.database.setValue(array, forKey: networking.config.paths.deletedUsers) {
@@ -192,7 +196,7 @@ public final class UserSessionService {
             }
         }
 
-        let getUserResult = await networking.services.user.getUser(id: id)
+        let getUserResult = await networking.services.user.getUser(id: currentUserID)
 
         switch getUserResult {
         case let .success(user):
@@ -205,7 +209,7 @@ public final class UserSessionService {
                     return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
                 }
 
-                array = array.filter { $0 != id }.unique
+                array = array.filter { $0 != currentUserID }.unique
 
                 if let exception = await networking.database.setValue(
                     array.isBangQualifiedEmpty ? NSNull() : array,
@@ -321,6 +325,40 @@ public final class UserSessionService {
         case .none:
             return nil
         }
+    }
+
+    // MARK: - Reset Typing Indicator Status
+
+    public func resetTypingIndicatorStatus() async -> Exception? {
+        guard let currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        guard let conversations = currentUser
+            .conversations?
+            .filter({ $0.participants.first(where: { $0.userID == currentUser.id })?.isTyping ?? false }) else { return nil }
+
+        for conversation in conversations {
+            guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUser.id }) else { continue }
+
+            var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
+            newParticipants.append(.init(
+                userID: currentUserParticipant.userID,
+                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+                isTyping: false
+            ))
+
+            let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
+
+            switch updateValueResult {
+            case let .failure(exception):
+                Logger.log(exception)
+
+            default: ()
+            }
+        }
+
+        return nil
     }
 
     // MARK: - Auxiliary

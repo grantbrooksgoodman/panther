@@ -76,6 +76,10 @@ public final class SplashPageViewService {
                 return exception
             }
 
+            if let exception = await userSession.resetTypingIndicatorStatus() {
+                return exception
+            }
+
             if let exception = await services.notification.modifyBadgeNumber(.set(to: currentUser.badgeNumber)) {
                 return exception
             }
