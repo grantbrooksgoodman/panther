@@ -38,6 +38,14 @@ public final class SplashPageViewService {
         akCore.register(reportDelegate: ErrorReportingService())
         akCore.register(translationDelegate: networkServices.translation)
 
+        /* MARK: HostedTranslationArchiver Setup */
+
+        @Persistent(.currentUserID) var currentUserID: String?
+        if currentUserID == nil,
+           let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            Logger.log(exception)
+        }
+
         /* MARK: MetadataService Setup */
 
         if let exception = await services.metadata.resolveValues() {
@@ -96,6 +104,10 @@ public final class SplashPageViewService {
             if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: mustUpdateContactPairArchive || (randomBool && randomBool)),
                !exception.isEqual(to: .notAuthorizedForContacts) {
                 return exception
+            }
+
+            if let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+                Logger.log(exception)
             }
 
             return nil

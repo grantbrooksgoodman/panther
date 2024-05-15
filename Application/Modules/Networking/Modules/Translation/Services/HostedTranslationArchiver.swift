@@ -25,6 +25,8 @@ public struct HostedTranslationArchiver {
         let languagePair: LanguagePair = .system
         let commonParams = ["LanguagePair": languagePair.asString()]
 
+        guard !languagePair.isIdempotent else { return nil }
+
         if let exception = TranslationValidator.validate(
             languagePair: languagePair,
             metadata: [self, #file, #function, #line]
