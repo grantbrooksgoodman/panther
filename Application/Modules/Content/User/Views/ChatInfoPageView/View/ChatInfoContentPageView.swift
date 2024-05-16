@@ -16,7 +16,9 @@ import Redux
 public struct ChatInfoContentPageView: View {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.ChatInfoPageView
     private typealias Floats = AppConstants.CGFloats.ChatInfoPageView
+    private typealias Strings = AppConstants.Strings.ChatInfoPageView
 
     // MARK: - Properties
 
@@ -127,6 +129,34 @@ public struct ChatInfoContentPageView: View {
         }
     }
 
+    // MARK: - Add Contact Button
+
+    private var addContactButton: some View {
+        Button {
+            viewModel.send(.addContactButtonTapped)
+        } label: {
+            HStack {
+                let imageView = Image(systemName: Strings.addContactButtonImageSystemName)
+                    .resizable()
+                    .frame(width: Floats.addContactButtonImageWidth, height: Floats.addContactButtonImageHeight)
+                    .foregroundStyle(viewModel.isAddContactButtonEnabled ? Color.accent : .disabled)
+
+                Circle()
+                    .overlay(imageView, alignment: .center)
+                    .frame(
+                        maxWidth: Floats.addContactButtonCircleFrameMaxWidth,
+                        maxHeight: Floats.addContactButtonCircleFrameMaxHeight
+                    )
+                    .foregroundStyle(ThemeService.isDarkModeActive ? Colors.addContactButtonCircleDarkForeground : Colors.addContactButtonCircleLightForeground)
+                    .padding(.trailing, Floats.addContactButtonCircleTrailingPadding)
+
+                Text(viewModel.strings.value(for: .addContactButtonText))
+                    .font(.sanFrancisco(size: Floats.addContactButtonLabelFontSize))
+                    .foregroundStyle(viewModel.isAddContactButtonEnabled ? Color.accent : .disabled)
+            }
+        }
+    }
+
     // MARK: - Chat Info Cell
 
     private var chatInfoCell: some View {
@@ -183,8 +213,11 @@ public struct ChatInfoContentPageView: View {
             ForEach(-1 ..< viewModel.visibleParticipants.count, id: \.self) { index in
                 if index == -1 {
                     chatInfoCell
-                } else if let participant = viewModel.visibleParticipants.itemAt(index),
-                          let cnContactContainer = participant.cnContactContainer {
+                } /* else if index == viewModel.visibleParticipants.count - 1 {
+                     addContactButton
+                         .disabled(!viewModel.isAddContactButtonEnabled)
+                 } */ else if let participant = viewModel.visibleParticipants.itemAt(index),
+                             let cnContactContainer = participant.cnContactContainer {
                     NavigationLink(
                         destination:
                         CNContactView(

@@ -14,6 +14,15 @@ import SwiftUI
 
 public extension AppConstants.CGFloats {
     enum ChatInfoPageView {
+        public static let addContactButtonCircleFrameMaxHeight: CGFloat = 40
+        public static let addContactButtonCircleFrameMaxWidth: CGFloat = 40
+        public static let addContactButtonCircleTrailingPadding: CGFloat = 2
+
+        public static let addContactButtonImageHeight: CGFloat = 15
+        public static let addContactButtonImageWidth: CGFloat = 15
+
+        public static let addContactButtonLabelFontSize: CGFloat = 17
+
         public static let avatarImageViewHorizontalPadding: CGFloat = 10
         public static let avatarImageViewTopPadding: CGFloat = 20
 
@@ -37,5 +46,22 @@ public extension AppConstants.CGFloats {
         public static let smallAvatarImageViewTrailingPadding: CGFloat = 2
 
         public static let singleCNContactViewYOffset: CGFloat = -7.5
+    }
+}
+
+// MARK: - Color
+
+public extension AppConstants.Colors {
+    enum ChatInfoPageView {
+        public static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
+        public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+    }
+}
+
+// MARK: - String
+
+public extension AppConstants.Strings {
+    enum ChatInfoPageView {
+        public static let addContactButtonImageSystemName = "plus"
     }
 }

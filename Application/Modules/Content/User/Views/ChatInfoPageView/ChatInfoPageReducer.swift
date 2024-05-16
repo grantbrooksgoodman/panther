@@ -27,6 +27,7 @@ public struct ChatInfoPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
+        case addContactButtonTapped
         case changeMetadataButtonTapped
         case chatInfoCellTapped
 
@@ -67,6 +68,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Bool
         public var inputBarWasFirstResponder = false
+        public var isAddContactButtonEnabled = true
         public var isChangeMetadataButtonEnabled = true
         public var isPresentingCameraPickerSheet = false
         public var isPresentingImagePickerSheet = false
@@ -153,6 +155,9 @@ public struct ChatInfoPageReducer: Reducer {
                 let result = await translator.resolve(ChatInfoPageViewStrings.self)
                 return .resolveReturned(result)
             }.merge(with: getChatParticipantsTask)
+
+        case .addContactButtonTapped:
+            break
 
         case .changeMetadataButtonTapped:
             state.isChangeMetadataButtonEnabled = false
@@ -274,6 +279,7 @@ public struct ChatInfoPageReducer: Reducer {
         case let .getChatParticipantsReturned(.success(chatParticipants)):
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
+            state.isAddContactButtonEnabled = chatParticipants.count <= 9
             state.viewState = .loaded
 
         case let .getChatParticipantsReturned(.failure(exception)):
