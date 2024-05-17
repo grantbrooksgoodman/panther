@@ -85,7 +85,7 @@ public final class NotificationService {
             if !message.hasAudioComponent {
                 body = message.translations.first(where: { $0.languagePair.to == user.languageCode })?.output
                 if body == nil {
-                    body = message.translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value()
+                    body = message.translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value().sanitized
                 }
             }
 

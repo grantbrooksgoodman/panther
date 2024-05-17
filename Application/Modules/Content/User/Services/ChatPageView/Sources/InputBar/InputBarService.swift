@@ -50,7 +50,7 @@ public final class InputBarService {
     public var shouldEnableSendButton: Bool {
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
-        let isTextViewTextBlank = inputBar.inputTextView.text.isBlank
+        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
 
         guard isSendButtonConfiguredForText else { return !isConversationEmpty }
         return !isConversationEmpty && !isTextViewTextBlank

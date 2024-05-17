@@ -104,7 +104,7 @@ public struct ConversationCellViewData: Equatable {
 
             if lastMessage.audioComponent == nil {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
-                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value() : lastMessage.translation.output
+                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value().sanitized : lastMessage.translation.output
             } else {
                 subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
             }

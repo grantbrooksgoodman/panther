@@ -29,7 +29,7 @@ extension Translation: Serializable {
 
         func addToArchive(_ translation: Translation) {
             guard translation.input.value() != translation.output else { return }
-            TranslationArchiver.addToArchive(translation.sanitized)
+            TranslationArchiver.addToArchive(translation.withSanitizedOutput)
         }
 
         switch data.type {
@@ -57,7 +57,7 @@ extension Translation: Serializable {
                 withReference: hash,
                 languagePair: data.languagePair
             ) {
-                return .success(archivedTranslation.sanitized)
+                return .success(archivedTranslation.withSanitizedOutput)
             }
 
             let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(
