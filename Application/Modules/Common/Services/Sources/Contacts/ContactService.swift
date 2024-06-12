@@ -12,7 +12,7 @@ import ContactsUI
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public final class ContactService: Cacheable {
     // MARK: - Dependencies

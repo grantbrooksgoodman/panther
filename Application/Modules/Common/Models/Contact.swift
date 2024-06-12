@@ -11,7 +11,7 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct Contact: Codable, EncodedHashable, Equatable {
     // MARK: - Properties

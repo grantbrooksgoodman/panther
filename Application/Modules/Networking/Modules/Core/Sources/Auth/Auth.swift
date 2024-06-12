@@ -9,8 +9,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseAuth
-import Redux
 
 public struct Auth {
     // MARK: - Dependencies

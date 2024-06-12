@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct InviteLanguagePickerView: View {
     // MARK: - Constants Accessors
@@ -58,10 +58,10 @@ public struct InviteLanguagePickerView: View {
             .interactiveDismissDisabled(true)
         }
         .header(
-            leftItem: cancelHeaderItem,
+            leftItem: .cancelButton { viewModel.send(.cancelHeaderItemTapped) },
             .text(.init(viewModel.navigationTitle)),
-            rightItem: doneHeaderItem,
-            showsDivider: false
+            rightItem: .doneButton(foregroundColor: viewModel.isDoneHeaderItemEnabled ? .accent : .disabled) { viewModel.send(.doneHeaderItemTapped) },
+            attributes: .init(showsDivider: false, sizeClass: .sheet)
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
@@ -110,33 +110,5 @@ public struct InviteLanguagePickerView: View {
                 .foregroundStyle(Colors.noResultsLabelForeground)
             Spacer()
         }
-    }
-
-    // MARK: - Header Items
-
-    private var cancelHeaderItem: HeaderView.PeripheralButtonType {
-        .text(
-            .init(text: .init(
-                viewModel.cancelHeaderItemText,
-                font: .system(size: Floats.headerItemSystemFontSize),
-                foregroundColor: .accent
-            )) {
-                viewModel.send(.cancelHeaderItemTapped)
-            }
-        )
-    }
-
-    private var doneHeaderItem: HeaderView.PeripheralButtonType {
-        .text(
-            .init(text: .init(
-                viewModel.doneHeaderItemText,
-                font: .system(size: Floats.headerItemSystemFontSize, weight: .semibold),
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? .accent : .disabled
-            )) {
-                if viewModel.isDoneHeaderItemEnabled {
-                    viewModel.send(.doneHeaderItemTapped)
-                }
-            }
-        )
     }
 }

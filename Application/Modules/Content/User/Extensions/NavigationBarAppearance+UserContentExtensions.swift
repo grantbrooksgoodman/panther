@@ -15,6 +15,7 @@ public extension NavigationBarAppearance {
         let scrollEdgeConfig: NavigationBarConfiguration = .init(
             titleColor: .navigationBarTitle,
             backgroundColor: (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98),
+            barButtonItemColor: .accent,
             showsDivider: false
         )
 

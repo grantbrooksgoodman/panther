@@ -9,8 +9,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseAuth
-import Redux
 
 public enum FirebaseAuthDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> FirebaseAuth.Auth {

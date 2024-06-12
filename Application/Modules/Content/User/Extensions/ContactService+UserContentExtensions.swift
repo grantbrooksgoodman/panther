@@ -11,7 +11,7 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public extension ContactService {
     func firstCNContact(for phoneNumber: PhoneNumber) async -> Callback<CNContact, Exception> {

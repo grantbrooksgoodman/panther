@@ -11,16 +11,19 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -89,7 +92,7 @@ public struct PermissionPageReducer: Reducer {
             }
 
         case .action(.backButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.authCode))
+            navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.finishButtonTapped):
             state.isBackButtonEnabled = false
@@ -125,7 +128,7 @@ public struct PermissionPageReducer: Reducer {
 
                 Logger.log(exception, with: .toast())
             } else {
-                navigationCoordinator.setPage(.splash)
+                navigationCoordinator.navigate(to: .root(.splash))
             }
 
         case let .feedback(.requestContactPermissionReturned(.success(status))):

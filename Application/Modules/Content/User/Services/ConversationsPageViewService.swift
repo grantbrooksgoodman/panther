@@ -10,11 +10,12 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ConversationsPageViewService {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
@@ -27,6 +28,13 @@ public struct ConversationsPageViewService {
             if let exception = await userSession.updatePushTokens() {
                 Logger.log(exception)
             }
+        }
+    }
+
+    /// `.resolveReturned(.success(_))`
+    public func viewLoaded() {
+        coreGCD.after(.seconds(1)) {
+            services.review.promptToReview()
         }
     }
 

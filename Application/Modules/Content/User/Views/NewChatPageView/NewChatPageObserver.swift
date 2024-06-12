@@ -10,7 +10,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct NewChatPageObserver: Observer {
     // MARK: - Type Aliases

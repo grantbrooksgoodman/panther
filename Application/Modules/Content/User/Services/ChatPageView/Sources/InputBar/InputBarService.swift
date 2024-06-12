@@ -12,8 +12,8 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import CoreArchitecture
 import InputBarAccessoryView
-import Redux
 
 // swiftlint:disable:next type_body_length
 public final class InputBarService {

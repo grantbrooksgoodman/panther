@@ -12,10 +12,10 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
+import CoreArchitecture
 import FirebaseAnalytics
 import FirebaseCore
 import FirebaseMessaging
-import Redux
 
 @main
 public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
@@ -51,6 +51,8 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         /* MARK: Defaults Keys & Logging Setup */
 
         RuntimeStorage.store(BuildConfig.languageCode, as: .languageCode)
+
+        Logger.setDomainsExcludedFromSessionRecord(BuildConfig.loggerDomainsExcludedFromSessionRecord)
         Logger.subscribe(to: BuildConfig.loggerDomainSubscriptions)
 
         @Persistent(.breadcrumbsCaptureEnabled) var breadcrumbsCaptureEnabled: Bool?
@@ -134,6 +136,15 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
             )
             return
         }
+
+        /* MARK: Navigation Setup */
+
+        let navigationCoordinator: NavigationCoordinator<RootNavigationService> = .init(
+            .init(modal: .splash),
+            navigating: RootNavigationService()
+        )
+
+        NavigationCoordinatorResolver.shared.store(navigationCoordinator)
     }
 
     // MARK: - Set Up Firebase

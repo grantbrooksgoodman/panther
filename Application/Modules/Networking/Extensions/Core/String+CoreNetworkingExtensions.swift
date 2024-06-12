@@ -9,7 +9,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 extension String: EncodedHashable {
     public var hashFactors: [String] {

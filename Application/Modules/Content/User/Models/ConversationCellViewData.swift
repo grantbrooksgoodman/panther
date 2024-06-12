@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ConversationCellViewData: Equatable {
     // MARK: - Properties

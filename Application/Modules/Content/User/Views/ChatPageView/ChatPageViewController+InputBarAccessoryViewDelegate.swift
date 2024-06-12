@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import InputBarAccessoryView
-import Redux
 
 extension ChatPageViewController: InputBarAccessoryViewDelegate {
     // MARK: - Did Press Send Button

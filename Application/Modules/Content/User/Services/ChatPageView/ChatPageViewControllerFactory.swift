@@ -11,8 +11,8 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import CoreArchitecture
 import MessageKit
-import Redux
 
 public struct ChatPageViewControllerFactory {
     // MARK: - Dependencies

@@ -12,7 +12,7 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public final class ErrorReportingService: AKReportDelegate {
     // MARK: - Dependencies
@@ -23,7 +23,6 @@ public final class ErrorReportingService: AKReportDelegate {
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -42,10 +41,7 @@ public final class ErrorReportingService: AKReportDelegate {
     // MARK: - Computed Properties
 
     private var commonParams: [String: String] {
-        var parameters = [
-            "Language Code": RuntimeStorage.languageCode,
-            "Root Page": navigationCoordinator.page.rawValue.camelCaseToHumanReadable.capitalizingWords,
-        ]
+        var parameters = ["Language Code": RuntimeStorage.languageCode]
 
         @Persistent(.currentUserID) var currentUserID: String?
         if let currentUserID {

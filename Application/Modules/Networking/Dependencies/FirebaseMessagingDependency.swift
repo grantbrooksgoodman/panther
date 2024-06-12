@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseMessaging
-import Redux
 
 public enum FirebaseMessagingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Messaging {

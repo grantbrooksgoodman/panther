@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct SelectLanguageContentPageView: View {
     // MARK: - Constants Accessors
@@ -65,7 +65,6 @@ public struct SelectLanguageContentPageView: View {
                     Text(viewModel.strings.value(for: .continueButtonText))
                         .bold()
                 }
-                .disabled(!viewModel.isContinueButtonEnabled)
                 .foregroundStyle(Colors.continueButtonForeground)
                 .padding(.top, Floats.continueButtonTopPadding)
 

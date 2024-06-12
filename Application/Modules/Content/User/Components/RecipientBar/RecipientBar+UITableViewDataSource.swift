@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 extension RecipientBar: UITableViewDataSource {
     // MARK: - Cell for Row at Index Path

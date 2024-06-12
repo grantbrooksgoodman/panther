@@ -11,7 +11,7 @@ import Foundation
 import StoreKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ReviewService {
     // MARK: - Dependencies

@@ -11,16 +11,19 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -87,7 +90,7 @@ public struct AuthCodePageReducer: Reducer {
             }
 
         case .action(.backButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.verifyNumber))
+            navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
             state.isBackButtonEnabled = false
@@ -120,7 +123,7 @@ public struct AuthCodePageReducer: Reducer {
 
             onboardingService.setUserID(userID)
 
-            navigationCoordinator.setPage(.onboarding(.permission))
+            navigationCoordinator.navigate(to: .onboarding(.push(.permission)))
 
         case let .feedback(.authenticateUserReturned(.failure(exception))):
             uiApplication.keyWindow?.removeOverlay()

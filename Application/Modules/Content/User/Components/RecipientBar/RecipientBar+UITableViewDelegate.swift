@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 extension RecipientBar: UITableViewDelegate {
     // MARK: - Did Select Row

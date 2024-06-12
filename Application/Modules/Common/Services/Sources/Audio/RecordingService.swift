@@ -11,7 +11,7 @@ import AVFAudio
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public final class RecordingService: NSObject {
     // MARK: - Type Aliases

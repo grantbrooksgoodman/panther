@@ -10,7 +10,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 extension Conversation: Updatable {
     // MARK: - Type Aliases

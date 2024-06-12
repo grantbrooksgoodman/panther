@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseAnalytics
-import Redux
 
 public struct AnalyticsService {
     // MARK: - Dependencies

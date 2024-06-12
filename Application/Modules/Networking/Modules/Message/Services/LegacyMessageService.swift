@@ -10,6 +10,6 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct LegacyMessageService {}

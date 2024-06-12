@@ -10,7 +10,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum BuildConfig {
     // MARK: - Flags
@@ -32,13 +32,16 @@ public enum BuildConfig {
     // MARK: - Other
 
     public static let languageCode = Locale.systemLanguageCode
+    public static let loggerDomainsExcludedFromSessionRecord: [LoggerDomain] = [
+        .hostedTranslation,
+        .observer,
+    ]
     public static let loggerDomainSubscriptions: [LoggerDomain] = [
         .bugPrevention,
         .chatPageState,
         .contacts,
         .conversation,
         .general,
-        .hostedTranslation,
         .notifications,
         .queue,
         .user,

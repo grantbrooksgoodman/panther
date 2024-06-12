@@ -11,7 +11,7 @@ import AVFoundation
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum AVQueuePlayerDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> AVQueuePlayer {

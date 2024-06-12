@@ -11,7 +11,7 @@ import Foundation
 import Speech
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct TranscriptionService {
     // MARK: - Dependencies

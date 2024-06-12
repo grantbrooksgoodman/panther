@@ -11,7 +11,7 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum CNContactStoreDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> CNContactStore {

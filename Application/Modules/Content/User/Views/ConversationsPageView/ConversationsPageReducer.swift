@@ -10,12 +10,13 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
+    @Dependency(\.commonServices.review) private var reviewService: ReviewService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
@@ -152,6 +153,8 @@ public struct ConversationsPageReducer: Reducer {
         case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
+
+            viewService.viewLoaded()
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)

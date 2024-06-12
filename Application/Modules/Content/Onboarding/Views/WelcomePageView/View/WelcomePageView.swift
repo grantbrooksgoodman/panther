@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct WelcomePageView: View {
     // MARK: - Properties
@@ -38,6 +38,9 @@ public struct WelcomePageView: View {
             }
         }
         .onFirstAppear {
+            viewModel.send(.viewFirstAppeared)
+        }
+        .onAppear {
             viewModel.send(.viewAppeared)
         }
     }

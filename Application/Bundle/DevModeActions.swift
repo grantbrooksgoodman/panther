@@ -12,7 +12,7 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 /**
  Use this extension to add new actions to the Developer Mode menu.
@@ -211,8 +211,9 @@ public extension DevModeService {
         func setCurrentUserID() {
             @Dependency(\.alertKitCore) var akCore: AKCore
             @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-            @Dependency(\.rootNavigationCoordinator) var navigationCoordinator: RootNavigationCoordinator
+
             @Persistent(.currentUserID) var currentUserID: String?
+            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
             func setLanguageCode(_ code: String) {
                 guard akCore.languageCodeIsLocked else {
@@ -247,7 +248,7 @@ public extension DevModeService {
                     coreUtilities.clearCaches()
                 }
 
-                navigationCoordinator.setPage(.splash)
+                navigationCoordinator.navigate(to: .root(.splash))
             }
         }
 

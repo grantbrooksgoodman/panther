@@ -9,8 +9,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseStorage
-import Redux
 
 public enum FirebaseStorageDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> StorageReference {

@@ -11,7 +11,7 @@ import Foundation
 import MessageUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public final class TextMessageService: NSObject, MFMessageComposeViewControllerDelegate {
     // MARK: - Dependencies

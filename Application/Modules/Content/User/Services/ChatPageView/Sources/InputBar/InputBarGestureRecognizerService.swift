@@ -12,8 +12,8 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
+import CoreArchitecture
 import InputBarAccessoryView
-import Redux
 
 public final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors

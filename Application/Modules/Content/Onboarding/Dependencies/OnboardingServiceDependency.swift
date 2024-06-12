@@ -10,7 +10,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum OnboardingServiceDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> OnboardingService {

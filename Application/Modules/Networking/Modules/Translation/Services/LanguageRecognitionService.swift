@@ -12,7 +12,7 @@ import NaturalLanguage
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct LanguageRecognitionService {
     // MARK: - Dependencies

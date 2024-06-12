@@ -11,23 +11,27 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
+        case viewDisappeared
 
         case backButtonTapped
         case continueButtonTapped
@@ -149,7 +153,7 @@ public struct SignInPageReducer: Reducer {
         case .backButtonTapped:
             switch state.configuration {
             case .phoneNumber:
-                navigationCoordinator.setPage(.onboarding(.welcome))
+                navigationCoordinator.navigate(to: .onboarding(.pop))
 
             case .verificationCode:
                 state.configuration = .phoneNumber
@@ -199,6 +203,9 @@ public struct SignInPageReducer: Reducer {
         case let .verificationCodeChanged(verificationCode):
             state.verificationCode = verificationCode
             state.isContinueButtonEnabled = verificationCode.count == 6
+
+        case .viewDisappeared:
+            InteractivePopGestureRecognizer.setIsEnabled(true)
         }
 
         return .none
@@ -231,14 +238,14 @@ public struct SignInPageReducer: Reducer {
             }
 
             onboardingService.setPhoneNumber(state.phoneNumber)
-            navigationCoordinator.setPage(.onboarding(.selectLanguage))
+            navigationCoordinator.navigate(to: .onboarding(.stack([.selectLanguage])))
 
         case let .authenticateUserReturned(.success(userID)):
             uiApplication.keyWindow?.removeOverlay()
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
-            navigationCoordinator.setPage(.splash)
+            navigationCoordinator.navigate(to: .root(.splash))
 
         case let .authenticateUserReturned(.failure(exception)):
             uiApplication.keyWindow?.removeOverlay()

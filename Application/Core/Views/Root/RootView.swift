@@ -10,12 +10,12 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct RootView: View {
-    // MARK: - Dependencies
+    // MARK: - Properties
 
-    @ObservedDependency(\.rootNavigationCoordinator) public var navigationCoordinator: RootNavigationCoordinator
+    @ObservedNavigator public var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - View
 

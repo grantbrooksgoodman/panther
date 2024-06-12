@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct InviteLanguagePickerReducer: Reducer {
     // MARK: - Dependencies
@@ -83,6 +83,7 @@ public struct InviteLanguagePickerReducer: Reducer {
             RootSheets.dismiss()
 
         case .action(.doneHeaderItemTapped):
+            guard state.isDoneHeaderItemEnabled else { return .none }
             RootSheets.dismiss()
 
             let languageCode = state.selectedLanguageCode

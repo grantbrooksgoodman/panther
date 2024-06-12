@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import PhoneNumberKit
-import Redux
 
 public enum PhoneNumberKitDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> PhoneNumberKit {

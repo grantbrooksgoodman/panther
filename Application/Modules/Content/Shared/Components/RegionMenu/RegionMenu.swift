@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct RegionMenu: View {
     // MARK: - Constants Accessors
@@ -136,7 +136,10 @@ private struct RegionPickerView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.listViewBackground)
             }
-            .header(.text(.init(viewModel.headerLabelText)), showsDivider: false)
+            .header(
+                .text(.init(viewModel.headerLabelText)),
+                attributes: .init(showsDivider: false, sizeClass: .sheet)
+            )
             .background(Color.navigationBarBackground)
             .ignoresSafeArea()
             .onAppear {

@@ -11,17 +11,20 @@ import Foundation
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -59,7 +62,6 @@ public struct SelectLanguagePageReducer: Reducer {
 
         // Other
         public var instructionViewStrings: InstructionViewStrings = .empty
-        public var isContinueButtonEnabled = true
         public var selectedLanguage = ""
         public var viewState: ViewState = .loading
 
@@ -94,9 +96,10 @@ public struct SelectLanguagePageReducer: Reducer {
             }
 
         case .action(.backButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.welcome))
+            navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
+            coreUtilities.restoreDeviceLanguageCode()
             guard let localizedLanguageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else {
                 state.viewState = .error(.init("No localized language code dictionary.", metadata: [self, #file, #function, #line]))
                 return .none
@@ -107,9 +110,8 @@ public struct SelectLanguagePageReducer: Reducer {
                 akCore.setLanguageCode(selectedLanguageCode)
                 RuntimeStorage.store(selectedLanguageCode, as: .languageCode)
 
-                navigationCoordinator.setPage(.onboarding(.verifyNumber))
+                navigationCoordinator.navigate(to: .onboarding(.push(.verifyNumber)))
                 onboardingService.setLanguageCode(selectedLanguageCode)
-                state.isContinueButtonEnabled = false
             }
 
         case let .action(.selectedLanguageChanged(selectedLanguage)):

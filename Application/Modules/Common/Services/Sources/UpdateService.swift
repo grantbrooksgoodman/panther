@@ -12,7 +12,7 @@ import UIKit
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public final class UpdateService {
     // MARK: - Types

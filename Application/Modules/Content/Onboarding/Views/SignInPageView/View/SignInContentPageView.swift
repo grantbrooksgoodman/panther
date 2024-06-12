@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct SignInContentPageView: View {
     // MARK: - Constants Accessors
@@ -115,6 +115,7 @@ public struct SignInContentPageView: View {
                 .padding(.top, Floats.backButtonTopPadding)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .interactivePopGestureRecognizerDisabled(viewModel.configuration == .verificationCode)
             .contentShape(Rectangle())
             .onSwipe(.down) {
                 viewModel.send(.didSwipeDown)

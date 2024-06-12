@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 // MARK: - UIApplication
 
@@ -154,6 +154,27 @@ public extension UIImage {
 
             completion(image)
         }.resume()
+    }
+}
+
+// MARK: - UINavigationController
+
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        gestureRecognizer == interactivePopGestureRecognizer
+    }
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        gestureRecognizer != interactivePopGestureRecognizer
+    }
+
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        InteractivePopGestureRecognizer.isEnabled && viewControllers.count > 1
     }
 }
 

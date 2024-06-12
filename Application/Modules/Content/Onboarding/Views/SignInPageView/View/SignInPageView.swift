@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct SignInPageView: View {
     // MARK: - Properties
@@ -37,8 +37,12 @@ public struct SignInPageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
         }
     }
 }

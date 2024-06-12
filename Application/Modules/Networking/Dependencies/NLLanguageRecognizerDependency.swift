@@ -10,7 +10,7 @@ import Foundation
 import NaturalLanguage
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum NLLanguageRecognizerDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> NLLanguageRecognizer {

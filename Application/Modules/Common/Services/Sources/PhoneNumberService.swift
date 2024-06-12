@@ -11,8 +11,8 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import PhoneNumberKit
-import Redux
 
 public struct PhoneNumberService {
     // MARK: - Dependencies

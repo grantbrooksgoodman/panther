@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public extension Date { // swiftlint:disable:next identifier_name
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {

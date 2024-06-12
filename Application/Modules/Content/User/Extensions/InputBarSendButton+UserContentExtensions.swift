@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import InputBarAccessoryView
-import Redux
 
 public extension InputBarSendButton {
     var isRecordButton: Bool {

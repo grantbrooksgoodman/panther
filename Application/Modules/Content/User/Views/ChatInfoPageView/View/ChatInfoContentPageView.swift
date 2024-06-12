@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ChatInfoContentPageView: View {
     // MARK: - Constants Accessors
@@ -89,8 +89,10 @@ public struct ChatInfoContentPageView: View {
                 isUnknown: cnContactContainer.isUnknown
             )
             .offset(y: Floats.singleCNContactViewYOffset)
-            .header(rightItem: doneHeaderItem, isThemed: true)
-            .toolbar(.hidden)
+            .header(
+                rightItem: .doneButton { viewModel.send(.doneHeaderItemTapped) },
+                attributes: .init(appearance: .themed, sizeClass: .sheet)
+            )
         } else {
             VStack {
                 AvatarImageView(
@@ -184,15 +186,7 @@ public struct ChatInfoContentPageView: View {
         .foregroundStyle(Color.titleText)
     }
 
-    // MARK: - Done Header/Toolbar Buttons
-
-    private var doneHeaderItem: HeaderView.PeripheralButtonType {
-        .text(
-            .init(text: .init(viewModel.doneButtonText)) {
-                viewModel.send(.doneHeaderItemTapped)
-            }
-        )
-    }
+    // MARK: - Done Toolbar Button
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {

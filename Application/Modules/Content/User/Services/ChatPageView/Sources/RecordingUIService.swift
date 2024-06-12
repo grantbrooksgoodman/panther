@@ -11,8 +11,8 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import CoreArchitecture
 import InputBarAccessoryView
-import Redux
 
 public final class RecordingUIService {
     // MARK: - Constants Accessors

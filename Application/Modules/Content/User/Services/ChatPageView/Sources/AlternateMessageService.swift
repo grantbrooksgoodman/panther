@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import MessageKit
-import Redux
 
 public final class AlternateMessageService {
     // MARK: - Types

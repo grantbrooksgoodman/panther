@@ -158,10 +158,9 @@
 		B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943886E2B321951002D94FF /* ClientSessionDependency.swift */; };
 		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
 		B94388742B322056002D94FF /* TranslationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388732B322056002D94FF /* TranslationConstants.swift */; };
+		B9450DE02C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */; };
 		B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657682AABBC740091193B /* UserDefaultsDependency.swift */; };
 		B946576B2AABBD420091193B /* AKCoreDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576A2AABBD420091193B /* AKCoreDependency.swift */; };
-		B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576E2AABC5570091193B /* RootNavigationCoordinatorDependency.swift */; };
-		B94657722AABC6320091193B /* RootNavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657712AABC6320091193B /* RootNavigationCoordinator.swift */; };
 		B94657752AABC66F0091193B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657742AABC66F0091193B /* RootView.swift */; };
 		B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946D87B2ACC8A59001D2424 /* AKError+CoreExtensions.swift */; };
 		B946D87E2ACC966E001D2424 /* Duration+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946D87D2ACC966E001D2424 /* Duration+CoreExtensions.swift */; };
@@ -305,7 +304,11 @@
 		B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DBF29E4C45000117D42 /* AppThemes.swift */; };
 		B99B1DC229E4C49C00117D42 /* UITheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DC129E4C49C00117D42 /* UITheme.swift */; };
 		B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99B1DC729E4C4BD00117D42 /* UITheme+DataModels.swift */; };
-		B99D8F4F2BE9B41D00872AE9 /* Redux in Frameworks */ = {isa = PBXBuildFile; productRef = B99D8F4E2BE9B41D00872AE9 /* Redux */; };
+		B99CC54D2C1926AD00319F02 /* HeaderView+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99CC54C2C1926AD00319F02 /* HeaderView+CoreExtensions.swift */; };
+		B99CC54F2C19271200319F02 /* RootContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99CC54E2C19271200319F02 /* RootContainerView.swift */; };
+		B99CC5512C19274000319F02 /* RootNavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99CC5502C19274000319F02 /* RootNavigationService.swift */; };
+		B99CC5542C1927BC00319F02 /* OnboardingNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99CC5532C1927BC00319F02 /* OnboardingNavigator.swift */; };
+		B99CC5562C1927FA00319F02 /* RootNavigatorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99CC5552C1927FA00319F02 /* RootNavigatorState.swift */; };
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
@@ -339,6 +342,7 @@
 		B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */; };
 		B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D2572B79687F00119B85 /* NewChatPageReducer.swift */; };
 		B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D25A2B796AC000119B85 /* RecipientBar.swift */; };
+		B9C13B4D2C1A174F004B9E28 /* CoreArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */; };
 		B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F229BEC263009DCE29 /* DevModeAction.swift */; };
 		B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F429BEC266009DCE29 /* DevModeService.swift */; };
 		B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582FE29BECA8D009DCE29 /* Timeout.swift */; };
@@ -1018,10 +1022,9 @@
 		B943886E2B321951002D94FF /* ClientSessionDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionDependency.swift; sourceTree = "<group>"; };
 		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		B94388732B322056002D94FF /* TranslationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationConstants.swift; sourceTree = "<group>"; };
+		B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractivePopGestureRecognizerDisabledViewModifier.swift; sourceTree = "<group>"; };
 		B94657682AABBC740091193B /* UserDefaultsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsDependency.swift; sourceTree = "<group>"; };
 		B946576A2AABBD420091193B /* AKCoreDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKCoreDependency.swift; sourceTree = "<group>"; };
-		B946576E2AABC5570091193B /* RootNavigationCoordinatorDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootNavigationCoordinatorDependency.swift; sourceTree = "<group>"; };
-		B94657712AABC6320091193B /* RootNavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootNavigationCoordinator.swift; sourceTree = "<group>"; };
 		B94657742AABC66F0091193B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		B946D87B2ACC8A59001D2424 /* AKError+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AKError+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B946D87D2ACC966E001D2424 /* Duration+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+CoreExtensions.swift"; sourceTree = "<group>"; };
@@ -1164,6 +1167,11 @@
 		B99B1DBF29E4C45000117D42 /* AppThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemes.swift; sourceTree = "<group>"; };
 		B99B1DC129E4C49C00117D42 /* UITheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITheme.swift; sourceTree = "<group>"; };
 		B99B1DC729E4C4BD00117D42 /* UITheme+DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITheme+DataModels.swift"; sourceTree = "<group>"; };
+		B99CC54C2C1926AD00319F02 /* HeaderView+CoreExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "HeaderView+CoreExtensions.swift"; sourceTree = "<group>"; };
+		B99CC54E2C19271200319F02 /* RootContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootContainerView.swift; sourceTree = "<group>"; };
+		B99CC5502C19274000319F02 /* RootNavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootNavigationService.swift; sourceTree = "<group>"; };
+		B99CC5532C1927BC00319F02 /* OnboardingNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNavigator.swift; sourceTree = "<group>"; };
+		B99CC5552C1927FA00319F02 /* RootNavigatorState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootNavigatorState.swift; sourceTree = "<group>"; };
 		B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberKitDependency.swift; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDefaultsKeys.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
@@ -1616,10 +1624,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9DAD8ED2BA95E7C00AAAA03 /* AlertKit.xcframework in Frameworks */,
-				B99D8F4F2BE9B41D00872AE9 /* Redux in Frameworks */,
 				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 				B966B86B2B703DC800215555 /* Translator.xcframework in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
+				B9C13B4D2C1A174F004B9E28 /* CoreArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2100,7 +2108,6 @@
 				B91689082AC760AA00AF403D /* MainQueueDependency.swift */,
 				B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */,
 				B9CC831A2AB0F6B800255116 /* QuickViewerDependency.swift */,
-				B946576E2AABC5570091193B /* RootNavigationCoordinatorDependency.swift */,
 				B96D43FE2B84946C00C66B46 /* RootWindowServiceDependency.swift */,
 				B9E7D4162AAC06D000FAF2A9 /* TranslatorServiceDependency.swift */,
 				B93457112AAC015200944602 /* UIApplicationDependency.swift */,
@@ -2113,8 +2120,10 @@
 		B94657702AABC6200091193B /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
-				B94657712AABC6320091193B /* RootNavigationCoordinator.swift */,
+				B99CC54E2C19271200319F02 /* RootContainerView.swift */,
+				B99CC5502C19274000319F02 /* RootNavigationService.swift */,
 				B964465F2B157E3E008E674A /* RootNavigationView.swift */,
+				B99CC5552C1927FA00319F02 /* RootNavigatorState.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -2516,6 +2525,14 @@
 			path = Themes;
 			sourceTree = "<group>";
 		};
+		B99CC5522C1927AE00319F02 /* Navigators */ = {
+			isa = PBXGroup;
+			children = (
+				B99CC5532C1927BC00319F02 /* OnboardingNavigator.swift */,
+			);
+			path = Navigators;
+			sourceTree = "<group>";
+		};
 		B9B193C32B1A42140016948C /* Audio */ = {
 			isa = PBXGroup;
 			children = (
@@ -2623,6 +2640,7 @@
 				B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */,
 				B93BCDF62AAF937500AA16FE /* FileManager+CoreExtensions.swift */,
 				B97DB5762AF4602B002C2679 /* Font+CoreExtensions.swift */,
+				B99CC54C2C1926AD00319F02 /* HeaderView+CoreExtensions.swift */,
 				B93BCDEA2AAD9D9D00AA16FE /* LanguagePair+CoreExtensions.swift */,
 				B920F1882AD7C243002FC1C2 /* Locale+CoreExtensions.swift */,
 				B95B293F2B8D366100E930E2 /* Notification+CoreExtensions.swift */,
@@ -3374,6 +3392,7 @@
 			children = (
 				B9C5830029BECB0C009DCE29 /* DeviceShakeViewModifier.swift */,
 				B90F33212AE4D463002A9284 /* HeaderViewModifier.swift */,
+				B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */,
 				B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */,
 				B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */,
 				B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */,
@@ -3388,6 +3407,7 @@
 		B9E7D4542AAC400B00FAF2A9 /* Bundle */ = {
 			isa = PBXGroup;
 			children = (
+				B99CC5522C1927AE00319F02 /* Navigators */,
 				B99B1DC929E4C7EC00117D42 /* Themes */,
 				B9E7D42A2AAC1F4000FAF2A9 /* AppConstants.swift */,
 				B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */,
@@ -3661,7 +3681,7 @@
 			name = Hello;
 			packageProductDependencies = (
 				B90C91042B69C95B008DFE59 /* MessageKit */,
-				B99D8F4E2BE9B41D00872AE9 /* Redux */,
+				B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3786,8 +3806,8 @@
 			);
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
-				B99652DB2AC525EA00C9CD69 /* XCLocalSwiftPackageReference "../../XCFrameworks/Redux" */,
 				B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */,
+				B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4216,6 +4236,7 @@
 				B9E6D7D22B12850D000BC88D /* UserNotificationCenterDependency.swift in Sources */,
 				B9E1BBA12B315C7C00ADEA71 /* NetworkActivityView.swift in Sources */,
 				B923CA9F2B7566CC0042D3E4 /* AppConstants+ConversationSessionService.swift in Sources */,
+				B9450DE02C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift in Sources */,
 				B94758202BCF7A18001E4872 /* CameraPickerView+Coordinator.swift in Sources */,
 				B90249D22B57459700D62855 /* PermissionContentPageView.swift in Sources */,
 				B99195772B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift in Sources */,
@@ -4308,6 +4329,7 @@
 				B9C5E9132AB161B6004D79DA /* EmptyReducer.swift in Sources */,
 				B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */,
 				A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */,
+				B99CC54F2C19271200319F02 /* RootContainerView.swift in Sources */,
 				B9E0E0F32B20E89B00C14274 /* Message.swift in Sources */,
 				B90249D42B5745BF00D62855 /* AppConstants+PermissionPageView.swift in Sources */,
 				B99195732B47C7B600BD5BBC /* SelectLanguagePageReducer.swift in Sources */,
@@ -4460,6 +4482,7 @@
 				B9988BFF2AC4C72800C4924C /* RuntimeStorage.swift in Sources */,
 				B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */,
 				B9E0E0F72B20EA0200C14274 /* AudioFile.swift in Sources */,
+				B99CC5562C1927FA00319F02 /* RootNavigatorState.swift in Sources */,
 				B97DB5772AF4602B002C2679 /* Font+CoreExtensions.swift in Sources */,
 				B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */,
 				B93BCDED2AAD9DAC00AA16FE /* Task+CoreExtensions.swift in Sources */,
@@ -4500,6 +4523,7 @@
 				B991957F2B47CB4000BD5BBC /* InstructionView.swift in Sources */,
 				B90C91182B69D3DC008DFE59 /* ChatPageViewController+MessageCellDelegate.swift in Sources */,
 				B99F13F42A280A0500B9FCE2 /* AppDefaultsKeys.swift in Sources */,
+				B99CC54D2C1926AD00319F02 /* HeaderView+CoreExtensions.swift in Sources */,
 				B9931B312B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift in Sources */,
 				B964465E2B157E1A008E674A /* RootWindowObserver.swift in Sources */,
 				B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */,
@@ -4524,13 +4548,13 @@
 				B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */,
 				B963F1C82B23D7110087DB83 /* Participant.swift in Sources */,
 				B9BB3CF12AC0C5F00077D1BC /* TranslationMap.swift in Sources */,
-				B94657722AABC6320091193B /* RootNavigationCoordinator.swift in Sources */,
 				B9E7D4302AAC20D900FAF2A9 /* BuildInfoOverlayView.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
 				B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */,
 				B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */,
 				B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */,
 				B92409812AB2C5AB004CF4C0 /* Breadcrumbs.swift in Sources */,
+				B99CC5512C19274000319F02 /* RootNavigationService.swift in Sources */,
 				B94D767A2BBB5A11002B4BC6 /* SignInPageView.swift in Sources */,
 				B9EFBA102B2691E600624794 /* CacheStrategy.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
@@ -4575,7 +4599,6 @@
 				B923CAA12B7567910042D3E4 /* AppConstants+ChatPageViewService.swift in Sources */,
 				B96C12552BAE2E910063687C /* PhotoPickerView.swift in Sources */,
 				B96C12572BAE2F8B0063687C /* PhotoPickerView+Coordinator.swift in Sources */,
-				B946576F2AABC5570091193B /* RootNavigationCoordinatorDependency.swift in Sources */,
 				B918222C2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift in Sources */,
 				A2DF2CBB28199D3C0089DEA1 /* SystemInformation.swift in Sources */,
 				B9E7D4322AAC20E100FAF2A9 /* BuildInfoOverlayReducer.swift in Sources */,
@@ -4599,6 +4622,7 @@
 				B96D43F52B84610D00C66B46 /* RootWindow.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */,
+				B99CC5542C1927BC00319F02 /* OnboardingNavigator.swift in Sources */,
 				B90C91102B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift in Sources */,
 				B9F47AEA2B576EFF00D86C67 /* ConversationsContentPageView.swift in Sources */,
 				B903CA6A2B6C194900A238A4 /* ChatPageStateServiceDependency.swift in Sources */,
@@ -5031,9 +5055,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		B99652DB2AC525EA00C9CD69 /* XCLocalSwiftPackageReference "../../XCFrameworks/Redux" */ = {
+		B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../XCFrameworks/Redux;
+			relativePath = ../../XCFrameworks/CoreArchitecture;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -5054,9 +5078,10 @@
 			package = B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
 		};
-		B99D8F4E2BE9B41D00872AE9 /* Redux */ = {
+		B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Redux;
+			package = B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */;
+			productName = CoreArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

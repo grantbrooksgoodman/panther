@@ -10,8 +10,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseDatabase
-import Redux
 
 // swiftlint:disable:next type_body_length
 public final class UserSessionService {

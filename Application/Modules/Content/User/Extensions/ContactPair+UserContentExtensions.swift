@@ -8,7 +8,9 @@
 
 /* Native */
 import Foundation
-import Redux
+
+/* 3rd-party */
+import CoreArchitecture
 
 public extension ContactPair {
     // MARK: - Properties

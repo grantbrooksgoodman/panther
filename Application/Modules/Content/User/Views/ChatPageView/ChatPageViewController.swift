@@ -11,8 +11,8 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import CoreArchitecture
 import MessageKit
-import Redux
 
 public final class ChatPageViewController: MessagesViewController {
     // MARK: - Dependencies

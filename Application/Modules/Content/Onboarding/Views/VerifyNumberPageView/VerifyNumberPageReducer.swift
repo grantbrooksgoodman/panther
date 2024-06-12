@@ -11,17 +11,20 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -117,7 +120,7 @@ public struct VerifyNumberPageReducer: Reducer {
             }
 
         case .action(.backButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.selectLanguage))
+            navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
             state.isBackButtonEnabled = false
@@ -151,7 +154,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
             if !cancelled {
                 onboardingService.setPhoneNumber(state.phoneNumber)
-                navigationCoordinator.setPage(.onboarding(.signIn))
+                navigationCoordinator.navigate(to: .onboarding(.stack([.signIn])))
             }
 
         case let .feedback(.accountExistsReturned(accountExists)):
@@ -198,7 +201,7 @@ public struct VerifyNumberPageReducer: Reducer {
             onboardingService.setPhoneNumber(state.phoneNumber)
             onboardingService.setRegionCode(state.selectedRegionCode)
 
-            navigationCoordinator.setPage(.onboarding(.authCode))
+            navigationCoordinator.navigate(to: .onboarding(.push(.authCode)))
 
         case let .feedback(.verifyPhoneNumberReturned(.failure(exception))):
             uiApplication.keyWindow?.removeOverlay()

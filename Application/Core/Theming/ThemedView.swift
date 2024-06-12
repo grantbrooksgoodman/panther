@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct ThemedView: View {
     // MARK: - Properties
@@ -67,6 +67,9 @@ private struct Themed: View {
             .id(viewModel.viewID)
             .onFirstAppear {
                 viewModel.send(.viewAppeared)
+            }
+            .onDisappear {
+                viewModel.send(.viewDisappeared)
             }
     }
 }

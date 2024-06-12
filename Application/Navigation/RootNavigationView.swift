@@ -11,42 +11,39 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public extension RootView {
+    @ViewBuilder
     var rootPage: some View {
-        Group {
-            switch navigationCoordinator.page {
-            case .conversations:
-                withTransition { ConversationsPageView(.init(initialState: .init(), reducer: ConversationsPageReducer())) }
-
-            case .sample:
-                withTransition { SamplePageView(.init(initialState: .init(), reducer: SamplePageReducer())) }
-
-            case .splash:
-                withTransition { SplashPageView(.init(initialState: .init(), reducer: SplashPageReducer())) }
-
-            case let .onboarding(onboardingPage):
-                switch onboardingPage {
-                case .welcome:
-                    withTransition { WelcomePageView(.init(initialState: .init(), reducer: WelcomePageReducer())) }
-
-                case .signIn:
-                    withTransition { SignInPageView(.init(initialState: .init(), reducer: SignInPageReducer())) }
-
-                case .selectLanguage:
-                    withTransition { SelectLanguagePageView(.init(initialState: .init(), reducer: SelectLanguagePageReducer())) }
-
-                case .verifyNumber:
-                    withTransition { VerifyNumberPageView(.init(initialState: .init(), reducer: VerifyNumberPageReducer())) }
-
-                case .authCode:
-                    withTransition { AuthCodePageView(.init(initialState: .init(), reducer: AuthCodePageReducer())) }
-
-                case .permission:
-                    withTransition { PermissionPageView(.init(initialState: .init(), reducer: PermissionPageReducer())) }
-                }
+        switch navigationCoordinator.state.modal {
+        case .conversations:
+            withTransition {
+                ConversationsPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: ConversationsPageReducer()
+                    )
+                )
             }
+
+        case .onboarding:
+            withTransition {
+                RootContainerView()
+            }
+
+        case .splash:
+            withTransition {
+                SplashPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: SplashPageReducer()
+                    )
+                )
+            }
+
+        case .none:
+            EmptyView()
         }
     }
 }

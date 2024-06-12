@@ -8,10 +8,10 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
-import Redux
-import UIKit
+import CoreArchitecture
 
 public final class RegionDetailService: Cacheable {
     // MARK: - Types

@@ -12,7 +12,7 @@ import PhotosUI
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public extension PhotoPickerView {
     final class Coordinator: NSObject, PHPickerViewControllerDelegate {

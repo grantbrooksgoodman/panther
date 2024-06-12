@@ -10,7 +10,7 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public extension Array where Element == ContactPair {
     func queried(by searchTerm: String) -> [ContactPair] {

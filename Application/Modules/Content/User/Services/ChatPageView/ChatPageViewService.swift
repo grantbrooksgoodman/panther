@@ -12,8 +12,8 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
+import CoreArchitecture
 import MessageKit
-import Redux
 
 public final class ChatPageViewService {
     // MARK: - Constants Accessors

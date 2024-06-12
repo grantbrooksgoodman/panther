@@ -9,8 +9,8 @@
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import FirebaseDatabase
-import Redux
 
 public enum FirebaseDatabaseDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> DatabaseReference {

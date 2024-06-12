@@ -13,7 +13,7 @@ import SwiftUI
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public final class SettingsPageViewService: Cacheable {
     // MARK: - Constants Accessors
@@ -27,7 +27,6 @@ public final class SettingsPageViewService: Cacheable {
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
@@ -49,6 +48,8 @@ public final class SettingsPageViewService: Cacheable {
             .core(.hidesBuildInfoOverlay),
         ]
     }
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Init
 
@@ -195,7 +196,7 @@ public final class SettingsPageViewService: Cacheable {
     }
 
     public func signOutButtonTapped() {
-        Task {
+        Task { @MainActor in
             let actionSheet = AKActionSheet(actions: [.init(title: "Sign Out", style: .destructivePreferred)])
 
             let actionID = await actionSheet.present()
@@ -226,7 +227,8 @@ public final class SettingsPageViewService: Cacheable {
             }
 
             defaults.reset(keeping: defaultsKeysToKeep)
-            navigationCoordinator.setPage(.onboarding(.welcome))
+            navigationCoordinator.navigate(to: .onboarding(.stack([])))
+            navigationCoordinator.navigate(to: .root(.onboarding))
         }
     }
 

@@ -11,8 +11,8 @@ import Contacts
 import Foundation
 
 /* 3rd-party */
+import CoreArchitecture
 import PhoneNumberKit
-import Redux
 
 public struct PhoneNumber: Codable, EncodedHashable, Equatable {
     // MARK: - Properties

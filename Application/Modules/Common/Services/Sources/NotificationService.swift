@@ -12,7 +12,7 @@ import UIKit
 import UserNotifications
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public final class NotificationService {
     // MARK: - Types

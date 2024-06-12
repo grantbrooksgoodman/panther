@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum UIPasteboardDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> UIPasteboard {

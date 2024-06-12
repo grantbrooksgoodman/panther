@@ -11,7 +11,7 @@ import Foundation
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public final class OnboardingService {
     // MARK: - Dependencies

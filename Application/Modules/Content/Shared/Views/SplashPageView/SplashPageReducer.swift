@@ -11,14 +11,17 @@ import Foundation
 
 /* 3rd-party */
 import AlertKit
-import Redux
+import CoreArchitecture
 
 public struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -82,9 +85,9 @@ public struct SplashPageReducer: Reducer {
                     return .errorAlertDismissed(result)
                 }
             } else if userSession.currentUser != nil {
-                navigationCoordinator.setPage(.conversations)
+                navigationCoordinator.navigate(to: .root(.conversations))
             } else {
-                navigationCoordinator.setPage(.onboarding(.welcome))
+                navigationCoordinator.navigate(to: .root(.onboarding))
             }
         }
 

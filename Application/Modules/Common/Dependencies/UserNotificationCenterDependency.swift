@@ -11,7 +11,7 @@ import Foundation
 import UserNotifications
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public enum UserNotificationCenterDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> UNUserNotificationCenter {

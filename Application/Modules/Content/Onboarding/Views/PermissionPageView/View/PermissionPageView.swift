@@ -11,7 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct PermissionPageView: View {
     // MARK: - Properties
@@ -37,6 +37,7 @@ public struct PermissionPageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

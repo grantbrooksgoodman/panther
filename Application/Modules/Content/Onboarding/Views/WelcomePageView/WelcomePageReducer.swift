@@ -10,20 +10,24 @@
 import Foundation
 
 /* 3rd-party */
-import Redux
+import CoreArchitecture
 
 public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.rootNavigationCoordinator) private var navigationCoordinator: RootNavigationCoordinator
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
+        case viewFirstAppeared
 
         case continueButtonTapped
         case signInButtonTapped
@@ -65,11 +69,13 @@ public struct WelcomePageReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
-            state.viewState = .loading
             core.utils.restoreDeviceLanguageCode()
+            onboardingService.flushValues()
+
+        case .action(.viewFirstAppeared):
+            state.viewState = .loading
             core.ui.overrideUserInterfaceStyle(.unspecified)
             ThemeService.setTheme(AppTheme.default.theme, checkStyle: false)
-            onboardingService.flushValues()
 
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)
@@ -77,10 +83,10 @@ public struct WelcomePageReducer: Reducer {
             }
 
         case .action(.continueButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.selectLanguage))
+            navigationCoordinator.navigate(to: .onboarding(.push(.selectLanguage)))
 
         case .action(.signInButtonTapped):
-            navigationCoordinator.setPage(.onboarding(.signIn))
+            navigationCoordinator.navigate(to: .onboarding(.push(.signIn)))
 
         case let .feedback(.resolveReturned(.success(strings))):
             state.strings = strings
