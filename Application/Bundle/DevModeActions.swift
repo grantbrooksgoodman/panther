@@ -211,6 +211,7 @@ public extension DevModeService {
         func setCurrentUserID() {
             @Dependency(\.alertKitCore) var akCore: AKCore
             @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            @Dependency(\.userDefaults) var defaults: UserDefaults
 
             @Persistent(.currentUserID) var currentUserID: String?
             @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
@@ -246,6 +247,10 @@ public extension DevModeService {
                 currentUserID = inputString
                 if currentUserID != previousValue {
                     coreUtilities.clearCaches()
+                    coreUtilities.eraseDocumentsDirectory()
+                    coreUtilities.eraseTemporaryDirectory()
+
+                    defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
                 }
 
                 navigationCoordinator.navigate(to: .root(.splash))

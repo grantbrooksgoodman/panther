@@ -10,6 +10,8 @@
 import Foundation
 
 public extension UserDefaultsKeyDomain {
+    // MARK: - Types
+
     enum GeneralAppDefaultsKey: String {
         case `default`
     }
@@ -38,4 +40,16 @@ public extension UserDefaultsKeyDomain {
         case firstPostponedUpdate
         case relaunchesSinceLastPostponedUpdate
     }
+
+    // MARK: - Properties
+
+    static let permanentKeys: [UserDefaultsKeyDomain] = [
+        .app(.coreNetworking(.networkEnvironment)),
+        .app(.devModeService(.indicatesNetworkActivity)),
+        .core(.breadcrumbsCaptureEnabled),
+        .core(.breadcrumbsCapturesAllViews),
+        .core(.currentThemeID),
+        .core(.developerModeEnabled),
+        .core(.hidesBuildInfoOverlay),
+    ]
 }

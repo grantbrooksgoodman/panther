@@ -37,18 +37,6 @@ public final class SettingsPageViewService: Cacheable {
     public var cache: Cache
     public var emptyCache: Cache
 
-    private var defaultsKeysToKeep: [UserDefaultsKeyDomain] {
-        [
-            .app(.coreNetworking(.networkEnvironment)),
-            .app(.devModeService(.indicatesNetworkActivity)),
-            .core(.breadcrumbsCaptureEnabled),
-            .core(.breadcrumbsCapturesAllViews),
-            .core(.currentThemeID),
-            .core(.developerModeEnabled),
-            .core(.hidesBuildInfoOverlay),
-        ]
-    }
-
     @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Init
@@ -101,8 +89,8 @@ public final class SettingsPageViewService: Cacheable {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            var defaultsKeysToKeep: [UserDefaultsKeyDomain] = [.app(.userSessionService(.currentUserID))]
-            defaultsKeysToKeep.append(contentsOf: self.defaultsKeysToKeep)
+            var defaultsKeysToKeep: [UserDefaultsKeyDomain] = UserDefaultsKeyDomain.permanentKeys
+            defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
             defaults.reset(keeping: defaultsKeysToKeep)
 
             @Persistent(.didClearCaches) var didClearCaches: Bool?
@@ -174,7 +162,7 @@ public final class SettingsPageViewService: Cacheable {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: defaultsKeysToKeep)
+            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
 
             exit(0)
         }
@@ -226,7 +214,7 @@ public final class SettingsPageViewService: Cacheable {
                 }
             }
 
-            defaults.reset(keeping: defaultsKeysToKeep)
+            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
             navigationCoordinator.navigate(to: .onboarding(.stack([])))
             navigationCoordinator.navigate(to: .root(.onboarding))
         }

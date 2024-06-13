@@ -14,10 +14,6 @@ import AlertKit
 import CoreArchitecture
 
 public struct ConversationCellViewService {
-    // MARK: - Dependencies
-
-    @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
-
     // MARK: - Methods
 
     /// `.deleteConversationButtonTapped`
@@ -36,23 +32,50 @@ public struct ConversationCellViewService {
 
     /// `.userInfoBadgeTapped`
     public func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
-        guard let user = cellViewData.otherUser else { return }
+        Task {
+            @Dependency(\.build) var build: Build
+            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            @Dependency(\.userDefaults) var defaults: UserDefaults
+            @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
 
-        var languageName = user.languageCode.uppercased()
-        if let languageExonym = languageName.languageExonym {
-            languageName = "\(languageExonym) (\(user.languageCode.uppercased()))"
+            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
+            guard let user = cellViewData.otherUser else { return }
+
+            var languageName = user.languageCode.uppercased()
+            if let languageExonym = languageName.languageExonym {
+                languageName = "\(languageExonym) (\(user.languageCode.uppercased()))"
+            }
+
+            @Localized(.language) var languageString: String
+            @Localized(.region) var regionString: String
+
+            var actions: [AKAction]?
+            if build.developerModeEnabled {
+                actions = [.init(title: "Set to Current User", style: .preferred)]
+            }
+
+            let alert: AKAlert = .init(
+                title: cellViewData.titleLabelText,
+                message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
+                actions: actions,
+                cancelButtonTitle: Localized(.dismiss).wrappedValue,
+                shouldTranslate: [.none]
+            )
+
+            let actionID = await alert.present()
+            guard actionID != -1 else { return }
+
+            coreUtilities.clearCaches()
+            coreUtilities.eraseDocumentsDirectory()
+            coreUtilities.eraseTemporaryDirectory()
+
+            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+
+            @Persistent(.currentUserID) var currentUserID: String?
+            currentUserID = user.id
+
+            navigationCoordinator.navigate(to: .root(.splash))
         }
-
-        @Localized(.language) var languageString: String
-        @Localized(.region) var regionString: String
-
-        let alert: AKAlert = .init(
-            title: cellViewData.titleLabelText,
-            message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
-            cancelButtonTitle: Localized(.dismiss).wrappedValue,
-            shouldTranslate: [.none]
-        )
-
-        Task { await alert.present() }
     }
 }

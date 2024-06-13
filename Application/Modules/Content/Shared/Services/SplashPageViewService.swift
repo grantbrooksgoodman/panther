@@ -137,15 +137,7 @@ public final class SplashPageViewService {
             coreUtilities.eraseDocumentsDirectory()
             coreUtilities.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: [
-                .app(.coreNetworking(.networkEnvironment)),
-                .app(.devModeService(.indicatesNetworkActivity)),
-                .core(.breadcrumbsCaptureEnabled),
-                .core(.breadcrumbsCapturesAllViews),
-                .core(.currentThemeID),
-                .core(.developerModeEnabled),
-                .core(.hidesBuildInfoOverlay),
-            ])
+            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
         }
 
         @Persistent(.currentUserID) var currentUserID: String?
