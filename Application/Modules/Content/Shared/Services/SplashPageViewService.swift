@@ -38,6 +38,17 @@ public final class SplashPageViewService {
         akCore.register(reportDelegate: ErrorReportingService())
         akCore.register(translationDelegate: networkServices.translation)
 
+        guard build.isOnline else {
+            if let exception = userSession.setOfflineCurrentUser() {
+                Logger.log(exception)
+            }
+
+            guard let currentUser = userSession.currentUser else { return nil }
+            akCore.setLanguageCode(currentUser.languageCode)
+            RuntimeStorage.store(currentUser.languageCode, as: .languageCode)
+            return nil
+        }
+
         /* MARK: HostedTranslationArchiver Setup */
 
         @Persistent(.currentUserID) var currentUserID: String?

@@ -27,8 +27,7 @@ public struct ConversationCellViewService {
             title: title,
             message: "Are you sure you'd like to delete this conversation?\nThis operation cannot be undone.",
             actions: [.init(title: "Delete", style: .destructive)],
-            shouldTranslate: [.actions(indices: nil), .message],
-            networkDependent: true
+            shouldTranslate: [.actions(indices: nil), .message]
         )
 
         let actionID = await actionSheet.present()

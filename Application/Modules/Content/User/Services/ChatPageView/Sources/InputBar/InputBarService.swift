@@ -26,6 +26,7 @@ public final class InputBarService {
     // MARK: - Dependencies
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
+    @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -48,6 +49,8 @@ public final class InputBarService {
 
     public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
     public var shouldEnableSendButton: Bool {
+        guard build.isOnline else { return false }
+
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
         let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank

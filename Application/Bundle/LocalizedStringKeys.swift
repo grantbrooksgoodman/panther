@@ -26,58 +26,63 @@ public enum LocalizedStringKey: String {
     case done
 
     case errorReportedSuccessfully
+
+    case friday
+
     case holdDownToRecord
+
+    case internetConnectionOffline
     case invite
 
     case language
-    case region
 
+    case monday
     case multiple
     case myAccount
-    case newMessage
 
+    case newMessage
     case noEmail
     case noInternetMessage
     case noInternetTitle
     case noResults
     case noSpeechDetected
 
+    case offlineMode
+
     case read
     case rebuildingIndices
+    case region
     case reportBug
-    case somethingWentWrong
-    case tapToReport
-    case timedOut
-    case tryAgain
 
+    case saturday
     case search
     case selectCallingCode
     case selectLanguage
     case sendFeedback
     case settings
     case slideToCancel
-
+    case somethingWentWrong
     case speak
     case stopSpeaking
-
     case sunday
-    case monday
-    case tuesday
-    case wednesday
+
+    case tapToReport
     case thursday
-    case friday
-    case saturday
-
+    case timedOut
     case to
-
     case today
-    case yesterday
+    case tryAgain
+    case tuesday
 
     case version
     case viewAsAudio
     case viewOriginal
     case viewTranscription
     case viewTranslation
+
+    case wednesday
+
+    case yesterday
 
     // MARK: - Properties
 

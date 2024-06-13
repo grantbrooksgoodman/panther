@@ -161,6 +161,7 @@ public struct ChatPageViewControllerFactory {
 
         inputBar.sendButton.tag = canConfigureInputBarForRecording ? recordButtonSemanticTag : sendButtonSemanticTag
         inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
+        inputBar.sendButton.title = nil
 
         inputBar.sendButton
             .onSelected { $0.transform = .init(

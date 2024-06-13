@@ -12,3 +12,8 @@ public protocol NetworkActivityIndicator {
     func show()
     func hide()
 }
+
+public struct DefaultNetworkActivityIndicator: NetworkActivityIndicator {
+    public func show() {}
+    public func hide() {}
+}

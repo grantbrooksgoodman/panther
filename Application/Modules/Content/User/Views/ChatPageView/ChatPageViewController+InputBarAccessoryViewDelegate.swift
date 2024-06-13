@@ -31,7 +31,7 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
             if let exception = await inputBarService?.textViewDidChange(to: text) {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception)
             }
         }
     }

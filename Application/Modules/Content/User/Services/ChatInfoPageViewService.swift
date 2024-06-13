@@ -153,8 +153,7 @@ public final class ChatInfoPageViewService: Cacheable {
                 textFieldAttributes: [
                     .editingMode: UITextField.ViewMode.always,
                     .sampleText: conversationName,
-                ],
-                networkDependent: true
+                ]
             )
 
             let presentTextFieldAlertResult = await alert.presentTextFieldAlert()

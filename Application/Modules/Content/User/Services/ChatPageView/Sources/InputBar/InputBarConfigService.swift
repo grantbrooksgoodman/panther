@@ -14,9 +14,14 @@ import UIKit
 import CoreArchitecture
 
 public struct InputBarConfigService {
+    // MARK: - Constants Accessors
+
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
+
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
+    @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession) private var clientSession: ClientSession
 
     // MARK: - Computed Properties
@@ -33,6 +38,8 @@ public struct InputBarConfigService {
     // MARK: - Public
 
     public func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
+        guard build.isOnline else { return .init(systemName: Strings.sendButtonOfflineImageSystemName) }
+
         guard forRecording else {
             guard ThemeService.isDefaultThemeApplied else {
                 return isHighlighted ? .sendAlternateHighlighted : .sendAlternate

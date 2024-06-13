@@ -40,24 +40,24 @@ public struct ContactNameService {
     private func firstName(_ contact: CNContact) -> String? {
         let firstName = contact.givenName
         let phoneticFirstName = contact.phoneticGivenName
-        return firstName.isBlank ? (phoneticFirstName.isBlank ? nil : phoneticFirstName) : firstName
+        return (firstName.isBlank ? (phoneticFirstName.isBlank ? nil : phoneticFirstName) : firstName)?.trimmingBorderedWhitespace
     }
 
     private func lastName(_ contact: CNContact) -> String? {
         let lastName = contact.familyName
         let phoneticLastName = contact.phoneticFamilyName
-        return lastName.isBlank ? (phoneticLastName.isBlank ? nil : phoneticLastName) : lastName
+        return (lastName.isBlank ? (phoneticLastName.isBlank ? nil : phoneticLastName) : lastName)?.trimmingBorderedWhitespace
     }
 
     private func nickname(_ contact: CNContact) -> String? {
         let nickname = contact.nickname
-        return nickname.isBlank ? nil : nickname
+        return (nickname.isBlank ? nil : nickname)?.trimmingBorderedWhitespace
     }
 
     private func organizationName(_ contact: CNContact) -> String? {
         let organizationName = contact.organizationName
         let phoneticOrganizationName = contact.phoneticOrganizationName
-        return organizationName.isBlank ? (phoneticOrganizationName.isBlank ? nil : phoneticOrganizationName) : organizationName
+        return (organizationName.isBlank ? (phoneticOrganizationName.isBlank ? nil : phoneticOrganizationName) : organizationName)?.trimmingBorderedWhitespace
     }
 
     private func splitName(_ string: String) -> (firstName: String, lastName: String)? {

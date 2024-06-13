@@ -152,13 +152,15 @@ public struct ConversationsPageReducer: Reducer {
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
-            state.viewState = .loaded
 
+            state.viewState = .loaded
             viewService.viewLoaded()
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
+
             state.viewState = .loaded
+            viewService.viewLoaded()
         }
 
         return .none

@@ -15,6 +15,7 @@ import CoreArchitecture
 public struct ConversationsPageViewService {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -33,9 +34,31 @@ public struct ConversationsPageViewService {
 
     /// `.resolveReturned(.success(_))`
     public func viewLoaded() {
+        /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.
+        func updateAppearance() {
+            Logger.log(
+                "Intercepted offline startup navigation bar appearance bug.",
+                domain: .bugPrevention,
+                metadata: [self, #file, #function, #line]
+            )
+
+            coreGCD.after(.milliseconds(500)) {
+                Observables.traitCollectionChanged.trigger()
+            }
+        }
+
         coreGCD.after(.seconds(1)) {
             services.review.promptToReview()
         }
+
+        guard !build.isOnline else { return }
+
+        updateAppearance()
+        Observables.rootViewToast.value = .init(
+            .capsule(style: .warning),
+            message: Localized(.offlineMode).wrappedValue,
+            perpetuation: .ephemeral(.seconds(10))
+        )
     }
 
     /// `.pulledToRefresh`

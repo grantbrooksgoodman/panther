@@ -11,28 +11,25 @@ import Foundation
 public struct Networking {
     // MARK: - Properties
 
-    public let activityIndicator: NetworkActivityIndicator
-    public let auth: Auth
     public let config: NetworkConfig
-    public let database: Database
+    public let delegates: NetworkDelegates
     public let services: NetworkServices
-    public let storage: Storage
+
+    // MARK: - Computed Properties
+
+    public var auth: Auth { services.core.auth }
+    public var database: Database { services.core.database }
+    public var storage: Storage { services.core.storage }
 
     // MARK: - Init
 
     public init(
-        activityIndicator: NetworkActivityIndicator,
-        auth: Auth,
         config: NetworkConfig,
-        database: Database,
-        services: NetworkServices,
-        storage: Storage
+        delegates: NetworkDelegates,
+        services: NetworkServices
     ) {
-        self.activityIndicator = activityIndicator
-        self.auth = auth
         self.config = config
-        self.database = database
+        self.delegates = delegates
         self.services = services
-        self.storage = storage
     }
 }

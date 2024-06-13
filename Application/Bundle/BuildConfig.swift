@@ -33,7 +33,6 @@ public enum BuildConfig {
 
     public static let languageCode = Locale.systemLanguageCode
     public static let loggerDomainsExcludedFromSessionRecord: [LoggerDomain] = [
-        .hostedTranslation,
         .observer,
     ]
     public static let loggerDomainSubscriptions: [LoggerDomain] = [

@@ -104,8 +104,7 @@ public struct InviteService {
         let alert: AKAlert = .init(
             title: "Translate Invitation",
             message: message,
-            actions: actions,
-            networkDependent: true
+            actions: actions
         )
 
         let actionID = await alert.present()

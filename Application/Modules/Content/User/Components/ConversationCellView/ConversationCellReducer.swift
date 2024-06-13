@@ -157,7 +157,7 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case let .feedback(.updateReadDateReturned(.failure(exception))):
-            Logger.log(exception, with: .toast())
+            Logger.log(exception)
         }
 
         return .none

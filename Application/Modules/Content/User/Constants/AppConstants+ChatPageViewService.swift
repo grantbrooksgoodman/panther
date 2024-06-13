@@ -141,6 +141,7 @@ public extension AppConstants.Strings {
 
         enum InputBar {
             public static let recordButtonSemanticTag = "RECORD_BUTTON"
+            public static let sendButtonOfflineImageSystemName = "wifi.slash"
             public static let sendButtonSemanticTag = "SEND_BUTTON"
         }
 

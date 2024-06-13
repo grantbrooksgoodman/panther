@@ -30,6 +30,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - UIApplication
 
@@ -43,7 +44,9 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         return true
     }
 
-    public func applicationDidBecomeActive(_ application: UIApplication) {}
+    public func applicationWillTerminate(_ application: UIApplication) {
+        userSession.persistOfflineCurrentUser()
+    }
 
     // MARK: - Initialization + Setup
 

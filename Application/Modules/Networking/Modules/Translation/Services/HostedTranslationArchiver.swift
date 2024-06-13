@@ -47,7 +47,7 @@ public struct HostedTranslationArchiver {
             }
 
             for value in dictionary.values {
-                guard let decoded = value.decodedTranslationComponents else {
+                guard let components = value.decodedTranslationComponents else {
                     let exception = Exception(
                         "Failed to decode translation.",
                         extraParams: ["Value": value],
@@ -56,20 +56,17 @@ public struct HostedTranslationArchiver {
                     return exception.appending(extraParams: commonParams)
                 }
 
-                TranslationArchiver.addToArchive(
-                    .init(
-                        input: .init(decoded.input),
-                        output: decoded.output.sanitized,
-                        languagePair: languagePair
-                    )
+                let decoded: Translation = .init(
+                    input: .init(components.input),
+                    output: components.output.sanitized,
+                    languagePair: languagePair
                 )
+                TranslationArchiver.addToArchive(decoded)
 
                 Logger.log(
                     .init(
                         "Added hosted translation to local archive.",
-                        extraParams: ["Input": decoded.input,
-                                      "Output": decoded.output.sanitized,
-                                      "LanguagePair": languagePair.asString()],
+                        extraParams: ["ReferenceHostingKey": decoded.reference.hostingKey],
                         metadata: [self, #file, #function, #line]
                     ),
                     domain: .hostedTranslation
@@ -109,7 +106,7 @@ public struct HostedTranslationArchiver {
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
-            guard let decoded = value.decodedTranslationComponents else {
+            guard let components = value.decodedTranslationComponents else {
                 let exception = Exception(
                     "Failed to decode translation.",
                     extraParams: ["Value": value],
@@ -120,8 +117,8 @@ public struct HostedTranslationArchiver {
 
             return .success(
                 .init(
-                    input: .init(decoded.input),
-                    output: decoded.output.sanitized,
+                    input: .init(components.input),
+                    output: components.output.sanitized,
                     languagePair: languagePair
                 )
             )
@@ -177,6 +174,15 @@ public struct HostedTranslationArchiver {
         ) {
             return exception
         }
+
+        Logger.log(
+            .init(
+                "Added retrieved translation to hosted archive.",
+                extraParams: ["ReferenceHostingKey": translation.reference.hostingKey],
+                metadata: [self, #file, #function, #line]
+            ),
+            domain: .hostedTranslation
+        )
 
         return nil
     }

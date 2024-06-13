@@ -47,6 +47,19 @@ public extension String {
         components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
     }
 
+    var englishLanguageName: String? {
+        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+
+        guard self != "",
+              lowercasedTrimmingWhitespaceAndNewlines != "",
+              let languageCodes = RuntimeStorage.languageCodeDictionary,
+              let name = languageCodes[self] ?? languageCodes[lowercasedTrimmingWhitespaceAndNewlines] else { return nil }
+
+        let components = name.components(separatedBy: " (")
+        guard !components.isEmpty else { return name.trimmingBorderedWhitespace }
+        return components[0].trimmingBorderedWhitespace
+    }
+
     var isBangQualifiedEmpty: Bool {
         isBlank || self == .bangQualifiedEmpty
     }

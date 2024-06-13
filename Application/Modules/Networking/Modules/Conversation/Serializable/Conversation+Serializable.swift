@@ -108,7 +108,7 @@ extension Conversation: Serializable {
               !currentUserParticipant.hasDeletedConversation else {
             let decoded: Conversation = .init(
                 conversationID,
-                messageIDs: messageIDs,
+                messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
                 messages: nil,
                 metadata: metadata,
                 participants: participants,
@@ -131,7 +131,7 @@ extension Conversation: Serializable {
         guard !messageIDs.isBangQualifiedEmpty else {
             let decoded: Conversation = .init(
                 conversationID,
-                messageIDs: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
+                messageIDs: .bangQualifiedEmpty,
                 messages: .init(),
                 metadata: metadata,
                 participants: participants,

@@ -13,18 +13,25 @@ import CoreArchitecture
 
 public enum NetworkingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Networking {
+        @Dependency(\.build) var build: Build
         @Dependency(\.commonServices.networkActivityIndicator) var networkActivityIndicatorService: NetworkActivityIndicatorService
 
         return .init(
-            activityIndicator: networkActivityIndicatorService,
-            auth: .init(),
             config: .init(
                 environment: BuildConfig.networkEnvironment,
                 paths: .init()
             ),
-            database: .init(),
+            delegates: .init(
+                activityIndicator: networkActivityIndicatorService,
+                connectionStatusProvider: build
+            ),
             services: .init(
                 conversation: .init(archive: .init()),
+                core: .init(
+                    auth: .init(),
+                    database: .init(),
+                    storage: .init()
+                ),
                 message: .init(
                     audio: .init(),
                     legacy: .init()
@@ -35,8 +42,7 @@ public enum NetworkingDependency: DependencyKey {
                     legacy: .init()
                 ),
                 user: .init(legacy: .init())
-            ),
-            storage: .init()
+            )
         )
     }
 }

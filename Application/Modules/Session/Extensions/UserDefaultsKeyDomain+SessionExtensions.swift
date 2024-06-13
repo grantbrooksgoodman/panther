@@ -12,5 +12,6 @@ import Foundation
 public extension UserDefaultsKeyDomain {
     enum UserSessionServiceDefaultsKey: String {
         case currentUserID
+        case offlineCurrentUser
     }
 }

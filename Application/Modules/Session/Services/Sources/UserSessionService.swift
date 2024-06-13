@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 
@@ -17,6 +19,7 @@ import FirebaseDatabase
 public final class UserSessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
@@ -27,10 +30,34 @@ public final class UserSessionService {
     // MARK: - Properties
 
     public private(set) var currentUser: User?
+
     @Persistent(.currentUserID) private var currentUserID: String?
     private var isUpdatingCurrentUser = false
 
     // MARK: - Computed Properties
+
+    public var offlineCurrentUser: User? {
+        get {
+            @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
+
+            guard let currentUserID,
+                  let offlineCurrentUser,
+                  currentUserID == offlineCurrentUser.id else { return nil }
+            return offlineCurrentUser
+        }
+        set {
+            @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
+
+            guard let newValue else {
+                offlineCurrentUser = nil
+                return
+            }
+
+            guard let currentUserID,
+                  newValue.id == currentUserID else { return }
+            offlineCurrentUser = newValue
+        }
+    }
 
     private var currentUserDatabaseReference: DatabaseReference? {
         guard let currentUser else { return nil }
@@ -85,6 +112,32 @@ public final class UserSessionService {
 
             return .failure(exception)
         }
+    }
+
+    // MARK: - Offline Current User
+
+    public func persistOfflineCurrentUser() {
+        offlineCurrentUser = currentUser
+    }
+
+    @discardableResult
+    public func setOfflineCurrentUser() -> Exception? {
+        guard !build.isOnline else {
+            return .init(
+                "Internet connection is not offline.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        guard let offlineCurrentUser else {
+            return .init(
+                "No persisted user exists.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        currentUser = offlineCurrentUser
+        return nil
     }
 
     // MARK: - Current User Observation
@@ -396,3 +449,5 @@ public final class UserSessionService {
         }
     }
 }
+
+// swiftlint:enable file_length

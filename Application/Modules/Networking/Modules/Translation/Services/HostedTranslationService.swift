@@ -189,6 +189,18 @@ public struct HostedTranslationService {
                 return .failure(exception)
             }
 
+            let sourceLanguageName = languagePair.from.englishLanguageName ?? languagePair.from.uppercased()
+            let targetLanguageName = languagePair.to.englishLanguageName ?? languagePair.to.uppercased()
+            Logger.log(
+                .init(
+                    "Translating text from \(sourceLanguageName) to \(targetLanguageName).",
+                    extraParams: ["InputValue": input.value(),
+                                  "LanguagePair": languagePair.asString()],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .hostedTranslation
+            )
+
             let translateResult = await translator.translate(
                 input,
                 with: languagePair,

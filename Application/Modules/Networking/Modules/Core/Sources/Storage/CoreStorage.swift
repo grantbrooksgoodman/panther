@@ -15,8 +15,8 @@ import FirebaseStorage
 public struct CoreStorage {
     // MARK: - Dependencies
 
+    @Dependency(\.networking.delegates) private var delegates: NetworkDelegates
     @Dependency(\.firebaseStorage) private var firebaseStorage: StorageReference
-    @Dependency(\.networking.activityIndicator) private var networkActivity: NetworkActivityIndicator
 
     // MARK: - Data Upload
 
@@ -27,13 +27,18 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
-        networkActivity.show()
+        guard delegates.connectionStatusProvider.isOnline else {
+            completion(.internetConnectionOffline([self, #file, #function, #line]))
+            return
+        }
+
+        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
-            networkActivity.hide()
+            delegates.activityIndicator.hide()
             return true
         }
 
@@ -73,13 +78,18 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
-        networkActivity.show()
+        guard delegates.connectionStatusProvider.isOnline else {
+            completion(.internetConnectionOffline([self, #file, #function, #line]))
+            return
+        }
+
+        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
-            networkActivity.hide()
+            delegates.activityIndicator.hide()
             return true
         }
 
@@ -117,13 +127,18 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ exception: Exception?) -> Void
     ) {
-        networkActivity.show()
+        guard delegates.connectionStatusProvider.isOnline else {
+            completion(.internetConnectionOffline([self, #file, #function, #line]))
+            return
+        }
+
+        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
-            networkActivity.hide()
+            delegates.activityIndicator.hide()
             return true
         }
 
@@ -163,13 +178,18 @@ public struct CoreStorage {
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Bool, Exception>) -> Void
     ) {
-        networkActivity.show()
+        guard delegates.connectionStatusProvider.isOnline else {
+            completion(.failure(.internetConnectionOffline([self, #file, #function, #line])))
+            return
+        }
+
+        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
             guard !didComplete else { return false }
             didComplete = true
-            networkActivity.hide()
+            delegates.activityIndicator.hide()
             return true
         }
 

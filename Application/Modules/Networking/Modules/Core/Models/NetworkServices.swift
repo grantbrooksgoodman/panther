@@ -12,6 +12,7 @@ public struct NetworkServices {
     // MARK: - Properties
 
     public let conversation: ConversationService
+    public let core: CoreNetworkServices
     public let message: MessageService
     public let translation: HostedTranslationService
     public let user: UserService
@@ -20,11 +21,13 @@ public struct NetworkServices {
 
     public init(
         conversation: ConversationService,
+        core: CoreNetworkServices,
         message: MessageService,
         translation: HostedTranslationService,
         user: UserService
     ) {
         self.conversation = conversation
+        self.core = core
         self.message = message
         self.translation = translation
         self.user = user
