@@ -244,7 +244,6 @@ public extension DevModeService {
                       let inputString,
                       !inputString.isBlank else { return }
                 let previousValue = currentUserID
-                currentUserID = inputString
                 if currentUserID != previousValue {
                     coreUtilities.clearCaches()
                     coreUtilities.eraseDocumentsDirectory()
@@ -253,7 +252,8 @@ public extension DevModeService {
                     defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
                 }
 
-                navigationCoordinator.navigate(to: .root(.splash))
+                currentUserID = inputString
+                navigationCoordinator.navigate(to: .root(.modal(.splash)))
             }
         }
 
@@ -312,15 +312,7 @@ public extension DevModeService {
                 coreUtilities.eraseDocumentsDirectory()
                 coreUtilities.eraseTemporaryDirectory()
 
-                defaults.reset(keeping: [
-                    .app(.coreNetworking(.networkEnvironment)),
-                    .app(.devModeService(.indicatesNetworkActivity)),
-                    .core(.breadcrumbsCaptureEnabled),
-                    .core(.breadcrumbsCapturesAllViews),
-                    .core(.currentThemeID),
-                    .core(.developerModeEnabled),
-                    .core(.hidesBuildInfoOverlay),
-                ])
+                defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
 
                 let environmentString = (persistentEnvironment ?? .production).description
 

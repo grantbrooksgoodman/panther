@@ -128,7 +128,7 @@ public struct PermissionPageReducer: Reducer {
 
                 Logger.log(exception, with: .toast())
             } else {
-                navigationCoordinator.navigate(to: .root(.splash))
+                navigationCoordinator.navigate(to: .root(.modal(.splash)))
             }
 
         case let .feedback(.requestContactPermissionReturned(.success(status))):

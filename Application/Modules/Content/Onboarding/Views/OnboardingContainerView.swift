@@ -1,5 +1,5 @@
 //
-//  RootContainerView.swift
+//  OnboardingContainerView.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 11/06/2024.
@@ -13,12 +13,12 @@ import SwiftUI
 /* 3rd-party */
 import CoreArchitecture
 
-public struct RootContainerView: View {
+public struct OnboardingContainerView: View {
     // MARK: - Properties
 
     @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
-    // MARK: - Computed Properties
+    // MARK: - Bindings
 
     private var navigationPathBinding: Binding<[OnboardingNavigatorState.SeguePaths]> {
         navigationCoordinator.navigable(

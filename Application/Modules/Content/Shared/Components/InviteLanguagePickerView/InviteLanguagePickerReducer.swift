@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import SwiftUI
 
 /* 3rd-party */
 import CoreArchitecture
@@ -18,6 +17,10 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -80,11 +83,11 @@ public struct InviteLanguagePickerReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.cancelHeaderItemTapped):
-            RootSheets.dismiss()
+            navigationCoordinator.navigate(to: .root(.sheet(.none)))
 
         case .action(.doneHeaderItemTapped):
             guard state.isDoneHeaderItemEnabled else { return .none }
-            RootSheets.dismiss()
+            navigationCoordinator.navigate(to: .root(.sheet(.none)))
 
             let languageCode = state.selectedLanguageCode
             coreGCD.after(.seconds(2)) {

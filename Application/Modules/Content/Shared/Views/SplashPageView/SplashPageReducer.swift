@@ -85,9 +85,9 @@ public struct SplashPageReducer: Reducer {
                     return .errorAlertDismissed(result)
                 }
             } else if userSession.currentUser != nil {
-                navigationCoordinator.navigate(to: .root(.conversations))
+                navigationCoordinator.navigate(to: .root(.modal(.conversations)))
             } else {
-                navigationCoordinator.navigate(to: .root(.onboarding))
+                navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
             }
         }
 

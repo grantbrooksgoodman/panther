@@ -216,7 +216,7 @@ public final class SettingsPageViewService: Cacheable {
 
             defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
             navigationCoordinator.navigate(to: .onboarding(.stack([])))
-            navigationCoordinator.navigate(to: .root(.onboarding))
+            navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
         }
     }
 

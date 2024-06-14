@@ -25,18 +25,18 @@ public struct OnboardingNavigatorState: NavigatorState {
         case verifyNumber
     }
 
+    public enum SheetPaths: Paths {}
+
     // MARK: - Properties
 
     public var modal: ModalPaths?
+    public var sheet: SheetPaths?
     public var stack: [SeguePaths] = []
 }
 
 public enum OnboardingNavigator {
     static func navigate(to route: RootNavigationService.Route.OnboardingRoute, on state: inout OnboardingNavigatorState) {
         switch route {
-        case let .modal(modal):
-            state.modal = modal
-
         case .pop:
             guard !state.stack.isEmpty else { return }
             state.stack.removeLast()
@@ -52,7 +52,6 @@ public enum OnboardingNavigator {
 
 public extension RootNavigationService.Route {
     enum OnboardingRoute {
-        case modal(OnboardingNavigatorState.ModalPaths?)
         case pop
         case push(OnboardingNavigatorState.SeguePaths)
         case stack([OnboardingNavigatorState.SeguePaths])

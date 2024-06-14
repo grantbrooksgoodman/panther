@@ -245,7 +245,7 @@ public struct SignInPageReducer: Reducer {
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
-            navigationCoordinator.navigate(to: .root(.splash))
+            navigationCoordinator.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):
             uiApplication.keyWindow?.removeOverlay()

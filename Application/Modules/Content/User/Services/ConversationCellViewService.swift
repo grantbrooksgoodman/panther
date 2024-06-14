@@ -56,7 +56,7 @@ public struct ConversationCellViewService {
             }
 
             let alert: AKAlert = .init(
-                title: cellViewData.titleLabelText,
+                title: cellViewData.titleLabelText, // swiftlint:disable:next line_length
                 message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
                 actions: actions,
                 cancelButtonTitle: Localized(.dismiss).wrappedValue,
@@ -75,7 +75,7 @@ public struct ConversationCellViewService {
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = user.id
 
-            navigationCoordinator.navigate(to: .root(.splash))
+            navigationCoordinator.navigate(to: .root(.modal(.splash)))
         }
     }
 }

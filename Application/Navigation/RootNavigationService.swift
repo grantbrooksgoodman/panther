@@ -20,19 +20,19 @@ public struct RootNavigationService: Navigating {
     // MARK: - Types
 
     public enum Route {
-        case root(RootNavigatorState.ModalPaths)
         case onboarding(OnboardingRoute)
+        case root(RootRoute)
     }
 
     // MARK: - Navigate to Route
 
     public func navigate(to route: Route, on state: inout RootNavigatorState) {
         switch route {
-        case let .root(modal):
-            state.modal = modal
-
         case let .onboarding(onboardingRoute):
             OnboardingNavigator.navigate(to: onboardingRoute, on: &state.onboarding)
+
+        case let .root(rootRoute):
+            RootNavigator.navigate(to: rootRoute, on: &state)
         }
     }
 }
