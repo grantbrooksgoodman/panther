@@ -22,6 +22,7 @@ public enum CommonServicesDependency: DependencyKey {
                 textToSpeech: .init(),
                 transcription: .init()
             ),
+            connectionStatus: .init(),
             contact: .init(
                 contactPairArchive: .init(),
                 sync: .init()

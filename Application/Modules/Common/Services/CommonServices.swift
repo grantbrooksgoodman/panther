@@ -17,6 +17,7 @@ public struct CommonServices {
 
     public let analytics: AnalyticsService
     public let audio: AudioService
+    public let connectionStatus: ConnectionStatusService
     public let contact: ContactService
     public let haptics: HapticsService
     public let invite: InviteService
@@ -36,6 +37,7 @@ public struct CommonServices {
     public init(
         analytics: AnalyticsService,
         audio: AudioService,
+        connectionStatus: ConnectionStatusService,
         contact: ContactService,
         haptics: HapticsService,
         invite: InviteService,
@@ -52,6 +54,7 @@ public struct CommonServices {
     ) {
         self.analytics = analytics
         self.audio = audio
+        self.connectionStatus = connectionStatus
         self.contact = contact
         self.haptics = haptics
         self.invite = invite

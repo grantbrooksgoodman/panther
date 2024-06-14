@@ -238,6 +238,7 @@ public struct SignInPageReducer: Reducer {
             }
 
             onboardingService.setPhoneNumber(state.phoneNumber)
+            onboardingService.setRegionCode(state.selectedRegionCode)
             navigationCoordinator.navigate(to: .onboarding(.stack([.selectLanguage])))
 
         case let .authenticateUserReturned(.success(userID)):

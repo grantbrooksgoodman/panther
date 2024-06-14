@@ -23,7 +23,6 @@ public final class ChatPageViewService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.audio) private var audioService: AudioService
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -31,6 +30,7 @@ public final class ChatPageViewService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -111,6 +111,10 @@ public final class ChatPageViewService {
 
         configureInputBarForMessageSendState()
 
+        services.connectionStatus.addEffectUponConnectionChanged(id: .configureInputBar) {
+            self.inputBar?.configureInputBar(forceUpdate: true)
+        }
+
         viewController?.becomeFirstResponder()
         viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
@@ -134,9 +138,11 @@ public final class ChatPageViewService {
         alternateMessage?.restoreAllAlternateTextMessageIDs()
         alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
 
+        services.connectionStatus.removeEffect(.configureInputBar)
+
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         audioMessagePlayback?.stopPlayback()
-        if let exception = audioService.recording.cancelRecording() {
+        if let exception = services.audio.recording.cancelRecording() {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
             Logger.log(exception, with: .toast())
         }

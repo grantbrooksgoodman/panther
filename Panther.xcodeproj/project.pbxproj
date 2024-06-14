@@ -652,6 +652,8 @@
 		B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */; };
 		B9DCCAB72B3B7CCB00532B12 /* Translation+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB62B3B7CCB00532B12 /* Translation+Serializable.swift */; };
 		B9DDD1562B85896700AB5BD3 /* StatusBarStyleViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DDD1552B85896700AB5BD3 /* StatusBarStyleViewModifier.swift */; };
+		B9DEB7B22C1CDD970098DAAB /* ConnectionStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */; };
+		B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DEB7B32C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift */; };
 		B9E0E0F32B20E89B00C14274 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E0F22B20E89B00C14274 /* Message.swift */; };
 		B9E0E0F52B20E9C000C14274 /* AudioMessageReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E0F42B20E9C000C14274 /* AudioMessageReference.swift */; };
 		B9E0E0F72B20EA0200C14274 /* AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E0E0F62B20EA0200C14274 /* AudioFile.swift */; };
@@ -1517,6 +1519,8 @@
 		B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+Updatable.swift"; sourceTree = "<group>"; };
 		B9DCCAB62B3B7CCB00532B12 /* Translation+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Translation+Serializable.swift"; sourceTree = "<group>"; };
 		B9DDD1552B85896700AB5BD3 /* StatusBarStyleViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarStyleViewModifier.swift; sourceTree = "<group>"; };
+		B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusService.swift; sourceTree = "<group>"; };
+		B9DEB7B32C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusServiceEffectID.swift; sourceTree = "<group>"; };
 		B9E0E0F22B20E89B00C14274 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		B9E0E0F42B20E9C000C14274 /* AudioMessageReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessageReference.swift; sourceTree = "<group>"; };
 		B9E0E0F62B20EA0200C14274 /* AudioFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFile.swift; sourceTree = "<group>"; };
@@ -2378,6 +2382,7 @@
 				B9C9560D2B64578B001C7E01 /* BuildInfoButtonStrings.swift */,
 				B94758262BCF8689001E4872 /* ContentPickerContentSource.swift */,
 				B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */,
+				B9DEB7B32C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift */,
 				B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */,
 				B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */,
 				B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */,
@@ -2487,6 +2492,7 @@
 				B900B53B2B1AC7D800BA2F1D /* Contacts */,
 				B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */,
 				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
+				B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */,
 				B90BE4452BCE5FCC00966C9E /* ErrorReportingService.swift */,
 				B9A409252B71D333005F2489 /* HapticsService.swift */,
 				B900B5312B1AB3FA00BA2F1D /* InviteService.swift */,
@@ -4456,6 +4462,7 @@
 				B90249C82B573E0D00D62855 /* AppConstants+AuthCodePageView.swift in Sources */,
 				B99195792B47C7D300BD5BBC /* SelectLanguagePageView.swift in Sources */,
 				B952B8F12B1527210043181F /* HostedTranslationServiceExceptions.swift in Sources */,
+				B9DEB7B22C1CDD970098DAAB /* ConnectionStatusService.swift in Sources */,
 				B9AF12522ACE4DAD0045C54C /* JSONDependencies.swift in Sources */,
 				B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */,
 				B9F5609E2B69A4AF009ABDD5 /* NotificationExtensionConstants.swift in Sources */,
@@ -4598,6 +4605,7 @@
 				B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
 				B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */,
+				B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */,
 				B91C2D782C1B6A8F00278B7F /* CoreNetworkServices.swift in Sources */,
 				B983872C2BBFCB0B008614AE /* CommonConstants.swift in Sources */,
 				B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */,

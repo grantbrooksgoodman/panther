@@ -154,6 +154,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
             if !cancelled {
                 onboardingService.setPhoneNumber(state.phoneNumber)
+                onboardingService.setRegionCode(state.selectedRegionCode)
                 navigationCoordinator.navigate(to: .onboarding(.stack([.signIn])))
             }
 

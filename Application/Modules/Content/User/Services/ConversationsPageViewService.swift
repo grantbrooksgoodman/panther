@@ -34,6 +34,14 @@ public struct ConversationsPageViewService {
 
     /// `.resolveReturned(.success(_))`
     public func viewLoaded() {
+        func showOfflineModeToast() {
+            Observables.rootViewToast.value = .init(
+                .capsule(style: .warning),
+                message: Localized(.offlineMode).wrappedValue,
+                perpetuation: .ephemeral(.seconds(10))
+            )
+        }
+
         /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.
         func updateAppearance() {
             Logger.log(
@@ -51,14 +59,13 @@ public struct ConversationsPageViewService {
             services.review.promptToReview()
         }
 
-        guard !build.isOnline else { return }
+        services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
+            showOfflineModeToast()
+        }
 
+        guard !build.isOnline else { return }
         updateAppearance()
-        Observables.rootViewToast.value = .init(
-            .capsule(style: .warning),
-            message: Localized(.offlineMode).wrappedValue,
-            perpetuation: .ephemeral(.seconds(10))
-        )
+        showOfflineModeToast()
     }
 
     /// `.pulledToRefresh`
