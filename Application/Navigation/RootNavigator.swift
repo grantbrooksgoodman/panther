@@ -23,9 +23,7 @@ public struct RootNavigatorState: NavigatorState {
 
     public enum SeguePaths: Paths {}
 
-    public enum SheetPaths: Paths {
-        case inviteLanguagePicker
-    }
+    public enum SheetPaths: Paths {}
 
     // MARK: - Properties
 
@@ -41,9 +39,6 @@ public enum RootNavigator {
         switch route {
         case let .modal(modal):
             state.modal = modal
-
-        case let .sheet(sheet):
-            state.sheet = sheet
         }
     }
 }
@@ -51,6 +46,5 @@ public enum RootNavigator {
 public extension RootNavigationService.Route {
     enum RootRoute {
         case modal(RootNavigatorState.ModalPaths)
-        case sheet(RootNavigatorState.SheetPaths?)
     }
 }

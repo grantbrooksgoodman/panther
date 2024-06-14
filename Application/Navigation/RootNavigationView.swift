@@ -14,16 +14,8 @@ import SwiftUI
 import CoreArchitecture
 
 public extension RootView {
-    // MARK: - Properties
-
     @ViewBuilder
     var rootPage: some View {
-        modalView
-            .sheet(item: sheetBinding) { sheetView(for: $0) }
-    }
-
-    @ViewBuilder
-    private var modalView: some View {
         switch navigationCoordinator.state.modal {
         case .conversations:
             withTransition {
@@ -52,29 +44,6 @@ public extension RootView {
 
         case .none:
             EmptyView()
-        }
-    }
-
-    // MARK: - Bindings
-
-    private var sheetBinding: Binding<RootNavigatorState.SheetPaths?> {
-        navigationCoordinator.navigable(
-            \.sheet,
-            route: { .root(.sheet($0)) }
-        )
-    }
-
-    // MARK: - Methods
-
-    private func sheetView(for path: RootNavigatorState.SheetPaths) -> some View {
-        switch path {
-        case .inviteLanguagePicker:
-            InviteLanguagePickerView(
-                .init(
-                    initialState: .init(),
-                    reducer: InviteLanguagePickerReducer()
-                )
-            )
         }
     }
 }

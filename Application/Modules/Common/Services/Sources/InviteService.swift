@@ -41,8 +41,7 @@ public struct InviteService {
         }
 
         coreGCD.after(.seconds(2)) {
-            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-            navigationCoordinator.navigate(to: .root(.sheet(.inviteLanguagePicker)))
+            RootSheets.present(.inviteLanguagePicker)
         }
 
         return nil

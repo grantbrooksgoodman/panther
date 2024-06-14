@@ -18,10 +18,6 @@ public struct InviteLanguagePickerReducer: Reducer {
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
 
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-
     // MARK: - Actions
 
     public enum Action {
@@ -83,11 +79,11 @@ public struct InviteLanguagePickerReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.cancelHeaderItemTapped):
-            navigationCoordinator.navigate(to: .root(.sheet(.none)))
+            RootSheets.dismiss()
 
         case .action(.doneHeaderItemTapped):
             guard state.isDoneHeaderItemEnabled else { return .none }
-            navigationCoordinator.navigate(to: .root(.sheet(.none)))
+            RootSheets.dismiss()
 
             let languageCode = state.selectedLanguageCode
             coreGCD.after(.seconds(2)) {
