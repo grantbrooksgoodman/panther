@@ -54,7 +54,8 @@ public struct ContactDetailView: View {
                     .foregroundStyle(Color.titleText)
                     .padding(.bottom, 0)
 
-                if let subtitleLabelText {
+                if let subtitleLabelText,
+                   !subtitleLabelText.isBlank {
                     Text(subtitleLabelText)
                         .font(.sanFrancisco(size: Floats.subtitleLabelFontSize))
                         .foregroundStyle(Color.titleText)

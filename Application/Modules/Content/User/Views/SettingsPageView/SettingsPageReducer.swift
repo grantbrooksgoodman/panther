@@ -229,7 +229,8 @@ public struct SettingsPageReducer: Reducer {
             state.cnContact = cnContact
 
             let contact = Contact(cnContact)
-            state.contactDetailViewSubtitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? contact.phoneNumbers.first?.formattedString()
+            let formattedPhoneNumberString = userSession.currentUser?.phoneNumber.formattedString() ?? contact.phoneNumbers.first?.formattedString()
+            state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
             state.contactDetailViewTitleLabelText = contact.fullName
 
             if let imageData = contact.imageData {

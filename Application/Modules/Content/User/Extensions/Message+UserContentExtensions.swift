@@ -37,12 +37,12 @@ extension Message: MessageType {
         guard hasAudioComponent,
               let audioComponent else {
             guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
-                return .text(isFromCurrentUser ? translation.input.value().sanitized : translation.output)
+                return .text(isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized)
             }
 
             return .attributedText(
                 .messageCellString(
-                    isFromCurrentUser ? translation.output : translation.input.value().sanitized,
+                    isFromCurrentUser ? translation.output.sanitized : translation.input.value().sanitized,
                     foregroundColor: attributedStringForegroundColor
                 )
             )
@@ -54,7 +54,7 @@ extension Message: MessageType {
 
         return .attributedText(
             .messageCellString(
-                isFromCurrentUser ? translation.input.value().sanitized : translation.output,
+                isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized,
                 foregroundColor: attributedStringForegroundColor
             )
         )
