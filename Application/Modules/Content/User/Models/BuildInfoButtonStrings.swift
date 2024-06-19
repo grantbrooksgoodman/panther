@@ -62,7 +62,7 @@ public struct BuildInfoButtonStrings: Equatable {
             labelText = build.buildSKU
 
         case .projectID:
-            labelText = build.projectID
+            labelText = "7B0U3X1V | \(build.projectID)"
 
         case .copyright:
             labelText = "Copyright © \(calendar.component(.year, from: Date())) NEOTechnica Corp."

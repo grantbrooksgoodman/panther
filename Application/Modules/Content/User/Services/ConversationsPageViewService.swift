@@ -56,7 +56,14 @@ public struct ConversationsPageViewService {
         }
 
         coreGCD.after(.seconds(1)) {
-            services.review.promptToReview()
+            Task {
+                guard await services.permission.notificationPermissionStatus == .unknown else {
+                    services.review.promptToReview()
+                    return
+                }
+
+                _ = await services.permission.requestPermission(for: .notifications)
+            }
         }
 
         services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
