@@ -38,7 +38,7 @@
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>IsReleaseBuild</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
