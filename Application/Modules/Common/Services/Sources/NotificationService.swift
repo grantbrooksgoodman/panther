@@ -155,61 +155,83 @@ public final class NotificationService {
 
     // MARK: - Auxiliary
 
+    private func generateAccessToken() async -> Callback<String, Exception> {
+        guard let url = URL(string: "https://us-central1-jaguar-5d735.cloudfunctions.net/generateAccessToken") else {
+            return .failure(.init(
+                "Failed to generate URL.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        do {
+            let dataResult = try await urlSession.data(for: .init(url: url))
+
+            guard let accessToken = String(data: dataResult.0, encoding: .utf8),
+                  let urlResponse = dataResult.1 as? HTTPURLResponse,
+                  urlResponse.statusCode == 200 else {
+                return .failure(.init(
+                    "Failed to decode URL response or status did not indicate success.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            return .success(accessToken)
+        } catch {
+            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+        }
+    }
+
     private func sendNotification(
         title: String,
         body: String,
         pushToken: String,
         extraParams: [String: String]
     ) async -> Exception? {
-        guard let pushAPIKey = metadataService.pushAPIKey else {
-            if let exception = await metadataService.resolveValues() {
-                return exception
-            }
+        let generateAccessTokenResult = await generateAccessToken()
 
-            return await sendNotification(
-                title: title,
-                body: body,
-                pushToken: pushToken,
-                extraParams: extraParams
-            )
-        }
-
-        // TODO: This needs to change to use an OAuth 2.0 credential by June 20th. Notifications will stop working.
-
-        guard let url = URL(string: "https://fcm.googleapis.com/fcm/send") else {
-            return .init(
-                "Failed to generate URL.",
-                metadata: [self, #file, #function, #line]
-            )
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
-        request.setValue("key=\(pushAPIKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        var payload: [String: Any] = ["mutable_content": true, "to": pushToken]
-        payload["notification"] = ["body": body, "title": title]
-        payload["data"] = extraParams
-
-        do {
-            try request.httpBody = JSONSerialization.data(withJSONObject: payload)
-            let dataResult = try await urlSession.data(for: request)
-
-            guard let responseString = String(data: dataResult.0, encoding: .utf8),
-                  responseString.contains("\"success\":1"),
-                  let urlResponse = dataResult.1 as? HTTPURLResponse,
-                  urlResponse.statusCode == 200 else {
+        switch generateAccessTokenResult {
+        case let .success(accessToken):
+            guard let url = URL(string: "https://fcm.googleapis.com/v1/projects/jaguar-5d735/messages:send") else {
                 return .init(
-                    "Failed to decode URL response or status did not indicate success.",
+                    "Failed to generate URL.",
                     metadata: [self, #file, #function, #line]
                 )
             }
 
-            return nil
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+
+            let payload: [String: Any] = [
+                "message": [
+                    "apns": ["payload": ["aps": ["mutable-content": 1]]],
+                    "data": extraParams,
+                    "notification": ["body": body, "title": title],
+                    "token": pushToken,
+                ],
+            ]
+
+            do {
+                try request.httpBody = JSONSerialization.data(withJSONObject: payload)
+                let dataResult = try await urlSession.data(for: request)
+
+                guard let urlResponse = dataResult.1 as? HTTPURLResponse,
+                      urlResponse.statusCode == 200 else {
+                    return .init(
+                        "URL response status did not indicate success.",
+                        metadata: [self, #file, #function, #line]
+                    )
+                }
+
+                return nil
+            } catch {
+                return .init(error, metadata: [self, #file, #function, #line])
+            }
+
+        case let .failure(exception):
+            return exception
         }
     }
 }

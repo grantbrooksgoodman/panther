@@ -44,6 +44,17 @@ public final class ConnectionStatusService {
         )
     }
 
+    // MARK: - Object Lifecycle
+
+    deinit {
+        reachability?.stopNotifier()
+        notificationCenter.removeObserver(
+            self,
+            name: .reachabilityChanged,
+            object: nil
+        )
+    }
+
     // MARK: - Effects
 
     /// Adds an effect to be run upon a change in connection status.

@@ -20,7 +20,6 @@ public final class MetadataService {
 
         case appShareLink
         case appStoreBuildNumber
-        case pushAPIKey = "pushApiKey"
         case redirectionKey
         case shouldForceUpdate
         case storageReferenceURL
@@ -41,7 +40,6 @@ public final class MetadataService {
 
     public private(set) var appShareLink: URL?
     public private(set) var appStoreBuildNumber: Int?
-    public private(set) var pushAPIKey: String?
     public private(set) var redirectionKey: String?
     public private(set) var shouldForceUpdate: Bool?
     public private(set) var storageReferenceURL: URL?
@@ -67,18 +65,6 @@ public final class MetadataService {
             switch getAppStoreBuildNumberResult {
             case let .success(appStoreBuildNumber):
                 self.appStoreBuildNumber = appStoreBuildNumber
-
-            case let .failure(exception):
-                return exception
-            }
-        }
-
-        if pushAPIKey == nil {
-            let getPushAPIKeyResult = await getPushAPIKey()
-
-            switch getPushAPIKeyResult {
-            case let .success(pushAPIKey):
-                self.pushAPIKey = pushAPIKey
 
             case let .failure(exception):
                 return exception
@@ -165,28 +151,6 @@ public final class MetadataService {
             }
 
             return .success(appStoreBuildNumber)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getPushAPIKey() async -> Callback<String, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.pushAPIKey.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let pushAPIKey = values as? String else {
-                return .failure(.init(
-                    "Failed to typecast values to string.",
-                    metadata: [self, #file, #function, #line]
-                ))
-            }
-
-            return .success(pushAPIKey)
 
         case let .failure(exception):
             return .failure(exception)

@@ -60,6 +60,7 @@ public struct ConversationsPageViewService {
         }
 
         services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
+            guard !build.isOnline else { return }
             showOfflineModeToast()
         }
 
