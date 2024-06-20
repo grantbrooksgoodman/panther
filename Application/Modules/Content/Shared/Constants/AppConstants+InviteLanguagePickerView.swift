@@ -10,15 +10,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - CGFloat
-
-public extension AppConstants.CGFloats {
-    enum InviteLanguagePickerView {
-        public static let cellLabelSystemFontSize: CGFloat = 17
-        public static let noResultsLabelSystemFontSize: CGFloat = 18
-    }
-}
-
 // MARK: - Color
 
 public extension AppConstants.Colors {

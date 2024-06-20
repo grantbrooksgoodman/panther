@@ -212,7 +212,6 @@ public final class RecipientBarLayoutService {
 
     private func buildSelectContactButton() -> UIButton? {
         guard let actionHandlerService = service?.actionHandler,
-              let image = UIImage(systemName: Strings.selectContactButtonImageSystemName),
               let recipientBarView else { return nil }
 
         let selectContactButton: UIButton = .init(type: .contactAdd)

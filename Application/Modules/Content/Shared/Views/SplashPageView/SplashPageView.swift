@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct SplashPageView: View {
@@ -42,19 +43,21 @@ public struct SplashPageView: View {
                 .padding(.bottom, Floats.padding)
 
             if viewModel.isRebuildingIndices {
-                Text(viewModel.rebuildingIndicesLabelText)
-                    .font(.sanFrancisco(.light, size: Floats.rebuildingIndicesLabelFontSize))
-                    .foregroundStyle(Color.subtitleText)
-                    .opacity(rebuildingIndicesLabelOpacity)
-                    .padding(.vertical, Floats.padding)
-                    .onAppear {
-                        withAnimation(
-                            .easeInOut(duration: 1)
-                                .repeatForever(autoreverses: true)
-                        ) {
-                            rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
-                        }
+                Components.text(
+                    viewModel.rebuildingIndicesLabelText,
+                    font: .systemLight(scale: .custom(Floats.rebuildingIndicesLabelFontSize)),
+                    foregroundColor: .subtitleText
+                )
+                .opacity(rebuildingIndicesLabelOpacity)
+                .padding(.vertical, Floats.padding)
+                .onAppear {
+                    withAnimation(
+                        .easeInOut(duration: 1)
+                            .repeatForever(autoreverses: true)
+                    ) {
+                        rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
                     }
+                }
             }
 
             ProgressView()

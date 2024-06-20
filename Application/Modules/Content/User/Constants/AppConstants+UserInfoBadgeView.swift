@@ -29,7 +29,6 @@ public extension AppConstants.CGFloats {
 
         public static let labelViewTextOpacity: CGFloat = 0.8
         public static let labelViewTextShadowRadius: CGFloat = 20
-        public static let labelViewTextSystemFontSize: CGFloat = 13
     }
 }
 

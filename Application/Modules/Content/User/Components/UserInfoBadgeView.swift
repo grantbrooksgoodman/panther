@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct UserInfoBadgeView: View {
     // MARK: - Constants Accessors
 
@@ -61,19 +64,20 @@ public struct UserInfoBadgeView: View {
 
     private var labelView: some View {
         HStack(alignment: .center, spacing: Floats.labelViewHStackSpacing) {
-            Text(user.languageCode.uppercased())
-                .font(.system(size: Floats.labelViewTextSystemFontSize).bold())
-                .foregroundStyle(Color.titleText)
-                .shadow(
-                    color: Colors.labelViewTextShadow,
-                    radius: Floats.labelViewTextShadowRadius
-                )
-                .frame(
-                    width: Floats.labelViewTextFrameWidth,
-                    height: Floats.labelViewTextFrameHeight,
-                    alignment: .center
-                )
-                .opacity(Floats.labelViewTextOpacity)
+            Components.text(
+                user.languageCode.uppercased(),
+                font: .systemSemibold(scale: .small)
+            )
+            .shadow(
+                color: Colors.labelViewTextShadow,
+                radius: Floats.labelViewTextShadowRadius
+            )
+            .frame(
+                width: Floats.labelViewTextFrameWidth,
+                height: Floats.labelViewTextFrameHeight,
+                alignment: .center
+            )
+            .opacity(Floats.labelViewTextOpacity)
 
             Image(uiImage: flagImage)
                 .resizable()

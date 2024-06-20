@@ -11,13 +11,13 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct InviteLanguagePickerView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.InviteLanguagePickerView
-    private typealias Floats = AppConstants.CGFloats.InviteLanguagePickerView
     private typealias Strings = AppConstants.Strings.InviteLanguagePickerView
 
     // MARK: - Properties
@@ -82,19 +82,18 @@ public struct InviteLanguagePickerView: View {
                     viewModel.send(.selectedLanguageCodeChanged(key))
                 } label: {
                     HStack {
-                        Text(languageNames[key]!)
-                            .font(.system(
-                                size: Floats.cellLabelSystemFontSize,
-                                weight: key == viewModel.selectedLanguageCode ? .bold : .regular
-                            ))
-                            .foregroundStyle(Color.titleText)
+                        Components.text(
+                            languageNames[key]!,
+                            font: key == viewModel.selectedLanguageCode ? .systemSemibold : .system
+                        )
 
                         Spacer()
 
                         if key == viewModel.selectedLanguageCode {
-                            Image(systemName: Strings.selectedCellImageSystemName)
-                                .imageScale(.medium)
-                                .foregroundStyle(Colors.selectedCellImageForeground)
+                            Components.symbol(
+                                Strings.selectedCellImageSystemName,
+                                foregroundColor: Colors.selectedCellImageForeground
+                            )
                         }
                     }
                 }
@@ -105,9 +104,10 @@ public struct InviteLanguagePickerView: View {
     private var noResultsView: some View {
         Group {
             Spacer()
-            Text(viewModel.noResultsLabelText)
-                .font(.system(size: Floats.noResultsLabelSystemFontSize, weight: .regular))
-                .foregroundStyle(Colors.noResultsLabelForeground)
+            Components.text(
+                viewModel.noResultsLabelText,
+                foregroundColor: Colors.noResultsLabelForeground
+            )
             Spacer()
         }
     }
