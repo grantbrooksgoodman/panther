@@ -40,7 +40,7 @@ public struct NewChatPageReducer: Reducer {
         public var isPresentingContactSelectorSheet = false
 
         // String
-        public var doneToolbarButtonText = ""
+        @Localized(.cancel) public var doneToolbarButtonText: String
         @Localized(.newMessage) public var navigationTitle: String
 
         // Other
@@ -81,7 +81,6 @@ public struct NewChatPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             NavigationBar.setAppearance(.themed(showsDivider: false))
-            state.doneToolbarButtonText = Localized(.cancel).wrappedValue
 
         case let .action(.conversationChanged(conversation)):
             state.conversation = conversation

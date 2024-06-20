@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct ContactSelectorPageView: View {
@@ -63,21 +64,19 @@ public struct ContactSelectorPageView: View {
 
     private var cancelToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button(viewModel.cancelToolbarButtonText) {
+            Components.button(viewModel.cancelToolbarButtonText) {
                 viewModel.send(.cancelToolbarButtonTapped)
             }
-            .foregroundStyle(Color.accent)
         }
     }
 
     private var inviteToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
+            Components.button(
+                viewModel.inviteToolbarButtonText,
+                font: .systemSemibold
+            ) {
                 viewModel.send(.inviteToolbarButtonTapped)
-            } label: {
-                Text(viewModel.inviteToolbarButtonText)
-                    .font(Font.body.bold())
-                    .foregroundStyle(Color.accent)
             }
         }
     }
@@ -86,7 +85,7 @@ public struct ContactSelectorPageView: View {
         List {
             ForEach(Array(viewModel.sections.keys).alphabeticallySorted, id: \.self) { letter in
                 if let pairsForLetter = viewModel.sections[letter] {
-                    Section(header: Text(letter)) {
+                    Section(header: Components.text(letter)) {
                         ForEach(0 ..< pairsForLetter.count, id: \.self) { index in
                             if let contactPair = pairsForLetter.itemAt(index) {
                                 ContactPairCellView(contactPair: contactPair) {
@@ -106,9 +105,10 @@ public struct ContactSelectorPageView: View {
     private var noResultsView: some View {
         Group {
             Spacer()
-            Text(viewModel.noResultsLabelText)
-                .font(.system(size: Floats.noResultsLabelSystemFontSize, weight: .regular))
-                .foregroundStyle(Colors.noResultsLabelForeground)
+            Components.text(
+                viewModel.noResultsLabelText,
+                foregroundColor: Colors.noResultsLabelForeground
+            )
             Spacer()
         }
     }

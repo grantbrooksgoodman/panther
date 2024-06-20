@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct NewChatPageView: View {
@@ -75,10 +76,9 @@ public struct NewChatPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button(viewModel.doneToolbarButtonText) {
+            Components.button(viewModel.doneToolbarButtonText) {
                 viewModel.send(.doneToolbarButtonTapped)
             }
-            .foregroundStyle(Color.accent)
         }
     }
 }

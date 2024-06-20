@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct ContactPairCellView: View {
     // MARK: - Constants Accessors
 
@@ -50,17 +53,23 @@ public struct ContactPairCellView: View {
         return HStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline, spacing: Floats.hStackSpacing) {
                 if !contactPair.contact.firstName.isBlank {
-                    Text(contactPair.contact.firstName)
-                        .foregroundStyle(foregroundColor)
+                    Components.text(
+                        contactPair.contact.firstName,
+                        foregroundColor: foregroundColor
+                    )
                 }
 
-                Text(contactPair.contact.lastName)
-                    .font(Font.body.bold())
-                    .foregroundStyle(foregroundColor)
+                Components.text(
+                    contactPair.contact.lastName,
+                    font: .systemSemibold,
+                    foregroundColor: foregroundColor
+                )
 
                 if contactPair.containsCurrentUser {
-                    Text(myAccountLabelText)
-                        .foregroundStyle(foregroundColor)
+                    Components.text(
+                        myAccountLabelText,
+                        foregroundColor: foregroundColor
+                    )
                 }
             }
 

@@ -15,7 +15,6 @@ import SwiftUI
 public extension AppConstants.CGFloats {
     enum ContactSelectorPageView {
         public static let listViewDefaultMinListRowHeight: CGFloat = 44
-        public static let noResultsLabelSystemFontSize: CGFloat = 18
     }
 }
 
