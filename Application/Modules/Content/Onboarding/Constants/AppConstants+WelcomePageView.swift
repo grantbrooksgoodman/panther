@@ -30,8 +30,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum WelcomePageView {
-        public static let continueButtonForeground: Color = .blue
         public static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
-        public static let signInButtonForeground: Color = .blue
     }
 }

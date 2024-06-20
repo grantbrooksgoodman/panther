@@ -34,8 +34,6 @@ public extension AppConstants.CGFloats {
         public static let listViewCellLabelImageFrameHeight: CGFloat = 25
         public static let listViewCellLabelImageFrameWidth: CGFloat = 40
 
-        public static let listViewCellLabelSystemFontSize: CGFloat = 17
-        public static let noResultsLabelSystemFontSize: CGFloat = 18
         public static let selectedCellImageLeadingPadding: CGFloat = 3
     }
 }

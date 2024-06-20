@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct SelectLanguageContentPageView: View {
@@ -44,37 +45,38 @@ public struct SelectLanguageContentPageView: View {
         VStack {
             InstructionView(viewModel.instructionViewStrings)
 
-            VStack(alignment: .center) {
-                Text(viewModel.strings.value(for: .instructionLabelText))
-                    .bold()
-                    .foregroundStyle(Colors.instructionLabelForeground)
-                    .font(.system(size: Floats.instructionLabelFontSize))
-                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
+            VStack {
+                Components.text(
+                    viewModel.strings.value(for: .instructionLabelText),
+                    font: .systemSemibold,
+                    foregroundColor: Colors.instructionLabelForeground
+                )
+                .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                Picker("", selection: selectedLanguageBinding) {
-                    ForEach(viewModel.languages, id: \.self) {
-                        Text($0)
+                ThemedView {
+                    Picker("", selection: selectedLanguageBinding) {
+                        ForEach(viewModel.languages, id: \.self) {
+                            Components.text($0)
+                        }
                     }
+                    .pickerStyle(.wheel)
+                    .padding(.horizontal, Floats.pickerHorizontalPadding)
                 }
-                .pickerStyle(.wheel)
-                .padding(.horizontal, Floats.pickerHorizontalPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .continueButtonText),
+                    font: .systemSemibold
+                ) {
                     viewModel.send(.continueButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .continueButtonText))
-                        .bold()
                 }
-                .foregroundStyle(Colors.continueButtonForeground)
                 .padding(.top, Floats.continueButtonTopPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .backButtonText),
+                    font: .system(scale: .custom(Floats.backButtonLabelFontSize))
+                ) {
                     viewModel.send(.backButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .backButtonText))
                 }
-                .font(.system(size: Floats.backButtonLabelFontSize))
-                .foregroundStyle(Colors.backButtonForeground)
                 .padding(.top, Floats.backButtonTopPadding)
             }
             .padding(.top, Floats.topPadding)

@@ -18,8 +18,6 @@ public extension AppConstants.CGFloats {
         public static let backButtonTopPadding: CGFloat = 2
 
         public static let continueButtonTopPadding: CGFloat = 5
-
-        public static let instructionLabelFontSize: CGFloat = 16
         public static let instructionLabelVerticalPadding: CGFloat = 5
 
         public static let pickerHorizontalPadding: CGFloat = 30
@@ -31,8 +29,8 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum SelectLanguagePageView {
-        public static let backButtonForeground: Color = .blue
-        public static let continueButtonForeground: Color = .blue
+//        public static let backButtonForeground: Color = .blue
+//        public static let continueButtonForeground: Color = .blue
         public static let instructionLabelForeground: Color = .gray
     }
 }

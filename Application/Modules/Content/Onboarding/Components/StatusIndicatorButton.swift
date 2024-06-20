@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct StatusIndicatorButton: View {
     // MARK: - Constants Accessors
 
@@ -54,16 +57,20 @@ public struct StatusIndicatorButton: View {
             action()
         } label: {
             HStack {
-                Image(systemName: imageSystemName)
-                    .padding(.trailing, Floats.imageTrailingPadding)
-                    .font(.system(size: Floats.imageSystemFontSize))
-                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                    .foregroundStyle(.white, imageSecondaryForegroundColor)
+                Components.symbol(
+                    imageSystemName,
+                    foregroundColor: .white,
+                    secondaryForegroundColor: imageSecondaryForegroundColor,
+                    usesIntrinsicSize: false
+                )
+                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                .padding(.trailing, Floats.imageTrailingPadding)
 
-                Text(text)
-                    .foregroundStyle(isCompleted == nil ? Colors.undeterminedStatusLabelForeground : Colors.determinedStatusLabelForeground)
-                    .font(.system(size: Floats.labelFontSize))
-                    .bold()
+                Components.text(
+                    text,
+                    font: .systemBold(scale: .custom(Floats.labelFontSize)),
+                    foregroundColor: isCompleted == nil ? Colors.undeterminedStatusLabelForeground : Colors.determinedStatusLabelForeground
+                )
             }
         }
         .buttonStyle(.borderedProminent)

@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct InstructionView: View {
     // MARK: - Constants Accessors
 
@@ -34,28 +37,34 @@ public struct InstructionView: View {
     // MARK: - View
 
     public var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(strings.titleLabelText)
-                    .bold()
-                    .font(.title)
+        ThemedView {
+            HStack {
+                VStack(alignment: .leading) {
+                    Components.text(
+                        strings.titleLabelText,
+                        font: .systemBold(scale: .large),
+                        foregroundColor: .titleText
+                    )
                     .padding(.bottom, Floats.titleLabelBottomPadding)
                     .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
 
-                Text(strings.subtitleLabelText)
-                    .foregroundStyle(Colors.subtitleLabelForeground)
-                    .font(.system(size: Floats.subtitleLabelFontSize))
+                    Components.text(
+                        strings.subtitleLabelText,
+                        font: .system(scale: .custom(Floats.subtitleLabelFontSize)),
+                        foregroundColor: Colors.subtitleLabelForeground
+                    )
                     .minimumScaleFactor(Floats.subtitleLabelMinimumScaleFactor)
-            }
-            .frame(
-                width: halfOfScreenWidth,
-                height: Floats.frameHeight,
-                alignment: .topLeading
-            )
-            .padding(.leading, Floats.leadingPadding)
-            .padding(.top, Floats.topPadding)
+                }
+                .frame(
+                    width: halfOfScreenWidth,
+                    height: Floats.frameHeight,
+                    alignment: .topLeading
+                )
+                .padding(.leading, Floats.leadingPadding)
+                .padding(.top, Floats.topPadding)
 
-            Spacer()
+                Spacer()
+            }
         }
     }
 }

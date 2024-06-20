@@ -17,7 +17,6 @@ public extension AppConstants.CGFloats {
         public static let imageFrameHeight: CGFloat = 30
         public static let imageFrameWidth: CGFloat = 30
 
-        public static let imageSystemFontSize: CGFloat = 30
         public static let imageTrailingPadding: CGFloat = 3
         public static let labelFontSize: CGFloat = 15
     }

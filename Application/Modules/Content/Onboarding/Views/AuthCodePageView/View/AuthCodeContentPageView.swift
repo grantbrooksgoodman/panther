@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct AuthCodeContentPageView: View {
@@ -48,11 +49,12 @@ public struct AuthCodeContentPageView: View {
             Spacer()
 
             VStack(alignment: .center) {
-                Text(viewModel.strings.value(for: .instructionLabelText))
-                    .bold()
-                    .foregroundStyle(Colors.instructionLabelForeground)
-                    .font(.system(size: Floats.instructionLabelFontSize))
-                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                Components.text(
+                    viewModel.strings.value(for: .instructionLabelText),
+                    font: .systemSemibold,
+                    foregroundColor: Colors.instructionLabelForeground
+                )
+                .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
                 GenericTextField(
                     verificationCodeBinding,
@@ -62,24 +64,23 @@ public struct AuthCodeContentPageView: View {
                 .padding(.horizontal, Floats.textFieldHorizontalPadding)
                 .padding(.vertical, Floats.textFieldVerticalPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .continueButtonText),
+                    font: .systemSemibold,
+                    foregroundColor: viewModel.isContinueButtonEnabled ? .accent : .disabled
+                ) {
                     viewModel.send(.continueButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .continueButtonText))
-                        .bold()
                 }
-                .accentColor(Colors.continueButtonAccent)
-                .disabled(!viewModel.isContinueButtonEnabled)
                 .padding(.top, Floats.continueButtonTopPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .backButtonText),
+                    font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
+                    foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
+                ) {
                     viewModel.send(.backButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .backButtonText))
                 }
                 .disabled(!viewModel.isBackButtonEnabled)
-                .font(.system(size: Floats.backButtonLabelFontSize))
-                .foregroundStyle(Colors.backButtonForeground)
                 .padding(.top, Floats.backButtonTopPadding)
             }
             .padding(.bottom, Floats.bottomPadding)

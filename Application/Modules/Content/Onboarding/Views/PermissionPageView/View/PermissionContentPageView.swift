@@ -11,12 +11,12 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct PermissionContentPageView: View {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.PermissionsView
     private typealias Floats = AppConstants.CGFloats.PermissionsView
 
     // MARK: - Properties
@@ -57,24 +57,24 @@ public struct PermissionContentPageView: View {
             .padding(.bottom, Floats.buttonVStackBottomPadding)
             .padding(.top, Floats.buttonVStackTopPadding)
 
-            Button {
+            Components.button(
+                viewModel.strings.value(for: .finishButtonText),
+                font: .systemSemibold,
+                foregroundColor: viewModel.isFinishButtonEnabled ? .accent : .disabled
+            ) {
                 viewModel.send(.finishButtonTapped)
-            } label: {
-                Text(viewModel.strings.value(for: .finishButtonText))
-                    .bold()
             }
-            .accentColor(Colors.finishButtonAccent)
-            .padding(.top, Floats.finishButtonTopPadding)
             .disabled(!viewModel.isFinishButtonEnabled)
+            .padding(.top, Floats.finishButtonTopPadding)
 
-            Button {
+            Components.button(
+                viewModel.strings.value(for: .backButtonText),
+                font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
+                foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
+            ) {
                 viewModel.send(.backButtonTapped)
-            } label: {
-                Text(viewModel.strings.value(for: .backButtonText))
             }
             .disabled(!viewModel.isBackButtonEnabled)
-            .font(.system(size: Floats.backButtonLabelFontSize))
-            .foregroundStyle(Colors.backButtonForeground)
             .padding(.top, Floats.backButtonTopPadding)
 
             Spacer()

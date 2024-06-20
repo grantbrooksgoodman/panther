@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct GenericTextField: View {
     // MARK: - Constants Accessors
 
@@ -73,6 +76,7 @@ public struct GenericTextField: View {
                 .foregroundColor(placeholderText.color)
         )
         .autocorrectionDisabled(!isAutocorrectEnabled)
+        .dynamicTypeSize(.large)
         .textInputAutocapitalization(autocapitalization)
         .foregroundStyle(textColor)
         .keyboardType(keyboardType)

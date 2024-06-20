@@ -23,12 +23,3 @@ public extension AppConstants.CGFloats {
         public static let finishButtonTopPadding: CGFloat = 5
     }
 }
-
-// MARK: - Color
-
-public extension AppConstants.Colors {
-    enum PermissionsView {
-        public static let backButtonForeground: Color = .blue
-        public static let finishButtonAccent: Color = .blue
-    }
-}

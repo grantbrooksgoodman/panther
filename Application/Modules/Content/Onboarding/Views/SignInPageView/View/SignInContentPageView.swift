@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct SignInContentPageView: View {
@@ -65,7 +66,7 @@ public struct SignInContentPageView: View {
                     .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                     .padding(.bottom, Floats.imageBottomPadding)
 
-                Text(viewModel.instructionLabelText)
+                Components.text(viewModel.instructionLabelText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
@@ -94,24 +95,24 @@ public struct SignInContentPageView: View {
                     .padding(.vertical, Floats.textFieldVerticalPadding)
                 }
 
-                Button {
+                Components.button(
+                    viewModel.continueButtonText,
+                    font: .systemSemibold,
+                    foregroundColor: viewModel.isContinueButtonEnabled ? .accent : .disabled
+                ) {
                     viewModel.send(.continueButtonTapped)
-                } label: {
-                    Text(viewModel.continueButtonText)
-                        .bold()
                 }
                 .disabled(!viewModel.isContinueButtonEnabled)
-                .accentColor(Colors.continueButtonAccent)
                 .padding(.top, Floats.continueButtonTopPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .backButtonText),
+                    font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
+                    foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
+                ) {
                     viewModel.send(.backButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .backButtonText))
                 }
                 .disabled(!viewModel.isBackButtonEnabled)
-                .font(.system(size: Floats.backButtonLabelFontSize))
-                .foregroundStyle(Colors.backButtonForeground)
                 .padding(.top, Floats.backButtonTopPadding)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

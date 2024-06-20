@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct RegionMenu: View {
@@ -51,9 +52,11 @@ public struct RegionMenu: View {
                         .cornerRadius(Floats.buttonLabelImageCornerRadius)
                         .aspectRatio(contentMode: .fit)
 
-                    Text("+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")")
-                        .foregroundStyle(Colors.buttonLabelTextForeground)
-                        .multilineTextAlignment(.center)
+                    Components.text(
+                        "+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")",
+                        foregroundColor: Colors.buttonLabelTextForeground
+                    )
+                    .multilineTextAlignment(.center)
                 }
                 .frame(
                     minWidth: Floats.buttonLabelVStackFrameMinWidth,
@@ -172,17 +175,14 @@ private struct RegionPickerView: View {
                         .cornerRadius(Floats.listViewCellLabelImageCornerRadius)
                         .aspectRatio(contentMode: .fit)
 
-                    Text(regionTitle)
-                        .font(.system(
-                            size: Floats.listViewCellLabelSystemFontSize,
-                            weight: .regular
-                        ))
-                        .foregroundStyle(Color.titleText)
+                    Components.text(regionTitle)
 
                     if regionTitle == selectedRegionTitle {
-                        Image(systemName: Strings.selectedCellImageSystemName)
-                            .foregroundStyle(Colors.selectedCellImageForeground)
-                            .padding(.leading, Floats.selectedCellImageLeadingPadding)
+                        Components.symbol(
+                            Strings.selectedCellImageSystemName,
+                            foregroundColor: Colors.selectedCellImageForeground
+                        )
+                        .padding(.leading, Floats.selectedCellImageLeadingPadding)
                     }
                 }
             }
@@ -192,9 +192,10 @@ private struct RegionPickerView: View {
     private var noResultsView: some View {
         Group {
             Spacer()
-            Text(viewModel.noResultsLabelText)
-                .font(.system(size: Floats.noResultsLabelSystemFontSize, weight: .regular))
-                .foregroundStyle(Colors.noResultsLabelTextForeground)
+            Components.text(
+                viewModel.noResultsLabelText,
+                foregroundColor: Colors.noResultsLabelTextForeground
+            )
             Spacer()
         }
     }

@@ -19,17 +19,27 @@ public extension ComponentKit {
         font: ComponentKit.Font = .system,
         action: @escaping () -> Void
     ) -> some View {
-        @Dependency(\.componentKit) var components: ComponentKit
-        return components.button(text, font: font, foregroundColor: .accent, action: action)
+        Components.button(
+            text,
+            font: font,
+            foregroundColor: .accent,
+            action: action
+        )
     }
 
     func symbol(_ systemName: String, usesIntrinsicSize: Bool = true) -> some View {
-        @Dependency(\.componentKit) var components: ComponentKit
-        return components.symbol(systemName, foregroundColor: .accent, usesIntrinsicSize: usesIntrinsicSize)
+        Components.symbol(
+            systemName,
+            foregroundColor: .accent,
+            usesIntrinsicSize: usesIntrinsicSize
+        )
     }
 
     func text(_ text: String, font: ComponentKit.Font = .system) -> some View {
-        @Dependency(\.componentKit) var components: ComponentKit
-        return components.text(text, font: font, foregroundColor: .titleText)
+        Components.text(
+            text,
+            font: font,
+            foregroundColor: .titleText
+        )
     }
 }

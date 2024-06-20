@@ -20,7 +20,6 @@ public extension AppConstants.CGFloats {
         public static let bottomPadding: CGFloat = 30
         public static let continueButtonTopPadding: CGFloat = 10
 
-        public static let instructionLabelFontSize: CGFloat = 16
         public static let instructionLabelVerticalPadding: CGFloat = 5
 
         public static let textFieldHorizontalPadding: CGFloat = 20
@@ -32,8 +31,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum AuthCodePageView {
-        public static let backButtonForeground: Color = .blue
-        public static let continueButtonAccent: Color = .blue
         public static let instructionLabelForeground: Color = .gray
     }
 }

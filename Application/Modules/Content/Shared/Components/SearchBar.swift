@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct SearchBar: View {
     // MARK: - Constants Accessors
 
@@ -41,24 +44,26 @@ public struct SearchBar: View {
     public var body: some View {
         HStack {
             HStack {
-                Image(systemName: Strings.searchImageSystemName)
-                    .foregroundStyle(Colors.searchImageForeground)
-                    .imageScale(.medium)
+                Components.symbol(
+                    Strings.searchImageSystemName,
+                    foregroundColor: Colors.searchImageForeground
+                )
 
                 TextField(
                     textFieldPlaceholderText,
                     text: $query
                 )
+                .dynamicTypeSize(.large)
                 .frame(height: Floats.textFieldFrameHeight)
                 .submitLabel(.done)
 
-                Button {
+                Components.button(
+                    symbolName: Strings.clearButtonImageSystemName,
+                    foregroundColor: Colors.clearButtonImageForeground
+                ) {
                     query = ""
-                } label: {
-                    Image(systemName: Strings.clearButtonImageSystemName)
-                        .foregroundStyle(Colors.clearButtonImageForeground)
-                        .opacity(query.isEmpty ? 0 : Floats.clearButtonImageOpacity)
                 }
+                .opacity(query.isEmpty ? 0 : Floats.clearButtonImageOpacity)
             }
             .padding(.horizontal, Floats.innerHStackHorizontalPadding)
             .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)

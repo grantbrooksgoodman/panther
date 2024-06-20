@@ -35,17 +35,13 @@ public struct BuildInfoOverlayView: View {
     // MARK: - View
 
     public var body: some View {
-        Group {
-            VStack {
-                Group {
-                    sendFeedbackButton
-                    buildInfoButton
-                }
-            }
-            .offset(x: Floats.xOffset, y: viewModel.yOffset)
-            .onShake {
-                viewModel.send(.didShakeDevice)
-            }
+        VStack {
+            sendFeedbackButton
+            buildInfoButton
+        }
+        .offset(x: Floats.xOffset, y: viewModel.yOffset)
+        .onShake {
+            viewModel.send(.didShakeDevice)
         }
         .onFirstAppear {
             viewModel.send(.viewAppeared)

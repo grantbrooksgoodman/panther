@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct WelcomeContentPageView: View {
@@ -41,26 +42,22 @@ public struct WelcomeContentPageView: View {
                     .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                     .padding(.bottom, Floats.imageBottomPadding)
 
-                Text(viewModel.strings.value(for: .instructionLabelText))
+                Components.text(viewModel.strings.value(for: .instructionLabelText))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .continueButtonText),
+                    font: .systemSemibold
+                ) {
                     viewModel.send(.continueButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .continueButtonText))
-                        .bold()
                 }
-                .foregroundStyle(Colors.continueButtonForeground)
                 .padding(.vertical, Floats.continueButtonVerticalPadding)
 
-                Button {
+                Components.button(viewModel.strings.value(for: .signInButtonText)) {
                     viewModel.send(.signInButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .signInButtonText))
                 }
-                .foregroundStyle(Colors.signInButtonForeground)
                 .padding(.vertical, Floats.signInButtonVerticalPadding)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
