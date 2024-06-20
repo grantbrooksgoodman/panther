@@ -16,9 +16,6 @@ public extension AppConstants.CGFloats {
     enum ContactDetailView {
         public static let avatarImageViewTrailingPadding: CGFloat = 2
         public static let cornerRadius: CGFloat = 8
-
-        public static let subtitleLabelFontSize: CGFloat = 13
-        public static let titleLabelFontSize: CGFloat = 17
     }
 }
 

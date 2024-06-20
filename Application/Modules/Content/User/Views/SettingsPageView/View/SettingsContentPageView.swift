@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct SettingsContentPageView: View {
@@ -81,10 +82,12 @@ public struct SettingsContentPageView: View {
                     .padding(.bottom, Floats.buildInfoButtonImageBottomPadding)
             }
 
-            Text(viewModel.buildInfoButtonStrings.labelText)
-                .font(.sanFrancisco(size: Floats.buildInfoButtonLabelFontSize))
-                .foregroundStyle(Color.subtitleText)
-                .padding(.bottom, Floats.buildInfoButtonLabelBottomPadding)
+            Components.text(
+                viewModel.buildInfoButtonStrings.labelText,
+                font: .system(scale: .small),
+                foregroundColor: .subtitleText
+            )
+            .padding(.bottom, Floats.buildInfoButtonLabelBottomPadding)
         }
         .highPriorityGesture(
             TapGesture()
@@ -113,12 +116,11 @@ public struct SettingsContentPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
+            Components.button(
+                viewModel.doneToolbarButtonText,
+                font: .systemSemibold
+            ) {
                 viewModel.send(.doneToolbarButtonTapped)
-            } label: {
-                Text(viewModel.doneToolbarButtonText)
-                    .bold()
-                    .foregroundStyle(Color.accent)
             }
         }
     }

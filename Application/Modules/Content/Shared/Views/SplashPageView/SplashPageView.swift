@@ -59,6 +59,7 @@ public struct SplashPageView: View {
 
             ProgressView()
                 .controlSize(.large)
+                .dynamicTypeSize(.large)
                 .scaleEffect(.init(Floats.progressViewScaleEffect))
                 .padding(.top, Floats.padding)
         }

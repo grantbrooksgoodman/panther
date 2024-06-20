@@ -20,7 +20,6 @@ public extension AppConstants.CGFloats {
         public static let buildInfoButtonImageFrameWidth: CGFloat = (1000 / 20)
 
         public static let buildInfoButtonLabelBottomPadding: CGFloat = 8
-        public static let buildInfoButtonLabelFontSize: CGFloat = 13
 
         public static let contactDetailViewBottomPadding: CGFloat = 20
         public static let contactDetailViewHorizontalPadding: CGFloat = 20

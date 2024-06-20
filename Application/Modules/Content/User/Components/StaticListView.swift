@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct StaticListView: View {
@@ -111,8 +112,7 @@ public struct StaticListView: View {
                     .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
             }
 
-            Text(item.title)
-                .foregroundStyle(Color.titleText)
+            Components.text(item.title)
                 .padding(.leading, Floats.labelLeadingPadding)
 
             Spacer()

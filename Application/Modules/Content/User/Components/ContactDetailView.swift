@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct ContactDetailView: View {
@@ -49,24 +50,28 @@ public struct ContactDetailView: View {
                 .padding(.trailing, Floats.avatarImageViewTrailingPadding)
 
             VStack(alignment: .leading) {
-                Text(titleLabelText)
-                    .font(.sanFrancisco(.semibold, size: Floats.titleLabelFontSize))
-                    .foregroundStyle(Color.titleText)
-                    .padding(.bottom, 0)
+                Components.text(
+                    titleLabelText,
+                    font: .systemSemibold
+                )
+                .padding(.bottom, 0)
 
                 if let subtitleLabelText,
                    !subtitleLabelText.isBlank {
-                    Text(subtitleLabelText)
-                        .font(.sanFrancisco(size: Floats.subtitleLabelFontSize))
-                        .foregroundStyle(Color.titleText)
+                    Components.text(
+                        subtitleLabelText,
+                        font: .system(scale: .small)
+                    )
                 }
             }
 
             Spacer()
 
             if subtitleLabelText != nil {
-                Image(systemName: Strings.chevronImageSystemName)
-                    .foregroundStyle(Color.subtitleText)
+                Components.symbol(
+                    Strings.chevronImageSystemName,
+                    foregroundColor: .subtitleText
+                )
             }
         }
         .padding()
