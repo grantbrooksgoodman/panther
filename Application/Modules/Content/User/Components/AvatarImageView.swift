@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* 3rd-party */
+import ComponentKit
+
 public struct AvatarImageView: View {
     // MARK: - Constants Accessors
 
@@ -45,10 +48,11 @@ public struct AvatarImageView: View {
                     .aspectRatio(contentMode: .fill)
                     .clipShape(Circle())
             } else {
-                Image(
-                    systemName: (badgeCount < 2 && badgeCount != -1) ? Strings.defaultImageSystemName : Strings.badgeImageSystemName)
-                    .resizable()
-                    .foregroundStyle(Colors.imageForeground)
+                Components.symbol(
+                    (badgeCount < 2 && badgeCount != -1) ? Strings.defaultImageSystemName : Strings.badgeImageSystemName,
+                    foregroundColor: Colors.imageForeground,
+                    usesIntrinsicSize: false
+                )
             }
         }
         .font(.system(size: Floats.systemFontSize))
@@ -67,18 +71,17 @@ public struct AvatarImageView: View {
 
     @ViewBuilder
     private var badgeView: some View {
-        let badgeContentView = Text("\(badgeCount)")
-            .font(.system(size: Floats.badgeViewLabelSystemFontSize).bold())
-            .foregroundStyle(Color.titleText)
-            .shadow(
-                color: Colors.badgeViewLabelShadow,
-                radius: Floats.badgeViewShadowRadius
-            )
-            .frame(
-                width: Floats.badgeViewWidth,
-                height: Floats.badgeViewHeight,
-                alignment: .center
-            )
+        let badgeContentView = Components.text(
+            "\(badgeCount)",
+            font: .systemSemibold(scale: .custom(Floats.badgeViewLabelSystemFontSize))
+        ).shadow(
+            color: Colors.badgeViewLabelShadow,
+            radius: Floats.badgeViewShadowRadius
+        ).frame(
+            width: Floats.badgeViewWidth,
+            height: Floats.badgeViewHeight,
+            alignment: .center
+        )
 
         Circle()
             .overlay(badgeContentView, alignment: .center)

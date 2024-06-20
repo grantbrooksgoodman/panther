@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct ChatInfoContentPageView: View {
@@ -107,18 +108,20 @@ public struct ChatInfoContentPageView: View {
                 .padding(.top, Floats.avatarImageViewTopPadding)
                 .padding(.horizontal, Floats.avatarImageViewHorizontalPadding)
 
-                Text(viewModel.chatTitleLabelText)
-                    .font(.sanFrancisco(.bold, size: Floats.chatTitleLabelFontSize))
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 1)
-                    .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
+                Components.text(
+                    viewModel.chatTitleLabelText,
+                    font: .systemBold(scale: .large)
+                )
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 1)
+                .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 
-                Button {
+                Components.button(
+                    viewModel.strings.value(for: .changeMetadataButtonText),
+                    font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
+                    foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
+                ) {
                     viewModel.send(.changeMetadataButtonTapped)
-                } label: {
-                    Text(viewModel.strings.value(for: .changeMetadataButtonText))
-                        .font(.sanFrancisco(size: Floats.changeMetadataButtonLabelFontSize))
-                        .foregroundStyle(viewModel.isChangeMetadataButtonEnabled ? Color.accent : .disabled)
                 }
                 .disabled(!viewModel.isChangeMetadataButtonEnabled)
                 .padding(.bottom, 1)
@@ -138,10 +141,14 @@ public struct ChatInfoContentPageView: View {
             viewModel.send(.addContactButtonTapped)
         } label: {
             HStack {
-                let imageView = Image(systemName: Strings.addContactButtonImageSystemName)
-                    .resizable()
-                    .frame(width: Floats.addContactButtonImageWidth, height: Floats.addContactButtonImageHeight)
-                    .foregroundStyle(viewModel.isAddContactButtonEnabled ? Color.accent : .disabled)
+                let imageView = Components.symbol(
+                    Strings.addContactButtonImageSystemName,
+                    foregroundColor: viewModel.isAddContactButtonEnabled ? .accent : .disabled,
+                    usesIntrinsicSize: false
+                ).frame(
+                    width: Floats.addContactButtonImageWidth,
+                    height: Floats.addContactButtonImageHeight
+                )
 
                 Circle()
                     .overlay(imageView, alignment: .center)
@@ -152,9 +159,10 @@ public struct ChatInfoContentPageView: View {
                     .foregroundStyle(ThemeService.isDarkModeActive ? Colors.addContactButtonCircleDarkForeground : Colors.addContactButtonCircleLightForeground)
                     .padding(.trailing, Floats.addContactButtonCircleTrailingPadding)
 
-                Text(viewModel.strings.value(for: .addContactButtonText))
-                    .font(.sanFrancisco(size: Floats.addContactButtonLabelFontSize))
-                    .foregroundStyle(viewModel.isAddContactButtonEnabled ? Color.accent : .disabled)
+                Components.text(
+                    viewModel.strings.value(for: .addContactButtonText),
+                    foregroundColor: viewModel.isAddContactButtonEnabled ? .accent : .disabled
+                )
             }
         }
     }
@@ -167,20 +175,26 @@ public struct ChatInfoContentPageView: View {
         } label: {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
-                    Text(viewModel.chatInfoCellTitleLabelText)
-                        .font(.sanFrancisco(.semibold, size: Floats.chatInfoCellTitleLabelFontSize))
-                        .padding(.bottom, 1)
+                    Components.text(
+                        viewModel.chatInfoCellTitleLabelText,
+                        font: .systemSemibold
+                    )
+                    .padding(.bottom, 1)
 
-                    Text(viewModel.chatInfoCellSubtitleLabelText)
-                        .lineLimit(1)
-                        .font(.sanFrancisco(size: Floats.chatInfoCellSubtitleLabelFontSize))
-                        .foregroundStyle(Color.subtitleText)
+                    Components.text(
+                        viewModel.chatInfoCellSubtitleLabelText,
+                        font: .system(scale: .custom(Floats.chatInfoCellSubtitleLabelFontSize)),
+                        foregroundColor: .subtitleText
+                    )
+                    .lineLimit(1)
                 }
 
                 Spacer()
 
-                Image(systemName: viewModel.chatInfoCellImageSystemName)
-                    .foregroundStyle(Color.subtitleText)
+                Components.symbol(
+                    viewModel.chatInfoCellImageSystemName,
+                    foregroundColor: .subtitleText
+                )
             }
         }
         .foregroundStyle(Color.titleText)
@@ -190,12 +204,11 @@ public struct ChatInfoContentPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
+            Components.button(
+                viewModel.doneButtonText,
+                font: .systemSemibold
+            ) {
                 viewModel.send(.doneToolbarButtonTapped)
-            } label: {
-                Text(viewModel.doneButtonText)
-                    .bold()
-                    .foregroundStyle(Color.accent)
             }
         }
     }
@@ -221,6 +234,7 @@ public struct ChatInfoContentPageView: View {
                     ) {
                         participantView(participant)
                     }
+                    .dynamicTypeSize(.large)
                 }
             }
         }
@@ -241,8 +255,10 @@ public struct ChatInfoContentPageView: View {
             )
             .padding(.trailing, Floats.smallAvatarImageViewTrailingPadding)
 
-            Text(participant.displayName)
-                .font(.sanFrancisco(.semibold, size: Floats.participantViewDisplayNameLabelFontSize))
+            Components.text(
+                participant.displayName,
+                font: .systemSemibold
+            )
 
             if let firstUser = participant.contactPair?.firstUser {
                 UserInfoBadgeView(firstUser)

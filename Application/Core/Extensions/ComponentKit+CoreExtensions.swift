@@ -44,7 +44,7 @@ public extension ComponentKit {
 
     func symbol(
         _ systemName: String,
-        weight: SwiftUI.Font.Weight?,
+        weight: SwiftUI.Font.Weight? = nil,
         usesIntrinsicSize: Bool = true
     ) -> some View {
         Components.symbol(

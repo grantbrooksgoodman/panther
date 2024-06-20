@@ -21,25 +21,19 @@ public extension AppConstants.CGFloats {
         public static let addContactButtonImageHeight: CGFloat = 15
         public static let addContactButtonImageWidth: CGFloat = 15
 
-        public static let addContactButtonLabelFontSize: CGFloat = 17
-
         public static let avatarImageViewHorizontalPadding: CGFloat = 10
         public static let avatarImageViewTopPadding: CGFloat = 20
 
         public static let changeMetadataButtonHorizontalPadding: CGFloat = 10
         public static let changeMetadataButtonLabelFontSize: CGFloat = 15
 
-        public static let chatInfoCellTitleLabelFontSize: CGFloat = 17
         public static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15
-
         public static let chatTitleLabelHorizontalPadding: CGFloat = 10
-        public static let chatTitleLabelFontSize: CGFloat = 28
 
         public static let largeAvatarImageViewSizeHeight: CGFloat = 100
         public static let largeAvatarImageViewSizeWidth: CGFloat = 100
 
         public static let listViewYOffset: CGFloat = -8
-        public static let participantViewDisplayNameLabelFontSize: CGFloat = 17
 
         public static let smallAvatarImageViewSizeHeight: CGFloat = 40
         public static let smallAvatarImageViewSizeWidth: CGFloat = 40
