@@ -49,6 +49,7 @@ public struct SignInPageReducer: Reducer {
         case accountDoesNotExistAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
         case authenticateUserReturned(Callback<String, Exception>)
+        case continueButtonTapped
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updateRegionMenuViewID
         case verifyPhoneNumberReturned(Callback<String, Exception>)
@@ -161,30 +162,9 @@ public struct SignInPageReducer: Reducer {
             }
 
         case .continueButtonTapped:
-            state.isBackButtonEnabled = false
-            state.isContinueButtonEnabled = false
-
             coreUI.resignFirstResponder()
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
-
-            switch state.configuration {
-            case .phoneNumber:
-                let phoneNumber = state.phoneNumber
-                return .task {
-                    let result = await networking.services.user.accountExists(for: phoneNumber)
-                    return .accountExistsReturned(result)
-                }
-
-            case .verificationCode:
-                let authID = state.authID
-                let verificationCode = state.verificationCode
-                return .task {
-                    let result = await networking.auth.authenticateUser(
-                        authID: authID,
-                        verificationCode: verificationCode
-                    )
-                    return .authenticateUserReturned(result)
-                }
+            return .task(delay: .milliseconds(100)) {
+                .continueButtonTapped
             }
 
         case .didSwipeDown:
@@ -255,6 +235,32 @@ public struct SignInPageReducer: Reducer {
             state.isContinueButtonEnabled = state.verificationCode.count == 6
 
             Logger.log(exception, with: .toast())
+
+        case .continueButtonTapped:
+            state.isBackButtonEnabled = false
+            state.isContinueButtonEnabled = false
+
+            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+
+            switch state.configuration {
+            case .phoneNumber:
+                let phoneNumber = state.phoneNumber
+                return .task {
+                    let result = await networking.services.user.accountExists(for: phoneNumber)
+                    return .accountExistsReturned(result)
+                }
+
+            case .verificationCode:
+                let authID = state.authID
+                let verificationCode = state.verificationCode
+                return .task {
+                    let result = await networking.auth.authenticateUser(
+                        authID: authID,
+                        verificationCode: verificationCode
+                    )
+                    return .authenticateUserReturned(result)
+                }
+            }
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

@@ -37,6 +37,7 @@ public struct WelcomePageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .onFirstAppear {
             viewModel.send(.viewFirstAppeared)
         }

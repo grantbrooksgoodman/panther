@@ -243,6 +243,7 @@ public final class RecipientBarLayoutService {
         tableView.alpha = 0
         tableView.contentInset.bottom = Floats.frameHeight
         tableView.frame.origin.y += Floats.frameHeight
+        tableView.maximumContentSizeCategory = .large
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: Strings.tableViewCellReuseIdentifier)
 
         return tableView

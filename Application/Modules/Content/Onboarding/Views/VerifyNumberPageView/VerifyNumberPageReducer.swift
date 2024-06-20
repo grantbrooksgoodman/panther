@@ -45,6 +45,7 @@ public struct VerifyNumberPageReducer: Reducer {
     public enum Feedback {
         case accountExistsAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
+        case continueButtonTapped
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case updateRegionMenuViewID
         case verifyPhoneNumberReturned(Callback<String, Exception>)
@@ -123,16 +124,9 @@ public struct VerifyNumberPageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
-            state.isBackButtonEnabled = false
-            state.isContinueButtonEnabled = false
-
             coreUI.resignFirstResponder()
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
-
-            let phoneNumber = state.phoneNumber
-            return .task {
-                let result = await networking.services.user.accountExists(for: phoneNumber)
-                return .accountExistsReturned(result)
+            return .task(delay: .milliseconds(100)) {
+                .continueButtonTapped
             }
 
         case .action(.didSwipeDown):
@@ -171,6 +165,18 @@ public struct VerifyNumberPageReducer: Reducer {
                     let result = await networking.auth.verifyPhoneNumber(internationalNumber: phoneNumber.compiledNumberString)
                     return .verifyPhoneNumberReturned(result)
                 }
+            }
+
+        case .feedback(.continueButtonTapped):
+            state.isBackButtonEnabled = false
+            state.isContinueButtonEnabled = false
+
+            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+
+            let phoneNumber = state.phoneNumber
+            return .task {
+                let result = await networking.services.user.accountExists(for: phoneNumber)
+                return .accountExistsReturned(result)
             }
 
         case let .feedback(.resolveReturned(.success(strings))):

@@ -42,6 +42,7 @@ public struct AuthCodePageReducer: Reducer {
 
     public enum Feedback {
         case authenticateUserReturned(Callback<String, Exception>)
+        case continueButtonTapped
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -93,19 +94,9 @@ public struct AuthCodePageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
-            state.isBackButtonEnabled = false
-            state.isContinueButtonEnabled = false
-
             coreUI.resignFirstResponder()
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
-
-            let verificationCode = state.verificationCode
-            return .task {
-                let result = await networking.auth.authenticateUser(
-                    authID: onboardingService.authID ?? .init(),
-                    verificationCode: verificationCode
-                )
-                return .authenticateUserReturned(result)
+            return .task(delay: .milliseconds(100)) {
+                .continueButtonTapped
             }
 
         case .action(.didSwipeDown):
@@ -132,6 +123,21 @@ public struct AuthCodePageReducer: Reducer {
             state.isContinueButtonEnabled = state.verificationCode.count == 6
 
             Logger.log(exception, with: .toast())
+
+        case .feedback(.continueButtonTapped):
+            state.isBackButtonEnabled = false
+            state.isContinueButtonEnabled = false
+
+            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+
+            let verificationCode = state.verificationCode
+            return .task {
+                let result = await networking.auth.authenticateUser(
+                    authID: onboardingService.authID ?? .init(),
+                    verificationCode: verificationCode
+                )
+                return .authenticateUserReturned(result)
+            }
 
         case let .feedback(.resolveReturned(.success(strings))):
             state.strings = strings

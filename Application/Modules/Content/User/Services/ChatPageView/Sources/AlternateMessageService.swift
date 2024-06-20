@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import CoreArchitecture
@@ -27,6 +28,10 @@ public final class AlternateMessageService {
 
     private var alternateTextMessageIDs = [String]()
     private var audioTranscriptionMessageIDs = [String]()
+
+    // MARK: - Computed Properties
+
+    public var textCellLabelFont: UIFont { getTextCellLabelFont() }
 
     // MARK: - Init
 
@@ -99,5 +104,19 @@ public final class AlternateMessageService {
         }
 
         append()
+    }
+
+    // MARK: - Auxiliary
+
+    private func getTextCellLabelFont() -> UIFont {
+        typealias Floats = AppConstants.CGFloats.UserContentExtensions.NSAttributedString
+
+        guard let textMessageCell = viewController
+            .messagesCollectionView
+            .visibleCells
+            .compactMap({ $0 as? TextMessageCell })
+            .first else { return .systemFont(ofSize: Floats.messageCellStringSystemFontSize) }
+
+        return textMessageCell.messageLabel.font
     }
 }

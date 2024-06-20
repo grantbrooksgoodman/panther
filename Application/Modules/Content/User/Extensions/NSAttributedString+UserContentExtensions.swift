@@ -15,15 +15,21 @@ import CoreArchitecture
 
 public extension NSAttributedString {
     static func messageCellString(_ text: String, foregroundColor: UIColor) -> NSAttributedString {
+        @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.NSAttributedString
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = Floats.messageCellStringParagraphLineSpacing
 
+        var font: UIFont = .systemFont(ofSize: Floats.messageCellStringSystemFontSize)
+        if let alternateMessageService {
+            font = alternateMessageService.textCellLabelFont
+        }
+
         return .init(
             string: text,
             attributes: [
-                .font: UIFont.systemFont(ofSize: Floats.messageCellStringSystemFontSize).italicized,
+                .font: font.italicized,
                 .foregroundColor: foregroundColor,
                 .paragraphStyle: paragraphStyle,
             ]
