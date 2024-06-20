@@ -43,6 +43,7 @@ public struct NetworkActivityView: View {
             )
             .overlay {
                 ProgressView()
+                    .dynamicTypeSize(.large)
                     .tint(Colors.progressViewTint)
             }
             .offset(y: viewModel.yOffset)

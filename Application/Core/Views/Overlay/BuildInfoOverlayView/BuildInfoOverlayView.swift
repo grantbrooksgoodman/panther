@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct BuildInfoOverlayView: View {
@@ -52,9 +53,9 @@ public struct BuildInfoOverlayView: View {
     }
 
     private var buildInfoButton: some View {
-        Button(action: {
+        Button {
             viewModel.send(.buildInfoButtonTapped)
-        }, label: {
+        } label: {
             if viewModel.isDeveloperModeEnabled {
                 Circle()
                     .foregroundStyle(viewModel.developerModeIndicatorDotColor)
@@ -66,10 +67,12 @@ public struct BuildInfoOverlayView: View {
                     .padding(.trailing, Floats.developerModeIndicatorTrailingPadding)
             }
 
-            Text(viewModel.buildInfoButtonText)
-                .font(.sanFrancisco(.bold, size: Floats.buildInfoButtonLabelFontSize))
-                .foregroundStyle(Colors.buildInfoButtonLabelForeground)
-        })
+            Components.text(
+                viewModel.buildInfoButtonText,
+                font: .systemBold(scale: .small),
+                foregroundColor: Colors.buildInfoButtonLabelForeground
+            )
+        }
         .padding(.all, Floats.buildInfoButtonPadding)
         .frame(height: Floats.buildInfoButtonFrameHeight)
         .background(Colors.buildInfoButtonBackground)
@@ -81,17 +84,19 @@ public struct BuildInfoOverlayView: View {
     }
 
     private var sendFeedbackButton: some View {
-        Button(action: {
+        Components.button(
+            viewModel.sendFeedbackButtonText,
+            font: .init(
+                .custom(
+                    name: Strings.sendFeedbackButtonLabelFontName,
+                    isUnderlined: true
+                ),
+                scale: .custom(Floats.sendFeedbackButtonLabelFontSize)
+            ),
+            foregroundColor: Colors.sendFeedbackButtonLabelForeground
+        ) {
             viewModel.send(.sendFeedbackButtonTapped)
-        }, label: {
-            Text(viewModel.sendFeedbackButtonText)
-                .font(.custom(
-                    Strings.sendFeedbackButtonLabelFontName,
-                    size: Floats.sendFeedbackButtonLabelFontSize
-                ))
-                .foregroundStyle(Colors.sendFeedbackButtonLabelForeground)
-                .underline()
-        })
+        }
         .padding(.horizontal, Floats.sendFeedbackButtonHorizontalPadding)
         .frame(height: Floats.sendFeedbackButtonFrameHeight)
         .background(Colors.sendFeedbackButtonBackground)

@@ -71,7 +71,7 @@ public struct InviteService {
         let translateResult = await translator.translate(
             .init(promptMessage),
             with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
-            hud: (.seconds(1), true)
+            hud: (.zero, true)
         )
 
         switch translateResult {

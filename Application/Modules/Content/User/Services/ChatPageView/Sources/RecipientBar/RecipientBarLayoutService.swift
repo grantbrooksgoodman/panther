@@ -212,9 +212,11 @@ public final class RecipientBarLayoutService {
 
     private func buildSelectContactButton() -> UIButton? {
         guard let actionHandlerService = service?.actionHandler,
+              let image = UIImage(systemName: Strings.selectContactButtonImageSystemName),
               let recipientBarView else { return nil }
 
-        let selectContactButton: UIButton = .init(type: .contactAdd)
+        let selectContactButton: UIButton = .init()
+        selectContactButton.setImage(image, for: .normal)
         selectContactButton.tintColor = .accent
 
         selectContactButton.addTarget(
@@ -223,10 +225,15 @@ public final class RecipientBarLayoutService {
             for: .touchUpInside
         )
 
-        selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
-        selectContactButton.frame.size.width = selectContactButton.intrinsicContentSize.width
+        selectContactButton.frame.size = .init(
+            width: Floats.selectContactButtonFrameWidth,
+            height: Floats.selectContactButtonFrameHeight
+        )
 
-        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.intrinsicContentSize.width
+        selectContactButton.contentHorizontalAlignment = .fill
+        selectContactButton.contentVerticalAlignment = .fill
+
+        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
         selectContactButton.frame.origin.x = xOriginOffset - Floats.selectContactButtonXOriginDecrement
         selectContactButton.center.y = recipientBarView.center.y
 

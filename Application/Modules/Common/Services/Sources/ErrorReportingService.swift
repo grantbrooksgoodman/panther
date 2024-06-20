@@ -66,7 +66,8 @@ public final class ErrorReportingService: AKReportDelegate {
                 customValues["Device Context"] = "\(deviceID) | \(operatingSystemID)"
             }
 
-            let bundleVersionString = "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))"
+            let buildNumberString = "\(build.buildNumber)\(build.stage.shortString)"
+            let bundleVersionString = build.bundleVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
 
             var shortDateHash = dateFormatter.string(from: Date()).encodedHash
@@ -80,7 +81,7 @@ public final class ErrorReportingService: AKReportDelegate {
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
-                    "reports/\(bundleVersionString)/\(errorCode)/log_\(shortDateHash).txt",
+                    "reports/\(bundleVersionString)/\(buildNumberString)/\(errorCode)/log_\(shortDateHash).txt",
                     contentType: "text/plain",
                     customValues: customValues
                 )
@@ -98,9 +99,9 @@ public final class ErrorReportingService: AKReportDelegate {
 
             guard build.developerModeEnabled else { return }
             Observables.rootViewToastAction.value = {
-                guard let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString,
-                      let encodedBundleVersionString = bundleVersionString.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else { return }
-                let urlStringSuffix = "\(self.networking.config.environment.shortString)~2Freports~2F\(encodedBundleVersionString)~2F\(errorCode)"
+                guard let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return }
+                let environmentShortString = self.networking.config.environment.shortString
+                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(buildNumberString)~2F\(errorCode)"
                 guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return }
                 self.uiApplication.open(url)
             }

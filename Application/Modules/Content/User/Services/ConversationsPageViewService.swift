@@ -56,7 +56,7 @@ public struct ConversationsPageViewService {
         }
 
         coreGCD.after(.seconds(1)) {
-            Task {
+            Task { @MainActor in
                 guard await services.permission.notificationPermissionStatus == .unknown else {
                     services.review.promptToReview()
                     return

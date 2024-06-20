@@ -323,6 +323,9 @@
 		B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */; };
 		B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */; };
 		B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */; };
+		B9AC93E22C23F3BA00478008 /* ComponentKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9AC93E12C23F3BA00478008 /* ComponentKit */; };
+		B9AC93E42C23F45B00478008 /* ComponentKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AC93E32C23F45B00478008 /* ComponentKitDependency.swift */; };
+		B9AC93E62C23F46900478008 /* ComponentKit+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AC93E52C23F46900478008 /* ComponentKit+CoreExtensions.swift */; };
 		B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */; };
 		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
 		B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */; };
@@ -1192,6 +1195,8 @@
 		B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageRecognitionService.swift; sourceTree = "<group>"; };
 		B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLLanguageRecognizerDependency.swift; sourceTree = "<group>"; };
 		B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextCheckerDependency.swift; sourceTree = "<group>"; };
+		B9AC93E32C23F45B00478008 /* ComponentKitDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentKitDependency.swift; sourceTree = "<group>"; };
+		B9AC93E52C23F46900478008 /* ComponentKit+CoreExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ComponentKit+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+InputBarAccessoryViewDelegate.swift"; sourceTree = "<group>"; };
 		B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewService.swift; sourceTree = "<group>"; };
 		B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -1636,6 +1641,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9DAD8ED2BA95E7C00AAAA03 /* AlertKit.xcframework in Frameworks */,
+				B9AC93E22C23F3BA00478008 /* ComponentKit in Frameworks */,
 				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 				B966B86B2B703DC800215555 /* Translator.xcframework in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -2112,6 +2118,7 @@
 				B9260BB92AC4105C00824A7C /* BuildDependency.swift */,
 				B9E7D4452AAC257A00FAF2A9 /* BuildInfoOverlayViewServiceDependency.swift */,
 				B9E7D4552AAD0D8100FAF2A9 /* CalendarDependencies.swift */,
+				B9AC93E32C23F45B00478008 /* ComponentKitDependency.swift */,
 				B9E7D4712AAD163B00FAF2A9 /* CoreKitDependency.swift */,
 				B9E7D4192AAC0FC500FAF2A9 /* FileManagerDependency.swift */,
 				B9AF12512ACE4DAD0045C54C /* JSONDependencies.swift */,
@@ -2648,6 +2655,7 @@
 				B946D87B2ACC8A59001D2424 /* AKError+CoreExtensions.swift */,
 				B9E7D4732AAD359000FAF2A9 /* Array+CoreExtensions.swift */,
 				B920F1862AD77128002FC1C2 /* Calendar+CoreExtensions.swift */,
+				B9AC93E52C23F46900478008 /* ComponentKit+CoreExtensions.swift */,
 				B9E7D4752AAD35CE00FAF2A9 /* Date+CoreExtensions.swift */,
 				B93BCDCF2AAD8B1900AA16FE /* Dictionary+CoreExtensions.swift */,
 				B946D87D2ACC966E001D2424 /* Duration+CoreExtensions.swift */,
@@ -3700,6 +3708,7 @@
 			packageProductDependencies = (
 				B90C91042B69C95B008DFE59 /* MessageKit */,
 				B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */,
+				B9AC93E12C23F3BA00478008 /* ComponentKit */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3826,6 +3835,7 @@
 			packageReferences = (
 				B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */,
+				B9AC93E02C23F3BA00478008 /* XCLocalSwiftPackageReference "../../XCFrameworks/ComponentKit" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4163,7 +4173,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\napp_store_release_version=2\ncurrent_app_store_build_number=19486\n\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nIS_RELEASE_BUILD=$(/usr/libexec/PlistBuddy -c \"Print IsReleaseBuild\" \"$INFOPLIST_FILE\")\n\nBUILD_NUMBER=$(($BUILD_NUMBER + 1))\nrelease_build_number=$((($BUILD_NUMBER) - current_app_store_build_number))\nbuild_date=`date +%s`\n\nif [ \"$IS_RELEASE_BUILD\" = true ] ; then\n    RELEASE_VERSION=$(/usr/libexec/PlistBuddy -c \"Print CFBundleShortReleaseVersionString\" \"$INFOPLIST_FILE\")\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $RELEASE_VERSION\" \"$INFOPLIST_FILE\"\nelse\n    minor_release_number=$((release_build_number / 150))\n    bug_fix_release_number=$((release_build_number / 50))\n    bundle_version=\"$((app_store_release_version)).$((minor_release_number)).$((bug_fix_release_number))\"\n        \n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $bundle_version\" \"$INFOPLIST_FILE\"\nfi\n\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $build_date\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleReleaseVersion $release_build_number\" \"$INFOPLIST_FILE\"\n";
+			shellScript = "#!/bin/bash\napp_store_release_version=2\ncurrent_app_store_build_number=19974\n\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nIS_RELEASE_BUILD=$(/usr/libexec/PlistBuddy -c \"Print IsReleaseBuild\" \"$INFOPLIST_FILE\")\n\nBUILD_NUMBER=$(($BUILD_NUMBER + 1))\nrelease_build_number=$((($BUILD_NUMBER) - current_app_store_build_number))\nbuild_date=`date +%s`\n\nif [ \"$IS_RELEASE_BUILD\" = true ] ; then\n    RELEASE_VERSION=$(/usr/libexec/PlistBuddy -c \"Print CFBundleShortReleaseVersionString\" \"$INFOPLIST_FILE\")\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $RELEASE_VERSION\" \"$INFOPLIST_FILE\"\nelse\n    minor_release_number=$((release_build_number / 150))\n    bug_fix_release_number=$((release_build_number / 50))\n    bundle_version=\"$((app_store_release_version)).$((minor_release_number)).$((bug_fix_release_number))\"\n        \n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $bundle_version\" \"$INFOPLIST_FILE\"\nfi\n\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $build_date\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleReleaseVersion $release_build_number\" \"$INFOPLIST_FILE\"\n";
 		};
 		B98145F22AB4F34100937D37 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4281,6 +4291,7 @@
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
 				B980E8AB2B2251BD0090F141 /* StandardDateFormatterDependency.swift in Sources */,
+				B9AC93E42C23F45B00478008 /* ComponentKitDependency.swift in Sources */,
 				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
 				B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */,
@@ -4354,6 +4365,7 @@
 				B90F33202AE4D41A002A9284 /* HeaderView+DataModels.swift in Sources */,
 				B963F1C62B23D6480087DB83 /* Conversation+Serializable.swift in Sources */,
 				B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */,
+				B9AC93E62C23F46900478008 /* ComponentKit+CoreExtensions.swift in Sources */,
 				B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */,
 				B9C9560E2B64578B001C7E01 /* BuildInfoButtonStrings.swift in Sources */,
 				A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */,
@@ -4940,7 +4952,7 @@
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Application/Resources/Property Lists/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4968,7 +4980,7 @@
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Application/Resources/Property Lists/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4996,7 +5008,7 @@
 				INFOPLIST_FILE = NotificationExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5029,7 +5041,7 @@
 				INFOPLIST_FILE = NotificationExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5079,6 +5091,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		B9AC93E02C23F3BA00478008 /* XCLocalSwiftPackageReference "../../XCFrameworks/ComponentKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../XCFrameworks/ComponentKit;
+		};
 		B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../XCFrameworks/CoreArchitecture;
@@ -5101,6 +5117,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
+		};
+		B9AC93E12C23F3BA00478008 /* ComponentKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ComponentKit;
 		};
 		B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;

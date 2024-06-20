@@ -33,7 +33,8 @@ extension ChatPageViewController: UITextViewDelegate {
               let recipientBarService = chatPageViewService.recipientBar,
               let textField = recipientBarService.layout.textField else { return true }
 
-        guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: { $0.isMock }) || textField.isFirstResponder else { return true }
+        guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: { $0.isMock }) || textField.isFirstResponder,
+              recipientBarService.layout.tableView?.alpha == 0 else { return true }
 
         recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "", makeInputBarFirstResponder: false)
         typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate

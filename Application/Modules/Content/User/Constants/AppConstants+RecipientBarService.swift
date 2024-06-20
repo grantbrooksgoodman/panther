@@ -60,7 +60,10 @@ public extension AppConstants.CGFloats.ChatPageViewService {
             public static let frameHeight: CGFloat = 54
 
             public static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
+
             public static let selectContactButtonXOriginDecrement: CGFloat = 10
+            public static let selectContactButtonFrameHeight: CGFloat = 26
+            public static let selectContactButtonFrameWidth: CGFloat = 26
 
             public static let textFieldWidthDecrement: CGFloat = 85
             public static let textFieldXOriginIncrement: CGFloat = 5
@@ -115,6 +118,7 @@ public extension AppConstants.Strings.ChatPageViewService {
         enum Layout {
             public static let recipientBarSemanticTag = "RECIPIENT_BAR"
             public static let selectContactButtonSemanticTag = "SELECT_CONTACT_BUTTON"
+            public static let selectContactButtonImageSystemName = "plus.circle"
 
             public static let tableViewCellReuseIdentifier = "contactCell"
             public static let tableViewSemanticTag = "TABLE_VIEW"
