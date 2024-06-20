@@ -70,7 +70,13 @@ public struct ContactDetailView: View {
             if subtitleLabelText != nil {
                 Components.symbol(
                     Strings.chevronImageSystemName,
-                    foregroundColor: .subtitleText
+                    foregroundColor: .subtitleText,
+                    weight: .semibold,
+                    usesIntrinsicSize: false
+                )
+                .frame(
+                    maxWidth: Floats.chevronImageFrameMaxWidth,
+                    maxHeight: Floats.chevronImageFrameMaxHeight
                 )
             }
         }

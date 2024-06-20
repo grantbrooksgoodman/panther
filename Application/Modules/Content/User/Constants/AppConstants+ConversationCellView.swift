@@ -17,8 +17,9 @@ public extension AppConstants.CGFloats {
         public static let avatarImageViewTopPadding: CGFloat = 10
 
         public static let chevronImageAndDateLabelHStackSpacing: CGFloat = 0 // swiftlint:disable:next identifier_name
-        public static let chevronImageForegroundColorAdjustmentPercentage: CGFloat = 60
-        public static let chevronImageSystemFontSize: CGFloat = 14
+        public static let chevronImageForegroundColorAdjustmentPercentage: CGFloat = 75
+        public static let chevronImageFrameMaxWidth: CGFloat = 12
+        public static let chevronImageFrameMaxHeight: CGFloat = 12
 
         public static let dateLabelPaddingTrailing: CGFloat = 6
         public static let dateLabelSystemFontSize: CGFloat = 14

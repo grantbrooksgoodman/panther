@@ -1,5 +1,15 @@
 {
+  "originHash" : "82ef4612a8501c90e541e20d7ee63e399b7ecbef1628ae373e32463a3f4864bc",
   "pins" : [
+    {
+      "identity" : "component-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grantbrooksgoodman/component-kit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7073a24400a9d22d5fd2f5f60a5efdfa51e3aa38"
+      }
+    },
     {
       "identity" : "inputbaraccessoryview",
       "kind" : "remoteSourceControl",
@@ -19,5 +29,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

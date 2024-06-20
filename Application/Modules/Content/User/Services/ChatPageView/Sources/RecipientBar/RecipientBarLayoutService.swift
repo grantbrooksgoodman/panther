@@ -24,6 +24,7 @@ public final class RecipientBarLayoutService {
 
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
@@ -204,8 +205,7 @@ public final class RecipientBarLayoutService {
     // MARK: - Auxiliary
 
     private func getScreenWidth() -> CGFloat {
-        @Dependency(\.uiApplication.mainScreen?.bounds.width) var mainScreenWidth: CGFloat?
-        return mainScreenWidth ?? UIScreen.main.bounds.width
+        uiApplication.mainScreen?.bounds.width ?? UIScreen.main.bounds.width
     }
 
     // MARK: - View Builders
@@ -215,9 +215,9 @@ public final class RecipientBarLayoutService {
               let image = UIImage(systemName: Strings.selectContactButtonImageSystemName),
               let recipientBarView else { return nil }
 
-        let selectContactButton: UIButton = .init()
-        selectContactButton.setImage(image, for: .normal)
+        let selectContactButton: UIButton = .init(type: .contactAdd)
         selectContactButton.tintColor = .accent
+        selectContactButton.maximumContentSizeCategory = .large
 
         selectContactButton.addTarget(
             actionHandlerService,
@@ -225,16 +225,14 @@ public final class RecipientBarLayoutService {
             for: .touchUpInside
         )
 
-        selectContactButton.frame.size = .init(
-            width: Floats.selectContactButtonFrameWidth,
-            height: Floats.selectContactButtonFrameHeight
-        )
+        selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
+        selectContactButton.frame.size.width = selectContactButton.intrinsicContentSize.width
 
-        selectContactButton.contentHorizontalAlignment = .fill
-        selectContactButton.contentVerticalAlignment = .fill
+        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.intrinsicContentSize.width
+        let decrementValue = Floats.selectContactButtonXOriginDecrement
+        let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
-        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
-        selectContactButton.frame.origin.x = xOriginOffset - Floats.selectContactButtonXOriginDecrement
+        selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
         selectContactButton.center.y = recipientBarView.center.y
 
         return selectContactButton

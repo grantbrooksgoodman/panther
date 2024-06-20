@@ -15,6 +15,8 @@ import SwiftUI
 public extension AppConstants.CGFloats {
     enum ContactDetailView {
         public static let avatarImageViewTrailingPadding: CGFloat = 2
+        public static let chevronImageFrameMaxHeight: CGFloat = 15
+        public static let chevronImageFrameMaxWidth: CGFloat = 15
         public static let cornerRadius: CGFloat = 8
     }
 }

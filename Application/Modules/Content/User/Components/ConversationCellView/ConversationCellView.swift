@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct ConversationCellView: View {
@@ -95,12 +96,12 @@ public struct ConversationCellView: View {
                     VStack(alignment: .leading) {
                         HStack {
                             HStack {
-                                Text(viewModel.cellViewData.titleLabelText)
-                                    .bold()
-                                    .font(.system(size: Floats.titleLabelSystemFontSize))
-                                    .foregroundStyle(Color.titleText)
-                                    .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
-                                    .padding(.bottom, Floats.titleLabelBottomPadding)
+                                Components.text(
+                                    viewModel.cellViewData.titleLabelText,
+                                    font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
+                                )
+                                .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
+                                .padding(.bottom, Floats.titleLabelBottomPadding)
 
                                 if let otherUser = viewModel.cellViewData.otherUser {
                                     UserInfoBadgeView(otherUser) {
@@ -112,22 +113,33 @@ public struct ConversationCellView: View {
                             Spacer()
 
                             HStack(alignment: .center, spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
-                                Text(viewModel.cellViewData.dateLabelText)
-                                    .font(.system(size: Floats.dateLabelSystemFontSize))
-                                    .foregroundStyle(Color.subtitleText)
-                                    .padding(.trailing, Floats.dateLabelPaddingTrailing)
+                                Components.text(
+                                    viewModel.cellViewData.dateLabelText,
+                                    font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
+                                    foregroundColor: .subtitleText
+                                )
+                                .padding(.trailing, Floats.dateLabelPaddingTrailing)
 
-                                Image(systemName: Strings.chevronImageSystemName)
-                                    .font(.system(size: Floats.chevronImageSystemFontSize, weight: .semibold))
-                                    .foregroundStyle(viewModel.chevronImageForegroundColor)
+                                Components.symbol(
+                                    Strings.chevronImageSystemName,
+                                    foregroundColor: viewModel.chevronImageForegroundColor,
+                                    weight: .semibold,
+                                    usesIntrinsicSize: false
+                                )
+                                .frame(
+                                    maxWidth: Floats.chevronImageFrameMaxWidth,
+                                    maxHeight: Floats.chevronImageFrameMaxHeight
+                                )
                             }
                         }
 
-                        Text(viewModel.cellViewData.subtitleLabelText)
-                            .font(.system(size: Floats.subtitleLabelSystemFontSize))
-                            .foregroundStyle(viewModel.subtitleLabelTextForegroundColor)
-                            .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)
-                            .offset(x: Floats.subtitleLabelXOffset, y: Floats.subtitleLabelYOffset)
+                        Components.text(
+                            viewModel.cellViewData.subtitleLabelText,
+                            font: .system(scale: .custom(Floats.subtitleLabelSystemFontSize)),
+                            foregroundColor: viewModel.subtitleLabelTextForegroundColor
+                        )
+                        .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)
+                        .offset(x: Floats.subtitleLabelXOffset, y: Floats.subtitleLabelYOffset)
                     }
                 }
             }
@@ -136,12 +148,12 @@ public struct ConversationCellView: View {
 
     private var chatInfoToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
+            Components.button(
+                symbolName: Strings.chatInfoButtonImageSystemName,
+                usesIntrinsicSize: false
+            ) {
                 viewModel.send(.chatInfoToolbarButtonTapped)
-            } label: {
-                Image(systemName: Strings.chatInfoButtonImageSystemName)
             }
-            .foregroundStyle(Color.accent)
         }
     }
 

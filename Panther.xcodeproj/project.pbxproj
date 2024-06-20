@@ -323,7 +323,6 @@
 		B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA087E2BA2213E00D778DA /* LanguageRecognitionService.swift */; };
 		B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */; };
 		B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */; };
-		B9AC93E22C23F3BA00478008 /* ComponentKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9AC93E12C23F3BA00478008 /* ComponentKit */; };
 		B9AC93E62C23F46900478008 /* ComponentKit+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AC93E52C23F46900478008 /* ComponentKit+CoreExtensions.swift */; };
 		B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */; };
 		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
@@ -340,6 +339,7 @@
 		B9BB3CF12AC0C5F00077D1BC /* TranslationMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF02AC0C5F00077D1BC /* TranslationMap.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BB3CF72AC1486D0077D1BC /* AKTranslationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF62AC1486D0077D1BC /* AKTranslationDelegate.swift */; };
+		B9BBDD9B2C24ADDA00ACD201 /* ComponentKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BEC83A2AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BEC8392AE6F9EC0040FB1F /* EnvironmentValues+CoreExtensions.swift */; };
@@ -1639,7 +1639,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9DAD8ED2BA95E7C00AAAA03 /* AlertKit.xcframework in Frameworks */,
-				B9AC93E22C23F3BA00478008 /* ComponentKit in Frameworks */,
+				B9BBDD9B2C24ADDA00ACD201 /* ComponentKit in Frameworks */,
 				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 				B966B86B2B703DC800215555 /* Translator.xcframework in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -3705,7 +3705,7 @@
 			packageProductDependencies = (
 				B90C91042B69C95B008DFE59 /* MessageKit */,
 				B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */,
-				B9AC93E12C23F3BA00478008 /* ComponentKit */,
+				B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3832,7 +3832,7 @@
 			packageReferences = (
 				B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */,
-				B9AC93E02C23F3BA00478008 /* XCLocalSwiftPackageReference "../../XCFrameworks/ComponentKit" */,
+				B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -5087,10 +5087,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		B9AC93E02C23F3BA00478008 /* XCLocalSwiftPackageReference "../../XCFrameworks/ComponentKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../XCFrameworks/ComponentKit;
-		};
 		B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../XCFrameworks/CoreArchitecture;
@@ -5106,6 +5102,14 @@
 				minimumVersion = 4.2.0;
 			};
 		};
+		B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grantbrooksgoodman/component-kit.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -5114,8 +5118,9 @@
 			package = B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */;
 			productName = MessageKit;
 		};
-		B9AC93E12C23F3BA00478008 /* ComponentKit */ = {
+		B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */;
 			productName = ComponentKit;
 		};
 		B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */ = {
