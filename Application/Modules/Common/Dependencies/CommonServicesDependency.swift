@@ -43,6 +43,7 @@ public enum CommonServicesDependency: DependencyKey {
             phoneNumber: .init(),
             propertyLists: .init(),
             regionDetail: .init(),
+            remoteCache: .init(),
             review: .init(),
             textMessage: .init(),
             update: .init()

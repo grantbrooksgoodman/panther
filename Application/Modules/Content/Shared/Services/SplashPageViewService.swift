@@ -50,11 +50,45 @@ public final class SplashPageViewService {
             return nil
         }
 
-        /* MARK: HostedTranslationArchiver Setup */
+        /* MARK: Cache Setup */
 
         @Persistent(.currentUserID) var currentUserID: String?
+
+        if let currentUserID {
+            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
+
+            switch cacheStatusResult {
+            case let .success(cacheStatus):
+                if cacheStatus == .invalid {
+                    coreUtilities.clearCaches()
+                    coreUtilities.eraseDocumentsDirectory()
+                    coreUtilities.eraseTemporaryDirectory()
+
+                    var defaultsKeysToKeep = UserDefaultsKeyDomain.permanentKeys
+                    defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
+                    defaults.reset(keeping: defaultsKeysToKeep)
+
+                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
+                        Logger.log(exception)
+                    }
+                }
+
+            case let .failure(exception):
+                Logger.log(exception)
+            }
+        }
+
+        /* MARK: HostedTranslationArchiver Setup */
+
         if currentUserID == nil,
            let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            Logger.log(exception)
+        }
+
+        /* MARK: IntegrityService Setup */
+
+        if BuildConfig.resolveIntegrityServiceSession,
+           let exception = await networkServices.integrity.resolveSession() {
             Logger.log(exception)
         }
 

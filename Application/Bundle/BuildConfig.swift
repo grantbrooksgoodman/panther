@@ -16,6 +16,7 @@ public enum BuildConfig {
     // MARK: - Flags
 
     public static let loggingEnabled = true
+    public static let resolveIntegrityServiceSession = true
     public static let timebombActive = true
 
     // MARK: - Names

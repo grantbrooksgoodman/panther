@@ -28,6 +28,7 @@ public struct CommonServices {
     public let phoneNumber: PhoneNumberService
     public let propertyLists: CommonPropertyLists
     public let regionDetail: RegionDetailService
+    public let remoteCache: RemoteCacheService
     public let review: ReviewService
     public let textMessage: TextMessageService
     public let update: UpdateService
@@ -48,6 +49,7 @@ public struct CommonServices {
         phoneNumber: PhoneNumberService,
         propertyLists: CommonPropertyLists,
         regionDetail: RegionDetailService,
+        remoteCache: RemoteCacheService,
         review: ReviewService,
         textMessage: TextMessageService,
         update: UpdateService
@@ -65,6 +67,7 @@ public struct CommonServices {
         self.phoneNumber = phoneNumber
         self.propertyLists = propertyLists
         self.regionDetail = regionDetail
+        self.remoteCache = remoteCache
         self.review = review
         self.textMessage = textMessage
         self.update = update

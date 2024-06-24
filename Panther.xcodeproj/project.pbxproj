@@ -257,6 +257,8 @@
 		B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */; };
 		B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */; };
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
+		B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */; };
+		B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */; };
 		B98982462BC7273000E9ED9E /* NavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982452BC7273000E9ED9E /* NavigationBar.swift */; };
 		B98982482BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */; };
 		B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */; };
@@ -1131,6 +1133,8 @@
 		B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewData.swift; sourceTree = "<group>"; };
 		B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewServiceDependency.swift; sourceTree = "<group>"; };
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheStatus.swift; sourceTree = "<group>"; };
+		B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheService.swift; sourceTree = "<group>"; };
 		B98982452BC7273000E9ED9E /* NavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBar.swift; sourceTree = "<group>"; };
 		B98982472BC7458200E9ED9E /* NavigationBarAppearanceViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarAppearanceViewModifier.swift; sourceTree = "<group>"; };
 		B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationBarAppearance+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -1832,6 +1836,7 @@
 				B900B5472B1ADB6100BA2F1D /* ContactPair.swift */,
 				B900B5412B1ACAA800BA2F1D /* NumberPair.swift */,
 				B900B53D2B1AC83D00BA2F1D /* PhoneNumber.swift */,
+				B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2512,6 +2517,7 @@
 				B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */,
 				B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */,
 				B9E6D7B32B126188000BC88D /* RegionDetailService.swift */,
+				B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */,
 				B900B5352B1ABA2300BA2F1D /* ReviewService.swift */,
 				B900B52F2B1AB10F00BA2F1D /* TextMessageService.swift */,
 				B969691A2B18259400ADA875 /* UpdateService.swift */,
@@ -4326,6 +4332,7 @@
 				B946D87C2ACC8A59001D2424 /* AKError+CoreExtensions.swift in Sources */,
 				B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */,
 				B9E7D4292AAC1F0400FAF2A9 /* CoreConstants+FailurePageView.swift in Sources */,
+				B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */,
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,
 				B9D0D9462B03019E00078A93 /* CoreDatabase.swift in Sources */,
 				B9E7D41A2AAC0FC500FAF2A9 /* FileManagerDependency.swift in Sources */,
@@ -4723,6 +4730,7 @@
 				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
 				B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
+				B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */,
 				B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */,
 				B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,

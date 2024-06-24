@@ -9,14 +9,51 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import CoreArchitecture
+
 public final class IntegrityService {
+    // MARK: - Dependencies
+
+    @Dependency(\.networking) private var networking: Networking
+
     // MARK: - Properties
 
     private var _session: IntegrityServiceSession?
 
     // MARK: - Computed Properties
 
-    private var malformedMessageIDs: [String] {
+    private var malformedMessageIDs: [String] { getMalformedMessageIDs() }
+    private var session: IntegrityServiceSession { getSession() }
+
+    // MARK: - Init
+
+    public init() {}
+
+    // MARK: - Resolve Session
+
+    public func resolveSession() async -> Exception? {
+        let resolveResult = await IntegrityServiceSession.resolve()
+
+        switch resolveResult {
+        case let .success(session):
+            Logger.log(
+                "Resolved integrity service session.",
+                domain: .dataIntegrity,
+                metadata: [self, #file, #function, #line]
+            )
+            _session = session
+
+        case let .failure(exception):
+            return exception
+        }
+
+        return nil
+    }
+
+    // MARK: - Computed Property Getters
+
+    private func getMalformedMessageIDs() -> [String] {
         var messageIDs = [String]()
 
         for (key, value) in session.messageData {
@@ -34,7 +71,8 @@ public final class IntegrityService {
         return messageIDs
     }
 
-    private var session: IntegrityServiceSession { // swiftlint:disable:next identifier_name
+    private func getSession() -> IntegrityServiceSession {
+        // swiftlint:disable:next identifier_name
         guard let _session else {
             Logger.log(.init(
                 "Referencing unresolved IntegrityServiceSession.",
@@ -45,26 +83,6 @@ public final class IntegrityService {
         }
 
         return _session
-    }
-
-    // MARK: - Init
-
-    public init() {}
-
-    // MARK: - Resolve Session
-
-    public func resolveSession() async -> Exception? {
-        let resolveResult = await IntegrityServiceSession.resolve()
-
-        switch resolveResult {
-        case let .success(session):
-            _session = session
-
-        case let .failure(exception):
-            return exception
-        }
-
-        return nil
     }
 
     // MARK: - Auxiliary
