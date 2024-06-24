@@ -112,7 +112,7 @@ public struct MessageService {
         switch getValuesResult {
         case let .success(values):
             guard var data = values as? [String: Any] else {
-                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
@@ -201,7 +201,7 @@ public struct MessageService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .init("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
+                return .typecastFailed("array", metadata: [self, #file, #function, #line])
             }
 
             array.removeAll(where: { $0 == messageID })

@@ -52,7 +52,7 @@ public extension CoreKit.Utilities {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
             }
 
             let userIDs = Array(dictionary.keys)
@@ -126,7 +126,7 @@ public extension CoreKit.Utilities {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
             }
 
             let userIDs = Array(dictionary.keys)

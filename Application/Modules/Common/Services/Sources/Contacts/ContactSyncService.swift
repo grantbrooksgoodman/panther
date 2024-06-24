@@ -191,8 +191,8 @@ public struct ContactSyncService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.init(
-                    "Failed to typecast values to dictionary.",
+                return .failure(.typecastFailed(
+                    "dictionary",
                     extraParams: ["Values": values],
                     metadata: [self, #file, #function, #line]
                 ))

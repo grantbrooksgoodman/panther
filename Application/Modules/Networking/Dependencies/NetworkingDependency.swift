@@ -32,6 +32,7 @@ public enum NetworkingDependency: DependencyKey {
                     database: .init(),
                     storage: .init()
                 ),
+                integrity: .init(),
                 message: .init(
                     audio: .init(),
                     legacy: .init()

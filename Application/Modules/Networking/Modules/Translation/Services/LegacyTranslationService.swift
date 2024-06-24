@@ -27,8 +27,8 @@ public struct LegacyTranslationService {
         switch getValuesResult {
         case let .success(values):
             guard let string = values as? String else {
-                return .failure(.init(
-                    "Failed to typecast values to string.",
+                return .failure(.typecastFailed(
+                    "string",
                     metadata: [self, #file, #function, #line]
                 ))
             }

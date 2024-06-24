@@ -43,7 +43,7 @@ public struct LegacyUserService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 
@@ -89,7 +89,7 @@ public struct LegacyUserService {
             switch getValuesResult {
             case let .success(values):
                 guard var array = values as? [String] else {
-                    let exception = Exception("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
+                    let exception: Exception = .typecastFailed("array", metadata: [self, #file, #function, #line])
                     return exception.appending(extraParams: commonParams)
                 }
 
@@ -106,7 +106,7 @@ public struct LegacyUserService {
                 switch getValuesResult {
                 case let .success(values):
                     guard var array = values as? [String] else {
-                        let exception = Exception("Failed to typecast values to array.", metadata: [self, #file, #function, #line])
+                        let exception: Exception = .typecastFailed("array", metadata: [self, #file, #function, #line])
                         return exception.appending(extraParams: commonParams)
                     }
 
@@ -159,7 +159,7 @@ public struct LegacyUserService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 

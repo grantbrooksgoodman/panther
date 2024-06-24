@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable type_body_length
 
 /* Native */
 import Foundation
@@ -130,10 +130,7 @@ public final class ConversationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.init(
-                    "Failed to typecast values to array.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("array", metadata: [self, #file, #function, #line]))
             }
 
             var filteredMessageIDs = array.filter { !currentMessages.map(\.id).contains($0) }
@@ -195,10 +192,7 @@ public final class ConversationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let string = values as? String else {
-                return .failure(.init(
-                    "Failed to typecast values to string.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("string", metadata: [self, #file, #function, #line]))
             }
 
             return .success(.init(
@@ -223,10 +217,7 @@ public final class ConversationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.init(
-                    "Failed to typecast values to dictionary.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
 
             let decodeResult = await ConversationMetadata.decode(from: dictionary)
@@ -259,10 +250,7 @@ public final class ConversationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.init(
-                    "Failed to typecast values to array.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("array", metadata: [self, #file, #function, #line]))
             }
 
             var participants = [Participant]()
@@ -402,4 +390,4 @@ public final class ConversationSessionService {
     }
 }
 
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable type_body_length

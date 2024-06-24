@@ -42,7 +42,7 @@ public struct HostedTranslationArchiver {
         switch queryValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: String] else {
-                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 
@@ -98,8 +98,8 @@ public struct HostedTranslationArchiver {
         switch getValuesResult {
         case let .success(values):
             guard let value = values as? String else {
-                let exception = Exception(
-                    "Failed to typecast values to string.",
+                let exception: Exception = .typecastFailed(
+                    "string",
                     extraParams: ["Value": values],
                     metadata: [self, #file, #function, #line]
                 )

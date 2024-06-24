@@ -145,7 +145,7 @@ public final class UserService: Cacheable {
         switch getValuesResult {
         case let .success(values):
             guard let hashes = values as? [String: [String]] else {
-                return .failure(.init("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line]))
+                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
             cache.set(
                 UserNumberHashSnapshot(
@@ -223,7 +223,7 @@ public final class UserService: Cacheable {
         switch getValuesResult {
         case let .success(values):
             guard var data = values as? [String: Any] else {
-                let exception = Exception("Failed to typecast values to dictionary.", metadata: [self, #file, #function, #line])
+                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
                 return .failure(exception.appending(extraParams: commonParams))
             }
 

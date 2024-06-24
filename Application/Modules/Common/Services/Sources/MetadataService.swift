@@ -122,10 +122,7 @@ public final class MetadataService {
         case let .success(values):
             guard let urlString = values as? String,
                   let appShareLink = URL(string: urlString) else {
-                return .failure(.init(
-                    "Failed to typecast values to URL.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("URL", metadata: [self, #file, #function, #line]))
             }
 
             return .success(appShareLink)
@@ -144,10 +141,7 @@ public final class MetadataService {
         switch getValuesResult {
         case let .success(values):
             guard let appStoreBuildNumber = values as? Int else {
-                return .failure(.init(
-                    "Failed to typecast values to integer.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("integer", metadata: [self, #file, #function, #line]))
             }
 
             return .success(appStoreBuildNumber)
@@ -166,10 +160,7 @@ public final class MetadataService {
         switch getValuesResult {
         case let .success(values):
             guard let redirectionKey = values as? String else {
-                return .failure(.init(
-                    "Failed to typecast values to string.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("string", metadata: [self, #file, #function, #line]))
             }
 
             return .success(redirectionKey)
@@ -188,10 +179,7 @@ public final class MetadataService {
         switch getValuesResult {
         case let .success(values):
             guard let shouldForceUpdate = values as? Bool else {
-                return .failure(.init(
-                    "Failed to typecast values to Bool.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("Bool", metadata: [self, #file, #function, #line]))
             }
 
             return .success(shouldForceUpdate)
@@ -211,10 +199,7 @@ public final class MetadataService {
         case let .success(values):
             guard let urlString = values as? String,
                   let storageReferenceURL = URL(string: urlString) else {
-                return .failure(.init(
-                    "Failed to typecast values to URL.",
-                    metadata: [self, #file, #function, #line]
-                ))
+                return .failure(.typecastFailed("URL", metadata: [self, #file, #function, #line]))
             }
 
             return .success(storageReferenceURL)

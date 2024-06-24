@@ -28,4 +28,16 @@ public extension Exception {
             metadata: metadata
         )
     }
+
+    static func typecastFailed(
+        _ typeName: String? = nil,
+        extraParams: [String: Any]? = nil,
+        metadata: [Any]
+    ) -> Exception {
+        .init(
+            "Failed to typecast values \(typeName == nil ? "." : "to \(typeName!).")",
+            extraParams: extraParams,
+            metadata: metadata
+        )
+    }
 }
