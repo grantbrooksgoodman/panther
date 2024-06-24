@@ -20,6 +20,7 @@ public enum AppException: String {
 
     case contactAccessDenied = "C8DC"
     case currentUserIDNotSet = "EA90"
+    case decodingFailed = "20FC"
     case exhaustedAvailablePlatforms = "C526"
     case genericStorageError = "C81B"
     case kAFAssistantError = "F59D"

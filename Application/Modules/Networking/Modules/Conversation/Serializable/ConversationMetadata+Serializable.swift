@@ -39,6 +39,17 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: [String: Any]) -> Bool {
+        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+
+        guard data[Keys.name.rawValue] as? String != nil,
+              data[Keys.imageData.rawValue] as? String != nil,
+              let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
+              dateFormatter.date(from: lastModifiedDateString) != nil else { return false }
+
+        return true
+    }
+
     public static func decode(from data: [String: Any]) async -> Callback<ConversationMetadata, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
 

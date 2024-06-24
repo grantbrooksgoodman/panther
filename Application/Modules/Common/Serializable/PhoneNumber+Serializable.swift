@@ -35,6 +35,14 @@ extension PhoneNumber: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: [String: Any]) -> Bool {
+        guard data[Keys.callingCode.rawValue] as? String != nil,
+              data[Keys.nationalNumberString.rawValue] as? String != nil,
+              data[Keys.regionCode.rawValue] as? String != nil else { return false }
+
+        return true
+    }
+
     public static func decode(from data: [String: Any]) async -> Callback<PhoneNumber, Exception> {
         guard let callingCode = data[Keys.callingCode.rawValue] as? String,
               let nationalNumberString = data[Keys.nationalNumberString.rawValue] as? String,

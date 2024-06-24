@@ -20,6 +20,7 @@ public protocol Serializable {
 
     // MARK: - Methods
 
+    static func canDecode(from data: Representation) -> Bool
     static func decode(from data: Representation) async -> Callback<T, Exception>
 }
 

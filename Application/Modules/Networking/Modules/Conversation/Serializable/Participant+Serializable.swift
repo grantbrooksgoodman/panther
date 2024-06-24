@@ -20,6 +20,15 @@ extension Participant: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: String) -> Bool {
+        let components = data.components(separatedBy: " | ")
+        guard components.count == 3,
+              components[1] == "true" || components[1] == "false",
+              components[2] == "true" || components[2] == "false" else { return false }
+
+        return true
+    }
+
     public static func decode(from data: String) async -> Callback<Participant, Exception> {
         let components = data.components(separatedBy: " | ")
         guard components.count == 3,

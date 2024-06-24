@@ -315,7 +315,7 @@ public final class ConversationSessionService {
             }
         }
 
-        if let exception = await removeConversationFromUsers(
+        if let exception = await networking.services.conversation.removeConversationFromUsers(
             userIDs: conversation.participants.map(\.userID),
             conversationIDKey: conversation.id.key
         ) {
@@ -384,50 +384,6 @@ public final class ConversationSessionService {
         case let .failure(exception):
             return exception
         }
-    }
-
-    private func removeConversationFromUsers(userIDs: [String], conversationIDKey: String) async -> Exception? {
-        func removeConversationFromUser(userID: String, conversationIDKey: String) async -> Exception? {
-            let commonParams = ["UserID": userID, "ConversationIDKey": conversationIDKey]
-
-            guard !userID.isBangQualifiedEmpty,
-                  !conversationIDKey.isBangQualifiedEmpty else {
-                let exception = Exception("Passed arguments fail validation.", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
-            }
-
-            let getConversationIDStringsResult = await networking.services.conversation.getConversationIDStrings(for: userID)
-
-            switch getConversationIDStringsResult {
-            case var .success(conversationIDStrings):
-                conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
-                conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
-
-                let path = networking.config.paths.users
-                if let exception = await networking.database.setValue(
-                    conversationIDStrings,
-                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
-                ) {
-                    return exception.appending(extraParams: commonParams)
-                }
-
-            case let .failure(exception):
-                return exception.appending(extraParams: commonParams)
-            }
-
-            return nil
-        }
-
-        for userID in userIDs {
-            if let exception = await removeConversationFromUser(
-                userID: userID,
-                conversationIDKey: conversationIDKey
-            ) {
-                return exception
-            }
-        }
-
-        return nil
     }
 
     private func withMessagesOffset(_ conversation: Conversation) -> Conversation {

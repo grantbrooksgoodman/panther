@@ -226,6 +226,7 @@ public struct SignInPageReducer: Reducer {
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
+            onboardingService.setPhoneNumber(.init(""))
             navigationCoordinator.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):

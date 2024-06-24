@@ -237,18 +237,26 @@ public struct MessageService {
     public func deleteMessages(
         ids messageIDs: [String],
         in conversation: Conversation? = nil,
-        updateConversationHash: Bool = true
+        updateConversationHash: Bool = true,
+        failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async -> Exception? {
+        var exceptions = [Exception]()
+
         for messageID in messageIDs {
             if let exception = await deleteMessage(
                 id: messageID,
                 in: conversation,
                 updateConversationHash: updateConversationHash
             ) {
+                guard failureStrategy == .returnOnFailure else {
+                    exceptions.append(exception)
+                    continue
+                }
+
                 return exception
             }
         }
 
-        return nil
+        return exceptions.compiledException
     }
 }

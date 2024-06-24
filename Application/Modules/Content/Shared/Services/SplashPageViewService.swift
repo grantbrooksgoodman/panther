@@ -21,6 +21,7 @@ public final class SplashPageViewService {
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.networking.services) private var networkServices: NetworkServices
+    @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
@@ -105,7 +106,7 @@ public final class SplashPageViewService {
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
             @Persistent(.didClearCaches) var didClearCaches: Bool?
-            let mustUpdateContactPairArchive = didClearCaches ?? false
+            let mustUpdateContactPairArchive = onboardingService.phoneNumber != nil || (didClearCaches ?? false)
             didClearCaches = nil
 
             if !mustUpdateContactPairArchive {

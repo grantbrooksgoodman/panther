@@ -52,6 +52,21 @@ extension Message: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: [String: Any]) -> Bool {
+        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+
+        guard data[Keys.id.rawValue] as? String != nil,
+              data[Keys.fromAccountID.rawValue] as? String != nil,
+              let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
+              hasAudioComponentString == "true" || hasAudioComponentString == "false",
+              data[Keys.translations.rawValue] as? [String] != nil,
+              data[Keys.readDate.rawValue] as? String != nil,
+              let sentDateString = data[Keys.sentDate.rawValue] as? String,
+              dateFormatter.date(from: sentDateString) != nil else { return false }
+
+        return true
+    }
+
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
         @Dependency(\.networking.services.message.audio) var audioMessageService: AudioMessageService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter

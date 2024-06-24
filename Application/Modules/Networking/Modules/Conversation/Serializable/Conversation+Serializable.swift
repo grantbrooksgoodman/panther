@@ -43,6 +43,17 @@ extension Conversation: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: [String: Any]) -> Bool {
+        guard data[Keys.id.rawValue] as? String != nil,
+              let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
+              ConversationMetadata.canDecode(from: encodedMetadata),
+              let encodedParticipants = data[Keys.participants.rawValue] as? [String],
+              encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
+              data[Keys.messages.rawValue] as? [String] != nil else { return false }
+
+        return true
+    }
+
     public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.services.message) var messageService: MessageService

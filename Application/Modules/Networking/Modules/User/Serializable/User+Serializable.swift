@@ -43,6 +43,17 @@ extension User: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: [String: Any]) -> Bool {
+        guard data[Keys.id.rawValue] as? String != nil,
+              data[Keys.conversationIDs.rawValue] as? [String] != nil,
+              let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
+              PhoneNumber.canDecode(from: encodedPhoneNumber),
+              data[Keys.languageCode.rawValue] as? String != nil,
+              data[Keys.pushTokens.rawValue] as? [String] != nil else { return false }
+
+        return true
+    }
+
     public static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
         guard let id = data[Keys.id.rawValue] as? String,
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],

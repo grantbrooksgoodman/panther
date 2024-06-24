@@ -89,24 +89,6 @@ public struct ConversationService {
 
     // MARK: - Retrieval by ID
 
-    public func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        let usersPath = networking.config.paths.users
-        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.init("Failed to typecast values to array.", metadata: [self, #file, #function, #line]))
-            }
-
-            return .success(array)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
     public func getConversations(idKeys: [String]) async -> Callback<[Conversation], Exception> {
         let commonParams = ["ConversationIDs": idKeys]
 
@@ -178,6 +160,81 @@ public struct ConversationService {
         case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
         }
+    }
+
+    private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
+        let usersPath = networking.config.paths.users
+        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: path)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let array = values as? [String] else {
+                return .failure(.init("Failed to typecast values to array.", metadata: [self, #file, #function, #line]))
+            }
+
+            return .success(array)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    // MARK: - Deletion
+
+    public func removeConversationFromUsers(
+        userIDs: [String],
+        conversationIDKey: String,
+        failureStrategy: BatchFailureStrategy = .returnOnFailure
+    ) async -> Exception? {
+        func removeConversationFromUser(userID: String, conversationIDKey: String) async -> Exception? {
+            let commonParams = ["UserID": userID, "ConversationIDKey": conversationIDKey]
+
+            guard !userID.isBangQualifiedEmpty,
+                  !conversationIDKey.isBangQualifiedEmpty else {
+                let exception = Exception("Passed arguments fail validation.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
+            }
+
+            let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
+
+            switch getConversationIDStringsResult {
+            case var .success(conversationIDStrings):
+                conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
+                conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
+
+                let path = networking.config.paths.users
+                if let exception = await networking.database.setValue(
+                    conversationIDStrings,
+                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                ) {
+                    return exception.appending(extraParams: commonParams)
+                }
+
+            case let .failure(exception):
+                return exception.appending(extraParams: commonParams)
+            }
+
+            return nil
+        }
+
+        var exceptions = [Exception]()
+
+        for userID in userIDs {
+            if let exception = await removeConversationFromUser(
+                userID: userID,
+                conversationIDKey: conversationIDKey
+            ) {
+                guard failureStrategy == .returnOnFailure else {
+                    exceptions.append(exception)
+                    continue
+                }
+
+                return exception
+            }
+        }
+
+        return exceptions.compiledException
     }
 
     // MARK: - Auxiliary

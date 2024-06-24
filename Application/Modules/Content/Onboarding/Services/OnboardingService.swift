@@ -16,8 +16,8 @@ import CoreArchitecture
 public final class OnboardingService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.notification) var notificationService: NotificationService
-    @Dependency(\.networking.services.user) var userService: UserService
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.networking.services.user) private var userService: UserService
 
     // MARK: - Properties
 

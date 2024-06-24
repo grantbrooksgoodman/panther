@@ -24,6 +24,8 @@ extension Translation: Serializable {
 
     // MARK: - Methods
 
+    public static func canDecode(from data: TranslationReference) -> Bool { true }
+
     public static func decode(from data: TranslationReference) async -> Callback<Translation, Exception> {
         @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
 
