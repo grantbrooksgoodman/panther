@@ -40,9 +40,7 @@ public struct RemoteCacheService {
 
         switch getValuesResult {
         case let .success(values):
-            guard var array = values as? [String] else {
-                return .typecastFailed("array", metadata: [self, #file, #function, #line])
-            }
+            var array = values as? [String] ?? []
 
             switch cacheStatus {
             case .invalid:
@@ -56,7 +54,13 @@ public struct RemoteCacheService {
             return await networking.database.setValue(array, forKey: networking.config.paths.invalidatedCaches)
 
         case let .failure(exception):
-            return exception
+            var exceptions = [exception]
+
+            if let exception = await networking.database.setValue([userID], forKey: networking.config.paths.invalidatedCaches) {
+                exceptions.append(exception)
+            }
+
+            return exceptions.compiledException
         }
     }
 }

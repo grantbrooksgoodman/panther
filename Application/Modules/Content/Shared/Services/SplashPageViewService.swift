@@ -54,8 +54,8 @@ public final class SplashPageViewService {
 
         @Persistent(.currentUserID) var currentUserID: String?
 
-        if let currentUserID {
-            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
+        if let userID = currentUserID {
+            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: userID)
 
             switch cacheStatusResult {
             case let .success(cacheStatus):
@@ -68,9 +68,11 @@ public final class SplashPageViewService {
                     defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
                     defaults.reset(keeping: defaultsKeysToKeep)
 
-                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
+                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: userID) {
                         Logger.log(exception)
                     }
+
+                    currentUserID = nil
                 }
 
             case let .failure(exception):
