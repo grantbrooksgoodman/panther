@@ -71,8 +71,6 @@ public final class SplashPageViewService {
                     if let exception = await services.remoteCache.setCacheStatus(.valid, userID: userID) {
                         Logger.log(exception)
                     }
-
-                    currentUserID = nil
                 }
 
             case let .failure(exception):

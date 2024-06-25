@@ -202,7 +202,10 @@ public struct HostedTranslationService {
             )
 
             let translateResult = await translator.translate(
-                input,
+                .init(
+                    input.value().trimmingTrailingWhitespace,
+                    alternate: input.alternate?.trimmingTrailingWhitespace
+                ),
                 with: languagePair,
                 hud: hudConfig,
                 timeout: (.seconds(10), false)
@@ -210,6 +213,12 @@ public struct HostedTranslationService {
 
             switch translateResult {
             case let .success(translation):
+                let translation: Translation = .init(
+                    input: input,
+                    output: translation.output,
+                    languagePair: translation.languagePair
+                )
+
                 if let exception = TranslationValidator.validate(
                     translation: translation,
                     metadata: [self, #file, #function, #line]
