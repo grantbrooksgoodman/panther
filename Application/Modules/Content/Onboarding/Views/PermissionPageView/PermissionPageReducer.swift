@@ -140,7 +140,7 @@ public struct PermissionPageReducer: Reducer {
                 }
             } else {
                 return .task {
-                    if let exception = await services.contact.sync.syncContactPairArchive() {
+                    if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true) {
                         Logger.log(exception)
                     }
 

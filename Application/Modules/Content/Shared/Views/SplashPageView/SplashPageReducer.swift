@@ -34,6 +34,7 @@ public struct SplashPageReducer: Reducer {
     public enum Feedback {
         case errorAlertDismissed(_ actionID: Int)
         case initializedBundle(Exception?)
+        case performRetryHandlerReturned(Exception?)
     }
 
     // MARK: - State
@@ -71,24 +72,36 @@ public struct SplashPageReducer: Reducer {
 
         case let .feedback(.errorAlertDismissed(actionID)):
             guard actionID == -1 else { return .none }
-            viewService.performRetryHandler()
             return .task {
-                let result = await viewService.initializeBundle()
-                return .initializedBundle(result)
+                let result = await viewService.performRetryHandler()
+                return .performRetryHandlerReturned(result)
             }
 
         case let .feedback(.initializedBundle(exception)):
+            @Persistent(.currentUserID) var currentUserID: String?
+
             if let exception {
                 Logger.log(exception)
                 return .task {
                     let result = await viewService.presentErrorAlert(exception)
                     return .errorAlertDismissed(result)
                 }
-            } else if userSession.currentUser != nil {
+            } else if currentUserID != nil,
+                      userSession.currentUser != nil {
                 navigationCoordinator.navigate(to: .root(.modal(.conversations)))
             } else {
                 navigationCoordinator.navigate(to: .onboarding(.stack([])))
                 navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+            }
+
+        case let .feedback(.performRetryHandlerReturned(exception)):
+            if let exception {
+                Logger.log(exception)
+            }
+
+            return .task {
+                let result = await viewService.initializeBundle()
+                return .initializedBundle(result)
             }
         }
 

@@ -27,6 +27,7 @@ public final class SplashPageViewService {
 
     // MARK: - Properties
 
+    private var didAttemptDatabaseRepair = false
     private var didAttemptUserConversion = false
 
     // MARK: - Methods
@@ -85,13 +86,6 @@ public final class SplashPageViewService {
             Logger.log(exception)
         }
 
-        /* MARK: IntegrityService Setup */
-
-        if BuildConfig.resolveIntegrityServiceSession,
-           let exception = await networkServices.integrity.resolveSession() {
-            Logger.log(exception)
-        }
-
         /* MARK: MetadataService Setup */
 
         if let exception = await services.metadata.resolveValues() {
@@ -140,7 +134,7 @@ public final class SplashPageViewService {
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
             @Persistent(.didClearCaches) var didClearCaches: Bool?
-            let mustUpdateContactPairArchive = onboardingService.phoneNumber != nil || (didClearCaches ?? false)
+            let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)
             didClearCaches = nil
 
             if !mustUpdateContactPairArchive {
@@ -151,6 +145,8 @@ public final class SplashPageViewService {
                !exception.isEqual(to: .notAuthorizedForContacts) {
                 return exception
             }
+
+            ContactPairArchiveStatus.setNeedsUpdate(false)
 
             if let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
@@ -165,9 +161,24 @@ public final class SplashPageViewService {
     }
 
     /// `.errorAlertDismissed`
-    public func performRetryHandler() {
-        @Sendable
-        func clearCaches() {
+    public func performRetryHandler() async -> Exception? {
+        func attemptDatabaseRepair() async -> Exception? {
+            didAttemptDatabaseRepair = true
+            return await networkServices.integrity.repairDatabase()
+        }
+
+        @Persistent(.currentUserID) var currentUserID: String?
+
+        if let currentUserID,
+           !didAttemptUserConversion {
+            didAttemptUserConversion = true
+            if let exception = await networkServices.user.legacy.convertUser(id: currentUserID) {
+                guard !exception.isEqual(to: .userDoesNotNeedConversion) else { return await attemptDatabaseRepair() }
+                return exception
+            }
+        } else if !didAttemptDatabaseRepair {
+            return await attemptDatabaseRepair()
+        } else {
             coreUtilities.clearCaches()
             coreUtilities.eraseDocumentsDirectory()
             coreUtilities.eraseTemporaryDirectory()
@@ -175,19 +186,7 @@ public final class SplashPageViewService {
             defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID,
-              !didAttemptUserConversion else {
-            clearCaches()
-            return
-        }
-
-        didAttemptUserConversion = true
-        Task {
-            if let exception = await networkServices.user.legacy.convertUser(id: currentUserID) {
-                Logger.log(exception)
-            }
-        }
+        return nil
     }
 
     /// `.initializedBundle`

@@ -56,6 +56,33 @@ public final class IntegrityService {
         return nil
     }
 
+    // MARK: - Prune Invalidated Caches
+
+    public func pruneInvalidatedCaches() async -> Exception? {
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.invalidatedCaches)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard var array = values as? [String] else {
+                return .typecastFailed("array", metadata: [self, #file, #function, #line])
+            }
+
+            array = array.filter { session.userData.keys.contains($0) }
+
+            if let exception = await networking.database.setValue(
+                array.isBangQualifiedEmpty ? NSNull() : array,
+                forKey: networking.config.paths.invalidatedCaches
+            ) {
+                return exception
+            }
+
+        case let .failure(exception):
+            return exception
+        }
+
+        return nil
+    }
+
     // MARK: - Malformed Data
 
     public func repairMalformedConversations(_ idKeys: [String]? = nil) async -> Exception? {
@@ -104,10 +131,10 @@ public final class IntegrityService {
         return exceptions.compiledException
     }
 
-    public func repairMalformedMessages() async -> Exception? {
+    public func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> Exception? {
         var exceptions = [Exception]()
 
-        for messageID in malformedMessageIDs {
+        for messageID in messageIDs ?? malformedMessageIDs {
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
                 if let exception = await resetHash(conversationIDKey: conversationIDKey) {
                     exceptions.append(exception)
@@ -367,6 +394,39 @@ public final class IntegrityService {
 
             if let exception = await repairMalformedConversations([key]) {
                 exceptions.append(exception)
+            }
+        }
+
+        return exceptions.compiledException
+    }
+
+    public func resolveNonExistentTranslations() async -> Exception? {
+        var exceptions = [Exception]()
+
+        for (key, value) in session.messageData {
+            guard let dictionary = value as? [String: Any],
+                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
+
+            for translationReferenceString in translationReferenceStrings {
+                guard let reference: TranslationReference = .init(translationReferenceString),
+                      !reference.languagePair.isIdempotent else { continue }
+
+                let path = "\(networking.config.paths.translations)/\(reference.languagePair.asString())/\(reference.type.key)"
+                let getValuesResult = await networking.database.getValues(at: path)
+
+                switch getValuesResult {
+                case let .failure(exception):
+                    guard exception.isEqual(to: .noValueExists) else {
+                        exceptions.append(exception)
+                        continue
+                    }
+
+                    if let exception = await repairMalformedMessages([key]) {
+                        exceptions.append(exception)
+                    }
+
+                case .success: ()
+                }
             }
         }
 

@@ -52,11 +52,12 @@ public final class InputBarService {
         guard build.isOnline else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
+        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
         let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty }
-        return !isConversationEmpty && !isTextViewTextBlank
+        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder }
+        return !isConversationEmpty && !isRecipientBarFirstResponder && !isTextViewTextBlank
     }
 
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }

@@ -17,6 +17,7 @@ public final class IntegrityServiceSession {
 
     public let conversationData: [String: Any]
     public let messageData: [String: Any]
+    public let translationData: [String: Any]
     public let userData: [String: Any]
     public let userNumberHashData: [String: Any]
 
@@ -26,6 +27,7 @@ public final class IntegrityServiceSession {
         .init(
             conversationData: [:],
             messageData: [:],
+            translationData: [:],
             userData: [:],
             userNumberHashData: [:]
         )
@@ -36,11 +38,13 @@ public final class IntegrityServiceSession {
     private init(
         conversationData: [String: Any],
         messageData: [String: Any],
+        translationData: [String: Any],
         userData: [String: Any],
         userNumberHashData: [String: Any]
     ) {
         self.conversationData = conversationData
         self.messageData = messageData
+        self.translationData = translationData
         self.userData = userData
         self.userNumberHashData = userNumberHashData
     }
@@ -52,6 +56,7 @@ public final class IntegrityServiceSession {
 
         var conversationData: [String: Any]?
         var messageData: [String: Any]?
+        var translationData: [String: Any]?
         var userData: [String: Any]?
         var userNumberHashData: [String: Any]?
 
@@ -82,6 +87,22 @@ public final class IntegrityServiceSession {
             }
 
             messageData = dictionary
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+
+        // Get Translation Values
+
+        let getTranslationValuesResult = await networking.database.getValues(at: networking.config.paths.translations)
+
+        switch getTranslationValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            }
+
+            translationData = dictionary
 
         case let .failure(exception):
             return .failure(exception)
@@ -121,6 +142,7 @@ public final class IntegrityServiceSession {
 
         guard let conversationData,
               let messageData,
+              let translationData,
               let userData,
               let userNumberHashData else {
             return .failure(.init(metadata: [self, #file, #function, #line]))
@@ -129,6 +151,7 @@ public final class IntegrityServiceSession {
         return .success(.init(
             conversationData: conversationData,
             messageData: messageData,
+            translationData: translationData,
             userData: userData,
             userNumberHashData: userNumberHashData
         ))

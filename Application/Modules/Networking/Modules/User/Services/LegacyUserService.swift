@@ -27,23 +27,20 @@ public struct LegacyUserService {
     public func convertUser(id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
-        let getUserResult = await networking.services.user.getUser(id: id)
-
-        switch getUserResult {
-        case .success:
-            let exception = Exception("User does not need conversion to new schema.", metadata: [self, #file, #function, #line])
-            return exception.appending(extraParams: commonParams)
-
-        default: ()
-        }
-
         let userPath = "\(networking.config.paths.users)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
+            guard var dictionary = values as? [String: Any] else {
                 let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
+            }
+
+            dictionary[User.SerializationKeys.id.rawValue] = id
+
+            guard !User.canDecode(from: dictionary) else {
+                let exception = Exception("User does not need conversion to new schema.", metadata: [self, #file, #function, #line])
                 return exception.appending(extraParams: commonParams)
             }
 

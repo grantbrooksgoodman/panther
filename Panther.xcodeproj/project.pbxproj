@@ -113,6 +113,8 @@
 		B91C2D762C1B694700278B7F /* ConnectionStatusProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D752C1B694700278B7F /* ConnectionStatusProviderProtocol.swift */; };
 		B91C2D782C1B6A8F00278B7F /* CoreNetworkServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D772C1B6A8F00278B7F /* CoreNetworkServices.swift */; };
 		B91C2D7A2C1B6C2C00278B7F /* Build+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D792C1B6C2C00278B7F /* Build+CommonExtensions.swift */; };
+		B91E93912C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E93902C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift */; };
+		B91E93942C2B23760099FBA4 /* IntegrityService+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E93932C2B23760099FBA4 /* IntegrityService+CoreNetworkingExtensions.swift */; };
 		B920F1872AD77128002FC1C2 /* Calendar+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F1862AD77128002FC1C2 /* Calendar+CoreExtensions.swift */; };
 		B920F1892AD7C243002FC1C2 /* Locale+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F1882AD7C243002FC1C2 /* Locale+CoreExtensions.swift */; };
 		B920F18B2AD7C93A002FC1C2 /* LocaleDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B920F18A2AD7C93A002FC1C2 /* LocaleDependency.swift */; };
@@ -351,7 +353,6 @@
 		B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */; };
 		B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D2572B79687F00119B85 /* NewChatPageReducer.swift */; };
 		B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C0D25A2B796AC000119B85 /* RecipientBar.swift */; };
-		B9C13B4D2C1A174F004B9E28 /* CoreArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */; };
 		B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F229BEC263009DCE29 /* DevModeAction.swift */; };
 		B9C582F529BEC266009DCE29 /* DevModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582F429BEC266009DCE29 /* DevModeService.swift */; };
 		B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C582FE29BECA8D009DCE29 /* Timeout.swift */; };
@@ -648,6 +649,7 @@
 		B9DAD8EE2BA95E7C00AAAA03 /* AlertKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B9DAD8EC2BA95E7C00AAAA03 /* AlertKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71062AD3891700EAC88B /* UserDefaultsKeyDomain.swift */; };
 		B9DB71092AD3897200EAC88B /* StoredItemKeyDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DB71082AD3897200EAC88B /* StoredItemKeyDomain.swift */; };
+		B9DBEC0E2C2B4E1A00A127FF /* CoreArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = B9DBEC0D2C2B4E1A00A127FF /* CoreArchitecture */; };
 		B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */; };
 		B9DCCAA12B34FB6C00532B12 /* Persistent+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */; };
 		B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */; };
@@ -990,6 +992,8 @@
 		B91C2D752C1B694700278B7F /* ConnectionStatusProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusProviderProtocol.swift; sourceTree = "<group>"; };
 		B91C2D772C1B6A8F00278B7F /* CoreNetworkServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreNetworkServices.swift; sourceTree = "<group>"; };
 		B91C2D792C1B6C2C00278B7F /* Build+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Build+CommonExtensions.swift"; sourceTree = "<group>"; };
+		B91E93902C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPairArchiveStatus.swift; sourceTree = "<group>"; };
+		B91E93932C2B23760099FBA4 /* IntegrityService+CoreNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntegrityService+CoreNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B920F1862AD77128002FC1C2 /* Calendar+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calendar+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B920F1882AD7C243002FC1C2 /* Locale+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B920F18A2AD7C93A002FC1C2 /* LocaleDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocaleDependency.swift; sourceTree = "<group>"; };
@@ -1648,12 +1652,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9DBEC0E2C2B4E1A00A127FF /* CoreArchitecture in Frameworks */,
 				B9DAD8ED2BA95E7C00AAAA03 /* AlertKit.xcframework in Frameworks */,
 				B9BBDD9B2C24ADDA00ACD201 /* ComponentKit in Frameworks */,
 				B90C91052B69C95B008DFE59 /* MessageKit in Frameworks */,
 				B966B86B2B703DC800215555 /* Translator.xcframework in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
-				B9C13B4D2C1A174F004B9E28 /* CoreArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1834,6 +1838,7 @@
 				B9EFBA0F2B2691E600624794 /* CacheStrategy.swift */,
 				B900B5432B1ACC6100BA2F1D /* Contact.swift */,
 				B900B5472B1ADB6100BA2F1D /* ContactPair.swift */,
+				B91E93902C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift */,
 				B900B5412B1ACAA800BA2F1D /* NumberPair.swift */,
 				B900B53D2B1AC83D00BA2F1D /* PhoneNumber.swift */,
 				B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */,
@@ -3522,6 +3527,7 @@
 			children = (
 				B9D0D9212B03019E00078A93 /* Array+CoreNetworkingExtensions.swift */,
 				B9DCCAAE2B3618EA00532B12 /* Exception+CoreNetworkingExtensions.swift */,
+				B91E93932C2B23760099FBA4 /* IntegrityService+CoreNetworkingExtensions.swift */,
 				B9E6D7F22B14F9BF000BC88D /* LanguagePair+CoreNetworkingExtensions.swift */,
 				B97718A62BEB5D4C00C94BE5 /* Persistent+CoreNetworkingExtensions.swift */,
 				B9D0D9202B03019E00078A93 /* String+CoreNetworkingExtensions.swift */,
@@ -3743,8 +3749,8 @@
 			name = Hello;
 			packageProductDependencies = (
 				B90C91042B69C95B008DFE59 /* MessageKit */,
-				B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */,
 				B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */,
+				B9DBEC0D2C2B4E1A00A127FF /* CoreArchitecture */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3870,8 +3876,8 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B90C91032B69C95B008DFE59 /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */,
 				B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */,
+				B9DBEC0C2C2B4E1A00A127FF /* XCLocalSwiftPackageReference "../../XCFrameworks/core-architecture" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4621,6 +4627,7 @@
 				B9BB3CF12AC0C5F00077D1BC /* TranslationMap.swift in Sources */,
 				B9E7D4302AAC20D900FAF2A9 /* BuildInfoOverlayView.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
+				B91E93942C2B23760099FBA4 /* IntegrityService+CoreNetworkingExtensions.swift in Sources */,
 				B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */,
 				B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */,
 				B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */,
@@ -4687,6 +4694,7 @@
 				B991958B2B47E03B00BD5BBC /* OnboardingServiceDependency.swift in Sources */,
 				B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */,
 				B903CA742B6C2F3500A238A4 /* InputBarService.swift in Sources */,
+				B91E93912C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift in Sources */,
 				B978B1992B87C84200AA007A /* RootSheet.swift in Sources */,
 				B9E1BBA42B315D7E00ADEA71 /* NetworkActivityViewModifier.swift in Sources */,
 				B969165F2BAE1DB400441472 /* ConversationMetadata+Serializable.swift in Sources */,
@@ -5131,9 +5139,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */ = {
+		B9DBEC0C2C2B4E1A00A127FF /* XCLocalSwiftPackageReference "../../XCFrameworks/core-architecture" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../XCFrameworks/CoreArchitecture;
+			relativePath = "../../XCFrameworks/core-architecture";
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -5167,9 +5175,8 @@
 			package = B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */;
 			productName = ComponentKit;
 		};
-		B9C13B4C2C1A174F004B9E28 /* CoreArchitecture */ = {
+		B9DBEC0D2C2B4E1A00A127FF /* CoreArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B9C13B4A2C1A167B004B9E28 /* XCLocalSwiftPackageReference "../../XCFrameworks/CoreArchitecture" */;
 			productName = CoreArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */

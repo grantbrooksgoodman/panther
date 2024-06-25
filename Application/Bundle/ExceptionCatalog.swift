@@ -35,6 +35,7 @@ public enum AppException: String {
     case sameTranslationInputOutput = "6CEB"
     case storageItemDoesNotExist = "9207"
     case timedOut = "801F"
+    case userDoesNotNeedConversion = "CCAB"
 
     // TODO: All of the below need regeneration.
 
