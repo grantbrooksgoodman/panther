@@ -120,7 +120,7 @@ public final class MessageDeliveryService {
               !text.isBlank else { return nil }
 
         hapticsService.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(audioFile: nil, text: text)
+        addMockMessageToCurrentConversation(audioFile: nil, imageFile: nil, text: text)
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
@@ -160,9 +160,10 @@ public final class MessageDeliveryService {
 
     private func addMockMessageToCurrentConversation(
         audioFile: AudioFile?,
+        imageFile: ImageFile?,
         text: String?
     ) {
-        assert(audioFile != nil || text != nil, "No values provided.")
+        assert(audioFile != nil || imageFile != nil || text != nil, "No values provided.")
 
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else { return }
@@ -187,7 +188,21 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 hasAudioComponent: true,
+                hasImageComponent: false,
                 audioComponents: [mockAudioMessageReference],
+                image: nil,
+                translations: [mockTranslation],
+                readDate: nil,
+                sentDate: Date()
+            ))
+        } else if let imageFile {
+            messages.append(.init(
+                CommonConstants.newMessageID,
+                fromAccountID: currentUser.id,
+                hasAudioComponent: false,
+                hasImageComponent: true,
+                audioComponents: nil,
+                image: imageFile,
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
@@ -197,7 +212,9 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 hasAudioComponent: false,
+                hasImageComponent: false,
                 audioComponents: nil,
+                image: nil,
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
@@ -255,6 +272,6 @@ public final class MessageDeliveryService {
         }
 
         guard conversationIDKey == clientSession.conversation.currentConversation?.id.key else { return }
-        addMockMessageToCurrentConversation(audioFile: inputFile, text: nil)
+        addMockMessageToCurrentConversation(audioFile: inputFile, imageFile: nil, text: nil)
     }
 }

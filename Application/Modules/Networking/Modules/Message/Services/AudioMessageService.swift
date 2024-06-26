@@ -23,14 +23,14 @@ public struct AudioMessageService {
     public func getAudioComponent(for message: Message) async -> Callback<Message, Exception> {
         switch cachedAudioMessageReference(for: message) {
         case let .success(audioMessageReference):
-            return await appendAudioComponent(audioMessageReference, to: message)
+            return .success(appendAudioComponent(audioMessageReference, to: message))
 
         case .failure:
             let downloadAudioMessageReferenceResult = await downloadAudioMessageReference(for: message)
 
             switch downloadAudioMessageReferenceResult {
             case let .success(audioMessageReference):
-                return await appendAudioComponent(audioMessageReference, to: message)
+                return .success(appendAudioComponent(audioMessageReference, to: message))
 
             case let .failure(exception):
                 return .failure(exception.appending(extraParams: ["MessageID": message.id]))
@@ -221,7 +221,7 @@ public struct AudioMessageService {
     private func appendAudioComponent(
         _ audioComponent: AudioMessageReference,
         to message: Message
-    ) async -> Callback<Message, Exception> {
+    ) -> Message {
         var audioComponents = message.audioComponents ?? []
         audioComponents.append(audioComponent)
 
@@ -229,12 +229,14 @@ public struct AudioMessageService {
             message.id,
             fromAccountID: message.fromAccountID,
             hasAudioComponent: true,
+            hasImageComponent: message.hasImageComponent,
             audioComponents: audioComponents,
+            image: message.image,
             translations: message.translations,
             readDate: message.readDate,
             sentDate: message.sentDate
         )
 
-        return .success(modifiedMessage)
+        return modifiedMessage
     }
 }

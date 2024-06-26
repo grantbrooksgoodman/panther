@@ -21,6 +21,7 @@ public struct NetworkPaths {
         case conversations
         case deletedUsers
         case invalidatedCaches
+        case images
         case messages
         case shared
         case translations
@@ -35,6 +36,7 @@ public struct NetworkPaths {
     public let conversations = Path.conversations.rawValue
     public let deletedUsers = Path.deletedUsers.rawValue
     public let invalidatedCaches = Path.invalidatedCaches.rawValue
+    public let images = Path.images.rawValue
     public let messages = Path.messages.rawValue
     public let shared = Path.shared.rawValue
     public let translations = Path.translations.rawValue

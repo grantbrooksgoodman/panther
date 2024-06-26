@@ -20,12 +20,7 @@ extension Message: Updatable {
 
     // MARK: - Properties
 
-    public var updatableKeys: [SerializationKeys] {
-        [
-            .hasAudioComponent,
-            .readDate,
-        ]
-    }
+    public var updatableKeys: [SerializationKeys] { [.readDate] }
 
     // MARK: - Methods
 
@@ -34,22 +29,12 @@ extension Message: Updatable {
 
         switch key {
         case .fromAccountID,
+             .hasAudioComponent,
+             .hasImageComponent,
              .id,
              .sentDate,
              .translations:
             return nil
-
-        case .hasAudioComponent:
-            guard let value = value as? String else { return nil }
-            return .init(
-                id,
-                fromAccountID: fromAccountID,
-                hasAudioComponent: value == "true" ? true : false,
-                audioComponents: audioComponents,
-                translations: translations,
-                readDate: readDate,
-                sentDate: sentDate
-            )
 
         case .readDate:
             guard let value = value as? String else { return nil }
@@ -57,7 +42,9 @@ extension Message: Updatable {
                 id,
                 fromAccountID: fromAccountID,
                 hasAudioComponent: hasAudioComponent,
+                hasImageComponent: hasImageComponent,
                 audioComponents: audioComponents,
+                image: image,
                 translations: translations,
                 readDate: dateFormatter.date(from: value) ?? nil,
                 sentDate: sentDate

@@ -1862,6 +1862,161 @@
 		<key>zh</key>
 		<string>按住录音</string>
 	</dict>
+	<key>image</key>
+	<dict>
+		<key>af</key>
+		<string>Beeld</string>
+		<key>ar</key>
+		<string>صورة</string>
+		<key>az</key>
+		<string>Şəkil</string>
+		<key>be</key>
+		<string>Выява</string>
+		<key>bg</key>
+		<string>Изображение</string>
+		<key>bn</key>
+		<string>চিত্র</string>
+		<key>bs</key>
+		<string>Slika</string>
+		<key>ca</key>
+		<string>Imatge</string>
+		<key>cs</key>
+		<string>Obraz</string>
+		<key>cy</key>
+		<string>Nelwedd</string>
+		<key>da</key>
+		<string>Billede</string>
+		<key>de</key>
+		<string>Bild</string>
+		<key>el</key>
+		<string>Εικόνα</string>
+		<key>en</key>
+		<string>Image</string>
+		<key>eo</key>
+		<string>Bildo</string>
+		<key>es</key>
+		<string>Imagen</string>
+		<key>et</key>
+		<string>Pilt</string>
+		<key>eu</key>
+		<string>Irudi</string>
+		<key>fa</key>
+		<string>تصویر</string>
+		<key>fi</key>
+		<string>Kuva</string>
+		<key>fr</key>
+		<string>Image</string>
+		<key>ga</key>
+		<string>Íomha</string>
+		<key>gd</key>
+		<string>Ìomhaigh</string>
+		<key>gl</key>
+		<string>Imaxe</string>
+		<key>gu</key>
+		<string>છબી</string>
+		<key>he</key>
+		<string>תמונה</string>
+		<key>hi</key>
+		<string>छवि</string>
+		<key>hr</key>
+		<string>Slika</string>
+		<key>ht</key>
+		<string>Imaj</string>
+		<key>hu</key>
+		<string>Kép</string>
+		<key>hy</key>
+		<string>Պատկեր</string>
+		<key>id</key>
+		<string>Gambar</string>
+		<key>is</key>
+		<string>Mynd</string>
+		<key>it</key>
+		<string>Immagine</string>
+		<key>ja</key>
+		<string>画像</string>
+		<key>ka</key>
+		<string>Გამოსახულება</string>
+		<key>kk</key>
+		<string>Кескін</string>
+		<key>kn</key>
+		<string>ಚಿತ್ರ</string>
+		<key>ko</key>
+		<string>영상</string>
+		<key>ky</key>
+		<string>Сүрөт</string>
+		<key>lt</key>
+		<string>Vaizdas</string>
+		<key>mg</key>
+		<string>SARY</string>
+		<key>mi</key>
+		<string>Pakoko</string>
+		<key>mk</key>
+		<string>Слика</string>
+		<key>ml</key>
+		<string>പതിഛായ</string>
+		<key>mn</key>
+		<string>Дүр</string>
+		<key>mt</key>
+		<string>Immaġni</string>
+		<key>ne</key>
+		<string>रुप</string>
+		<key>nl</key>
+		<string>Afbeelding</string>
+		<key>no</key>
+		<string>Bilde</string>
+		<key>pa</key>
+		<string>ਚਿੱਤਰ</string>
+		<key>pl</key>
+		<string>Obraz</string>
+		<key>pt</key>
+		<string>Imagem</string>
+		<key>ro</key>
+		<string>Imagine</string>
+		<key>ru</key>
+		<string>Изображение</string>
+		<key>si</key>
+		<string>රූප</string>
+		<key>sk</key>
+		<string>Obrázok</string>
+		<key>sl</key>
+		<string>Slika</string>
+		<key>sq</key>
+		<string>Imazh</string>
+		<key>sr</key>
+		<string>Слика</string>
+		<key>su</key>
+		<string>Gambar</string>
+		<key>sv</key>
+		<string>Bild</string>
+		<key>sw</key>
+		<string>Picha</string>
+		<key>ta</key>
+		<string>படம்</string>
+		<key>te</key>
+		<string>చిత్రం</string>
+		<key>tg</key>
+		<string>Тасвири</string>
+		<key>th</key>
+		<string>ภาพ</string>
+		<key>tl</key>
+		<string>Imahe</string>
+		<key>tr</key>
+		<string>Resim</string>
+		<key>tt</key>
+		<string>Образ</string>
+		<key>uk</key>
+		<string>Зображення</string>
+		<key>ur</key>
+		<string>تصویر</string>
+		<key>uz</key>
+		<string>Rasm</string>
+		<key>vi</key>
+		<string>Hình ảnh</string>
+		<key>yi</key>
+		<string>בילד</string>
+		<key>zh</key>
+		<string>图像</string>
+	</dict>
 	<key>internet_connection_offline</key>
 	<dict>
 		<key>af</key>
@@ -4092,80 +4247,80 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>ಆಫ್‌ಲೈನ್ ಮೋಡ್</string>
 		<key>ko</key>
 		<string>오프라인 모드</string>
-        <key>ky</key>
-        <string>Оффлайн режими</string>
-        <key>lt</key>
-        <string>Režimas neprisijungus</string>
-        <key>mg</key>
-        <string>Fomba an-tserasera</string>
-        <key>mi</key>
-        <string>Aratau tuimotu</string>
-        <key>mk</key>
-        <string>Офлајн режим</string>
-        <key>ml</key>
-        <string>ഓഫ്‌ലൈൻ മോഡ്</string>
-        <key>mn</key>
-        <string>Офлайн горим</string>
-        <key>mt</key>
-        <string>Modalità offline</string>
-        <key>ne</key>
-        <string>अफलाइन मोड</string>
-        <key>nl</key>
-        <string>Offline modus</string>
-        <key>no</key>
-        <string>Frakoblet modus</string>
-        <key>pa</key>
-        <string>ਔਫਲਾਈਨ ਮੋਡ</string>
-        <key>pl</key>
-        <string>Tryb offline</string>
-        <key>pt</key>
-        <string>Modo offline</string>
-        <key>ro</key>
-        <string>Modul offline</string>
-        <key>ru</key>
-        <string>Офлайн-режим</string>
-        <key>si</key>
-        <string>නොබැඳි මාදිලිය</string>
-        <key>sk</key>
-        <string>Offline režim</string>
-        <key>sl</key>
-        <string>Način brez povezave</string>
-        <key>sq</key>
-        <string>Modaliteti jashtë linje</string>
-        <key>sr</key>
-        <string>Режим ван мреже</string>
-        <key>su</key>
-        <string>Modeu offline</string>
-        <key>sv</key>
-        <string>Offlineläge</string>
-        <key>sw</key>
-        <string>Hali ya nje ya mtandao</string>
-        <key>ta</key>
-        <string>ஆஃப்லைன் பயன்முறை</string>
-        <key>te</key>
-        <string>ఆఫ్‌లైన్ మోడ్</string>
-        <key>tg</key>
-        <string>Ҳолати офлайн</string>
-        <key>th</key>
-        <string>โหมดออฟไลน์</string>
-        <key>tl</key>
-        <string>Di konektado</string>
-        <key>tr</key>
-        <string>Çevrimdışı mod</string>
-        <key>tt</key>
-        <string>Оффлайн режим</string>
-        <key>uk</key>
-        <string>Автономний режим</string>
-        <key>ur</key>
-        <string>آف لائن موڈ</string>
-        <key>uz</key>
-        <string>Oflayn rejim</string>
-        <key>vi</key>
-        <string>Chế độ ngoại tuyến</string>
-        <key>yi</key>
-        <string>אָפפלינע מאָדע</string>
-        <key>zh</key>
-        <string>离线模式</string>
+		<key>ky</key>
+		<string>Оффлайн режими</string>
+		<key>lt</key>
+		<string>Režimas neprisijungus</string>
+		<key>mg</key>
+		<string>Fomba an-tserasera</string>
+		<key>mi</key>
+		<string>Aratau tuimotu</string>
+		<key>mk</key>
+		<string>Офлајн режим</string>
+		<key>ml</key>
+		<string>ഓഫ്‌ലൈൻ മോഡ്</string>
+		<key>mn</key>
+		<string>Офлайн горим</string>
+		<key>mt</key>
+		<string>Modalità offline</string>
+		<key>ne</key>
+		<string>अफलाइन मोड</string>
+		<key>nl</key>
+		<string>Offline modus</string>
+		<key>no</key>
+		<string>Frakoblet modus</string>
+		<key>pa</key>
+		<string>ਔਫਲਾਈਨ ਮੋਡ</string>
+		<key>pl</key>
+		<string>Tryb offline</string>
+		<key>pt</key>
+		<string>Modo offline</string>
+		<key>ro</key>
+		<string>Modul offline</string>
+		<key>ru</key>
+		<string>Офлайн-режим</string>
+		<key>si</key>
+		<string>නොබැඳි මාදිලිය</string>
+		<key>sk</key>
+		<string>Offline režim</string>
+		<key>sl</key>
+		<string>Način brez povezave</string>
+		<key>sq</key>
+		<string>Modaliteti jashtë linje</string>
+		<key>sr</key>
+		<string>Режим ван мреже</string>
+		<key>su</key>
+		<string>Modeu offline</string>
+		<key>sv</key>
+		<string>Offlineläge</string>
+		<key>sw</key>
+		<string>Hali ya nje ya mtandao</string>
+		<key>ta</key>
+		<string>ஆஃப்லைன் பயன்முறை</string>
+		<key>te</key>
+		<string>ఆఫ్‌లైన్ మోడ్</string>
+		<key>tg</key>
+		<string>Ҳолати офлайн</string>
+		<key>th</key>
+		<string>โหมดออฟไลน์</string>
+		<key>tl</key>
+		<string>Di konektado</string>
+		<key>tr</key>
+		<string>Çevrimdışı mod</string>
+		<key>tt</key>
+		<string>Оффлайн режим</string>
+		<key>uk</key>
+		<string>Автономний режим</string>
+		<key>ur</key>
+		<string>آف لائن موڈ</string>
+		<key>uz</key>
+		<string>Oflayn rejim</string>
+		<key>vi</key>
+		<string>Chế độ ngoại tuyến</string>
+		<key>yi</key>
+		<string>אָפפלינע מאָדע</string>
+		<key>zh</key>
+		<string>离线模式</string>
 	</dict>
 	<key>read</key>
 	<dict>

@@ -34,27 +34,30 @@ extension Message: MessageType {
         let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
-        guard hasAudioComponent,
-              let audioComponent else {
-            guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
-                return .text(isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized)
+        if hasAudioComponent,
+           let audioComponent {
+            guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
+                return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
             }
 
             return .attributedText(
                 .messageCellString(
-                    isFromCurrentUser ? translation.output.sanitized : translation.input.value().sanitized,
+                    isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized,
                     foregroundColor: attributedStringForegroundColor
                 )
             )
+        } else if hasImageComponent,
+                  let image {
+            return .photo(image)
         }
 
-        guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
-            return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
+        guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
+            return .text(isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized)
         }
 
         return .attributedText(
             .messageCellString(
-                isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized,
+                isFromCurrentUser ? translation.output.sanitized : translation.input.value().sanitized,
                 foregroundColor: attributedStringForegroundColor
             )
         )
@@ -74,7 +77,9 @@ public extension Message {
             "",
             fromAccountID: "",
             hasAudioComponent: false,
+            hasImageComponent: false,
             audioComponents: nil,
+            image: nil,
             translations: [
                 .init(
                     input: .init(""),

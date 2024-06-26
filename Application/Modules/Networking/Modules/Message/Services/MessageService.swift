@@ -22,12 +22,18 @@ public struct MessageService {
     // MARK: - Properties
 
     public let audio: AudioMessageService
+    public let image: ImageMessageService
     public let legacy: LegacyMessageService
 
     // MARK: - Init
 
-    public init(audio: AudioMessageService, legacy: LegacyMessageService) {
+    public init(
+        audio: AudioMessageService,
+        image: ImageMessageService,
+        legacy: LegacyMessageService
+    ) {
         self.audio = audio
+        self.image = image
         self.legacy = legacy
     }
 
@@ -35,11 +41,13 @@ public struct MessageService {
 
     public func createMessage(
         fromAccountID: String,
-        translations: [Translation],
-        audioComponents: [AudioMessageReference]?
+        translations: [Translation]?,
+        audioComponents: [AudioMessageReference]?,
+        imageComponent: ImageFile?
     ) async -> Callback<Message, Exception> {
         guard !fromAccountID.isBangQualifiedEmpty,
-              translations.isWellFormed else {
+              !(audioComponents == nil && imageComponent == nil && translations == nil),
+              translations?.isWellFormed ?? true else {
             return .failure(.init(
                 "Passed arguments fail validation.",
                 metadata: [self, #file, #function, #line]
@@ -59,7 +67,8 @@ public struct MessageService {
         let data: [String: Any] = [
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.hasAudioComponent.rawValue: audioComponents == nil ? "false" : "true",
-            Keys.translations.rawValue: translations.map(\.reference.hostingKey).sorted(),
+            Keys.hasImageComponent.rawValue: imageComponent == nil ? "false" : "true",
+            Keys.translations.rawValue: translations?.map(\.reference.hostingKey).sorted() ?? .bangQualifiedEmpty,
             Keys.readDate.rawValue: String.bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -68,19 +77,32 @@ public struct MessageService {
             id,
             fromAccountID: fromAccountID,
             hasAudioComponent: audioComponents != nil,
+            hasImageComponent: imageComponent != nil,
             audioComponents: audioComponents,
+            image: imageComponent,
             translations: translations,
             readDate: nil,
             sentDate: sentDate
         )
 
-        func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
-            guard mockMessage.hasAudioComponent,
-                  let audioComponents else {
+        func uploadMedia() async -> Callback<Message, Exception> {
+            func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
+                guard mockMessage.hasAudioComponent,
+                      let audioComponents else {
+                    return .success(mockMessage)
+                }
+
+                if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+                    return .failure(exception)
+                }
+
                 return .success(mockMessage)
             }
 
-            if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+            guard mockMessage.hasImageComponent,
+                  let imageComponent else { return await uploadAudioMessageReferenceIfNeeded() }
+
+            if let exception = await image.uploadImageComponent(imageComponent, for: mockMessage) {
                 return .failure(exception)
             }
 
@@ -94,7 +116,7 @@ public struct MessageService {
             return .failure(exception)
         }
 
-        return await uploadAudioMessageReferenceIfNeeded()
+        return await uploadMedia()
     }
 
     // MARK: - Retrieval by ID

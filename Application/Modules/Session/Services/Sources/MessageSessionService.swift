@@ -72,7 +72,8 @@ public struct MessageSessionService {
             initiatingUser: currentUser,
             otherUsers: users,
             translations: translations,
-            audioComponents: nil
+            audioComponents: nil,
+            image: nil
         )
     }
 
@@ -170,7 +171,8 @@ public struct MessageSessionService {
                 initiatingUser: currentUser,
                 otherUsers: users,
                 translations: translations,
-                audioComponents: audioComponents
+                audioComponents: audioComponents,
+                image: nil
             )
 
         case let .failure(exception):
@@ -180,12 +182,14 @@ public struct MessageSessionService {
 
     // MARK: - Auxiliary
 
+    // swiftlint:disable:next function_parameter_count
     private func createMessageAndAddToConversation(
         conversation: Conversation?,
         initiatingUser: User,
         otherUsers: [User],
-        translations: [Translation],
-        audioComponents: [AudioMessageReference]?
+        translations: [Translation]?,
+        audioComponents: [AudioMessageReference]?,
+        image: ImageFile?
     ) async -> Callback<Conversation, Exception> {
         func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
             let addMessagesResult = await clientSession.conversation.addMessages([message], to: conversation)
@@ -207,7 +211,8 @@ public struct MessageSessionService {
         let createMessageResult = await networking.services.message.createMessage(
             fromAccountID: initiatingUser.id,
             translations: translations,
-            audioComponents: audioComponents
+            audioComponents: audioComponents,
+            imageComponent: image
         )
 
         incrementDeliveryProgress(in: conversation, by: Floats.createMessageDeliveryProgressIncrement)

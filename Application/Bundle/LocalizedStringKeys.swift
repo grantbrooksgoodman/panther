@@ -31,6 +31,7 @@ public enum LocalizedStringKey: String {
 
     case holdDownToRecord
 
+    case image
     case internetConnectionOffline
     case invite
 

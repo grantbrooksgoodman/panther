@@ -19,10 +19,11 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // Array
     /// In practice, will never contain more than one value due to specification made during decoding.
     public let audioComponents: [AudioMessageReference]?
-    public let translations: [Translation]
+    public let translations: [Translation]?
 
     // Bool
     public let hasAudioComponent: Bool
+    public let hasImageComponent: Bool
 
     // Date
     public let readDate: Date?
@@ -31,6 +32,9 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // String
     public let fromAccountID: String
     public let id: String
+
+    // Other
+    public let image: ImageFile?
 
     // MARK: - Computed Properties
 
@@ -41,6 +45,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
             id,
             fromAccountID,
             hasAudioComponent.description,
+            hasImageComponent.description,
             dateFormatter.string(from: sentDate),
         ]
 
@@ -52,8 +57,9 @@ public struct Message: Codable, EncodedHashable, Equatable {
     }
 
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
+    public var localImageFilePath: LocalImageFilePath? { .init(self) }
     /// The translation for this message in the current user's language code.
-    public var translation: Translation { translations.first! }
+    public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
 
     // MARK: - Init
 
@@ -61,16 +67,19 @@ public struct Message: Codable, EncodedHashable, Equatable {
         _ id: String,
         fromAccountID: String,
         hasAudioComponent: Bool,
+        hasImageComponent: Bool,
         audioComponents: [AudioMessageReference]?,
-        translations: [Translation],
+        image: ImageFile?,
+        translations: [Translation]?,
         readDate: Date?,
         sentDate: Date
     ) {
-        assert(!translations.isEmpty, "Initialized Message with empty Translation array")
         self.id = id
         self.fromAccountID = fromAccountID
         self.hasAudioComponent = hasAudioComponent
+        self.hasImageComponent = hasImageComponent
         self.audioComponents = audioComponents
+        self.image = image
         self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate

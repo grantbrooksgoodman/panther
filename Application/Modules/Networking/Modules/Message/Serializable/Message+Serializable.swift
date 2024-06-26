@@ -25,6 +25,7 @@ extension Message: Serializable {
         case id
         case fromAccountID = "fromAccount"
         case hasAudioComponent
+        case hasImageComponent
         case translations
         case readDate
         case sentDate
@@ -44,7 +45,8 @@ extension Message: Serializable {
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.hasAudioComponent.rawValue: hasAudioComponent,
-            Keys.translations.rawValue: translations.map(\.reference.hostingKey),
+            Keys.hasImageComponent.rawValue: hasImageComponent,
+            Keys.translations.rawValue: translations?.map(\.reference.hostingKey) ?? .bangQualifiedEmpty,
             Keys.readDate.rawValue: readDateString,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -59,6 +61,8 @@ extension Message: Serializable {
               data[Keys.fromAccountID.rawValue] as? String != nil,
               let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
               hasAudioComponentString == "true" || hasAudioComponentString == "false",
+              let hasImageComponentString = data[Keys.hasImageComponent.rawValue] as? String,
+              hasImageComponentString == "true" || hasImageComponentString == "false",
               data[Keys.translations.rawValue] as? [String] != nil,
               data[Keys.readDate.rawValue] as? String != nil,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -68,14 +72,16 @@ extension Message: Serializable {
     }
 
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
-        @Dependency(\.networking.services.message.audio) var audioMessageService: AudioMessageService
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.networking.services.message) var messageService: MessageService
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
               let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
               hasAudioComponentString == "true" || hasAudioComponentString == "false",
+              let hasImageComponentString = data[Keys.hasImageComponent.rawValue] as? String,
+              hasImageComponentString == "true" || hasImageComponentString == "false",
               let translationReferences = data[Keys.translations.rawValue] as? [String],
               let readDateString = data[Keys.readDate.rawValue] as? String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -84,22 +90,29 @@ extension Message: Serializable {
         }
 
         let hasAudioComponent = hasAudioComponentString == "true" ? true : false
+        let hasImageComponent = hasImageComponentString == "true" ? true : false
 
         var readDate: Date?
         if !readDateString.isBangQualifiedEmpty {
             readDate = dateFormatter.date(from: readDateString)
         }
 
-        func decodedMessage(_ translations: [Translation]) -> Message {
+        func decodedMessage(_ translations: [Translation]?) -> Message {
             .init(
                 id,
                 fromAccountID: fromAccountID,
                 hasAudioComponent: hasAudioComponent,
+                hasImageComponent: hasImageComponent,
                 audioComponents: nil,
+                image: nil,
                 translations: translations,
                 readDate: readDate,
                 sentDate: sentDate
             )
+        }
+
+        guard !hasImageComponent else {
+            return await messageService.image.getImageComponent(for: decodedMessage(nil))
         }
 
         let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
@@ -118,7 +131,7 @@ extension Message: Serializable {
             let sortedTranslations = matchingLanguage + notMatchingLanguage
 
             guard !hasAudioComponent else {
-                return await audioMessageService.getAudioComponent(for: decodedMessage(sortedTranslations))
+                return await messageService.audio.getAudioComponent(for: decodedMessage(sortedTranslations))
             }
 
             return .success(decodedMessage(sortedTranslations))

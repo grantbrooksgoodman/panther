@@ -82,17 +82,23 @@ public final class NotificationService {
             }
 
             var body: String?
-            if !message.hasAudioComponent {
-                body = message.translations.first(where: { $0.languagePair.to == user.languageCode })?.output
+            if !message.hasAudioComponent,
+               !message.hasImageComponent,
+               let translations = message.translations {
+                body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
                 if body == nil {
-                    body = message.translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value().sanitized
+                    body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value().sanitized
                 }
+            } else if message.hasAudioComponent {
+                body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
+            } else if message.hasImageComponent {
+                body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
             }
 
             for pushToken in pushTokens {
                 if let exception = await sendNotification(
                     title: currentUser.phoneNumber.formattedString(),
-                    body: body ?? "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)",
+                    body: body ?? .bangQualifiedEmpty,
                     pushToken: pushToken,
                     extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]
                 ) {

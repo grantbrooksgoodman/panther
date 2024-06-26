@@ -102,11 +102,13 @@ public struct ConversationCellViewData: Equatable {
         if let lastMessage = conversation.messages?.last {
             dateLabelText = lastMessage.sentDate.formattedShortString
 
-            if lastMessage.audioComponent == nil {
+            if lastMessage.audioComponent != nil {
+                subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
+            } else if lastMessage.image != nil {
+                subtitleLabelText = "🏞️ \(Localized(.image).wrappedValue)"
+            } else {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
                 subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value().sanitized : lastMessage.translation.output
-            } else {
-                subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
             }
         }
 
