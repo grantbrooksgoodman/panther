@@ -16,7 +16,8 @@ import Translator
 public struct HostedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.translatorService) private var translator: TranslatorService
+    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiver
+    @Dependency(\.translationService) private var translator: TranslationService
 
     // MARK: - Properties
 
@@ -49,7 +50,7 @@ public struct HostedTranslationService {
         switch getTranslationsResult {
         case let .success(translations):
             let outputs = strings.keyPairs.reduce(into: [TranslationOutputMap]()) { partialResult, keyPair in
-                if let translation = translations.first(where: { $0.input.value() == keyPair.input.value() }) {
+                if let translation = translations.first(where: { $0.input.value == keyPair.input.value }) {
                     partialResult.append(.init(key: keyPair.key, value: translation.output.sanitized))
                 } else {
                     partialResult.append(keyPair.defaultOutputMap)
@@ -121,19 +122,22 @@ public struct HostedTranslationService {
         if languagePair.isIdempotent {
             let translation: Translation = .init(
                 input: input,
-                output: input.value(),
+                output: input.value,
                 languagePair: languagePair
             )
 
             return .success(translation.withSanitizedOutput)
         }
 
-        if let archivedTranslation = TranslationArchiver.getFromArchive(input, languagePair: languagePair) {
+        if let archivedTranslation = localTranslationArchiver.getValue(
+            input: input,
+            languagePair: languagePair
+        ) {
             if TranslationValidator.validate(
                 translation: archivedTranslation,
                 metadata: [self, #file, #function, #line]
             ) != nil {
-                TranslationArchiver.clearArchive()
+                localTranslationArchiver.clearArchive()
                 return await translate(
                     input,
                     with: languagePair,
@@ -144,23 +148,23 @@ public struct HostedTranslationService {
             return .success(archivedTranslation.withSanitizedOutput)
         }
 
-        let sameInputOutputLanguage = languageRecognition.matchConfidence(for: input.value(), inLanguage: languagePair.to) > 0.8
-        let hasUnicodeLetters = input.value().rangeOfCharacter(from: .letters) != nil
+        let sameInputOutputLanguage = languageRecognition.matchConfidence(for: input.value, inLanguage: languagePair.to) > 0.8
+        let hasUnicodeLetters = input.value.rangeOfCharacter(from: .letters) != nil
 
         if sameInputOutputLanguage || !hasUnicodeLetters {
             let translation: Translation = .init(
                 input: input,
-                output: input.value(),
+                output: input.value,
                 languagePair: languagePair
             )
 
             await archiver.addToHostedArchive(translation)
-            TranslationArchiver.addToArchive(translation)
+            localTranslationArchiver.addValue(translation)
             return .success(translation.withSanitizedOutput)
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(
-            id: input.value().encodedHash,
+            id: input.value.encodedHash,
             languagePair: languagePair
         )
 
@@ -179,8 +183,8 @@ public struct HostedTranslationService {
             }
 
             let sanitizedTranslation = translation.withSanitizedOutput
-            if translation.input.value() != translation.output {
-                TranslationArchiver.addToArchive(sanitizedTranslation)
+            if translation.input.value != translation.output {
+                localTranslationArchiver.addValue(sanitizedTranslation)
             }
             return .success(sanitizedTranslation)
 
@@ -194,8 +198,8 @@ public struct HostedTranslationService {
             Logger.log(
                 .init(
                     "Translating text from \(sourceLanguageName) to \(targetLanguageName).",
-                    extraParams: ["InputValue": input.value(),
-                                  "LanguagePair": languagePair.asString()],
+                    extraParams: ["InputValue": input.value,
+                                  "LanguagePair": languagePair.string],
                     metadata: [self, #file, #function, #line]
                 ),
                 domain: .hostedTranslation
@@ -203,10 +207,10 @@ public struct HostedTranslationService {
 
             let translateResult = await translator.translate(
                 .init(
-                    input.value().trimmingTrailingWhitespace,
+                    input.value.trimmingTrailingWhitespace,
                     alternate: input.alternate?.trimmingTrailingWhitespace
                 ),
-                with: languagePair,
+                languagePair: languagePair,
                 hud: hudConfig,
                 timeout: (.seconds(10), false)
             )
@@ -227,9 +231,9 @@ public struct HostedTranslationService {
                 }
 
                 let sanitizedTranslation = translation.withSanitizedOutput
-                if translation.input.value() != translation.output {
+                if translation.input.value != translation.output {
                     await archiver.addToHostedArchive(translation)
-                    TranslationArchiver.addToArchive(sanitizedTranslation)
+                    localTranslationArchiver.addValue(sanitizedTranslation)
                 }
                 return .success(sanitizedTranslation)
 
@@ -241,12 +245,12 @@ public struct HostedTranslationService {
 
                 let translation: Translation = .init(
                     input: input,
-                    output: input.value().sanitized,
+                    output: input.value.sanitized,
                     languagePair: languagePair
                 )
 
                 await archiver.addToHostedArchive(translation)
-                TranslationArchiver.addToArchive(translation)
+                localTranslationArchiver.addValue(translation)
                 return .success(translation)
             }
         }

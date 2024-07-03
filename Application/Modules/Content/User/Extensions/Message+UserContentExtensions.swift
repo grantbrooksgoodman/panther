@@ -42,7 +42,7 @@ extension Message: MessageType {
 
             return .attributedText(
                 .messageCellString(
-                    isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized,
+                    isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
                     foregroundColor: attributedStringForegroundColor
                 )
             )
@@ -52,12 +52,12 @@ extension Message: MessageType {
         }
 
         guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
-            return .text(isFromCurrentUser ? translation.input.value().sanitized : translation.output.sanitized)
+            return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized)
         }
 
         return .attributedText(
             .messageCellString(
-                isFromCurrentUser ? translation.output.sanitized : translation.input.value().sanitized,
+                isFromCurrentUser ? translation.output.sanitized : translation.input.value.sanitized,
                 foregroundColor: attributedStringForegroundColor
             )
         )

@@ -44,6 +44,7 @@ public enum BuildConfig {
         .general,
         .notifications,
         .queue,
+        .translation,
         .user,
         .userSession,
     ]

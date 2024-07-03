@@ -11,14 +11,10 @@ import Foundation
 /* 3rd-party */
 import Translator
 
-extension TranslationInput: Validatable {
-    public var isWellFormed: Bool { !value().isBlank }
-}
-
 public extension TranslationInput {
     /// Tokenizes detected addresses, links, and phone numbers.
     var withTaggedDetectorAttributes: TranslationInput {
-        var stringValue = value()
+        var stringValue = value
 
         let detectorType: NSTextCheckingResult.CheckingType = [
             .address,
@@ -31,8 +27,8 @@ public extension TranslationInput {
         for taggableString in dataDetector.matches(
             in: stringValue,
             range: .init(location: 0, length: stringValue.utf16.count)
-        ).compactMap({ Range($0.range, in: value()) }).compactMap({ String(value()[$0]) }) {
-            stringValue = stringValue.replacingOccurrences(of: taggableString, with: "*\(taggableString)*")
+        ).compactMap({ Range($0.range, in: value) }).compactMap({ String(value[$0]) }) {
+            stringValue = stringValue.replacingOccurrences(of: taggableString, with: "⌘\(taggableString)⌘")
         }
 
         return .init(stringValue, alternate: alternate)

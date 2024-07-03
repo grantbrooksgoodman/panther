@@ -411,7 +411,7 @@ public final class IntegrityService {
                 guard let reference: TranslationReference = .init(translationReferenceString),
                       !reference.languagePair.isIdempotent else { continue }
 
-                let path = "\(networking.config.paths.translations)/\(reference.languagePair.asString())/\(reference.type.key)"
+                let path = "\(networking.config.paths.translations)/\(reference.languagePair.string)/\(reference.type.key)"
                 let getValuesResult = await networking.database.getValues(at: path)
 
                 switch getValuesResult {

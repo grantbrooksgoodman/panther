@@ -108,7 +108,7 @@ public struct ConversationCellViewData: Equatable {
                 subtitleLabelText = "🏞️ \(Localized(.image).wrappedValue)"
             } else {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
-                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value().sanitized : lastMessage.translation.output
+                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value.sanitized : lastMessage.translation.output
             }
         }
 

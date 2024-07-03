@@ -60,71 +60,66 @@ public enum PLISTGenerator {
         // swiftlint:disable:next line_length
         let half = toHalf == .first ? languageCodeArray.sorted(by: { $0 < $1 })[0 ... languageCodeArray.count / 2] : languageCodeArray.sorted(by: { $0 < $1 })[(languageCodeArray.count / 2) + 1 ... languageCodeArray.count - 1]
 
-        translate(
-            text: text,
-            toLanguages: Array(half)
-        ) { filePath, exception in
-            completion(filePath, exception)
+        Task {
+            let translateResult = await translate(text: text, toLanguages: Array(half))
+
+            switch translateResult {
+            case let .success(filePath):
+                completion(filePath, nil)
+
+            case let .failure(exception):
+                completion(nil, exception)
+            }
         }
     }
 
     public static func translate(
         text: String,
-        toLanguages: [String],
-        completion: @escaping (
-            _ filePath: String?,
-            _ exception: Exception?
-        ) -> Void
-    ) {
-        @Dependency(\.translatorService) var translator: TranslatorService
+        toLanguages: [String]
+    ) async -> Callback<String, Exception> {
+        @Dependency(\.translationService) var translator: TranslationService
 
         var resolvedTranslations = [String: String]()
-
-        let dispatchGroup = DispatchGroup()
 
         Logger.openStream(metadata: [self, #file, #function, #line])
 
         for (index, languageCode) in toLanguages.enumerated() {
-            dispatchGroup.enter()
-
-            translator.getTranslations(
-                for: [.init(text)],
+            let translateResult = await translator.translate(
+                .init(text),
                 languagePair: .init(from: "en", to: languageCode),
+                hud: nil,
                 timeout: (.seconds(60), true)
-            ) { translations, exception in
-                dispatchGroup.leave()
+            )
 
-                guard let translations,
-                      !translations.isEmpty else {
-                    completion(nil, exception ?? .init(metadata: [self, #file, #function, #line]))
-                    return
-                }
-
+            switch translateResult {
+            case let .success(translation):
                 Logger.logToStream(
                     "Translated item \(index + 1) of \(toLanguages.count).",
                     line: #line
                 )
 
-                resolvedTranslations[languageCode] = translations[0].output
+                resolvedTranslations[languageCode] = translation.output
+
+            case let .failure(exception):
+                return .failure(exception)
             }
         }
 
-        dispatchGroup.notify(queue: .main) {
-            Logger.closeStream(
-                message: "All strings should be translated; complete.",
-                onLine: #line
-            )
+        Logger.closeStream(
+            message: "All strings should be translated; complete.",
+            onLine: #line
+        )
 
-            let hash = text.hash
-            let hashCharacters = String(hash).components
-            let filePath = self.createPLIST(from: resolvedTranslations, fileName: hashCharacters[0 ... hashCharacters.count / 4].joined())
-
-            guard let path = filePath else {
-                completion(nil, .init("Failed to generate PLIST.", metadata: [self, #file, #function, #line]))
-                return
-            }
-
-            completion(path, nil)
+        guard let filePath = createPLIST(
+            from: resolvedTranslations,
+            fileName: Date.now.formattedShortString.encodedHash
+        ) else {
+            return .failure(.init(
+                "Failed to generate PLIST.",
+                metadata: [self, #file, #function, #line]
+            ))
         }
+
+        return .success(filePath)
     }
 }

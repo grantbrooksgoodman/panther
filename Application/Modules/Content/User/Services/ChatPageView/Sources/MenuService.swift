@@ -158,7 +158,7 @@ public final class MenuService {
         ]
 
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
-              message.translation.input.value().sanitized.rangeOfCharacter(from: .letters) != nil,
+              message.translation.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
               let otherUser = viewController.currentConversation?.users?.first,
               otherUser.languageCode != currentUser?.languageCode,
               !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }

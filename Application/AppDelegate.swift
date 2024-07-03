@@ -16,6 +16,7 @@ import CoreArchitecture
 import FirebaseAnalytics
 import FirebaseCore
 import FirebaseMessaging
+import Translator
 
 @main
 public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
@@ -28,6 +29,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.translationService) private var translator: TranslationService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -57,6 +59,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
         Logger.setDomainsExcludedFromSessionRecord(BuildConfig.loggerDomainsExcludedFromSessionRecord)
         Logger.subscribe(to: BuildConfig.loggerDomainSubscriptions)
+        translator.registerTranslationLoggerDelegate(Logger.TranslationLogger())
 
         @Persistent(.breadcrumbsCaptureEnabled) var breadcrumbsCaptureEnabled: Bool?
         @Persistent(.breadcrumbsCapturesAllViews) var breadcrumbsCapturesAllViews: Bool?

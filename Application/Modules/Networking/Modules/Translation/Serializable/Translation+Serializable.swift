@@ -27,11 +27,12 @@ extension Translation: Serializable {
     public static func canDecode(from data: TranslationReference) -> Bool { true }
 
     public static func decode(from data: TranslationReference) async -> Callback<Translation, Exception> {
-        @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
+        @Dependency(\.networking.services.translation.archiver) var hostedTranslationArchiver: HostedTranslationArchiver
+        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
 
         func addToArchive(_ translation: Translation) {
-            guard translation.input.value() != translation.output else { return }
-            TranslationArchiver.addToArchive(translation.withSanitizedOutput)
+            guard translation.input.value != translation.output else { return }
+            localTranslationArchiver.addValue(translation.withSanitizedOutput)
         }
 
         switch data.type {
@@ -55,14 +56,14 @@ extension Translation: Serializable {
             }
 
             // FIXME: Experienced crash here. Consider using await MainActor.run.
-            if let archivedTranslation = TranslationArchiver.getFromArchive(
-                withReference: hash,
+            if let archivedTranslation = localTranslationArchiver.getValue(
+                hash: hash,
                 languagePair: data.languagePair
             ) {
                 return .success(archivedTranslation.withSanitizedOutput)
             }
 
-            let findArchivedTranslationResult = await translationArchiver.findArchivedTranslation(
+            let findArchivedTranslationResult = await hostedTranslationArchiver.findArchivedTranslation(
                 id: hash,
                 languagePair: data.languagePair
             )

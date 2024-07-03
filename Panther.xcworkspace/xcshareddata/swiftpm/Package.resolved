@@ -1,5 +1,5 @@
 {
-  "originHash" : "511e9a214b50e51135e083b3d61f184150943451d710f4567047d8071b009a04",
+  "originHash" : "bd51b3220be18ff9bdbfef7d90af2bc73b7277c26659a770e25697098eee75e0",
   "pins" : [
     {
       "identity" : "component-kit",
@@ -7,7 +7,16 @@
       "location" : "https://github.com/grantbrooksgoodman/component-kit.git",
       "state" : {
         "branch" : "main",
-        "revision" : "7073a24400a9d22d5fd2f5f60a5efdfa51e3aa38"
+        "revision" : "91bce1214d37371f6c1f18ec73041cbfcabaa983"
+      }
+    },
+    {
+      "identity" : "core-architecture",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grantbrooksgoodman/core-architecture.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "879727bf0c83e047197a73665c51a3865439f764"
       }
     },
     {
@@ -26,6 +35,15 @@
       "state" : {
         "revision" : "1993e8e90d4e9a61b8d9bc8ceb733964ce943376",
         "version" : "4.2.0"
+      }
+    },
+    {
+      "identity" : "translator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/grantbrooksgoodman/translator.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "15583705c0abeda6c6e2c5c4d022dfae1c6f3bd7"
       }
     }
   ],

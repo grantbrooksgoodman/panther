@@ -168,7 +168,7 @@ extension Message: Serializable {
                 guard !makeIdempotent else {
                     let idempotentTranslation: Translation = .init(
                         input: input,
-                        output: input.value().base64Decoded,
+                        output: input.value.base64Decoded,
                         languagePair: .init(from: translation.languagePair.from, to: translation.languagePair.from)
                     )
 

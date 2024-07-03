@@ -52,7 +52,7 @@ public struct TranslationReference: Codable, Equatable {
     // MARK: - Computed Properties
 
     public var hostingKey: String {
-        "\(languagePair.isIdempotent ? "\(TranslationConstants.idempotentPrefix)\(languagePair.from)" : languagePair.asString()) | \(type.key)"
+        "\(languagePair.isIdempotent ? "\(TranslationConstants.idempotentPrefix)\(languagePair.from)" : languagePair.string) | \(type.key)"
     }
 
     // MARK: - Init
@@ -77,7 +77,7 @@ public struct TranslationReference: Codable, Equatable {
     }
 
     public init(_ translation: Translation) {
-        let input = translation.input.value()
+        let input = translation.input.value
 
         if translation.languagePair.isIdempotent {
             self.init(
@@ -85,7 +85,7 @@ public struct TranslationReference: Codable, Equatable {
                 type: .idempotent(input.base64Encoded)
             )
         } else {
-            let outputValue = "\(input.alphaEncoded)–\(translation.output.matchingCapitalization(of: input).alphaEncoded)"
+            let outputValue = "\(input.alphaEncoded)–\(translation.output.alphaEncoded)"
             self.init(
                 languagePair: translation.languagePair,
                 type: .archived(input.encodedHash, value: outputValue)

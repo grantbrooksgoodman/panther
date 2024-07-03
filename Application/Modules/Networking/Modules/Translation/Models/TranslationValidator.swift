@@ -32,11 +32,11 @@ public enum TranslationValidator {
             var parameters = [String: String]()
 
             if let inputs {
-                parameters["InputValues"] = inputs.map { $0.value() }.joined(separator: ", ")
+                parameters["InputValues"] = inputs.map { $0.value }.joined(separator: ", ")
             }
 
             if let languagePair {
-                parameters["LanguagePair"] = languagePair.asString()
+                parameters["LanguagePair"] = languagePair.string
             }
 
             if let translation {

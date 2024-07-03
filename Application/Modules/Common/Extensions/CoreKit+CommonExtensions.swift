@@ -29,12 +29,13 @@ public extension CoreKit.Utilities {
     func clearCaches() {
         @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
         @Dependency(\.commonServices) var commonServices: CommonServices
+        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
         @Dependency(\.networking.services) var networkServices: NetworkServices
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
 
         commonServices.contact.contactPairArchive.clearArchive()
         networkServices.conversation.archive.clearArchive()
-        TranslationArchiver.clearArchive()
+        localTranslationArchiver.clearArchive()
 
         chatInfoPageViewService.clearCache()
         commonServices.contact.clearCache()
