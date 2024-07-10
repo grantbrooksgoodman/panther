@@ -20,7 +20,7 @@ public extension TranslatedLabelStringCollection {
         case notificationPermissionCapsuleButtonText = "Tap to allow notifications"
 
         // swiftlint:disable:next line_length
-        case instructionViewSubtitleLabelText = "Finally, grant *Hello* the necessary permissions to work with your device.\n\nThese options can be changed later in Settings."
+        case instructionViewSubtitleLabelText = "Finally, grant ⌘Hello⌘ the necessary permissions to work with your device.\n\nThese options can be changed later in Settings."
         case instructionViewTitleLabelText = "Grant Permissions"
 
         // MARK: - Properties

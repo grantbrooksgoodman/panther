@@ -146,20 +146,18 @@ public final class InputBarGestureRecognizerService {
 
     @objc
     private func presentAudioMessagesUnsupportedAlert() {
-        let alert = AKAlert(
-            message: Strings.audioMessagesUnsupportedAlertMessage,
-            cancelButtonTitle: Strings.audioMessagesUnsupportedAlertCancelButtonTitle,
-            sender: inputBar.sendButton
-        )
+        Task { @MainActor in
+            await AKAlert(
+                message: Strings.audioMessagesUnsupportedAlertMessage,
+                actions: [.cancelAction(title: Strings.audioMessagesUnsupportedAlertCancelButtonTitle)]
+            ).present()
 
-        let isKeyboardFirstResponder = inputBar.inputTextView.isFirstResponder
+            let isKeyboardFirstResponder = inputBar.inputTextView.isFirstResponder
 
-        // NOTE: Encountered threading issues when using the asynchronous present() method.
-        alert.present { _ in
-            self.services.audio.acknowledgedAudioMessagesUnsupported = true
-            self.chatPageViewService.inputBar?.configureInputBar(forRecording: false)
+            services.audio.acknowledgedAudioMessagesUnsupported = true
+            chatPageViewService.inputBar?.configureInputBar(forRecording: false)
 
-            self.core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
+            core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
                 guard isKeyboardFirstResponder else {
                     self.viewController.becomeFirstResponder()
                     return

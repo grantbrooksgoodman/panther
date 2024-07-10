@@ -148,7 +148,7 @@ public struct HostedTranslationService {
             return .success(archivedTranslation.withSanitizedOutput)
         }
 
-        let sameInputOutputLanguage = languageRecognition.matchConfidence(for: input.value, inLanguage: languagePair.to) > 0.8
+        let sameInputOutputLanguage = await languageRecognition.matchConfidence(for: input.value, inLanguage: languagePair.to) > 0.8
         let hasUnicodeLetters = input.value.rangeOfCharacter(from: .letters) != nil
 
         if sameInputOutputLanguage || !hasUnicodeLetters {

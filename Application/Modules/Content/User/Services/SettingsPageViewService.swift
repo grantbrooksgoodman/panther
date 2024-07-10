@@ -22,7 +22,7 @@ public final class SettingsPageViewService: Cacheable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitCore) private var akCore: AKCore
+    @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
@@ -60,31 +60,22 @@ public final class SettingsPageViewService: Cacheable {
             func isCurrentTheme(_ theme: UITheme) -> Bool { theme.name == ThemeService.currentTheme.name }
             func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
 
-            actions = AppTheme.allCases.map { .init(
-                title: isCurrentTheme($0.theme) ? "\(themeName($0.theme)) (Applied)" : themeName($0.theme),
-                style: .default,
-                isEnabled: !isCurrentTheme($0.theme)
-            ) }
+            actions = AppTheme.allCases.map { appTheme in
+                .init(
+                    isCurrentTheme(appTheme.theme) ? "\(themeName(appTheme.theme)) (Applied)" : themeName(appTheme.theme),
+                    isEnabled: !isCurrentTheme(appTheme.theme)
+                ) {
+                    ThemeService.setTheme(appTheme.theme)
+                }
+            }
 
-            actions.forEach { titleMap[$0.identifier] = $0.title }
-
-            let actionSheet = AKActionSheet(
-                message: "Change Theme",
-                actions: actions
-            )
-
-            let actionID = await actionSheet.present()
-            guard actionID != -1,
-                  let actionTitle = titleMap[actionID],
-                  let correspondingCase = AppTheme.allCases.first(where: { themeName($0.theme) == actionTitle }) else { return }
-
-            ThemeService.setTheme(correspondingCase.theme)
+            await AKActionSheet(message: "Change Theme", actions: actions).present()
         }
     }
 
     public func clearCachesButtonTapped() {
         @Sendable
-        func clearCaches() {
+        func clearCaches() async {
             core.utils.clearCaches()
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
@@ -97,74 +88,72 @@ public final class SettingsPageViewService: Cacheable {
             didClearCaches = true
             services.analytics.logEvent(.clearCaches)
 
-            let alert = AKAlert(
+            await AKAlert(
                 message: "Caches have been cleared. You must now restart the app.",
-                actions: [.init(title: "Exit", style: .destructivePreferred)],
-                showsCancelButton: false
-            )
-
-            Task {
-                _ = await alert.present()
-                exit(0)
-            }
+                actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
+            ).present()
         }
 
         Task {
-            let alert = AKConfirmationAlert(
+            let confirmed = await AKConfirmationAlert(
                 title: "Clear Caches", // swiftlint:disable:next line_length
                 message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\n\nYou will need to restart the app for this to take effect.",
-                confirmationStyle: .destructivePreferred
-            )
+                confirmButtonStyle: .destructivePreferred
+            ).present()
 
-            let didConfirm = await alert.present()
-            guard didConfirm == 1 else { return }
-            clearCaches()
+            guard confirmed else { return }
+            await clearCaches()
         }
     }
 
     public func deleteAccountButtonTapped() {
-        let confirmationAlert: AKConfirmationAlert = .init(
-            title: "Delete Account", // swiftlint:disable:next line_length
-            message: "Are you sure you'd like to delete your account? All user data will be deleted.\n\nIf you wish to continue using *\(build.finalName)*, you will need to create a new account.\n\nAn app restart is required for this process to complete.",
-            confirmationStyle: .destructivePreferred
-        )
-
         Task {
-            let didConfirm = await confirmationAlert.present()
-            guard didConfirm == 1 else { return }
+            @Sendable
+            func clearCachesAndExit() async {
+                if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
+                    Logger.log(exception)
+                }
 
-            let actionSheet: AKActionSheet = .init(actions: [.init(title: "Delete Account", style: .destructivePreferred)])
-            let actionID = await actionSheet.present()
-            guard actionID != -1 else { return }
+                core.utils.clearCaches()
+                core.utils.eraseDocumentsDirectory()
+                core.utils.eraseTemporaryDirectory()
 
-            await uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+                defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
 
-            if let exception = await userSession.deleteAccount() {
-                await uiApplication.keyWindow?.removeOverlay()
-                Logger.log(exception, with: .toast())
-                return
+                exit(0)
             }
 
-            let alert = AKAlert(
-                message: "Your account has been deleted. You must now restart the app.",
-                actions: [.init(title: "Exit", style: .destructivePreferred)],
-                showsCancelButton: false
-            )
+            let confirmed = await AKConfirmationAlert(
+                title: "Delete Account", // swiftlint:disable:next line_length
+                message: "Are you sure you'd like to delete your account? All user data will be deleted.\n\nIf you wish to continue using ⌘\(build.finalName)⌘, you will need to create a new account.\n\nAn app restart is required for this process to complete.",
+                confirmButtonStyle: .destructivePreferred
+            ).present()
 
-            await uiApplication.keyWindow?.removeOverlay()
-            _ = await alert.present()
+            guard confirmed else { return }
+            let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
+                Task {
+                    await self.uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
-            if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
-                Logger.log(exception)
+                    if let exception = await self.userSession.deleteAccount() {
+                        await self.uiApplication.keyWindow?.removeOverlay()
+                        Logger.log(exception, with: .toast())
+                        return
+                    }
+
+                    await self.uiApplication.keyWindow?.removeOverlay()
+
+                    let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
+                        Task { await clearCachesAndExit() }
+                    }
+
+                    await AKAlert(
+                        message: "Your account has been deleted. You must now restart the app.",
+                        actions: [exitAction]
+                    ).present()
+                }
             }
 
-            core.utils.clearCaches()
-            core.utils.eraseDocumentsDirectory()
-            core.utils.eraseTemporaryDirectory()
-
-            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
-
-            exit(0)
+            await AKActionSheet(actions: [deleteAccountAction]).present()
         }
     }
 
@@ -185,38 +174,39 @@ public final class SettingsPageViewService: Cacheable {
 
     public func signOutButtonTapped() {
         Task { @MainActor in
-            let actionSheet = AKActionSheet(actions: [.init(title: "Sign Out", style: .destructivePreferred)])
+            let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
+                Task {
+                    self.core.utils.clearCaches()
+                    self.core.utils.eraseDocumentsDirectory()
+                    self.core.utils.eraseTemporaryDirectory()
 
-            let actionID = await actionSheet.present()
-            guard actionID != -1 else { return }
+                    if let exception = await self.services.notification.modifyBadgeNumber(.set(to: 0)) {
+                        Logger.log(exception)
+                    }
 
-            core.utils.clearCaches()
-            core.utils.eraseDocumentsDirectory()
-            core.utils.eraseTemporaryDirectory()
+                    if let currentUser = self.userSession.currentUser,
+                       let pushToken = self.services.notification.pushToken {
+                        let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
+                        let updateValueResult = await currentUser.updateValue(
+                            filteredPushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredPushTokens,
+                            forKey: .pushTokens
+                        )
 
-            if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
-                Logger.log(exception)
-            }
+                        switch updateValueResult {
+                        case let .failure(exception):
+                            Logger.log(exception)
 
-            if let currentUser = userSession.currentUser,
-               let pushToken = services.notification.pushToken {
-                let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
-                let updateValueResult = await currentUser.updateValue(
-                    filteredPushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredPushTokens,
-                    forKey: .pushTokens
-                )
+                        default: ()
+                        }
+                    }
 
-                switch updateValueResult {
-                case let .failure(exception):
-                    Logger.log(exception)
-
-                default: ()
+                    self.defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+                    self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
+                    self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
                 }
             }
 
-            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
-            navigationCoordinator.navigate(to: .onboarding(.stack([])))
-            navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+            await AKActionSheet(actions: [signOutAction]).present()
         }
     }
 
@@ -231,21 +221,21 @@ public final class SettingsPageViewService: Cacheable {
     /// `.viewAppeared`
     public func developerModeListItems() -> [StaticListItem]? {
         func overrideLanguageCodeButtonTapped() {
-            guard !akCore.languageCodeIsLocked else {
+            guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
                 guard let currentUser = userSession.currentUser else { return }
                 let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
 
+                alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
                 RuntimeStorage.remove(.overriddenLanguageCode)
-                akCore.unlockLanguageCode(andSetTo: RuntimeStorage.languageCode)
-
                 core.hud.showSuccess(text: "Set to \(languageName)")
-
+                uiApplication.keyWindow?.rootViewController?.dismiss(animated: true)
                 return
             }
 
-            akCore.lockLanguageCode(to: "en")
+            alertKitConfig.overrideTargetLanguageCode("en")
             RuntimeStorage.store("en", as: .overriddenLanguageCode)
             core.hud.showSuccess(text: "Set to English")
+            uiApplication.keyWindow?.rootViewController?.dismiss(animated: true)
         }
 
         typealias Colors = AppConstants.Colors.SettingsPageView
@@ -259,7 +249,7 @@ public final class SettingsPageViewService: Cacheable {
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
             let restoreLanguageCodeString = "\(Strings.restoreLanguageCodeButtonTextPrefix) \(languageName)"
-            let overrideOrRestore = akCore.languageCodeIsLocked ? restoreLanguageCodeString : Strings.overrideLanguageCodeButtonText
+            let overrideOrRestore = RuntimeStorage.retrieve(.overriddenLanguageCode) == nil ? Strings.overrideLanguageCodeButtonText : restoreLanguageCodeString
 
             items.append(
                 .init(

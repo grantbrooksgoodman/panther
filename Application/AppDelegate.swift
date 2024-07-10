@@ -22,14 +22,15 @@ import Translator
 public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitCore) private var akCore: AKCore
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
     @Dependency(\.build) private var build: Build
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
-    @Dependency(\.translationService) private var translator: TranslationService
+    @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
+    @Dependency(\.translatorConfig) var translatorConfig: Translator.Config
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -59,7 +60,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
         Logger.setDomainsExcludedFromSessionRecord(BuildConfig.loggerDomainsExcludedFromSessionRecord)
         Logger.subscribe(to: BuildConfig.loggerDomainSubscriptions)
-        translator.registerTranslationLoggerDelegate(Logger.TranslationLogger())
+        translatorConfig.registerLoggerDelegate(Logger.TranslationLogger())
 
         @Persistent(.breadcrumbsCaptureEnabled) var breadcrumbsCaptureEnabled: Bool?
         @Persistent(.breadcrumbsCapturesAllViews) var breadcrumbsCapturesAllViews: Bool?
@@ -99,18 +100,21 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
         /* MARK: AlertKit Setup */
 
-        let connectionAlertDelegate = ConnectionAlertDelegate()
-        let expiryAlertDelegate = ExpiryAlertDelegate()
-        let reportDelegate = ReportDelegate()
-        let translationDelegate = TranslationDelegate()
+        alertKitConfig.overrideTargetLanguageCode(RuntimeStorage.languageCode)
+        alertKitConfig.overrideTranslationHUDConfig(.init(appearsAfter: .milliseconds(500), isModal: true))
 
-        akCore.setLanguageCode(RuntimeStorage.languageCode)
-        akCore.register(
-            connectionAlertDelegate: connectionAlertDelegate,
-            expiryAlertDelegate: expiryAlertDelegate,
-            reportDelegate: reportDelegate,
-            translationDelegate: translationDelegate
+        alertKitConfig.registerLoggerDelegate(Logger.AlertKitLogger())
+        alertKitConfig.registerPresentationDelegate(core)
+        alertKitConfig.registerReportDelegate(reportDelegate)
+
+        /* MARK: Navigation Setup */
+
+        let navigationCoordinator: NavigationCoordinator<RootNavigationService> = .init(
+            .init(modal: .splash),
+            navigating: RootNavigationService()
         )
+
+        NavigationCoordinatorResolver.shared.store(navigationCoordinator)
 
         /* MARK: Localization Setup */
 
@@ -131,26 +135,16 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         guard let languageCodeDictionary = RuntimeStorage.languageCodeDictionary else { return }
 
         guard languageCodeDictionary[RuntimeStorage.languageCode] != nil else {
-            RuntimeStorage.store("en", as: .languageCode)
-            akCore.setLanguageCode("en")
-
             Logger.log(
                 .init(
                     "Unsupported language code; reverting to English.",
                     metadata: [self, #file, #function, #line]
                 )
             )
+
+            core.utils.setLanguageCode("en")
             return
         }
-
-        /* MARK: Navigation Setup */
-
-        let navigationCoordinator: NavigationCoordinator<RootNavigationService> = .init(
-            .init(modal: .splash),
-            navigating: RootNavigationService()
-        )
-
-        NavigationCoordinatorResolver.shared.store(navigationCoordinator)
     }
 
     // MARK: - Set Up Firebase
@@ -184,7 +178,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-        coreUtilities.eraseTemporaryDirectory()
+        core.utils.eraseTemporaryDirectory()
     }
 
     // MARK: - MessagingDelegate Conformance

@@ -16,7 +16,6 @@ import CoreArchitecture
 public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
@@ -107,8 +106,7 @@ public struct SelectLanguagePageReducer: Reducer {
 
             if let selectedLanguageCode = localizedLanguageCodeDictionary.keys(for: state.selectedLanguage).first {
                 regionDetailService.clearCache()
-                akCore.setLanguageCode(selectedLanguageCode)
-                RuntimeStorage.store(selectedLanguageCode, as: .languageCode)
+                coreUtilities.setLanguageCode(selectedLanguageCode)
 
                 navigationCoordinator.navigate(to: .onboarding(.push(.verifyNumber)))
                 onboardingService.setLanguageCode(selectedLanguageCode)

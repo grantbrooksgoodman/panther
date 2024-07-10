@@ -86,24 +86,34 @@ public final class OnboardingService {
 
     /// - Returns: `true` if the user selected the cancel option.
     public func presentAccountDoesNotExistAlert() async -> Bool {
-        let alert: AKAlert = .init(
-            message: "There is no account registered with this phone number. Please sign up instead.",
-            actions: [.init(title: "Sign Up", style: .preferred)]
-        )
+        var cancelled = true
 
-        let actionID = await alert.present()
-        return actionID == -1
+        let signUpAction: AKAction = .init("Sign Up", style: .preferred) { cancelled = false }
+        await AKAlert(
+            message: "There is no account registered with this phone number. Please sign up instead.",
+            actions: [
+                signUpAction,
+                .cancelAction,
+            ]
+        ).present(translating: [.actions([signUpAction]), .message])
+
+        return cancelled
     }
 
     /// - Returns: `true` if the user selected the cancel option.
     public func presentAccountExistsAlert() async -> Bool {
-        let alert: AKAlert = .init(
-            message: "There is already an account registered with this phone number. Please sign in instead.",
-            actions: [.init(title: "Sign In", style: .preferred)]
-        )
+        var cancelled = true
 
-        let actionID = await alert.present()
-        return actionID == -1
+        let signInAction: AKAction = .init("Sign In", style: .preferred) { cancelled = false }
+        await AKAlert(
+            message: "There is already an account registered with this phone number. Please sign in instead.",
+            actions: [
+                signInAction,
+                .cancelAction,
+            ]
+        ).present(translating: [.actions([signInAction]), .message])
+
+        return cancelled
     }
 
     // MARK: - Auxiliary

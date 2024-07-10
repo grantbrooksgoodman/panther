@@ -32,36 +32,28 @@ public extension DevModeService {
 
     static var destroyConversationDatabaseAction: DevModeAction {
         func destroyConversationDatabase() {
-            @Dependency(\.coreKit) var core: CoreKit
-            @Dependency(\.networking.config.environment.description) var networkEnvironment: String
+            Task {
+                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.networking.config.environment.description) var networkEnvironment: String
 
-            var confirmationAlert = AKConfirmationAlert(
-                title: "Destroy Database", // swiftlint:disable:next line_length
-                message: "This will delete all conversations for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
-                confirmationStyle: .destructivePreferred,
-                shouldTranslate: [.none]
-            )
+                let confirmed = await AKConfirmationAlert(
+                    title: "Destroy Database", // swiftlint:disable:next line_length
+                    message: "This will delete all conversations for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                    confirmButtonStyle: .destructivePreferred
+                ).present(translating: [])
 
-            confirmationAlert.present { didConfirm in
-                guard didConfirm == 1 else { return }
-
-                confirmationAlert = .init(
+                guard confirmed else { return }
+                let doubleConfirmed = await AKConfirmationAlert(
                     title: "Are you sure?",
                     message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
-                    confirmationStyle: .destructivePreferred,
-                    shouldTranslate: [.none]
-                )
+                    confirmButtonStyle: .destructivePreferred
+                ).present(translating: [])
 
-                confirmationAlert.present { didConfirm in
-                    guard didConfirm == 1 else { return }
-
-                    Task {
-                        if let exception = await core.utils.destroyConversationDatabase() {
-                            Logger.log(exception, with: .toast())
-                        } else {
-                            core.hud.flash(image: .success)
-                        }
-                    }
+                guard doubleConfirmed else { return }
+                if let exception = await core.utils.destroyConversationDatabase() {
+                    Logger.log(exception, with: .toast())
+                } else {
+                    core.hud.flash(image: .success)
                 }
             }
         }
@@ -71,25 +63,21 @@ public extension DevModeService {
 
     static var eraseDocumentsDirectoryAction: DevModeAction {
         func eraseDocumentsDirectory() {
-            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            Task {
+                @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
 
-            AKConfirmationAlert(
-                title: "Erase Documents Directory",
-                message: "This will remove all files in the userland Documents directory. An app restart is required.",
-                confirmationStyle: .destructivePreferred,
-                shouldTranslate: [.none]
-            ).present { didConfirm in
-                guard didConfirm == 1 else { return }
+                let confirmed = await AKConfirmationAlert(
+                    title: "Erase Documents Directory",
+                    message: "This will remove all files in the userland Documents directory. An app restart is required.",
+                    confirmButtonStyle: .destructivePreferred
+                ).present(translating: [])
 
+                guard confirmed else { return }
                 guard let exception = coreUtilities.eraseDocumentsDirectory() else {
-                    AKAlert(
+                    await AKAlert(
                         message: "The Documents directory has been erased. You must now restart the app.",
-                        actions: [.init(title: "Exit", style: .destructivePreferred)],
-                        showsCancelButton: false,
-                        shouldTranslate: [.none]
-                    ).present { _ in
-                        exit(0)
-                    }
+                        actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
+                    ).present(translating: [])
                     return
                 }
 
@@ -115,35 +103,30 @@ public extension DevModeService {
 
     static var presentCustomOptionsAction: DevModeAction {
         func presentCustomOptions() {
-            let actions = [
-                clearCachesAction,
-                eraseDocumentsDirectoryAction,
-                eraseTemporaryDirectoryAction,
-                setCurrentUserIDAction,
-                switchEnvironmentAction,
-                toggleNetworkActivityIndicatorAction,
-                destroyConversationDatabaseAction,
-                resetPushTokensAction,
-            ]
-            let akActions = actions.map { AKAction(title: $0.title, style: $0.isDestructive ? .destructive : .default) }
+            Task {
+                let actions = [
+                    clearCachesAction,
+                    eraseDocumentsDirectoryAction,
+                    eraseTemporaryDirectoryAction,
+                    setCurrentUserIDAction,
+                    switchEnvironmentAction,
+                    toggleNetworkActivityIndicatorAction,
+                    destroyConversationDatabaseAction,
+                    resetPushTokensAction,
+                ]
 
-            let actionSheet = AKActionSheet(
-                message: "Custom Options",
-                actions: akActions,
-                cancelButtonTitle: "Back",
-                shouldTranslate: [.none]
-            )
-
-            actionSheet.present { actionID in
-                guard actionID != -1 else {
-                    DevModeService.presentActionSheet()
-                    return
+                var akActions = actions.map { devModeAction in
+                    AKAction(devModeAction.title, style: devModeAction.isDestructive ? .destructive : .default) {
+                        devModeAction.perform()
+                    }
                 }
 
-                guard let index = akActions.firstIndex(where: { $0.identifier == actionID }),
-                      index < actions.count else { return }
+                akActions.append(.init("Back", style: .cancel) { DevModeService.presentActionSheet() })
 
-                actions[index].perform()
+                await AKActionSheet(
+                    message: "Custom Options",
+                    actions: akActions
+                ).present(translating: [])
             }
         }
 
@@ -152,25 +135,19 @@ public extension DevModeService {
 
     static var presentStandardOptionsAction: DevModeAction {
         func presentStandardOptions() {
-            let akActions = DevModeAction.Standard.available.map { AKAction(title: $0.title, style: $0.isDestructive ? .destructive : .default) }
-
-            let actionSheet = AKActionSheet(
-                message: "Standard Options",
-                actions: akActions,
-                cancelButtonTitle: "Back",
-                shouldTranslate: [.none]
-            )
-
-            actionSheet.present { actionID in
-                guard actionID != -1 else {
-                    DevModeService.presentActionSheet()
-                    return
+            Task {
+                var akActions = DevModeAction.Standard.available.map { devModeAction in
+                    AKAction(devModeAction.title, style: devModeAction.isDestructive ? .destructive : .default) {
+                        devModeAction.perform()
+                    }
                 }
 
-                guard let index = akActions.firstIndex(where: { $0.identifier == actionID }),
-                      index < DevModeAction.Standard.available.count else { return }
+                akActions.append(.init("Back", style: .cancel) { DevModeService.presentActionSheet() })
 
-                DevModeAction.Standard.available[index].perform()
+                await AKActionSheet(
+                    message: "Standard Options",
+                    actions: akActions
+                ).present(translating: [])
             }
         }
 
@@ -179,23 +156,22 @@ public extension DevModeService {
 
     static var resetPushTokensAction: DevModeAction {
         func resetPushTokens() {
-            @Dependency(\.coreKit) var core: CoreKit
-            @Dependency(\.networking.config.environment.description) var networkEnvironment: String
+            Task {
+                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.networking.config.environment.description) var networkEnvironment: String
 
-            AKConfirmationAlert(
-                title: "Reset Push Tokens", // swiftlint:disable:next line_length
-                message: "This will remove all push tokens for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
-                confirmationStyle: .destructivePreferred,
-                shouldTranslate: [.none]
-            ).present { didConfirm in
-                guard didConfirm == 1 else { return }
+                let confirmed = await AKConfirmationAlert(
+                    title: "Reset Push Tokens", // swiftlint:disable:next line_length
+                    message: "This will remove all push tokens for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                    confirmButtonStyle: .destructivePreferred
+                ).present(translating: [])
 
-                Task {
-                    if let exception = await core.utils.resetPushTokens() {
-                        Logger.log(exception, with: .toast())
-                    } else {
-                        core.hud.flash("Reset Push Tokens", image: .success)
-                    }
+                guard confirmed else { return }
+
+                if let exception = await core.utils.resetPushTokens() {
+                    Logger.log(exception, with: .toast())
+                } else {
+                    core.hud.flash("Reset Push Tokens", image: .success)
                 }
             }
         }
@@ -209,42 +185,24 @@ public extension DevModeService {
 
     static var setCurrentUserIDAction: DevModeAction {
         func setCurrentUserID() {
-            @Dependency(\.alertKitCore) var akCore: AKCore
-            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-            @Dependency(\.userDefaults) var defaults: UserDefaults
+            Task {
+                @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+                @Dependency(\.userDefaults) var defaults: UserDefaults
 
-            @Persistent(.currentUserID) var currentUserID: String?
-            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+                @Persistent(.currentUserID) var currentUserID: String?
+                @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
-            func setLanguageCode(_ code: String) {
-                guard akCore.languageCodeIsLocked else {
-                    akCore.lockLanguageCode(to: code)
-                    return
-                }
+                let input = await AKTextInputAlert(
+                    message: "Set Current User ID",
+                    attributes: .init(
+                        capitalizationType: .none,
+                        correctionType: .no
+                    ),
+                    confirmButtonTitle: "Done"
+                ).present(translating: [])
 
-                akCore.unlockLanguageCode(andSetTo: code)
-            }
-
-            setLanguageCode("en")
-            let textFieldAlert = AKTextFieldAlert(
-                message: "Set Current User ID",
-                actions: [.init(title: "Done", style: .preferred)],
-                textFieldAttributes: [
-                    .capitalizationType: UITextAutocapitalizationType.none,
-                    .correctionType: UITextAutocorrectionType.no,
-                    .textAlignment: NSTextAlignment.center,
-                ],
-                shouldTranslate: [.none]
-            )
-
-            textFieldAlert.presentTextFieldAlert { inputString, actionID in
-                setLanguageCode(RuntimeStorage.languageCode)
-
-                guard actionID != -1,
-                      let inputString,
-                      !inputString.isBlank else { return }
-                let previousValue = currentUserID
-                if currentUserID != previousValue {
+                guard let input else { return }
+                if input != currentUserID {
                     coreUtilities.clearCaches()
                     coreUtilities.eraseDocumentsDirectory()
                     coreUtilities.eraseTemporaryDirectory()
@@ -252,7 +210,7 @@ public extension DevModeService {
                     defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
                 }
 
-                currentUserID = inputString
+                currentUserID = input
                 navigationCoordinator.navigate(to: .root(.modal(.splash)))
             }
         }
@@ -262,68 +220,69 @@ public extension DevModeService {
 
     static var switchEnvironmentAction: DevModeAction {
         func switchEnvironment() {
-            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-            @Dependency(\.userDefaults) var defaults: UserDefaults
-            @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
+            Task {
+                @Sendable
+                func switchTo(_ environment: NetworkEnvironment) async {
+                    @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+                    @Dependency(\.userDefaults) var defaults: UserDefaults
 
-            var actions = [AKAction]()
-            switch networkEnvironment {
-            case .development:
-                actions = [
-                    .init(title: "Switch to Production", style: .destructive),
-                    .init(title: "Switch to Staging", style: .default),
-                ]
+                    @Persistent(.networkEnvironment) var persistentEnvironment: NetworkEnvironment?
 
-            case .production:
-                actions = [
-                    .init(title: "Switch to Development", style: .default),
-                    .init(title: "Switch to Staging", style: .default),
-                ]
+                    persistentEnvironment = environment
 
-            case .staging:
-                actions = [
-                    .init(title: "Switch to Development", style: .default),
-                    .init(title: "Switch to Production", style: .destructive),
-                ]
-            }
+                    coreUtilities.clearCaches()
+                    coreUtilities.eraseDocumentsDirectory()
+                    coreUtilities.eraseTemporaryDirectory()
 
-            let actionSheet: AKActionSheet = .init(
-                message: "Switch from \(networkEnvironment.description) Environment",
-                actions: actions,
-                shouldTranslate: [.none]
-            )
+                    defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
 
-            actionSheet.present { actionID in
-                guard actionID != -1 else { return }
-                @Persistent(.networkEnvironment) var persistentEnvironment: NetworkEnvironment?
+                    let environmentString = (persistentEnvironment ?? .production).description
 
+                    await AKAlert(
+                        message: "Switched to \(environmentString) environment. You must now restart the app.",
+                        actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
+                    ).present(translating: [])
+                }
+
+                @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
+
+                let switchToDevelopmentAction: AKAction = .init("Switch to Development") {
+                    Task { await switchTo(.development) }
+                }
+
+                let switchToProductionAction: AKAction = .init("Switch to Production", style: .destructive) {
+                    Task { await switchTo(.production) }
+                }
+
+                let switchToStagingAction: AKAction = .init("Switch to Staging") {
+                    Task { await switchTo(.staging) }
+                }
+
+                var actions = [AKAction]()
                 switch networkEnvironment {
                 case .development:
-                    persistentEnvironment = actionID == actions[0].identifier ? .production : .staging
+                    actions = [
+                        switchToProductionAction,
+                        switchToStagingAction,
+                    ]
 
                 case .production:
-                    persistentEnvironment = actionID == actions[0].identifier ? .development : .staging
+                    actions = [
+                        switchToDevelopmentAction,
+                        switchToStagingAction,
+                    ]
 
                 case .staging:
-                    persistentEnvironment = actionID == actions[0].identifier ? .development : .production
+                    actions = [
+                        switchToDevelopmentAction,
+                        switchToProductionAction,
+                    ]
                 }
 
-                coreUtilities.clearCaches()
-                coreUtilities.eraseDocumentsDirectory()
-                coreUtilities.eraseTemporaryDirectory()
-
-                defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
-
-                let environmentString = (persistentEnvironment ?? .production).description
-
-                AKAlert(
-                    message: "Switched to \(environmentString) environment. You must now restart the app.",
-                    actions: [.init(title: "Exit", style: .destructivePreferred)],
-                    showsCancelButton: false,
-                    shouldTranslate: [.none]
-                ).present { _ in
-                    exit(0)
-                }
+                await AKActionSheet(
+                    message: "Switch from \(networkEnvironment.description) Environment",
+                    actions: actions
+                ).present(translating: [])
             }
         }
 

@@ -42,12 +42,12 @@ public struct StatusIndicatorButton: View {
 
     public init(
         _ text: String,
-        action: @escaping () -> Void,
-        isCompleted: Bool?
+        isCompleted: Bool?,
+        action: @escaping () -> Void
     ) {
         self.text = text
-        self.action = action
         self.isCompleted = isCompleted
+        self.action = action
     }
 
     // MARK: - View

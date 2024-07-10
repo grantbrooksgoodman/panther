@@ -28,6 +28,7 @@ public enum ObservableKey: String {
 
     case breadcrumbsDidCapture
     case isDeveloperModeEnabled
+    case languageCodeChanged
     case rootViewSheet
     case rootViewToast
     case rootViewToastAction

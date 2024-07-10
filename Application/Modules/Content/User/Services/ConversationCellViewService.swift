@@ -19,15 +19,16 @@ public struct ConversationCellViewService {
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
     public func presentDeletionActionSheet(_ title: String) async -> Bool {
-        let actionSheet: AKActionSheet = .init(
+        var cancelled = true
+
+        await AKActionSheet(
             title: title,
             message: "Are you sure you'd like to delete this conversation?\nThis operation cannot be undone.",
-            actions: [.init(title: "Delete", style: .destructive)],
-            shouldTranslate: [.actions(indices: nil), .message]
-        )
+            actions: [.init("Delete", style: .destructive) { cancelled = false }],
+            cancelButtonTitle: Localized(.cancel).wrappedValue
+        ).present(translating: [.actions(), .message])
 
-        let actionID = await actionSheet.present()
-        return actionID == -1
+        return cancelled
     }
 
     /// `.userInfoBadgeTapped`
@@ -50,32 +51,29 @@ public struct ConversationCellViewService {
             @Localized(.language) var languageString: String
             @Localized(.region) var regionString: String
 
-            var actions: [AKAction]?
+            var actions: [AKAction] = [.cancelAction(title: Localized(.dismiss).wrappedValue)]
             if build.developerModeEnabled {
-                actions = [.init(title: "Set to Current User", style: .preferred)]
+                let setToCurrentUserAction: AKAction = .init("Set to Current User", style: .preferred) {
+                    coreUtilities.clearCaches()
+                    coreUtilities.eraseDocumentsDirectory()
+                    coreUtilities.eraseTemporaryDirectory()
+
+                    defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+
+                    @Persistent(.currentUserID) var currentUserID: String?
+                    currentUserID = user.id
+
+                    navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                }
+
+                actions.append(setToCurrentUserAction)
             }
 
-            let alert: AKAlert = .init(
+            await AKAlert(
                 title: cellViewData.titleLabelText, // swiftlint:disable:next line_length
                 message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
-                actions: actions,
-                cancelButtonTitle: Localized(.dismiss).wrappedValue,
-                shouldTranslate: [.none]
-            )
-
-            let actionID = await alert.present()
-            guard actionID != -1 else { return }
-
-            coreUtilities.clearCaches()
-            coreUtilities.eraseDocumentsDirectory()
-            coreUtilities.eraseTemporaryDirectory()
-
-            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
-
-            @Persistent(.currentUserID) var currentUserID: String?
-            currentUserID = user.id
-
-            navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                actions: actions
+            ).present(translating: [])
         }
     }
 }

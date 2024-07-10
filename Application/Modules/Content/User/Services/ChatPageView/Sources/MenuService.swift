@@ -192,42 +192,44 @@ public final class MenuService {
     }
 
     private func handleSpeakAction() {
-        guard let selectedCell = selectedCell as? TextMessageCell,
-              let selectedMessage,
-              let messageLabelText = selectedCell.messageLabel.text else { return }
+        Task { @MainActor in
+            guard let selectedCell = selectedCell as? TextMessageCell,
+                  let selectedMessage,
+                  let messageLabelText = selectedCell.messageLabel.text else { return }
 
-        avSpeechSynthesizer.delegate = viewController
+            avSpeechSynthesizer.delegate = viewController
 
-        guard !avSpeechSynthesizer.isSpeaking else {
-            avSpeechSynthesizer.stopSpeaking(at: .immediate)
-            return
+            guard !avSpeechSynthesizer.isSpeaking else {
+                avSpeechSynthesizer.stopSpeaking(at: .immediate)
+                return
+            }
+
+            chatPageViewService.audioMessagePlayback?.stopPlayback()
+
+            let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
+            let languagePair = selectedMessage.translation.languagePair
+            let currentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.to : languagePair.from
+            let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
+
+            var utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
+            if languageRecognitionService.matchConfidence(
+                for: messageLabelText,
+                inLanguage: utteranceLanguageCode
+            ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold) {
+                utteranceLanguageCode = [
+                    currentUserUtteranceLanguageCode,
+                    notCurrentUserUtteranceLanguageCode,
+                ].first(where: { $0 != utteranceLanguageCode }) ?? utteranceLanguageCode
+            }
+
+            let utterance: AVSpeechUtterance = .init(string: messageLabelText)
+            utterance.voice = services.audio.textToSpeech.highestQualityVoice(utteranceLanguageCode, mustIncludeAudioFileSettings: true)
+            services.audio.activateAudioSession()
+            avSpeechSynthesizer.speak(utterance)
+
+            speakingCell = selectedCell
+            speakingMessage = selectedMessage
         }
-
-        chatPageViewService.audioMessagePlayback?.stopPlayback()
-
-        let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
-        let languagePair = selectedMessage.translation.languagePair
-        let currentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.to : languagePair.from
-        let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
-
-        var utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
-        if languageRecognitionService.matchConfidence(
-            for: messageLabelText,
-            inLanguage: utteranceLanguageCode
-        ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold) {
-            utteranceLanguageCode = [
-                currentUserUtteranceLanguageCode,
-                notCurrentUserUtteranceLanguageCode,
-            ].first(where: { $0 != utteranceLanguageCode }) ?? utteranceLanguageCode
-        }
-
-        let utterance: AVSpeechUtterance = .init(string: messageLabelText)
-        utterance.voice = services.audio.textToSpeech.highestQualityVoice(utteranceLanguageCode, mustIncludeAudioFileSettings: true)
-        services.audio.activateAudioSession()
-        avSpeechSynthesizer.speak(utterance)
-
-        speakingCell = selectedCell
-        speakingMessage = selectedMessage
     }
 
     private func handleViewAlternateAction() {

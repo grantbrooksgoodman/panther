@@ -155,57 +155,66 @@ public final class UpdateService {
             uiApplication.keyWindow?.isUserInteractionEnabled = true
         }
 
-        let message = "This version of *\(build.finalName)* is no longer supported. To continue, please download and install the most recent update."
-        let alert = AKAlert(
+        let updateAction: AKAction = .init("Update", style: .preferred) {
+            Task { @MainActor in
+                self.firstPostponedUpdate = nil
+                self.relaunchesSinceLastPostponedUpdate = 0
+
+                self.uiApplication.keyWindow?.isUserInteractionEnabled = false
+                await self.uiApplication.open(url)
+
+                self.buildNumberWhenLastForcedToUpdate = self.build.buildNumber
+                await self.presentForcedUpdateCTA(url)
+            }
+        }
+
+        let cancelAction: AKAction = .init(
+            Localized(.cancel).wrappedValue,
+            style: .cancel
+        ) {
+            self.firstPostponedUpdate = nil
+            self.relaunchesSinceLastPostponedUpdate = 0
+
+            self.isPersistingForcedUpdateCTA = false
+        }
+
+        var actions: [AKAction] = [updateAction]
+        if build.developerModeEnabled {
+            actions.append(cancelAction)
+        }
+
+        await AKAlert(
             title: "Update Required",
-            message: message,
-            actions: [AKAction(title: "Update", style: .preferred)],
-            showsCancelButton: build.developerModeEnabled || build.stage != .generalRelease
-        )
-
-        let actionID = await alert.present()
-        firstPostponedUpdate = nil
-        relaunchesSinceLastPostponedUpdate = 0
-
-        guard actionID != -1 else {
-            isPersistingForcedUpdateCTA = false
-            return
-        }
-
-        Task { @MainActor in
-            uiApplication.keyWindow?.isUserInteractionEnabled = false
-            uiApplication.open(url)
-        }
-
-        buildNumberWhenLastForcedToUpdate = build.buildNumber
-        await presentForcedUpdateCTA(url)
+            message: "This version of ⌘\(build.finalName)⌘ is no longer supported. To continue, please download and install the most recent update.",
+            actions: actions
+        ).present(translating: [.actions([updateAction])])
     }
 
     private func presentNormalUpdateCTA(_ url: URL) async {
-        let message = "A new version of *\(build.finalName)* is available in the *App Store*. Would you like to update now?"
-        let alert = AKAlert(
-            title: "Update Available",
-            message: message,
-            actions: [.init(title: "Update", style: .preferred)],
-            cancelButtonTitle: "Later"
-        )
-
-        let actionID = await alert.present()
-
-        guard actionID != -1 else {
-            if firstPostponedUpdate == nil {
-                firstPostponedUpdate = Date()
+        let updateAction: AKAction = .init("Update", style: .preferred) {
+            Task { @MainActor in
+                self.uiApplication.open(url)
             }
 
-            relaunchesSinceLastPostponedUpdate = 0
-            return
+            self.firstPostponedUpdate = nil
+            self.relaunchesSinceLastPostponedUpdate = 0
         }
 
-        Task { @MainActor in
-            uiApplication.open(url)
+        let cancelAction: AKAction = .init(
+            Localized(.cancel).wrappedValue,
+            style: .cancel
+        ) {
+            if self.firstPostponedUpdate == nil {
+                self.firstPostponedUpdate = .now
+            }
+
+            self.relaunchesSinceLastPostponedUpdate = 0
         }
 
-        firstPostponedUpdate = nil
-        relaunchesSinceLastPostponedUpdate = 0
+        await AKAlert(
+            title: "Update Available",
+            message: "A new version of ⌘\(build.finalName)⌘ is available in the ⌘App Store⌘. Would you like to update now?",
+            actions: [updateAction, cancelAction]
+        ).present(translating: [.actions([updateAction])])
     }
 }

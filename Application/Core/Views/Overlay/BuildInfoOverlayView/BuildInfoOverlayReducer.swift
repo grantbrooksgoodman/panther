@@ -29,6 +29,7 @@ public struct BuildInfoOverlayReducer: Reducer {
 
         case breadcrumbsDidCapture
         case isDeveloperModeEnabledChanged(Bool)
+        case languageCodeChanged
     }
 
     // MARK: - Feedback
@@ -43,8 +44,8 @@ public struct BuildInfoOverlayReducer: Reducer {
         /* MARK: Properties */
 
         // String
-        @Localized(.sendFeedback) public var sendFeedbackButtonText: String
         public var buildInfoButtonText = ""
+        public var sendFeedbackButtonText = Localized(.sendFeedback).wrappedValue
 
         // Other
         public var developerModeIndicatorDotColor: Color = .orange
@@ -56,14 +57,9 @@ public struct BuildInfoOverlayReducer: Reducer {
         public var networkEnvironmentBasedIndicatorDotColor: Color {
             @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
             switch networkEnvironment {
-            case .development:
-                return .green
-
-            case .production:
-                return .red
-
-            case .staging:
-                return .orange
+            case .development: return .green
+            case .production: return .red
+            case .staging: return .orange
             }
         }
 
@@ -105,6 +101,9 @@ public struct BuildInfoOverlayReducer: Reducer {
 
         case let .action(.isDeveloperModeEnabledChanged(developerModeEnabled)):
             state.isDeveloperModeEnabled = developerModeEnabled
+
+        case .action(.languageCodeChanged):
+            state.sendFeedbackButtonText = Localized(.sendFeedback).wrappedValue
 
         case .action(.sendFeedbackButtonTapped):
             viewService.sendFeedbackButtonTapped()

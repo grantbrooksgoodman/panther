@@ -107,7 +107,7 @@ public extension AppConstants.Strings.ChatPageViewService {
     enum RecipientBarService {
         enum ActionHandler {
             public static let inviteAlertActionTitle = "Send Invite" // swiftlint:disable:next line_length
-            public static let inviteAlertMessage = "It doesn't appear that any of your contacts have an account on *Hello* yet.\n\nWould you like to send them an invite to sign up?"
+            public static let inviteAlertMessage = "It doesn't appear that any of your contacts have an account on ⌘Hello⌘ yet.\n\nWould you like to send them an invite to sign up?"
         }
 
         enum ContactSelectionUI {

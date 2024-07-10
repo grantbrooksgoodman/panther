@@ -17,6 +17,7 @@ import CoreArchitecture
 public final class UserService: Cacheable {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
@@ -232,7 +233,7 @@ public final class UserService: Cacheable {
             @Persistent(.currentUserID) var currentUserID: String?; #warning("Not a fan of having this here.")
             if let languageCode = data[Keys.languageCode.rawValue] as? String,
                id == currentUserID {
-                RuntimeStorage.store(languageCode, as: .languageCode)
+                coreUtilities.setLanguageCode(languageCode)
             }
 
             var cacheValues = (cache.value(forKey: .userDataSnapshots) as? [UserDataSnapshot]) ?? []

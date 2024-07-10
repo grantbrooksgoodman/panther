@@ -22,6 +22,7 @@ public struct LanguageRecognitionService {
 
     // MARK: - Methods
 
+    @MainActor
     public func matchConfidence(for string: String, inLanguage languageCode: String) -> Float {
         func sanitized(_ string: String) -> String { string.lowercasedTrimmingWhitespaceAndNewlines }
 

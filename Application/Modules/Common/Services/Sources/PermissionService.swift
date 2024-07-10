@@ -146,52 +146,49 @@ public struct PermissionService {
     }
 
     private func presentContactCTA() async -> Bool {
-        await presentCTA(with: "*\(build.finalName)* has not been granted permission to access your contact list.\n\nYou can change this in Settings.")
+        await presentCTA(with: "⌘\(build.finalName)⌘ has not been granted permission to access your contact list.\n\nYou can change this in Settings.")
     }
 
     private func presentNotificationCTA() async -> Bool {
-        await presentCTA(with: "*\(build.finalName)* has not been granted permission to send and receive notifications.\n\nYou can change this in Settings.")
+        await presentCTA(with: "⌘\(build.finalName)⌘ has not been granted permission to send and receive notifications.\n\nYou can change this in Settings.")
     }
 
     private func presentRecordingCTA() async -> Bool {
-        await presentCTA(with: "*\(build.finalName)* needs access to your microphone to record audio messages.\n\nYou can grant this permission in Settings.")
+        await presentCTA(with: "⌘\(build.finalName)⌘ needs access to your microphone to record audio messages.\n\nYou can grant this permission in Settings.")
     }
 
     private func presentTranscriptionCTA() async -> Bool {
         await presentCTA(
-            with: "*\(build.finalName)* needs speech recognition access to translate audio messages.\n\nYou can grant this permission in Settings."
+            with: "⌘\(build.finalName)⌘ needs speech recognition access to translate audio messages.\n\nYou can grant this permission in Settings."
         )
     }
 
+    @MainActor
     private func presentCTA(with message: String) async -> Bool {
+        var cancelled = true
+
         @Localized(.settings) var settingsString: String
-        let settingsURL = await URL(string: UIApplication.openSettingsURLString)
+        let settingsURL = URL(string: UIApplication.openSettingsURLString)
 
-        var actions = [AKAction]()
+        var actions: [AKAction] = [.cancelAction]
         if let settingsURL,
-           await uiApplication.canOpenURL(settingsURL) {
-            actions.append(AKAction(title: settingsString, style: .default))
-        }
-
-        let ctaAlert = AKAlert(
-            message: message,
-            actions: actions.isEmpty ? nil : actions,
-            cancelButtonTitle: Localized(.dismiss).wrappedValue,
-            shouldTranslate: [.message]
-        )
-
-        return await withCheckedContinuation { continuation in
-            ctaAlert.present { actionID in
-                guard actionID != -1 else { continuation.resume(returning: true); return }
-                guard actionID == ctaAlert.actions.first(where: { $0.title == settingsString })?.identifier,
-                      let settingsURL else { continuation.resume(returning: false); return }
-
+           uiApplication.canOpenURL(settingsURL) {
+            let settingsAction: AKAction = .init(settingsString) {
+                cancelled = false
                 Task { @MainActor in
                     uiApplication.open(settingsURL)
-                    continuation.resume(returning: false)
                 }
             }
+
+            actions.append(settingsAction)
         }
+
+        await AKAlert(
+            message: message,
+            actions: actions
+        ).present(translating: [.message])
+
+        return cancelled
     }
 
     // MARK: - Computed Property Getters

@@ -140,75 +140,83 @@ public final class ChatInfoPageViewService: Cacheable {
 
     /// `.changeMetadataButtonTapped`
     public func presentChangeMetadataActionSheet() async -> MetadataChangeType? {
-        func presentChangeNameAlert() async -> String? {
-            var conversationName = ""
-            if let name = currentConversation?.metadata.name,
-               !name.isBangQualifiedEmpty {
-                conversationName = name
+        await withCheckedContinuation { continuation in
+            presentChangeMetadataActionSheet { continuation.resume(returning: $0) }
+        }
+    }
+
+    private func presentChangeMetadataActionSheet(completion: @escaping (MetadataChangeType?) -> Void) {
+        Task { @MainActor in
+            func presentChangeNameAlert() async -> MetadataChangeType? {
+                var conversationName: String?
+                if let name = currentConversation?.metadata.name,
+                   !name.isBangQualifiedEmpty {
+                    conversationName = name
+                }
+
+                let input = await AKTextInputAlert(
+                    message: "Choose a new name for this conversation:",
+                    attributes: .init(
+                        clearButtonMode: .always,
+                        sampleText: conversationName
+                    ),
+                    confirmButtonTitle: "Done"
+                ).present()
+
+                guard let input else { return nil }
+                return .name(input)
             }
 
-            let alert: AKTextFieldAlert = .init(
-                message: "Choose a new name for this conversation:",
-                actions: [.init(title: "Done", style: .preferred)],
-                textFieldAttributes: [
-                    .editingMode: UITextField.ViewMode.always,
-                    .sampleText: conversationName,
-                ]
-            )
+            func presentChangePhotoAlert() async -> MetadataChangeType? {
+                var photoChangeType: MetadataChangeType?
 
-            let presentTextFieldAlertResult = await alert.presentTextFieldAlert()
-            guard presentTextFieldAlertResult.actionID != -1 else { return nil }
-            return presentTextFieldAlertResult.input
-        }
+                let takePhotoAction: AKAction = .init("Take photo") {
+                    photoChangeType = .selectPhotoFromCamera
+                }
 
-        var actions: [AKAction] = [
-            .init(title: "Change name", style: .default),
-            .init(title: "Change photo", style: .default),
-        ]
+                let chooseFromLibraryAction: AKAction = .init("Choose photo from library") {
+                    photoChangeType = .selectPhotoFromLibrary
+                }
 
-        if currentConversation?.metadata.imageData != nil {
-            actions.append(.init(title: "Remove photo", style: .destructive))
-        }
-
-        var actionSheet: AKActionSheet = .init(actions: actions)
-
-        let actionID = await actionSheet.present()
-        guard actionID != -1 else { return nil }
-
-        switch actionID {
-        case actions[0].identifier:
-            if let string = await presentChangeNameAlert() {
-                return .name(string)
+                await AKActionSheet(actions: [takePhotoAction, chooseFromLibraryAction]).present()
+                return photoChangeType
             }
 
-        case actions[1].identifier:
-            actions = [
-                .init(title: "Take photo", style: .default),
-                .init(title: "Choose photo from library", style: .default),
-            ]
-
-            actionSheet = .init(message: "Change photo", actions: actions)
-
-            let actionID = await actionSheet.present()
-            guard actionID != -1 else { return nil }
-
-            switch actionID {
-            case actions[0].identifier:
-                return .selectPhotoFromCamera
-
-            case actions[1].identifier:
-                return .selectPhotoFromLibrary
-
-            default: ()
+            var didComplete = false
+            var canComplete: Bool {
+                guard !didComplete else { return false }
+                didComplete = true
+                return true
             }
 
-        case actions[2].identifier:
-            return .removePhoto
+            let changeNameAction: AKAction = .init("Change name") {
+                Task {
+                    guard canComplete else { return }
+                    completion(await presentChangeNameAlert())
+                }
+            }
 
-        default: ()
+            let changePhotoAction: AKAction = .init("Change photo") {
+                Task {
+                    guard canComplete else { return }
+                    completion(await presentChangePhotoAlert())
+                }
+            }
+
+            let removePhotoAction: AKAction = .init("Remove photo", style: .destructive) {
+                guard canComplete else { return }
+                completion(.removePhoto)
+            }
+
+            var actions: [AKAction] = [changeNameAction, changePhotoAction]
+            if currentConversation?.metadata.imageData != nil {
+                actions.append(removePhotoAction)
+            }
+
+            await AKActionSheet(actions: actions).present()
+            guard canComplete else { return }
+            completion(nil)
         }
-
-        return nil
     }
 
     // MARK: - Clear Cache

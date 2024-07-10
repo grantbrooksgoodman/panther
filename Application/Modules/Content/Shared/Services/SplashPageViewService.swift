@@ -16,7 +16,7 @@ import CoreArchitecture
 public final class SplashPageViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitCore) private var akCore: AKCore
+    @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.userDefaults) private var defaults: UserDefaults
@@ -37,8 +37,8 @@ public final class SplashPageViewService {
     public func initializeBundle() async -> Exception? {
         /* MARK: AKCore Delegate Setup */
 
-        akCore.register(reportDelegate: ErrorReportingService())
-        akCore.register(translationDelegate: networkServices.translation)
+        alertKitConfig.registerReportDelegate(ErrorReportingService())
+        alertKitConfig.registerTranslationDelegate(networkServices.translation)
 
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
@@ -46,8 +46,7 @@ public final class SplashPageViewService {
             }
 
             guard let currentUser = userSession.currentUser else { return nil }
-            akCore.setLanguageCode(currentUser.languageCode)
-            RuntimeStorage.store(currentUser.languageCode, as: .languageCode)
+            coreUtilities.setLanguageCode(currentUser.languageCode)
             return nil
         }
 
@@ -113,8 +112,7 @@ public final class SplashPageViewService {
                 return .init("Failed to set current user.", metadata: [self, #file, #function, #line])
             }
 
-            akCore.setLanguageCode(currentUser.languageCode)
-            RuntimeStorage.store(currentUser.languageCode, as: .languageCode)
+            coreUtilities.setLanguageCode(currentUser.languageCode)
 
             if let exception = await currentUser.setConversations() {
                 return exception
@@ -190,29 +188,24 @@ public final class SplashPageViewService {
     }
 
     /// `.initializedBundle`
-    /// - Returns: An integer describing the selected action ID.
-    public func presentErrorAlert(_ exception: Exception) async -> Int {
-        let akError = AKError(exception)
-        let mockGenericException = Exception(metadata: [self, #file, #function, #line])
-        let mockTimedOutException = Exception.timedOut([self, #file, #function, #line])
+    public func presentErrorAlert(_ exception: Exception) async {
+        let mockGenericException: Exception = .init(metadata: [self, #file, #function, #line])
+        let mockTimedOutException: Exception = .timedOut([self, #file, #function, #line])
 
-        let notGenericDescription = akError.description != mockGenericException.userFacingDescriptor
-        let notTimedOutDescription = akError.description != mockTimedOutException.userFacingDescriptor
-        let hasUserFacingDescriptor = akError.extraParams?.keys.contains(Exception.CommonParamKeys.userFacingDescriptor.rawValue) ?? false
+        let notGenericDescriptor = exception.userFacingDescriptor != mockGenericException.userFacingDescriptor
+        let notTimedOutDescriptor = exception.userFacingDescriptor != mockTimedOutException.userFacingDescriptor
+        let hasUserFacingDescriptor = exception.descriptor != exception.userFacingDescriptor
 
-        let shouldTranslate = hasUserFacingDescriptor && notGenericDescription && notTimedOutDescription
-        var translationOptionKeys: [AKTranslationOptionKey] = [build.isOnline ? .actions(indices: nil) : .none]
-        if shouldTranslate,
-           build.isOnline {
-            translationOptionKeys = [.actions(indices: nil), .message]
+        let shouldTranslate = hasUserFacingDescriptor && notGenericDescriptor && notTimedOutDescriptor
+
+        var translationOptionKeys: [AKErrorAlert.TranslationOptionKey] = shouldTranslate ? [.errorDescription] : []
+        if exception.isReportable {
+            translationOptionKeys.append(.sendErrorReportButtonTitle)
         }
 
-        let errorAlert = AKErrorAlert(
-            error: akError,
-            cancelButtonTitle: Localized(.tryAgain).wrappedValue,
-            shouldTranslate: translationOptionKeys
-        )
-
-        return await errorAlert.present()
+        await AKErrorAlert(
+            exception,
+            dismissButtonTitle: Localized(.tryAgain).wrappedValue
+        ).present(translating: translationOptionKeys)
     }
 }

@@ -32,7 +32,7 @@ public struct SplashPageReducer: Reducer {
     // MARK: - Feedback
 
     public enum Feedback {
-        case errorAlertDismissed(_ actionID: Int)
+        case errorAlertDismissed
         case initializedBundle(Exception?)
         case performRetryHandlerReturned(Exception?)
     }
@@ -70,8 +70,7 @@ public struct SplashPageReducer: Reducer {
                 return .initializedBundle(result)
             }
 
-        case let .feedback(.errorAlertDismissed(actionID)):
-            guard actionID == -1 else { return .none }
+        case .feedback(.errorAlertDismissed):
             return .task {
                 let result = await viewService.performRetryHandler()
                 return .performRetryHandlerReturned(result)
@@ -83,8 +82,8 @@ public struct SplashPageReducer: Reducer {
             if let exception {
                 Logger.log(exception)
                 return .task {
-                    let result = await viewService.presentErrorAlert(exception)
-                    return .errorAlertDismissed(result)
+                    await viewService.presentErrorAlert(exception)
+                    return .errorAlertDismissed
                 }
             } else if currentUserID != nil,
                       userSession.currentUser != nil {

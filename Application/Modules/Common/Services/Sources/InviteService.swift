@@ -59,7 +59,7 @@ public struct InviteService {
         }
 
         // swiftlint:disable:next line_length
-        let promptMessage = "Hey, let's chat on *\(build.finalName)*! It's a simple messaging app that allows us to easily talk to each other in our native languages!"
+        let promptMessage = "Hey, let's chat on ⌘\(build.finalName)⌘! It's a simple messaging app that allows us to easily talk to each other in our native languages!"
 
         services.analytics.logEvent(.invite)
 
@@ -92,23 +92,30 @@ public struct InviteService {
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
     private func promptToTranslate() async -> Bool? {
-        let message = "Would you like *\(build.finalName)* to translate the invitation message into another language?"
-        let actions: [AKAction] = [.init(
-            title: "Yes, translate",
-            style: .preferred
-        ),
-        .init(
-            title: "No, don't translate",
-            style: .default
-        )]
-        let alert: AKAlert = .init(
-            title: "Translate Invitation",
-            message: message,
-            actions: actions
-        )
+        var shouldTranslate: Bool?
 
-        let actionID = await alert.present()
-        guard actionID != -1 else { return nil }
-        return actionID == actions[0].identifier
+        let acceptTranslationAction: AKAction = .init("Yes, translate", style: .preferred) {
+            shouldTranslate = true
+        }
+
+        let rejectTranslationAction: AKAction = .init("No, don't translate") {
+            shouldTranslate = false
+        }
+
+        await AKAlert(
+            title: "Translate Invitation",
+            message: "Would you like ⌘\(build.finalName)⌘ to translate the invitation message into another language?",
+            actions: [
+                acceptTranslationAction,
+                rejectTranslationAction,
+                .cancelAction,
+            ]
+        ).present(translating: [
+            .actions([acceptTranslationAction, rejectTranslationAction]),
+            .message,
+            .title,
+        ])
+
+        return shouldTranslate
     }
 }

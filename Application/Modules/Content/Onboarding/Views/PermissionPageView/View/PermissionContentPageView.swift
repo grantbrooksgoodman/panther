@@ -40,19 +40,17 @@ public struct PermissionContentPageView: View {
             VStack(alignment: .center) {
                 StatusIndicatorButton(
                     viewModel.strings.value(for: .contactPermissionCapsuleButtonText),
-                    action: {
-                        viewModel.send(.contactPermissionCapsuleButtonTapped)
-                    },
                     isCompleted: viewModel.isContactPermissionGranted
-                )
+                ) {
+                    viewModel.send(.contactPermissionCapsuleButtonTapped)
+                }
 
                 StatusIndicatorButton(
                     viewModel.strings.value(for: .notificationPermissionCapsuleButtonText),
-                    action: {
-                        viewModel.send(.notificationPermissionCapsuleButtonTapped)
-                    },
                     isCompleted: viewModel.isNotificationPermissionGranted
-                )
+                ) {
+                    viewModel.send(.notificationPermissionCapsuleButtonTapped)
+                }
             }
             .padding(.bottom, Floats.buttonVStackBottomPadding)
             .padding(.top, Floats.buttonVStackTopPadding)

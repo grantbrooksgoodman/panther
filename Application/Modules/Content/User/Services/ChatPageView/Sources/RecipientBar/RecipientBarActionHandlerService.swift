@@ -129,16 +129,7 @@ public final class RecipientBarActionHandlerService {
                     return
                 }
 
-                let inviteAlert: AKAlert = .init(
-                    message: Strings.inviteAlertMessage,
-                    actions: [.init(title: Strings.inviteAlertActionTitle, style: .preferred)],
-                    sender: chatPageViewService.recipientBar?.layout.selectContactButton
-                )
-
-                selectContactButton?.isEnabled = true
-                inviteAlert.present { actionID in
-                    guard actionID != -1 else { return }
-
+                let inviteAction: AKAction = .init(Strings.inviteAlertActionTitle, style: .preferred) {
                     Task {
                         if let exception = await self.services.invite.presentInvitationPrompt() {
                             Logger.log(exception, with: .toast())
@@ -146,6 +137,12 @@ public final class RecipientBarActionHandlerService {
                     }
                 }
 
+                await AKAlert(
+                    message: Strings.inviteAlertMessage,
+                    actions: [inviteAction, .cancelAction]
+                ).present(translating: [.actions([inviteAction]), .message])
+
+                selectContactButton?.isEnabled = true
                 return
             }
 

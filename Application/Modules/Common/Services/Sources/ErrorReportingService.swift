@@ -14,34 +14,32 @@ import UIKit
 import AlertKit
 import CoreArchitecture
 
-public final class ErrorReportingService: AKReportDelegate {
+public final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitCore) private var akCore: AKCore
     @Dependency(\.build) private var build: Build
     @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.fileManager) private var fileManager: FileManager
-    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
-    public private(set) var reportedErrorDescriptors = [String]()
-
-    private var reportDelegate: AKReportDelegate?
+    private var reportedErrorCodes = [String]()
 
     // MARK: - Init
 
-    public init() {
-        mainQueue.async { self.reportDelegate = ReportDelegate() }
-    }
+    public init() {}
 
     // MARK: - Computed Properties
 
     private var commonParams: [String: String] {
-        var parameters = ["Language Code": RuntimeStorage.languageCode]
+        var parameters = [
+            "Device Model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
+            "Language Code": RuntimeStorage.languageCode,
+            "Operating System Version": SystemInformation.osVersion.lowercased(),
+        ]
 
         @Persistent(.currentUserID) var currentUserID: String?
         if let currentUserID {
@@ -55,17 +53,10 @@ public final class ErrorReportingService: AKReportDelegate {
         return parameters
     }
 
-    // MARK: - File Report
+    // MARK: - AlertKit.ReportDelegate Conformance
 
-    public func fileReport(error: AKError) {
+    public func fileReport(_ error: any AlertKit.Errorable) {
         Task { @MainActor in
-            var customValues = commonParams
-            if let contextCodeComponents = akCore.contextCode(for: .error, metadata: error.metadata)?.components(separatedBy: "."),
-               let deviceID = contextCodeComponents.first,
-               let operatingSystemID = contextCodeComponents.last {
-                customValues["Device Context"] = "\(deviceID) | \(operatingSystemID)"
-            }
-
             let buildNumberString = "\(build.buildNumber)\(build.stage.shortString)"
             let bundleVersionString = build.bundleVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
@@ -73,24 +64,25 @@ public final class ErrorReportingService: AKReportDelegate {
             var shortDateHash = dateFormatter.string(from: Date()).encodedHash
             shortDateHash = shortDateHash.components[0 ... shortDateHash.components.count / 2].joined()
 
-            guard let errorCode = error.extraParams?["Hashlet"] as? String,
-                  let errorDescriptor = error.extraParams?["Descriptor"] as? String,
-                  let loggerSessionRecordData = fileManager.contents(atPath: loggerSessionRecordFilePathString),
-                  !reportedErrorDescriptors.contains(errorDescriptor) else { return }
+            guard error.id.count > 3,
+                  let loggerSessionRecordData = fileManager.contents(atPath: loggerSessionRecordFilePathString) else { return }
+
+            let errorCode = error.id.components[0 ... 3].joined().uppercased()
+            guard !reportedErrorCodes.contains(errorCode) else { return }
 
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
                     "reports/\(bundleVersionString)/\(buildNumberString)/\(errorCode)/log_\(shortDateHash).txt",
                     contentType: "text/plain",
-                    customValues: customValues
+                    customValues: commonParams
                 )
             ) {
                 Logger.log(exception, with: .toast())
                 return
             }
 
-            reportedErrorDescriptors.append(errorDescriptor)
+            reportedErrorCodes.append(errorCode)
             Observables.rootViewToast.value = .init(
                 .capsule(style: .success),
                 message: Localized(.errorReportedSuccessfully).wrappedValue,
@@ -106,10 +98,6 @@ public final class ErrorReportingService: AKReportDelegate {
                 self.uiApplication.open(url)
             }
         }
-    }
-
-    public func fileReport(forBug: Bool, body: String, prompt: String, metadata: [Any]) {
-        reportDelegate?.fileReport(forBug: forBug, body: body, prompt: prompt, metadata: metadata)
     }
 }
 

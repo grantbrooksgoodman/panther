@@ -226,7 +226,7 @@ public final class NotificationService {
                 guard let urlResponse = dataResult.1 as? HTTPURLResponse,
                       urlResponse.statusCode == 200 else {
                     return .init(
-                        "URL response status did not indicate success.",
+                        "Failed to decode URL response or status did not indicate success.",
                         metadata: [self, #file, #function, #line]
                     )
                 }
