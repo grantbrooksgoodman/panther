@@ -109,7 +109,7 @@ public final class MenuService {
         guard let message = viewController.currentConversation?.messages?.itemAt(index) else { return nil }
 
         var actions = [UIAction]()
-        guard !message.hasAudioComponent else {
+        guard message.contentType != .audio else {
             let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
             let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
 

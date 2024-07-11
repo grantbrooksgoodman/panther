@@ -24,8 +24,7 @@ extension Message: Serializable {
     public enum SerializationKeys: String {
         case id
         case fromAccountID = "fromAccount"
-        case hasAudioComponent
-        case hasImageComponent
+        case contentType
         case translations
         case readDate
         case sentDate
@@ -44,8 +43,7 @@ extension Message: Serializable {
         return [
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.hasAudioComponent.rawValue: hasAudioComponent,
-            Keys.hasImageComponent.rawValue: hasImageComponent,
+            Keys.contentType.rawValue: contentType.rawValue,
             Keys.translations.rawValue: translations?.map(\.reference.hostingKey) ?? .bangQualifiedEmpty,
             Keys.readDate.rawValue: readDateString,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
@@ -59,10 +57,8 @@ extension Message: Serializable {
 
         guard data[Keys.id.rawValue] as? String != nil,
               data[Keys.fromAccountID.rawValue] as? String != nil,
-              let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
-              hasAudioComponentString == "true" || hasAudioComponentString == "false",
-              let hasImageComponentString = data[Keys.hasImageComponent.rawValue] as? String,
-              hasImageComponentString == "true" || hasImageComponentString == "false",
+              let contentTypeString = data[Keys.contentType.rawValue] as? String,
+              ContentType(rawValue: contentTypeString) != nil,
               data[Keys.translations.rawValue] as? [String] != nil,
               data[Keys.readDate.rawValue] as? String != nil,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -78,19 +74,14 @@ extension Message: Serializable {
 
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
-              let hasAudioComponentString = data[Keys.hasAudioComponent.rawValue] as? String,
-              hasAudioComponentString == "true" || hasAudioComponentString == "false",
-              let hasImageComponentString = data[Keys.hasImageComponent.rawValue] as? String,
-              hasImageComponentString == "true" || hasImageComponentString == "false",
+              let contentTypeString = data[Keys.contentType.rawValue] as? String,
+              let contentType = ContentType(rawValue: contentTypeString),
               let translationReferences = data[Keys.translations.rawValue] as? [String],
               let readDateString = data[Keys.readDate.rawValue] as? String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               let sentDate = dateFormatter.date(from: sentDateString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
-
-        let hasAudioComponent = hasAudioComponentString == "true" ? true : false
-        let hasImageComponent = hasImageComponentString == "true" ? true : false
 
         var readDate: Date?
         if !readDateString.isBangQualifiedEmpty {
@@ -101,8 +92,7 @@ extension Message: Serializable {
             .init(
                 id,
                 fromAccountID: fromAccountID,
-                hasAudioComponent: hasAudioComponent,
-                hasImageComponent: hasImageComponent,
+                contentType: contentType,
                 audioComponents: nil,
                 image: nil,
                 translations: translations,
@@ -111,7 +101,7 @@ extension Message: Serializable {
             )
         }
 
-        guard !hasImageComponent else {
+        guard contentType != .image else {
             return await messageService.image.getImageComponent(for: decodedMessage(nil))
         }
 
@@ -130,7 +120,7 @@ extension Message: Serializable {
             let notMatchingLanguage = translations.filter { $0.languagePair.to != languageCode }
             let sortedTranslations = matchingLanguage + notMatchingLanguage
 
-            guard !hasAudioComponent else {
+            guard contentType != .audio else {
                 return await messageService.audio.getAudioComponent(for: decodedMessage(sortedTranslations))
             }
 
@@ -228,7 +218,7 @@ extension Message: Serializable {
             ))
         }
 
-        guard translations.allSatisfy(\.isWellFormed) else {
+        guard translations.isWellFormed else {
             return .failure(.init(
                 "Translations fail validation.",
                 metadata: [self, #file, #function, #line]

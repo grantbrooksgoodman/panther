@@ -130,7 +130,7 @@ public struct HostedTranslationService {
         }
 
         if let archivedTranslation = localTranslationArchiver.getValue(
-            input: input,
+            hash: input.value.encodedHash,
             languagePair: languagePair
         ) {
             if TranslationValidator.validate(

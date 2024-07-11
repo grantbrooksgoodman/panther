@@ -30,7 +30,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
-    @Dependency(\.translatorConfig) var translatorConfig: Translator.Config
+    @Dependency(\.translatorConfig) private var translatorConfig: Translator.Config
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
     @Dependency(\.clientSession.user) private var userSession: UserSessionService

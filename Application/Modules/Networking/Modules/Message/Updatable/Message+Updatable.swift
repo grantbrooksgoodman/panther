@@ -28,9 +28,8 @@ extension Message: Updatable {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
 
         switch key {
-        case .fromAccountID,
-             .hasAudioComponent,
-             .hasImageComponent,
+        case .contentType,
+             .fromAccountID,
              .id,
              .sentDate,
              .translations:
@@ -41,8 +40,7 @@ extension Message: Updatable {
             return .init(
                 id,
                 fromAccountID: fromAccountID,
-                hasAudioComponent: hasAudioComponent,
-                hasImageComponent: hasImageComponent,
+                contentType: contentType,
                 audioComponents: audioComponents,
                 image: image,
                 translations: translations,

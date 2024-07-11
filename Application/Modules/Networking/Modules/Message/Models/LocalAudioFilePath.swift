@@ -44,7 +44,7 @@ public struct LocalAudioFilePath: Codable, Equatable {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.networking.config.paths) var networkPaths: NetworkPaths
 
-        guard message.hasAudioComponent else { return nil }
+        guard message.contentType == .audio else { return nil }
 
         let inputFilePath = "\(networkPaths.audioMessageInputs)/\(message.id).\(AudioFileExtension.m4a.rawValue)"
         let outputDirectoryPath = "\(networkPaths.audioTranslations)/\(message.translation.reference.hostingKey)/"

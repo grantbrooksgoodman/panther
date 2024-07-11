@@ -31,6 +31,7 @@ public extension TranslationInput {
             stringValue = stringValue.replacingOccurrences(of: taggableString, with: "⌘\(taggableString)⌘")
         }
 
-        return .init(stringValue, alternate: alternate)
+        guard stringValue != value else { return self }
+        return .init(stringValue)
     }
 }

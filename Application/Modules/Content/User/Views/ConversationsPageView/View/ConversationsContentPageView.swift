@@ -68,7 +68,7 @@ public struct ConversationsContentPageView: View {
                     .listStyle(.plain)
                     .navigationTitle(viewModel.strings.value(for: .navigationTitle))
                     .refreshable {
-                        viewModel.send(.pulledToRefresh)
+                        await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
                     }
                     .toolbar {
                         composeToolbarButton

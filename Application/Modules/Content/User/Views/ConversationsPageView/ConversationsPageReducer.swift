@@ -65,6 +65,7 @@ public struct ConversationsPageReducer: Reducer {
         // Bool
         public var isPresentingNewChatSheet = false
         public var isPresentingSettingsSheet = false
+        public var isRefreshing = false
 
         // Other
         public var animationAmount: CGFloat = 1
@@ -120,6 +121,7 @@ public struct ConversationsPageReducer: Reducer {
             state.isPresentingSettingsSheet = isPresentingSettingsSheet
 
         case .pulledToRefresh:
+            state.isRefreshing = true
             return .task {
                 let result = await viewService.reloadData()
                 return .reloadDataReturned(result)
@@ -145,6 +147,7 @@ public struct ConversationsPageReducer: Reducer {
     private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
         switch feedback {
         case let .reloadDataReturned(.success(conversations)):
+            state.isRefreshing = false
             state.conversations = conversations.filteredAndSorted
 
         case let .reloadDataReturned(.failure(exception)):

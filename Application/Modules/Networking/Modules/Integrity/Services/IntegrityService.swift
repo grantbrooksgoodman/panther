@@ -14,6 +14,8 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
+// TODO: Add resolver method for messages with no image component.
+
 public final class IntegrityService {
     // MARK: - Dependencies
 
@@ -329,12 +331,10 @@ public final class IntegrityService {
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
-                  let hasAudioComponentString = dictionary[Message.SerializationKeys.hasAudioComponent.rawValue] as? String,
-                  hasAudioComponentString == "true" || hasAudioComponentString == "false",
+                  let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
+                  let contentType = ContentType(rawValue: contentTypeString),
+                  contentType == .audio,
                   let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
-
-            let hasAudioComponent = hasAudioComponentString == "true" ? true : false
-            guard hasAudioComponent else { continue }
 
             let inputFilePath = "\(networking.config.paths.audioMessageInputs)/\(key).\(AudioFileExtension.m4a.rawValue)"
             let inputFileItemExistsResult = await networking.storage.itemExists(at: inputFilePath)
@@ -344,8 +344,8 @@ public final class IntegrityService {
                 guard !itemExists else { continue }
 
                 if let exception = await networking.database.setValue(
-                    "false",
-                    forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.hasAudioComponent.rawValue)"
+                    ContentType.text.rawValue,
+                    forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
                 ) {
                     exceptions.append(exception)
                 }
@@ -367,8 +367,8 @@ public final class IntegrityService {
                     guard !itemExists else { continue }
 
                     if let exception = await networking.database.setValue(
-                        "false",
-                        forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.hasAudioComponent.rawValue)"
+                        ContentType.text.rawValue,
+                        forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
                     ) {
                         exceptions.append(exception)
                     }

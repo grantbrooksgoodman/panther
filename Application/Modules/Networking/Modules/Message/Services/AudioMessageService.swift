@@ -228,8 +228,7 @@ public struct AudioMessageService {
         let modifiedMessage: Message = .init(
             message.id,
             fromAccountID: message.fromAccountID,
-            hasAudioComponent: true,
-            hasImageComponent: message.hasImageComponent,
+            contentType: .audio,
             audioComponents: audioComponents,
             image: message.image,
             translations: message.translations,

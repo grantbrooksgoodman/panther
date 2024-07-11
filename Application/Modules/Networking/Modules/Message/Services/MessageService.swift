@@ -63,11 +63,17 @@ public struct MessageService {
 
         let sentDate = Date()
 
+        var contentType: ContentType = .text
+        if audioComponents != nil {
+            contentType = .audio
+        } else if imageComponent != nil {
+            contentType = .image
+        }
+
         typealias Keys = Message.SerializationKeys
         let data: [String: Any] = [
             Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.hasAudioComponent.rawValue: audioComponents == nil ? "false" : "true",
-            Keys.hasImageComponent.rawValue: imageComponent == nil ? "false" : "true",
+            Keys.contentType.rawValue: contentType.rawValue,
             Keys.translations.rawValue: translations?.map(\.reference.hostingKey).sorted() ?? .bangQualifiedEmpty,
             Keys.readDate.rawValue: String.bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
@@ -76,8 +82,7 @@ public struct MessageService {
         let mockMessage: Message = .init(
             id,
             fromAccountID: fromAccountID,
-            hasAudioComponent: audioComponents != nil,
-            hasImageComponent: imageComponent != nil,
+            contentType: contentType,
             audioComponents: audioComponents,
             image: imageComponent,
             translations: translations,
@@ -87,7 +92,7 @@ public struct MessageService {
 
         func uploadMedia() async -> Callback<Message, Exception> {
             func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
-                guard mockMessage.hasAudioComponent,
+                guard mockMessage.contentType == .audio,
                       let audioComponents else {
                     return .success(mockMessage)
                 }
@@ -99,7 +104,7 @@ public struct MessageService {
                 return .success(mockMessage)
             }
 
-            guard mockMessage.hasImageComponent,
+            guard mockMessage.contentType == .image,
                   let imageComponent else { return await uploadAudioMessageReferenceIfNeeded() }
 
             if let exception = await image.uploadImageComponent(imageComponent, for: mockMessage) {

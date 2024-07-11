@@ -34,21 +34,27 @@ extension Message: MessageType {
         let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
-        if hasAudioComponent,
-           let audioComponent {
-            guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
-                return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
+        switch contentType {
+        case .audio:
+            if let audioComponent {
+                guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
+                    return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
+                }
+
+                return .attributedText(
+                    .messageCellString(
+                        isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
+                        foregroundColor: attributedStringForegroundColor
+                    )
+                )
             }
 
-            return .attributedText(
-                .messageCellString(
-                    isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
-                    foregroundColor: attributedStringForegroundColor
-                )
-            )
-        } else if hasImageComponent,
-                  let image {
-            return .photo(image)
+        case .image:
+            if let image {
+                return .photo(image)
+            }
+
+        default: ()
         }
 
         guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
@@ -76,8 +82,7 @@ public extension Message {
         .init(
             "",
             fromAccountID: "",
-            hasAudioComponent: false,
-            hasImageComponent: false,
+            contentType: .text,
             audioComponents: nil,
             image: nil,
             translations: [
@@ -101,7 +106,7 @@ public extension Message {
 
     var isPlayingMessage: Bool {
         @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?
-        guard hasAudioComponent,
+        guard contentType == .audio,
               audioComponent != nil,
               let playingMessage else { return false }
         return playingMessage.id == id

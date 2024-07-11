@@ -342,6 +342,7 @@
 		B9AD411F2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */; };
 		B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */; };
 		B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */; };
+		B9AD84742C404CD9009C7468 /* ContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AD84732C404CD9009C7468 /* ContentType.swift */; };
 		B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9ADF4E32B00554B002D9211 /* AppIconService.swift */; };
 		B9AF12502ACE4AF50045C54C /* EncodedHashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AF124F2ACE4AF50045C54C /* EncodedHashable.swift */; };
 		B9AF12522ACE4DAD0045C54C /* JSONDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AF12512ACE4DAD0045C54C /* JSONDependencies.swift */; };
@@ -1216,6 +1217,7 @@
 		B9AD411E2B6B06A4005BF8F0 /* ChatPageViewController+InputBarAccessoryViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+InputBarAccessoryViewDelegate.swift"; sourceTree = "<group>"; };
 		B9AD41202B6B0966005BF8F0 /* ChatPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewService.swift; sourceTree = "<group>"; };
 		B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewServiceDependency.swift; sourceTree = "<group>"; };
+		B9AD84732C404CD9009C7468 /* ContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentType.swift; sourceTree = "<group>"; };
 		B9ADF4E32B00554B002D9211 /* AppIconService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
 		B9AF124F2ACE4AF50045C54C /* EncodedHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedHashable.swift; sourceTree = "<group>"; };
 		B9AF12512ACE4DAD0045C54C /* JSONDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDependencies.swift; sourceTree = "<group>"; };
@@ -3187,6 +3189,7 @@
 			isa = PBXGroup;
 			children = (
 				B9E0E0F42B20E9C000C14274 /* AudioMessageReference.swift */,
+				B9AD84732C404CD9009C7468 /* ContentType.swift */,
 				B9E0E1072B2102B700C14274 /* LocalAudioFilePath.swift */,
 				B9E00A552C2B8D35004E350E /* LocalImageFilePath.swift */,
 				B9E0E0F22B20E89B00C14274 /* Message.swift */,
@@ -4310,6 +4313,7 @@
 				B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
+				B9AD84742C404CD9009C7468 /* ContentType.swift in Sources */,
 				B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */,
 				B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */,
 				B96D44012B8495EC00C66B46 /* PassthroughWindow.swift in Sources */,

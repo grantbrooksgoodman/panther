@@ -63,8 +63,7 @@ public struct ImageMessageService {
         .init(
             message.id,
             fromAccountID: message.fromAccountID,
-            hasAudioComponent: message.hasAudioComponent,
-            hasImageComponent: true,
+            contentType: .image,
             audioComponents: message.audioComponents,
             image: imageComponent,
             translations: message.translations,

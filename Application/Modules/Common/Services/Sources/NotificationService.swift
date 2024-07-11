@@ -82,17 +82,20 @@ public final class NotificationService {
             }
 
             var body: String?
-            if !message.hasAudioComponent,
-               !message.hasImageComponent,
-               let translations = message.translations {
-                body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
-                if body == nil {
-                    body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
-                }
-            } else if message.hasAudioComponent {
+            switch message.contentType {
+            case .audio:
                 body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
-            } else if message.hasImageComponent {
+
+            case .image:
                 body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
+
+            case .text:
+                if let translations = message.translations {
+                    body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
+                    if body == nil {
+                        body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
+                    }
+                }
             }
 
             for pushToken in pushTokens {

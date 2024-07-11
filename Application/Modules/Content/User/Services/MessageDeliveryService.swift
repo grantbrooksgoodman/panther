@@ -187,8 +187,7 @@ public final class MessageDeliveryService {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                hasAudioComponent: true,
-                hasImageComponent: false,
+                contentType: .audio,
                 audioComponents: [mockAudioMessageReference],
                 image: nil,
                 translations: [mockTranslation],
@@ -199,8 +198,7 @@ public final class MessageDeliveryService {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                hasAudioComponent: false,
-                hasImageComponent: true,
+                contentType: .image,
                 audioComponents: nil,
                 image: imageFile,
                 translations: [mockTranslation],
@@ -211,8 +209,7 @@ public final class MessageDeliveryService {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                hasAudioComponent: false,
-                hasImageComponent: false,
+                contentType: .text,
                 audioComponents: nil,
                 image: nil,
                 translations: [mockTranslation],

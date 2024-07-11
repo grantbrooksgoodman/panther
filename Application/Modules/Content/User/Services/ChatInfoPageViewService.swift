@@ -160,8 +160,9 @@ public final class ChatInfoPageViewService: Cacheable {
                         clearButtonMode: .always,
                         sampleText: conversationName
                     ),
-                    confirmButtonTitle: "Done"
-                ).present()
+                    cancelButtonTitle: Localized(.cancel).wrappedValue,
+                    confirmButtonTitle: Localized(.done).wrappedValue
+                ).present(translating: [.message])
 
                 guard let input else { return nil }
                 return .name(input)

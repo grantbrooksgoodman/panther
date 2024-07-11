@@ -21,10 +21,6 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public let audioComponents: [AudioMessageReference]?
     public let translations: [Translation]?
 
-    // Bool
-    public let hasAudioComponent: Bool
-    public let hasImageComponent: Bool
-
     // Date
     public let readDate: Date?
     public let sentDate: Date
@@ -34,6 +30,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public let id: String
 
     // Other
+    public let contentType: ContentType
     public let image: ImageFile?
 
     // MARK: - Computed Properties
@@ -44,8 +41,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         var factors = [
             id,
             fromAccountID,
-            hasAudioComponent.description,
-            hasImageComponent.description,
+            contentType.rawValue,
             dateFormatter.string(from: sentDate),
         ]
 
@@ -66,8 +62,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public init(
         _ id: String,
         fromAccountID: String,
-        hasAudioComponent: Bool,
-        hasImageComponent: Bool,
+        contentType: ContentType,
         audioComponents: [AudioMessageReference]?,
         image: ImageFile?,
         translations: [Translation]?,
@@ -76,8 +71,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     ) {
         self.id = id
         self.fromAccountID = fromAccountID
-        self.hasAudioComponent = hasAudioComponent
-        self.hasImageComponent = hasImageComponent
+        self.contentType = contentType
         self.audioComponents = audioComponents
         self.image = image
         self.translations = translations

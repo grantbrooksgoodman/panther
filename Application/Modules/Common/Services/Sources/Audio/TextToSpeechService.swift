@@ -163,14 +163,14 @@ public struct TextToSpeechService {
                     return
                 }
 
-                guard pcmBuffer.frameLength == 0,
+                guard pcmBuffer.frameLength <= 1,
                       let output else {
                     do {
                         if output == nil {
                             output = try .init(
                                 forWriting: filePath,
                                 settings: pcmBuffer.format.settings,
-                                commonFormat: .pcmFormatInt16,
+                                commonFormat: .pcmFormatFloat32,
                                 interleaved: false
                             )
                         }

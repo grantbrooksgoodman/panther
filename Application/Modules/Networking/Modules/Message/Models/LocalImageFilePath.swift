@@ -29,7 +29,7 @@ public struct LocalImageFilePath: Codable, Equatable {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.networking.config.paths) var networkPaths: NetworkPaths
 
-        guard message.hasImageComponent else { return nil }
+        guard message.contentType == .image else { return nil }
 
         let filePathString = "\(networkPaths.images)/\(message.id).\(ImageFileExtension.png.rawValue)"
         let filePathURL = fileManager.documentsDirectoryURL.appending(path: filePathString)
