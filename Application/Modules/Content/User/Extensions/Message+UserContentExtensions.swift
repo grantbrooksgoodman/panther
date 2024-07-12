@@ -85,13 +85,7 @@ public extension Message {
             contentType: .text,
             audioComponents: nil,
             image: nil,
-            translations: [
-                .init(
-                    input: .init(""),
-                    output: "",
-                    languagePair: .system
-                ),
-            ],
+            translations: nil,
             readDate: nil,
             sentDate: .init(timeIntervalSince1970: 0)
         )

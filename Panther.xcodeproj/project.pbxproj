@@ -280,6 +280,8 @@
 		B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */; };
 		B98C3BA32B7AF6AD00CDA3E9 /* RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */; };
 		B98C3BA52B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */; };
+		B98C40562C40AFCF00C72B0F /* PhotoPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C40552C40AFCF00C72B0F /* PhotoPickerService.swift */; };
+		B98C40592C40BC0E00C72B0F /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C40582C40BC0E00C72B0F /* ImageService.swift */; };
 		B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A52B81C60300C7BE00 /* ContactSelectorPageView.swift */; };
 		B990F5A82B81C60B00C7BE00 /* ContactSelectorPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A72B81C60B00C7BE00 /* ContactSelectorPageReducer.swift */; };
 		B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */; };
@@ -1155,6 +1157,8 @@
 		B98C3BA02B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITableViewDelegate.swift"; sourceTree = "<group>"; };
 		B98C3BA22B7AF6AD00CDA3E9 /* RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarService.swift; sourceTree = "<group>"; };
 		B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarLayoutService.swift; sourceTree = "<group>"; };
+		B98C40552C40AFCF00C72B0F /* PhotoPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerService.swift; sourceTree = "<group>"; };
+		B98C40582C40BC0E00C72B0F /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		B990F5A52B81C60300C7BE00 /* ContactSelectorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageView.swift; sourceTree = "<group>"; };
 		B990F5A72B81C60B00C7BE00 /* ContactSelectorPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageReducer.swift; sourceTree = "<group>"; };
 		B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatPageObserver.swift; sourceTree = "<group>"; };
@@ -1776,6 +1780,7 @@
 		A2DF2CAE28199CE90089DEA1 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				A2DF2C5A28199B670089DEA1 /* Assets.xcassets */,
 				B9D0D7152B0300A200078A93 /* Country Flags */,
 			);
 			path = Images;
@@ -2427,6 +2432,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		B98C40572C40BC0500C72B0F /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				B98C40582C40BC0E00C72B0F /* ImageService.swift */,
+				B98C40552C40AFCF00C72B0F /* PhotoPickerService.swift */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		B990F5A42B81C5F600C7BE00 /* ContactSelectorPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -2522,6 +2536,7 @@
 			children = (
 				B9B193C32B1A42140016948C /* Audio */,
 				B900B53B2B1AC7D800BA2F1D /* Contacts */,
+				B98C40572C40BC0500C72B0F /* Image */,
 				B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */,
 				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
 				B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */,
@@ -3467,7 +3482,6 @@
 		B9E7D4522AAC3E0300FAF2A9 /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				A2DF2C5A28199B670089DEA1 /* Assets.xcassets */,
 				B9124EDD2AAFB27A00590B7B /* Localizable.strings */,
 				B9F5D1F22B48AC5700059B44 /* Panther.entitlements */,
 				A2DF2C8828199CBC0089DEA1 /* San Francisco Font */,
@@ -4445,6 +4459,7 @@
 				B983872A2BBF6407008614AE /* MessageDeliveryServiceDependency.swift in Sources */,
 				B9BB3CF72AC1486D0077D1BC /* AKTranslationDelegate.swift in Sources */,
 				B93457072AABF9F200944602 /* Localization.swift in Sources */,
+				B98C40592C40BC0E00C72B0F /* ImageService.swift in Sources */,
 				B91C2D742C1B68F100278B7F /* NetworkDelegates.swift in Sources */,
 				B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */,
 				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
@@ -4760,6 +4775,7 @@
 				B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */,
 				B96EDD992B6381C400CB925B /* StaticListItem.swift in Sources */,
 				B90249D02B57458C00D62855 /* PermissionPageView.swift in Sources */,
+				B98C40562C40AFCF00C72B0F /* PhotoPickerService.swift in Sources */,
 				B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */,
 				B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */,
 				B99195A62B48962900BD5BBC /* SearchBar.swift in Sources */,

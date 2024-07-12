@@ -25,58 +25,6 @@ public struct MessageSessionService {
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices) private var services: CommonServices
 
-    // MARK: - Send Text Message
-
-    public func sendTextMessage(
-        _ text: String,
-        toUsers users: [User],
-        inConversation conversation: Conversation?
-    ) async -> Callback<Conversation, Exception> {
-        guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
-                "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        let users = users.filter { $0 != currentUser }
-
-        var translations = [Translation]()
-
-        for languageCode in users.map(\.languageCode) {
-            let translateResult = await networking.services.translation.translate(
-                .init(text),
-                with: .init(from: currentUser.languageCode, to: languageCode)
-            )
-
-            incrementDeliveryProgress(in: conversation, by: Floats.translationDeliveryProgressIncrement)
-
-            switch translateResult {
-            case let .success(translation):
-                translations.append(translation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
-        guard translations.isWellFormed else {
-            return .failure(.init(
-                "Translations fail validation.",
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        return await createMessageAndAddToConversation(
-            conversation: conversation,
-            initiatingUser: currentUser,
-            otherUsers: users,
-            translations: translations,
-            audioComponents: nil,
-            image: nil
-        )
-    }
-
     // MARK: - Send Audio Message
 
     public func sendAudioMessage(
@@ -178,6 +126,82 @@ public struct MessageSessionService {
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    // MARK: - Send Image Message
+
+    public func sendImageMessage(
+        _ imageFile: ImageFile,
+        toUsers users: [User],
+        inConversation conversation: Conversation?
+    ) async -> Callback<Conversation, Exception> {
+        guard let currentUser = clientSession.user.currentUser else {
+            return .failure(.init(
+                "Current user has not been set.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        return await createMessageAndAddToConversation(
+            conversation: conversation,
+            initiatingUser: currentUser,
+            otherUsers: users,
+            translations: nil,
+            audioComponents: nil,
+            image: imageFile
+        )
+    }
+
+    // MARK: - Send Text Message
+
+    public func sendTextMessage(
+        _ text: String,
+        toUsers users: [User],
+        inConversation conversation: Conversation?
+    ) async -> Callback<Conversation, Exception> {
+        guard let currentUser = clientSession.user.currentUser else {
+            return .failure(.init(
+                "Current user has not been set.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let users = users.filter { $0 != currentUser }
+
+        var translations = [Translation]()
+
+        for languageCode in users.map(\.languageCode) {
+            let translateResult = await networking.services.translation.translate(
+                .init(text),
+                with: .init(from: currentUser.languageCode, to: languageCode)
+            )
+
+            incrementDeliveryProgress(in: conversation, by: Floats.translationDeliveryProgressIncrement)
+
+            switch translateResult {
+            case let .success(translation):
+                translations.append(translation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard translations.isWellFormed else {
+            return .failure(.init(
+                "Translations fail validation.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        return await createMessageAndAddToConversation(
+            conversation: conversation,
+            initiatingUser: currentUser,
+            otherUsers: users,
+            translations: translations,
+            audioComponents: nil,
+            image: nil
+        )
     }
 
     // MARK: - Auxiliary

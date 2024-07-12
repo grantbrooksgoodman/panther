@@ -109,6 +109,52 @@ public final class MessageDeliveryService {
         }
     }
 
+    // MARK: - Send Image Message
+
+    public func sendImageMessage(_ imageFile: ImageFile) async -> Exception? {
+        let fullConversation = clientSession.conversation.fullConversation
+        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
+        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+
+        guard !users.isEmpty else { return nil }
+
+        hapticsService.generateFeedback(.medium)
+        addMockMessageToCurrentConversation(audioFile: nil, imageFile: imageFile, text: nil)
+
+        isSendingMessage = true
+        chatPageViewService.inputBar?.toggleSendingUI(on: true)
+        chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+
+        let sendImageMessageResult = await clientSession.message.sendImageMessage(
+            imageFile,
+            toUsers: users,
+            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
+        )
+
+        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        isSendingMessage = false
+        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+            chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+        }
+
+        switch sendImageMessageResult {
+        case let .success(conversation):
+            if let currentConversation = clientSession.conversation.currentConversation,
+               !currentConversation.isMock {
+                guard currentConversation.id.key == conversation.id.key else { return nil }
+            }
+
+            chatPageViewService.menu?.dismissMenu()
+            clientSession.conversation.setCurrentConversation(conversation)
+            chatPageViewService.reloadCollectionView()
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     // MARK: - Send Text Message
 
     public func sendTextMessage(_ text: String) async -> Exception? {
@@ -201,7 +247,7 @@ public final class MessageDeliveryService {
                 contentType: .image,
                 audioComponents: nil,
                 image: imageFile,
-                translations: [mockTranslation],
+                translations: nil,
                 readDate: nil,
                 sentDate: Date()
             ))

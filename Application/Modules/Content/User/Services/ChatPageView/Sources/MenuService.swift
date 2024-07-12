@@ -299,9 +299,9 @@ public final class MenuService {
 
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
-              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
-
-        guard message.id != CommonConstants.newMessageID else { return }
+              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+              message.id != CommonConstants.newMessageID,
+              message.contentType != .image else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),

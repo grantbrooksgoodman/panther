@@ -163,15 +163,21 @@ public final class ChatPageViewService {
 
     public func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
-        recipientBar?.contactSelectionUI.unhighlightAllViews()
-        viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
-        NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
-        viewController?.navigationController?.isNavigationBarHidden = true
-        viewController?.navigationController?.isNavigationBarHidden = false
-        reloadCollectionView()
+        redrawForAppearanceChange()
     }
 
     // MARK: - Auxiliary
+
+    public func redrawForAppearanceChange() {
+        Task { @MainActor in
+            recipientBar?.contactSelectionUI.unhighlightAllViews()
+            viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
+            NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
+            viewController?.navigationController?.isNavigationBarHidden = true
+            viewController?.navigationController?.isNavigationBarHidden = false
+            reloadCollectionView()
+        }
+    }
 
     public func reloadCollectionView() {
         Task { @MainActor in
