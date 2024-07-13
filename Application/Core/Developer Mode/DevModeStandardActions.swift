@@ -223,7 +223,12 @@ public extension DevModeAction {
         private static var viewLoggerSessionRecordAction: DevModeAction {
             func viewLoggerSessionRecord() {
                 @Dependency(\.quickViewer) var quickViewer: QuickViewer
-                quickViewer.preview(fileAtPath: Logger.sessionRecordFilePath.path())
+                if let exception = quickViewer.preview(
+                    filesAtPaths: [Logger.sessionRecordFilePath.path()],
+                    embedded: true
+                ) {
+                    Logger.log(exception, with: .toast())
+                }
             }
 
             return .init(title: "View Logger Session Record", perform: viewLoggerSessionRecord)

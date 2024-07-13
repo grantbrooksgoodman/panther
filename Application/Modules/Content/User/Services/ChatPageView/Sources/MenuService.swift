@@ -82,19 +82,10 @@ public final class MenuService {
     // MARK: - Configure Menu Gesture Recognizer
 
     public func configureMenuGestureRecognizer() {
-        func addOrEnable(_ gestureRecognizer: UIGestureRecognizer) {
-            guard let existingGestureRecognizer = viewController.messagesCollectionView.gestureRecognizers?.first(where: { $0 == gestureRecognizer }) else {
-                viewController.messagesCollectionView.addGestureRecognizer(gestureRecognizer)
-                return
-            }
-
-            existingGestureRecognizer.isEnabled = true
-        }
-
         let longPressGesture: UILongPressGestureRecognizer = .init(target: self, action: #selector(longPressGestureRecognized))
         longPressGesture.delaysTouchesBegan = true
         longPressGesture.minimumPressDuration = Floats.longPressGestureMinimumPressDuration
-        addOrEnable(longPressGesture)
+        viewController.messagesCollectionView.addOrEnable(longPressGesture)
     }
 
     // MARK: - Dismiss Menu

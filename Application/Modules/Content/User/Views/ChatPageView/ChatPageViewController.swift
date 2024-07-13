@@ -74,11 +74,11 @@ public final class ChatPageViewController: MessagesViewController {
             return typingIndicatorCell
         }
 
-        guard let genericCell = super.collectionView(collectionView, cellForItemAt: indexPath) as? MessageCollectionViewCell else { return .init() }
-        genericCell.tag = indexPath.section
+        guard let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as? MessageCollectionViewCell else { return .init() }
+        cell.tag = indexPath.section
 
-        guard let textCell = genericCell as? TextMessageCell,
-              let message = currentConversation?.messages?.itemAt(indexPath.section) else { return genericCell }
+        guard let message = currentConversation?.messages?.itemAt(indexPath.section),
+              let textCell = cell as? TextMessageCell else { return cell }
 
         if !ThemeService.isDefaultThemeApplied /* , */
         /*! currentMessage.isDisplayingAlternate */ {

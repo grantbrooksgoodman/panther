@@ -44,23 +44,14 @@ public final class InputBarGestureRecognizerService {
 
     // MARK: - Public
 
-    public func configureInputBarGestureRecognizers() {
-        func addOrEnable(_ gestureRecognizer: UIGestureRecognizer) {
-            guard let existingGestureRecognizer = inputBar.sendButton.gestureRecognizers?.first(where: { $0 == gestureRecognizer }) else {
-                inputBar.sendButton.addGestureRecognizer(gestureRecognizer)
-                return
-            }
-
-            existingGestureRecognizer.isEnabled = true
-        }
-
+    public func configureGestureRecognizers() {
         removeInputBarGestureRecognizers()
 
         guard let currentUser,
               inputBar.sendButton.isRecordButton else { return }
 
         guard currentUser.canSendAudioMessages else {
-            addOrEnable(UITapGestureRecognizer(
+            inputBar.sendButton.addOrEnable(UITapGestureRecognizer(
                 target: self,
                 action: #selector(presentAudioMessagesUnsupportedAlert)
             ))
@@ -69,7 +60,7 @@ public final class InputBarGestureRecognizerService {
 
         guard services.permission.recordPermissionStatus == .granted,
               services.permission.transcribePermissionStatus == .granted else {
-            addOrEnable(UITapGestureRecognizer(
+            inputBar.sendButton.addOrEnable(UITapGestureRecognizer(
                 target: self,
                 action: #selector(requestPermissions)
             ))
@@ -79,8 +70,8 @@ public final class InputBarGestureRecognizerService {
         let longPressGesture: UILongPressGestureRecognizer = .init(target: self, action: #selector(longPressGestureRecognized))
         longPressGesture.minimumPressDuration = Floats.longPressGestureMinimumPressDuration
 
-        addOrEnable(longPressGesture)
-        addOrEnable(UITapGestureRecognizer(
+        inputBar.sendButton.addOrEnable(longPressGesture)
+        inputBar.sendButton.addOrEnable(UITapGestureRecognizer(
             target: self,
             action: #selector(showRecordingInstructionToast)
         ))
@@ -176,7 +167,7 @@ public final class InputBarGestureRecognizerService {
 
                 switch requestPermissionResult {
                 case let .success(status):
-                    defer { configureInputBarGestureRecognizers() }
+                    defer { configureGestureRecognizers() }
 
                     guard status == .granted else {
                         _ = await services.permission.presentCTA(for: type)

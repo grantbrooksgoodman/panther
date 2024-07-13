@@ -1,0 +1,103 @@
+//
+//  ImageMessagePreviewService.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 12/07/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+import UIKit
+
+/* 3rd-party */
+import CoreArchitecture
+import MessageKit
+
+public final class ImageMessagePreviewService {
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.fileManager) private var fileManager: FileManager
+    @Dependency(\.quickViewer) private var quickViewer: QuickViewer
+
+    // MARK: - Properties
+
+    public private(set) var isPreviewingImage = false
+
+    private let viewController: ChatPageViewController
+
+    // MARK: - Computed Properties
+
+    private var imagePaths: [String] {
+        viewController.currentConversation?.messages?.compactMap(\.absoluteImageFilePath) ?? []
+    }
+
+    // MARK: - Init
+
+    public init(_ viewController: ChatPageViewController) {
+        self.viewController = viewController
+    }
+
+    // MARK: - Configure Gesture Recognizer
+
+    public func configureGestureRecognizer() {
+        let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
+            target: self,
+            action: #selector(pinchGestureRecognized)
+        )
+
+        viewController.messagesCollectionView.addOrEnable(pinchGestureRecognizer)
+    }
+
+    // MARK: - Did Tap Image
+
+    public func didTapImage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
+              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+              let filePath = message.absoluteImageFilePath,
+              !isPreviewingImage else { return }
+
+        if let exception = quickViewer.preview(
+            filesAtPaths: imagePaths,
+            startingIndex: imagePaths.firstIndex(of: filePath) ?? 0,
+            title: Localized(.image).wrappedValue.lowercased()
+        ) {
+            return Logger.log(exception)
+        }
+
+        quickViewer.onDismiss {
+            self.chatPageViewService.redrawForAppearanceChange()
+            self.isPreviewingImage = false
+        }
+
+        isPreviewingImage = true
+    }
+
+    // MARK: - Auxiliary
+
+    @objc
+    private func pinchGestureRecognized(recognizer: UIPinchGestureRecognizer) {
+        let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
+
+        guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
+              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
+              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+              message.contentType == .image,
+              !isPreviewingImage else { return }
+
+        let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
+        guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
+
+        didTapImage(in: selectedCell)
+    }
+}
+
+private extension Message {
+    var absoluteImageFilePath: String? {
+        @Dependency(\.fileManager) var fileManager: FileManager
+        return [image?.urlPath.path(), localImageFilePath?.filePathURL.path()]
+            .compactMap { $0 }
+            .first(where: { fileManager.fileExists(atPath: $0) })
+    }
+}

@@ -45,26 +45,8 @@ extension ChatPageViewController: MessageCellDelegate {
     // MARK: - Did Tap Image
 
     public func didTapImage(in cell: MessageCollectionViewCell) {
-        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        @Dependency(\.fileManager) var fileManager: FileManager
-        @Dependency(\.quickViewer) var quickViewer: QuickViewer
-
-        guard let indexPath = messagesCollectionView.indexPath(for: cell),
-              let message = currentConversation?.messages?.itemAt(indexPath.section),
-              let image = message.image else { return }
-
-        let previewItemTitle = Localized(.image).wrappedValue.lowercased()
-        quickViewer.onDismiss { chatPageViewService.redrawForAppearanceChange() }
-
-        guard fileManager.fileExists(atPath: image.urlPath.path()) else {
-            guard let alternatePath = message.localImageFilePath?.filePathURL.path(),
-                  fileManager.fileExists(atPath: alternatePath) else { return }
-
-            quickViewer.preview(fileAtPath: alternatePath, title: previewItemTitle)
-            return
-        }
-
-        quickViewer.preview(fileAtPath: image.urlPath.path(), title: previewItemTitle)
+        @Dependency(\.chatPageViewService.imageMessagePreview) var imageMessagePreviewService: ImageMessagePreviewService?
+        imageMessagePreviewService?.didTapImage(in: cell)
     }
 
     // MARK: - Did Tap Play Button

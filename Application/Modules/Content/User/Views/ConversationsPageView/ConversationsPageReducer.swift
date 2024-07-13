@@ -151,6 +151,7 @@ public struct ConversationsPageReducer: Reducer {
             state.conversations = conversations.filteredAndSorted
 
         case let .reloadDataReturned(.failure(exception)):
+            state.isRefreshing = false
             Logger.log(exception, with: .toast())
 
         case let .resolveReturned(.success(strings)):

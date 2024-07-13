@@ -42,6 +42,10 @@ public struct SplashPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        public var exception: Exception?
+
+        /* MARK: Computed Properties */
+
         public var isRebuildingIndices: Bool {
             @Persistent(.didClearCaches) var didClearCaches: Bool?
             return didClearCaches ?? false
@@ -71,6 +75,14 @@ public struct SplashPageReducer: Reducer {
             }
 
         case .feedback(.errorAlertDismissed):
+            guard let exception = state.exception,
+                  !exception.isEqual(to: .timedOut) else {
+                return .task {
+                    let result = await viewService.initializeBundle()
+                    return .initializedBundle(result)
+                }
+            }
+
             return .task {
                 let result = await viewService.performRetryHandler()
                 return .performRetryHandlerReturned(result)
@@ -78,6 +90,7 @@ public struct SplashPageReducer: Reducer {
 
         case let .feedback(.initializedBundle(exception)):
             @Persistent(.currentUserID) var currentUserID: String?
+            state.exception = exception
 
             if let exception {
                 Logger.log(exception)

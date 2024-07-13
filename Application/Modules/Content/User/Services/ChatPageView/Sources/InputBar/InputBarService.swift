@@ -112,7 +112,7 @@ public final class InputBarService {
                     self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
                     self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
                 } completion: { _ in
-                    self.chatPageViewService.inputBarGestureRecognizer?.configureInputBarGestureRecognizers()
+                    self.chatPageViewService.inputBarGestureRecognizer?.configureGestureRecognizers()
                 }
 
             case false:

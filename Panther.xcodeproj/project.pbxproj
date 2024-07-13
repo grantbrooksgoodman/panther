@@ -175,6 +175,7 @@
 		B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943886E2B321951002D94FF /* ClientSessionDependency.swift */; };
 		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
 		B94388742B322056002D94FF /* TranslationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388732B322056002D94FF /* TranslationConstants.swift */; };
+		B943F2482C41EA610047EDD5 /* ImageMessagePreviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */; };
 		B9450DE02C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */; };
 		B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657682AABBC740091193B /* UserDefaultsDependency.swift */; };
 		B946576B2AABBD420091193B /* AlertKitConfigDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576A2AABBD420091193B /* AlertKitConfigDependency.swift */; };
@@ -1053,6 +1054,7 @@
 		B943886E2B321951002D94FF /* ClientSessionDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionDependency.swift; sourceTree = "<group>"; };
 		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		B94388732B322056002D94FF /* TranslationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationConstants.swift; sourceTree = "<group>"; };
+		B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMessagePreviewService.swift; sourceTree = "<group>"; };
 		B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractivePopGestureRecognizerDisabledViewModifier.swift; sourceTree = "<group>"; };
 		B94657682AABBC740091193B /* UserDefaultsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsDependency.swift; sourceTree = "<group>"; };
 		B946576A2AABBD420091193B /* AlertKitConfigDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertKitConfigDependency.swift; sourceTree = "<group>"; };
@@ -2634,6 +2636,7 @@
 				B923CAA42B758BAD0042D3E4 /* AlternateMessageService.swift */,
 				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
+				B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */,
 				B92646932B7466B000E0F385 /* MenuService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
@@ -4750,6 +4753,7 @@
 				B9428A2E2C3DC31C0024E1B5 /* BuildExpiryAlert.swift in Sources */,
 				B90249C42B573A5800D62855 /* AuthCodeContentPageView.swift in Sources */,
 				B9E00A522C2B85BC004E350E /* ImageFileExtension.swift in Sources */,
+				B943F2482C41EA610047EDD5 /* ImageMessagePreviewService.swift in Sources */,
 				B96D43F52B84610D00C66B46 /* RootWindow.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B91C2D762C1B694700278B7F /* ConnectionStatusProviderProtocol.swift in Sources */,

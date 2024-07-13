@@ -51,7 +51,7 @@ public final class PhotoPickerService: PHPickerViewControllerDelegate {
                 guard let itemProvider = results.first?.itemProvider,
                       itemProvider.canLoadObject(ofClass: UIImage.self) else { return }
 
-                let timeout = Timeout(after: .seconds(1)) { self.core.hud.showProgress() }
+                let timeout = Timeout(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
                 itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                     timeout.cancel()
                     self.core.hud.hide()
