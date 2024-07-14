@@ -14,8 +14,6 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-// TODO: Add resolver method for messages with no image component.
-
 public final class IntegrityService {
     // MARK: - Dependencies
 
@@ -376,6 +374,46 @@ public final class IntegrityService {
                 case let .failure(exception):
                     exceptions.append(exception)
                 }
+            }
+        }
+
+        return exceptions.compiledException
+    }
+
+    public func resolveNoMediaComponentMessages() async -> Exception? {
+        var exceptions = [Exception]()
+
+        for (key, value) in session.messageData {
+            guard let dictionary = value as? [String: Any],
+                  let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
+                  let contentType = ContentType(rawValue: contentTypeString),
+                  contentType == .media else { continue }
+
+            let pngImageFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.image(.png).rawValue)"
+            let mp4VideoFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.video(.mp4).rawValue)"
+
+            let pngImageFileItemExistsResult = await networking.storage.itemExists(at: pngImageFilePath)
+
+            switch pngImageFileItemExistsResult {
+            case let .success(itemExists):
+                guard !itemExists else { continue }
+
+                let mp4VideoFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoFilePath)
+
+                switch mp4VideoFileItemExistsResult {
+                case let .success(itemExists):
+                    guard !itemExists else { continue }
+
+                    if let exception = await repairMalformedMessages([key]) {
+                        exceptions.append(exception)
+                    }
+
+                case let .failure(exception):
+                    exceptions.append(exception)
+                }
+
+            case let .failure(exception):
+                exceptions.append(exception)
             }
         }
 

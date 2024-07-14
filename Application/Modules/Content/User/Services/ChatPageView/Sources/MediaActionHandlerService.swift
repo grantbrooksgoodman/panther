@@ -56,16 +56,16 @@ public final class MediaActionHandlerService {
             return .init("Failed to compress image.", metadata: [self, #file, #function, #line])
         }
 
-        let path = "\(networkPaths.images)/\(Strings.defaultImageName).\(MediaFileExtension.image(.png).rawValue)"
+        let path = "\(networkPaths.media)/\(Strings.defaultImageName).\(MediaFileExtension.image(.png).rawValue)"
         if let exception = fileManager.createFile(
             atPath: fileManager.documentsDirectoryURL.appending(path: path),
             data: data
         ) {
             return exception
-        } else if let exception = await messageDeliveryService.sendImageMessage(.init(
+        } else if let exception = await messageDeliveryService.sendMediaMessage(.init(
             fileManager.documentsDirectoryURL.appending(path: path),
             name: Strings.defaultImageName,
-            fileExtension: .png
+            fileExtension: .image(.png)
         )) {
             return exception
         }
@@ -94,7 +94,7 @@ public final class MediaActionHandlerService {
             return .init("Failed to process video.", metadata: [self, #file, #function, #line])
         }
 
-        let path = "\(networkPaths.videos)/\(Strings.defaultVideoName).mp4"
+        let path = "\(networkPaths.media)/\(Strings.defaultVideoName).mp4"
         if let exception = fileManager.createFile(
             atPath: fileManager.documentsDirectoryURL.appending(path: path),
             data: data

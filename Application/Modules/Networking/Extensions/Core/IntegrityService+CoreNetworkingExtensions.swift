@@ -56,6 +56,10 @@ public extension IntegrityService {
             exceptions.append(exception)
         }
 
+        if let exception = await resolveNoMediaComponentMessages() {
+            exceptions.append(exception)
+        }
+
         if let exception = await resolveNonExistentParticipants() {
             exceptions.append(exception)
         }

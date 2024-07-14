@@ -22,18 +22,18 @@ public struct MessageService {
     // MARK: - Properties
 
     public let audio: AudioMessageService
-    public let image: ImageMessageService
     public let legacy: LegacyMessageService
+    public let media: MediaMessageService
 
     // MARK: - Init
 
     public init(
         audio: AudioMessageService,
-        image: ImageMessageService,
-        legacy: LegacyMessageService
+        legacy: LegacyMessageService,
+        media: MediaMessageService
     ) {
         self.audio = audio
-        self.image = image
+        self.media = media
         self.legacy = legacy
     }
 
@@ -41,11 +41,11 @@ public struct MessageService {
 
     public func createMessage(
         fromAccountID: String,
-        media: Media?,
+        richContent: RichMessageContent?,
         translations: [Translation]?
     ) async -> Callback<Message, Exception> {
         guard !fromAccountID.isBangQualifiedEmpty,
-              !(media == nil && translations == nil),
+              !(richContent == nil && translations == nil),
               translations?.isWellFormed ?? true else {
             return .failure(.init(
                 "Passed arguments fail validation.",
@@ -63,12 +63,10 @@ public struct MessageService {
         let sentDate = Date()
 
         var contentType: ContentType = .text
-        if media?.audioComponents != nil {
+        if richContent?.audioComponents != nil {
             contentType = .audio
-        } else if media?.imageComponent != nil {
-            contentType = .image
-        } else if media?.videoComponent != nil {
-            contentType = .video
+        } else if richContent?.mediaComponent != nil {
+            contentType = .media
         }
 
         typealias Keys = Message.SerializationKeys
@@ -84,7 +82,7 @@ public struct MessageService {
             id,
             fromAccountID: fromAccountID,
             contentType: contentType,
-            media: media,
+            richContent: richContent,
             translations: translations,
             readDate: nil,
             sentDate: sentDate
@@ -104,10 +102,10 @@ public struct MessageService {
                 return .success(mockMessage)
             }
 
-            guard mockMessage.contentType == .image,
-                  let imageComponent = mockMessage.imageComponent else { return await uploadAudioMessageReferenceIfNeeded() }
+            guard mockMessage.contentType == .media,
+                  let mediaComponent = mockMessage.richContent?.mediaComponent else { return await uploadAudioMessageReferenceIfNeeded() }
 
-            if let exception = await image.uploadImageComponent(imageComponent, for: mockMessage) {
+            if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
                 return .failure(exception)
             }
 

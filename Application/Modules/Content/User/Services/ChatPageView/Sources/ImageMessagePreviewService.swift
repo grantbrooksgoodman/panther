@@ -83,7 +83,7 @@ public final class ImageMessagePreviewService {
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              message.contentType == .image,
+              message.contentType == .media,
               !isPreviewingImage else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
@@ -96,7 +96,7 @@ public final class ImageMessagePreviewService {
 private extension Message {
     var absoluteImageFilePath: String? {
         @Dependency(\.fileManager) var fileManager: FileManager
-        return [imageComponent?.urlPath.path(), localImageFilePath?.filePathURL.path()]
+        return [imageComponent?.urlPath.path(), localMediaFilePath?.localPathURL.path()]
             .compactMap { $0 }
             .first(where: { fileManager.fileExists(atPath: $0) })
     }

@@ -49,9 +49,11 @@ extension Message: MessageType {
                 )
             }
 
-        case .image:
+        case .media:
             if let imageComponent {
                 return .photo(imageComponent)
+            } else if let videoComponent {
+                return .video(videoComponent)
             }
 
         default: ()
@@ -83,7 +85,7 @@ public extension Message {
             "",
             fromAccountID: "",
             contentType: .text,
-            media: nil,
+            richContent: nil,
             translations: nil,
             readDate: nil,
             sentDate: .init(timeIntervalSince1970: 0)

@@ -292,7 +292,7 @@ public final class MenuService {
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
               message.id != CommonConstants.newMessageID,
-              message.contentType != .image else { return }
+              message.contentType != .media else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),

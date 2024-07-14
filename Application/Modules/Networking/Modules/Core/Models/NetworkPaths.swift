@@ -21,13 +21,12 @@ public struct NetworkPaths {
         case conversations
         case deletedUsers
         case invalidatedCaches
-        case images
+        case media
         case messages
         case shared
         case translations
         case userNumberHashes
         case users
-        case videos
     }
 
     // MARK: - Properties
@@ -37,11 +36,10 @@ public struct NetworkPaths {
     public let conversations = Path.conversations.rawValue
     public let deletedUsers = Path.deletedUsers.rawValue
     public let invalidatedCaches = Path.invalidatedCaches.rawValue
-    public let images = Path.images.rawValue
+    public let media = Path.media.rawValue
     public let messages = Path.messages.rawValue
     public let shared = Path.shared.rawValue
     public let translations = Path.translations.rawValue
     public let userNumberHashes = Path.userNumberHashes.rawValue
     public let users = Path.users.rawValue
-    public let videos = Path.videos.rawValue
 }

@@ -41,7 +41,7 @@ extension Message: Updatable {
                 id,
                 fromAccountID: fromAccountID,
                 contentType: contentType,
-                media: media,
+                richContent: richContent,
                 translations: translations,
                 readDate: dateFormatter.date(from: value) ?? nil,
                 sentDate: sentDate

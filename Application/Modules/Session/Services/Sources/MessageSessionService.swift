@@ -118,7 +118,7 @@ public struct MessageSessionService {
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
-                media: .audio(audioComponents),
+                richContent: .audio(audioComponents),
                 translations: translations
             )
 
@@ -127,10 +127,10 @@ public struct MessageSessionService {
         }
     }
 
-    // MARK: - Send Image Message
+    // MARK: - Send Media Message
 
-    public func sendImageMessage(
-        _ imageFile: ImageFile,
+    public func sendMediaMessage(
+        _ mediaFile: MediaFile,
         toUsers users: [User],
         inConversation conversation: Conversation?
     ) async -> Callback<Conversation, Exception> {
@@ -145,7 +145,7 @@ public struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
-            media: .image(imageFile),
+            richContent: .media(mediaFile),
             translations: nil
         )
     }
@@ -196,19 +196,18 @@ public struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
-            media: nil,
+            richContent: nil,
             translations: translations
         )
     }
 
     // MARK: - Auxiliary
 
-    // jwiftlint:disable:next function_parameter_count
     private func createMessageAndAddToConversation(
         conversation: Conversation?,
         initiatingUser: User,
         otherUsers: [User],
-        media: Media?,
+        richContent: RichMessageContent?,
         translations: [Translation]?
     ) async -> Callback<Conversation, Exception> {
         func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
@@ -230,7 +229,7 @@ public struct MessageSessionService {
 
         let createMessageResult = await networking.services.message.createMessage(
             fromAccountID: initiatingUser.id,
-            media: media,
+            richContent: richContent,
             translations: translations
         )
 

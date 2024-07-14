@@ -109,9 +109,9 @@ public final class MessageDeliveryService {
         }
     }
 
-    // MARK: - Send Image Message
+    // MARK: - Send Media Message
 
-    public func sendImageMessage(_ imageFile: ImageFile) async -> Exception? {
+    public func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
         let fullConversation = clientSession.conversation.fullConversation
         let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
         let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
@@ -119,14 +119,14 @@ public final class MessageDeliveryService {
         guard !users.isEmpty else { return nil }
 
         hapticsService.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(audioFile: nil, imageFile: imageFile, text: nil)
+        addMockMessageToCurrentConversation(audioFile: nil, mediaFile: mediaFile, text: nil)
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        let sendImageMessageResult = await clientSession.message.sendImageMessage(
-            imageFile,
+        let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
+            mediaFile,
             toUsers: users,
             inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
         )
@@ -138,7 +138,7 @@ public final class MessageDeliveryService {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
 
-        switch sendImageMessageResult {
+        switch sendMediaMessageResult {
         case let .success(conversation):
             if let currentConversation = clientSession.conversation.currentConversation,
                !currentConversation.isMock {
@@ -166,7 +166,7 @@ public final class MessageDeliveryService {
               !text.isBlank else { return nil }
 
         hapticsService.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(audioFile: nil, imageFile: nil, text: text)
+        addMockMessageToCurrentConversation(audioFile: nil, mediaFile: nil, text: text)
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
@@ -206,10 +206,10 @@ public final class MessageDeliveryService {
 
     private func addMockMessageToCurrentConversation(
         audioFile: AudioFile?,
-        imageFile: ImageFile?,
+        mediaFile: MediaFile?,
         text: String?
     ) {
-        assert(audioFile != nil || imageFile != nil || text != nil, "No values provided.")
+        assert(audioFile != nil || mediaFile != nil || text != nil, "No values provided.")
 
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else { return }
@@ -234,17 +234,17 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 contentType: .audio,
-                media: .audio([mockAudioMessageReference]),
+                richContent: .audio([mockAudioMessageReference]),
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
             ))
-        } else if let imageFile {
+        } else if let mediaFile {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                contentType: .image,
-                media: .image(imageFile),
+                contentType: .media,
+                richContent: .media(mediaFile),
                 translations: nil,
                 readDate: nil,
                 sentDate: Date()
@@ -254,7 +254,7 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 contentType: .text,
-                media: nil,
+                richContent: nil,
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
@@ -312,6 +312,6 @@ public final class MessageDeliveryService {
         }
 
         guard conversationIDKey == clientSession.conversation.currentConversation?.id.key else { return }
-        addMockMessageToCurrentConversation(audioFile: inputFile, imageFile: nil, text: nil)
+        addMockMessageToCurrentConversation(audioFile: inputFile, mediaFile: nil, text: nil)
     }
 }

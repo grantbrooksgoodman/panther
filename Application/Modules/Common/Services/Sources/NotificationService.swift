@@ -86,8 +86,14 @@ public final class NotificationService {
             case .audio:
                 body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
 
-            case .image:
-                body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
+            case .media:
+                if message.imageComponent != nil {
+                    body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
+                } else if message.videoComponent != nil {
+                    body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
+                } else {
+                    body = "📎 \(Localized(.media, languageCode: user.languageCode).wrappedValue)"
+                }
 
             case .text:
                 if let translations = message.translations {
@@ -96,9 +102,6 @@ public final class NotificationService {
                         body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
                     }
                 }
-
-            case .video:
-                body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
             }
 
             for pushToken in pushTokens {

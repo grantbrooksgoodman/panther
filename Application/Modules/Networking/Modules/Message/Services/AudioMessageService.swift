@@ -18,7 +18,7 @@ public struct AudioMessageService {
 
     @Dependency(\.networking) private var networking: Networking
 
-    // MARK: - Public
+    // MARK: - Get Audio Component
 
     public func getAudioComponent(for message: Message) async -> Callback<Message, Exception> {
         switch cachedAudioMessageReference(for: message) {
@@ -37,6 +37,21 @@ public struct AudioMessageService {
             }
         }
     }
+
+    // MARK: - Delete Input Audio Component
+
+    public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
+        if let exception = await networking.storage.deleteItem(
+            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
+        ) {
+            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
+            return exception
+        }
+
+        return nil
+    }
+
+    // MARK: - Upload Audio Components
 
     public func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
@@ -106,7 +121,27 @@ public struct AudioMessageService {
         return nil
     }
 
-    // MARK: - Retrieval
+    // MARK: - Auxiliary
+
+    private func appendAudioComponent(
+        _ audioComponent: AudioMessageReference,
+        to message: Message
+    ) -> Message {
+        var audioComponents = message.audioComponents ?? []
+        audioComponents.append(audioComponent)
+
+        let modifiedMessage: Message = .init(
+            message.id,
+            fromAccountID: message.fromAccountID,
+            contentType: .audio,
+            richContent: .audio(audioComponents),
+            translations: message.translations,
+            readDate: message.readDate,
+            sentDate: message.sentDate
+        )
+
+        return modifiedMessage
+    }
 
     private func cachedAudioMessageReference(for message: Message) -> Callback<AudioMessageReference, Exception> {
         let commonParams = ["MessageID": message.id]
@@ -184,21 +219,6 @@ public struct AudioMessageService {
         return await networking.storage.itemExists(at: "\(outputDirectoryPath)/\(outputFileName)")
     }
 
-    // MARK: - Deletion
-
-    public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
-        if let exception = await networking.storage.deleteItem(
-            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
-        ) {
-            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
-            return exception
-        }
-
-        return nil
-    }
-
-    // MARK: - Upload
-
     private func upload(audioFile: AudioFile, to path: String) async -> Exception? {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
 
@@ -214,27 +234,5 @@ public struct AudioMessageService {
         } catch {
             return .init(error, metadata: [self, #file, #function, #line])
         }
-    }
-
-    // MARK: - Auxiliary
-
-    private func appendAudioComponent(
-        _ audioComponent: AudioMessageReference,
-        to message: Message
-    ) -> Message {
-        var audioComponents = message.audioComponents ?? []
-        audioComponents.append(audioComponent)
-
-        let modifiedMessage: Message = .init(
-            message.id,
-            fromAccountID: message.fromAccountID,
-            contentType: .audio,
-            media: .audio(audioComponents),
-            translations: message.translations,
-            readDate: message.readDate,
-            sentDate: message.sentDate
-        )
-
-        return modifiedMessage
     }
 }

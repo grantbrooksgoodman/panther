@@ -37,6 +37,7 @@ public enum LocalizedStringKey: String {
 
     case language
 
+    case media
     case monday
     case multiple
     case myAccount

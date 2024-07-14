@@ -35,8 +35,8 @@ public enum NetworkingDependency: DependencyKey {
                 integrity: .init(),
                 message: .init(
                     audio: .init(),
-                    image: .init(),
-                    legacy: .init()
+                    legacy: .init(),
+                    media: .init()
                 ),
                 translation: .init(
                     archiver: .init(),

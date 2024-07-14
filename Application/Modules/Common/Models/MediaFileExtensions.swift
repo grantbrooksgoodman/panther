@@ -20,6 +20,29 @@ public enum MediaFileExtension: Codable, Equatable {
 
     /* MARK: Properties */
 
+    // Boolean
+    public var isAudio: Bool {
+        switch self {
+        case .audio: return true
+        default: return false
+        }
+    }
+
+    public var isImage: Bool {
+        switch self {
+        case .image: return true
+        default: return false
+        }
+    }
+
+    public var isVideo: Bool {
+        switch self {
+        case .video: return true
+        default: return false
+        }
+    }
+
+    // String
     public var contentTypeString: String {
         switch self {
         case let .audio(fileExtension): return fileExtension.contentTypeString

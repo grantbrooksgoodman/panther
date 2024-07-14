@@ -1,5 +1,5 @@
 //
-//  ImageFile+UserContentExtensions.swift
+//  MediaFile+UserContentExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 25/06/2024.
@@ -14,11 +14,11 @@ import UIKit
 import CoreArchitecture
 import MessageKit
 
-extension ImageFile: MediaItem {
+extension MediaFile: MediaItem {
     public var image: UIImage? {
         @Dependency(\.fileManager) var fileManager: FileManager
-        @Dependency(\.networking.config.paths.images) var imagesPath: String
-        let path = "\(imagesPath)/\(name).\(fileExtension.rawValue)"
+        @Dependency(\.networking.config.paths.media) var mediaPath: String
+        let path = "\(mediaPath)/\(name).\(fileExtension.rawValue)"
         return .init(contentsOfFile: fileManager.pathToFileInDocuments(named: path))
     }
 

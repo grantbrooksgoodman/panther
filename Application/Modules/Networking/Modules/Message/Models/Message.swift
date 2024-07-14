@@ -26,14 +26,49 @@ public struct Message: Codable, EncodedHashable, Equatable {
 
     // Other
     public let contentType: ContentType
-    public let media: Media?
+    public let richContent: RichMessageContent?
     public let translations: [Translation]?
 
     // MARK: - Computed Properties
 
+    // Array
+    public var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
+    public var hashFactors: [String] { getHashFactors() }
+
+    // MediaFile
+    public var imageComponent: MediaFile? { richContent?.imageComponent }
+    public var videoComponent: MediaFile? { richContent?.videoComponent }
+
+    // Other
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
-    public var audioComponents: [AudioMessageReference]? { media?.audioComponents }
-    public var hashFactors: [String] {
+    public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
+    public var localMediaFilePath: LocalMediaFilePath? { .init(self) }
+    /// The translation for this message in the current user's language code.
+    public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
+
+    // MARK: - Init
+
+    public init(
+        _ id: String,
+        fromAccountID: String,
+        contentType: ContentType,
+        richContent: RichMessageContent?,
+        translations: [Translation]?,
+        readDate: Date?,
+        sentDate: Date
+    ) {
+        self.id = id
+        self.fromAccountID = fromAccountID
+        self.contentType = contentType
+        self.richContent = richContent
+        self.translations = translations
+        self.readDate = readDate
+        self.sentDate = sentDate
+    }
+
+    // MARK: - Computed Property Getters
+
+    private func getHashFactors() -> [String] {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [
             id,
@@ -47,32 +82,5 @@ public struct Message: Codable, EncodedHashable, Equatable {
         }
 
         return factors
-    }
-
-    public var imageComponent: ImageFile? { media?.imageComponent }
-    public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
-    public var localImageFilePath: LocalImageFilePath? { .init(self) }
-    /// The translation for this message in the current user's language code.
-    public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
-    public var videoComponent: URL? { media?.videoComponent }
-
-    // MARK: - Init
-
-    public init(
-        _ id: String,
-        fromAccountID: String,
-        contentType: ContentType,
-        media: Media?,
-        translations: [Translation]?,
-        readDate: Date?,
-        sentDate: Date
-    ) {
-        self.id = id
-        self.fromAccountID = fromAccountID
-        self.contentType = contentType
-        self.media = media
-        self.translations = translations
-        self.readDate = readDate
-        self.sentDate = sentDate
     }
 }

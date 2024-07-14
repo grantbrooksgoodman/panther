@@ -93,15 +93,15 @@ extension Message: Serializable {
                 id,
                 fromAccountID: fromAccountID,
                 contentType: contentType,
-                media: nil,
+                richContent: nil,
                 translations: translations,
                 readDate: readDate,
                 sentDate: sentDate
             )
         }
 
-        guard contentType != .image else {
-            return await messageService.image.getImageComponent(for: decodedMessage(nil))
+        guard contentType != .media else {
+            return await messageService.media.getMediaComponent(for: decodedMessage(nil))
         }
 
         let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
