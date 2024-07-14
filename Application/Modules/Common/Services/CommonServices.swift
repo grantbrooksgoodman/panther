@@ -20,8 +20,8 @@ public struct CommonServices {
     public let connectionStatus: ConnectionStatusService
     public let contact: ContactService
     public let haptics: HapticsService
-    public let image: ImageService
     public let invite: InviteService
+    public let mediaPicker: MediaPickerService
     public let metadata: MetadataService
     public let networkActivityIndicator: NetworkActivityIndicatorService
     public let notification: NotificationService
@@ -42,8 +42,8 @@ public struct CommonServices {
         connectionStatus: ConnectionStatusService,
         contact: ContactService,
         haptics: HapticsService,
-        image: ImageService,
         invite: InviteService,
+        mediaPicker: MediaPickerService,
         metadata: MetadataService,
         networkActivityIndicator: NetworkActivityIndicatorService,
         notification: NotificationService,
@@ -61,8 +61,8 @@ public struct CommonServices {
         self.connectionStatus = connectionStatus
         self.contact = contact
         self.haptics = haptics
-        self.image = image
         self.invite = invite
+        self.mediaPicker = mediaPicker
         self.metadata = metadata
         self.networkActivityIndicator = networkActivityIndicator
         self.notification = notification

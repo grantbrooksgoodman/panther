@@ -12,6 +12,7 @@ import SwiftUI
 
 /* 3rd-party */
 import CoreArchitecture
+import InputBarAccessoryView
 import MessageKit
 
 public struct ChatPageViewControllerFactory {
@@ -19,6 +20,7 @@ public struct ChatPageViewControllerFactory {
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
+    @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Build View Controller
@@ -114,34 +116,36 @@ public struct ChatPageViewControllerFactory {
 
         let inputBar = viewController.messageInputBar
 
-        inputBar.backgroundView.backgroundColor = .inputBarBackground
+        // Configure attach media button
 
-        inputBar.setStackViewItems([viewController.messageInputBar.sendButton], forStack: .right, animated: false)
-        inputBar.rightStackView.alignment = .center
+        let attachMediaButton = InputBarButtonItem(frame: .zero)
+        attachMediaButton.setSize(
+            .init(width: Floats.buttonSizeWidth, height: Floats.buttonSizeHeight),
+            animated: false
+        )
 
-        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
+        let attachMediaButtonNormalImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: false)
+        let attachMediaButtonHighlightedImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: true)
 
-        // swiftlint:disable line_length
-        let contentViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.contentViewRecordLayerBorder : Colors.contentViewTextLayerBorder).cgColor
-        let inputTextViewBorderColor = UIColor(canConfigureInputBarForRecording ? Colors.inputTextViewRecordLayerBorder : Colors.inputTextViewRecordLayerBorder).cgColor
-        // swiftlint:enable line_length
+        attachMediaButton.setImage(attachMediaButtonNormalImage, for: .normal)
+        attachMediaButton.setImage(attachMediaButtonHighlightedImage, for: .highlighted)
 
-        inputBar.contentView.clipsToBounds = true
-        inputBar.contentView.layer.borderColor = contentViewBorderColor
-        inputBar.contentView.layer.borderWidth = Floats.layerBorderWidth
-        inputBar.contentView.layer.cornerRadius = Floats.layerCornerRadius
+        attachMediaButton.isEnabled = false
+        attachMediaButton.tag = coreUI.semTag(for: Strings.attachMediaButtonSemanticTag)
 
-        inputBar.inputTextView.clipsToBounds = true
-        inputBar.inputTextView.layer.borderColor = inputTextViewBorderColor
-        inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
-        inputBar.inputTextView.layer.cornerRadius = Floats.layerCornerRadius
+        attachMediaButton
+            .onSelected { $0.transform = .init(
+                scaleX: Floats.buttonOnSelectedTransformScaleX,
+                y: Floats.buttonOnSelectedTransformScaleY
+            ) }
+            .onDeselected { $0.transform = .identity }
 
-        inputBar.inputTextView.delegate = viewController
-        inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
-        inputBar.inputTextView.tintColor = .accent
+        attachMediaButton.onTouchUpInside { _ in inputBarService?.didPressAttachMediaButton() }
+
+        // Configure send button
 
         inputBar.sendButton.setSize(
-            .init(width: Floats.sendButtonSizeWidth, height: Floats.sendButtonSizeHeight),
+            .init(width: Floats.buttonSizeWidth, height: Floats.buttonSizeHeight),
             animated: false
         )
 
@@ -159,6 +163,7 @@ public struct ChatPageViewControllerFactory {
 
         let recordButtonSemanticTag = coreUI.semTag(for: Strings.recordButtonSemanticTag)
         let sendButtonSemanticTag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
+        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
 
         inputBar.sendButton.tag = canConfigureInputBarForRecording ? recordButtonSemanticTag : sendButtonSemanticTag
         inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
@@ -166,9 +171,40 @@ public struct ChatPageViewControllerFactory {
 
         inputBar.sendButton
             .onSelected { $0.transform = .init(
-                scaleX: Floats.sendButtonOnSelectedTransformScaleX,
-                y: Floats.sendButtonOnSelectedTransformScaleY
+                scaleX: Floats.buttonOnSelectedTransformScaleX,
+                y: Floats.buttonOnSelectedTransformScaleY
             ) }
             .onDeselected { $0.transform = .identity }
+
+        inputBar.sendButton.alpha = 0
+
+        // Configure stack views
+
+        inputBar.leftStackView.alignment = .center
+        inputBar.setLeftStackViewWidthConstant(to: Floats.leftStackViewWidthConstant, animated: false)
+        inputBar.setStackViewItems(
+            [
+                attachMediaButton,
+                InputBarButtonItem.fixedSpace(Floats.leftStackViewFixedSpaceWidth),
+            ],
+            forStack: .left,
+            animated: false
+        )
+
+        inputBar.setRightStackViewWidthConstant(to: 0, animated: false)
+
+        // Configure input text view
+
+        inputBar.inputTextView.addSubview(viewController.messageInputBar.sendButton)
+
+        inputBar.inputTextView.clipsToBounds = true
+        inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputTextViewLayerBorder).cgColor
+        inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+        inputBar.inputTextView.layer.cornerRadius = Floats.layerCornerRadius
+
+        inputBar.inputTextView.delegate = viewController
+        inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
+        inputBar.inputTextView.textContainerInset.right = inputBar.sendButton.frame.width + Floats.textContainerInsetRightIncrement
+        inputBar.inputTextView.tintColor = .accent
     }
 }

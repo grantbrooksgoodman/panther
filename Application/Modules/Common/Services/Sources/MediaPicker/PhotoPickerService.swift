@@ -21,7 +21,7 @@ public final class PhotoPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - Properties
 
-    private var _onDismiss: ((Callback<UIImage, Exception>) -> Void)?
+    private var _onDismiss: ((Callback<UIImage, Exception>?) -> Void)?
 
     // MARK: - Present
 
@@ -30,19 +30,24 @@ public final class PhotoPickerService: PHPickerViewControllerDelegate {
         configuration.filter = .images
         let viewController = PHPickerViewController(configuration: configuration)
         viewController.delegate = self
+        viewController.isModalInPresentation = true
         core.ui.present(viewController)
     }
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Callback<UIImage, Exception>) -> Void) {
+    public func onDismiss(_ perform: @escaping (Callback<UIImage, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - PHPickerViewControllerDelegate Conformance
 
     public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        guard !results.isEmpty else { return picker.dismiss(animated: true) }
+        guard !results.isEmpty else {
+            picker.dismiss(animated: true)
+            _onDismiss?(nil)
+            return
+        }
 
         let confirmAction: AKAction = .init("Confirm", style: .preferred) {
             self.core.gcd.after(.milliseconds(250)) {

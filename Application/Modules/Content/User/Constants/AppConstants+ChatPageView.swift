@@ -49,7 +49,7 @@ public extension AppConstants.CGFloats {
         }
 
         enum UITextViewDelegate {
-            public static let setSendButtonIsEnabledDelayMilliseconds: CGFloat = 100
+            public static let setButtonsIsEnabledDelayMilliseconds: CGFloat = 100
             public static let toggleLabelRepresentationDelayMilliseconds: CGFloat = 10
         }
     }

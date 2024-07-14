@@ -35,8 +35,11 @@ public enum CommonServicesDependency: DependencyKey {
                 selectionFeedbackGenerator: .init(),
                 softImpactFeedbackGenerator: .init(style: .soft)
             ),
-            image: .init(photoPicker: .init()),
             invite: .init(),
+            mediaPicker: .init(
+                camera: .init(),
+                photo: .init()
+            ),
             metadata: .init(),
             networkActivityIndicator: .init(),
             notification: .init(),

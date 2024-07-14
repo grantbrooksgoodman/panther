@@ -41,6 +41,7 @@ public final class ChatPageViewService {
     public private(set) var imageMessagePreview: ImageMessagePreviewService?
     public private(set) var inputBar: InputBarService?
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
+    public private(set) var mediaActionHandler: MediaActionHandlerService?
     public private(set) var menu: MenuService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
@@ -68,6 +69,7 @@ public final class ChatPageViewService {
         imageMessagePreview = .init(viewController)
         inputBar = .init(viewController)
         inputBarGestureRecognizer = .init(viewController)
+        mediaActionHandler = .init(viewController)
         menu = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
@@ -181,9 +183,10 @@ public final class ChatPageViewService {
 
     public func redrawForAppearanceChange() {
         Task { @MainActor in
+            inputBar?.setAttachMediaButtonImage()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
-            viewController?.messageInputBar.backgroundView.backgroundColor = .inputBarBackground
             NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
+            StatusBarStyle.restore()
             viewController?.navigationController?.isNavigationBarHidden = true
             viewController?.navigationController?.isNavigationBarHidden = false
             reloadCollectionView()

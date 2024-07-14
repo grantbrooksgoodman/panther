@@ -35,20 +35,27 @@ public extension AppConstants.CGFloats {
         }
 
         enum InputBar {
+            public static let buttonOnSelectedTransformScaleX: CGFloat = 1.1
+            public static let buttonOnSelectedTransformScaleY: CGFloat = 1.1
+
+            public static let buttonSizeHeight: CGFloat = 30
+            public static let buttonSizeWidth: CGFloat = 30
+
             public static let forceAppearanceDelayMilliseconds: CGFloat = 200
 
             public static let layerBorderWidth: CGFloat = 0.5
             public static let layerCornerRadius: CGFloat = 15
 
+            public static let leftStackViewFixedSpaceWidth: CGFloat = 10
+            public static let leftStackViewWidthConstant: CGFloat = 40
+
             // swiftlint:disable:next identifier_name
             public static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
 
-            public static let sendButtonOnSelectedTransformScaleX: CGFloat = 1.1
-            public static let sendButtonOnSelectedTransformScaleY: CGFloat = 1.1
+            // swiftlint:disable:next identifier_name
+            public static let sendButtonTrailingAnchorConstraintConstantDecrement: CGFloat = 15
 
-            public static let sendButtonSizeHeight: CGFloat = 30
-            public static let sendButtonSizeWidth: CGFloat = 30
-
+            public static let textContainerInsetRightIncrement: CGFloat = 10
             public static let transitionAnimationDuration: CGFloat = 0.3
         }
 
@@ -85,6 +92,7 @@ public extension AppConstants.CGFloats {
             public static let imageViewFrameWidth: CGFloat = 30
             public static let imageViewFrameXOriginIncrement: CGFloat = 5
 
+            public static let recordingViewFrameSizeWidthDecrement: CGFloat = 10
             public static let recordingViewLayerBorderWidth: CGFloat = 0.5
             public static let recordingViewLayerCornerRadius: CGFloat = 15
 
@@ -106,11 +114,7 @@ public extension AppConstants.Colors {
         }
 
         enum InputBar {
-            public static let contentViewRecordLayerBorder: Color = .init(uiColor: .clear)
-            public static let contentViewTextLayerBorder: Color = .init(uiColor: .systemGray)
-
-            public static let inputTextViewRecordLayerBorder: Color = .init(uiColor: .systemGray)
-            public static let inputTextViewTextLayerBorder: Color = .init(uiColor: .clear)
+            public static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
             public static let inputTextViewTint: Color = .init(uiColor: .clear)
 
             public static let sendButtonRecordTint: Color = .init(uiColor: .red)
@@ -140,6 +144,7 @@ public extension AppConstants.Strings {
         }
 
         enum InputBar {
+            public static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
             public static let recordButtonSemanticTag = "RECORD_BUTTON"
             public static let sendButtonOfflineImageSystemName = "wifi.slash"
             public static let sendButtonSemanticTag = "SEND_BUTTON"
@@ -149,6 +154,10 @@ public extension AppConstants.Strings {
             public static let audioMessagesUnsupportedAlertMessage = "Audio messages are unsupported for your language.\n\nPlease check back later in a future update!" // swiftlint:disable:next identifier_name
             public static let audioMessagesUnsupportedAlertCancelButtonTitle = "OK"
             public static let noSpeechDetectedExceptionDescriptor = "No speech detected"
+        }
+
+        enum MediaActionHandler {
+            public static let defaultImageName = "image"
         }
 
         enum Menu {

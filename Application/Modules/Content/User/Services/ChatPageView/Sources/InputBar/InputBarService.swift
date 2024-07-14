@@ -48,7 +48,7 @@ public final class InputBarService {
     // MARK: - Computed Properties
 
     public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
-    public var shouldEnableSendButton: Bool {
+    public var shouldEnableButtons: Bool {
         guard build.isOnline else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
@@ -78,6 +78,16 @@ public final class InputBarService {
         mainQueue.async {
             let forRecording = forRecording ?? self.shouldConfigureInputBarForRecording
 
+            self.inputBar.sendButton.centerYAnchor.constraint(
+                equalTo: self.inputBar.contentView.centerYAnchor,
+                constant: 0
+            ).isActive = true
+
+            self.inputBar.sendButton.trailingAnchor.constraint(
+                equalTo: self.inputBar.contentView.trailingAnchor,
+                constant: -(self.inputBar.sendButton.frame.width - Floats.sendButtonTrailingAnchorConstraintConstantDecrement)
+            ).isActive = true
+
             switch forRecording {
             case true:
                 if !forceUpdate {
@@ -91,9 +101,6 @@ public final class InputBarService {
                     duration: Floats.transitionAnimationDuration,
                     options: [.transitionCrossDissolve]
                 ) {
-                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.contentViewRecordLayerBorder).cgColor
-                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputTextViewRecordLayerBorder).cgColor
-
                     self.inputBar.sendButton.setImage(
                         self.inputBarConfigService.sendButtonImage(
                             forRecording: forRecording,
@@ -109,8 +116,11 @@ public final class InputBarService {
                         for: .highlighted
                     )
 
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableButtons
+                    self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
+
                     self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
+                    self.inputBar.sendButton.alpha = 1
                 } completion: { _ in
                     self.chatPageViewService.inputBarGestureRecognizer?.configureGestureRecognizers()
                 }
@@ -118,7 +128,7 @@ public final class InputBarService {
             case false:
                 if !forceUpdate {
                     guard self.inputBar.sendButton.isRecordButton else {
-                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+                        self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
                         return
                     }
                 }
@@ -131,9 +141,6 @@ public final class InputBarService {
                     duration: Floats.transitionAnimationDuration,
                     options: [.transitionCrossDissolve]
                 ) {
-                    self.inputBar.contentView.layer.borderColor = UIColor(Colors.contentViewTextLayerBorder).cgColor
-                    self.inputBar.inputTextView.layer.borderColor = UIColor(Colors.inputTextViewTextLayerBorder).cgColor
-
                     self.inputBar.sendButton.setImage(
                         self.inputBarConfigService.sendButtonImage(
                             forRecording: forRecording,
@@ -149,8 +156,11 @@ public final class InputBarService {
                         for: .highlighted
                     )
 
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableButtons
+                    self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
+
                     self.inputBar.sendButton.tintColor = .accent
+                    self.inputBar.sendButton.alpha = 1
                 }
             }
         }
@@ -158,6 +168,7 @@ public final class InputBarService {
 
     // MARK: - Become First Responder
 
+    // TODO: Fix bugs associated with this method.
     public func becomeFirstResponder() {
         guard chatPageState.isPresented else { return }
         while !inputBar.inputTextView.isFirstResponder {
@@ -165,6 +176,12 @@ public final class InputBarService {
                   inputBar.inputTextView.canBecomeFirstResponder else { break }
             inputBar.inputTextView.becomeFirstResponder()
         }
+    }
+
+    // MARK: - Did Press Attach Media Button
+
+    public func didPressAttachMediaButton() {
+        chatPageViewService.mediaActionHandler?.attachMediaButtonTapped()
     }
 
     // MARK: - Did Press Record Button
@@ -266,11 +283,21 @@ public final class InputBarService {
         }
     }
 
-    // MARK: - Set Send Button Is Enabled
+    // MARK: - Set Attach Media Button Image
 
-    public func setSendButtonIsEnabled(_ sendButtonIsEnabled: Bool) {
+    public func setAttachMediaButtonImage() {
+        let attachMediaButtonNormalImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: false)
+        let attachMediaButtonHighlightedImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: true)
+
+        inputBar.leftStackView.attachMediaButton?.setImage(attachMediaButtonNormalImage, for: .normal)
+        inputBar.leftStackView.attachMediaButton?.setImage(attachMediaButtonHighlightedImage, for: .highlighted)
+    }
+
+    // MARK: - Set Buttons Is Enabled
+
+    public func setButtonsIsEnabled(_ isEnabled: Bool) {
         if !isForcingAppearance {
-            guard inputBar.sendButton.isEnabled != sendButtonIsEnabled else { return }
+            guard inputBar.sendButton.isEnabled != isEnabled else { return }
         }
 
         mainQueue.async {
@@ -279,7 +306,8 @@ public final class InputBarService {
                 duration: Floats.transitionAnimationDuration,
                 options: [.transitionCrossDissolve]
             ) {
-                self.inputBar.sendButton.isEnabled = sendButtonIsEnabled
+                self.inputBar.leftStackView.attachMediaButton?.isEnabled = isEnabled
+                self.inputBar.sendButton.isEnabled = isEnabled
             }
         }
     }
@@ -310,7 +338,8 @@ public final class InputBarService {
             }
 
             self.inputBar.inputTextView.tintColor = on ? UIColor(Colors.inputTextViewTint) : .accent
-            self.inputBar.sendButton.isUserInteractionEnabled = on ? false : true
+            self.inputBar.leftStackView.attachMediaButton?.isUserInteractionEnabled = !on
+            self.inputBar.sendButton.isUserInteractionEnabled = !on
         }
     }
 

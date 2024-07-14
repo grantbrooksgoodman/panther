@@ -57,8 +57,6 @@ public enum AppTheme: CaseIterable {
         let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))
 
-        let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: .white, variant: .init(hex: 0x1A1A1C)))
-
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: .init(hex: 0xF8F8F8), variant: .init(hex: 0x2A2A2C)))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .black, variant: .white))
 
@@ -73,7 +71,6 @@ public enum AppTheme: CaseIterable {
             background,
             disabled,
             listViewBackground,
-            inputBarBackground,
             navigationBarBackground,
             navigationBarTitle,
             senderBubble,
@@ -92,8 +89,6 @@ public enum AppTheme: CaseIterable {
         let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
-        let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
-
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
@@ -108,7 +103,6 @@ public enum AppTheme: CaseIterable {
             background,
             disabled,
             listViewBackground,
-            inputBarBackground,
             navigationBarBackground,
             navigationBarTitle,
             senderBubble,
@@ -127,8 +121,6 @@ public enum AppTheme: CaseIterable {
         let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
-        let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
-
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
@@ -143,7 +135,6 @@ public enum AppTheme: CaseIterable {
             background,
             disabled,
             listViewBackground,
-            inputBarBackground,
             navigationBarBackground,
             navigationBarTitle,
             senderBubble,
@@ -162,8 +153,6 @@ public enum AppTheme: CaseIterable {
         let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
-        let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
-
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
@@ -178,7 +167,6 @@ public enum AppTheme: CaseIterable {
             background,
             disabled,
             listViewBackground,
-            inputBarBackground,
             navigationBarBackground,
             navigationBarTitle,
             senderBubble,
@@ -197,8 +185,6 @@ public enum AppTheme: CaseIterable {
         let disabled = Item(type: .disabled, set: .init(primary: .systemGray3))
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
-        let inputBarBackground = Item(type: .inputBarBackground, set: .init(primary: backgroundColor))
-
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
         let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
 
@@ -213,7 +199,6 @@ public enum AppTheme: CaseIterable {
             background,
             disabled,
             listViewBackground,
-            inputBarBackground,
             navigationBarBackground,
             navigationBarTitle,
             senderBubble,

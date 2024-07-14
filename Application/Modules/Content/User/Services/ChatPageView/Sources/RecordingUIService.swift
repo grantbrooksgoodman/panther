@@ -64,8 +64,14 @@ public final class RecordingUIService {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
                 UIView.animate(withDuration: Floats.hideAnimationDuration) {
+                    typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
                     self.recordingView?.alpha = 0
-                    self.inputBar.inputTextView.alpha = 1
+
+                    self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+                    self.inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
+                    self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = true
+                    self.inputBar.inputTextView.tintColor = .accent
+                    self.inputBar.leftStackView.attachMediaButton?.alpha = 1
                 } completion: { _ in
                     self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
                     self.resetSession()
@@ -98,7 +104,14 @@ public final class RecordingUIService {
                 durationLabel.center.y = imageView.center.y
 
                 UIView.animate(withDuration: Floats.showAnimationDuration) {
-                    self.inputBar.inputTextView.alpha = 0
+                    typealias Colors = AppConstants.Colors.ChatPageViewService.InputBar
+
+                    self.inputBar.inputTextView.layer.borderWidth = 0
+                    self.inputBar.inputTextView.placeholder = nil
+                    self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = false
+                    self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
+                    self.inputBar.leftStackView.attachMediaButton?.alpha = 0
+
                     recordingView.alpha = 1
                 }
 
@@ -250,6 +263,7 @@ public final class RecordingUIService {
         let recordingView = UIView()
         recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
         recordingView.frame = inputBar.inputTextView.frame
+        recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
 
         recordingView.clipsToBounds = true
         recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor

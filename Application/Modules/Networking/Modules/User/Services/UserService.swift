@@ -6,13 +6,13 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
 /* 3rd-party */
 import CoreArchitecture
-
-// swiftlint:disable file_length type_body_length
 
 public final class UserService: Cacheable {
     // MARK: - Dependencies

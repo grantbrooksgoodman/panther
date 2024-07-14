@@ -20,8 +20,6 @@ public enum ColoredItemType: String, Equatable {
     case disabled
     case listViewBackground
 
-    case inputBarBackground
-
     case navigationBarBackground
     case navigationBarTitle
 
@@ -40,8 +38,6 @@ public extension UIColor {
     static var background: UIColor { theme.color(for: .background) }
     static var disabled: UIColor { theme.color(for: .disabled) }
     static var listViewBackground: UIColor { theme.color(for: .listViewBackground) }
-
-    static var inputBarBackground: UIColor { theme.color(for: .inputBarBackground) }
 
     static var navigationBarBackground: UIColor { theme.color(for: .navigationBarBackground) }
     static var navigationBarTitle: UIColor { theme.color(for: .navigationBarTitle) }
@@ -63,8 +59,6 @@ public extension Color {
     static var background: Color { .init(uiColor: .background) }
     static var disabled: Color { .init(uiColor: .disabled) }
     static var listViewBackground: Color { .init(uiColor: .listViewBackground) }
-
-    static var inputBarBackground: Color { .init(uiColor: .inputBarBackground) }
 
     static var navigationBarBackground: Color { .init(uiColor: .navigationBarBackground) }
     static var navigationBarTitle: Color { .init(uiColor: .navigationBarTitle) }

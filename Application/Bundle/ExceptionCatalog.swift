@@ -52,7 +52,7 @@ public extension Exception {
         // swiftlint:disable line_length
         switch descriptor {
         case "Attempted to select contact pair containing current user.":
-            return "Cannot start a conversation with yourself."
+            return "Unable to start a conversation with yourself."
 
         case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
             return "The format of the phone number is incorrect. Please verify that you haven't included the country code."

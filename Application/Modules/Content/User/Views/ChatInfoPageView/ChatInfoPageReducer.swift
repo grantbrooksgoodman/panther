@@ -75,7 +75,6 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Other
         @Localized(.done) public var doneButtonText: String
-        public var preferredStatusBarStyle: UIStatusBarStyle = .lightContent
         public var viewState: ViewState = .loading
         public var viewID = UUID()
 
@@ -183,7 +182,7 @@ public struct ChatInfoPageReducer: Reducer {
 
             if !isPresentingCameraPickerSheet,
                !ThemeService.isDarkModeActive {
-                state.preferredStatusBarStyle = .darkContent
+                StatusBarStyle.override(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
 
@@ -195,7 +194,7 @@ public struct ChatInfoPageReducer: Reducer {
 
             if !isPresentingImagePickerSheet,
                !ThemeService.isDarkModeActive {
-                state.preferredStatusBarStyle = .darkContent
+                StatusBarStyle.override(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
 

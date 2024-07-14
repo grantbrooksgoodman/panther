@@ -38,8 +38,8 @@ extension ChatPageViewController: UITextViewDelegate {
 
         recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "", makeInputBarFirstResponder: false)
         typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
-        coreGCD.after(.milliseconds(Floats.setSendButtonIsEnabledDelayMilliseconds)) {
-            inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)
+        coreGCD.after(.milliseconds(Floats.setButtonsIsEnabledDelayMilliseconds)) {
+            inputBarService.setButtonsIsEnabled(inputBarService.shouldEnableButtons)
         }
 
         return true
@@ -57,7 +57,7 @@ extension ChatPageViewController: UITextViewDelegate {
         }
 
         guard let inputBarService = chatPageViewService.inputBar else { return }
-        inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)
+        inputBarService.setButtonsIsEnabled(inputBarService.shouldEnableButtons)
     }
 
     // MARK: - Should Change Text in Range
