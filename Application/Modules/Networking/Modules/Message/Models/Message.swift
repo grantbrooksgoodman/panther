@@ -16,11 +16,6 @@ import Translator
 public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
-    // Array
-    /// In practice, will never contain more than one value due to specification made during decoding.
-    public let audioComponents: [AudioMessageReference]?
-    public let translations: [Translation]?
-
     // Date
     public let readDate: Date?
     public let sentDate: Date
@@ -31,11 +26,13 @@ public struct Message: Codable, EncodedHashable, Equatable {
 
     // Other
     public let contentType: ContentType
-    public let image: ImageFile?
+    public let media: Media?
+    public let translations: [Translation]?
 
     // MARK: - Computed Properties
 
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
+    public var audioComponents: [AudioMessageReference]? { media?.audioComponents }
     public var hashFactors: [String] {
         @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
         var factors = [
@@ -52,10 +49,12 @@ public struct Message: Codable, EncodedHashable, Equatable {
         return factors
     }
 
+    public var imageComponent: ImageFile? { media?.imageComponent }
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
     public var localImageFilePath: LocalImageFilePath? { .init(self) }
     /// The translation for this message in the current user's language code.
     public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
+    public var videoComponent: URL? { media?.videoComponent }
 
     // MARK: - Init
 
@@ -63,8 +62,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         _ id: String,
         fromAccountID: String,
         contentType: ContentType,
-        audioComponents: [AudioMessageReference]?,
-        image: ImageFile?,
+        media: Media?,
         translations: [Translation]?,
         readDate: Date?,
         sentDate: Date
@@ -72,8 +70,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.id = id
         self.fromAccountID = fromAccountID
         self.contentType = contentType
-        self.audioComponents = audioComponents
-        self.image = image
+        self.media = media
         self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate

@@ -188,7 +188,7 @@ public struct AudioMessageService {
 
     public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
         if let exception = await networking.storage.deleteItem(
-            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(AudioFileExtension.m4a.rawValue)"
+            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
         ) {
             guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
             return exception
@@ -229,8 +229,7 @@ public struct AudioMessageService {
             message.id,
             fromAccountID: message.fromAccountID,
             contentType: .audio,
-            audioComponents: audioComponents,
-            image: message.image,
+            media: .audio(audioComponents),
             translations: message.translations,
             readDate: message.readDate,
             sentDate: message.sentDate

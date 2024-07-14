@@ -64,8 +64,7 @@ public struct ImageMessageService {
             message.id,
             fromAccountID: message.fromAccountID,
             contentType: .image,
-            audioComponents: message.audioComponents,
-            image: imageComponent,
+            media: .image(imageComponent),
             translations: message.translations,
             readDate: message.readDate,
             sentDate: message.sentDate

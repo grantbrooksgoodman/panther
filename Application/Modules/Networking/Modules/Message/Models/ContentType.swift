@@ -15,6 +15,7 @@ public enum ContentType: String, Codable, Equatable {
     case audio
     case image
     case text
+    case video
 
     // MARK: - Methods
 
@@ -25,6 +26,8 @@ public enum ContentType: String, Codable, Equatable {
             self = .image
         } else if rawValue == ContentType.text.rawValue {
             self = .text
+        } else if rawValue == ContentType.video.rawValue {
+            self = .video
         } else {
             return nil
         }

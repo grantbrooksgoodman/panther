@@ -118,9 +118,8 @@ public struct MessageSessionService {
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
-                translations: translations,
-                audioComponents: audioComponents,
-                image: nil
+                media: .audio(audioComponents),
+                translations: translations
             )
 
         case let .failure(exception):
@@ -146,9 +145,8 @@ public struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
-            translations: nil,
-            audioComponents: nil,
-            image: imageFile
+            media: .image(imageFile),
+            translations: nil
         )
     }
 
@@ -198,22 +196,20 @@ public struct MessageSessionService {
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
-            translations: translations,
-            audioComponents: nil,
-            image: nil
+            media: nil,
+            translations: translations
         )
     }
 
     // MARK: - Auxiliary
 
-    // swiftlint:disable:next function_parameter_count
+    // jwiftlint:disable:next function_parameter_count
     private func createMessageAndAddToConversation(
         conversation: Conversation?,
         initiatingUser: User,
         otherUsers: [User],
-        translations: [Translation]?,
-        audioComponents: [AudioMessageReference]?,
-        image: ImageFile?
+        media: Media?,
+        translations: [Translation]?
     ) async -> Callback<Conversation, Exception> {
         func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
             let addMessagesResult = await clientSession.conversation.addMessages([message], to: conversation)
@@ -234,9 +230,8 @@ public struct MessageSessionService {
 
         let createMessageResult = await networking.services.message.createMessage(
             fromAccountID: initiatingUser.id,
-            translations: translations,
-            audioComponents: audioComponents,
-            imageComponent: image
+            media: media,
+            translations: translations
         )
 
         incrementDeliveryProgress(in: conversation, by: Floats.createMessageDeliveryProgressIncrement)

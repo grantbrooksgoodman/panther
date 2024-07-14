@@ -104,7 +104,7 @@ public struct ConversationCellViewData: Equatable {
 
             if lastMessage.audioComponent != nil {
                 subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
-            } else if lastMessage.image != nil {
+            } else if lastMessage.imageComponent != nil {
                 subtitleLabelText = "🏞️ \(Localized(.image).wrappedValue)"
             } else {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser

@@ -50,8 +50,8 @@ extension Message: MessageType {
             }
 
         case .image:
-            if let image {
-                return .photo(image)
+            if let imageComponent {
+                return .photo(imageComponent)
             }
 
         default: ()
@@ -83,8 +83,7 @@ public extension Message {
             "",
             fromAccountID: "",
             contentType: .text,
-            audioComponents: nil,
-            image: nil,
+            media: nil,
             translations: nil,
             readDate: nil,
             sentDate: .init(timeIntervalSince1970: 0)

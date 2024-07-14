@@ -96,6 +96,9 @@ public final class NotificationService {
                         body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
                     }
                 }
+
+            case .video:
+                body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
             }
 
             for pushToken in pushTokens {

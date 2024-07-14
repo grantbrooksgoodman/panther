@@ -96,7 +96,7 @@ public final class ImageMessagePreviewService {
 private extension Message {
     var absoluteImageFilePath: String? {
         @Dependency(\.fileManager) var fileManager: FileManager
-        return [image?.urlPath.path(), localImageFilePath?.filePathURL.path()]
+        return [imageComponent?.urlPath.path(), localImageFilePath?.filePathURL.path()]
             .compactMap { $0 }
             .first(where: { fileManager.fileExists(atPath: $0) })
     }

@@ -336,7 +336,7 @@ public final class IntegrityService {
                   contentType == .audio,
                   let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
 
-            let inputFilePath = "\(networking.config.paths.audioMessageInputs)/\(key).\(AudioFileExtension.m4a.rawValue)"
+            let inputFilePath = "\(networking.config.paths.audioMessageInputs)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
             let inputFileItemExistsResult = await networking.storage.itemExists(at: inputFilePath)
 
             switch inputFileItemExistsResult {

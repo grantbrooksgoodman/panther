@@ -50,13 +50,13 @@ public final class AudioFile: Codable, Equatable {
               fileName.components(separatedBy: ".").count == 2 else { return nil }
 
         let components = fileName.components(separatedBy: ".")
-        guard components[1] == AudioFileExtension.caf.rawValue ||
-            components[1] == AudioFileExtension.m4a.rawValue else { return nil }
+        guard components[1] == MediaFileExtension.audio(.caf).rawValue ||
+            components[1] == MediaFileExtension.audio(.m4a).rawValue else { return nil }
 
         self.init(
             url,
             name: components[0],
-            fileExtension: components[1] == AudioFileExtension.caf.rawValue ? .caf : .m4a,
+            fileExtension: components[1] == MediaFileExtension.audio(.caf).rawValue ? .caf : .m4a,
             contentDuration: 0
         )
 

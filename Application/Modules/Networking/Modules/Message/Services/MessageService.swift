@@ -41,12 +41,11 @@ public struct MessageService {
 
     public func createMessage(
         fromAccountID: String,
-        translations: [Translation]?,
-        audioComponents: [AudioMessageReference]?,
-        imageComponent: ImageFile?
+        media: Media?,
+        translations: [Translation]?
     ) async -> Callback<Message, Exception> {
         guard !fromAccountID.isBangQualifiedEmpty,
-              !(audioComponents == nil && imageComponent == nil && translations == nil),
+              !(media == nil && translations == nil),
               translations?.isWellFormed ?? true else {
             return .failure(.init(
                 "Passed arguments fail validation.",
@@ -64,10 +63,12 @@ public struct MessageService {
         let sentDate = Date()
 
         var contentType: ContentType = .text
-        if audioComponents != nil {
+        if media?.audioComponents != nil {
             contentType = .audio
-        } else if imageComponent != nil {
+        } else if media?.imageComponent != nil {
             contentType = .image
+        } else if media?.videoComponent != nil {
+            contentType = .video
         }
 
         typealias Keys = Message.SerializationKeys
@@ -83,8 +84,7 @@ public struct MessageService {
             id,
             fromAccountID: fromAccountID,
             contentType: contentType,
-            audioComponents: audioComponents,
-            image: imageComponent,
+            media: media,
             translations: translations,
             readDate: nil,
             sentDate: sentDate
@@ -93,11 +93,11 @@ public struct MessageService {
         func uploadMedia() async -> Callback<Message, Exception> {
             func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
                 guard mockMessage.contentType == .audio,
-                      let audioComponents else {
+                      let audioComponent = mockMessage.audioComponent else {
                     return .success(mockMessage)
                 }
 
-                if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+                if let exception = await audio.uploadAudioComponents([audioComponent], for: mockMessage) {
                     return .failure(exception)
                 }
 
@@ -105,7 +105,7 @@ public struct MessageService {
             }
 
             guard mockMessage.contentType == .image,
-                  let imageComponent else { return await uploadAudioMessageReferenceIfNeeded() }
+                  let imageComponent = mockMessage.imageComponent else { return await uploadAudioMessageReferenceIfNeeded() }
 
             if let exception = await image.uploadImageComponent(imageComponent, for: mockMessage) {
                 return .failure(exception)

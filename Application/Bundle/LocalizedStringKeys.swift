@@ -76,6 +76,7 @@ public enum LocalizedStringKey: String {
     case tuesday
 
     case version
+    case video
     case viewAsAudio
     case viewOriginal
     case viewTranscription

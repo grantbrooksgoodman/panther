@@ -31,7 +31,7 @@ public struct LocalImageFilePath: Codable, Equatable {
 
         guard message.contentType == .image else { return nil }
 
-        let filePathString = "\(networkPaths.images)/\(message.id).\(ImageFileExtension.png.rawValue)"
+        let filePathString = "\(networkPaths.images)/\(message.id).\(MediaFileExtension.image(.png).rawValue)"
         let filePathURL = fileManager.documentsDirectoryURL.appending(path: filePathString)
 
         self.init(

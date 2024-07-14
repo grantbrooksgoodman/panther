@@ -93,8 +93,7 @@ extension Message: Serializable {
                 id,
                 fromAccountID: fromAccountID,
                 contentType: contentType,
-                audioComponents: nil,
-                image: nil,
+                media: nil,
                 translations: translations,
                 readDate: readDate,
                 sentDate: sentDate

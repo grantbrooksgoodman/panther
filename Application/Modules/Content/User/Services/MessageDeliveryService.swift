@@ -234,8 +234,7 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 contentType: .audio,
-                audioComponents: [mockAudioMessageReference],
-                image: nil,
+                media: .audio([mockAudioMessageReference]),
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
@@ -245,8 +244,7 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 contentType: .image,
-                audioComponents: nil,
-                image: imageFile,
+                media: .image(imageFile),
                 translations: nil,
                 readDate: nil,
                 sentDate: Date()
@@ -256,8 +254,7 @@ public final class MessageDeliveryService {
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
                 contentType: .text,
-                audioComponents: nil,
-                image: nil,
+                media: nil,
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
