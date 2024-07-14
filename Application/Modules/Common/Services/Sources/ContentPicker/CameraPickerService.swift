@@ -20,7 +20,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
 
     // MARK: - Properties
 
-    private var _onDismiss: ((Callback<UIImage, Exception>?) -> Void)?
+    private var _onDismiss: ((Callback<ContentPickerResult, Exception>?) -> Void)?
 
     // MARK: - Present
 
@@ -33,7 +33,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Callback<UIImage, Exception>?) -> Void) {
+    public func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
@@ -51,7 +51,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
             return
         }
 
-        _onDismiss?(.success(image))
+        _onDismiss?(.success(.image(image)))
         _onDismiss = nil
     }
 

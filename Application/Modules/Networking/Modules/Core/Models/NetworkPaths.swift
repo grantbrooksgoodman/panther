@@ -27,6 +27,7 @@ public struct NetworkPaths {
         case translations
         case userNumberHashes
         case users
+        case videos
     }
 
     // MARK: - Properties
@@ -42,4 +43,5 @@ public struct NetworkPaths {
     public let translations = Path.translations.rawValue
     public let userNumberHashes = Path.userNumberHashes.rawValue
     public let users = Path.users.rawValue
+    public let videos = Path.videos.rawValue
 }

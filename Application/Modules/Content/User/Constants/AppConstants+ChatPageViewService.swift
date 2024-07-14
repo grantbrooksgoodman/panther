@@ -158,6 +158,7 @@ public extension AppConstants.Strings {
 
         enum MediaActionHandler {
             public static let defaultImageName = "image"
+            public static let defaultVideoName = "video"
         }
 
         enum Menu {

@@ -1,5 +1,5 @@
 //
-//  MediaPickerService.swift
+//  ContentPickerService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct MediaPickerService {
+public struct ContentPickerService {
     // MARK: - Properties
 
     public let camera: CameraPickerService
-    public let photo: PhotoPickerService
+    public let media: MediaPickerService
 
     // MARK: - Init
 
     public init(
         camera: CameraPickerService,
-        photo: PhotoPickerService
+        media: MediaPickerService
     ) {
         self.camera = camera
-        self.photo = photo
+        self.media = media
     }
 }

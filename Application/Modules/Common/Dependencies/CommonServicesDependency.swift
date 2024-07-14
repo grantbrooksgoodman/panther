@@ -27,6 +27,10 @@ public enum CommonServicesDependency: DependencyKey {
                 contactPairArchive: .init(),
                 sync: .init()
             ),
+            contentPicker: .init(
+                camera: .init(),
+                media: .init()
+            ),
             haptics: .init(
                 heavyImpactFeedbackGenerator: .init(style: .heavy),
                 lightImpactFeedbackGenerator: .init(style: .light),
@@ -36,10 +40,6 @@ public enum CommonServicesDependency: DependencyKey {
                 softImpactFeedbackGenerator: .init(style: .soft)
             ),
             invite: .init(),
-            mediaPicker: .init(
-                camera: .init(),
-                photo: .init()
-            ),
             metadata: .init(),
             networkActivityIndicator: .init(),
             notification: .init(),
