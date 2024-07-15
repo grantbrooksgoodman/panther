@@ -17,12 +17,19 @@ import MessageKit
 extension MediaFile: MediaItem {
     public var image: UIImage? {
         @Dependency(\.fileManager) var fileManager: FileManager
-        @Dependency(\.networking.config.paths.media) var mediaPath: String
-        let path = "\(mediaPath)/\(name).\(fileExtension.rawValue)"
-        return .init(contentsOfFile: fileManager.pathToFileInDocuments(named: path))
+        guard let thumbnailPath = urlPath.thumbnailPath?.path(),
+              fileManager.fileExists(atPath: thumbnailPath) else {
+            return .init(contentsOfFile: urlPath.path())
+        }
+
+        return .init(contentsOfFile: thumbnailPath)
     }
 
     public var placeholderImage: UIImage { .init() }
     public var size: CGSize { image?.size ?? .zero }
     public var url: URL? { urlPath }
+}
+
+public extension MediaFile {
+    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.png).rawValue)" }
 }

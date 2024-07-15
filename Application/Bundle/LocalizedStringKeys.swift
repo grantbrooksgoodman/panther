@@ -14,6 +14,7 @@ public enum LocalizedStringKey: String {
 
     /* Add cases here for newly pre-localized strings. */
 
+    case attachment
     case audioMessage
 
     case cancel
@@ -37,7 +38,6 @@ public enum LocalizedStringKey: String {
 
     case language
 
-    case media
     case monday
     case multiple
     case myAccount

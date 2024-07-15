@@ -178,7 +178,7 @@
 		B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943886E2B321951002D94FF /* ClientSessionDependency.swift */; };
 		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
 		B94388742B322056002D94FF /* TranslationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388732B322056002D94FF /* TranslationConstants.swift */; };
-		B943F2482C41EA610047EDD5 /* ImageMessagePreviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */; };
+		B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */; };
 		B9450DE02C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */; };
 		B94657692AABBC740091193B /* UserDefaultsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94657682AABBC740091193B /* UserDefaultsDependency.swift */; };
 		B946576B2AABBD420091193B /* AlertKitConfigDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B946576A2AABBD420091193B /* AlertKitConfigDependency.swift */; };
@@ -278,6 +278,8 @@
 		B98589B22B60512C00E549C0 /* ConversationCellViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */; };
 		B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */; };
 		B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */; };
+		B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */; };
+		B9870AA82C4580D4002B1093 /* Data+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */; };
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
 		B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */; };
 		B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */; };
@@ -1064,7 +1066,7 @@
 		B943886E2B321951002D94FF /* ClientSessionDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionDependency.swift; sourceTree = "<group>"; };
 		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		B94388732B322056002D94FF /* TranslationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationConstants.swift; sourceTree = "<group>"; };
-		B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMessagePreviewService.swift; sourceTree = "<group>"; };
+		B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMessagePreviewService.swift; sourceTree = "<group>"; };
 		B9450DDF2C1A063D008DCD7B /* InteractivePopGestureRecognizerDisabledViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractivePopGestureRecognizerDisabledViewModifier.swift; sourceTree = "<group>"; };
 		B94657682AABBC740091193B /* UserDefaultsDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsDependency.swift; sourceTree = "<group>"; };
 		B946576A2AABBD420091193B /* AlertKitConfigDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertKitConfigDependency.swift; sourceTree = "<group>"; };
@@ -1163,6 +1165,8 @@
 		B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewService.swift; sourceTree = "<group>"; };
 		B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewData.swift; sourceTree = "<group>"; };
 		B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewServiceDependency.swift; sourceTree = "<group>"; };
+		B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheStatus.swift; sourceTree = "<group>"; };
 		B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheService.swift; sourceTree = "<group>"; };
@@ -2652,8 +2656,8 @@
 				B923CAA42B758BAD0042D3E4 /* AlternateMessageService.swift */,
 				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
-				B943F2472C41EA610047EDD5 /* ImageMessagePreviewService.swift */,
 				B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */,
+				B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */,
 				B92646932B7466B000E0F385 /* MenuService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
@@ -3719,6 +3723,7 @@
 				B90071EE2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift */,
 				B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */,
 				B903CA6F2B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift */,
+				B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */,
 				B90C91192B69E73F008DFE59 /* Date+UserContentExtensions.swift */,
 				B92168392C4350D400063978 /* FileManager+UserContentExtensions.swift */,
 				B92168372C4341B800063978 /* InputStackView+UserContentExtensions.swift */,
@@ -3735,6 +3740,7 @@
 				B96C125C2BAE47430063687C /* UIImage+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
+				B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */,
 				B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */,
 			);
 			path = Extensions;
@@ -4618,6 +4624,7 @@
 				B9E7D4222AAC1ED700FAF2A9 /* SamplePageReducer.swift in Sources */,
 				B90C91242B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift in Sources */,
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
+				B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */,
 				B9D0D9412B03019E00078A93 /* Networking.swift in Sources */,
 				B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */,
 				B920F1872AD77128002FC1C2 /* Calendar+CoreExtensions.swift in Sources */,
@@ -4781,7 +4788,7 @@
 				B9428A2E2C3DC31C0024E1B5 /* BuildExpiryAlert.swift in Sources */,
 				B90249C42B573A5800D62855 /* AuthCodeContentPageView.swift in Sources */,
 				B9E00A522C2B85BC004E350E /* MediaFileExtensions.swift in Sources */,
-				B943F2482C41EA610047EDD5 /* ImageMessagePreviewService.swift in Sources */,
+				B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */,
 				B96D43F52B84610D00C66B46 /* RootWindow.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B91C2D762C1B694700278B7F /* ConnectionStatusProviderProtocol.swift in Sources */,
@@ -4797,6 +4804,7 @@
 				B99195A82B48963200BD5BBC /* AppConstants+SearchBar.swift in Sources */,
 				B9E0E0FE2B20F03800C14274 /* Storage.swift in Sources */,
 				B980E8AF2B225EE40090F141 /* Message+Serializable.swift in Sources */,
+				B9870AA82C4580D4002B1093 /* Data+UserContentExtensions.swift in Sources */,
 				B9A907382BADFFAC007AD2C2 /* CNContactContainer.swift in Sources */,
 				B99B1DC029E4C45000117D42 /* AppThemes.swift in Sources */,
 				B963F1CA2B23D7250087DB83 /* Participant+Serializable.swift in Sources */,

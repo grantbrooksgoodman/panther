@@ -42,7 +42,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // Other
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
-    public var localMediaFilePath: LocalMediaFilePath? { .init(self) }
+    public var localMediaFilePath: LocalMediaFilePath? { get async { await .init(self) } }
     /// The translation for this message in the current user's language code.
     public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
 
@@ -64,6 +64,34 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate
+    }
+
+    // MARK: - Resolve Media File Extension
+
+    public func resolveMediaFileExtension(_ messageID: String) async -> Callback<String, Exception> {
+        @Dependency(\.networking) var networking: Networking
+
+        func satisfiesConstraints(_ string: String) -> Bool {
+            let isAudioCAF = string == MediaFileExtension.audio(.caf).rawValue
+            let isAudioM4A = string == MediaFileExtension.audio(.m4a).rawValue
+            return !isAudioCAF && !isAudioM4A
+        }
+
+        let fileExtensions = MediaFileExtension.allCases.map(\.rawValue).filter { satisfiesConstraints($0) }
+        for fileExtension in fileExtensions {
+            let itemExistsResult = await networking.storage.itemExists(at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)")
+
+            switch itemExistsResult {
+            case let .success(itemExists):
+                guard itemExists else { continue }
+                return .success(fileExtension)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        return .failure(.init("Media item does not exist.", metadata: [self, #file, #function, #line]))
     }
 
     // MARK: - Computed Property Getters

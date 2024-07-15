@@ -93,12 +93,10 @@ public struct TextToSpeechService {
         let outputURL = fileManager.documentsDirectoryURL.appending(path: fileName)
 
         let asset = AVAsset(url: url)
-        let exportSession = AVAssetExportSession(
+        guard let exportSession = AVAssetExportSession(
             asset: asset,
             presetName: AVAssetExportPresetAppleM4A
-        )
-
-        guard let exportSession else {
+        ) else {
             return .failure(.init(
                 "Failed to create export session.",
                 extraParams: commonParams,

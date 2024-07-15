@@ -67,7 +67,7 @@ public struct BuildInfoOverlayViewService {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
             await AKActionSheet(
-                message: "File a Report",
+                title: "File a Report",
                 actions: [
                     .init("Send Feedback") { reportDelegate.sendFeedback() },
                     .init("Report Bug") { reportDelegate.reportBug() },

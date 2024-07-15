@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - Media File Extension
 
-public enum MediaFileExtension: Codable, Equatable {
+public enum MediaFileExtension: Codable, Equatable, CaseIterable {
     /* MARK: Cases */
 
     case audio(AudioFileExtension)
@@ -19,6 +19,15 @@ public enum MediaFileExtension: Codable, Equatable {
     case video(VideoFileExtension)
 
     /* MARK: Properties */
+
+    public static var allCases: [MediaFileExtension] = [
+        .audio(.caf),
+        .audio(.m4a),
+        .image(.png),
+        .video(.mp4),
+    ]
+
+    /* MARK: Computed Properties */
 
     // Boolean
     public var isAudio: Bool {

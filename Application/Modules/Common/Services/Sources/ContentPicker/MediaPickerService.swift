@@ -18,9 +18,11 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.fileManager) private var fileManager: FileManager
 
     // MARK: - Properties
 
+    private var timeout: Timeout?
     private var _onDismiss: ((Callback<ContentPickerResult, Exception>?) -> Void)?
 
     // MARK: - Present
@@ -52,42 +54,14 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
                 picker.dismiss(animated: true)
 
                 guard let itemProvider = results.first?.itemProvider else { return }
-                let timeout = Timeout(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
+                self.timeout = .init(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
 
                 if itemProvider.canLoadObject(ofClass: UIImage.self) {
-                    itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                        timeout.cancel()
-                        self.core.hud.hide()
-
-                        guard let image = object as? UIImage else {
-                            self._onDismiss?(.failure(.init(error, metadata: [self, #file, #function, #line])))
-                            self._onDismiss = nil
-                            return
-                        }
-
-                        self._onDismiss?(.success(.image(image)))
-                        self._onDismiss = nil
-                    }
+                    self.loadImage(itemProvider)
                 } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                    itemProvider.loadItem(forTypeIdentifier: UTType.movie.identifier, options: nil) { object, error in
-                        timeout.cancel()
-                        self.core.hud.hide()
-
-                        guard let url = object as? URL else {
-                            self._onDismiss?(.failure(.init(error, metadata: [self, #file, #function, #line])))
-                            self._onDismiss = nil
-                            return
-                        }
-
-                        self._onDismiss?(.success(.video(url)))
-                        self._onDismiss = nil
-                    }
+                    self.loadVideo(itemProvider)
                 } else {
-                    timeout.cancel()
-                    self.core.hud.hide()
-
-                    self._onDismiss?(.failure(.init("Failed to process media.", metadata: [self, #file, #function, #line])))
-                    self._onDismiss = nil
+                    self.dismissReturningFailure(.init("Failed to process media.", metadata: [self, #file, #function, #line]))
                 }
             }
         }
@@ -97,6 +71,54 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
                 confirmAction,
                 .cancelAction,
             ]).present(translating: [.actions([confirmAction])])
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    public func dismissReturningFailure(_ exception: Exception) {
+        timeout?.cancel()
+        core.hud.hide()
+
+        _onDismiss?(.failure(exception))
+        _onDismiss = nil
+    }
+
+    private func loadImage(_ itemProvider: NSItemProvider) {
+        itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+            self.timeout?.cancel()
+            self.core.hud.hide()
+
+            guard let image = object as? UIImage else {
+                return self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+            }
+
+            self._onDismiss?(.success(.image(image)))
+            self._onDismiss = nil
+        }
+    }
+
+    private func loadVideo(_ itemProvider: NSItemProvider) {
+        itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
+            self.timeout?.cancel()
+            self.core.hud.hide()
+
+            guard let url else {
+                return self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+            }
+
+            typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
+            let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+            let temporaryFilePath = self.fileManager.temporaryDirectory.appending(path: temporaryFileName)
+            try? self.fileManager.removeItem(atPath: temporaryFilePath.path())
+
+            do {
+                try self.fileManager.copyItem(at: url, to: temporaryFilePath)
+                self._onDismiss?(.success(.video(temporaryFilePath)))
+                self._onDismiss = nil
+            } catch {
+                self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+            }
         }
     }
 }

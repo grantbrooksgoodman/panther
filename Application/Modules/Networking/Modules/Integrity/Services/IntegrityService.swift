@@ -391,6 +391,7 @@ public final class IntegrityService {
 
             let pngImageFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.image(.png).rawValue)"
             let mp4VideoFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.video(.mp4).rawValue)"
+            let mp4VideoThumbnailFilePath = "\(networking.config.paths.media)/\(key)\(MediaFile.thumbnailImageNameSuffix)"
 
             let pngImageFileItemExistsResult = await networking.storage.itemExists(at: pngImageFilePath)
 
@@ -402,7 +403,22 @@ public final class IntegrityService {
 
                 switch mp4VideoFileItemExistsResult {
                 case let .success(itemExists):
-                    guard !itemExists else { continue }
+                    guard !itemExists else {
+                        let mp4VideoThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoThumbnailFilePath)
+
+                        switch mp4VideoThumbnailFileItemExistsResult {
+                        case let .success(itemExists):
+                            guard !itemExists else { continue }
+                            if let exception = await repairMalformedMessages([key]) {
+                                exceptions.append(exception)
+                            }
+
+                        case let .failure(exception):
+                            exceptions.append(exception)
+                        }
+
+                        continue
+                    }
 
                     if let exception = await repairMalformedMessages([key]) {
                         exceptions.append(exception)

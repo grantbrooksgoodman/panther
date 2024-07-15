@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AVFoundation
 import Foundation
 import UIKit
 
@@ -41,11 +42,14 @@ public final class MediaActionHandlerService {
     public func attachMediaButtonTapped() {
         services.haptics.generateFeedback(.medium)
 
-        let cameraAction: AKAction = .init("Camera") { self.presentCameraPicker() }
-        let photosAction: AKAction = .init("Photos") { self.presentMediaPicker() }
+        let takePhotoAction: AKAction = .init("Take photo") { self.presentCameraPicker() }
+        let selectPhotoOrVideoAction: AKAction = .init("Select photo or video") { self.presentMediaPicker() }
 
         Task {
-            await AKActionSheet(actions: [cameraAction, photosAction]).present()
+            await AKActionSheet(
+                title: "Attach media",
+                actions: [takePhotoAction, selectPhotoOrVideoAction]
+            ).present()
         }
     }
 
@@ -76,37 +80,99 @@ public final class MediaActionHandlerService {
     // MARK: - Process & Send Video
 
     private func processAndSendVideo(_ url: URL) async -> Exception? {
-        guard url.startAccessingSecurityScopedResource() else {
-            return .init("Failed to access security-scoped URL.", metadata: [self, #file, #function, #line])
-        }
+        let networkPath = "\(networkPaths.media)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+        let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
 
-        var data: Data?
-
-        do {
-            data = try Data(contentsOf: url)
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
-        }
-
-        url.stopAccessingSecurityScopedResource()
-
-        guard let data else {
-            return .init("Failed to process video.", metadata: [self, #file, #function, #line])
-        }
-
-        let path = "\(networkPaths.media)/\(Strings.defaultVideoName).mp4"
-        if let exception = fileManager.createFile(
-            atPath: fileManager.documentsDirectoryURL.appending(path: path),
-            data: data
-        ) {
+        if let exception = await compressVideo(at: url, outputURL: localPath) {
             return exception
         }
 
-        // TODO: Send video message.
+        let getThumbnailImageResult = getThumbnailImage(localPath)
+
+        switch getThumbnailImageResult {
+        case let .success(image):
+            guard let imageData = image.dataCompressed(toKB: 1000),
+                  let thumbnailPath = localPath.thumbnailPath else {
+                return .init("Failed to process thumbnail data.", metadata: [self, #file, #function, #line])
+            }
+
+            if let exception = fileManager.createFile(
+                atPath: thumbnailPath,
+                data: imageData
+            ) {
+                return exception
+            }
+
+            if let exception = await messageDeliveryService.sendMediaMessage(.init(
+                localPath,
+                name: Strings.defaultVideoName,
+                fileExtension: .video(.mp4)
+            )) {
+                return exception
+            }
+
+        case let .failure(exception):
+            return exception
+        }
+
         return nil
     }
 
     // MARK: - Auxiliary
+
+    private func compressVideo(
+        at urlPath: URL,
+        outputURL: URL
+    ) async -> Exception? {
+        let urlAsset = AVURLAsset(url: urlPath, options: nil)
+
+        guard let exportSession = AVAssetExportSession(
+            asset: urlAsset,
+            presetName: AVAssetExportPresetMediumQuality
+        ) else {
+            return .init(
+                "Failed to create export session.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        if fileManager.fileExists(atPath: outputURL.path()) {
+            do {
+                try fileManager.removeItem(at: outputURL)
+            } catch {
+                return .init(error, metadata: [self, #file, #function, #line])
+            }
+        }
+
+        exportSession.outputFileType = .mp4
+        exportSession.outputURL = outputURL
+
+        return await withCheckedContinuation { continuation in
+            exportSession.exportAsynchronously {
+                guard let error = exportSession.error else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: .init(error, metadata: [self, #file, #function, #line]))
+            }
+        }
+    }
+
+    private func getThumbnailImage(_ url: URL) -> Callback<UIImage, Exception> {
+        let assetImageGenerator = AVAssetImageGenerator(asset: .init(url: url))
+        assetImageGenerator.appliesPreferredTrackTransform = true
+
+        do {
+            let cgImage = try assetImageGenerator.copyCGImage(
+                at: CMTimeMakeWithSeconds(1.0, preferredTimescale: 600),
+                actualTime: nil
+            )
+            return .success(.init(cgImage: cgImage))
+        } catch {
+            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+        }
+    }
 
     @MainActor
     private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
@@ -126,8 +192,6 @@ public final class MediaActionHandlerService {
         case let .failure(exception):
             return exception
         }
-
-        return nil
     }
 
     private func presentCameraPicker() {

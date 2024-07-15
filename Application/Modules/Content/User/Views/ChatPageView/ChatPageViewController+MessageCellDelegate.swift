@@ -45,8 +45,8 @@ extension ChatPageViewController: MessageCellDelegate {
     // MARK: - Did Tap Image
 
     public func didTapImage(in cell: MessageCollectionViewCell) {
-        @Dependency(\.chatPageViewService.imageMessagePreview) var imageMessagePreviewService: ImageMessagePreviewService?
-        imageMessagePreviewService?.didTapImage(in: cell)
+        @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
+        mediaMessagePreviewService?.didTapImage(in: cell)
     }
 
     // MARK: - Did Tap Play Button

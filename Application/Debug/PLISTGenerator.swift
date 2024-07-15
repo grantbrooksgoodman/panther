@@ -78,7 +78,9 @@ public enum PLISTGenerator {
         toLanguages: [String]
     ) async -> Callback<String, Exception> {
         @Dependency(\.translationService) var translator: TranslationService
+        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
 
+        localTranslationArchiver.clearArchive()
         var resolvedTranslations = [String: String]()
 
         Logger.openStream(metadata: [self, #file, #function, #line])
@@ -101,7 +103,13 @@ public enum PLISTGenerator {
                 resolvedTranslations[languageCode] = translation.output
 
             case let .failure(exception):
-                return .failure(exception)
+                Logger.logToStream(
+                    "Translated(?) item \(index + 1) of \(toLanguages.count).",
+                    line: #line
+                )
+
+                Logger.log(exception)
+                resolvedTranslations[languageCode] = text
             }
         }
 

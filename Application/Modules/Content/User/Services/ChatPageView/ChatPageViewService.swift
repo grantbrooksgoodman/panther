@@ -38,10 +38,10 @@ public final class ChatPageViewService {
     public private(set) var alternateMessage: AlternateMessageService?
     public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
-    public private(set) var imageMessagePreview: ImageMessagePreviewService?
     public private(set) var inputBar: InputBarService?
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
     public private(set) var mediaActionHandler: MediaActionHandlerService?
+    public private(set) var mediaMessagePreview: MediaMessagePreviewService?
     public private(set) var menu: MenuService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
@@ -66,10 +66,10 @@ public final class ChatPageViewService {
 
         alternateMessage = .init(viewController)
         audioMessagePlayback = .init(viewController)
-        imageMessagePreview = .init(viewController)
         inputBar = .init(viewController)
         inputBarGestureRecognizer = .init(viewController)
         mediaActionHandler = .init(viewController)
+        mediaMessagePreview = .init(viewController)
         menu = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
@@ -86,7 +86,7 @@ public final class ChatPageViewService {
     // MARK: - View Controller Lifecycle Handlers
 
     public func onViewWillAppear() {
-        guard !(imageMessagePreview?.isPreviewingImage ?? false) else { return }
+        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
@@ -100,7 +100,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidAppear() {
-        guard !(imageMessagePreview?.isPreviewingImage ?? false) else { return }
+        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
@@ -113,7 +113,7 @@ public final class ChatPageViewService {
             return
         }
 
-        imageMessagePreview?.configureGestureRecognizer()
+        mediaMessagePreview?.configureGestureRecognizer()
         inputBarGestureRecognizer?.configureGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
@@ -130,7 +130,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewWillDisappear() {
-        guard !(imageMessagePreview?.isPreviewingImage ?? false) else { return }
+        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
         toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
@@ -139,7 +139,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidDisappear() {
-        guard !(imageMessagePreview?.isPreviewingImage ?? false) else { return }
+        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
         chatPageState.setIsPresented(false)
 
         Task {

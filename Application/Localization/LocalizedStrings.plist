@@ -157,6 +157,161 @@
 		<key>zh</key>
 		<string>Chinese (中文)</string>
 	</dict>
+	<key>attachment</key>
+	<dict>
+		<key>af</key>
+		<string>Aangehegte media</string>
+		<key>ar</key>
+		<string>وسائل الإعلام المرفقة</string>
+		<key>az</key>
+		<string>Əlavə olunmuş media</string>
+		<key>be</key>
+		<string>Далучаны медыя</string>
+		<key>bg</key>
+		<string>Прикачени медии</string>
+		<key>bn</key>
+		<string>সংযুক্ত মিডিয়া</string>
+		<key>bs</key>
+		<string>Priloženi mediji</string>
+		<key>ca</key>
+		<string>Suports adjunts</string>
+		<key>cs</key>
+		<string>Připojená média</string>
+		<key>cy</key>
+		<string>Cyfryngau cysylltiedig</string>
+		<key>da</key>
+		<string>Vedhæftede medier</string>
+		<key>de</key>
+		<string>Beigefügte Medien</string>
+		<key>el</key>
+		<string>Συνημμένα μέσα</string>
+		<key>en</key>
+		<string>Attachment</string>
+		<key>eo</key>
+		<string>Aligita Amaskomunikilaro</string>
+		<key>es</key>
+		<string>Medios adjuntos</string>
+		<key>et</key>
+		<string>Lisatud meedia</string>
+		<key>eu</key>
+		<string>Erantsitako euskarria</string>
+		<key>fa</key>
+		<string>رسانه پیوست شده</string>
+		<key>fi</key>
+		<string>Liitteenä oleva media</string>
+		<key>fr</key>
+		<string>Médias ci-joints</string>
+		<key>ga</key>
+		<string>Meáin Cheangailte</string>
+		<key>gd</key>
+		<string>Meadhanan ceangailte</string>
+		<key>gl</key>
+		<string>Medios adxuntos</string>
+		<key>gu</key>
+		<string>જોડાયેલ માધ્યમ</string>
+		<key>he</key>
+		<string>מדיה מצורפת</string>
+		<key>hi</key>
+		<string>संलग्न मीडिया</string>
+		<key>hr</key>
+		<string>Priloženi mediji</string>
+		<key>ht</key>
+		<string>Attached media</string>
+		<key>hu</key>
+		<string>Csatolt média</string>
+		<key>hy</key>
+		<string>Կցված լրատվամիջոցներ</string>
+		<key>id</key>
+		<string>Media terlampir</string>
+		<key>is</key>
+		<string>Meðfylgjandi miðill</string>
+		<key>it</key>
+		<string>Media allegati</string>
+		<key>ja</key>
+		<string>添付のメディア</string>
+		<key>ka</key>
+		<string>Თანდართული მედია</string>
+		<key>kk</key>
+		<string>Тіркелген БАҚ</string>
+		<key>kn</key>
+		<string>ಲಗತ್ತಿಸಲಾದ ಮಾಧ್ಯಮ</string>
+		<key>ko</key>
+		<string>첨부 된 미디어</string>
+        <key>ky</key>
+        <string>Тиркелген медиа</string>
+        <key>lt</key>
+        <string>Pridedama žiniasklaida</string>
+        <key>mg</key>
+        <string>Fampahalalam-baovao mifandray</string>
+        <key>mi</key>
+        <string>Pāpāho āpitihia</string>
+        <key>mk</key>
+        <string>Приложени медиуми</string>
+        <key>ml</key>
+        <string>അറ്റാച്ചുചെയ്ത മീഡിയ</string>
+        <key>mn</key>
+        <string>Хавсаргасан хэвлэл мэдээллийн хэрэгсэл</string>
+        <key>mt</key>
+        <string>Midja mehmuża</string>
+        <key>ne</key>
+        <string>Attached media</string>
+        <key>nl</key>
+        <string>Bijgevoegde media</string>
+        <key>no</key>
+        <string>Vedlagte medier</string>
+        <key>pa</key>
+        <string>ਨਾਲ ਜੁੜੇ ਮੀਡੀਆ</string>
+        <key>pl</key>
+        <string>Załączone media</string>
+        <key>pt</key>
+        <string>Mídia anexa</string>
+        <key>ro</key>
+        <string>Media atașată</string>
+        <key>ru</key>
+        <string>Прикрепленные носители</string>
+        <key>si</key>
+        <string>Attached media</string>
+        <key>sk</key>
+        <string>Priložené médiá</string>
+        <key>sl</key>
+        <string>Priloženi mediji</string>
+        <key>sq</key>
+        <string>Media bashkangjitur</string>
+        <key>sr</key>
+        <string>Attached media</string>
+        <key>su</key>
+        <string>Media anu napel</string>
+        <key>sv</key>
+        <string>Bifogat media</string>
+        <key>sw</key>
+        <string>Vyombo vya habari vilivyoambatishwa</string>
+        <key>ta</key>
+        <string>Attached media</string>
+        <key>te</key>
+        <string>జత చేసిన మీడియా</string>
+        <key>tg</key>
+        <string>ВАО замимашуда</string>
+        <key>th</key>
+        <string>สื่อที่แนบมา</string>
+        <key>tl</key>
+        <string>Nakalakip na media</string>
+        <key>tr</key>
+        <string>Ekli medya</string>
+        <key>tt</key>
+        <string>Беркетелгән медиа</string>
+        <key>uk</key>
+        <string>Додано ЗМІ</string>
+        <key>ur</key>
+        <string>منسلک میڈیا</string>
+        <key>uz</key>
+        <string>Biriktirilgan OAV</string>
+        <key>vi</key>
+        <string>Phương tiện truyền thông đính kèm</string>
+        <key>yi</key>
+        <string>אַטאַטשט מעדיע</string>
+        <key>zh</key>
+        <string>附件</string>
+	</dict>
 	<key>audio_message</key>
 	<dict>
 		<key>af</key>
@@ -7886,6 +8041,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>ווערסיע</string>
 		<key>zh</key>
 		<string>版本</string>
+	</dict>
+	<key>video</key>
+	<dict>
+		<key>af</key>
+		<string>Video</string>
+		<key>ar</key>
+		<string>فيديو</string>
+		<key>az</key>
+		<string>Video</string>
+		<key>be</key>
+		<string>Відэа</string>
+		<key>bg</key>
+		<string>Видео</string>
+		<key>bn</key>
+		<string>ভিডিও</string>
+		<key>bs</key>
+		<string>Video</string>
+		<key>ca</key>
+		<string>Vídeo</string>
+		<key>cs</key>
+		<string>Video</string>
+		<key>cy</key>
+		<string>Fideo</string>
+		<key>da</key>
+		<string>Video</string>
+		<key>de</key>
+		<string>Video</string>
+		<key>el</key>
+		<string>Βίντεο</string>
+		<key>en</key>
+		<string>Video</string>
+		<key>eo</key>
+		<string>Video</string>
+		<key>es</key>
+		<string>Video</string>
+		<key>et</key>
+		<string>Video</string>
+		<key>eu</key>
+		<string>Bidetsio</string>
+		<key>fa</key>
+		<string>ویدیو</string>
+		<key>fi</key>
+		<string>Video</string>
+		<key>fr</key>
+		<string>Vidéo</string>
+		<key>ga</key>
+		<string>Físeán</string>
+		<key>gd</key>
+		<string>Bhidio</string>
+		<key>gl</key>
+		<string>Vídeo</string>
+		<key>gu</key>
+		<string>કોઇ</string>
+		<key>he</key>
+		<string>וִידֵאוֹ</string>
+		<key>hi</key>
+		<string>वीडियो</string>
+		<key>hr</key>
+		<string>Video</string>
+		<key>ht</key>
+		<string>Videyo</string>
+		<key>hu</key>
+		<string>Videó</string>
+		<key>hy</key>
+		<string>Video</string>
+		<key>id</key>
+		<string>Video</string>
+		<key>is</key>
+		<string>Myndband</string>
+		<key>it</key>
+		<string>Video</string>
+		<key>ja</key>
+		<string>ビデオ</string>
+		<key>ka</key>
+		<string>Ვიდეო</string>
+		<key>kk</key>
+		<string>Бейне</string>
+		<key>kn</key>
+		<string>ವೀಡಿಯೊ</string>
+		<key>ko</key>
+		<string>동영상</string>
+		<key>ky</key>
+		<string>Видео</string>
+		<key>lt</key>
+		<string>Vaizdo įrašas</string>
+		<key>mg</key>
+		<string>Video</string>
+		<key>mi</key>
+		<string>Ataata</string>
+		<key>mk</key>
+		<string>Видео</string>
+		<key>ml</key>
+		<string>വീഡിയോ</string>
+		<key>mn</key>
+		<string>Видео</string>
+		<key>mt</key>
+		<string>Video</string>
+		<key>ne</key>
+		<string>भिडियो</string>
+		<key>nl</key>
+		<string>Video</string>
+		<key>no</key>
+		<string>Video</string>
+		<key>pa</key>
+		<string>ਵੀਡੀਓ</string>
+		<key>pl</key>
+		<string>Wideo</string>
+		<key>pt</key>
+		<string>Vídeo</string>
+		<key>ro</key>
+		<string>Video</string>
+		<key>ru</key>
+		<string>Видео</string>
+		<key>si</key>
+		<string>වීඩියෝ</string>
+		<key>sk</key>
+		<string>Video</string>
+		<key>sl</key>
+		<string>Video</string>
+		<key>sq</key>
+		<string>Video</string>
+		<key>sr</key>
+		<string>Видео</string>
+		<key>su</key>
+		<string>Liwat saurang</string>
+		<key>sv</key>
+		<string>Video</string>
+		<key>sw</key>
+		<string>Video</string>
+		<key>ta</key>
+		<string>Video</string>
+		<key>te</key>
+		<string>వీడియో</string>
+		<key>tg</key>
+		<string>Видео</string>
+		<key>th</key>
+		<string>วิดีโอ</string>
+		<key>tl</key>
+		<string>Video</string>
+		<key>tr</key>
+		<string>Video</string>
+		<key>tt</key>
+		<string>Видео</string>
+		<key>uk</key>
+		<string>Відео</string>
+		<key>ur</key>
+		<string>ویڈیو</string>
+		<key>uz</key>
+		<string>Video</string>
+		<key>vi</key>
+		<string>Băng hình</string>
+		<key>yi</key>
+		<string>ווידעא</string>
+		<key>zh</key>
+		<string>视频</string>
 	</dict>
 	<key>view_as_audio</key>
 	<dict>

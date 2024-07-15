@@ -17,7 +17,7 @@ public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.chatPageViewService.imageMessagePreview) private var imageMessagePreviewService: ImageMessagePreviewService?
+    @Dependency(\.chatPageViewService.mediaMessagePreview) private var mediaMessagePreviewService: MediaMessagePreviewService?
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
@@ -94,7 +94,7 @@ public struct ConversationCellReducer: Reducer {
             RootSheets.present(.chatInfoPageView)
 
         case .action(.chatPageViewAppeared):
-            guard !(imageMessagePreviewService?.isPreviewingImage ?? false) else { return .none }
+            guard !(mediaMessagePreviewService?.isPreviewingMedia ?? false) else { return .none }
 
             // NIT: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
             let conversation = state.conversation

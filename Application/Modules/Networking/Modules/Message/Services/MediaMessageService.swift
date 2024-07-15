@@ -20,12 +20,20 @@ public struct MediaMessageService {
     // MARK: - Get Media Component
 
     public func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
-        switch cachedMediaFile(for: message) {
+        let commonParams = ["MessageID": message.id]
+        guard let localMediaFilePath = await message.localMediaFilePath else {
+            return .failure(.init(
+                "Message does not have a media component.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
+        }
+
+        switch cachedMediaFile(for: message, localPath: localMediaFilePath) {
         case let .success(mediaFile):
             return .success(appendMediaComponent(mediaFile, to: message))
 
         case .failure:
-            let downloadMediaFileResult = await downloadMediaFile(for: message)
+            let downloadMediaFileResult = await downloadMediaFile(for: message, localPath: localMediaFilePath)
 
             switch downloadMediaFileResult {
             case let .success(mediaFile):
@@ -42,15 +50,9 @@ public struct MediaMessageService {
     public func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
-        let pathPrefix = "\(networking.config.paths.media)/\(messageID)."
-        var fileTypes = [
-            MediaFileExtension.image(.png).rawValue,
-            MediaFileExtension.video(.mp4).rawValue,
-        ]
-
-        for fileType in fileTypes {
+        for fileExtension in MediaFileExtension.allCases.map(\.rawValue) {
             if let exception = await networking.storage.deleteItem(
-                at: "\(networking.config.paths.media)/\(messageID).\(fileType)"
+                at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)"
             ) {
                 guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
                 exceptions.append(exception)
@@ -63,19 +65,44 @@ public struct MediaMessageService {
     // MARK: - Upload Media Component
 
     public func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
-        let fullPath = "\(networking.config.paths.media)/\(message.id).\(mediaComponent.fileExtension.rawValue)"
+        let pathPrefix = "\(networking.config.paths.media)/\(message.id)"
+        let mediaNetworkPath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
+        let thumbnailNetworkPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        do {
-            let data = try Data(contentsOf: mediaComponent.urlPath)
-            return await networking.storage.upload(
-                data,
+        let mediaDataFromURLResult = Data.fromURL(mediaComponent.urlPath)
+
+        switch mediaDataFromURLResult {
+        case let .success(mediaData):
+            if let exception = await networking.storage.upload(
+                mediaData,
                 metadata: .init(
-                    fullPath,
+                    mediaNetworkPath,
                     contentType: mediaComponent.fileExtension.contentTypeString
                 )
-            )
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            ) {
+                return exception
+            }
+
+            guard mediaComponent.hasThumbnail,
+                  let thumbnailPath = mediaComponent.urlPath.thumbnailPath else { return nil }
+            let thumbnailDataFromURLResult = Data.fromURL(thumbnailPath)
+
+            switch thumbnailDataFromURLResult {
+            case let .success(thumbnailData):
+                return await networking.storage.upload(
+                    thumbnailData,
+                    metadata: .init(
+                        thumbnailNetworkPath,
+                        contentType: MediaFileExtension.image(.png).contentTypeString
+                    )
+                )
+
+            case let .failure(exception):
+                return exception
+            }
+
+        case let .failure(exception):
+            return exception
         }
     }
 
@@ -96,17 +123,13 @@ public struct MediaMessageService {
         )
     }
 
-    private func cachedMediaFile(for message: Message) -> Callback<MediaFile, Exception> {
+    private func cachedMediaFile(
+        for message: Message,
+        localPath: LocalMediaFilePath
+    ) -> Callback<MediaFile, Exception> {
         let commonParams = ["MessageID": message.id]
 
-        guard let localMediaFilePath = message.localMediaFilePath else {
-            return .failure(.init(
-                "Message does not have a media component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
-        }
-
-        guard let mediaFile = MediaFile(localMediaFilePath.localPathURL) else {
+        guard let mediaFile = MediaFile(localPath.localPathURL) else {
             return .failure(.init(
                 "Media message reference has no local copy.",
                 metadata: [self, #file, #function, #line]
@@ -116,24 +139,29 @@ public struct MediaMessageService {
         return .success(mediaFile)
     }
 
-    private func downloadMediaFile(for message: Message) async -> Callback<MediaFile, Exception> {
+    private func downloadMediaFile(
+        for message: Message,
+        localPath: LocalMediaFilePath
+    ) async -> Callback<MediaFile, Exception> {
         let commonParams = ["MessageID": message.id]
 
-        guard let localMediaFilePath = message.localMediaFilePath else {
-            return .failure(.init(
-                "Message does not have a media component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
-        }
-
         if let exception = await networking.storage.downloadItem(
-            at: localMediaFilePath.networkPathString,
-            to: localMediaFilePath.localPathURL
+            at: localPath.networkPathString,
+            to: localPath.localPathURL
         ) {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        guard let mediaFile = MediaFile(localMediaFilePath.localPathURL) else {
+        if let thumbnailNetworkPathString = localPath.thumbnailNetworkPathString,
+           let thumbnailLocalPathURL = localPath.thumbnailLocalPathURL,
+           let exception = await networking.storage.downloadItem(
+               at: thumbnailNetworkPathString,
+               to: thumbnailLocalPathURL
+           ) {
+            return .failure(exception.appending(extraParams: commonParams))
+        }
+
+        guard let mediaFile = MediaFile(localPath.localPathURL) else {
             return .failure(.init(
                 "Failed to generate media file.",
                 metadata: [self, #file, #function, #line]

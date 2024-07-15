@@ -50,7 +50,7 @@ public extension DevModeAction {
                     }
 
                     await AKActionSheet(
-                        message: "Change Theme",
+                        title: "Change Theme",
                         actions: actions
                     ).present(translating: [])
                 }

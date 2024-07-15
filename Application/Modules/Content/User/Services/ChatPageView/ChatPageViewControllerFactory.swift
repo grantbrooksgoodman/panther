@@ -74,6 +74,7 @@ public struct ChatPageViewControllerFactory {
         layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.photoMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
+        layout.videoMessageSizeCalculator.outgoingAvatarSize = .zero
 
         layout.setMessageOutgoingCellBottomLabelAlignment(.init(
             textAlignment: .right,

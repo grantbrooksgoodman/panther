@@ -69,7 +69,7 @@ public final class SettingsPageViewService: Cacheable {
                 }
             }
 
-            await AKActionSheet(message: "Change Theme", actions: actions).present()
+            await AKActionSheet(title: "Change Theme", actions: actions).present()
         }
     }
 

@@ -92,7 +92,7 @@ public final class NotificationService {
                 } else if message.videoComponent != nil {
                     body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
                 } else {
-                    body = "📎 \(Localized(.media, languageCode: user.languageCode).wrappedValue)"
+                    body = "📎 \(Localized(.attachment, languageCode: user.languageCode).wrappedValue)"
                 }
 
             case .text:

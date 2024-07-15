@@ -19,6 +19,14 @@ public struct MediaFile: Codable, Equatable {
     public let name: String
     public let urlPath: URL
 
+    // MARK: - Computed Properties
+
+    public var hasThumbnail: Bool {
+        @Dependency(\.fileManager) var fileManager: FileManager
+        guard let thumbnailPath = urlPath.thumbnailPath else { return false }
+        return fileManager.fileExists(atPath: thumbnailPath.path())
+    }
+
     // MARK: - Init
 
     public init(

@@ -1,5 +1,5 @@
 //
-//  ImageMessagePreviewService.swift
+//  MediaMessagePreviewService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 12/07/2024.
@@ -14,7 +14,7 @@ import UIKit
 import CoreArchitecture
 import MessageKit
 
-public final class ImageMessagePreviewService {
+public final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -23,14 +23,17 @@ public final class ImageMessagePreviewService {
 
     // MARK: - Properties
 
-    public private(set) var isPreviewingImage = false
+    public private(set) var isPreviewingMedia = false
 
     private let viewController: ChatPageViewController
 
     // MARK: - Computed Properties
 
-    private var imagePaths: [String] {
-        viewController.currentConversation?.messages?.compactMap(\.absoluteImageFilePath) ?? []
+    private var mediaPaths: [String] {
+        viewController
+            .currentConversation?
+            .messages?
+            .compactMap { $0.richContent?.mediaComponent?.urlPath.path() } ?? []
     }
 
     // MARK: - Init
@@ -55,23 +58,25 @@ public final class ImageMessagePreviewService {
     public func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              let filePath = message.absoluteImageFilePath,
-              !isPreviewingImage else { return }
+              message.contentType == .media,
+              let filePath = message.richContent?.mediaComponent?.urlPath.path(),
+              fileManager.fileExists(atPath: filePath),
+              !isPreviewingMedia else { return }
 
         if let exception = quickViewer.preview(
-            filesAtPaths: imagePaths,
-            startingIndex: imagePaths.firstIndex(of: filePath) ?? 0,
-            title: Localized(.image).wrappedValue.lowercased()
+            filesAtPaths: mediaPaths,
+            startingIndex: mediaPaths.firstIndex(of: filePath) ?? 0,
+            title: Localized(.attachment).wrappedValue.lowercased()
         ) {
             return Logger.log(exception)
         }
 
         quickViewer.onDismiss {
             self.chatPageViewService.redrawForAppearanceChange()
-            self.isPreviewingImage = false
+            self.isPreviewingMedia = false
         }
 
-        isPreviewingImage = true
+        isPreviewingMedia = true
     }
 
     // MARK: - Auxiliary
@@ -81,23 +86,11 @@ public final class ImageMessagePreviewService {
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
 
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
-              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
-              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              message.contentType == .media,
-              !isPreviewingImage else { return }
+              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
 
         didTapImage(in: selectedCell)
-    }
-}
-
-private extension Message {
-    var absoluteImageFilePath: String? {
-        @Dependency(\.fileManager) var fileManager: FileManager
-        return [imageComponent?.urlPath.path(), localMediaFilePath?.localPathURL.path()]
-            .compactMap { $0 }
-            .first(where: { fileManager.fileExists(atPath: $0) })
     }
 }

@@ -221,9 +221,10 @@ public struct AudioMessageService {
 
     private func upload(audioFile: AudioFile, to path: String) async -> Exception? {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
+        let dataFromURLResult = Data.fromURL(audioFile.url)
 
-        do {
-            let data = try Data(contentsOf: audioFile.url)
+        switch dataFromURLResult {
+        case let .success(data):
             return await networking.storage.upload(
                 data,
                 metadata: .init(
@@ -231,8 +232,9 @@ public struct AudioMessageService {
                     contentType: audioFile.fileExtension.contentTypeString
                 )
             )
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+
+        case let .failure(exception):
+            return exception
         }
     }
 }
