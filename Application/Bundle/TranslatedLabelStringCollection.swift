@@ -15,6 +15,7 @@ public enum TranslatedLabelStringCollection: Equatable {
     case authCodePageView(AuthCodePageViewStringKey)
     case chatInfoPageView(ChatInfoPageViewStringKey)
     case conversationsPageView(ConversationsPageViewStringKey)
+    case inviteQRCodePageView(InviteQRCodePageViewStringKey)
     case permissionPageView(PermissionPageViewStringKey)
     case samplePageView(SamplePageViewStringKey)
     case selectLanguagePageView(SelectLanguagePageViewStringKey)

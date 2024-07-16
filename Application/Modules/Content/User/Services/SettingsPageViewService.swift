@@ -55,7 +55,6 @@ public final class SettingsPageViewService: Cacheable {
     public func changeThemeButtonTapped() {
         Task {
             var actions = [AKAction]()
-            var titleMap = [Int: String]()
 
             func isCurrentTheme(_ theme: UITheme) -> Bool { theme.name == ThemeService.currentTheme.name }
             func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
@@ -157,8 +156,25 @@ public final class SettingsPageViewService: Cacheable {
         }
     }
 
-    public func inviteFriendsButtonTapped() async -> Exception? {
-        await services.invite.presentInvitationPrompt()
+    public func inviteFriendsButtonTapped() {
+        Task {
+            let sendTextMessageAction: AKAction = .init("Send Text Message") {
+                Task { @MainActor in
+                    if let exception = await self.services.invite.presentInvitationPrompt() {
+                        Logger.log(exception, with: .toast())
+                    }
+                }
+            }
+
+            let showQRCodeAction: AKAction = .init("Show QR Code") {
+                RootSheets.present(.inviteQRCodePageView)
+            }
+
+            await AKActionSheet(
+                title: "Invite Friends",
+                actions: [sendTextMessageAction, showQRCodeAction]
+            ).present()
+        }
     }
 
     public func leaveReviewButtonTapped() {

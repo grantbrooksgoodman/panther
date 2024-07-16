@@ -48,7 +48,6 @@ public struct SettingsPageReducer: Reducer {
 
     public enum Feedback {
         case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
-        case inviteFriendsButtonTappedReturned(Exception?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -192,10 +191,7 @@ public struct SettingsPageReducer: Reducer {
             state.isPresented.wrappedValue = false
 
         case .inviteFriendsButtonTapped:
-            return .task {
-                let result = await viewService.inviteFriendsButtonTapped()
-                return .inviteFriendsButtonTappedReturned(result)
-            }
+            viewService.inviteFriendsButtonTapped()
 
         case .leaveReviewButtonTapped:
             viewService.leaveReviewButtonTapped()
@@ -243,10 +239,6 @@ public struct SettingsPageReducer: Reducer {
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
             state.viewID = UUID()
             Logger.log(exception)
-
-        case let .inviteFriendsButtonTappedReturned(exception):
-            guard let exception else { return .none }
-            Logger.log(exception, with: .toast())
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

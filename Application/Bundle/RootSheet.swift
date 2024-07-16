@@ -17,6 +17,7 @@ public enum RootSheet {
 
     case chatInfoPageView
     case inviteLanguagePicker
+    case inviteQRCodePageView
 
     // MARK: - Properties
 
@@ -40,6 +41,16 @@ public enum RootSheet {
                         reducer: InviteLanguagePickerReducer()
                     )
                 ))
+
+        case .inviteQRCodePageView:
+            return .init(
+                InviteQRCodePageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: InviteQRCodePageReducer()
+                    )
+                )
+            )
         }
     }
 }

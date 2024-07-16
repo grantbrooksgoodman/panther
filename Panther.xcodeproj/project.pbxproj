@@ -162,6 +162,13 @@
 		B93CAEAE2AF4623700C03BF4 /* Toast+AppearanceEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93CAEAD2AF4623700C03BF4 /* Toast+AppearanceEdge.swift */; };
 		B93CAEB02AF4624000C03BF4 /* Toast+ColorPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93CAEAF2AF4624000C03BF4 /* Toast+ColorPalette.swift */; };
 		B94149572A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */; };
+		B94262502C4622AA0026CDE8 /* InviteQRCodePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942624F2C4622AA0026CDE8 /* InviteQRCodePageReducer.swift */; };
+		B94262522C4622D50026CDE8 /* InviteQRCodeContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262512C4622D50026CDE8 /* InviteQRCodeContentPageView.swift */; };
+		B94262552C462C290026CDE8 /* InviteQRCodePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262542C462C290026CDE8 /* InviteQRCodePageView.swift */; };
+		B94262572C4632020026CDE8 /* InviteQRCodePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262562C4632020026CDE8 /* InviteQRCodePageViewStrings.swift */; };
+		B94262592C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */; };
+		B942625B2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */; };
+		B942625D2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */; };
 		B9428A202C3DC18E0024E1B5 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9428A1F2C3DC18E0024E1B5 /* AlertKit */; };
 		B9428A222C3DC2900024E1B5 /* MailComposerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9428A212C3DC2900024E1B5 /* MailComposerDependency.swift */; };
 		B9428A242C3DC29A0024E1B5 /* ReportDelegateDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9428A232C3DC29A0024E1B5 /* ReportDelegateDependency.swift */; };
@@ -1053,6 +1060,13 @@
 		B93CAEAD2AF4623700C03BF4 /* Toast+AppearanceEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Toast+AppearanceEdge.swift"; sourceTree = "<group>"; };
 		B93CAEAF2AF4624000C03BF4 /* Toast+ColorPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Toast+ColorPalette.swift"; sourceTree = "<group>"; };
 		B94149562A4F598E0097DAE5 /* OnFirstAppearViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnFirstAppearViewModifier.swift; sourceTree = "<group>"; };
+		B942624F2C4622AA0026CDE8 /* InviteQRCodePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageReducer.swift; sourceTree = "<group>"; };
+		B94262512C4622D50026CDE8 /* InviteQRCodeContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodeContentPageView.swift; sourceTree = "<group>"; };
+		B94262542C462C290026CDE8 /* InviteQRCodePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageView.swift; sourceTree = "<group>"; };
+		B94262562C4632020026CDE8 /* InviteQRCodePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageViewStrings.swift; sourceTree = "<group>"; };
+		B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+InviteQRCodePageView.swift"; sourceTree = "<group>"; };
+		B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageViewService.swift; sourceTree = "<group>"; };
+		B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteQRCodePageViewServiceDependency.swift; sourceTree = "<group>"; };
 		B9428A212C3DC2900024E1B5 /* MailComposerDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MailComposerDependency.swift; sourceTree = "<group>"; };
 		B9428A232C3DC29A0024E1B5 /* ReportDelegateDependency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReportDelegateDependency.swift; sourceTree = "<group>"; };
 		B9428A252C3DC2D10024E1B5 /* AlertKit+CoreExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AlertKit+CoreExtensions.swift"; sourceTree = "<group>"; };
@@ -2090,6 +2104,25 @@
 				B93CAEA62AF4620700C03BF4 /* Toast+Type.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		B942624E2C4622880026CDE8 /* InviteQRCodePageView */ = {
+			isa = PBXGroup;
+			children = (
+				B94262532C462C060026CDE8 /* View */,
+				B942624F2C4622AA0026CDE8 /* InviteQRCodePageReducer.swift */,
+				B94262562C4632020026CDE8 /* InviteQRCodePageViewStrings.swift */,
+			);
+			path = InviteQRCodePageView;
+			sourceTree = "<group>";
+		};
+		B94262532C462C060026CDE8 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B94262512C4622D50026CDE8 /* InviteQRCodeContentPageView.swift */,
+				B94262542C462C290026CDE8 /* InviteQRCodePageView.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		B94388612B32104B002D94FF /* Shared */ = {
@@ -3637,6 +3670,7 @@
 				B90C91062B69C9E4008DFE59 /* ChatPageView */,
 				B990F5A42B81C5F600C7BE00 /* ContactSelectorPageView */,
 				B9F47AE32B576EC700D86C67 /* ConversationsPageView */,
+				B942624E2C4622880026CDE8 /* InviteQRCodePageView */,
 				B9EC04BA2B783CE400A16700 /* NewChatPageView */,
 				B9EC04C62B79671300A16700 /* SettingsPageView */,
 			);
@@ -3701,6 +3735,7 @@
 				B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
+				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
@@ -3760,6 +3795,7 @@
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
+				B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */,
 				B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */,
 				B96EDD8C2B635A6000CB925B /* SettingsPageViewService.swift */,
 			);
@@ -3776,6 +3812,7 @@
 				B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */,
 				B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */,
 				B9627C682B6F2353004EE9DA /* InputBarConfigServiceDependency.swift */,
+				B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */,
 				B98387292BBF6407008614AE /* MessageDeliveryServiceDependency.swift */,
 				B96EDD8E2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift */,
 				B925A0932B6480A400111413 /* UIPasteboardDependency.swift */,
@@ -4441,6 +4478,7 @@
 				B978B19B2B87CD1100AA007A /* RootSheets.swift in Sources */,
 				B9F47B082B586D0100D86C67 /* AppConstants+ConversationCellView.swift in Sources */,
 				B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */,
+				B942625D2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift in Sources */,
 				B9260BBA2AC4105C00824A7C /* BuildDependency.swift in Sources */,
 				B9E6D7E32B1289CF000BC88D /* WelcomePageViewStrings.swift in Sources */,
 				B90C91142B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift in Sources */,
@@ -4448,6 +4486,7 @@
 				B97DB5752AF45FBA002C2679 /* CoreConstants+ToastView.swift in Sources */,
 				B9C6964B2B895CF4005F0BFE /* ChatInfoPageView.swift in Sources */,
 				B9C6964D2B895D0A005F0BFE /* ChatInfoPageReducer.swift in Sources */,
+				B94262522C4622D50026CDE8 /* InviteQRCodeContentPageView.swift in Sources */,
 				B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */,
 				B97DB56F2AF45F5E002C2679 /* ToastView.swift in Sources */,
 				B9E00A502C2B85A6004E350E /* ImageFile.swift in Sources */,
@@ -4647,6 +4686,7 @@
 				B9C696522B896319005F0BFE /* ChatInfoPageViewService.swift in Sources */,
 				B9CC831B2AB0F6B800255116 /* QuickViewerDependency.swift in Sources */,
 				B96EDD8D2B635A6000CB925B /* SettingsPageViewService.swift in Sources */,
+				B94262552C462C290026CDE8 /* InviteQRCodePageView.swift in Sources */,
 				B99195812B47CB6F00BD5BBC /* InstructionViewStrings.swift in Sources */,
 				B92646942B7466B000E0F385 /* MenuService.swift in Sources */,
 				B961A8EF2ACA8346007508EC /* ViewObserver.swift in Sources */,
@@ -4691,6 +4731,7 @@
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,
 				B96D43F72B8461BA00C66B46 /* RootReducer.swift in Sources */,
 				B918222E2B6EB57B0068BDAB /* InputBarSendButton+UserContentExtensions.swift in Sources */,
+				B94262502C4622AA0026CDE8 /* InviteQRCodePageReducer.swift in Sources */,
 				B91689072AC75FFB00AF403D /* MainBundleDependency.swift in Sources */,
 				B9E0E1082B2102B700C14274 /* LocalAudioFilePath.swift in Sources */,
 				B9F47B062B5864F500D86C67 /* ConversationCellView.swift in Sources */,
@@ -4779,6 +4820,7 @@
 				B979AA3D2C446CC70082203C /* RichMessageContent.swift in Sources */,
 				B979AA3B2C445F990082203C /* ContentPickerResult.swift in Sources */,
 				B979AA372C444B3C0082203C /* MediaActionHandlerService.swift in Sources */,
+				B942625B2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift in Sources */,
 				B93BCDE92AAD9B5300AA16FE /* Callback.swift in Sources */,
 				B96A04FB2AC7C0530003FDB0 /* ProgressPageView.swift in Sources */,
 				B9F47AF82B58609300D86C67 /* UserInfoBadgeView.swift in Sources */,
@@ -4811,6 +4853,7 @@
 				B900B54E2B1AE04600BA2F1D /* ContactNameService.swift in Sources */,
 				B99195A82B48963200BD5BBC /* AppConstants+SearchBar.swift in Sources */,
 				B9E0E0FE2B20F03800C14274 /* Storage.swift in Sources */,
+				B94262572C4632020026CDE8 /* InviteQRCodePageViewStrings.swift in Sources */,
 				B980E8AF2B225EE40090F141 /* Message+Serializable.swift in Sources */,
 				B9870AA82C4580D4002B1093 /* Data+UserContentExtensions.swift in Sources */,
 				B9A907382BADFFAC007AD2C2 /* CNContactContainer.swift in Sources */,
@@ -4818,6 +4861,7 @@
 				B963F1CA2B23D7250087DB83 /* Participant+Serializable.swift in Sources */,
 				B9627C632B6EC325004EE9DA /* InputBarGestureRecognizerService.swift in Sources */,
 				B96446602B157E3E008E674A /* RootNavigationView.swift in Sources */,
+				B94262592C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift in Sources */,
 				B9DB71072AD3891700EAC88B /* UserDefaultsKeyDomain.swift in Sources */,
 				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,
 				B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */,

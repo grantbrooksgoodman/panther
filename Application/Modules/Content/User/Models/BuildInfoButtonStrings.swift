@@ -50,13 +50,14 @@ public struct BuildInfoButtonStrings: Equatable {
     public init(_ key: BuildInfoButtonStringKey) {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar
+        @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
         @Localized(.version) var localizedVersionString: String
 
         self.key = key
 
         switch key {
-        case .bundleVersionAndBuildNumber:
-            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString))"
+        case .bundleVersionAndBuildNumber: // swiftlint:disable:next line_length
+            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(networkEnvironment.shortString))"
 
         case .buildSKU:
             labelText = build.buildSKU
