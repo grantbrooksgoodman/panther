@@ -202,6 +202,10 @@ public struct MessageService {
                 return exception
             }
 
+            if let exception = await networking.services.message.media.deleteMediaComponent(for: messageID) {
+                return exception
+            }
+
             if let exception = await networking.database.setValue(
                 NSNull(),
                 forKey: "\(networking.config.paths.messages)/\(messageID)"

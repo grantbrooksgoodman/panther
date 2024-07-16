@@ -12,14 +12,6 @@ import Foundation
 import Translator
 
 public extension Translation {
-    static var empty: Translation {
-        .init(
-            input: .init(""),
-            output: "",
-            languagePair: .system
-        )
-    }
-
     var reference: TranslationReference {
         .init(self)
     }

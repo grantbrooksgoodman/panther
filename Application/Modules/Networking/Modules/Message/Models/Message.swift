@@ -44,7 +44,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
     public var localMediaFilePath: LocalMediaFilePath? { get async { await .init(self) } }
     /// The translation for this message in the current user's language code.
-    public var translation: Translation { translations?.first ?? .empty } // TODO: Make this optional & remove Translation.empty.
+    public var translation: Translation? { translations?.first }
 
     // MARK: - Init
 

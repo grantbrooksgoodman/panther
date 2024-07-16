@@ -36,7 +36,8 @@ extension Message: MessageType {
 
         switch contentType {
         case .audio:
-            if let audioComponent {
+            if let audioComponent,
+               let translation {
                 guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
                     return .audio(isFromCurrentUser ? audioComponent.original : audioComponent.translated)
                 }
@@ -59,6 +60,7 @@ extension Message: MessageType {
         default: ()
         }
 
+        guard let translation else { return .text(.userFacingBlank) }
         guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
             return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized)
         }

@@ -62,7 +62,7 @@ public final class MessageDeliveryService {
     public func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
         let fullConversation = clientSession.conversation.fullConversation
         let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
 
         guard !users.isEmpty else { return nil }
 
@@ -114,7 +114,7 @@ public final class MessageDeliveryService {
     public func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
         let fullConversation = clientSession.conversation.fullConversation
         let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
 
         guard !users.isEmpty else { return nil }
 
@@ -160,7 +160,7 @@ public final class MessageDeliveryService {
     public func sendTextMessage(_ text: String) async -> Exception? {
         let fullConversation = clientSession.conversation.fullConversation
         let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = fullConversation?.users ?? (selectedContactPairs ?? []).map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
 
         guard !users.isEmpty,
               !text.isBlank else { return nil }

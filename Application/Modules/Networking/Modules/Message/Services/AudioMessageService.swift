@@ -161,8 +161,15 @@ public struct AudioMessageService {
             ).appending(extraParams: commonParams))
         }
 
+        guard let translation = message.translation else {
+            return .failure(.init(
+                "Message has no translation.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
+        }
+
         return .success(.init(
-            translation: message.translation,
+            translation: translation,
             original: inputFile,
             translated: outputFile,
             translatedDirectoryPath: localAudioFilePath.outputDirectoryPathString
@@ -201,8 +208,15 @@ public struct AudioMessageService {
             ).appending(extraParams: commonParams))
         }
 
+        guard let translation = message.translation else {
+            return .failure(.init(
+                "Message has no translation.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
+        }
+
         return .success(.init(
-            translation: message.translation,
+            translation: translation,
             original: inputFile,
             translated: outputFile,
             translatedDirectoryPath: localAudioFilePath.outputDirectoryPathString

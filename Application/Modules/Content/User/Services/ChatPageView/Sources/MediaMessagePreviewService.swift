@@ -14,7 +14,7 @@ import UIKit
 import CoreArchitecture
 import MessageKit
 
-public final class MediaMessagePreviewService {
+public final class MediaMessagePreviewService: Cacheable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -22,6 +22,9 @@ public final class MediaMessagePreviewService {
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
 
     // MARK: - Properties
+
+    public var cache: Cache
+    public var emptyCache: Cache
 
     public private(set) var isPreviewingMedia = false
 
@@ -40,6 +43,13 @@ public final class MediaMessagePreviewService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        emptyCache = .init(
+            [
+                .images: [URL: UIImage](),
+                .thumbnails: [URL: UIImage](),
+            ]
+        )
+        cache = emptyCache
     }
 
     // MARK: - Configure Gesture Recognizer
@@ -79,6 +89,13 @@ public final class MediaMessagePreviewService {
         isPreviewingMedia = true
     }
 
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        CacheDomain.MediaMessagePreviewServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .mediaMessagePreviewService($0)) }
+        cache = emptyCache
+    }
+
     // MARK: - Auxiliary
 
     @objc
@@ -92,5 +109,32 @@ public final class MediaMessagePreviewService {
         guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
 
         didTapImage(in: selectedCell)
+    }
+}
+
+/* MARK: Cache */
+
+public extension CacheDomain {
+    enum MediaMessagePreviewServiceCacheDomainKey: String, CaseIterable, Equatable {
+        case images
+        case thumbnails
+    }
+}
+
+private extension Cache {
+    convenience init(_ objects: [CacheDomain.MediaMessagePreviewServiceCacheDomainKey: Any]) {
+        var mappedObjects = [CacheDomain: Any]()
+        objects.forEach { object in
+            mappedObjects[.mediaMessagePreviewService(object.key)] = object.value
+        }
+        self.init(mappedObjects)
+    }
+
+    func set(_ value: Any, forKey key: CacheDomain.MediaMessagePreviewServiceCacheDomainKey) {
+        set(value, forKey: .mediaMessagePreviewService(key))
+    }
+
+    func value(forKey key: CacheDomain.MediaMessagePreviewServiceCacheDomainKey) -> Any? {
+        value(forKey: .mediaMessagePreviewService(key))
     }
 }

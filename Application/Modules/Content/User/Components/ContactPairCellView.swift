@@ -75,7 +75,7 @@ public struct ContactPairCellView: View {
 
             Spacer()
 
-            if let user = contactPair.firstUser {
+            if let user = contactPair.users.first {
                 UserInfoBadgeView(user)
             }
         }

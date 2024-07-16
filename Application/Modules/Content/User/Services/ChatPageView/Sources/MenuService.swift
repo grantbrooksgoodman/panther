@@ -149,7 +149,7 @@ public final class MenuService {
         ]
 
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
-              message.translation.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
+              message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
               let otherUser = viewController.currentConversation?.users?.first,
               otherUser.languageCode != currentUser?.languageCode,
               !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }
@@ -198,7 +198,7 @@ public final class MenuService {
             chatPageViewService.audioMessagePlayback?.stopPlayback()
 
             let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: selectedMessage) ?? false
-            let languagePair = selectedMessage.translation.languagePair
+            let languagePair = selectedMessage.translation?.languagePair ?? .system
             let currentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.to : languagePair.from
             let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
 

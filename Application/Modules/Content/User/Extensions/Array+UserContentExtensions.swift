@@ -13,6 +13,12 @@ import Foundation
 import CoreArchitecture
 
 public extension Array where Element == ContactPair {
+    // MARK: - Properties
+
+    var users: [User] { map(\.users).reduce([], +) }
+
+    // MARK: - Methods
+
     func queried(by searchTerm: String) -> [ContactPair] {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
         guard !searchTerm.isEmpty else { return self } // Still want to capture pure whitespace, hence .isEmpty and not .isBlank.

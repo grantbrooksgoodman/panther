@@ -78,7 +78,7 @@ public final class RecipientBarContactSelectionUIService {
     public func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
         @Persistent(.currentUserID) var currentUserID: String?
         guard let currentUserID,
-              !contactPair.numberPairs.map(\.users).reduce([], +).map(\.id).contains(currentUserID) else {
+              !contactPair.users.map(\.id).contains(currentUserID) else {
             Logger.log(
                 .init(
                     "Attempted to select contact pair containing current user.",

@@ -54,9 +54,16 @@ public struct MediaMessageService {
             if let exception = await networking.storage.deleteItem(
                 at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)"
             ) {
-                guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
+                guard !exception.isEqual(to: .storageItemDoesNotExist) else { continue }
                 exceptions.append(exception)
             }
+        }
+
+        if let exception = await networking.storage.deleteItem(
+            at: "\(networking.config.paths.media)/\(messageID)\(MediaFile.thumbnailImageNameSuffix)"
+        ) {
+            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return exceptions.compiledException }
+            exceptions.append(exception)
         }
 
         return exceptions.compiledException

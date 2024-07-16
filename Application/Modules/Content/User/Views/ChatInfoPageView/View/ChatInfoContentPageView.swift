@@ -260,7 +260,7 @@ public struct ChatInfoContentPageView: View {
                 font: .systemSemibold
             )
 
-            if let firstUser = participant.contactPair?.firstUser {
+            if let firstUser = participant.contactPair?.users.first {
                 UserInfoBadgeView(firstUser)
             }
         }

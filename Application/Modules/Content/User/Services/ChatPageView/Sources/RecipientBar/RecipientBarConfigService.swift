@@ -99,7 +99,7 @@ public final class RecipientBarConfigService {
             let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
 
             let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
-            let users = contactSelectionUIService.selectedContactPairs.map(\.numberPairs).reduce([], +).map(\.users).reduce([], +)
+            let users = contactSelectionUIService.selectedContactPairs.users
 
             // NIT: Observed bugs with this disabled, but iMessage does it this way.
 //            viewController.messageInputBar.inputTextView.text = ""

@@ -17,12 +17,33 @@ import MessageKit
 extension MediaFile: MediaItem {
     public var image: UIImage? {
         @Dependency(\.fileManager) var fileManager: FileManager
-        guard let thumbnailPath = urlPath.thumbnailPath?.path(),
-              fileManager.fileExists(atPath: thumbnailPath) else {
-            return .init(contentsOfFile: urlPath.path())
+        @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
+
+        if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.thumbnails)) as? [URL: UIImage],
+           let thumbnailPath = urlPath.thumbnailPath,
+           let cachedThumbnail = cacheValue[thumbnailPath] {
+            return cachedThumbnail
+        } else if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.images)) as? [URL: UIImage],
+                  let cachedImage = cacheValue[urlPath] {
+            return cachedImage
         }
 
-        return .init(contentsOfFile: thumbnailPath)
+        guard let thumbnailPath = urlPath.thumbnailPath,
+              fileManager.fileExists(atPath: thumbnailPath.path()) else {
+            guard let image = UIImage(contentsOfFile: urlPath.path()) else { return nil }
+            if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.images)) as? [URL: UIImage] {
+                cacheValue[urlPath] = image
+                mediaMessagePreviewService?.cache.set(cacheValue, forKey: .mediaMessagePreviewService(.images))
+            }
+            return image
+        }
+
+        guard let image = UIImage(contentsOfFile: thumbnailPath.path()) else { return nil }
+        if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.thumbnails)) as? [URL: UIImage] {
+            cacheValue[thumbnailPath] = image
+            mediaMessagePreviewService?.cache.set(cacheValue, forKey: .mediaMessagePreviewService(.thumbnails))
+        }
+        return image
     }
 
     public var placeholderImage: UIImage { .init() }

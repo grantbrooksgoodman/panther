@@ -17,12 +17,10 @@ public extension ContactPair {
 
     var containsCurrentUser: Bool {
         @Persistent(.currentUserID) var currentUserID: String?
-        return numberPairs.map { $0.users.map(\.id) }.reduce([], +).allSatisfy { $0 == currentUserID }
+        return users.map(\.id).allSatisfy { $0 == currentUserID }
     }
 
     static var empty: ContactPair { mock(withName: "") }
-
-    var firstUser: User? { numberPairs.map(\.users).reduce([], +).first }
 
     var isMock: Bool {
         guard contact.id.isBlank,
@@ -46,6 +44,8 @@ public extension ContactPair {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
         return (selectedContactPairs ?? []).contains(self)
     }
+
+    var users: [User] { numberPairs.map(\.users).reduce([], +) }
 
     // MARK: - Methods
 

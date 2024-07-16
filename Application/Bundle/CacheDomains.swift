@@ -18,6 +18,7 @@ public enum CacheDomain: Equatable, Hashable {
     case chatInfoPageViewService(ChatInfoPageViewServiceCacheDomainKey)
     case commonPropertyLists(CommonPropertyListsCacheDomainKey)
     case contactService(ContactServiceCacheDomainKey)
+    case mediaMessagePreviewService(MediaMessagePreviewServiceCacheDomainKey)
     case regionDetailService(RegionDetailServiceCacheDomainKey)
     case settingsPageViewService(SettingsPageViewServiceCacheDomainKey)
     case userService(UserServiceCacheDomainKey)
@@ -33,6 +34,9 @@ public enum CacheDomain: Equatable, Hashable {
             return key.rawValue
 
         case let .contactService(key):
+            return key.rawValue
+
+        case let .mediaMessagePreviewService(key):
             return key.rawValue
 
         case let .regionDetailService(key):

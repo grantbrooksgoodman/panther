@@ -64,8 +64,8 @@ public struct ConversationCellViewData: Equatable {
               let lastUser = users.last else { return nil }
 
         var titleLabelText: String
-        var subtitleLabelText = ""
-        var dateLabelText = ""
+        var subtitleLabelText = String.userFacingBlank
+        var dateLabelText = String.userFacingBlank
         var thumbnailImage: UIImage?
         var isShowingUnreadIndicator = false
         var otherUser: User?
@@ -110,9 +110,9 @@ public struct ConversationCellViewData: Equatable {
                 subtitleLabelText = "🎥 \(Localized(.video).wrappedValue)"
             } else if lastMessage.richContent?.mediaComponent != nil {
                 subtitleLabelText = "📎 \(Localized(.attachment).wrappedValue)"
-            } else {
+            } else if let translation = lastMessage.translation {
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
-                subtitleLabelText = isLastMessageFromCurrentUser ? lastMessage.translation.input.value.sanitized : lastMessage.translation.output
+                subtitleLabelText = isLastMessageFromCurrentUser ? translation.input.value.sanitized : translation.output
             }
         }
 
