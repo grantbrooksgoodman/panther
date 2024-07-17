@@ -16,12 +16,14 @@ import CoreArchitecture
 public struct SettingsPageView: View {
     // MARK: - Properties
 
+    @StateObject private var observer: ViewObserver<SettingsPageObserver>
     @StateObject private var viewModel: ViewModel<SettingsPageReducer>
 
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<SettingsPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View

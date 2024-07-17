@@ -17,6 +17,8 @@ public enum LocalizedStringKey: String {
     case attachment
     case audioMessage
 
+    case blockUser
+
     case cancel
     case contacts
     case copy
@@ -55,6 +57,7 @@ public enum LocalizedStringKey: String {
     case rebuildingIndices
     case region
     case reportBug
+    case reportUser
 
     case saturday
     case search

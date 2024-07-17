@@ -52,7 +52,9 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ConversationCellView {
+        public static let blockUsersButtonImageTint: Color = .init(uiColor: .systemGray)
         public static let deleteConversationButtonImageTint: Color = .red
+        public static let reportUsersButtonImageTint: Color = .orange
         public static let unreadIndicatorViewForeground: Color = .blue
     }
 }
@@ -61,8 +63,10 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ConversationCellView {
+        public static let blockUsersButtonImageSystemName = "flag"
         public static let chatInfoButtonImageSystemName = "info.circle"
         public static let chevronImageSystemName = "chevron.forward"
         public static let deleteConversationButtonImageSystemName = "trash"
+        public static let reportUsersButtonImageSystemName = "exclamationmark.bubble"
     }
 }

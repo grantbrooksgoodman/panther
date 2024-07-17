@@ -41,6 +41,7 @@ public struct PermissionPageReducer: Reducer {
 
     public enum Feedback {
         case createUserReturned(Exception?)
+        case eulaAlertDismissed(cancelled: Bool)
         case requestContactPermissionReturned(Callback<PermissionService.PermissionStatus, Exception>)
         case requestNotificationPermissionReturned(Callback<PermissionService.PermissionStatus, Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
@@ -81,6 +82,7 @@ public struct PermissionPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    // swiftlint:disable:next function_body_length
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
@@ -101,8 +103,8 @@ public struct PermissionPageReducer: Reducer {
             uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
             return .task {
-                let result = await onboardingService.createUser()
-                return .createUserReturned(result)
+                let result = await onboardingService.presentEULAAlert()
+                return .eulaAlertDismissed(cancelled: result)
             }
 
         case .action(.contactPermissionCapsuleButtonTapped):
@@ -129,6 +131,19 @@ public struct PermissionPageReducer: Reducer {
                 Logger.log(exception, with: .toast())
             } else {
                 navigationCoordinator.navigate(to: .root(.modal(.splash)))
+            }
+
+        case let .feedback(.eulaAlertDismissed(cancelled: cancelled)):
+            guard !cancelled else {
+                uiApplication.keyWindow?.removeOverlay()
+                state.isBackButtonEnabled = true
+                state.isFinishButtonEnabled = true
+                return .none
+            }
+
+            return .task {
+                let result = await onboardingService.createUser()
+                return .createUserReturned(result)
             }
 
         case let .feedback(.requestContactPermissionReturned(.success(status))):

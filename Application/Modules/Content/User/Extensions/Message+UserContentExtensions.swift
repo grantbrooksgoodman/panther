@@ -60,7 +60,7 @@ extension Message: MessageType {
         default: ()
         }
 
-        guard let translation else { return .text(.userFacingBlank) }
+        guard let translation else { return .text("�") }
         guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
             return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized)
         }

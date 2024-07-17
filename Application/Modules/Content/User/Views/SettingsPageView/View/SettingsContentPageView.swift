@@ -148,6 +148,7 @@ public struct SettingsContentPageView: View {
 
         StaticListView(
             [
+                blockedUsersListItem,
                 deleteAccountListItem,
                 signOutListItem,
             ]

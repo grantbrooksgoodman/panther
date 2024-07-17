@@ -23,6 +23,7 @@ public struct NetworkPaths {
         case invalidatedCaches
         case media
         case messages
+        case reportedUsers
         case shared
         case translations
         case userNumberHashes
@@ -38,6 +39,7 @@ public struct NetworkPaths {
     public let invalidatedCaches = Path.invalidatedCaches.rawValue
     public let media = Path.media.rawValue
     public let messages = Path.messages.rawValue
+    public let reportedUsers = Path.reportedUsers.rawValue
     public let shared = Path.shared.rawValue
     public let translations = Path.translations.rawValue
     public let userNumberHashes = Path.userNumberHashes.rawValue

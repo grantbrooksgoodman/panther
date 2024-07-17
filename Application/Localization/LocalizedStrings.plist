@@ -237,80 +237,80 @@
 		<string>ಲಗತ್ತಿಸಲಾದ ಮಾಧ್ಯಮ</string>
 		<key>ko</key>
 		<string>첨부 된 미디어</string>
-        <key>ky</key>
-        <string>Тиркелген медиа</string>
-        <key>lt</key>
-        <string>Pridedama žiniasklaida</string>
-        <key>mg</key>
-        <string>Fampahalalam-baovao mifandray</string>
-        <key>mi</key>
-        <string>Pāpāho āpitihia</string>
-        <key>mk</key>
-        <string>Приложени медиуми</string>
-        <key>ml</key>
-        <string>അറ്റാച്ചുചെയ്ത മീഡിയ</string>
-        <key>mn</key>
-        <string>Хавсаргасан хэвлэл мэдээллийн хэрэгсэл</string>
-        <key>mt</key>
-        <string>Midja mehmuża</string>
-        <key>ne</key>
-        <string>Attached media</string>
-        <key>nl</key>
-        <string>Bijgevoegde media</string>
-        <key>no</key>
-        <string>Vedlagte medier</string>
-        <key>pa</key>
-        <string>ਨਾਲ ਜੁੜੇ ਮੀਡੀਆ</string>
-        <key>pl</key>
-        <string>Załączone media</string>
-        <key>pt</key>
-        <string>Mídia anexa</string>
-        <key>ro</key>
-        <string>Media atașată</string>
-        <key>ru</key>
-        <string>Прикрепленные носители</string>
-        <key>si</key>
-        <string>Attached media</string>
-        <key>sk</key>
-        <string>Priložené médiá</string>
-        <key>sl</key>
-        <string>Priloženi mediji</string>
-        <key>sq</key>
-        <string>Media bashkangjitur</string>
-        <key>sr</key>
-        <string>Attached media</string>
-        <key>su</key>
-        <string>Media anu napel</string>
-        <key>sv</key>
-        <string>Bifogat media</string>
-        <key>sw</key>
-        <string>Vyombo vya habari vilivyoambatishwa</string>
-        <key>ta</key>
-        <string>Attached media</string>
-        <key>te</key>
-        <string>జత చేసిన మీడియా</string>
-        <key>tg</key>
-        <string>ВАО замимашуда</string>
-        <key>th</key>
-        <string>สื่อที่แนบมา</string>
-        <key>tl</key>
-        <string>Nakalakip na media</string>
-        <key>tr</key>
-        <string>Ekli medya</string>
-        <key>tt</key>
-        <string>Беркетелгән медиа</string>
-        <key>uk</key>
-        <string>Додано ЗМІ</string>
-        <key>ur</key>
-        <string>منسلک میڈیا</string>
-        <key>uz</key>
-        <string>Biriktirilgan OAV</string>
-        <key>vi</key>
-        <string>Phương tiện truyền thông đính kèm</string>
-        <key>yi</key>
-        <string>אַטאַטשט מעדיע</string>
-        <key>zh</key>
-        <string>附件</string>
+		<key>ky</key>
+		<string>Тиркелген медиа</string>
+		<key>lt</key>
+		<string>Pridedama žiniasklaida</string>
+		<key>mg</key>
+		<string>Fampahalalam-baovao mifandray</string>
+		<key>mi</key>
+		<string>Pāpāho āpitihia</string>
+		<key>mk</key>
+		<string>Приложени медиуми</string>
+		<key>ml</key>
+		<string>അറ്റാച്ചുചെയ്ത മീഡിയ</string>
+		<key>mn</key>
+		<string>Хавсаргасан хэвлэл мэдээллийн хэрэгсэл</string>
+		<key>mt</key>
+		<string>Midja mehmuża</string>
+		<key>ne</key>
+		<string>Attached media</string>
+		<key>nl</key>
+		<string>Bijgevoegde media</string>
+		<key>no</key>
+		<string>Vedlagte medier</string>
+		<key>pa</key>
+		<string>ਨਾਲ ਜੁੜੇ ਮੀਡੀਆ</string>
+		<key>pl</key>
+		<string>Załączone media</string>
+		<key>pt</key>
+		<string>Mídia anexa</string>
+		<key>ro</key>
+		<string>Media atașată</string>
+		<key>ru</key>
+		<string>Прикрепленные носители</string>
+		<key>si</key>
+		<string>Attached media</string>
+		<key>sk</key>
+		<string>Priložené médiá</string>
+		<key>sl</key>
+		<string>Priloženi mediji</string>
+		<key>sq</key>
+		<string>Media bashkangjitur</string>
+		<key>sr</key>
+		<string>Attached media</string>
+		<key>su</key>
+		<string>Media anu napel</string>
+		<key>sv</key>
+		<string>Bifogat media</string>
+		<key>sw</key>
+		<string>Vyombo vya habari vilivyoambatishwa</string>
+		<key>ta</key>
+		<string>Attached media</string>
+		<key>te</key>
+		<string>జత చేసిన మీడియా</string>
+		<key>tg</key>
+		<string>ВАО замимашуда</string>
+		<key>th</key>
+		<string>สื่อที่แนบมา</string>
+		<key>tl</key>
+		<string>Nakalakip na media</string>
+		<key>tr</key>
+		<string>Ekli medya</string>
+		<key>tt</key>
+		<string>Беркетелгән медиа</string>
+		<key>uk</key>
+		<string>Додано ЗМІ</string>
+		<key>ur</key>
+		<string>منسلک میڈیا</string>
+		<key>uz</key>
+		<string>Biriktirilgan OAV</string>
+		<key>vi</key>
+		<string>Phương tiện truyền thông đính kèm</string>
+		<key>yi</key>
+		<string>אַטאַטשט מעדיע</string>
+		<key>zh</key>
+		<string>附件</string>
 	</dict>
 	<key>audio_message</key>
 	<dict>
@@ -466,6 +466,161 @@
 		<string>אַודיאָ אָנזאָג</string>
 		<key>zh</key>
 		<string>语音信息</string>
+	</dict>
+	<key>block_user</key>
+	<dict>
+		<key>af</key>
+		<string>Blokkeer gebruiker</string>
+		<key>ar</key>
+		<string>مستخدم محضور</string>
+		<key>az</key>
+		<string>Blok istifadəçisi</string>
+		<key>be</key>
+		<string>Блакуйце карыстальнік</string>
+		<key>bg</key>
+		<string>Блокирайте потребителя</string>
+		<key>bn</key>
+		<string>নিষিদ্ধ ব্যবহারকারী</string>
+		<key>bs</key>
+		<string>Blokiraj korisnika</string>
+		<key>ca</key>
+		<string>Bloquejar usuari</string>
+		<key>cs</key>
+		<string>Zablokovat uživatele</string>
+		<key>cy</key>
+		<string>Bloc Defnyddiwr</string>
+		<key>da</key>
+		<string>Bloker bruger</string>
+		<key>de</key>
+		<string>Benutzer blockieren</string>
+		<key>el</key>
+		<string>Αποκλεισμός χρήστη</string>
+		<key>en</key>
+		<string>Block User</string>
+		<key>eo</key>
+		<string>Bloku uzanton</string>
+		<key>es</key>
+		<string>Bloquear usuario</string>
+		<key>et</key>
+		<string>Blokeeri kasutaja</string>
+		<key>eu</key>
+		<string>Erabiltzaile bloke</string>
+		<key>fa</key>
+		<string>کاربر مسدود کردن</string>
+		<key>fi</key>
+		<string>Estä käyttäjä</string>
+		<key>fr</key>
+		<string>Bloquer un utilisateur</string>
+		<key>ga</key>
+		<string>Blocúsáideoir</string>
+		<key>gd</key>
+		<string>Cleachdaiche bloc</string>
+		<key>gl</key>
+		<string>Usuario de bloque</string>
+		<key>gu</key>
+		<string>વપરાશકર્તાને અવરોધિત</string>
+		<key>he</key>
+		<string>חסום משתמש</string>
+		<key>hi</key>
+		<string>खंड उपयोगकर्ता</string>
+		<key>hr</key>
+		<string>Blokirati korisnika</string>
+		<key>ht</key>
+		<string>Bloke itilizatè</string>
+		<key>hu</key>
+		<string>Felhasználó letiltása</string>
+		<key>hy</key>
+		<string>Բլոկ օգտագործող</string>
+		<key>id</key>
+		<string>Memblokir pengguna</string>
+		<key>is</key>
+		<string>Loka á notanda</string>
+		<key>it</key>
+		<string>Blocca utente</string>
+		<key>ja</key>
+		<string>ユーザをブロックする</string>
+		<key>ka</key>
+		<string>Დაბლოკე მომხმარებელი</string>
+		<key>kk</key>
+		<string>Пайдаланушыны блоктау</string>
+		<key>kn</key>
+		<string>ಬಳಕೆದಾರನನ್ನು ನಿರ್ಬಂಧಿಸಿ</string>
+		<key>ko</key>
+		<string>블록 사용자</string>
+        <key>ky</key>
+        <string>Колдонуучуну бөгөттөө</string>
+        <key>lt</key>
+        <string>Užblokuoti vartotoją</string>
+        <key>mg</key>
+        <string>Sakana mpampiasa</string>
+        <key>mi</key>
+        <string>Kaiwhakamahi Poraka</string>
+        <key>mk</key>
+        <string>Блокирајте го корисникот</string>
+        <key>ml</key>
+        <string>ഉപയോക്താവിനെ തടയുക</string>
+        <key>mn</key>
+        <string>Хэрэглэгчийг блоклох</string>
+        <key>mt</key>
+        <string>Blokka l-utent</string>
+        <key>ne</key>
+        <string>प्रयोगकर्तालाई रोक्नुहोस्</string>
+        <key>nl</key>
+        <string>Blokkeer gebruiker</string>
+        <key>no</key>
+        <string>Blokker bruker</string>
+        <key>pa</key>
+        <string>ਯੂਜ਼ਰ ਨੂੰ ਬਲਾਕ</string>
+        <key>pl</key>
+        <string>Zablokować użytkownika</string>
+        <key>pt</key>
+        <string>Bloquear usuário</string>
+        <key>ro</key>
+        <string>Blocați utilizatorul</string>
+        <key>ru</key>
+        <string>Блокировать пользователя</string>
+        <key>si</key>
+        <string>පරිශීලකයා අවහිර කරන්න</string>
+        <key>sk</key>
+        <string>Blokovať používateľa</string>
+        <key>sl</key>
+        <string>Blokiraj uporabnika</string>
+        <key>sq</key>
+        <string>Blloko përdoruesin</string>
+        <key>sr</key>
+        <string>Блокирај корисника</string>
+        <key>su</key>
+        <string>Blok blok</string>
+        <key>sv</key>
+        <string>Blockera användare</string>
+        <key>sw</key>
+        <string>Kuzuia mtumiaji</string>
+        <key>ta</key>
+        <string>பயனரை தடை செய்</string>
+        <key>te</key>
+        <string>వినియోగదారుని బ్లాక్ చేయండి</string>
+        <key>tg</key>
+        <string>Блоки корбар</string>
+        <key>th</key>
+        <string>กีดกันผู้ใช้</string>
+        <key>tl</key>
+        <string>I -block ang gumagamit</string>
+        <key>tr</key>
+        <string>Kullanıcıyı engelle</string>
+        <key>tt</key>
+        <string>Кулланучының блокы</string>
+        <key>uk</key>
+        <string>Заблокувати користувача</string>
+        <key>ur</key>
+        <string>بلوک یوزر</string>
+        <key>uz</key>
+        <string>Foydalanuvchi blokirovkasi</string>
+        <key>vi</key>
+        <string>Chặn người dùng</string>
+        <key>yi</key>
+        <string>פאַרשפּאַרן באַניצער</string>
+        <key>zh</key>
+        <string>阻止用户</string>
 	</dict>
 	<key>cancel</key>
 	<dict>
@@ -5096,6 +5251,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>באריכט אַ טעות</string>
 		<key>zh</key>
 		<string>报告错误</string>
+	</dict>
+	<key>report_user</key>
+	<dict>
+		<key>af</key>
+		<string>Rapporteer gebruiker</string>
+		<key>ar</key>
+		<string>أبلغ عن مستخدم</string>
+		<key>az</key>
+		<string>İstifadəçini bildirin</string>
+		<key>be</key>
+		<string>Паведаміць карыстальнікам</string>
+		<key>bg</key>
+		<string>Потребител на доклад</string>
+		<key>bn</key>
+		<string>রিপোর্ট ব্যবহারকারী</string>
+		<key>bs</key>
+		<string>Prijavi korisnika</string>
+		<key>ca</key>
+		<string>Informe de l&apos;usuari</string>
+		<key>cs</key>
+		<string>Nahlásit uživatele</string>
+		<key>cy</key>
+		<string>Adroddiad Defnyddiwr</string>
+		<key>da</key>
+		<string>Rapporter bruger</string>
+		<key>de</key>
+		<string>Benutzer melden</string>
+		<key>el</key>
+		<string>Αναφορά χρήστη</string>
+		<key>en</key>
+		<string>Report User</string>
+		<key>eo</key>
+		<string>Raporti Uzanton</string>
+		<key>es</key>
+		<string>Reportar usuario</string>
+		<key>et</key>
+		<string>Teata kasutajast</string>
+		<key>eu</key>
+		<string>Erabiltzailearen berri</string>
+		<key>fa</key>
+		<string>گزارش کاربر</string>
+		<key>fi</key>
+		<string>Ilmoita käyttäjä</string>
+		<key>fr</key>
+		<string>Dénoncer un utilisateur</string>
+		<key>ga</key>
+		<string>Úsáideoir tuarascála</string>
+		<key>gd</key>
+		<string>Dèan aithris air cleachdaiche</string>
+		<key>gl</key>
+		<string>Informe usuario</string>
+		<key>gu</key>
+		<string>વપરાશકર્તાની જાણ કરો</string>
+		<key>he</key>
+		<string>דווח על משתמש</string>
+		<key>hi</key>
+		<string>उपयोगकर्ता को रिपोर्ट करें</string>
+		<key>hr</key>
+		<string>Prijavi korisnika</string>
+		<key>ht</key>
+		<string>Rapòte itilizatè</string>
+		<key>hu</key>
+		<string>Felhasználó bejelentése</string>
+		<key>hy</key>
+		<string>Հաղորդել օգտվողի մասին</string>
+		<key>id</key>
+		<string>Laporan pengguna</string>
+		<key>is</key>
+		<string>Tilkynna notanda</string>
+		<key>it</key>
+		<string>Segnala utente</string>
+		<key>ja</key>
+		<string>レポートユーザー</string>
+		<key>ka</key>
+		<string>Შეატყობინეთ მომხმარებელს</string>
+		<key>kk</key>
+		<string>Пайдаланушыға есеп беру</string>
+		<key>kn</key>
+		<string>ವರದಿ ಬಳಕೆದಾರ</string>
+		<key>ko</key>
+		<string>보고서 사용자</string>
+		<key>ky</key>
+		<string>Отчет</string>
+		<key>lt</key>
+		<string>Pranešti apie vartotoją</string>
+		<key>mg</key>
+		<string>Ampandre mpampiasa</string>
+		<key>mi</key>
+		<string>Kairangi Kaute</string>
+		<key>mk</key>
+		<string>Пријавете го корисникот</string>
+		<key>ml</key>
+		<string>ഉപയോക്താവിനെ റിപ്പോർട്ടുചെയ്യുക</string>
+		<key>mn</key>
+		<string>Хэрэглэгчийг мэдээлэх</string>
+		<key>mt</key>
+		<string>Tirrapporta utent</string>
+		<key>ne</key>
+		<string>रिपोर्ट गर्नुहोस् प्रयोगकर्ता</string>
+		<key>nl</key>
+		<string>Rapporteer gebruiker</string>
+		<key>no</key>
+		<string>Rapporter bruker</string>
+		<key>pa</key>
+		<string>ਉਪਭੋਗਤਾ ਦੀ ਰਿਪੋਰਟ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Zgłoś użytkownika</string>
+		<key>pt</key>
+		<string>Reportar usuário</string>
+		<key>ro</key>
+		<string>Raportați utilizatorul</string>
+		<key>ru</key>
+		<string>Пожаловаться на пользователя</string>
+		<key>si</key>
+		<string>පරිශීලකයා වාර්තා කරන්න</string>
+		<key>sk</key>
+		<string>Nahlásiť používateľa</string>
+		<key>sl</key>
+		<string>Prijavi uporabnika</string>
+		<key>sq</key>
+		<string>Raportoni përdoruesin</string>
+		<key>sr</key>
+		<string>Пријави корисника</string>
+		<key>su</key>
+		<string>Laporan pangguna</string>
+		<key>sv</key>
+		<string>Rapportera användare</string>
+		<key>sw</key>
+		<string>Ripoti Mtumiaji</string>
+		<key>ta</key>
+		<string>பயனீட்டாளருக்கு தெரியப்படுத்து</string>
+		<key>te</key>
+		<string>వినియోగదారుని నివేదించండి</string>
+		<key>tg</key>
+		<string>Ҳисоботдиҳӣ корбар</string>
+		<key>th</key>
+		<string>รายงานผู้ใช้</string>
+		<key>tl</key>
+		<string>Iulat ang gumagamit</string>
+		<key>tr</key>
+		<string>Kullanıcıyı bildir</string>
+		<key>tt</key>
+		<string>Кулланучының отчеты</string>
+		<key>uk</key>
+		<string>Користувач звіту</string>
+		<key>ur</key>
+		<string>رپورٹ صارف</string>
+		<key>uz</key>
+		<string>Foydalanuvchi haqida xabar berish</string>
+		<key>vi</key>
+		<string>Báo cáo người dùng</string>
+		<key>yi</key>
+		<string>באריכט באַניצער</string>
+		<key>zh</key>
+		<string>报告用户</string>
 	</dict>
 	<key>saturday</key>
 	<dict>

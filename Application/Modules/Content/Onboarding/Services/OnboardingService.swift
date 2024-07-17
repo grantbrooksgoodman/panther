@@ -116,6 +116,20 @@ public final class OnboardingService {
         return cancelled
     }
 
+    /// - Returns: `true` if the user selected the cancel option.
+    public func presentEULAAlert() async -> Bool {
+        var cancelled = true
+
+        let agreeAction: AKAction = .init("I Agree", style: .preferred) { cancelled = false }
+        await AKActionSheet(
+            message: "I agree to help maintain a community of respect towards others via my personal conduct on this app.",
+            actions: [agreeAction],
+            cancelButtonTitle: "I Do Not Agree"
+        ).present()
+
+        return cancelled
+    }
+
     // MARK: - Auxiliary
 
     public func flushValues() {

@@ -27,6 +27,7 @@ public final class SettingsPageViewService: Cacheable {
     @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
+    @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
@@ -51,6 +52,13 @@ public final class SettingsPageViewService: Cacheable {
     }
 
     // MARK: - Reducer Action Handlers
+
+    public func blockedUsersButtonTapped() {
+        Task {
+            guard let exception = await moderationSession.unblockUsers() else { return }
+            Logger.log(exception, with: .toast())
+        }
+    }
 
     public func changeThemeButtonTapped() {
         Task {

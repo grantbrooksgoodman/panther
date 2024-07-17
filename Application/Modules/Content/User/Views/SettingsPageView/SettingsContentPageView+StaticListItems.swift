@@ -18,6 +18,15 @@ public extension SettingsContentPageView {
 
     // MARK: - Properties
 
+    var blockedUsersListItem: StaticListItem {
+        .init(
+            title: viewModel.blockedUsersButtonText,
+            imageData: (.init(systemName: Strings.blockedUsersButtonImageSystemName), Colors.blockedUsersButtonImageForeground),
+            isEnabled: viewModel.isBlockedUsersButtonEnabled,
+            action: { viewModel.send(.blockedUsersButtonTapped) }
+        )
+    }
+
     var changeThemeListItem: StaticListItem {
         .init(
             title: viewModel.strings.value(for: .changeThemeButtonText),

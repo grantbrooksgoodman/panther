@@ -34,6 +34,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum SettingsPageView {
+        public static let blockedUsersButtonImageForeground: Color = .init(uiColor: .systemGray)
         public static let changeThemeButtonImageForeground: Color = .purple
         public static let clearCachesButtonImageForeground: Color = .mint
         public static let deleteAccountButtonImageForeground: Color = .orange
@@ -54,6 +55,7 @@ public extension AppConstants.Strings {
         public static let buildInfoButtonDarkBackgroundImageSystemName = "NT (White).png" // swiftlint:disable:next identifier_name
         public static let buildInfoButtonLightBackgroundImageSystemName = "NT (Black).png"
 
+        public static let blockedUsersButtonImageSystemName = "flag.square.fill"
         public static let changeThemeButtonImageSystemName = "eye.square.fill"
         public static let clearCachesButtonImageSystemName = "command.square.fill"
         public static let deleteAccountButtonImageSystemName = "trash.square.fill"

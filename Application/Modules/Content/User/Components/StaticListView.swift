@@ -41,9 +41,11 @@ public struct StaticListView: View {
                     ForEach(items, id: \.self) { item in
                         if ThemeService.isDarkModeActive {
                             cellView(item)
+                                .disabled(!item.isEnabled)
                                 .listRowBackground(selectedItem == item ? Colors.cellViewSelectedDarkBackground : Colors.cellViewDefaultDarkBackground)
                         } else {
                             cellView(item)
+                                .disabled(!item.isEnabled)
                         }
                     }
                 }

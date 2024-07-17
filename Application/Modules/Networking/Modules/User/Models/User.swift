@@ -16,6 +16,7 @@ public final class User: Codable, Equatable {
     // MARK: - Properties
 
     // Array
+    public let blockedUserIDs: [String]?
     public let pushTokens: [String]?
 
     public private(set) var conversationIDs: [ConversationID]?
@@ -61,12 +62,14 @@ public final class User: Codable, Equatable {
 
     public init(
         _ id: String,
+        blockedUserIDs: [String]?,
         conversationIDs: [ConversationID]?,
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) {
         self.id = id
+        self.blockedUserIDs = blockedUserIDs
         self.conversationIDs = conversationIDs
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
@@ -172,6 +175,7 @@ public final class User: Codable, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (left: User, right: User) -> Bool {
+        let sameBlockedUserIDs = left.blockedUserIDs == right.blockedUserIDs
         let sameConversationIDs = left.conversationIDs == right.conversationIDs
         let sameConversations = left.conversations == right.conversations
         let sameID = left.id == right.id
@@ -179,7 +183,8 @@ public final class User: Codable, Equatable {
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
         let samePushTokens = left.pushTokens == right.pushTokens
 
-        guard sameConversationIDs,
+        guard sameBlockedUserIDs,
+              sameConversationIDs,
               sameConversations,
               sameID,
               sameLanguageCode,

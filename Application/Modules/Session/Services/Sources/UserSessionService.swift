@@ -177,11 +177,18 @@ public final class UserSessionService {
             }
 
             guard currentConversationIDStrings.sorted() != updatedConversationIDStrings.sorted() else {
-                Logger.log(
-                    "Skipping current user update as conversation ID values do not appear to have changed.",
-                    domain: .user,
-                    metadata: [self, #file, #function, #line]
-                )
+                guard let updatedBlockedUserIDs = dictionary[User.SerializationKeys.blockedUserIDs.rawValue] as? [String] else { return }
+                let currentBlockedUserIDs = currentUser.blockedUserIDs ?? .bangQualifiedEmpty
+                guard currentBlockedUserIDs.sorted() != updatedBlockedUserIDs.sorted() else {
+                    Logger.log(
+                        "Skipping current user update as conversation ID values do not appear to have changed.",
+                        domain: .user,
+                        metadata: [self, #file, #function, #line]
+                    )
+                    return
+                }
+
+                updateCurrentUser()
                 return
             }
 
@@ -319,6 +326,62 @@ public final class UserSessionService {
         }
     }
 
+    // MARK: - Block/Unblock User
+
+    public func blockUser(id userID: String) async -> Exception? {
+        guard let currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
+        blockedUserIDs.append(userID)
+        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
+
+        let updateValueResult = await currentUser.updateValue(
+            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
+            forKey: .blockedUserIDs
+        )
+
+        switch updateValueResult {
+        case let .success(user):
+            mainQueue.sync {
+                self.currentUser = user
+                self.currentUserID = user.id
+            }
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
+    public func unblockUser(id userID: String) async -> Exception? {
+        guard let currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
+        blockedUserIDs = blockedUserIDs.filter { $0 != userID }
+        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
+
+        let updateValueResult = await currentUser.updateValue(
+            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
+            forKey: .blockedUserIDs
+        )
+
+        switch updateValueResult {
+        case let .success(user):
+            mainQueue.sync {
+                self.currentUser = user
+                self.currentUserID = user.id
+            }
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     // MARK: - Push Tokens
 
     @discardableResult
@@ -349,31 +412,29 @@ public final class UserSessionService {
 
     @discardableResult
     public func updatePushTokens() async -> Exception? {
-        guard let pushToken = notificationService.pushToken else {
-            return .init("Push token has not been set.", metadata: [self, #file, #function, #line])
+        guard let currentUser,
+              let pushToken = notificationService.pushToken else {
+            return .init("Either current user or push token has not been set.", metadata: [self, #file, #function, #line])
         }
 
-        var pushTokens = currentUser?.pushTokens ?? []
+        var pushTokens = currentUser.pushTokens ?? []
         guard !pushTokens.contains(pushToken) else {
             return .init("Push tokens already up to date.", metadata: [self, #file, #function, #line])
         }
 
         pushTokens.append(pushToken)
-        let updateValueResult = await currentUser?.updateValue(pushTokens.unique, forKey: .pushTokens)
+        let updateValueResult = await currentUser.updateValue(pushTokens.unique, forKey: .pushTokens)
 
         switch updateValueResult {
         case let .success(user):
             mainQueue.sync {
-                currentUser = user
+                self.currentUser = user
                 self.currentUserID = user.id
             }
             return nil
 
         case let .failure(exception):
             return exception
-
-        case .none:
-            return nil
         }
     }
 

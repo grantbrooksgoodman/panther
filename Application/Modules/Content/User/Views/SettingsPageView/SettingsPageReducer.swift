@@ -30,6 +30,7 @@ public struct SettingsPageReducer: Reducer {
         case buildInfoButtonTapped
         case longPressGestureRecognized
 
+        case blockedUsersButtonTapped
         case changeThemeButtonTapped
         case clearCachesButtonTapped
         case deleteAccountButtonTapped
@@ -95,6 +96,17 @@ public struct SettingsPageReducer: Reducer {
         public var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
         public var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
 
+        // Other
+        public var blockedUsersButtonText: String {
+            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
+        }
+
+        public var isBlockedUsersButtonEnabled: Bool {
+            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            return !(blockedUserIDs ?? []).isBangQualifiedEmpty
+        }
+
         /* MARK: Init */
 
         public init(_ isPresented: Binding<Bool>) {
@@ -104,8 +116,6 @@ public struct SettingsPageReducer: Reducer {
         /* MARK: Equatable Conformance */
 
         public static func == (left: State, right: State) -> Bool {
-            let sameBuildInfoButtonDarkBackgroundImage = left.buildInfoButtonDarkBackgroundImage == right.buildInfoButtonDarkBackgroundImage
-            let sameBuildInfoButtonLightBackgroundImage = left.buildInfoButtonLightBackgroundImage == right.buildInfoButtonLightBackgroundImage
             let sameBuildInfoButtonStrings = left.buildInfoButtonStrings == right.buildInfoButtonStrings
             let sameCNContact = left.cnContact == right.cnContact
             let sameContactDetailViewImage = left.contactDetailViewImage == right.contactDetailViewImage
@@ -120,9 +130,7 @@ public struct SettingsPageReducer: Reducer {
             let sameViewID = left.viewID == right.viewID
             let sameViewState = left.viewState == right.viewState
 
-            guard sameBuildInfoButtonDarkBackgroundImage,
-                  sameBuildInfoButtonLightBackgroundImage,
-                  sameBuildInfoButtonStrings,
+            guard sameBuildInfoButtonStrings,
                   sameCNContact,
                   sameContactDetailViewImage,
                   sameContactDetailViewSubtitleLabelText,
@@ -174,6 +182,9 @@ public struct SettingsPageReducer: Reducer {
                 return .resolveReturned(result)
             }.merge(with: fetchCNContactForCurrentUserTask)
 
+        case .blockedUsersButtonTapped:
+            viewService.blockedUsersButtonTapped()
+
         case .buildInfoButtonTapped:
             state.buildInfoButtonStrings = state.buildInfoButtonStrings.next
             state.viewID = UUID()
@@ -207,6 +218,7 @@ public struct SettingsPageReducer: Reducer {
 
         case .traitCollectionChanged:
             state.traitCollectionChanged = true
+            state.viewID = UUID()
 
         case .viewDisappeared:
             NavigationBar.setAppearance(.appDefault)
@@ -250,5 +262,11 @@ public struct SettingsPageReducer: Reducer {
         }
 
         return .none
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.SettingsPageViewStringKey) -> String {
+        (first(where: { $0.key == .settingsPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

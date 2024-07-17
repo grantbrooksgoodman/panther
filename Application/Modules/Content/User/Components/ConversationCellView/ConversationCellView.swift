@@ -31,7 +31,7 @@ public struct ConversationCellView: View {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
-    // MARK: - View
+    // MARK: - Body
 
     public var body: some View {
         ZStack {
@@ -47,16 +47,62 @@ public struct ConversationCellView: View {
             cellView
         }
         .contextMenu {
-            Button(role: .destructive) {
-                viewModel.send(.deleteConversationButtonTapped)
-            } label: {
-                Label(viewModel.deleteConversationButtonText, systemImage: Strings.deleteConversationButtonImageSystemName)
-            }
+            contextMenuButtons
         } preview: {
             chatPageView(configuration: .preview)
         }
         .frame(height: Floats.frameHeight)
-        .swipeActions(allowsFullSwipe: false) {
+        .swipeActions(edge: .leading, allowsFullSwipe: false) { swipeActionButtons(.leading) }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) { swipeActionButtons(.trailing) }
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
+    }
+
+    // MARK: - Button Views
+
+    @ViewBuilder
+    private var contextMenuButtons: some View {
+        Button(role: .destructive) {
+            viewModel.send(.deleteConversationButtonTapped)
+        } label: {
+            Label(viewModel.deleteConversationButtonText, systemImage: Strings.deleteConversationButtonImageSystemName)
+        }
+
+        Divider()
+
+        Button {
+            viewModel.send(.blockUsersButtonTapped)
+        } label: {
+            Label(viewModel.blockUsersButtonText, systemImage: Strings.blockUsersButtonImageSystemName)
+        }
+
+        Button {
+            viewModel.send(.reportUsersButtonTapped)
+        } label: {
+            Label(viewModel.reportUsersButtonText, systemImage: Strings.reportUsersButtonImageSystemName)
+        }
+    }
+
+    @ViewBuilder
+    private func swipeActionButtons(_ edge: HorizontalEdge) -> some View {
+        switch edge {
+        case .leading:
+            Button {
+                viewModel.send(.blockUsersButtonTapped)
+            } label: {
+                Image(systemName: Strings.blockUsersButtonImageSystemName)
+            }
+            .tint(Colors.blockUsersButtonImageTint)
+
+            Button {
+                viewModel.send(.reportUsersButtonTapped)
+            } label: {
+                Image(systemName: Strings.reportUsersButtonImageSystemName)
+            }
+            .tint(Colors.reportUsersButtonImageTint)
+
+        case .trailing:
             Button {
                 viewModel.send(.deleteConversationButtonTapped)
             } label: {
@@ -64,10 +110,9 @@ public struct ConversationCellView: View {
             }
             .tint(Colors.deleteConversationButtonImageTint)
         }
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
-        }
     }
+
+    // MARK: - Cell View
 
     private var cellView: some View {
         Group {
@@ -146,6 +191,8 @@ public struct ConversationCellView: View {
         }
     }
 
+    // MARK: - Chat Info Toolbar Button
+
     private var chatInfoToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Components.button(
@@ -156,6 +203,8 @@ public struct ConversationCellView: View {
             }
         }
     }
+
+    // MARK: - Chat Page View
 
     private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
         var pageView: AnyView = .init(

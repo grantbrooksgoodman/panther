@@ -17,6 +17,7 @@ public final class ClientSession {
 
     public let conversation: ConversationSessionService
     public let message: MessageSessionService
+    public let moderation: ModerationSessionService
     public let user: UserSessionService
 
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
@@ -26,10 +27,12 @@ public final class ClientSession {
     public init(
         conversation: ConversationSessionService,
         message: MessageSessionService,
+        moderation: ModerationSessionService,
         user: UserSessionService
     ) {
         self.conversation = conversation
         self.message = message
+        self.moderation = moderation
         self.user = user
     }
 

@@ -15,6 +15,12 @@ import CoreArchitecture
 public extension Array where Element == Conversation {
     // MARK: - Properties
 
+    var filteringBlockedUsers: [Conversation] {
+        @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+        guard let blockedUserIDs else { return self }
+        return filter { !blockedUserIDs.containsAnyString(in: $0.participants.map(\.userID)) }
+    }
+
     var sortedByLatestMessageSentDate: [Conversation] {
         guard allSatisfy({ $0.messages != nil }) else { return self }
         return sorted(by: { $0.messages!
@@ -36,7 +42,7 @@ public extension Array where Element == Conversation {
         return conversations
     }
 
-    /// The conversations among the array in which the current user is participating and has not deleted.
+    /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants which the user has blocked.
     var visibleForCurrentUser: [Conversation] {
         @Persistent(.currentUserID) var currentUserID: String?
         guard let currentUserID else { return self }
@@ -46,7 +52,7 @@ public extension Array where Element == Conversation {
             return !participant.hasDeletedConversation
         }
 
-        return filter { satisfiesConstraints($0) }
+        return filter { satisfiesConstraints($0) }.filteringBlockedUsers
     }
 
     // MARK: - Methods

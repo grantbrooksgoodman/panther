@@ -64,8 +64,8 @@ public struct ConversationCellViewData: Equatable {
               let lastUser = users.last else { return nil }
 
         var titleLabelText: String
-        var subtitleLabelText = String.userFacingBlank
-        var dateLabelText = String.userFacingBlank
+        var subtitleLabelText = ""
+        var dateLabelText = ""
         var thumbnailImage: UIImage?
         var isShowingUnreadIndicator = false
         var otherUser: User?

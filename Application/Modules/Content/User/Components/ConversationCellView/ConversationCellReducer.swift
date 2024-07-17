@@ -26,9 +26,11 @@ public struct ConversationCellReducer: Reducer {
     public enum Action {
         case viewAppeared
 
+        case blockUsersButtonTapped
         case chatInfoToolbarButtonTapped
         case chatPageViewAppeared
         case deleteConversationButtonTapped
+        case reportUsersButtonTapped
         case userInfoBadgeTapped
     }
 
@@ -46,10 +48,15 @@ public struct ConversationCellReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        // String
+        @Localized(.blockUser) public var blockUsersButtonText: String
+        @Localized(.delete) public var deleteConversationButtonText: String
+        @Localized(.reportUser) public var reportUsersButtonText: String
+
+        // Other
         public var badgeDecrementAmount = 0
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
-        @Localized(.delete) public var deleteConversationButtonText: String
 
         /* MARK: Computed Properties */
 
@@ -90,6 +97,13 @@ public struct ConversationCellReducer: Reducer {
             guard let cellViewData = ConversationCellViewData(state.conversation) else { return .none }
             state.cellViewData = cellViewData
 
+        case .action(.blockUsersButtonTapped):
+            guard let users = state.conversation.users else { return .none }
+            return .fireAndForget {
+                guard let exception = await viewService.blockUsersButtonTapped(users) else { return }
+                Logger.log(exception)
+            }
+
         case .action(.chatInfoToolbarButtonTapped):
             RootSheets.present(.chatInfoPageView)
 
@@ -119,6 +133,13 @@ public struct ConversationCellReducer: Reducer {
             return .task {
                 let result = await viewService.presentDeletionActionSheet(title)
                 return .deletionActionSheetDismissed(cancelled: result)
+            }
+
+        case .action(.reportUsersButtonTapped):
+            guard let users = state.conversation.users else { return .none }
+            return .fireAndForget {
+                guard let exception = await viewService.reportUsersButtonTapped(users) else { return }
+                Logger.log(exception)
             }
 
         case .action(.userInfoBadgeTapped):

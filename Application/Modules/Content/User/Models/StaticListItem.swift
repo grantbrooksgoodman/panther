@@ -16,6 +16,7 @@ public struct StaticListItem: Equatable, Hashable {
     public let action: (() -> Void)?
     public let destination: (() -> any View)?
     public let imageData: (image: Image, color: Color)?
+    public let isEnabled: Bool
     public let title: String
 
     private let id = UUID()
@@ -25,12 +26,14 @@ public struct StaticListItem: Equatable, Hashable {
     public init(
         title: String,
         imageData: (image: Image, color: Color)? = nil,
+        isEnabled: Bool = true,
         action: (() -> Void)? = nil,
         destination: (() -> any View)? = nil
     ) {
         assert(!(action != nil && destination != nil), "Initialized StaticListItem with both action and destination specified")
         self.title = title
         self.imageData = imageData
+        self.isEnabled = isEnabled
         self.action = action
         self.destination = destination
     }
@@ -40,10 +43,12 @@ public struct StaticListItem: Equatable, Hashable {
     public static func == (left: StaticListItem, right: StaticListItem) -> Bool {
         let sameID = left.id == right.id
         let sameImageDateColor = left.imageData?.color == right.imageData?.color
+        let sameIsEnabled = left.isEnabled == right.isEnabled
         let sameTitle = left.title == right.title
 
         guard sameID,
               sameImageDateColor,
+              sameIsEnabled,
               sameTitle else { return false }
 
         return true
@@ -54,6 +59,7 @@ public struct StaticListItem: Equatable, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(imageData?.color)
+        hasher.combine(isEnabled)
         hasher.combine(title)
     }
 }

@@ -75,6 +75,13 @@ public struct LegacyUserService {
 
             if let exception = await networking.database.setValue(
                 Array.bangQualifiedEmpty,
+                forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
+            ) {
+                return exception.appending(extraParams: commonParams)
+            }
+
+            if let exception = await networking.database.setValue(
+                Array.bangQualifiedEmpty,
                 forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
                 return exception.appending(extraParams: commonParams)

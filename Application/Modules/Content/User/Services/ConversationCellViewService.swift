@@ -14,7 +14,19 @@ import AlertKit
 import CoreArchitecture
 
 public struct ConversationCellViewService {
+    // MARK: - Dependencies
+
+    @Dependency(\.build) private var build: Build
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.userDefaults) private var defaults: UserDefaults
+    @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
+
     // MARK: - Methods
+
+    public func blockUsersButtonTapped(_ users: [User]) async -> Exception? {
+        await moderationSession.blockUsers(users)
+    }
 
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
@@ -34,11 +46,6 @@ public struct ConversationCellViewService {
     /// `.userInfoBadgeTapped`
     public func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
         Task {
-            @Dependency(\.build) var build: Build
-            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-            @Dependency(\.userDefaults) var defaults: UserDefaults
-            @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
-
             @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
             guard let user = cellViewData.otherUser else { return }
@@ -75,5 +82,9 @@ public struct ConversationCellViewService {
                 actions: actions
             ).present(translating: [])
         }
+    }
+
+    public func reportUsersButtonTapped(_ users: [User]) async -> Exception? {
+        await moderationSession.reportUsers(users)
     }
 }

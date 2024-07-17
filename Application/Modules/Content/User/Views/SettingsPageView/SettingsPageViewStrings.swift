@@ -13,6 +13,7 @@ public extension TranslatedLabelStringCollection {
     enum SettingsPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
+        case blockedUsersButtonText = "Blocked Users"
         case changeThemeButtonText = "Change Theme"
         case clearCachesButtonText = "Clear Caches"
         case deleteAccountButtonText = "Delete Account"

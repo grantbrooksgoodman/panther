@@ -36,7 +36,8 @@ public extension ContactPair {
               firstUser.conversationIDs == nil,
               firstUser.languageCode.isBlank,
               firstUser.phoneNumber.compiledNumberString.isBlank,
-              firstUser.pushTokens == nil else { return false }
+              firstUser.pushTokens == nil,
+              firstUser.blockedUserIDs == nil else { return false }
         return true
     }
 
@@ -64,6 +65,7 @@ public extension ContactPair {
                     users: [
                         .init(
                             "",
+                            blockedUserIDs: nil,
                             conversationIDs: nil,
                             languageCode: "",
                             phoneNumber: .init(""),

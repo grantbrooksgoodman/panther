@@ -22,6 +22,7 @@ extension User: Serializable {
 
     public enum SerializationKeys: String {
         case id
+        case blockedUserIDs
         case conversationIDs = "openConversations"
         case languageCode
         case phoneNumber
@@ -34,6 +35,7 @@ extension User: Serializable {
         let conversationIDs = (conversationIDs ?? .init()).map { $0.encoded }
         return [
             Keys.id.rawValue: id,
+            Keys.blockedUserIDs.rawValue: blockedUserIDs ?? .bangQualifiedEmpty,
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
             Keys.languageCode.rawValue: languageCode,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
@@ -45,6 +47,7 @@ extension User: Serializable {
 
     public static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] as? String != nil,
+              data[Keys.blockedUserIDs.rawValue] as? [String] != nil,
               data[Keys.conversationIDs.rawValue] as? [String] != nil,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
@@ -56,6 +59,7 @@ extension User: Serializable {
 
     public static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
         guard let id = data[Keys.id.rawValue] as? String,
+              let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let languageCode = data[Keys.languageCode.rawValue] as? String,
@@ -93,6 +97,7 @@ extension User: Serializable {
 
         return .success(.init(
             id,
+            blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
