@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -15,7 +15,6 @@ import Foundation
 import CoreArchitecture
 import FirebaseDatabase
 
-// swiftlint:disable:next type_body_length
 public final class UserSessionService {
     // MARK: - Dependencies
 
@@ -326,15 +325,15 @@ public final class UserSessionService {
         }
     }
 
-    // MARK: - Block/Unblock User
+    // MARK: - Block/Unblock Users
 
-    public func blockUser(id userID: String) async -> Exception? {
+    public func blockUsers(ids userIDs: [String]) async -> Exception? {
         guard let currentUser else {
             return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
-        blockedUserIDs.append(userID)
+        blockedUserIDs.append(contentsOf: userIDs)
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
         let updateValueResult = await currentUser.updateValue(
@@ -355,13 +354,13 @@ public final class UserSessionService {
         }
     }
 
-    public func unblockUser(id userID: String) async -> Exception? {
+    public func unblockUsers(ids userIDs: [String]) async -> Exception? {
         guard let currentUser else {
             return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
-        blockedUserIDs = blockedUserIDs.filter { $0 != userID }
+        blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
         let updateValueResult = await currentUser.updateValue(
@@ -508,4 +507,4 @@ public final class UserSessionService {
     }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable file_length type_body_length

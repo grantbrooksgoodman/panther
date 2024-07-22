@@ -154,47 +154,41 @@ public struct ModerationSessionService {
         let alertData = alertData(type, contactPairs: contactPairs)
         await AKActionSheet(
             title: "\(type.rawValue.firstUppercase) Users",
-            actions: alertData.actions
+            actions: alertData.actions,
+            cancelButtonTitle: Localized(.cancel).wrappedValue
         ).present(translating: alertData.translationOptionKeys)
         return nil
     }
 
     private func performModeration(_ type: ModerationType, userIDs: [String]) async -> Exception? {
-        var exceptions = [Exception]()
+        defer { Observables.traitCollectionChanged.trigger() }
 
         switch type {
         case .block:
-            for userID in userIDs {
-                guard let exception = await userSession.blockUser(id: userID) else { continue }
-                exceptions.append(exception)
-            }
+            guard let exception = await userSession.blockUsers(ids: userIDs) else { return nil }
+            return exception
 
         case .report:
-            for userID in userIDs {
-                guard let exception = await reportUser(id: userID) else { continue }
-                exceptions.append(exception)
-            }
+            guard let exception = await reportUsers(ids: userIDs) else { return nil }
+            return exception
 
         case .unblock:
-            for userID in userIDs {
-                guard let exception = await userSession.unblockUser(id: userID) else { continue }
-                exceptions.append(exception)
-            }
+            guard let exception = await userSession.unblockUsers(ids: userIDs) else { return nil }
+            return exception
         }
-
-        Observables.traitCollectionChanged.trigger()
-        return exceptions.compiledException
     }
 
-    private func reportUser(id userID: String) async -> Exception? {
+    private func reportUsers(ids userIDs: [String]) async -> Exception? {
         let getReportedUserIDsResult = await getReportedUserIDs()
 
         switch getReportedUserIDsResult {
         case var .success(reportedUserIDs):
-            if let value = reportedUserIDs[userID] {
-                reportedUserIDs[userID] = value + 1
-            } else {
-                reportedUserIDs[userID] = 1
+            for userID in userIDs {
+                if let value = reportedUserIDs[userID] {
+                    reportedUserIDs[userID] = value + 1
+                } else {
+                    reportedUserIDs[userID] = 1
+                }
             }
 
             if let exception = await networking.database.setValue(
@@ -206,8 +200,12 @@ public struct ModerationSessionService {
 
         case let .failure(exception):
             Logger.log(exception)
+
+            var reportedUserIDs = [String: Int]()
+            userIDs.forEach { reportedUserIDs[$0] = 1 }
+
             if let exception = await networking.database.setValue(
-                [userID: 1],
+                reportedUserIDs,
                 forKey: networking.config.paths.reportedUsers
             ) {
                 return exception
