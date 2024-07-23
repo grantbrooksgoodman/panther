@@ -52,5 +52,5 @@ extension MediaFile: MediaItem {
 }
 
 public extension MediaFile {
-    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.png).rawValue)" }
+    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)" }
 }

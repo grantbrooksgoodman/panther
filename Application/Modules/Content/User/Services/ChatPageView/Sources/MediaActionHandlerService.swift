@@ -138,7 +138,7 @@ public final class MediaActionHandlerService {
             return .init("Failed to compress image.", metadata: [self, #file, #function, #line])
         }
 
-        let networkPath = "\(mediaPath)/\(Strings.defaultImageName).\(MediaFileExtension.image(.png).rawValue)"
+        let networkPath = "\(mediaPath)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
         let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
 
         if let exception = fileManager.createFile(
@@ -149,7 +149,7 @@ public final class MediaActionHandlerService {
         } else if let exception = await messageDeliveryService.sendMediaMessage(.init(
             localPath,
             name: Strings.defaultImageName,
-            fileExtension: .image(.png)
+            fileExtension: .image(.jpeg)
         )) {
             return exception
         }

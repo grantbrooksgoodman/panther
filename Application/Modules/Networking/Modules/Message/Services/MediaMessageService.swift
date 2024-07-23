@@ -100,7 +100,7 @@ public struct MediaMessageService {
                     thumbnailData,
                     metadata: .init(
                         thumbnailNetworkPath,
-                        contentType: MediaFileExtension.image(.png).contentTypeString
+                        contentType: MediaFileExtension.image(.jpeg).contentTypeString
                     )
                 )
 
