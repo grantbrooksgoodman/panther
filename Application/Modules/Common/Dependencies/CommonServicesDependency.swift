@@ -29,6 +29,7 @@ public enum CommonServicesDependency: DependencyKey {
             ),
             contentPicker: .init(
                 camera: .init(),
+                document: .init(),
                 media: .init()
             ),
             haptics: .init(

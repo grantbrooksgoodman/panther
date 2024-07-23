@@ -30,7 +30,7 @@ extension MediaFile: MediaItem {
 
         guard let thumbnailPath = urlPath.thumbnailPath,
               fileManager.fileExists(atPath: thumbnailPath.path()) else {
-            guard let image = UIImage(contentsOfFile: urlPath.path()) else { return nil }
+            guard let image = UIImage(contentsOfFile: urlPath.path()) else { return .missing }
             if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.images)) as? [URL: UIImage] {
                 cacheValue[urlPath] = image
                 mediaMessagePreviewService?.cache.set(cacheValue, forKey: .mediaMessagePreviewService(.images))

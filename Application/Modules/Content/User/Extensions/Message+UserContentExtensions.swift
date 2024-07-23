@@ -51,7 +51,9 @@ extension Message: MessageType {
             }
 
         case .media:
-            if let imageComponent {
+            if let documentComponent {
+                return .photo(documentComponent)
+            } else if let imageComponent {
                 return .photo(imageComponent)
             } else if let videoComponent {
                 return .video(videoComponent)

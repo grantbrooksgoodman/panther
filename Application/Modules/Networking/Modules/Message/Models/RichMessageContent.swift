@@ -24,6 +24,17 @@ public enum RichMessageContent: Codable, Equatable {
         }
     }
 
+    public var documentComponent: MediaFile? {
+        switch self {
+        case let .media(mediaComponent):
+            guard mediaComponent.fileExtension.isDocument else { return nil }
+            return mediaComponent
+
+        default:
+            return nil
+        }
+    }
+
     public var imageComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):

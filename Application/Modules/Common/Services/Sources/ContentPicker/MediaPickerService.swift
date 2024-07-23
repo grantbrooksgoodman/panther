@@ -46,6 +46,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
         guard !results.isEmpty else {
             picker.dismiss(animated: true)
             _onDismiss?(nil)
+            _onDismiss = nil
             return
         }
 
@@ -53,7 +54,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
             self.core.gcd.after(.milliseconds(250)) {
                 picker.dismiss(animated: true)
 
-                guard let itemProvider = results.first?.itemProvider else { return }
+                guard let itemProvider = results.first?.itemProvider else { return self._onDismiss = nil }
                 self.timeout = .init(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
 
                 if itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -76,7 +77,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - Auxiliary
 
-    public func dismissReturningFailure(_ exception: Exception) {
+    private func dismissReturningFailure(_ exception: Exception) {
         timeout?.cancel()
         core.hud.hide()
 

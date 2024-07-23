@@ -95,9 +95,18 @@ public final class SettingsPageViewService: Cacheable {
             didClearCaches = true
             services.analytics.logEvent(.clearCaches)
 
+            var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]
+            if build.developerModeEnabled {
+                let reloadAction = AKAction("Reload") {
+                    self.navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                }
+
+                actions.insert(reloadAction, at: 0)
+            }
+
             await AKAlert(
-                message: "Caches have been cleared. You must now restart the app.",
-                actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
+                message: "Caches have been cleared.\(build.developerModeEnabled ? "" : " You must now restart the app.")",
+                actions: actions
             ).present()
         }
 

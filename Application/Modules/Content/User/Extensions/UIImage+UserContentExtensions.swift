@@ -11,6 +11,37 @@ import Foundation
 import UIKit
 
 public extension UIImage {
+    // MARK: - Type Aliases
+
+    private typealias Strings = AppConstants.Strings.UserContentExtensions.UIImage
+
+    // MARK: - Properties
+
+    static var missing: UIImage {
+        let config: UIImage.SymbolConfiguration = .init(
+            pointSize: 100,
+            weight: .regular,
+            scale: .medium
+        )
+
+        return .init(
+            systemName: Strings.missingImageSystemName,
+            withConfiguration: config
+        )?.withTintColor(
+            .systemGray3,
+            renderingMode: .alwaysOriginal
+        ).withAlignmentRectInsets(
+            .init(
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0
+            )
+        ) ?? .init()
+    }
+
+    // MARK: - Methods
+
     func dataCompressed(toKB kilobytes: Int, toleratedMarginOfError: CGFloat = 0.2) -> Data? {
         var compressedData: Data?
         var currentKilobytes = kilobytes
@@ -22,6 +53,29 @@ public extension UIImage {
         }
 
         return compressedData
+    }
+
+    static func document(tintColor: UIColor = .systemGray3) -> UIImage {
+        let config: UIImage.SymbolConfiguration = .init(
+            pointSize: 100,
+            weight: .regular,
+            scale: .medium
+        )
+
+        return .init(
+            systemName: Strings.documentImageSystemName,
+            withConfiguration: config
+        )?.withTintColor(
+            tintColor,
+            renderingMode: .alwaysOriginal
+        ).withAlignmentRectInsets(
+            .init(
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0
+            )
+        ) ?? .init()
     }
 
     func resized(toPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {

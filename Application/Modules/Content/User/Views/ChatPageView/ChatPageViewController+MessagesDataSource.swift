@@ -110,7 +110,8 @@ extension ChatPageViewController: MessagesDataSource {
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
         guard let messages = currentConversation?.messages,
-              !messages.isEmpty else { return Message.empty }
+              !messages.isEmpty,
+              !isSectionReservedForTypingIndicator(indexPath.section) else { return Message.empty }
         guard indexPath.section < messages.count else { return messages.last! }
         return messages[indexPath.section]
     }

@@ -53,7 +53,12 @@ public struct LocalMediaFilePath: Codable, Equatable {
             let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
             let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
 
-            guard fileExtension == MediaFileExtension.video(.mp4).rawValue else {
+            let thumbnailMediaFileExtensions = [
+                MediaFileExtension.document(.pdf).rawValue,
+                MediaFileExtension.video(.mp4).rawValue,
+            ]
+
+            guard thumbnailMediaFileExtensions.contains(fileExtension) else {
                 self.init(
                     networkPathString: networkPathString,
                     localPathURL: localPathURL

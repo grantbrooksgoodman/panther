@@ -13,6 +13,10 @@ import Foundation
 import CoreArchitecture
 
 public final class TypingIndicatorService {
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
@@ -53,7 +57,8 @@ public final class TypingIndicatorService {
 
     @objc
     private func checkForTypingIndicatorChanges() {
-        // TODO: Ensure not waiting to update conversation – if about to add a message, NSInternalInconsistencyException.
+        guard !chatPageState.isWaitingToUpdateConversations else { return }
+
         @Persistent(.currentUserID) var currentUserID: String?
         guard let conversation = viewController.currentConversation,
               conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {

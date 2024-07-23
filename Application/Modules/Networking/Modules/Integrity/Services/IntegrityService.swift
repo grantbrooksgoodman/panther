@@ -389,37 +389,52 @@ public final class IntegrityService {
                   let contentType = ContentType(rawValue: contentTypeString),
                   contentType == .media else { continue }
 
-            let pngImageFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.image(.png).rawValue)"
-            let mp4VideoFilePath = "\(networking.config.paths.media)/\(key).\(MediaFileExtension.video(.mp4).rawValue)"
-            let mp4VideoThumbnailFilePath = "\(networking.config.paths.media)/\(key)\(MediaFile.thumbnailImageNameSuffix)"
+            let pathPrefix = "\(networking.config.paths.media)/\(key)"
 
-            let pngImageFileItemExistsResult = await networking.storage.itemExists(at: pngImageFilePath)
+            let jpegImageFilePath = "\(pathPrefix).\(MediaFileExtension.image(.jpeg).rawValue)"
+            let pdfDocumentFilePath = "\(pathPrefix).\(MediaFileExtension.document(.pdf).rawValue)"
+            let pngImageFilePath = "\(pathPrefix).\(MediaFileExtension.image(.png).rawValue)"
+            let mp4VideoFilePath = "\(pathPrefix).\(MediaFileExtension.video(.mp4).rawValue)"
 
-            switch pngImageFileItemExistsResult {
+            let mediaThumbnailFilePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
+
+            var jpegImageFileItemExists = false
+            var pdfDocumentFileExists = false
+            var pngImageFileItemExists = false
+            var mp4VideoFileItemExists = false
+
+            // Check JPEG exists
+
+            let jpegImageFileItemExistsResult = await networking.storage.itemExists(at: jpegImageFilePath)
+
+            switch jpegImageFileItemExistsResult {
             case let .success(itemExists):
-                guard !itemExists else { continue }
+                jpegImageFileItemExists = itemExists
 
-                let mp4VideoFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoFilePath)
+            case let .failure(exception):
+                exceptions.append(exception)
+            }
 
-                switch mp4VideoFileItemExistsResult {
+            // Check PDF exists
+
+            let pdfDocumentFileItemExistsResult = await networking.storage.itemExists(at: pdfDocumentFilePath)
+
+            switch pdfDocumentFileItemExistsResult {
+            case let .success(itemExists):
+                pdfDocumentFileExists = itemExists
+
+            case let .failure(exception):
+                exceptions.append(exception)
+            }
+
+            // Check PDF thumbnail exists
+
+            if pdfDocumentFileExists {
+                let pdfDocumentThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
+
+                switch pdfDocumentThumbnailFileItemExistsResult {
                 case let .success(itemExists):
-                    guard !itemExists else {
-                        let mp4VideoThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoThumbnailFilePath)
-
-                        switch mp4VideoThumbnailFileItemExistsResult {
-                        case let .success(itemExists):
-                            guard !itemExists else { continue }
-                            if let exception = await repairMalformedMessages([key]) {
-                                exceptions.append(exception)
-                            }
-
-                        case let .failure(exception):
-                            exceptions.append(exception)
-                        }
-
-                        continue
-                    }
-
+                    guard !itemExists else { continue }
                     if let exception = await repairMalformedMessages([key]) {
                         exceptions.append(exception)
                     }
@@ -427,9 +442,62 @@ public final class IntegrityService {
                 case let .failure(exception):
                     exceptions.append(exception)
                 }
+            }
+
+            // Check PNG exists
+
+            let pngImageFileItemExistsResult = await networking.storage.itemExists(at: pngImageFilePath)
+
+            switch pngImageFileItemExistsResult {
+            case let .success(itemExists):
+                pngImageFileItemExists = itemExists
 
             case let .failure(exception):
                 exceptions.append(exception)
+            }
+
+            guard !pngImageFileItemExists else { continue }
+
+            // Check MP4 exists
+
+            let mp4VideoFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoFilePath)
+
+            switch mp4VideoFileItemExistsResult {
+            case let .success(itemExists):
+                mp4VideoFileItemExists = itemExists
+
+            case let .failure(exception):
+                exceptions.append(exception)
+            }
+
+            // Check MP4 thumbnail exists
+
+            if mp4VideoFileItemExists {
+                let mp4VideoThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
+
+                switch mp4VideoThumbnailFileItemExistsResult {
+                case let .success(itemExists):
+                    guard !itemExists else { continue }
+                    if let exception = await repairMalformedMessages([key]) {
+                        exceptions.append(exception)
+                    }
+
+                case let .failure(exception):
+                    exceptions.append(exception)
+                }
+            }
+
+            guard [
+                jpegImageFileItemExists,
+                pdfDocumentFileExists,
+                pngImageFileItemExists,
+                mp4VideoFileItemExists,
+            ].contains(true) else {
+                if let exception = await repairMalformedMessages([key]) {
+                    exceptions.append(exception)
+                }
+
+                continue
             }
         }
 

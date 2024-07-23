@@ -232,6 +232,8 @@ public final class RecipientBarLayoutService {
         let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
         selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
+        while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
+
         selectContactButton.center.y = recipientBarView.center.y
 
         return selectContactButton

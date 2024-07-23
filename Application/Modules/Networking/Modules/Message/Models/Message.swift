@@ -36,6 +36,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public var hashFactors: [String] { getHashFactors() }
 
     // MediaFile
+    public var documentComponent: MediaFile? { richContent?.documentComponent }
     public var imageComponent: MediaFile? { richContent?.imageComponent }
     public var videoComponent: MediaFile? { richContent?.videoComponent }
 

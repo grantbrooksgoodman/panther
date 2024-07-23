@@ -146,6 +146,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius }
         }
 
+        guard message.documentComponent == nil else { return .bubbleOutline(.gray) }
+
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)
     }
 }

@@ -13,15 +13,18 @@ public struct ContentPickerService {
     // MARK: - Properties
 
     public let camera: CameraPickerService
+    public let document: DocumentPickerService
     public let media: MediaPickerService
 
     // MARK: - Init
 
     public init(
         camera: CameraPickerService,
+        document: DocumentPickerService,
         media: MediaPickerService
     ) {
         self.camera = camera
+        self.document = document
         self.media = media
     }
 }

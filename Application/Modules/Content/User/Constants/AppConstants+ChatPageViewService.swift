@@ -66,6 +66,14 @@ public extension AppConstants.CGFloats {
             public static let recordingInstructionToastPerpetuationDuration: CGFloat = 2.5
         }
 
+        enum MediaActionHandler {
+            public static let avAssetImageGeneratorPreferredTimescale: CGFloat = 600
+            public static let imageCompressionSizeKB: CGFloat = 1000
+            public static let thumbnailImageScale: CGFloat = 2
+            public static let thumbnailImageSizeHeight: CGFloat = 500
+            public static let thumbnailImageSizeWidth: CGFloat = 500
+        }
+
         enum Menu { // swiftlint:disable:next identifier_name
             public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
             public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
@@ -157,6 +165,7 @@ public extension AppConstants.Strings {
         }
 
         enum MediaActionHandler {
+            public static let defaultDocumentName = "document"
             public static let defaultImageName = "image"
             public static let defaultVideoName = "video"
         }

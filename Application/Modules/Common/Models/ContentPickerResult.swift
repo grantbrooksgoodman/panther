@@ -11,6 +11,7 @@ import Foundation
 import UIKit
 
 public enum ContentPickerResult {
+    case document(URL)
     case image(UIImage)
     case video(URL)
 }

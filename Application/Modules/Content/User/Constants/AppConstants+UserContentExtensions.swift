@@ -82,6 +82,11 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum UserContentExtensions {
+        enum UIImage {
+            public static let documentImageSystemName = "doc.circle.fill"
+            public static let missingImageSystemName = "questionmark.square.dashed"
+        }
+
         enum UIView {
             public static let shimmerEffectAnimationKeyPath = "locations"
             public static let shimmerEffectGradientLayerAnimationKey = "shimmer"

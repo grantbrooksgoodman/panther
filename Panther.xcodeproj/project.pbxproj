@@ -304,6 +304,8 @@
 		B98C3BA52B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */; };
 		B98C40562C40AFCF00C72B0F /* MediaPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C40552C40AFCF00C72B0F /* MediaPickerService.swift */; };
 		B98C40592C40BC0E00C72B0F /* ContentPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C40582C40BC0E00C72B0F /* ContentPickerService.swift */; };
+		B98D9B1C2C4F1881004949E3 /* DocumentPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98D9B1B2C4F1881004949E3 /* DocumentPickerService.swift */; };
+		B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98D9B1D2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift */; };
 		B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A52B81C60300C7BE00 /* ContactSelectorPageView.swift */; };
 		B990F5A82B81C60B00C7BE00 /* ContactSelectorPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A72B81C60B00C7BE00 /* ContactSelectorPageReducer.swift */; };
 		B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */; };
@@ -1202,6 +1204,8 @@
 		B98C3BA42B7B06ED00CDA3E9 /* RecipientBarLayoutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarLayoutService.swift; sourceTree = "<group>"; };
 		B98C40552C40AFCF00C72B0F /* MediaPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerService.swift; sourceTree = "<group>"; };
 		B98C40582C40BC0E00C72B0F /* ContentPickerService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentPickerService.swift; sourceTree = "<group>"; };
+		B98D9B1B2C4F1881004949E3 /* DocumentPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerService.swift; sourceTree = "<group>"; };
+		B98D9B1D2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QLThumbnailGeneratorDependency.swift; sourceTree = "<group>"; };
 		B990F5A52B81C60300C7BE00 /* ContactSelectorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageView.swift; sourceTree = "<group>"; };
 		B990F5A72B81C60B00C7BE00 /* ContactSelectorPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageReducer.swift; sourceTree = "<group>"; };
 		B990F5A92B81C91000C7BE00 /* NewChatPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatPageObserver.swift; sourceTree = "<group>"; };
@@ -2510,6 +2514,7 @@
 			children = (
 				B98C40582C40BC0E00C72B0F /* ContentPickerService.swift */,
 				B979AA382C444E4A0082203C /* CameraPickerService.swift */,
+				B98D9B1B2C4F1881004949E3 /* DocumentPickerService.swift */,
 				B98C40552C40AFCF00C72B0F /* MediaPickerService.swift */,
 			);
 			path = ContentPicker;
@@ -3829,6 +3834,7 @@
 				B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */,
 				B98387292BBF6407008614AE /* MessageDeliveryServiceDependency.swift */,
 				B96EDD8E2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift */,
+				B98D9B1D2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift */,
 				B925A0932B6480A400111413 /* UIPasteboardDependency.swift */,
 			);
 			path = Dependencies;
@@ -4557,6 +4563,7 @@
 				B91C2D742C1B68F100278B7F /* NetworkDelegates.swift in Sources */,
 				B9DCCA9E2B33E31E00532B12 /* ConversationArchiveService.swift in Sources */,
 				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
+				B98D9B1C2C4F1881004949E3 /* DocumentPickerService.swift in Sources */,
 				B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */,
 				B9D0D93F2B03019E00078A93 /* String+CoreNetworkingExtensions.swift in Sources */,
 				B9E7D43D2AAC222600FAF2A9 /* Observable.swift in Sources */,
@@ -4606,6 +4613,7 @@
 				B9C582FF29BECA8D009DCE29 /* Timeout.swift in Sources */,
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
 				B9D0D9472B03019E00078A93 /* Database.swift in Sources */,
+				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
 				B9E7D42B2AAC1F4000FAF2A9 /* AppConstants.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
