@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import AVFAudio
 import Foundation
@@ -15,7 +17,6 @@ import UIKit
 import CoreArchitecture
 import InputBarAccessoryView
 
-// swiftlint:disable:next type_body_length
 public final class InputBarService {
     // MARK: - Constants Accessors
 
@@ -48,7 +49,17 @@ public final class InputBarService {
     // MARK: - Computed Properties
 
     public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
-    public var shouldEnableButtons: Bool {
+    public var shouldEnableAttachMediaButton: Bool {
+        guard build.isOnline else { return false }
+
+        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
+        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
+        let isSendingMessage = messageDeliveryService.isSendingMessage
+
+        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage
+    }
+
+    public var shouldEnableSendButton: Bool {
         guard build.isOnline else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
@@ -116,8 +127,8 @@ public final class InputBarService {
                         for: .highlighted
                     )
 
-                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableButtons
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
+                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
 
                     self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
                     self.inputBar.sendButton.alpha = 1
@@ -128,7 +139,8 @@ public final class InputBarService {
             case false:
                 if !forceUpdate {
                     guard self.inputBar.sendButton.isRecordButton else {
-                        self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
+                        self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
                         return
                     }
                 }
@@ -156,8 +168,8 @@ public final class InputBarService {
                         for: .highlighted
                     )
 
-                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableButtons
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableButtons
+                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
 
                     self.inputBar.sendButton.tintColor = .accent
                     self.inputBar.sendButton.alpha = 1
@@ -293,20 +305,39 @@ public final class InputBarService {
         inputBar.leftStackView.attachMediaButton?.setImage(attachMediaButtonHighlightedImage, for: .highlighted)
     }
 
-    // MARK: - Set Buttons Is Enabled
+    // MARK: - Set Attach Media Button Is Enabled
 
-    public func setButtonsIsEnabled(_ isEnabled: Bool) {
-        if !isForcingAppearance {
-            guard inputBar.sendButton.isEnabled != isEnabled else { return }
-        }
-
+    public func setAttachMediaButtonIsEnabled(_ isEnabled: Bool) {
         mainQueue.async {
+            if !self.isForcingAppearance {
+                guard self.inputBar.leftStackView.attachMediaButton?.isEnabled != isEnabled else { return }
+            }
+
+            guard let attachMediaButton = self.inputBar.leftStackView.attachMediaButton else { return }
+
+            UIView.transition(
+                with: attachMediaButton,
+                duration: Floats.transitionAnimationDuration,
+                options: [.transitionCrossDissolve]
+            ) {
+                attachMediaButton.isEnabled = isEnabled
+            }
+        }
+    }
+
+    // MARK: - Set Send Button Is Enabled
+
+    public func setSendButtonIsEnabled(_ isEnabled: Bool) {
+        mainQueue.async {
+            if !self.isForcingAppearance {
+                guard self.inputBar.sendButton.isEnabled != isEnabled else { return }
+            }
+
             UIView.transition(
                 with: self.inputBar.sendButton,
                 duration: Floats.transitionAnimationDuration,
                 options: [.transitionCrossDissolve]
             ) {
-                self.inputBar.leftStackView.attachMediaButton?.isEnabled = isEnabled
                 self.inputBar.sendButton.isEnabled = isEnabled
             }
         }
@@ -328,13 +359,22 @@ public final class InputBarService {
 
     // MARK: - Toggle Sending UI
 
-    public func toggleSendingUI(on: Bool) {
+    public func toggleSendingUI(
+        on: Bool,
+        clearInputTextViewText: Bool = true
+    ) {
         mainQueue.async {
             if on {
+                defer {
+                    self.inputBar.sendButton.startAnimating()
+                    self.setAttachMediaButtonIsEnabled(false)
+                }
+
+                guard clearInputTextViewText else { return }
                 self.inputBar.inputTextView.text = ""
-                self.inputBar.sendButton.startAnimating()
             } else {
                 self.inputBar.sendButton.stopAnimating()
+                self.setAttachMediaButtonIsEnabled(self.shouldEnableAttachMediaButton)
             }
 
             self.inputBar.inputTextView.tintColor = on ? UIColor(Colors.inputTextViewTint) : .accent
@@ -390,3 +430,5 @@ public final class InputBarService {
         }
     }
 }
+
+// swiftlint:enable file_length type_body_length

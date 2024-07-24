@@ -122,7 +122,7 @@ public final class MessageDeliveryService {
         addMockMessageToCurrentConversation(audioFile: nil, mediaFile: mediaFile, text: nil)
 
         isSendingMessage = true
-        chatPageViewService.inputBar?.toggleSendingUI(on: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: true, clearInputTextViewText: false)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
         let sendMediaMessageResult = await clientSession.message.sendMediaMessage(

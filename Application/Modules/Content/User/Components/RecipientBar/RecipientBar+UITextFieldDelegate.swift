@@ -35,7 +35,8 @@ extension RecipientBar: UITextFieldDelegate {
 
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        chatPageViewService.inputBar?.setButtonsIsEnabled(false)
+        chatPageViewService.inputBar?.setAttachMediaButtonIsEnabled(false)
+        chatPageViewService.inputBar?.setSendButtonIsEnabled(false)
         chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: false)
     }
 
