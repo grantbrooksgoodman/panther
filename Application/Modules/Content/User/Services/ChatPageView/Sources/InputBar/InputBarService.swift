@@ -256,18 +256,25 @@ public final class InputBarService {
 
     // MARK: - Did Press Send Button
 
+    @MainActor
     public func didPressSendButton(with text: String) async -> Exception? {
-        if let currentConversation = await viewController.currentConversation {
-            guard !currentConversation.isEmpty else {
+        /// - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
+        var isConversationEmpty: Bool {
+            if let currentConversation = viewController.currentConversation,
+               currentConversation.isEmpty {
                 Logger.log(
                     "Intercepted invalid send button press bug.",
                     domain: .bugPrevention,
                     metadata: [self, #file, #function, #line]
                 )
-                return nil
+
+                return true
             }
+
+            return false
         }
 
+        guard !isConversationEmpty else { return nil }
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         return await messageDeliveryService.sendTextMessage(text)
     }

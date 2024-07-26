@@ -41,7 +41,6 @@ public struct LocalMediaFilePath: Codable, Equatable {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.networking.config.paths.media) var mediaPath: String
 
-        guard message.contentType == .media else { return nil }
         let resolveMediaFileExtensionResult = await message.resolveMediaFileExtension(message.id)
 
         switch resolveMediaFileExtensionResult {

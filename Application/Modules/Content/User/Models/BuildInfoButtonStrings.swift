@@ -57,7 +57,7 @@ public struct BuildInfoButtonStrings: Equatable {
 
         switch key {
         case .bundleVersionAndBuildNumber: // swiftlint:disable:next line_length
-            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(networkEnvironment.shortString))"
+            labelText = "\(localizedVersionString) \(build.bundleReleaseVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(networkEnvironment.shortString))"
 
         case .buildSKU:
             labelText = build.buildSKU

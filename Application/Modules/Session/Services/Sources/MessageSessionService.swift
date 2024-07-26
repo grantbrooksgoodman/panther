@@ -63,7 +63,7 @@ public struct MessageSessionService {
             var translations = [Translation]()
             var audioComponents = [AudioMessageReference]()
 
-            for languageCode in users.map(\.languageCode) {
+            for languageCode in users.map(\.languageCode).unique {
                 let translateResult = await networking.services.translation.translate(
                     .init(transcription),
                     with: .init(from: currentUser.languageCode, to: languageCode)

@@ -339,12 +339,11 @@ public final class IntegrityService {
 
             switch inputFileItemExistsResult {
             case let .success(itemExists):
-                guard !itemExists else { continue }
-
-                if let exception = await networking.database.setValue(
-                    ContentType.text.rawValue,
-                    forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
-                ) {
+                if !itemExists,
+                   let exception = await networking.database.setValue(
+                       ContentType.text.rawValue,
+                       forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
+                   ) {
                     exceptions.append(exception)
                 }
 

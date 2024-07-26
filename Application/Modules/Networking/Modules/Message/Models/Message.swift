@@ -72,6 +72,15 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public func resolveMediaFileExtension(_ messageID: String) async -> Callback<String, Exception> {
         @Dependency(\.networking) var networking: Networking
 
+        let commonParams = ["MessageID": messageID]
+
+        guard contentType == .media else {
+            return .failure(.init(
+                "Message does not have a media component.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams))
+        }
+
         func satisfiesConstraints(_ string: String) -> Bool {
             let isAudioCAF = string == MediaFileExtension.audio(.caf).rawValue
             let isAudioM4A = string == MediaFileExtension.audio(.m4a).rawValue
@@ -88,11 +97,14 @@ public struct Message: Codable, EncodedHashable, Equatable {
                 return .success(fileExtension)
 
             case let .failure(exception):
-                return .failure(exception)
+                return .failure(exception.appending(extraParams: commonParams))
             }
         }
 
-        return .failure(.init("Media item does not exist.", metadata: [self, #file, #function, #line]))
+        return .failure(.init(
+            "Media item does not exist.",
+            metadata: [self, #file, #function, #line]
+        ).appending(extraParams: commonParams))
     }
 
     // MARK: - Computed Property Getters

@@ -182,6 +182,7 @@ public final class SplashPageViewService {
             coreUtilities.eraseTemporaryDirectory()
 
             defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+            didAttemptDatabaseRepair = false
         }
 
         return nil
