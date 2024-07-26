@@ -467,6 +467,161 @@
 		<key>zh</key>
 		<string>语音信息</string>
 	</dict>
+	<key>blocked</key>
+	<dict>
+		<key>af</key>
+		<string>Geblokkeer</string>
+		<key>ar</key>
+		<string>محظور</string>
+		<key>az</key>
+		<string>Blok edilib</string>
+		<key>be</key>
+		<string>Заблашыны</string>
+		<key>bg</key>
+		<string>Блокиран</string>
+		<key>bn</key>
+		<string>অবরুদ্ধ</string>
+		<key>bs</key>
+		<string>Blokiran</string>
+		<key>ca</key>
+		<string>Bloquejat</string>
+		<key>cs</key>
+		<string>Blokováno</string>
+		<key>cy</key>
+		<string>Blociedig</string>
+		<key>da</key>
+		<string>Blokeret</string>
+		<key>de</key>
+		<string>Verstopft</string>
+		<key>el</key>
+		<string>Μπλοκαρισμένος</string>
+		<key>en</key>
+		<string>Blocked</string>
+		<key>eo</key>
+		<string>Blokita</string>
+		<key>es</key>
+		<string>Obstruido</string>
+		<key>et</key>
+		<string>Blokeeritud</string>
+		<key>eu</key>
+		<string>Blokeatua</string>
+		<key>fa</key>
+		<string>مسدود</string>
+		<key>fi</key>
+		<string>Estetty</string>
+		<key>fr</key>
+		<string>Bloqué</string>
+		<key>ga</key>
+		<string>Blocáilte</string>
+		<key>gd</key>
+		<string>Bacadh</string>
+		<key>gl</key>
+		<string>Bloqueado</string>
+		<key>gu</key>
+		<string>અવરોધિત</string>
+		<key>he</key>
+		<string>חָסוּם</string>
+		<key>hi</key>
+		<string>अवरोधित</string>
+		<key>hr</key>
+		<string>Blokiran</string>
+		<key>ht</key>
+		<string>Bloke</string>
+		<key>hu</key>
+		<string>Zárolt</string>
+		<key>hy</key>
+		<string>Արգելափակված</string>
+		<key>id</key>
+		<string>Diblokir</string>
+		<key>is</key>
+		<string>Lokað</string>
+		<key>it</key>
+		<string>Bloccato</string>
+		<key>ja</key>
+		<string>ブロックされています</string>
+		<key>ka</key>
+		<string>Გადაკეტილი</string>
+		<key>kk</key>
+		<string>Бұғатталған</string>
+		<key>kn</key>
+		<string>ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</string>
+		<key>ko</key>
+		<string>막힌</string>
+		<key>ky</key>
+		<string>Бөгөттөлгөн</string>
+		<key>lt</key>
+		<string>Užblokuotas</string>
+		<key>mg</key>
+		<string>Voasakana</string>
+		<key>mi</key>
+		<string>Aukati</string>
+		<key>mk</key>
+		<string>Блокиран</string>
+		<key>ml</key>
+		<string>Blocked</string>
+		<key>mn</key>
+		<string>Цэгц хаалттай</string>
+		<key>mt</key>
+		<string>Imblukkat</string>
+		<key>ne</key>
+		<string>अवरुद्ध</string>
+		<key>nl</key>
+		<string>Geblokkeerd</string>
+		<key>no</key>
+		<string>Blokkert</string>
+		<key>pa</key>
+		<string>ਰੋਕਿਆ</string>
+		<key>pl</key>
+		<string>Zablokowany</string>
+		<key>pt</key>
+		<string>Bloqueado</string>
+		<key>ro</key>
+		<string>Blocat</string>
+		<key>ru</key>
+		<string>Заблокированный</string>
+		<key>si</key>
+		<string>අවහිර කර ඇත</string>
+		<key>sk</key>
+		<string>Blokovaný</string>
+		<key>sl</key>
+		<string>Blokiran</string>
+		<key>sq</key>
+		<string>E bllokuar</string>
+		<key>sr</key>
+		<string>Блокиран</string>
+		<key>su</key>
+		<string>Diblokkeun</string>
+		<key>sv</key>
+		<string>Blockerad</string>
+		<key>sw</key>
+		<string>Imezuiwa</string>
+		<key>ta</key>
+		<string>தடுக்கப்பட்டது</string>
+		<key>te</key>
+		<string>నిరోధించబడింది</string>
+		<key>tg</key>
+		<string>Баста</string>
+		<key>th</key>
+		<string>ที่ถูกปิดกั้น</string>
+		<key>tl</key>
+		<string>Naka-block</string>
+		<key>tr</key>
+		<string>Engellendi</string>
+		<key>tt</key>
+		<string>Blocked</string>
+		<key>uk</key>
+		<string>Заблокований</string>
+		<key>ur</key>
+		<string>مسدود</string>
+		<key>uz</key>
+		<string>Bloklangan</string>
+		<key>vi</key>
+		<string>Bị chặn</string>
+		<key>yi</key>
+		<string>אפגעשטעלט</string>
+		<key>zh</key>
+		<string>阻止</string>
+	</dict>
 	<key>block_user</key>
 	<dict>
 		<key>af</key>
@@ -547,80 +702,80 @@
 		<string>ಬಳಕೆದಾರನನ್ನು ನಿರ್ಬಂಧಿಸಿ</string>
 		<key>ko</key>
 		<string>블록 사용자</string>
-        <key>ky</key>
-        <string>Колдонуучуну бөгөттөө</string>
-        <key>lt</key>
-        <string>Užblokuoti vartotoją</string>
-        <key>mg</key>
-        <string>Sakana mpampiasa</string>
-        <key>mi</key>
-        <string>Kaiwhakamahi Poraka</string>
-        <key>mk</key>
-        <string>Блокирајте го корисникот</string>
-        <key>ml</key>
-        <string>ഉപയോക്താവിനെ തടയുക</string>
-        <key>mn</key>
-        <string>Хэрэглэгчийг блоклох</string>
-        <key>mt</key>
-        <string>Blokka l-utent</string>
-        <key>ne</key>
-        <string>प्रयोगकर्तालाई रोक्नुहोस्</string>
-        <key>nl</key>
-        <string>Blokkeer gebruiker</string>
-        <key>no</key>
-        <string>Blokker bruker</string>
-        <key>pa</key>
-        <string>ਯੂਜ਼ਰ ਨੂੰ ਬਲਾਕ</string>
-        <key>pl</key>
-        <string>Zablokować użytkownika</string>
-        <key>pt</key>
-        <string>Bloquear usuário</string>
-        <key>ro</key>
-        <string>Blocați utilizatorul</string>
-        <key>ru</key>
-        <string>Блокировать пользователя</string>
-        <key>si</key>
-        <string>පරිශීලකයා අවහිර කරන්න</string>
-        <key>sk</key>
-        <string>Blokovať používateľa</string>
-        <key>sl</key>
-        <string>Blokiraj uporabnika</string>
-        <key>sq</key>
-        <string>Blloko përdoruesin</string>
-        <key>sr</key>
-        <string>Блокирај корисника</string>
-        <key>su</key>
-        <string>Blok blok</string>
-        <key>sv</key>
-        <string>Blockera användare</string>
-        <key>sw</key>
-        <string>Kuzuia mtumiaji</string>
-        <key>ta</key>
-        <string>பயனரை தடை செய்</string>
-        <key>te</key>
-        <string>వినియోగదారుని బ్లాక్ చేయండి</string>
-        <key>tg</key>
-        <string>Блоки корбар</string>
-        <key>th</key>
-        <string>กีดกันผู้ใช้</string>
-        <key>tl</key>
-        <string>I -block ang gumagamit</string>
-        <key>tr</key>
-        <string>Kullanıcıyı engelle</string>
-        <key>tt</key>
-        <string>Кулланучының блокы</string>
-        <key>uk</key>
-        <string>Заблокувати користувача</string>
-        <key>ur</key>
-        <string>بلوک یوزر</string>
-        <key>uz</key>
-        <string>Foydalanuvchi blokirovkasi</string>
-        <key>vi</key>
-        <string>Chặn người dùng</string>
-        <key>yi</key>
-        <string>פאַרשפּאַרן באַניצער</string>
-        <key>zh</key>
-        <string>阻止用户</string>
+		<key>ky</key>
+		<string>Колдонуучуну бөгөттөө</string>
+		<key>lt</key>
+		<string>Užblokuoti vartotoją</string>
+		<key>mg</key>
+		<string>Sakana mpampiasa</string>
+		<key>mi</key>
+		<string>Kaiwhakamahi Poraka</string>
+		<key>mk</key>
+		<string>Блокирајте го корисникот</string>
+		<key>ml</key>
+		<string>ഉപയോക്താവിനെ തടയുക</string>
+		<key>mn</key>
+		<string>Хэрэглэгчийг блоклох</string>
+		<key>mt</key>
+		<string>Blokka l-utent</string>
+		<key>ne</key>
+		<string>प्रयोगकर्तालाई रोक्नुहोस्</string>
+		<key>nl</key>
+		<string>Blokkeer gebruiker</string>
+		<key>no</key>
+		<string>Blokker bruker</string>
+		<key>pa</key>
+		<string>ਯੂਜ਼ਰ ਨੂੰ ਬਲਾਕ</string>
+		<key>pl</key>
+		<string>Zablokować użytkownika</string>
+		<key>pt</key>
+		<string>Bloquear usuário</string>
+		<key>ro</key>
+		<string>Blocați utilizatorul</string>
+		<key>ru</key>
+		<string>Блокировать пользователя</string>
+		<key>si</key>
+		<string>පරිශීලකයා අවහිර කරන්න</string>
+		<key>sk</key>
+		<string>Blokovať používateľa</string>
+		<key>sl</key>
+		<string>Blokiraj uporabnika</string>
+		<key>sq</key>
+		<string>Blloko përdoruesin</string>
+		<key>sr</key>
+		<string>Блокирај корисника</string>
+		<key>su</key>
+		<string>Blok blok</string>
+		<key>sv</key>
+		<string>Blockera användare</string>
+		<key>sw</key>
+		<string>Kuzuia mtumiaji</string>
+		<key>ta</key>
+		<string>பயனரை தடை செய்</string>
+		<key>te</key>
+		<string>వినియోగదారుని బ్లాక్ చేయండి</string>
+		<key>tg</key>
+		<string>Блоки корбар</string>
+		<key>th</key>
+		<string>กีดกันผู้ใช้</string>
+		<key>tl</key>
+		<string>I -block ang gumagamit</string>
+		<key>tr</key>
+		<string>Kullanıcıyı engelle</string>
+		<key>tt</key>
+		<string>Кулланучының блокы</string>
+		<key>uk</key>
+		<string>Заблокувати користувача</string>
+		<key>ur</key>
+		<string>بلوک یوزر</string>
+		<key>uz</key>
+		<string>Foydalanuvchi blokirovkasi</string>
+		<key>vi</key>
+		<string>Chặn người dùng</string>
+		<key>yi</key>
+		<string>פאַרשפּאַרן באַניצער</string>
+		<key>zh</key>
+		<string>阻止用户</string>
 	</dict>
 	<key>cancel</key>
 	<dict>

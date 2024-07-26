@@ -76,9 +76,20 @@ public final class RecipientBarContactSelectionUIService {
     }
 
     public func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID,
-              !contactPair.users.map(\.id).contains(currentUserID) else {
+        guard !contactPair.containsBlockedUser else {
+            Logger.log(
+                .init(
+                    "Attempted to select contact pair containing blocked user.",
+                    isReportable: false,
+                    metadata: [self, #file, #function, #line]
+                ),
+                with: .toast(isPersistent: false)
+            )
+
+            return
+        }
+
+        guard !contactPair.containsCurrentUser else {
             Logger.log(
                 .init(
                     "Attempted to select contact pair containing current user.",

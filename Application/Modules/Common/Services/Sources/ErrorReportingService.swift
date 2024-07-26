@@ -37,6 +37,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     private var commonParams: [String: String] {
         var parameters = [
             "Device Model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
+            "Internal Bundle Version": build.bundleVersion,
             "Language Code": RuntimeStorage.languageCode,
             "Operating System Version": SystemInformation.osVersion.lowercased(),
         ]
@@ -58,7 +59,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     public func fileReport(_ error: any AlertKit.Errorable) {
         Task { @MainActor in
             let buildNumberString = "\(build.buildNumber)\(build.stage.shortString)"
-            let bundleVersionString = build.bundleVersion
+            let bundleVersionString = build.bundleReleaseVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
 
             var shortDateHash = dateFormatter.string(from: Date()).encodedHash

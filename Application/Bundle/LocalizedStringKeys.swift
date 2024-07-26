@@ -17,6 +17,7 @@ public enum LocalizedStringKey: String {
     case attachment
     case audioMessage
 
+    case blocked
     case blockUser
 
     case cancel

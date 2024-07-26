@@ -20,10 +20,19 @@ public struct ContactPairCellView: View {
 
     // MARK: - Properties
 
+    // String
+    @Localized(.blocked) private var blockedLabelText: String
+    @Localized(.myAccount) private var myAccountLabelText: String
+
+    // Other
     private let action: (() -> Void)?
     private let contactPair: ContactPair
 
-    @Localized(.myAccount) private var myAccountLabelText: String
+    // MARK: - Computed Properties
+
+    private var isSelectionEnabled: Bool {
+        !(contactPair.containsBlockedUser || contactPair.containsCurrentUser || contactPair.isSelected)
+    }
 
     // MARK: - Init
 
@@ -41,14 +50,14 @@ public struct ContactPairCellView: View {
             } label: {
                 labelView
             }
-            .disabled(contactPair.containsCurrentUser || contactPair.isSelected)
+            .disabled(!isSelectionEnabled)
         } else {
             labelView
         }
     }
 
     private var labelView: some View {
-        let foregroundColor = (contactPair.containsCurrentUser || contactPair.isSelected) ? Color.disabled : .titleText
+        let foregroundColor = isSelectionEnabled ? .titleText : Color.disabled
 
         return HStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline, spacing: Floats.hStackSpacing) {
@@ -64,6 +73,13 @@ public struct ContactPairCellView: View {
                     font: .systemSemibold,
                     foregroundColor: foregroundColor
                 )
+
+                if contactPair.containsBlockedUser {
+                    Components.text(
+                        "(\(blockedLabelText))",
+                        foregroundColor: foregroundColor
+                    )
+                }
 
                 if contactPair.containsCurrentUser {
                     Components.text(

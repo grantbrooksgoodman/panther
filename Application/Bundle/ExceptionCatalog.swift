@@ -51,6 +51,9 @@ public extension Exception {
     func userFacingDescriptor(for descriptor: String) -> String? {
         // swiftlint:disable line_length
         switch descriptor {
+        case "Attempted to select contact pair containing blocked user.":
+            return "You have blocked this user."
+
         case "Attempted to select contact pair containing current user.":
             return "Unable to start a conversation with yourself."
 

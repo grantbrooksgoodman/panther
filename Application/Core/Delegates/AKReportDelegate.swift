@@ -222,13 +222,14 @@ public struct ReportDelegate: AlertKit.ReportDelegate {
         var sections = [
             "build_number": "\(build.buildNumber)\(build.stage.shortString)",
             "build_sku": build.buildSKU,
-            "bundle_version": build.bundleVersion,
             "connection_status": build.isOnline ? "online" : "offline",
             "device_model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
+            "internal_bundle_version": build.bundleVersion,
             "language_code": RuntimeStorage.languageCode,
             "occurrence_date": dateFormatter.string(from: .now),
             "operating_system_id": SystemInformation.osVersion.lowercased(),
             "project_id": build.projectID,
+            "release_bundle_version": build.bundleReleaseVersion,
         ]
 
         guard let error else { return attachmentData(sections) }

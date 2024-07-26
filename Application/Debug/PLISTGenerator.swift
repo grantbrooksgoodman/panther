@@ -13,13 +13,6 @@ import CoreArchitecture
 import Translator
 
 public enum PLISTGenerator {
-    // MARK: - Properties
-
-    public enum Half {
-        case first
-        case second
-    }
-
     // MARK: - PLIST Generation
 
     public static func createPLIST(
@@ -49,27 +42,15 @@ public enum PLISTGenerator {
 
     public static func translate(
         text: String,
-        toHalf: Half,
-        completion: @escaping (
-            _ filePath: String?,
-            _ exception: Exception?
-        ) -> Void
+        completion: @escaping (Callback<String, Exception>) -> Void
     ) {
-        let languageCodeArray = Array(RuntimeStorage.languageCodeDictionary!.keys)
-
-        // swiftlint:disable:next line_length
-        let half = toHalf == .first ? languageCodeArray.sorted(by: { $0 < $1 })[0 ... languageCodeArray.count / 2] : languageCodeArray.sorted(by: { $0 < $1 })[(languageCodeArray.count / 2) + 1 ... languageCodeArray.count - 1]
-
         Task {
-            let translateResult = await translate(text: text, toLanguages: Array(half))
-
-            switch translateResult {
-            case let .success(filePath):
-                completion(filePath, nil)
-
-            case let .failure(exception):
-                completion(nil, exception)
-            }
+            completion(
+                await translate(
+                    text: text,
+                    toLanguages: .init(RuntimeStorage.languageCodeDictionary!.keys)
+                )
+            )
         }
     }
 
