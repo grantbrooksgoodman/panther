@@ -16,7 +16,7 @@
       "location" : "https://github.com/grantbrooksgoodman/component-kit.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5ffa568386e532d1382849ca2295ce31a9170be1"
+        "revision" : "006c6acc2ba8f8e1929f276544f2dd20730dfc65"
       }
     },
     {
@@ -52,7 +52,7 @@
       "location" : "https://github.com/grantbrooksgoodman/translator.git",
       "state" : {
         "branch" : "main",
-        "revision" : "df526113a947218e6a81dc78fba064e8fd27d01f"
+        "revision" : "342223a662e9c584f5e3fdcf07773d5214aac51c"
       }
     }
   ],
