@@ -24,11 +24,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Strings {
     enum ConversationsPageView {
-        public static let composeToolbarButtonLabelImageSystemName = "square.and.pencil"
-        public static let composeToolbarButtonText = "Compose"
-
-        // swiftlint:disable:next identifier_name
+        public static let composeToolbarButtonLabelImageSystemName = "square.and.pencil" // swiftlint:disable:next identifier_name
         public static let settingsToolbarButtonLabelImageSystemName = "gearshape"
-        public static let settingsToolbarButtonText = "Settings"
     }
 }

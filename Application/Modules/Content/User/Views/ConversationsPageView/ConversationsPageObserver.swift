@@ -114,6 +114,7 @@ public struct ConversationsPageObserver: Observer {
                       !missingMessages.isEmpty else {
                     guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
                     clientSession.conversation.setCurrentConversation(updatedConversation)
+                    chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
 
                     let currentAmountOfReadMessages = currentConversation
                         .messages?

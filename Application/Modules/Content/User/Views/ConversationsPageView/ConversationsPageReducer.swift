@@ -25,7 +25,7 @@ public struct ConversationsPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case animationAmountChanged(CGFloat)
+        case animatedComposeToolbarButtonAppeared
         case isPresentingNewChatSheetChanged(Bool)
         case isPresentingSettingsSheetChanged(Bool)
 
@@ -41,6 +41,7 @@ public struct ConversationsPageReducer: Reducer {
     // MARK: - Feedback
 
     public enum Feedback {
+        case composeToolbarButtonAnimationAmountSet(CGFloat)
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
@@ -108,8 +109,10 @@ public struct ConversationsPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case let .animationAmountChanged(animationAmount):
-            state.animationAmount = animationAmount
+        case .animatedComposeToolbarButtonAppeared:
+            return .task(delay: .seconds(1)) {
+                .composeToolbarButtonAnimationAmountSet(1.4)
+            }
 
         case .composeToolbarButtonTapped:
             state.isPresentingNewChatSheet = true
@@ -137,6 +140,9 @@ public struct ConversationsPageReducer: Reducer {
 
         case .updatedCurrentUser:
             state.conversations = conversations ?? state.conversations
+            return .task {
+                .composeToolbarButtonAnimationAmountSet(1)
+            }
         }
 
         return .none
@@ -146,6 +152,9 @@ public struct ConversationsPageReducer: Reducer {
 
     private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
         switch feedback {
+        case let .composeToolbarButtonAnimationAmountSet(animationAmount):
+            state.animationAmount = animationAmount
+
         case let .reloadDataReturned(.success(conversations)):
             state.isRefreshing = false
             state.conversations = conversations.filteredAndSorted

@@ -34,43 +34,45 @@ public struct SplashPageView: View {
     // MARK: - View
 
     public var body: some View {
-        VStack {
-            Image(.hello)
-                .resizable()
-                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
-                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
-                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                .padding(.bottom, Floats.padding)
+        ThemedView {
+            VStack {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
+                    .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.padding)
 
-            if viewModel.isRebuildingIndices {
-                Components.text(
-                    viewModel.rebuildingIndicesLabelText,
-                    font: .systemLight(scale: .custom(Floats.rebuildingIndicesLabelFontSize)),
-                    foregroundColor: .subtitleText
-                )
-                .opacity(rebuildingIndicesLabelOpacity)
-                .padding(.vertical, Floats.padding)
-                .onAppear {
-                    withAnimation(
-                        .easeInOut(duration: 1)
-                            .repeatForever(autoreverses: true)
-                    ) {
-                        rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
+                if viewModel.isRebuildingIndices {
+                    Components.text(
+                        viewModel.rebuildingIndicesLabelText,
+                        font: .systemLight(scale: .custom(Floats.rebuildingIndicesLabelFontSize)),
+                        foregroundColor: .subtitleText
+                    )
+                    .opacity(rebuildingIndicesLabelOpacity)
+                    .padding(.vertical, Floats.padding)
+                    .onAppear {
+                        withAnimation(
+                            .easeInOut(duration: 1)
+                                .repeatForever(autoreverses: true)
+                        ) {
+                            rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
+                        }
                     }
                 }
-            }
 
-            ProgressView()
-                .controlSize(.large)
-                .dynamicTypeSize(.large)
-                .scaleEffect(.init(Floats.progressViewScaleEffect))
-                .padding(.top, Floats.padding)
-        }
-        .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
+                ProgressView()
+                    .controlSize(.large)
+                    .dynamicTypeSize(.large)
+                    .scaleEffect(.init(Floats.progressViewScaleEffect))
+                    .padding(.top, Floats.padding)
+            }
+            .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
+            .onFirstAppear {
+                viewModel.send(.viewAppeared)
+            }
         }
     }
 }

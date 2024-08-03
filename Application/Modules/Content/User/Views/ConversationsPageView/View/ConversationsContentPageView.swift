@@ -11,6 +11,7 @@ import Foundation
 import SwiftUI
 
 /* 3rd-party */
+import ComponentKit
 import CoreArchitecture
 
 public struct ConversationsContentPageView: View {
@@ -100,46 +101,42 @@ public struct ConversationsContentPageView: View {
 
     private var composeToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                viewModel.send(.composeToolbarButtonTapped)
-            } label: {
-                if viewModel.conversations.isEmpty {
-                    Label(
-                        Strings.composeToolbarButtonText,
-                        systemImage: Strings.composeToolbarButtonLabelImageSystemName
-                    )
-                    .scaleEffect(viewModel.animationAmount)
-                    .animation(
-                        .linear(duration: Floats.composeToolbarButtonAnimationDuration)
-                            .delay(Floats.composeToolbarButtonAnimationDelay)
-                            .repeatForever(autoreverses: true),
-                        value: viewModel.animationAmount
-                    )
-                    .onAppear {
-                        viewModel.send(.animationAmountChanged(Floats.composeToolbarButtonAnimationAmount))
-                    }
-                } else {
-                    Label(
-                        Strings.composeToolbarButtonText,
-                        systemImage: Strings.composeToolbarButtonLabelImageSystemName
-                    )
+            if viewModel.conversations.isEmpty {
+                Components.button(
+                    symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                    usesIntrinsicSize: false
+                ) {
+                    viewModel.send(.composeToolbarButtonTapped)
+                }
+                .scaleEffect(viewModel.animationAmount)
+                .animation(
+                    .linear(duration: Floats.composeToolbarButtonAnimationDuration)
+                        .delay(Floats.composeToolbarButtonAnimationDelay)
+                        .repeatForever(autoreverses: true),
+                    value: viewModel.animationAmount
+                )
+                .onAppear {
+                    viewModel.send(.animatedComposeToolbarButtonAppeared)
+                }
+            } else {
+                Components.button(
+                    symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                    usesIntrinsicSize: false
+                ) {
+                    viewModel.send(.composeToolbarButtonTapped)
                 }
             }
-            .tint(Color.accent)
         }
     }
 
     private var settingsToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
+            Components.button(
+                symbolName: Strings.settingsToolbarButtonLabelImageSystemName,
+                usesIntrinsicSize: false
+            ) {
                 viewModel.send(.settingsToolbarButtonTapped)
-            } label: {
-                Label(
-                    Strings.settingsToolbarButtonText,
-                    systemImage: Strings.settingsToolbarButtonLabelImageSystemName
-                )
             }
-            .tint(Color.accent)
         }
     }
 }
