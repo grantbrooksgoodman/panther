@@ -14,6 +14,10 @@ import SwiftUI
 import CoreArchitecture
 
 public struct NewChatPageReducer: Reducer {
+    // MARK: - Dependencies
+
+    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
+
     // MARK: - Actions
 
     public enum Action {
@@ -71,15 +75,12 @@ public struct NewChatPageReducer: Reducer {
         }
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
+            analyticsService.logEvent(.accessNewChatPage)
             NavigationBar.setAppearance(.themed(showsDivider: false))
 
         case let .action(.conversationChanged(conversation)):
@@ -90,6 +91,8 @@ public struct NewChatPageReducer: Reducer {
 
         case let .action(.isPresentedChanged(isPresented)):
             state.isPresented.wrappedValue = isPresented
+            guard !isPresented else { return .none }
+            analyticsService.logEvent(.dismissNewChatPage)
 
         case let .action(.isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet)):
             state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet

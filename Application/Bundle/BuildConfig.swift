@@ -37,6 +37,7 @@ public enum BuildConfig {
     ]
     public static let loggerDomainSubscriptions: [LoggerDomain] = [
         .alertKit,
+        .analytics,
         .bugPrevention,
         .chatPageState,
         .contacts,

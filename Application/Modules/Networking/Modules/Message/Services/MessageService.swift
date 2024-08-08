@@ -16,7 +16,7 @@ import Translator
 public struct MessageService {
     // MARK: - Dependencies
 
-    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
+    @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties

@@ -15,7 +15,7 @@ import CoreArchitecture
 public struct ConversationService {
     // MARK: - Dependencies
 
-    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
+    @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties

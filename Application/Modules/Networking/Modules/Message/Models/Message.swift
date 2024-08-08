@@ -110,7 +110,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Computed Property Getters
 
     private func getHashFactors() -> [String] {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [
             id,
             fromAccountID,

@@ -78,10 +78,6 @@ public struct ConversationsPageReducer: Reducer {
         public init() {}
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {

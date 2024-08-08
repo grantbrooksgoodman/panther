@@ -101,10 +101,6 @@ public struct ContactSelectorPageReducer: Reducer {
         }
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
@@ -112,7 +108,7 @@ public struct ContactSelectorPageReducer: Reducer {
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false
             core.ui.resignFirstResponder()
-            core.gcd.after(.milliseconds(10)) { chatPageViewService.inputBar?.forceAppearance() }
+            core.gcd.after(.milliseconds(250)) { chatPageViewService.inputBar?.forceAppearance() }
 
         case .action(.inviteToolbarButtonTapped):
             return .task {

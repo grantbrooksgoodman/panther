@@ -28,8 +28,8 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     @Dependency(\.build) private var build: Build
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
-    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.translatorConfig) private var translatorConfig: Translator.Config
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
@@ -49,6 +49,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     public func applicationWillTerminate(_ application: UIApplication) {
         userSession.persistOfflineCurrentUser()
+        services.analytics.logEvent(.terminateApp)
     }
 
     // MARK: - Initialization + Setup
@@ -185,7 +186,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         notificationCenter.post(name: Notification.Name("FCMToken"), object: nil, userInfo: ["token": fcmToken ?? ""])
-        notificationService.setPushToken(fcmToken)
+        services.notification.setPushToken(fcmToken)
     }
 
     // MARK: - UNUserNotificationCenterDelegate Conformance
@@ -194,7 +195,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        let respondToNotificationResult = await notificationService.respondToNotification(notification)
+        let respondToNotificationResult = await services.notification.respondToNotification(notification)
 
         switch respondToNotificationResult {
         case let .success(presentationOptions):

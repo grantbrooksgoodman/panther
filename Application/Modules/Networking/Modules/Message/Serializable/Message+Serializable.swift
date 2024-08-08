@@ -33,7 +33,7 @@ extension Message: Serializable {
     // MARK: - Properties
 
     public var encoded: [String: Any] {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         var readDateString = String.bangQualifiedEmpty
         if let readDate {
@@ -53,7 +53,7 @@ extension Message: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.id.rawValue] as? String != nil,
               data[Keys.fromAccountID.rawValue] as? String != nil,
@@ -68,7 +68,7 @@ extension Message: Serializable {
     }
 
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.services.message) var messageService: MessageService
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 

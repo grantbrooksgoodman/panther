@@ -18,7 +18,7 @@ public struct ConversationCellReducer: Reducer {
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.chatPageViewService.mediaMessagePreview) private var mediaMessagePreviewService: MediaMessagePreviewService?
-    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
@@ -85,10 +85,6 @@ public struct ConversationCellReducer: Reducer {
         }
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
@@ -108,6 +104,7 @@ public struct ConversationCellReducer: Reducer {
             RootSheets.present(.chatInfoPageView)
 
         case .action(.chatPageViewAppeared):
+            services.analytics.logEvent(.accessChat)
             guard !(mediaMessagePreviewService?.isPreviewingMedia ?? false) else { return .none }
 
             // NIT: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
@@ -147,7 +144,12 @@ public struct ConversationCellReducer: Reducer {
 
         case let .feedback(.deleteConversationReturned(exception)):
             defer { clientSession.user.startObservingCurrentUserChanges() }
-            guard let exception else { return .none }
+
+            guard let exception else {
+                services.analytics.logEvent(.deleteConversation)
+                return .none
+            }
+
             Logger.log(exception, with: .toast())
 
         case let .feedback(.deletionActionSheetDismissed(cancelled: cancelled)):
@@ -176,7 +178,7 @@ public struct ConversationCellReducer: Reducer {
 
             let badgeDecrementAmount = state.badgeDecrementAmount
             return .task {
-                let result = await notificationService.modifyBadgeNumber(.decrement(by: badgeDecrementAmount))
+                let result = await services.notification.modifyBadgeNumber(.decrement(by: badgeDecrementAmount))
                 return .modifyBadgeNumberReturned(result)
             }
 

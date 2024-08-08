@@ -18,8 +18,9 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.standardDateFormatter) private var dateFormatter: DateFormatter
+    @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.fileManager) private var fileManager: FileManager
+    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -36,10 +37,15 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
 
     private var commonParams: [String: String] {
         var parameters = [
+            "Build SKU": build.buildSKU,
+            "Connection Status": build.isOnline ? "online" : "offline",
             "Device Model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
-            "Internal Bundle Version": build.bundleVersion,
+            "Internal Version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "Language Code": RuntimeStorage.languageCode,
-            "Operating System Version": SystemInformation.osVersion.lowercased(),
+            "OS Version": SystemInformation.osVersion.lowercased(),
+            "Project ID": build.projectID,
+            "Release Version": "\(build.bundleReleaseVersion) (\(build.releaseBuildNumber)\(build.stage.shortString))",
+            "Timestamp": dateFormatter.string(from: .now),
         ]
 
         @Persistent(.currentUserID) var currentUserID: String?
@@ -47,8 +53,8 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             parameters["Current User ID"] = currentUserID
         }
 
-        if let presentedViewName = RuntimeStorage.presentedViewName {
-            parameters["Presented View Name"] = presentedViewName
+        if let frontmostViewController {
+            parameters["View ID"] = String(frontmostViewController)
         }
 
         return parameters

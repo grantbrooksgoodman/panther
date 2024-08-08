@@ -17,7 +17,7 @@ import CoreArchitecture
 public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureRecognizerDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.update) private var updateService: UpdateService
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
 
@@ -135,9 +135,11 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIGestureR
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         Observables.traitCollectionChanged.trigger()
-        if updateService.isPersistingForcedUpdateCTA {
+        services.analytics.logEvent(.openApp)
+
+        if services.update.isPersistingForcedUpdateCTA {
             Task {
-                await updateService.promptToUpdateIfNeeded()
+                await services.update.promptToUpdateIfNeeded()
             }
         }
     }

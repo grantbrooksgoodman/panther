@@ -120,10 +120,6 @@ public struct SignInPageReducer: Reducer {
         public init() {}
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
@@ -227,6 +223,7 @@ public struct SignInPageReducer: Reducer {
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
             ContactPairArchiveStatus.setNeedsUpdate(true)
+            services.analytics.logEvent(.logIn)
             navigationCoordinator.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):

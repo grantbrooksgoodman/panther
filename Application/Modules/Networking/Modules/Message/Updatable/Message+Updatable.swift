@@ -25,7 +25,7 @@ extension Message: Updatable {
     // MARK: - Methods
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Message? {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         switch key {
         case .contentType,

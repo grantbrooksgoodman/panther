@@ -76,10 +76,6 @@ public struct PermissionPageReducer: Reducer {
         public init() {}
     }
 
-    // MARK: - Init
-
-    public init() { RuntimeStorage.store(#file, as: .presentedViewName) }
-
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length

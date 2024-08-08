@@ -274,6 +274,7 @@ public struct MessageSessionService {
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )
 
+                services.analytics.logEvent(.createNewConversation)
                 incrementDeliveryProgress(in: conversation, by: Floats.createConversationDeliveryProgressIncrement)
                 clientSession.user.startObservingCurrentUserChanges()
 

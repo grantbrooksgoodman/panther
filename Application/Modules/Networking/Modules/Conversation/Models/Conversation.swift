@@ -31,7 +31,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Computed Properties
 
     public var hashFactors: [String] {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
@@ -132,7 +132,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Update Read Date
 
     public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard !messages.isEmpty else {
             return .failure(.init(

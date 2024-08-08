@@ -18,8 +18,8 @@ public final class MessageDeliveryService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
 
@@ -93,6 +93,8 @@ public final class MessageDeliveryService {
 
         switch sendAudioMessageResult {
         case let .success(conversation):
+            services.analytics.logEvent(.sendAudioMessage)
+
             if let currentConversation = clientSession.conversation.currentConversation,
                !currentConversation.isMock {
                 guard currentConversation.id.key == conversation.id.key else { return nil }
@@ -118,7 +120,7 @@ public final class MessageDeliveryService {
 
         guard !users.isEmpty else { return nil }
 
-        hapticsService.generateFeedback(.medium)
+        services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(audioFile: nil, mediaFile: mediaFile, text: nil)
 
         isSendingMessage = true
@@ -140,6 +142,8 @@ public final class MessageDeliveryService {
 
         switch sendMediaMessageResult {
         case let .success(conversation):
+            services.analytics.logEvent(.sendMediaMessage)
+
             if let currentConversation = clientSession.conversation.currentConversation,
                !currentConversation.isMock {
                 guard currentConversation.id.key == conversation.id.key else { return nil }
@@ -165,7 +169,7 @@ public final class MessageDeliveryService {
         guard !users.isEmpty,
               !text.isBlank else { return nil }
 
-        hapticsService.generateFeedback(.medium)
+        services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(audioFile: nil, mediaFile: nil, text: text)
 
         isSendingMessage = true
@@ -187,6 +191,8 @@ public final class MessageDeliveryService {
 
         switch sendTextMessageResult {
         case let .success(conversation):
+            services.analytics.logEvent(.sendTextMessage)
+
             if let currentConversation = clientSession.conversation.currentConversation,
                !currentConversation.isMock {
                 guard currentConversation.id.key == conversation.id.key else { return nil }

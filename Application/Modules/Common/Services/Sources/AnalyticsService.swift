@@ -16,6 +16,9 @@ import FirebaseAnalytics
 public struct AnalyticsService {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
+    @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
+    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
     @Dependency(\.networking.config) private var networkConfig: NetworkConfig
 
     // MARK: - Types
@@ -24,24 +27,30 @@ public struct AnalyticsService {
         /* MARK: Cases */
 
         case accessChat
-        case deleteConversation
-        case sendAudioMessage
-        case sendTextMessage
-        case viewAlternate
-
         case accessNewChatPage
-        case createNewConversation
-        case dismissNewChatPage
-        case invite
 
         case clearCaches
+        case closeApp
+        case createNewConversation
+
+        case deleteConversation
+        case dismissNewChatPage
+
+        case invite
+
         case logIn
         case logOut
-        case signUp
 
         case openApp
-        case closeApp
+
+        case sendAudioMessage
+        case sendMediaMessage
+        case sendTextMessage
+        case signUp
+
         case terminateApp
+
+        case viewAlternate
 
         /* MARK: Properties */
 
@@ -50,42 +59,64 @@ public struct AnalyticsService {
         }
     }
 
-    private enum CommonParameter: String {
-        /* MARK: Cases */
-
-        case presentedViewName
-        case serverEnvironment
-        case storedLanguageCode
-
-        /* MARK: Properties */
-
-        public var keyValue: String {
-            rawValue.snakeCased
-        }
-    }
-
     // MARK: - Properties
 
-    private var commonParameters: [String: Any] {
-        typealias Params = CommonParameter
-        var params = [String: Any]()
+    private var commonParams: [String: String] {
+        var parameters = [
+            "build_sku": build.buildSKU,
+            "connection_status": build.isOnline ? "online" : "offline",
+            "device_model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
+            "internal_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
+            "language_code": RuntimeStorage.languageCode,
+            "os_version": SystemInformation.osVersion.lowercased(),
+            "project_id": build.projectID,
+            "release_version": "\(build.bundleReleaseVersion) (\(build.releaseBuildNumber)\(build.stage.shortString))",
+            "timestamp": dateFormatter.string(from: .now),
+        ]
 
-        if let presentedViewName = RuntimeStorage.presentedViewName {
-            params[Params.presentedViewName.keyValue] = presentedViewName
+        @Persistent(.currentUserID) var currentUserID: String?
+        if let currentUserID {
+            parameters["current_user_id"] = currentUserID
         }
 
-        params[Params.serverEnvironment.keyValue] = networkConfig.environment.shortString
-        params[Params.storedLanguageCode.keyValue] = RuntimeStorage.languageCode
+        if let frontmostViewController {
+            parameters["view_id"] = String(frontmostViewController)
+        }
 
-        return params
+        return parameters
     }
 
-    // MARK: - Methods
+    // MARK: - Log Event
 
-    public func logEvent(_ event: AnalyticsEvent, extraParams: [String: Any]? = nil) {
-        var parameters = commonParameters
-        parameters.merge(commonParameters, uniquingKeysWith: { _, _ in })
+    public func logEvent(_ event: AnalyticsEvent, extraParams: [String: String]? = nil) {
+        Task { @MainActor in
+            if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
+                guard networkConfig.environment == .production,
+                      build.stage == .generalRelease else { return }
+            }
 
-        Analytics.logEvent(event.name, parameters: parameters)
+            var parameters = commonParams
+            if let extraParams {
+                extraParams.forEach { parameters[$0] = $1 }
+            }
+
+            for (key, value) in parameters {
+                guard value.count > 40 else { continue }
+                var clippedValue = value
+                while clippedValue.count > 40 { clippedValue = clippedValue.dropSuffix() }
+                parameters[key] = clippedValue
+            }
+
+            Logger.log(
+                .init(
+                    "Logging analytics event \"\(event.name)\".",
+                    extraParams: parameters,
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .analytics
+            )
+
+            Analytics.logEvent(event.name, parameters: parameters)
+        }
     }
 }

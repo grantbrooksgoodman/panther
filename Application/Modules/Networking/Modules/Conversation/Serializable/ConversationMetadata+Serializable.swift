@@ -29,7 +29,7 @@ extension ConversationMetadata: Serializable {
     // MARK: - Properties
 
     public var encoded: [String: Any] {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
             Keys.name.rawValue: name,
             Keys.imageData.rawValue: imageData?.base64EncodedString() ?? .bangQualifiedEmpty,
@@ -40,7 +40,7 @@ extension ConversationMetadata: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.name.rawValue] as? String != nil,
               data[Keys.imageData.rawValue] as? String != nil,
@@ -51,7 +51,7 @@ extension ConversationMetadata: Serializable {
     }
 
     public static func decode(from data: [String: Any]) async -> Callback<ConversationMetadata, Exception> {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard let name = data[Keys.name.rawValue] as? String,
               let imageDataString = data[Keys.imageData.rawValue] as? String,

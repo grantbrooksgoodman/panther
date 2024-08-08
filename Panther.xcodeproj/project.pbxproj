@@ -278,7 +278,6 @@
 		B97DB5732AF45F6C002C2679 /* ToastViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB5722AF45F6C002C2679 /* ToastViewModifier.swift */; };
 		B97DB5752AF45FBA002C2679 /* CoreConstants+ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB5742AF45FBA002C2679 /* CoreConstants+ToastView.swift */; };
 		B97DB5772AF4602B002C2679 /* Font+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97DB5762AF4602B002C2679 /* Font+CoreExtensions.swift */; };
-		B980E8AB2B2251BD0090F141 /* StandardDateFormatterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B980E8AA2B2251BD0090F141 /* StandardDateFormatterDependency.swift */; };
 		B980E8AF2B225EE40090F141 /* Message+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B980E8AE2B225EE40090F141 /* Message+Serializable.swift */; };
 		B980E8B22B225F310090F141 /* ConversationID+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */; };
 		B980E8B42B225F380090F141 /* User+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B980E8B32B225F380090F141 /* User+Serializable.swift */; };
@@ -758,6 +757,7 @@
 		B9E7D4722AAD163B00FAF2A9 /* CoreKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7D4712AAD163B00FAF2A9 /* CoreKitDependency.swift */; };
 		B9E7D4742AAD359000FAF2A9 /* Array+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7D4732AAD359000FAF2A9 /* Array+CoreExtensions.swift */; };
 		B9E7D4762AAD35CE00FAF2A9 /* Date+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7D4752AAD35CE00FAF2A9 /* Date+CoreExtensions.swift */; };
+		B9E7F5552C65633D00938D22 /* TimestampDateFormatterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7F5542C65633D00938D22 /* TimestampDateFormatterDependency.swift */; };
 		B9EA3A8A2AC6BB3700674147 /* NotificationCenterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */; };
 		B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04BC2B783D7A00A16700 /* NewChatPageView.swift */; };
 		B9EC04C52B784C0000A16700 /* MessageDeliveryServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */; };
@@ -1176,7 +1176,6 @@
 		B97DB5722AF45F6C002C2679 /* ToastViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToastViewModifier.swift; sourceTree = "<group>"; };
 		B97DB5742AF45FBA002C2679 /* CoreConstants+ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreConstants+ToastView.swift"; sourceTree = "<group>"; };
 		B97DB5762AF4602B002C2679 /* Font+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+CoreExtensions.swift"; sourceTree = "<group>"; };
-		B980E8AA2B2251BD0090F141 /* StandardDateFormatterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardDateFormatterDependency.swift; sourceTree = "<group>"; };
 		B980E8AE2B225EE40090F141 /* Message+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+Serializable.swift"; sourceTree = "<group>"; };
 		B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationID+Serializable.swift"; sourceTree = "<group>"; };
 		B980E8B32B225F380090F141 /* User+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Serializable.swift"; sourceTree = "<group>"; };
@@ -1655,6 +1654,7 @@
 		B9E7D4712AAD163B00FAF2A9 /* CoreKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreKitDependency.swift; sourceTree = "<group>"; };
 		B9E7D4732AAD359000FAF2A9 /* Array+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B9E7D4752AAD35CE00FAF2A9 /* Date+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+CoreExtensions.swift"; sourceTree = "<group>"; };
+		B9E7F5542C65633D00938D22 /* TimestampDateFormatterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimestampDateFormatterDependency.swift; sourceTree = "<group>"; };
 		B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterDependency.swift; sourceTree = "<group>"; };
 		B9EC04BC2B783D7A00A16700 /* NewChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatPageView.swift; sourceTree = "<group>"; };
 		B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDeliveryServiceEffectID.swift; sourceTree = "<group>"; };
@@ -2230,6 +2230,7 @@
 				B9CC831A2AB0F6B800255116 /* QuickViewerDependency.swift */,
 				B9428A232C3DC29A0024E1B5 /* ReportDelegateDependency.swift */,
 				B96D43FE2B84946C00C66B46 /* RootWindowServiceDependency.swift */,
+				B9E7F5542C65633D00938D22 /* TimestampDateFormatterDependency.swift */,
 				B9E7D4162AAC06D000FAF2A9 /* TranslationServiceDependency.swift */,
 				B954901A2C3E219C008690E6 /* TranslatorConfigDependency.swift */,
 				B93457112AAC015200944602 /* UIApplicationDependency.swift */,
@@ -3152,7 +3153,6 @@
 				B9E0E0F82B20EFDB00C14274 /* FirebaseStorageDependency.swift */,
 				B9D0D9192B03019E00078A93 /* NetworkingDependency.swift */,
 				B9AA08802BA225E700D778DA /* NLLanguageRecognizerDependency.swift */,
-				B980E8AA2B2251BD0090F141 /* StandardDateFormatterDependency.swift */,
 				B9AA08822BA2262600D778DA /* UITextCheckerDependency.swift */,
 			);
 			path = Dependencies;
@@ -4461,7 +4461,6 @@
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
-				B980E8AB2B2251BD0090F141 /* StandardDateFormatterDependency.swift in Sources */,
 				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
 				B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */,
@@ -4564,6 +4563,7 @@
 				B99B1DC829E4C4BD00117D42 /* UITheme+DataModels.swift in Sources */,
 				B94388742B322056002D94FF /* TranslationConstants.swift in Sources */,
 				B9F5D1EB2B48987C00059B44 /* GenericTextField.swift in Sources */,
+				B9E7F5552C65633D00938D22 /* TimestampDateFormatterDependency.swift in Sources */,
 				B9F47AFA2B5861C800D86C67 /* RoundedCornersViewModifier.swift in Sources */,
 				B94D767E2BBB5A2E002B4BC6 /* SignInContentPageView.swift in Sources */,
 				B900B5322B1AB3FA00BA2F1D /* InviteService.swift in Sources */,

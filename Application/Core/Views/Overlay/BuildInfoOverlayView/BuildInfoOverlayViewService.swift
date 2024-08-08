@@ -112,7 +112,7 @@ public struct BuildInfoOverlayViewService {
 
     private func viewBuildInformationButtonTapped() {
         let buildStageString = "Build Stage\n\(build.stage.rawValue.capitalized)"
-        let bundleVersionString = "Bundle Version\n\(build.bundleVersion) (\(String(build.buildNumber)))"
+        let bundleVersionString = "Internal Version\n\(build.bundleVersion) (\(String(build.buildNumber)))"
         let projectIDString = "Project ID\n\(build.projectID)"
         let releaseVersionString = "Release Version\n\(build.bundleReleaseVersion) (\(String(build.releaseBuildNumber)))"
         let skuString = "SKU\n\(build.buildSKU)"
@@ -124,13 +124,14 @@ public struct BuildInfoOverlayViewService {
             releaseVersionString,
             skuString,
         ].joined(separator: "\n\n")
+
         let attributedMessage = message.attributed(
             mainAttributes: [.font: UIFont.systemFont(ofSize: 13)],
             alternateAttributes: [.font: UIFont.boldSystemFont(ofSize: 14)],
             alternateAttributeRange: [
                 "Build Number",
                 "Build Stage",
-                "Bundle Version",
+                "Internal Version",
                 "Project ID",
                 "Release Version",
                 "SKU",

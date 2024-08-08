@@ -16,7 +16,7 @@ import CoreArchitecture
 public final class OnboardingService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.user) private var userService: UserService
 
     // MARK: - Properties
@@ -68,13 +68,14 @@ public final class OnboardingService {
             id: userID,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
-            pushTokens: notificationService.pushToken == nil ? nil : [notificationService.pushToken!]
+            pushTokens: services.notification.pushToken == nil ? nil : [services.notification.pushToken!]
         )
 
         switch createUserResult {
         case let .success(user):
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = user.id
+            services.analytics.logEvent(.signUp)
             return nil
 
         case let .failure(exception):

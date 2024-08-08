@@ -62,12 +62,15 @@ public final class AlternateMessageService {
     // MARK: - Toggle
 
     public func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
+        @Dependency(\.commonServices.analytics) var analytics: AnalyticsService
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
 
         func append() {
+            analytics.logEvent(.viewAlternate)
+
             switch type {
             case .alternateText:
                 alternateTextMessageIDs.append(message.id)

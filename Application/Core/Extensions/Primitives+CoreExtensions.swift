@@ -185,7 +185,7 @@ public extension String {
     init<T>(_ type: T) {
         @Dependency(\.mainBundle) var mainBundle: Bundle
 
-        let string = String(describing: type)
+        let string = String(describing: Swift.type(of: type))
         guard let targetName = mainBundle.infoDictionary?["CFTargetName"] as? String else {
             self.init(string.components(separatedBy: "(")[0])
             return

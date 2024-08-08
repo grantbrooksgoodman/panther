@@ -249,7 +249,9 @@ public final class ChatPageViewService {
 
         guard fromScrollToTop else { return }
         core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) {
-            self.viewController?.messagesCollectionView.scrollToItem(
+            guard let viewController = self.viewController,
+                  viewController.messagesCollectionView.numberOfSections > 0 else { return }
+            viewController.messagesCollectionView.scrollToItem(
                 at: .init(row: 0, section: 0),
                 at: .top,
                 animated: true

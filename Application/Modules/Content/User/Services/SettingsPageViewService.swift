@@ -233,6 +233,7 @@ public final class SettingsPageViewService: Cacheable {
                         }
                     }
 
+                    self.services.analytics.logEvent(.logOut)
                     self.defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
                     self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
                     self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))

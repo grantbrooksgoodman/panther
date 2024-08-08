@@ -96,7 +96,7 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        @Dependency(\.standardDateFormatter) var dateFormatter: DateFormatter
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return .init(
             string: dateFormatter.string(from: message.sentDate),
             attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)]
