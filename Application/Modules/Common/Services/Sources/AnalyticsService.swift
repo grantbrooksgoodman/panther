@@ -80,7 +80,7 @@ public struct AnalyticsService {
         }
 
         if let frontmostViewController {
-            parameters["view_id"] = String(frontmostViewController)
+            parameters["view_id"] = String(type(of: frontmostViewController))
         }
 
         return parameters

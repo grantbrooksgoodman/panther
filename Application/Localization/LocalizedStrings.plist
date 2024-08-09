@@ -2947,6 +2947,161 @@
 		<key>zh</key>
 		<string>语言</string>
 	</dict>
+	<key>loading_data</key>
+	<dict>
+		<key>af</key>
+		<string>Aflaai data</string>
+		<key>ar</key>
+		<string>جاري تنزيل البيانات</string>
+		<key>az</key>
+		<string>Data endirilir</string>
+		<key>be</key>
+		<string>Загрузка дадзеных</string>
+		<key>bg</key>
+		<string>Изтегляне на данни</string>
+		<key>bn</key>
+		<string>ডেটা ডাউনলোড হচ্ছে</string>
+		<key>bs</key>
+		<string>Preuzimanje podataka</string>
+		<key>ca</key>
+		<string>Data de descàrrega</string>
+		<key>cs</key>
+		<string>Stahování dat</string>
+		<key>cy</key>
+		<string>Wrthi&apos;n lawrlwytho data</string>
+		<key>da</key>
+		<string>Download af data</string>
+		<key>de</key>
+		<string>Daten herunterladen</string>
+		<key>el</key>
+		<string>Λήψη δεδομένων</string>
+		<key>en</key>
+		<string>Loading data</string>
+		<key>eo</key>
+		<string>Elŝutante datumojn</string>
+		<key>es</key>
+		<string>Descargando datos</string>
+		<key>et</key>
+		<string>Andmete allalaadimine</string>
+		<key>eu</key>
+		<string>Datuak deskargatzen</string>
+		<key>fa</key>
+		<string>بارگیری داده ها</string>
+		<key>fi</key>
+		<string>Tietojen lataaminen</string>
+		<key>fr</key>
+		<string>Téléchargement des données</string>
+		<key>ga</key>
+		<string>Sonraí a íoslódáil</string>
+		<key>gd</key>
+		<string>A &apos;luchdachadh sìos dàta</string>
+		<key>gl</key>
+		<string>Descargar datos</string>
+		<key>gu</key>
+		<string>ડેટા ડાઉનલોડ કરી રહ્યું છે</string>
+		<key>he</key>
+		<string>הורדת נתונים</string>
+		<key>hi</key>
+		<string>डेटा डाउनलोड हो रहा है</string>
+		<key>hr</key>
+		<string>Preuzimanje podataka</string>
+		<key>ht</key>
+		<string>Telechaje done</string>
+		<key>hu</key>
+		<string>Adatok letöltése</string>
+		<key>hy</key>
+		<string>Տվյալների ներբեռնում</string>
+		<key>id</key>
+		<string>Mengunduh data</string>
+		<key>is</key>
+		<string>Að hlaða niður gögnum</string>
+		<key>it</key>
+		<string>Download di dati</string>
+		<key>ja</key>
+		<string>データをダウンロードしています</string>
+		<key>ka</key>
+		<string>Მონაცემების ჩამოტვირთვა</string>
+		<key>kk</key>
+		<string>Деректерді жүктеу</string>
+		<key>kn</key>
+		<string>ಡೇಟಾ ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
+		<key>ko</key>
+		<string>데이터 다운로드</string>
+		<key>ky</key>
+		<string>Маалыматтарды жүктөө</string>
+		<key>lt</key>
+		<string>Duomenų atsisiuntimas</string>
+		<key>mg</key>
+		<string>Misintona data</string>
+		<key>mi</key>
+		<string>Te tango i nga raraunga</string>
+		<key>mk</key>
+		<string>Се преземаат податоци</string>
+		<key>ml</key>
+		<string>ഡാറ്റ ഡൗൺലോഡുചെയ്യുന്നു</string>
+		<key>mn</key>
+		<string>Мэдээллийг татаж авах</string>
+		<key>mt</key>
+		<string>It-tniżżil tad-dejta</string>
+		<key>ne</key>
+		<string>डाटा डाउनलोड गर्दै</string>
+		<key>nl</key>
+		<string>Gegevens downloaden</string>
+		<key>no</key>
+		<string>Last ned data</string>
+		<key>pa</key>
+		<string>ਡਾਟਾ ਡਾ ing ਨਲੋਡ ਕਰ ਰਿਹਾ ਹੈ</string>
+		<key>pl</key>
+		<string>Pobieranie danych</string>
+		<key>pt</key>
+		<string>Download de dados</string>
+		<key>ro</key>
+		<string>Descărcarea datelor</string>
+		<key>ru</key>
+		<string>Загрузка данных</string>
+		<key>si</key>
+		<string>දත්ත බාගත කිරීම</string>
+		<key>sk</key>
+		<string>Stiahnutie údajov</string>
+		<key>sl</key>
+		<string>Prenos podatkov</string>
+		<key>sq</key>
+		<string>Duke shkarkuar të dhëna</string>
+		<key>sr</key>
+		<string>Преузимање података</string>
+		<key>su</key>
+		<string>Ngundeur data</string>
+		<key>sv</key>
+		<string>Ladda ner data</string>
+		<key>sw</key>
+		<string>Kupakua data</string>
+		<key>ta</key>
+		<string>தரவைப் பதிவிறக்குகிறது</string>
+		<key>te</key>
+		<string>డేటాను డౌన్‌లోడ్ చేస్తోంది</string>
+		<key>tg</key>
+		<string>Зеркашии маълумот</string>
+		<key>th</key>
+		<string>ดาวน์โหลดข้อมูล</string>
+		<key>tl</key>
+		<string>Pag -download ng data</string>
+		<key>tr</key>
+		<string>Veri indirme</string>
+		<key>tt</key>
+		<string>Мәгълүматны йөкләү</string>
+		<key>uk</key>
+		<string>Завантаження даних</string>
+		<key>ur</key>
+		<string>ڈیٹا ڈاؤن لوڈ کرنا </string>
+		<key>uz</key>
+		<string>Ma&apos;lumotni yuklab olish</string>
+		<key>vi</key>
+		<string>Tải xuống dữ liệu</string>
+		<key>yi</key>
+		<string>דאַונלאָודינג דאַטן</string>
+		<key>zh</key>
+		<string>下载数据</string>
+	</dict>
 	<key>monday</key>
 	<dict>
 		<key>af</key>
@@ -4942,161 +5097,6 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>见过</string>
 	</dict>
-	<key>rebuilding_indices</key>
-	<dict>
-		<key>af</key>
-		<string>Herbou indekse...</string>
-		<key>ar</key>
-		<string>إعادة بناء الفهارس...</string>
-		<key>az</key>
-		<string>İndekslər yenidən qurulur...</string>
-		<key>be</key>
-		<string>Аднаўленне індэксаў...</string>
-		<key>bg</key>
-		<string>Повторно изграждане на индекси...</string>
-		<key>bn</key>
-		<string>সূচী পুনর্নির্মাণ...</string>
-		<key>bs</key>
-		<string>Obnavljanje indeksa...</string>
-		<key>ca</key>
-		<string>S&apos;estan reconstruint índexs...</string>
-		<key>cs</key>
-		<string>Obnovení indexů...</string>
-		<key>cy</key>
-		<string>Ailadeiladu mynegeion...</string>
-		<key>da</key>
-		<string>Genopbygger indekser...</string>
-		<key>de</key>
-		<string>Indizes neu erstellen...</string>
-		<key>el</key>
-		<string>Ανακατασκευή ευρετηρίων...</string>
-		<key>en</key>
-		<string>Rebuilding indices...</string>
-		<key>eo</key>
-		<string>Rekonstruante indeksojn...</string>
-		<key>es</key>
-		<string>Reconstruyendo índices...</string>
-		<key>et</key>
-		<string>Indekside taastamine...</string>
-		<key>eu</key>
-		<string>Indizeak berreraikitzen...</string>
-		<key>fa</key>
-		<string>بازسازی نمایه ها...</string>
-		<key>fi</key>
-		<string>Muodostetaan indeksejä...</string>
-		<key>fr</key>
-		<string>Reconstruction des index...</string>
-		<key>ga</key>
-		<string>Innéacsanna a atógáil...</string>
-		<key>gd</key>
-		<string>Ag ath-thogail clàran-amais ...</string>
-		<key>gl</key>
-		<string>Reconstruíndo índices...</string>
-		<key>gu</key>
-		<string>અનુક્રમણિકાઓનું પુનઃનિર્માણ...</string>
-		<key>he</key>
-		<string>בונה מחדש אינדקסים...</string>
-		<key>hi</key>
-		<string>अनुक्रमणिका का पुनर्निर्माण...</string>
-		<key>hr</key>
-		<string>Ponovna izgradnja indeksa...</string>
-		<key>ht</key>
-		<string>Rebati endis yo...</string>
-		<key>hu</key>
-		<string>Indexek újraépítése...</string>
-		<key>hy</key>
-		<string>Ինդեքսների վերակառուցում...</string>
-		<key>id</key>
-		<string>Membangun kembali indeks...</string>
-		<key>is</key>
-		<string>Endurbyggja vísitölur...</string>
-		<key>it</key>
-		<string>Ricostruzione degli indici...</string>
-		<key>ja</key>
-		<string>インデックスを再構築しています...</string>
-		<key>ka</key>
-		<string>მიმდინარეობს ინდექსების აღდგენა...</string>
-		<key>kk</key>
-		<string>Индекстерді қалпына келтіру...</string>
-		<key>kn</key>
-		<string>ಮರುನಿರ್ಮಾಣ ಸೂಚ್ಯಂಕಗಳು...</string>
-		<key>ko</key>
-		<string>인덱스 재구축 중...</string>
-		<key>ky</key>
-		<string>Индекстер кайра түзүлүүдө...</string>
-		<key>lt</key>
-		<string>Atkuriami indeksai...</string>
-		<key>mg</key>
-		<string>Manangana tondro...</string>
-		<key>mi</key>
-		<string>Kei te hanga ano i nga taupū...</string>
-		<key>mk</key>
-		<string>Се обновуваат индексите...</string>
-		<key>ml</key>
-		<string>സൂചികകൾ പുനർനിർമ്മിക്കുന്നു...</string>
-		<key>mn</key>
-		<string>Индексүүдийг сэргээж байна...</string>
-		<key>mt</key>
-		<string>Nibnu mill-ġdid l-indiċi...</string>
-		<key>ne</key>
-		<string>अनुक्रमणिका पुनर्निर्माण...</string>
-		<key>nl</key>
-		<string>Indexen opnieuw opbouwen...</string>
-		<key>no</key>
-		<string>Gjenoppbygger indekser...</string>
-		<key>pa</key>
-		<string>ਸੂਚਕਾਂਕ ਦਾ ਮੁੜ ਨਿਰਮਾਣ...</string>
-		<key>pl</key>
-		<string>Odbudowa indeksów...</string>
-		<key>pt</key>
-		<string>Reconstruindo índices...</string>
-		<key>ro</key>
-		<string>Se reconstruiesc indici...</string>
-		<key>ru</key>
-		<string>Восстановление индексов...</string>
-		<key>si</key>
-		<string>දර්ශක නැවත ගොඩනැගීම...</string>
-		<key>sk</key>
-		<string>Obnovenie indexov...</string>
-		<key>sl</key>
-		<string>Ponovna izgradnja indeksov ...</string>
-		<key>sq</key>
-		<string>Rindërtimi i indekseve...</string>
-		<key>sr</key>
-		<string>Обнова индекса...</string>
-		<key>su</key>
-		<string>Ngawangun deui indéks...</string>
-		<key>sv</key>
-		<string>Återskapar index...</string>
-		<key>sw</key>
-		<string>Inaunda upya faharasa...</string>
-		<key>ta</key>
-		<string>குறியீடுகளை மீண்டும் உருவாக்குகிறது...</string>
-		<key>te</key>
-		<string>ఇండెక్స్‌లను పునర్నిర్మిస్తోంది...</string>
-		<key>tg</key>
-		<string>Барқарор кардани индексҳо...</string>
-		<key>th</key>
-		<string>กำลังสร้างดัชนีใหม่...</string>
-		<key>tl</key>
-		<string>Muling pagbuo ng mga index...</string>
-		<key>tr</key>
-		<string>Dizinler yeniden oluşturuluyor...</string>
-		<key>tt</key>
-		<string>Индексларны торгызу ...</string>
-		<key>uk</key>
-		<string>Перебудова індексів...</string>
-		<key>ur</key>
-		<string>اشاریہ جات کی تعمیر نو...</string>
-		<key>uz</key>
-		<string>Indekslar qayta tiklanmoqda...</string>
-		<key>vi</key>
-		<string>Xây dựng lại chỉ số...</string>
-		<key>yi</key>
-		<string>ריבילדינג ינדעקסיז ...</string>
-		<key>zh</key>
-		<string>重建索引...</string>
-	</dict>
 	<key>region</key>
 	<dict>
 		<key>af</key>
@@ -5251,6 +5251,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>געגנט</string>
 		<key>zh</key>
 		<string>地区</string>
+	</dict>
+	<key>repairing_data</key>
+	<dict>
+		<key>af</key>
+		<string>Herstel tans data</string>
+		<key>ar</key>
+		<string>إصلاح البيانات</string>
+		<key>az</key>
+		<string>Data təmir olunur</string>
+		<key>be</key>
+		<string>Рамонт дадзеных</string>
+		<key>bg</key>
+		<string>Поправяне на данни</string>
+		<key>bn</key>
+		<string>ডেটা মেরামত</string>
+		<key>bs</key>
+		<string>Popravak podataka</string>
+		<key>ca</key>
+		<string>Reparació de dades</string>
+		<key>cs</key>
+		<string>Oprava dat</string>
+		<key>cy</key>
+		<string>Atgyweirio data</string>
+		<key>da</key>
+		<string>Reparation af data</string>
+		<key>de</key>
+		<string>Daten werden repariert</string>
+		<key>el</key>
+		<string>Επισκευή δεδομένων</string>
+		<key>en</key>
+		<string>Repairing data</string>
+		<key>eo</key>
+		<string>Ripari datumojn</string>
+		<key>es</key>
+		<string>Reparando datos</string>
+		<key>et</key>
+		<string>Andmete parandamine</string>
+		<key>eu</key>
+		<string>Datuak konpontzea</string>
+		<key>fa</key>
+		<string>در حال تعمیر داده ها</string>
+		<key>fi</key>
+		<string>Korjataan tietoja</string>
+		<key>fr</key>
+		<string>Réparation des données</string>
+		<key>ga</key>
+		<string>Sonraí a dheisiú</string>
+		<key>gd</key>
+		<string>A &apos;càradh dàta</string>
+		<key>gl</key>
+		<string>Reparación de datos</string>
+		<key>gu</key>
+		<string>ડેટા સમારકામ</string>
+		<key>he</key>
+		<string>מתקן נתונים</string>
+		<key>hi</key>
+		<string>डेटा की मरम्मत</string>
+		<key>hr</key>
+		<string>Popravak podataka</string>
+		<key>ht</key>
+		<string>Repare done</string>
+		<key>hu</key>
+		<string>Adatok javítása</string>
+		<key>hy</key>
+		<string>Տվյալների վերականգնում</string>
+		<key>id</key>
+		<string>Memperbaiki data</string>
+		<key>is</key>
+		<string>Gera við gögn</string>
+		<key>it</key>
+		<string>Riparare i dati</string>
+		<key>ja</key>
+		<string>データの修復</string>
+		<key>ka</key>
+		<string>Მონაცემთა შეკეთება</string>
+		<key>kk</key>
+		<string>Деректерді жөндеу</string>
+		<key>kn</key>
+		<string>ಡೇಟಾವನ್ನು ಸರಿಪಡಿಸುವುದು</string>
+		<key>ko</key>
+		<string>데이터 수리</string>
+		<key>ky</key>
+		<string>Маалыматтарды оңдоо</string>
+		<key>lt</key>
+		<string>Taisomi duomenys</string>
+		<key>mg</key>
+		<string>Fanamboarana angon-drakitra</string>
+		<key>mi</key>
+		<string>Te whakatika raraunga</string>
+		<key>mk</key>
+		<string>Поправка на податоци</string>
+		<key>ml</key>
+		<string>ഡാറ്റ നന്നാക്കുന്നു</string>
+		<key>mn</key>
+		<string>Мэдээллийг засах</string>
+		<key>mt</key>
+		<string>Tiswija tad-Dejta</string>
+		<key>ne</key>
+		<string>डाटा मर्मत गर्दै</string>
+		<key>nl</key>
+		<string>Gegevens repareren</string>
+		<key>no</key>
+		<string>Reparere data</string>
+		<key>pa</key>
+		<string>ਡਾਟਾ ਦੀ ਮੁਰੰਮਤ</string>
+		<key>pl</key>
+		<string>Naprawa danych</string>
+		<key>pt</key>
+		<string>Reparando dados</string>
+		<key>ro</key>
+		<string>Repararea datelor</string>
+		<key>ru</key>
+		<string>Ремонт данных</string>
+		<key>si</key>
+		<string>දත්ත අළුත්වැඩියා කිරීම</string>
+		<key>sk</key>
+		<string>Oprava údajov</string>
+		<key>sl</key>
+		<string>Popravljanje podatkov</string>
+		<key>sq</key>
+		<string>Riparimi i të dhënave</string>
+		<key>sr</key>
+		<string>Поправка података</string>
+		<key>su</key>
+		<string>Ngalereskeun data</string>
+		<key>sv</key>
+		<string>Reparera data</string>
+		<key>sw</key>
+		<string>Kukarabati data</string>
+		<key>ta</key>
+		<string>தரவை சரிசெய்தல்</string>
+		<key>te</key>
+		<string>డేటా మరమ్మతు</string>
+		<key>tg</key>
+		<string>Маълумоти таъмир</string>
+		<key>th</key>
+		<string>กำลังซ่อมแซมข้อมูล</string>
+		<key>tl</key>
+		<string>Inaayos ang data</string>
+		<key>tr</key>
+		<string>Verileri Onarma</string>
+		<key>tt</key>
+		<string>Мәгълүматны ремонтлау</string>
+		<key>uk</key>
+		<string>Ремонт даних</string>
+		<key>ur</key>
+		<string>ڈیٹا کی مرمت</string>
+		<key>uz</key>
+		<string>Ma&apos;lumotlarni ta&apos;mirlash</string>
+		<key>vi</key>
+		<string>Sửa chữa dữ liệu</string>
+		<key>yi</key>
+		<string>ריפּערינג דאַטן</string>
+		<key>zh</key>
+		<string>修复数据</string>
 	</dict>
 	<key>report_bug</key>
 	<dict>

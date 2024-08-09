@@ -15,6 +15,10 @@ import ComponentKit
 import CoreArchitecture
 
 public struct SplashPageView: View {
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.splashPageViewService) private var viewService: SplashPageViewService
+
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SplashPageView
@@ -22,57 +26,68 @@ public struct SplashPageView: View {
 
     // MARK: - Properties
 
-    @State private var rebuildingIndicesLabelOpacity: CGFloat = 1
+    @StateObject private var observer: ViewObserver<SplashPageObserver>
     @StateObject private var viewModel: ViewModel<SplashPageReducer>
 
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<SplashPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
     public var body: some View {
-        ThemedView {
-            VStack {
-                Image(.hello)
-                    .resizable()
-                    .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
-                    .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
-                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                    .padding(.bottom, Floats.padding)
+        VStack {
+            Image(.hello)
+                .resizable()
+                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
+                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
+                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                .padding(.bottom, Floats.padding)
 
-                if viewModel.isRebuildingIndices {
-                    Components.text(
-                        viewModel.rebuildingIndicesLabelText,
-                        font: .systemLight(scale: .custom(Floats.rebuildingIndicesLabelFontSize)),
-                        foregroundColor: .subtitleText
-                    )
-                    .opacity(rebuildingIndicesLabelOpacity)
-                    .padding(.vertical, Floats.padding)
-                    .onAppear {
-                        withAnimation(
-                            .easeInOut(duration: 1)
-                                .repeatForever(autoreverses: true)
-                        ) {
-                            rebuildingIndicesLabelOpacity = Floats.rebuildingIndicesLabelAnimationOpacity
-                        }
-                    }
-                }
-
+            if viewModel.shouldShowProgressBar {
+                progressBar
+                    .animation(.easeIn, value: viewService.initializationProgress)
+                    .controlSize(.large)
+                    .dynamicTypeSize(.large)
+                    .padding(.horizontal, Floats.progressBarHorizontalPadding)
+                    .padding(.top, Floats.progressBarTopPadding)
+            } else {
                 ProgressView()
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
-                    .scaleEffect(.init(Floats.progressViewScaleEffect))
+                    .scaleEffect(.init(Floats.activityIndicatorScaleEffect))
                     .padding(.top, Floats.padding)
             }
-            .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
-            .onFirstAppear {
-                viewModel.send(.viewAppeared)
+        }
+        .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
+    }
+
+    @ViewBuilder
+    private var progressBar: some View {
+        if viewService.shouldShowLoadingLabel {
+            ProgressView(value: viewService.initializationProgress) {
+                HStack(spacing: 0) {
+                    ProgressView()
+                        .controlSize(.regular)
+                        .dynamicTypeSize(.large)
+                        .frame(
+                            maxWidth: Floats.progressBarActivityIndicatorFrameMaxWidth,
+                            maxHeight: Floats.progressBarActivityIndicatorFrameMaxHeight
+                        )
+
+                    Text(viewService.loadingLabelText)
+                }
             }
+        } else {
+            ProgressView(value: viewService.initializationProgress)
         }
     }
 }

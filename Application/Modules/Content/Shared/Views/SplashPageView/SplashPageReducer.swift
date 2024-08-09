@@ -27,6 +27,7 @@ public struct SplashPageReducer: Reducer {
 
     public enum Action {
         case viewAppeared
+        case bundleInitializationProgressOccurred
     }
 
     // MARK: - Feedback
@@ -46,13 +47,9 @@ public struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        public var isRebuildingIndices: Bool {
-            @Persistent(.didClearCaches) var didClearCaches: Bool?
-            return didClearCaches ?? false
-        }
-
-        public var rebuildingIndicesLabelText: String {
-            Localized(.rebuildingIndices).wrappedValue.uppercased()
+        public var shouldShowProgressBar: Bool {
+            @Persistent(.currentUserID) var currentUserID: String?
+            return currentUserID != nil
         }
 
         /* MARK: Init */
@@ -69,6 +66,9 @@ public struct SplashPageReducer: Reducer {
                 let result = await viewService.initializeBundle()
                 return .initializedBundle(result)
             }
+
+        case .action(.bundleInitializationProgressOccurred):
+            viewService.initializationProgress += 0.0005
 
         case .feedback(.errorAlertDismissed):
             guard let exception = state.exception,

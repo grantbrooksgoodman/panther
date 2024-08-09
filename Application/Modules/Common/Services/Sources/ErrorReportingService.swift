@@ -54,7 +54,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         }
 
         if let frontmostViewController {
-            parameters["View ID"] = String(frontmostViewController)
+            parameters["View ID"] = String(type(of: frontmostViewController))
         }
 
         return parameters

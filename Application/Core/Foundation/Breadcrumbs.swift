@@ -40,7 +40,7 @@ public final class Breadcrumbs {
 
         var fileName: String!
         if let frontmostViewController = uiApplication.keyViewController?.frontmostViewController {
-            fileName = "\(build.codeName)_\(String(frontmostViewController)) @ \(timeString).png"
+            fileName = "\(build.codeName)_\(String(type(of: frontmostViewController))) @ \(timeString).png"
         } else {
             let fileNamePrefix = "\(build.codeName)_\(String(build.buildNumber))"
             let fileNameSuffix = "\(build.stage.shortString) @ \(timeString).png"
@@ -103,8 +103,8 @@ public final class Breadcrumbs {
 
         if uniqueViewsOnly {
             guard let frontmostViewController = uiApplication.keyViewController?.frontmostViewController,
-                  !fileHistory.contains(String(frontmostViewController)) else { return }
-            fileHistory.append(String(frontmostViewController))
+                  !fileHistory.contains(String(type(of: frontmostViewController))) else { return }
+            fileHistory.append(String(type(of: frontmostViewController)))
             saveImage()
         } else {
             saveImage()

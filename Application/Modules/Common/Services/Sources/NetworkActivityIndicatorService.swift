@@ -16,5 +16,6 @@ public struct NetworkActivityIndicatorService: NetworkActivityIndicator {
 
     public func show() {
         Observables.isNetworkActivityOccurring.value = true
+        Observables.networkActivityOccurred.trigger()
     }
 }

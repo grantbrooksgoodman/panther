@@ -758,6 +758,7 @@
 		B9E7D4742AAD359000FAF2A9 /* Array+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7D4732AAD359000FAF2A9 /* Array+CoreExtensions.swift */; };
 		B9E7D4762AAD35CE00FAF2A9 /* Date+CoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7D4752AAD35CE00FAF2A9 /* Date+CoreExtensions.swift */; };
 		B9E7F5552C65633D00938D22 /* TimestampDateFormatterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7F5542C65633D00938D22 /* TimestampDateFormatterDependency.swift */; };
+		B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E7F5722C658F4300938D22 /* SplashPageObserver.swift */; };
 		B9EA3A8A2AC6BB3700674147 /* NotificationCenterDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */; };
 		B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04BC2B783D7A00A16700 /* NewChatPageView.swift */; };
 		B9EC04C52B784C0000A16700 /* MessageDeliveryServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */; };
@@ -1655,6 +1656,7 @@
 		B9E7D4732AAD359000FAF2A9 /* Array+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B9E7D4752AAD35CE00FAF2A9 /* Date+CoreExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+CoreExtensions.swift"; sourceTree = "<group>"; };
 		B9E7F5542C65633D00938D22 /* TimestampDateFormatterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimestampDateFormatterDependency.swift; sourceTree = "<group>"; };
+		B9E7F5722C658F4300938D22 /* SplashPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashPageObserver.swift; sourceTree = "<group>"; };
 		B9EA3A892AC6BB3700674147 /* NotificationCenterDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterDependency.swift; sourceTree = "<group>"; };
 		B9EC04BC2B783D7A00A16700 /* NewChatPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatPageView.swift; sourceTree = "<group>"; };
 		B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDeliveryServiceEffectID.swift; sourceTree = "<group>"; };
@@ -2339,6 +2341,7 @@
 		B95887082B3232B6007FB37B /* SplashPageView */ = {
 			isa = PBXGroup;
 			children = (
+				B9E7F5722C658F4300938D22 /* SplashPageObserver.swift */,
 				B958870E2B32331F007FB37B /* SplashPageReducer.swift */,
 				B958870C2B323317007FB37B /* SplashPageView.swift */,
 			);
@@ -4917,6 +4920,7 @@
 				B91689092AC760AA00AF403D /* MainQueueDependency.swift in Sources */,
 				B9C582F329BEC263009DCE29 /* DevModeAction.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,
+				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
 				B93CAEA72AF4620700C03BF4 /* Toast+Type.swift in Sources */,
 			);

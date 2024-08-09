@@ -233,7 +233,7 @@ public struct ReportDelegate: AlertKit.ReportDelegate {
         ]
 
         if let frontmostViewController {
-            sections["view_id"] = String(frontmostViewController)
+            sections["view_id"] = String(type(of: frontmostViewController))
         }
 
         guard let error else { return attachmentData(sections) }

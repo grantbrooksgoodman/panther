@@ -19,6 +19,7 @@ public enum ObservableKey: String {
 
     case contactSelectorPresentationPending
     case isNetworkActivityOccurring
+    case networkActivityOccurred
     case newChatSheetDismissed
     case traitCollectionChanged
     case updatedContactPairArchive
@@ -41,6 +42,7 @@ public enum Observables {
 
     public static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
     public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
+    public static let networkActivityOccurred: Observable<Nil> = .init(key: .networkActivityOccurred)
     public static let newChatSheetDismissed: Observable<Nil> = .init(key: .newChatSheetDismissed)
     public static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)
     public static let updatedContactPairArchive: Observable<Nil> = .init(key: .updatedContactPairArchive)

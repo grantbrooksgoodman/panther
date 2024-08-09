@@ -40,6 +40,7 @@ public enum LocalizedStringKey: String {
     case invite
 
     case language
+    case loadingData
 
     case monday
     case multiple
@@ -55,8 +56,8 @@ public enum LocalizedStringKey: String {
     case offlineMode
 
     case read
-    case rebuildingIndices
     case region
+    case repairingData
     case reportBug
     case reportUser
 

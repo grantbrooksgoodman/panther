@@ -6,6 +6,8 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable cyclomatic_complexity function_body_length
+
 /* Native */
 import Foundation
 
@@ -13,12 +15,12 @@ import Foundation
 import AlertKit
 import CoreArchitecture
 
-public final class SplashPageViewService {
+public final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.networking.services) private var networkServices: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
@@ -27,14 +29,52 @@ public final class SplashPageViewService {
 
     // MARK: - Properties
 
+    // Bool
     private var didAttemptDatabaseRepair = false
     private var didAttemptUserConversion = false
+    @Persistent(.didClearCaches) private var didClearCaches: Bool?
+    private var didSurpassQuickLoadTimeoutDuration = false
+
+    // Other
+    @Published
+    public var initializationProgress: CGFloat = 0 {
+        didSet {
+            guard initializationProgress == 1 else { return }
+            core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
+        }
+    }
+
+    @Published
+    public private(set) var loadingLabelText = ""
+
+    private var initializationStartDate = Date(timeIntervalSince1970: 0)
+
+    // MARK: - Computed Properties
+
+    public var shouldShowLoadingLabel: Bool {
+        didAttemptDatabaseRepair ||
+            (didClearCaches ?? false) ||
+            didSurpassQuickLoadTimeoutDuration
+    }
 
     // MARK: - Methods
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
+    @MainActor
     public func initializeBundle() async -> Exception? {
+        /* MARK: Service Setup */
+
+        didSurpassQuickLoadTimeoutDuration = false
+        initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
+        initializationStartDate = .now
+        loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
+
+        _ = Timeout(after: .seconds(3)) {
+            guard self.initializationProgress <= 0.5 else { return }
+            self.didSurpassQuickLoadTimeoutDuration = true
+        }
+
         /* MARK: AKCore Delegate Setup */
 
         alertKitConfig.registerReportDelegate(ErrorReportingService())
@@ -45,8 +85,10 @@ public final class SplashPageViewService {
                 Logger.log(exception)
             }
 
+            initializationProgress = 1
+
             guard let currentUser = userSession.currentUser else { return nil }
-            coreUtilities.setLanguageCode(currentUser.languageCode)
+            core.utils.setLanguageCode(currentUser.languageCode)
             return nil
         }
 
@@ -54,21 +96,22 @@ public final class SplashPageViewService {
 
         @Persistent(.currentUserID) var currentUserID: String?
 
-        if let userID = currentUserID {
-            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: userID)
+        if let currentUserID {
+            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
+            initializationProgress += 0.01
 
             switch cacheStatusResult {
             case let .success(cacheStatus):
                 if cacheStatus == .invalid {
-                    coreUtilities.clearCaches()
-                    coreUtilities.eraseDocumentsDirectory()
-                    coreUtilities.eraseTemporaryDirectory()
+                    core.utils.clearCaches()
+                    core.utils.eraseDocumentsDirectory()
+                    core.utils.eraseTemporaryDirectory()
 
                     var defaultsKeysToKeep = UserDefaultsKeyDomain.permanentKeys
                     defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
                     defaults.reset(keeping: defaultsKeysToKeep)
 
-                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: userID) {
+                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
                         Logger.log(exception)
                     }
                 }
@@ -80,9 +123,12 @@ public final class SplashPageViewService {
 
         /* MARK: HostedTranslationArchiver Setup */
 
-        if currentUserID == nil,
-           let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
-            Logger.log(exception)
+        if currentUserID == nil {
+            if let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+                Logger.log(exception)
+            } else {
+                initializationProgress += 0.01
+            }
         }
 
         /* MARK: MetadataService Setup */
@@ -90,6 +136,8 @@ public final class SplashPageViewService {
         if let exception = await services.metadata.resolveValues() {
             return exception
         }
+
+        initializationProgress += 0.01
 
         /* MARK: ReviewService Setup */
 
@@ -102,41 +150,54 @@ public final class SplashPageViewService {
             return exception
         }
 
+        initializationProgress += 0.01
+
         /* MARK: UserSessionService Setup */
 
         let setCurrentUserResult = await userSession.setCurrentUser()
 
         switch setCurrentUserResult {
         case .success:
+            initializationProgress += 0.2
+
             guard let currentUser = userSession.currentUser else {
                 return .init("Failed to set current user.", metadata: [self, #file, #function, #line])
             }
 
-            coreUtilities.setLanguageCode(currentUser.languageCode)
+            core.utils.setLanguageCode(currentUser.languageCode)
+            loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
             if let exception = await currentUser.setConversations() {
                 return exception
             }
 
+            initializationProgress += 0.2
+
             if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
                 return exception
             }
 
+            initializationProgress += 0.2
+
             if let exception = await userSession.resetTypingIndicatorStatus() {
                 return exception
             }
+
+            initializationProgress += 0.2
 
             if let exception = await services.notification.modifyBadgeNumber(.set(to: currentUser.badgeNumber)) {
                 return exception
             }
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
-            @Persistent(.didClearCaches) var didClearCaches: Bool?
             let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)
             didClearCaches = nil
 
             if !mustUpdateContactPairArchive {
-                guard randomBool, randomBool, randomBool else { return nil }
+                guard randomBool, randomBool, randomBool else {
+                    initializationProgress = 1
+                    return nil
+                }
             }
 
             if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: mustUpdateContactPairArchive || (randomBool && randomBool)),
@@ -150,10 +211,15 @@ public final class SplashPageViewService {
                 Logger.log(exception)
             }
 
+            initializationProgress = 1
             return nil
 
         case let .failure(exception):
-            guard !exception.isEqual(to: .currentUserIDNotSet) else { return nil }
+            guard !exception.isEqual(to: .currentUserIDNotSet) else {
+                initializationProgress = 1
+                return nil
+            }
+
             return exception
         }
     }
@@ -162,6 +228,7 @@ public final class SplashPageViewService {
     public func performRetryHandler() async -> Exception? {
         func attemptDatabaseRepair() async -> Exception? {
             didAttemptDatabaseRepair = true
+            loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
             return await networkServices.integrity.repairDatabase()
         }
 
@@ -177,9 +244,9 @@ public final class SplashPageViewService {
         } else if !didAttemptDatabaseRepair {
             return await attemptDatabaseRepair()
         } else {
-            coreUtilities.clearCaches()
-            coreUtilities.eraseDocumentsDirectory()
-            coreUtilities.eraseTemporaryDirectory()
+            core.utils.clearCaches()
+            core.utils.eraseDocumentsDirectory()
+            core.utils.eraseTemporaryDirectory()
 
             defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
             didAttemptDatabaseRepair = false
@@ -210,3 +277,5 @@ public final class SplashPageViewService {
         ).present(translating: translationOptionKeys)
     }
 }
+
+// swiftlint:enable cyclomatic_complexity function_body_length
