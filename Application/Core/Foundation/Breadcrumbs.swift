@@ -36,14 +36,14 @@ public final class Breadcrumbs {
 
     private var filePath: URL {
         let documents = fileManager.documentsDirectoryURL
-        let timeString = dateFormatter.string(from: Date())
+        let timeString = dateFormatter.string(from: .now)
 
         var fileName: String!
         if let frontmostViewController = uiApplication.keyViewController?.frontmostViewController {
             fileName = "\(build.codeName)_\(String(type(of: frontmostViewController))) @ \(timeString).png"
         } else {
             let fileNamePrefix = "\(build.codeName)_\(String(build.buildNumber))"
-            let fileNameSuffix = "\(build.stage.shortString) @ \(timeString).png"
+            let fileNameSuffix = "\(build.stage.shortString) | \(build.bundleRevision) @ \(timeString).png"
             fileName = fileNamePrefix + fileNameSuffix
         }
 

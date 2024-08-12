@@ -59,6 +59,7 @@ public enum LocalizedStringKey: String {
     case region
     case repairingData
     case reportBug
+    case reportSent
     case reportUser
 
     case saturday

@@ -85,10 +85,13 @@ public final class IntegrityService {
 
     // MARK: - Malformed Data
 
-    public func repairMalformedConversations(_ idKeys: [String]? = nil) async -> Exception? {
+    public func repairMalformedConversations(_ idKeys: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for conversationIDKey in idKeys ?? malformedConversationIDKeys {
+            tookAction = true
+
             for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                 guard let dictionary = session.userData[userID] as? [String: Any],
                       var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
@@ -128,13 +131,16 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> Exception? {
+    public func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for messageID in messageIDs ?? malformedMessageIDs {
+            tookAction = true
+
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
                 if let exception = await resetHash(conversationIDKey: conversationIDKey) {
                     exceptions.append(exception)
@@ -146,7 +152,7 @@ public final class IntegrityService {
                 messageIDs = messageIDs.filter { $0 != messageID }
 
                 guard !messageIDs.isBangQualifiedEmpty else {
-                    if let exception = await repairMalformedConversations([conversationIDKey]) {
+                    if let exception = await repairMalformedConversations([conversationIDKey]).exception {
                         exceptions.append(exception)
                     }
                     continue
@@ -169,13 +175,15 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func repairMalformedUsers() async -> Exception? {
+    public func repairMalformedUsers() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for userID in malformedUserIDs {
+            tookAction = true
             guard await networking.services.user.legacy.convertUser(id: userID) != nil else { continue }
 
             if let exception = await networking.database.setValue(
@@ -222,40 +230,54 @@ public final class IntegrityService {
 
             guard let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
-            if let exception = await repairMalformedConversations(conversationIDStrings) {
+            if let exception = await repairMalformedConversations(conversationIDStrings).exception {
                 exceptions.append(exception)
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
     // MARK: - Broken Data
 
-    public func resolveBrokenConversationChain() async -> Exception? {
+    public func resolveBrokenConversationChain() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.userData {
             guard let dictionary = value as? [String: Any],
-                  var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
-            for conversationIDString in conversationIDStrings where !session.conversationData.keys.contains(where: { conversationIDString.hasPrefix($0) }) {
-                conversationIDStrings = conversationIDStrings.filter { $0 != conversationIDString }
+            var filteredConversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }
+            for conversationIDString in filteredConversationIDStrings where !session
+                .conversationData
+                .keys
+                .contains(where: {
+                    $0.hasPrefix(conversationIDString.components(separatedBy: " | ").first ?? conversationIDString)
+                }) {
+                filteredConversationIDStrings = filteredConversationIDStrings.filter { $0 != conversationIDString }
             }
 
+            guard conversationIDStrings
+                .filter({ !$0.isBangQualifiedEmpty })
+                .sorted() != filteredConversationIDStrings
+                .sorted() else { continue }
+
+            tookAction = true
             if let exception = await networking.database.setValue(
-                conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings,
+                filteredConversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDStrings,
                 forKey: "\(networking.config.paths.users)/\(key)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
                 exceptions.append(exception)
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveBrokenMessageChain() async -> Exception? {
+    public func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
@@ -265,12 +287,13 @@ public final class IntegrityService {
             messageIDs = messageIDs.filter { session.messageData.keys.contains($0) }
             guard originalCount != messageIDs.count else { continue }
 
+            tookAction = true
             if let exception = await resetHash(conversationIDKey: key) {
                 exceptions.append(exception)
             }
 
             guard !messageIDs.isBangQualifiedEmpty else {
-                if let exception = await repairMalformedConversations([key]) {
+                if let exception = await repairMalformedConversations([key]).exception {
                     exceptions.append(exception)
                 }
                 continue
@@ -284,11 +307,12 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveMismatchedParticipants() async -> Exception? {
+    public func resolveMismatchedParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
@@ -300,11 +324,14 @@ public final class IntegrityService {
             let usersNotReferencing = participantUserIDs.filter { !usersReferencing.contains($0) }
             let orphaningRatio = Float(usersNotReferencing.count) / Float(participantUserIDs.count)
 
-            if orphaningRatio >= 0.5,
-               let exception = await repairMalformedConversations([key]) {
-                exceptions.append(exception)
-            } else if orphaningRatio < 0.5 {
+            if orphaningRatio >= 0.5 {
+                tookAction = true
+                if let exception = await repairMalformedConversations([key]).exception {
+                    exceptions.append(exception)
+                }
+            } else {
                 for userID in usersNotReferencing {
+                    tookAction = true
                     guard let dictionary = session.userData[userID] as? [String: Any],
                           var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
@@ -321,11 +348,12 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNoAudioComponentMessages() async -> Exception? {
+    public func resolveNoAudioComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
@@ -339,12 +367,14 @@ public final class IntegrityService {
 
             switch inputFileItemExistsResult {
             case let .success(itemExists):
-                if !itemExists,
-                   let exception = await networking.database.setValue(
-                       ContentType.text.rawValue,
-                       forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
-                   ) {
-                    exceptions.append(exception)
+                if !itemExists {
+                    tookAction = true
+                    if let exception = await networking.database.setValue(
+                        ContentType.text.rawValue,
+                        forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
+                    ) {
+                        exceptions.append(exception)
+                    }
                 }
 
             case let .failure(exception):
@@ -363,6 +393,7 @@ public final class IntegrityService {
                 case let .success(itemExists):
                     guard !itemExists else { continue }
 
+                    tookAction = true
                     if let exception = await networking.database.setValue(
                         ContentType.text.rawValue,
                         forKey: "\(networking.config.paths.messages)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
@@ -376,11 +407,12 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNoMediaComponentMessages() async -> Exception? {
+    public func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
@@ -434,7 +466,9 @@ public final class IntegrityService {
                 switch pdfDocumentThumbnailFileItemExistsResult {
                 case let .success(itemExists):
                     guard !itemExists else { continue }
-                    if let exception = await repairMalformedMessages([key]) {
+
+                    tookAction = true
+                    if let exception = await repairMalformedMessages([key]).exception {
                         exceptions.append(exception)
                     }
 
@@ -477,7 +511,9 @@ public final class IntegrityService {
                 switch mp4VideoThumbnailFileItemExistsResult {
                 case let .success(itemExists):
                     guard !itemExists else { continue }
-                    if let exception = await repairMalformedMessages([key]) {
+
+                    tookAction = true
+                    if let exception = await repairMalformedMessages([key]).exception {
                         exceptions.append(exception)
                     }
 
@@ -492,7 +528,8 @@ public final class IntegrityService {
                 pngImageFileItemExists,
                 mp4VideoFileItemExists,
             ].contains(true) else {
-                if let exception = await repairMalformedMessages([key]) {
+                tookAction = true
+                if let exception = await repairMalformedMessages([key]).exception {
                     exceptions.append(exception)
                 }
 
@@ -500,11 +537,12 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNonExistentParticipants() async -> Exception? {
+    public func resolveNonExistentParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
@@ -513,16 +551,18 @@ public final class IntegrityService {
             participantUserIDs = participantUserIDs.compactMap { $0.components(separatedBy: " | ").first }
             guard participantUserIDs.contains(where: { !session.userData.keys.contains($0) }) else { continue }
 
-            if let exception = await repairMalformedConversations([key]) {
+            tookAction = true
+            if let exception = await repairMalformedConversations([key]).exception {
                 exceptions.append(exception)
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNonExistentTranslations() async -> Exception? {
+    public func resolveNonExistentTranslations() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
@@ -542,7 +582,8 @@ public final class IntegrityService {
                         continue
                     }
 
-                    if let exception = await repairMalformedMessages([key]) {
+                    tookAction = true
+                    if let exception = await repairMalformedMessages([key]).exception {
                         exceptions.append(exception)
                     }
 
@@ -551,13 +592,15 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveOrphanedMessages() async -> Exception? {
+    public func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
+        var tookAction = false
 
         for messageID in session.messageData.keys where conversationsReferencing(messageID: messageID).isBangQualifiedEmpty {
+            tookAction = true
             if let exception = await networking.database.setValue(
                 NSNull(),
                 forKey: "\(networking.config.paths.messages)/\(messageID)"
@@ -566,7 +609,7 @@ public final class IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        return (tookAction, exceptions.compiledException)
     }
 
     // MARK: - Computed Property Getters

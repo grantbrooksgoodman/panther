@@ -24,6 +24,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
     // MARK: - Properties
 
@@ -38,13 +39,13 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     private var commonParams: [String: String] {
         var parameters = [
             "Build SKU": build.buildSKU,
+            "Bundle Revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
+            "Bundle Version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "Connection Status": build.isOnline ? "online" : "offline",
             "Device Model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
-            "Internal Version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "Language Code": RuntimeStorage.languageCode,
             "OS Version": SystemInformation.osVersion.lowercased(),
             "Project ID": build.projectID,
-            "Release Version": "\(build.bundleReleaseVersion) (\(build.releaseBuildNumber)\(build.stage.shortString))",
             "Timestamp": dateFormatter.string(from: .now),
         ]
 
@@ -60,12 +61,26 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         return parameters
     }
 
-    // MARK: - AlertKit.ReportDelegate Conformance
+    // MARK: - File Report
 
     public func fileReport(_ error: any AlertKit.Errorable) {
+        _fileReport(error)
+    }
+
+    public func fileReport(
+        _ error: any AlertKit.Errorable,
+        showsToastOnSuccess: Bool
+    ) {
+        _fileReport(error, showsToastOnSuccess: showsToastOnSuccess)
+    }
+
+    private func _fileReport(
+        _ error: any AlertKit.Errorable,
+        showsToastOnSuccess: Bool = true
+    ) {
         Task { @MainActor in
             let buildNumberString = "\(build.buildNumber)\(build.stage.shortString)"
-            let bundleVersionString = build.bundleReleaseVersion
+            let bundleVersionString = build.bundleVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
 
             var shortDateHash = dateFormatter.string(from: Date()).encodedHash
@@ -80,7 +95,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
-                    "reports/\(bundleVersionString)/\(buildNumberString)/\(errorCode)/log_\(shortDateHash).txt",
+                    "reports/\(bundleVersionString)/\(errorCode)/\(build.bundleRevision) | \(buildNumberString)/log_\(shortDateHash).txt",
                     contentType: "text/plain",
                     customValues: commonParams
                 )
@@ -90,6 +105,8 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             }
 
             reportedErrorCodes.append(errorCode)
+            guard showsToastOnSuccess else { return }
+
             Observables.rootViewToast.value = .init(
                 .capsule(style: .success),
                 message: Localized(.errorReportedSuccessfully).wrappedValue,
@@ -100,9 +117,10 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             Observables.rootViewToastAction.value = {
                 guard let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return }
                 let environmentShortString = self.networking.config.environment.shortString
-                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(buildNumberString)~2F\(errorCode)"
+                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(buildNumberString)"
                 guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return }
                 self.uiApplication.open(url)
+                self.uiPasteboard.string = url.absoluteString
             }
         }
     }

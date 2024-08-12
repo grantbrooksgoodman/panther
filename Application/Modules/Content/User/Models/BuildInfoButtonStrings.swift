@@ -19,6 +19,7 @@ public struct BuildInfoButtonStrings: Equatable {
         case bundleVersionAndBuildNumber
         case buildSKU
         case projectID
+        case userIDAndNetworkEnvironment
         case copyright
     }
 
@@ -38,6 +39,9 @@ public struct BuildInfoButtonStrings: Equatable {
             return .init(.projectID)
 
         case .projectID:
+            return .init(.userIDAndNetworkEnvironment)
+
+        case .userIDAndNetworkEnvironment:
             return .init(.copyright)
 
         case .copyright:
@@ -50,20 +54,26 @@ public struct BuildInfoButtonStrings: Equatable {
     public init(_ key: BuildInfoButtonStringKey) {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar
+        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
         @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
+
+        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
         @Localized(.version) var localizedVersionString: String
 
         self.key = key
 
         switch key {
         case .bundleVersionAndBuildNumber: // swiftlint:disable:next line_length
-            labelText = "\(localizedVersionString) \(build.bundleReleaseVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(networkEnvironment.shortString))"
+            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(build.bundleRevision.lowercased()))"
 
         case .buildSKU:
             labelText = build.buildSKU
 
         case .projectID:
             labelText = "7B0U3X1V | \(build.projectID)"
+
+        case .userIDAndNetworkEnvironment:
+            labelText = "\(currentUserID ?? fallbackCurrentUserID ?? "�") | \(networkEnvironment.shortString)"
 
         case .copyright:
             labelText = "Copyright © \(calendar.component(.year, from: Date())) NEOTechnica Corp."

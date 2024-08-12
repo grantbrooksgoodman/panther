@@ -5,17 +5,29 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable cyclomatic_complexity
+
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import AlertKit
+import CoreArchitecture
+
 public extension IntegrityService {
-    func repairDatabase() async -> Exception? {
-        var exceptions = [Exception]()
+    func repairDatabase(
+        _ exceptions: [Exception]? = nil,
+        _ methodsUsedForRepair: [String]? = nil
+    ) async -> Exception? {
+        @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
+
+        var exceptions = exceptions ?? .init()
+        var methodsUsedForRepair = methodsUsedForRepair ?? .init()
 
         // Resolve Integrity Service Session
 
         if let exception = await resolveSession() {
-            exceptions.append(exception)
+            return exception
         }
 
         // Prune Invalidated Caches
@@ -26,52 +38,110 @@ public extension IntegrityService {
 
         // Repair Malformed Data
 
-        if let exception = await repairMalformedMessages() {
-            exceptions.append(exception)
+        let repairMalformedMessagesResult = await repairMalformedMessages()
+        if let exception = repairMalformedMessagesResult.exception { exceptions.append(exception) }
+        if repairMalformedMessagesResult.tookAction {
+            methodsUsedForRepair.append("repairMalformedMessages")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await repairMalformedConversations() {
-            exceptions.append(exception)
+        let repairMalformedConversationsResult = await repairMalformedConversations()
+        if let exception = repairMalformedConversationsResult.exception { exceptions.append(exception) }
+        if repairMalformedConversationsResult.tookAction {
+            methodsUsedForRepair.append("repairMalformedConversations")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await repairMalformedUsers() {
-            exceptions.append(exception)
+        let repairMalformedUsersResult = await repairMalformedUsers()
+        if let exception = repairMalformedUsersResult.exception { exceptions.append(exception) }
+        if repairMalformedUsersResult.tookAction {
+            methodsUsedForRepair.append("repairMalformedUsers")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
         // Repair Broken Data
 
-        if let exception = await resolveBrokenConversationChain() {
-            exceptions.append(exception)
+        let resolveBrokenConversationChainResult = await resolveBrokenConversationChain()
+        if let exception = resolveBrokenConversationChainResult.exception { exceptions.append(exception) }
+        if resolveBrokenConversationChainResult.tookAction {
+            methodsUsedForRepair.append("resolveBrokenConversationChain")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveBrokenMessageChain() {
-            exceptions.append(exception)
+        let resolveBrokenMessageChainResult = await resolveBrokenMessageChain()
+        if let exception = resolveBrokenMessageChainResult.exception { exceptions.append(exception) }
+        if resolveBrokenMessageChainResult.tookAction {
+            methodsUsedForRepair.append("resolveBrokenMessageChain")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveMismatchedParticipants() {
-            exceptions.append(exception)
+        let resolveMismatchedParticipantsResult = await resolveMismatchedParticipants()
+        if let exception = resolveMismatchedParticipantsResult.exception { exceptions.append(exception) }
+        if resolveMismatchedParticipantsResult.tookAction {
+            methodsUsedForRepair.append("resolveMismatchedParticipants")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveNoAudioComponentMessages() {
-            exceptions.append(exception)
+        let resolveNoAudioComponentMessagesResult = await resolveNoAudioComponentMessages()
+        if let exception = resolveNoAudioComponentMessagesResult.exception { exceptions.append(exception) }
+        if resolveNoAudioComponentMessagesResult.tookAction {
+            methodsUsedForRepair.append("resolveNoAudioComponentMessages")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveNoMediaComponentMessages() {
-            exceptions.append(exception)
+        let resolveNoMediaComponentMessagesResult = await resolveNoMediaComponentMessages()
+        if let exception = resolveNoMediaComponentMessagesResult.exception { exceptions.append(exception) }
+        if resolveNoMediaComponentMessagesResult.tookAction {
+            methodsUsedForRepair.append("resolveNoMediaComponentMessages")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveNonExistentParticipants() {
-            exceptions.append(exception)
+        let resolveNonExistentParticipantsResult = await resolveNonExistentParticipants()
+        if let exception = resolveNonExistentParticipantsResult.exception { exceptions.append(exception) }
+        if resolveNonExistentParticipantsResult.tookAction {
+            methodsUsedForRepair.append("resolveNonExistentParticipants")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveNonExistentTranslations() {
-            exceptions.append(exception)
+        let resolveNonExistentTranslationsResult = await resolveNonExistentTranslations()
+        if let exception = resolveNonExistentTranslationsResult.exception { exceptions.append(exception) }
+        if resolveNonExistentTranslationsResult.tookAction {
+            methodsUsedForRepair.append("resolveNonExistentTranslations")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        if let exception = await resolveOrphanedMessages() {
-            exceptions.append(exception)
+        let resolveOrphanedMessagesResult = await resolveOrphanedMessages()
+        if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
+        if resolveOrphanedMessagesResult.tookAction {
+            methodsUsedForRepair.append("resolveOrphanedMessages")
+            return await repairDatabase(exceptions, methodsUsedForRepair)
+        }
+
+        if !methodsUsedForRepair.isEmpty {
+            Logger.log(
+                "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)",
+                domain: .dataIntegrity,
+                metadata: [self, #file, #function, #line]
+            )
+
+            guard let reportDelegate = reportDelegate as? ErrorReportingService else { return exceptions.compiledException }
+            reportDelegate.fileReport(
+                Exception(
+                    "Hosted data needed repair.",
+                    extraParams: ["MethodsUsedForRepair": methodsUsedForRepair],
+                    metadata: [self, #file, #function, #line]
+                ), showsToastOnSuccess: false
+            )
+        } else {
+            Logger.log(
+                "Hosted data integrity was validated.",
+                domain: .dataIntegrity,
+                metadata: [self, #file, #function, #line]
+            )
         }
 
         return exceptions.compiledException
     }
 }
+
+// swiftlint:enable cyclomatic_complexity

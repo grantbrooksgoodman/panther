@@ -136,8 +136,8 @@ public struct HostedTranslationService {
             if TranslationValidator.validate(
                 translation: archivedTranslation,
                 metadata: [self, #file, #function, #line]
-            ) != nil {
-                localTranslationArchiver.clearArchive()
+            ) != nil || archivedTranslation.input.value == archivedTranslation.output {
+                localTranslationArchiver.removeValue(input: input, languagePair: languagePair)
                 return await translate(
                     input,
                     with: languagePair,
@@ -154,13 +154,13 @@ public struct HostedTranslationService {
         if sameInputOutputLanguage || !hasUnicodeLetters {
             let translation: Translation = .init(
                 input: input,
-                output: input.value,
+                output: input.value.sanitized,
                 languagePair: languagePair
             )
 
             await archiver.addToHostedArchive(translation)
             localTranslationArchiver.addValue(translation)
-            return .success(translation.withSanitizedOutput)
+            return .success(translation)
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(
@@ -173,7 +173,7 @@ public struct HostedTranslationService {
             if TranslationValidator.validate(
                 translation: translation,
                 metadata: [self, #file, #function, #line]
-            ) != nil {
+            ) != nil || translation.input.value == translation.output {
                 await archiver.removeArchivedTranslation(for: input, languagePair: languagePair)
                 return await translate(
                     input,
@@ -183,9 +183,9 @@ public struct HostedTranslationService {
             }
 
             let sanitizedTranslation = translation.withSanitizedOutput
-            if translation.input.value != translation.output {
-                localTranslationArchiver.addValue(sanitizedTranslation)
-            }
+            guard sanitizedTranslation.input.value != sanitizedTranslation.output else { return .success(sanitizedTranslation) }
+
+            localTranslationArchiver.addValue(sanitizedTranslation)
             return .success(sanitizedTranslation)
 
         case let .failure(exception):
@@ -219,7 +219,7 @@ public struct HostedTranslationService {
             case let .success(translation):
                 let translation: Translation = .init(
                     input: input,
-                    output: translation.output,
+                    output: translation.output.sanitized,
                     languagePair: translation.languagePair
                 )
 
@@ -230,12 +230,11 @@ public struct HostedTranslationService {
                     return .failure(exception)
                 }
 
-                let sanitizedTranslation = translation.withSanitizedOutput
-                if translation.input.value != translation.output {
-                    await archiver.addToHostedArchive(translation)
-                    localTranslationArchiver.addValue(sanitizedTranslation)
-                }
-                return .success(sanitizedTranslation)
+                await archiver.addToHostedArchive(translation)
+                guard translation.input.value != translation.output else { return .success(translation) }
+
+                localTranslationArchiver.addValue(translation)
+                return .success(translation)
 
             case let .failure(exception):
                 guard exception.isEqual(toAny: [.exhaustedAvailablePlatforms,
@@ -250,6 +249,8 @@ public struct HostedTranslationService {
                 )
 
                 await archiver.addToHostedArchive(translation)
+                guard translation.input.value != translation.output else { return .success(translation) }
+
                 localTranslationArchiver.addValue(translation)
                 return .success(translation)
             }

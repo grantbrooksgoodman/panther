@@ -202,7 +202,10 @@ public final class ChatPageViewService {
     public func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
         func reloadItems() {
             Task { @MainActor in
-                viewController?.messagesCollectionView.reloadItems(at: indexPaths)
+                guard let viewController else { return }
+                let indexPaths = indexPaths.filter { !viewController.isSectionReservedForTypingIndicator($0.section) }
+                guard !indexPaths.isEmpty else { return }
+                viewController.messagesCollectionView.reloadItems(at: indexPaths)
             }
         }
 

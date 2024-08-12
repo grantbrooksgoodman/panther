@@ -105,7 +105,7 @@ public final class SettingsPageViewService: Cacheable {
             }
 
             await AKAlert(
-                message: "Caches have been cleared.\(build.developerModeEnabled ? "" : " You must now restart the app.")",
+                message: "Caches have been cleared. \(build.developerModeEnabled ? "" : "You must now restart the app.")",
                 actions: actions
             ).present()
         }
@@ -113,7 +113,7 @@ public final class SettingsPageViewService: Cacheable {
         Task {
             let confirmed = await AKConfirmationAlert(
                 title: "Clear Caches", // swiftlint:disable:next line_length
-                message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\n\nYou will need to restart the app for this to take effect.",
+                message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\(build.developerModeEnabled ? "" : "\n\nYou will need to restart the app for this to take effect.")",
                 confirmButtonStyle: .destructivePreferred
             ).present()
 

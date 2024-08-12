@@ -64,13 +64,13 @@ public struct AnalyticsService {
     private var commonParams: [String: String] {
         var parameters = [
             "build_sku": build.buildSKU,
+            "bundle_revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
+            "bundle_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "connection_status": build.isOnline ? "online" : "offline",
             "device_model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
-            "internal_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "language_code": RuntimeStorage.languageCode,
             "os_version": SystemInformation.osVersion.lowercased(),
             "project_id": build.projectID,
-            "release_version": "\(build.bundleReleaseVersion) (\(build.releaseBuildNumber)\(build.stage.shortString))",
             "timestamp": dateFormatter.string(from: .now),
         ]
 

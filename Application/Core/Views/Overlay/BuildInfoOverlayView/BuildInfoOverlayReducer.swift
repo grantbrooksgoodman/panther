@@ -74,8 +74,8 @@ public struct BuildInfoOverlayReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
-        case .action(.viewAppeared):
-            state.buildInfoButtonText = "\(build.codeName) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString))"
+        case .action(.viewAppeared): // swiftlint:disable:next line_length
+            state.buildInfoButtonText = "\(build.codeName) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(build.bundleRevision.lowercased()))"
             state.developerModeIndicatorDotColor = state.networkEnvironmentBasedIndicatorDotColor
 
             @Persistent(.developerModeEnabled) var defaultsValue: Bool?

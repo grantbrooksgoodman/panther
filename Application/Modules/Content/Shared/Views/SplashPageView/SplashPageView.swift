@@ -83,7 +83,10 @@ public struct SplashPageView: View {
                             maxHeight: Floats.progressBarActivityIndicatorFrameMaxHeight
                         )
 
-                    Text(viewService.loadingLabelText)
+                    Components.text(
+                        viewService.loadingLabelText,
+                        foregroundColor: .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
+                    )
                 }
             }
         } else {

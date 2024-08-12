@@ -197,7 +197,7 @@ public struct ReportDelegate: AlertKit.ReportDelegate {
             case .sent:
                 Observables.rootViewToast.value = .init(
                     .capsule(style: .success),
-                    message: Localized(.errorReportedSuccessfully).wrappedValue,
+                    message: Localized(.reportSent).wrappedValue,
                     perpetuation: .ephemeral(.seconds(3))
                 )
 
@@ -222,13 +222,13 @@ public struct ReportDelegate: AlertKit.ReportDelegate {
 
         var sections = [
             "build_sku": build.buildSKU,
+            "bundle_revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
+            "bundle_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "connection_status": build.isOnline ? "online" : "offline",
             "device_model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
-            "internal_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
             "language_code": RuntimeStorage.languageCode,
             "os_version": SystemInformation.osVersion.lowercased(),
             "project_id": build.projectID,
-            "release_version": "\(build.bundleReleaseVersion) (\(build.releaseBuildNumber)\(build.stage.shortString))",
             "timestamp": dateFormatter.string(from: .now),
         ]
 

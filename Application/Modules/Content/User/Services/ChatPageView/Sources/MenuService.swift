@@ -184,6 +184,8 @@ public final class MenuService {
 
     private func handleSpeakAction() {
         Task { @MainActor in
+            func processed(_ string: String?) -> String { string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? .bangQualifiedEmpty }
+
             guard let selectedCell = selectedCell as? TextMessageCell,
                   let selectedMessage,
                   let messageLabelText = selectedCell.messageLabel.text else { return }
@@ -206,7 +208,8 @@ public final class MenuService {
             if languageRecognitionService.matchConfidence(
                 for: messageLabelText,
                 inLanguage: utteranceLanguageCode
-            ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold) {
+            ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold),
+                processed(selectedMessage.translation?.input.value) == processed(selectedMessage.translation?.output) {
                 utteranceLanguageCode = [
                     currentUserUtteranceLanguageCode,
                     notCurrentUserUtteranceLanguageCode,

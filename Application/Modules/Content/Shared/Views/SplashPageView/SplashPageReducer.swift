@@ -43,6 +43,7 @@ public struct SplashPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        public var didAttemptAutomaticErrorRecovery = false
         public var exception: Exception?
 
         /* MARK: Computed Properties */
@@ -62,12 +63,14 @@ public struct SplashPageReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
+            state.didAttemptAutomaticErrorRecovery = false
             return .task {
                 let result = await viewService.initializeBundle()
                 return .initializedBundle(result)
             }
 
         case .action(.bundleInitializationProgressOccurred):
+            guard viewService.initializationProgress < 0.8 else { return .none }
             viewService.initializationProgress += 0.0005
 
         case .feedback(.errorAlertDismissed):
@@ -89,7 +92,16 @@ public struct SplashPageReducer: Reducer {
             state.exception = exception
 
             if let exception {
-                Logger.log(exception)
+                defer { Logger.log(exception) }
+
+                guard state.didAttemptAutomaticErrorRecovery else {
+                    state.didAttemptAutomaticErrorRecovery = true
+                    return .task {
+                        let result = await viewService.performRetryHandler()
+                        return .performRetryHandlerReturned(result)
+                    }
+                }
+
                 return .task {
                     await viewService.presentErrorAlert(exception)
                     return .errorAlertDismissed
