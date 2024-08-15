@@ -91,6 +91,15 @@ public struct ConversationsPageObserver: Observer {
 
     private func updateConversations() {
         Task { @MainActor in
+            let setCurrentUserResult = await clientSession.user.setCurrentUser()
+
+            switch setCurrentUserResult {
+            case let .failure(exception):
+                Logger.log(exception, with: .toast())
+
+            default: ()
+            }
+
             if let exception = await clientSession.user.currentUser?.setConversations() {
                 Logger.log(exception, with: .toast())
             }

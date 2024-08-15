@@ -13,7 +13,7 @@ import UIKit
 /* 3rd-party */
 import CoreArchitecture
 
-public final class RegionDetailService: Cacheable {
+public struct RegionDetailService {
     // MARK: - Types
 
     public enum QueryStrategy {
@@ -28,6 +28,17 @@ public final class RegionDetailService: Cacheable {
         case regionNameFirst
     }
 
+    private enum CacheKey: String, CaseIterable {
+        case imagesForRegionCodes
+        case imagesForRegionTitles
+
+        case localizedRegionNamesForRegionCodes
+
+        case regionTitlesForAllCallingCodes
+        case regionTitlesForCallingCodes
+        case regionTitlesForRegionCodes
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
@@ -35,8 +46,7 @@ public final class RegionDetailService: Cacheable {
 
     // MARK: - Properties
 
-    public let emptyCache: Cache
-    public var cache: Cache
+    private let cache: Cache<CacheKey> = .init()
 
     // MARK: - Computed Properties
 
@@ -48,17 +58,7 @@ public final class RegionDetailService: Cacheable {
 
     // MARK: - Init
 
-    public init() {
-        emptyCache = .init(
-            [
-                .localizedRegionNamesForRegionCodes: [String: String](),
-                .regionTitlesForAllCallingCodes: [String](),
-                .regionTitlesForCallingCodes: [String: (String, RegionTitleFormat)](),
-                .regionTitlesForRegionCodes: [String: (String, RegionTitleFormat)](),
-            ]
-        )
-        cache = emptyCache
-    }
+    public init() {}
 
     // MARK: - Calling Codes
 
@@ -283,40 +283,6 @@ public final class RegionDetailService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        CacheDomain.RegionDetailServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .regionDetailService($0)) }
-        cache = emptyCache
-    }
-}
-
-/* MARK: Cache */
-
-public extension CacheDomain {
-    enum RegionDetailServiceCacheDomainKey: String, CaseIterable, Equatable {
-        case imagesForRegionCodes
-        case imagesForRegionTitles
-
-        case localizedRegionNamesForRegionCodes
-
-        case regionTitlesForAllCallingCodes
-        case regionTitlesForCallingCodes
-        case regionTitlesForRegionCodes
-    }
-}
-
-public extension Cache {
-    convenience init(_ objects: [CacheDomain.RegionDetailServiceCacheDomainKey: Any]) {
-        var mappedObjects = [CacheDomain: Any]()
-        objects.forEach { object in
-            mappedObjects[.regionDetailService(object.key)] = object.value
-        }
-        self.init(mappedObjects)
-    }
-
-    func set(_ value: Any, forKey key: CacheDomain.RegionDetailServiceCacheDomainKey) {
-        set(value, forKey: .regionDetailService(key))
-    }
-
-    func value(forKey key: CacheDomain.RegionDetailServiceCacheDomainKey) -> Any? {
-        value(forKey: .regionDetailService(key))
+        cache.clear()
     }
 }

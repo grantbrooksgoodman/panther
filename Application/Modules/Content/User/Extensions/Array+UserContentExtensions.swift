@@ -15,6 +15,18 @@ import CoreArchitecture
 public extension Array where Element == ContactPair {
     // MARK: - Properties
 
+    var uniquedByPhoneNumber: [ContactPair] {
+        var contactPairs = [ContactPair]()
+
+        for contactPair in self {
+            let phoneNumbers = contactPairs.map(\.contact.phoneNumbers.compiledNumberStrings).reduce([], +)
+            guard !contactPair.contact.phoneNumbers.compiledNumberStrings.contains(where: phoneNumbers.contains) else { continue }
+            contactPairs.append(contactPair)
+        }
+
+        return contactPairs
+    }
+
     var users: [User] { map(\.users).reduce([], +) }
 
     // MARK: - Methods

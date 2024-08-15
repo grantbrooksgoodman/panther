@@ -10,9 +10,24 @@
 import Foundation
 
 public extension Contact {
+    /// Attempts to resolve a last name using all available content sources.
+    var absoluteLastName: String {
+        if !lastName.isBlank {
+            return lastName
+        } else if !firstName.isBlank {
+            return firstName
+        } else if !fullName.isBlank {
+            return fullName
+        } else if let phoneNumberString = phoneNumbers.first?.formattedString() {
+            return phoneNumberString
+        }
+
+        return "�"
+    }
+
     var tableViewSectionTitle: String {
-        guard lastName.hasPrefix("+"),
-              !lastName.digits.isBlank else { return .init(lastName.prefix(1)) }
+        guard absoluteLastName.hasPrefix("+"),
+              !absoluteLastName.digits.isBlank else { return .init(absoluteLastName.prefix(1)) }
         return "#"
     }
 }

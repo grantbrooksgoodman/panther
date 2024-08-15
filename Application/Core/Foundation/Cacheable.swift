@@ -9,46 +9,51 @@
 import Foundation
 
 public protocol Cacheable {
-    // MARK: - Properties
+    // MARK: - Associated Types
 
-    var cache: Cache { get }
-    var emptyCache: Cache { get }
+    associatedtype CacheKey: RawRepresentable where CacheKey.RawValue: StringProtocol, CacheKey: CaseIterable
 
     // MARK: - Methods
 
-    func clearCache()
+    func clear()
+    func removeObject(forKey key: CacheKey)
+    func set(_ value: Any, forKey key: CacheKey)
+    func value(forKey key: CacheKey) -> Any?
 }
 
-public final class Cache {
+public struct Cache<KeyType: RawRepresentable> where KeyType.RawValue: StringProtocol, KeyType: CaseIterable {
     // MARK: - Properties
 
-    private let threadLock = NSLock()
-
-    private var objects: [CacheDomain: Any]
+    fileprivate let cache: NSCache<NSString, AnyObject> = .init()
 
     // MARK: - Init
 
-    public init(_ objects: [CacheDomain: Any]) {
-        self.objects = objects
+    public init() {}
+}
+
+extension Cache: Cacheable {
+    // MARK: - Type Aliases
+
+    public typealias CacheKey = KeyType
+
+    // MARK: - Cacheable Conformance
+
+    public func clear() {
+        CacheKey.allCases.forEach { removeObject(forKey: $0) }
     }
 
-    // MARK: - Methods
-
-    // FIXME: Experienced BAD_ACCESS crash here. Tried mainQueue.(a)sync; serialQueue; Task { @MainActor in }. Using NSLock for now.
-    public func set(_ value: Any, forKey key: CacheDomain) {
-        threadLock.lock()
-        objects[key] = value
-        threadLock.unlock()
+    public func removeObject(forKey key: KeyType) {
+        guard let keyString = key.rawValue as? NSString else { return }
+        cache.removeObject(forKey: keyString)
     }
 
-    public func removeObject(forKey key: CacheDomain) {
-        threadLock.lock()
-        objects[key] = nil
-        threadLock.unlock()
+    public func set(_ value: Any, forKey key: KeyType) {
+        guard let keyString = key.rawValue as? NSString else { return }
+        cache.setObject(value as AnyObject, forKey: keyString)
     }
 
-    // FIXME: Seeing access races occur here.
-    public func value(forKey key: CacheDomain) -> Any? {
-        return objects[key]
+    public func value(forKey key: KeyType) -> Any? {
+        guard let keyString = key.rawValue as? NSString else { return nil }
+        return cache.object(forKey: keyString)
     }
 }

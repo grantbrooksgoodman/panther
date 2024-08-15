@@ -53,8 +53,11 @@ public final class RecipientBarContactSelectionUIService {
     public func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
-        guard selectedContactPairs.isEmpty else { return }
-        viewController.messageInputBar.inputTextView.placeholder = ""
+        core.gcd.after(.milliseconds(100)) {
+            self.chatPageViewService.inputBar?.configureInputBar()
+            guard self.selectedContactPairs.isEmpty else { return }
+            self.viewController.messageInputBar.inputTextView.placeholder = ""
+        }
     }
 
     public func deselectMockContactPairs() {
@@ -127,6 +130,7 @@ public final class RecipientBarContactSelectionUIService {
             textField.text = nil
 
             configService.reconfigureCollectionView()
+            core.gcd.after(.milliseconds(100)) { self.chatPageViewService.inputBar?.configureInputBar() }
 
             guard !contactPair.isMock else { return }
             viewController.messageInputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
@@ -186,8 +190,6 @@ public final class RecipientBarContactSelectionUIService {
             contactView.frame.origin.y = furthestTrailingView.frame.maxY + Floats.adjacentViewSpacing
             return
         }
-
-        addSubview()
     }
 
     // MARK: - Label Representation

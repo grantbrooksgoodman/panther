@@ -19,11 +19,11 @@ extension MediaFile: MediaItem {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
 
-        if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.thumbnails)) as? [URL: UIImage],
+        if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .thumbnails) as? [URL: UIImage],
            let thumbnailPath = urlPath.thumbnailPath,
            let cachedThumbnail = cacheValue[thumbnailPath] {
             return cachedThumbnail
-        } else if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.images)) as? [URL: UIImage],
+        } else if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .images) as? [URL: UIImage],
                   let cachedImage = cacheValue[urlPath] {
             return cachedImage
         }
@@ -31,17 +31,17 @@ extension MediaFile: MediaItem {
         guard let thumbnailPath = urlPath.thumbnailPath,
               fileManager.fileExists(atPath: thumbnailPath.path()) else {
             guard let image = UIImage(contentsOfFile: urlPath.path()) else { return .missing }
-            if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.images)) as? [URL: UIImage] {
+            if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .images) as? [URL: UIImage] {
                 cacheValue[urlPath] = image
-                mediaMessagePreviewService?.cache.set(cacheValue, forKey: .mediaMessagePreviewService(.images))
+                mediaMessagePreviewService?.cache.set(cacheValue, forKey: .images)
             }
             return image
         }
 
         guard let image = UIImage(contentsOfFile: thumbnailPath.path()) else { return nil }
-        if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .mediaMessagePreviewService(.thumbnails)) as? [URL: UIImage] {
+        if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .thumbnails) as? [URL: UIImage] {
             cacheValue[thumbnailPath] = image
-            mediaMessagePreviewService?.cache.set(cacheValue, forKey: .mediaMessagePreviewService(.thumbnails))
+            mediaMessagePreviewService?.cache.set(cacheValue, forKey: .thumbnails)
         }
         return image
     }

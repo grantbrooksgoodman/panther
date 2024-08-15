@@ -5,6 +5,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 
@@ -24,6 +26,10 @@ public struct CoreDatabase {
 
     @Dependency(\.networking.delegates) private var delegates: NetworkDelegates
     @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
+
+    // MARK: - Properties
+
+    private let cache: NSCache<NSString, DataSample> = .init()
 
     // MARK: - ID Key Generation
 
@@ -123,11 +129,17 @@ public struct CoreDatabase {
         )
 
         let path = prependingEnvironment ? path.prepended : path
+        if let cachedValue = cachedValue(atPath: path) {
+            guard canComplete else { return }
+            completion(.success(cachedValue))
+            return
+        }
+
         firebaseDatabase.child(path).observeSingleEvent(of: .value) { snapshot in
             timeout.cancel()
             guard canComplete else { return }
 
-            guard !isEmpty(snapshot.value),
+            guard !self.isEmpty(snapshot.value),
                   let value = snapshot.value else {
                 completion(.failure(.init(
                     "No value exists at the specified key path.",
@@ -137,6 +149,10 @@ public struct CoreDatabase {
                 return
             }
 
+            self.cache.setObject(
+                .init(.now, data: value, expiresAfter: .milliseconds(100)), // TODO: Make this into a globally configurable value.
+                forKey: .init(string: path)
+            )
             completion(.success(value))
         } withCancel: { error in
             timeout.cancel()
@@ -179,6 +195,11 @@ public struct CoreDatabase {
         )
 
         let path = prependingEnvironment ? path.prepended : path
+        if let cachedValue = cachedValue(atPath: path) {
+            guard canComplete else { return }
+            completion(.success(cachedValue))
+            return
+        }
 
         func processReturnValues(_ error: Error?, _ snapshot: DataSnapshot?) {
             timeout.cancel()
@@ -199,6 +220,10 @@ public struct CoreDatabase {
                 return
             }
 
+            cache.setObject(
+                .init(.now, data: value, expiresAfter: .milliseconds(100)), // TODO: Make this into a globally configurable value.
+                forKey: .init(string: path)
+            )
             completion(.success(value))
         }
 
@@ -259,6 +284,7 @@ public struct CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
+        cache.removeObject(forKey: .init(string: key))
         firebaseDatabase.child(key).setValue(value) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
@@ -306,6 +332,7 @@ public struct CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
+        cache.removeObject(forKey: .init(string: key))
         firebaseDatabase.child(key).updateChildValues(data) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
@@ -315,6 +342,23 @@ public struct CoreDatabase {
 
     // MARK: - Auxiliary
 
+    private func cachedValue(atPath path: String) -> Any? {
+        guard let cachedValue = cache.object(forKey: .init(string: path)) else { return nil }
+        guard !cachedValue.isExpired,
+              !isEmpty(cachedValue) else {
+            cache.removeObject(forKey: .init(string: path))
+            return nil
+        }
+
+        Logger.log(
+            "Returning cached value for data at path \"\(path)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
+
+        return cachedValue.data
+    }
+
     private func isEmpty(_ value: Any?) -> Bool { value as? NSNull != nil }
 }
 
@@ -323,3 +367,5 @@ private extension String {
         prependingCurrentEnvironment
     }
 }
+
+// swiftlint:enable type_body_length

@@ -91,11 +91,11 @@ public struct MessageService {
         func uploadMedia() async -> Callback<Message, Exception> {
             func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
                 guard mockMessage.contentType == .audio,
-                      let audioComponent = mockMessage.audioComponent else {
+                      let audioComponents = mockMessage.audioComponents else {
                     return .success(mockMessage)
                 }
 
-                if let exception = await audio.uploadAudioComponents([audioComponent], for: mockMessage) {
+                if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
                     return .failure(exception)
                 }
 

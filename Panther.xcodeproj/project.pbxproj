@@ -110,7 +110,6 @@
 		B91A10FA2AFF364700E3C1A0 /* EmptyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */; };
 		B91A10FE2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */; };
 		B91A11002AFF398B00E3C1A0 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */; };
-		B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91A11012AFF39C900E3C1A0 /* CacheDomains.swift */; };
 		B91C2D742C1B68F100278B7F /* NetworkDelegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D732C1B68F100278B7F /* NetworkDelegates.swift */; };
 		B91C2D762C1B694700278B7F /* ConnectionStatusProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D752C1B694700278B7F /* ConnectionStatusProviderProtocol.swift */; };
 		B91C2D782C1B6A8F00278B7F /* CoreNetworkServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91C2D772C1B6A8F00278B7F /* CoreNetworkServices.swift */; };
@@ -268,6 +267,7 @@
 		B97718A72BEB5D4C00C94BE5 /* Persistent+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97718A62BEB5D4C00C94BE5 /* Persistent+CoreNetworkingExtensions.swift */; };
 		B978B1992B87C84200AA007A /* RootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B978B1982B87C84200AA007A /* RootSheet.swift */; };
 		B978B19B2B87CD1100AA007A /* RootSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B978B19A2B87CD1100AA007A /* RootSheets.swift */; };
+		B97966D62C69D5AD00EF0F7A /* DataSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97966D52C69D5AD00EF0F7A /* DataSample.swift */; };
 		B979AA372C444B3C0082203C /* MediaActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */; };
 		B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA382C444E4A0082203C /* CameraPickerService.swift */; };
 		B979AA3B2C445F990082203C /* ContentPickerResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA3A2C445F990082203C /* ContentPickerResult.swift */; };
@@ -1012,7 +1012,6 @@
 		B91A10F92AFF364700E3C1A0 /* EmptyPageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyPageView.swift; sourceTree = "<group>"; };
 		B91A10FD2AFF36FD00E3C1A0 /* InterfaceStyleViewModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceStyleViewModifier.swift; sourceTree = "<group>"; };
 		B91A10FF2AFF398B00E3C1A0 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
-		B91A11012AFF39C900E3C1A0 /* CacheDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheDomains.swift; sourceTree = "<group>"; };
 		B91C2D732C1B68F100278B7F /* NetworkDelegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDelegates.swift; sourceTree = "<group>"; };
 		B91C2D752C1B694700278B7F /* ConnectionStatusProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusProviderProtocol.swift; sourceTree = "<group>"; };
 		B91C2D772C1B6A8F00278B7F /* CoreNetworkServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreNetworkServices.swift; sourceTree = "<group>"; };
@@ -1167,6 +1166,7 @@
 		B97718A62BEB5D4C00C94BE5 /* Persistent+CoreNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CoreNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B978B1982B87C84200AA007A /* RootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootSheet.swift; sourceTree = "<group>"; };
 		B978B19A2B87CD1100AA007A /* RootSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootSheets.swift; sourceTree = "<group>"; };
+		B97966D52C69D5AD00EF0F7A /* DataSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSample.swift; sourceTree = "<group>"; };
 		B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaActionHandlerService.swift; sourceTree = "<group>"; };
 		B979AA382C444E4A0082203C /* CameraPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerService.swift; sourceTree = "<group>"; };
 		B979AA3A2C445F990082203C /* ContentPickerResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerResult.swift; sourceTree = "<group>"; };
@@ -3197,6 +3197,7 @@
 			children = (
 				B99C69312C2A063F00BA373F /* BatchFailureStrategy.swift */,
 				B91C2D772C1B6A8F00278B7F /* CoreNetworkServices.swift */,
+				B97966D52C69D5AD00EF0F7A /* DataSample.swift */,
 				B9D0D92A2B03019E00078A93 /* NetworkConfig.swift */,
 				B91C2D732C1B68F100278B7F /* NetworkDelegates.swift */,
 				B9D0D9282B03019E00078A93 /* NetworkEnvironment.swift */,
@@ -3595,7 +3596,6 @@
 				B9E7D42A2AAC1F4000FAF2A9 /* AppConstants.swift */,
 				B99F13F32A280A0500B9FCE2 /* AppDefaultsKeys.swift */,
 				B93BCDF22AADA47400AA16FE /* BuildConfig.swift */,
-				B91A11012AFF39C900E3C1A0 /* CacheDomains.swift */,
 				B9C5830729BECE59009DCE29 /* DevModeActions.swift */,
 				B91688D928FE0E4C004C80A2 /* ExceptionCatalog.swift */,
 				B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */,
@@ -4464,9 +4464,9 @@
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
-				B91A11022AFF39C900E3C1A0 /* CacheDomains.swift in Sources */,
 				B952B8F62B1531D50043181F /* ValidatableProtocol.swift in Sources */,
 				B9AA08812BA225E700D778DA /* NLLanguageRecognizerDependency.swift in Sources */,
+				B97966D62C69D5AD00EF0F7A /* DataSample.swift in Sources */,
 				B9E7D4292AAC1F0400FAF2A9 /* CoreConstants+FailurePageView.swift in Sources */,
 				B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */,
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,

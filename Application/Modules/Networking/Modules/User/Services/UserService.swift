@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable type_body_length
 
 /* Native */
 import Foundation
@@ -14,7 +14,14 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public final class UserService: Cacheable {
+public final class UserService {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case userDataSnapshots
+        case userNumberHashSnapshot
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -23,25 +30,14 @@ public final class UserService: Cacheable {
 
     // MARK: - Properties
 
-    // Instance
     public let legacy: LegacyUserService
 
-    // Cache
-    public let emptyCache: Cache
-    public var cache: Cache
+    private let cache: Cache<CacheKey> = .init()
 
     // MARK: - Init
 
     public init(legacy: LegacyUserService) {
         self.legacy = legacy
-
-        emptyCache = .init(
-            [
-                .userDataSnapshots: [],
-                .userNumberHashSnapshot: UserNumberHashSnapshot.empty,
-            ]
-        )
-        cache = emptyCache
     }
 
     // MARK: - User Creation
@@ -392,36 +388,8 @@ public final class UserService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        CacheDomain.UserServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .userService($0)) }
-        cache = emptyCache
+        cache.clear()
     }
 }
 
-/* MARK: Cache */
-
-public extension CacheDomain {
-    enum UserServiceCacheDomainKey: String, CaseIterable, Equatable {
-        case userDataSnapshots
-        case userNumberHashSnapshot
-    }
-}
-
-private extension Cache {
-    convenience init(_ objects: [CacheDomain.UserServiceCacheDomainKey: Any]) {
-        var mappedObjects = [CacheDomain: Any]()
-        objects.forEach { object in
-            mappedObjects[.userService(object.key)] = object.value
-        }
-        self.init(mappedObjects)
-    }
-
-    func set(_ value: Any, forKey key: CacheDomain.UserServiceCacheDomainKey) {
-        set(value, forKey: .userService(key))
-    }
-
-    func value(forKey key: CacheDomain.UserServiceCacheDomainKey) -> Any? {
-        value(forKey: .userService(key))
-    }
-}
-
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable type_body_length

@@ -14,7 +14,14 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public final class ContactService: Cacheable {
+public struct ContactService {
+    // MARK: - Types
+
+    public enum CacheKey: String, CaseIterable {
+        case cnContacts
+        case contacts
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
@@ -23,11 +30,7 @@ public final class ContactService: Cacheable {
 
     // MARK: - Properties
 
-    // Cache
-    public let emptyCache: Cache
-    public var cache: Cache
-
-    // Other
+    public let cache: Cache<CacheKey> = .init()
     public let contactPairArchive: ContactPairArchiveService
     public let sync: ContactSyncService
 
@@ -39,14 +42,6 @@ public final class ContactService: Cacheable {
     ) {
         self.contactPairArchive = contactPairArchive
         self.sync = sync
-
-        emptyCache = .init(
-            [
-                .cnContacts: [CNContact](),
-                .contacts: [Contact](),
-            ]
-        )
-        cache = emptyCache
     }
 
     // MARK: - Fetch All Contacts
@@ -193,34 +188,6 @@ public final class ContactService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        CacheDomain.ContactServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .contactService($0)) }
-        cache = emptyCache
-    }
-}
-
-/* MARK: Cache */
-
-public extension CacheDomain {
-    enum ContactServiceCacheDomainKey: String, CaseIterable, Equatable {
-        case cnContacts
-        case contacts
-    }
-}
-
-private extension Cache {
-    convenience init(_ objects: [CacheDomain.ContactServiceCacheDomainKey: Any]) {
-        var mappedObjects = [CacheDomain: Any]()
-        objects.forEach { object in
-            mappedObjects[.contactService(object.key)] = object.value
-        }
-        self.init(mappedObjects)
-    }
-
-    func set(_ value: Any, forKey key: CacheDomain.ContactServiceCacheDomainKey) {
-        set(value, forKey: .contactService(key))
-    }
-
-    func value(forKey key: CacheDomain.ContactServiceCacheDomainKey) -> Any? {
-        value(forKey: .contactService(key))
+        cache.clear()
     }
 }

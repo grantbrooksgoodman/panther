@@ -12,11 +12,19 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public final class CommonPropertyLists: Cacheable {
+public struct CommonPropertyLists {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case callingCodes
+        case lookupTables
+    }
+
     // MARK: - Properties
 
-    public let emptyCache: Cache
-    public var cache: Cache
+    public static let shared = CommonPropertyLists()
+
+    private let cache: Cache<CacheKey> = .init()
 
     // MARK: - Computed Properties
 
@@ -56,47 +64,11 @@ public final class CommonPropertyLists: Cacheable {
 
     // MARK: - Init
 
-    public init() {
-        emptyCache = .init(
-            [
-                .callingCodes: [String: String](),
-                .lookupTables: [String: [String]](),
-            ]
-        )
-        cache = emptyCache
-    }
+    private init() {}
 
     // MARK: - Clear Cache
 
     public func clearCache() {
-        CacheDomain.CommonPropertyListsCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .commonPropertyLists($0)) }
-        cache = emptyCache
-    }
-}
-
-/* MARK: Cache */
-
-public extension CacheDomain {
-    enum CommonPropertyListsCacheDomainKey: String, CaseIterable, Equatable {
-        case callingCodes
-        case lookupTables
-    }
-}
-
-private extension Cache {
-    convenience init(_ objects: [CacheDomain.CommonPropertyListsCacheDomainKey: Any]) {
-        var mappedObjects = [CacheDomain: Any]()
-        objects.forEach { object in
-            mappedObjects[.commonPropertyLists(object.key)] = object.value
-        }
-        self.init(mappedObjects)
-    }
-
-    func set(_ value: Any, forKey key: CacheDomain.CommonPropertyListsCacheDomainKey) {
-        set(value, forKey: .commonPropertyLists(key))
-    }
-
-    func value(forKey key: CacheDomain.CommonPropertyListsCacheDomainKey) -> Any? {
-        value(forKey: .commonPropertyLists(key))
+        cache.clear()
     }
 }

@@ -23,13 +23,14 @@ public final class RecipientBarTableViewService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.user.currentUser?.conversations) private var conversations: [Conversation]?
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
 
-    @Persistent(.contactPairArchive) private var contactPairs: [ContactPair]?
+    private var contactPairs: [ContactPair]?
     private var queriedContactPairs = [ContactPair]()
 
     // MARK: - Computed Properties
@@ -40,6 +41,7 @@ public final class RecipientBarTableViewService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        contactPairs = getContactPairs()
     }
 
     // MARK: - Reload Data
@@ -78,9 +80,25 @@ public final class RecipientBarTableViewService {
 
     // MARK: - Auxiliary
 
+    private func getContactPairs() -> [ContactPair]? {
+        @Persistent(.contactPairArchive) var knownUsers: [ContactPair]?
+
+        if let knownUsers,
+           let unknownUsers = conversations?
+           .visibleForCurrentUser
+           .compactMap(\.users)
+           .reduce([], +)
+           .filter({ !knownUsers.users.contains($0) })
+           .map({ ContactPair.withUser($0) }) {
+            return (knownUsers + unknownUsers).uniquedByPhoneNumber
+        }
+
+        return knownUsers
+    }
+
     private func getSections() -> [TableViewSection] {
         func sortedByLastName(_ contactPairs: [ContactPair]) -> [ContactPair] {
-            contactPairs.unique.sorted(by: { $0.contact.lastName < $1.contact.lastName })
+            contactPairs.unique.sorted(by: { $0.contact.absoluteLastName < $1.contact.absoluteLastName })
         }
 
         let dictionary: Dictionary = .init(grouping: queriedContactPairs.unique, by: { $0.contact.tableViewSectionTitle })

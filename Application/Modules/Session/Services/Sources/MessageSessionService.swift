@@ -168,7 +168,7 @@ public struct MessageSessionService {
 
         var translations = [Translation]()
 
-        for languageCode in users.map(\.languageCode) {
+        for languageCode in users.map(\.languageCode).unique {
             let translateResult = await networking.services.translation.translate(
                 .init(text),
                 with: .init(from: currentUser.languageCode, to: languageCode)
@@ -237,11 +237,13 @@ public struct MessageSessionService {
 
         switch createMessageResult {
         case let .success(message):
-            if let exception = await services.notification.notify(
-                otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
-                of: message
-            ) {
-                Logger.log(exception)
+            Task(priority: .background) {
+                if let exception = await services.notification.notify(
+                    otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
+                    of: message
+                ) {
+                    Logger.log(exception)
+                }
             }
 
             incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)

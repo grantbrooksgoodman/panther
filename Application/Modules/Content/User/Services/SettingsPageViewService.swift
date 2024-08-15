@@ -15,7 +15,13 @@ import SwiftUI
 import AlertKit
 import CoreArchitecture
 
-public final class SettingsPageViewService: Cacheable {
+public final class SettingsPageViewService {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case cnContactForCurrentUser
+    }
+
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.SettingsPageView
@@ -35,21 +41,13 @@ public final class SettingsPageViewService: Cacheable {
 
     // MARK: - Properties
 
-    public var cache: Cache
-    public var emptyCache: Cache
+    private let cache: Cache<CacheKey> = .init()
 
     @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Init
 
-    public init() {
-        emptyCache = .init(
-            [
-                .cnContactForCurrentUser: NSNull(),
-            ]
-        )
-        cache = emptyCache
-    }
+    public init() {}
 
     // MARK: - Reducer Action Handlers
 
@@ -337,33 +335,6 @@ public final class SettingsPageViewService: Cacheable {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        CacheDomain.SettingsPageViewServiceCacheDomainKey.allCases.forEach { cache.removeObject(forKey: .settingsPageViewService($0)) }
-        cache = emptyCache
-    }
-}
-
-/* MARK: Cache */
-
-public extension CacheDomain {
-    enum SettingsPageViewServiceCacheDomainKey: String, CaseIterable, Equatable {
-        case cnContactForCurrentUser
-    }
-}
-
-private extension Cache {
-    convenience init(_ objects: [CacheDomain.SettingsPageViewServiceCacheDomainKey: Any]) {
-        var mappedObjects = [CacheDomain: Any]()
-        objects.forEach { object in
-            mappedObjects[.settingsPageViewService(object.key)] = object.value
-        }
-        self.init(mappedObjects)
-    }
-
-    func set(_ value: Any, forKey key: CacheDomain.SettingsPageViewServiceCacheDomainKey) {
-        set(value, forKey: .settingsPageViewService(key))
-    }
-
-    func value(forKey key: CacheDomain.SettingsPageViewServiceCacheDomainKey) -> Any? {
-        value(forKey: .settingsPageViewService(key))
+        cache.clear()
     }
 }

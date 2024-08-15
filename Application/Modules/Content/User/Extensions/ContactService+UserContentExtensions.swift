@@ -19,7 +19,7 @@ public extension ContactService {
 
         let commonParams = ["PhoneNumber": phoneNumber.encoded]
 
-        guard let cachedValue = cache.value(forKey: .contactService(.cnContacts)) as? [CNContact],
+        guard let cachedValue = cache.value(forKey: .cnContacts) as? [CNContact],
               !cachedValue.isEmpty else {
             let fetchAllContactsResult = await fetchAllContacts()
 

@@ -27,22 +27,14 @@ extension ChatPageViewController: UITextViewDelegate {
 
     public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
 
-        guard let inputBarService = chatPageViewService.inputBar,
-              let recipientBarService = chatPageViewService.recipientBar,
+        guard let recipientBarService = chatPageViewService.recipientBar,
               let textField = recipientBarService.layout.textField else { return true }
 
         guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: { $0.isMock }) || textField.isFirstResponder,
               recipientBarService.layout.tableView?.alpha == 0 else { return true }
 
         recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "", makeInputBarFirstResponder: false)
-        typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
-        coreGCD.after(.milliseconds(Floats.setButtonsIsEnabledDelayMilliseconds)) {
-            inputBarService.setAttachMediaButtonIsEnabled(inputBarService.shouldEnableAttachMediaButton)
-            inputBarService.setSendButtonIsEnabled(inputBarService.shouldEnableSendButton)
-        }
-
         return true
     }
 
