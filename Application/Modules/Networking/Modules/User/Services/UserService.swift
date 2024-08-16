@@ -32,7 +32,8 @@ public final class UserService {
 
     public let legacy: LegacyUserService
 
-    private let cache: Cache<CacheKey> = .init()
+    @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
+    @Cached(CacheKey.userNumberHashSnapshot) private var cachedUserNumberHashSnapshot: UserNumberHashSnapshot?
 
     // MARK: - Init
 
@@ -125,17 +126,17 @@ public final class UserService {
     // MARK: - Retrieval by Hash
 
     private func getUserNumberHashes() async -> Callback<[String: [String]], Exception> {
-        if let cachedValue = cache.value(forKey: .userNumberHashSnapshot) as? UserNumberHashSnapshot,
-           !cachedValue.hashes.isEmpty,
-           !Array(cachedValue.hashes.keys).contains(where: \.isBangQualifiedEmpty),
-           !cachedValue.hashes.values.contains(where: \.isBangQualifiedEmpty),
-           !cachedValue.isExpired {
+        if let cachedUserNumberHashSnapshot,
+           !cachedUserNumberHashSnapshot.hashes.isEmpty,
+           !Array(cachedUserNumberHashSnapshot.hashes.keys).contains(where: \.isBangQualifiedEmpty),
+           !cachedUserNumberHashSnapshot.hashes.values.contains(where: \.isBangQualifiedEmpty),
+           !cachedUserNumberHashSnapshot.isExpired {
             Logger.log(
                 "Returning cached user number hash snapshot.",
                 domain: .user,
                 metadata: [self, #file, #function, #line]
             )
-            return .success(cachedValue.hashes)
+            return .success(cachedUserNumberHashSnapshot.hashes)
         }
 
         let getValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
@@ -145,13 +146,11 @@ public final class UserService {
             guard let hashes = values as? [String: [String]] else {
                 return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
-            cache.set(
-                UserNumberHashSnapshot(
-                    date: Date(),
-                    hashes: hashes,
-                    expiryThreshold: .seconds(60)
-                ),
-                forKey: .userNumberHashSnapshot
+
+            cachedUserNumberHashSnapshot = .init(
+                date: Date(),
+                hashes: hashes,
+                expiryThreshold: .seconds(60)
             )
             return .success(hashes)
 
@@ -202,8 +201,8 @@ public final class UserService {
 
         typealias Keys = User.SerializationKeys
 
-        if let cachedValue = cache.value(forKey: .userDataSnapshots) as? [UserDataSnapshot],
-           let match = cachedValue.first(where: { ($0.data[Keys.id.rawValue] as? String) == id }),
+        if let cachedUserDataSnapshots,
+           let match = cachedUserDataSnapshots.first(where: { ($0.data[Keys.id.rawValue] as? String) == id }),
            !match.isExpired {
             Logger.log(
                 .init(
@@ -233,15 +232,15 @@ public final class UserService {
                 coreUtilities.setLanguageCode(languageCode)
             }
 
-            var cacheValues = (cache.value(forKey: .userDataSnapshots) as? [UserDataSnapshot]) ?? []
-            cacheValues.append(
+            var cachedValues = cachedUserDataSnapshots ?? []
+            cachedValues.append(
                 .init(
                     date: Date(),
                     data: data,
                     expiryThreshold: .milliseconds(100)
                 )
             )
-            cache.set(cacheValues, forKey: .userDataSnapshots)
+            cachedUserDataSnapshots = cachedUserDataSnapshots
             return await User.decode(from: data)
 
         case let .failure(exception):
@@ -388,7 +387,8 @@ public final class UserService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedUserDataSnapshots = nil
+        cachedUserNumberHashSnapshot = nil
     }
 }
 

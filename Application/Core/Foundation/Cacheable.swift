@@ -31,6 +31,35 @@ public struct Cache<KeyType: RawRepresentable> where KeyType.RawValue: StringPro
     public init() {}
 }
 
+@propertyWrapper
+public struct Cached<KeyType: RawRepresentable, T> where KeyType.RawValue: StringProtocol, KeyType: CaseIterable {
+    // MARK: - Properties
+
+    private let cache: Cache<KeyType> = .init()
+    private let key: KeyType
+
+    // MARK: - Init
+
+    public init(_ key: KeyType) {
+        self.key = key
+    }
+
+    // MARK: - WrappedValue
+
+    public var wrappedValue: T? {
+        get { cache.value(forKey: key) as? T }
+
+        set {
+            guard let newValue else {
+                cache.removeObject(forKey: key)
+                return
+            }
+
+            cache.set(newValue, forKey: key)
+        }
+    }
+}
+
 extension Cache: Cacheable {
     // MARK: - Type Aliases
 

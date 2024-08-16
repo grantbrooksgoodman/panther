@@ -19,10 +19,7 @@ public struct ChatParticipant: Equatable {
 
     // MARK: - Computed Properties
 
-    public var thumbnailImage: UIImage? {
-        guard let imageData = contactPair?.contact.imageData else { return nil }
-        return .init(data: imageData)
-    }
+    public var thumbnailImage: UIImage? { contactPair?.contact.image }
 
     // MARK: - Init
 

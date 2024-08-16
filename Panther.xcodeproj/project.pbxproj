@@ -407,6 +407,7 @@
 		B9CC831B2AB0F6B800255116 /* QuickViewerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC831A2AB0F6B800255116 /* QuickViewerDependency.swift */; };
 		B9CC83202AB11E7F00255116 /* ThemedReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC831F2AB11E7F00255116 /* ThemedReducer.swift */; };
 		B9CC83222AB121E600255116 /* ThemedViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC83212AB121E600255116 /* ThemedViewObserver.swift */; };
+		B9CF639E2C6F244E00A6208F /* ContactNameServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */; };
 		B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D7102B02FFEA00078A93 /* PLISTGenerator.swift */; };
 		B9D0D7142B03006B00078A93 /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D7132B03006B00078A93 /* ProgressHUD.swift */; };
 		B9D0D8142B0300B000078A93 /* gb-sct.png in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D7162B0300AC00078A93 /* gb-sct.png */; };
@@ -1305,6 +1306,7 @@
 		B9CC831A2AB0F6B800255116 /* QuickViewerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickViewerDependency.swift; sourceTree = "<group>"; };
 		B9CC831F2AB11E7F00255116 /* ThemedReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemedReducer.swift; sourceTree = "<group>"; };
 		B9CC83212AB121E600255116 /* ThemedViewObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemedViewObserver.swift; sourceTree = "<group>"; };
+		B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactNameServiceDependency.swift; sourceTree = "<group>"; };
 		B9D0D7102B02FFEA00078A93 /* PLISTGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PLISTGenerator.swift; sourceTree = "<group>"; };
 		B9D0D7132B03006B00078A93 /* ProgressHUD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
 		B9D0D7162B0300AC00078A93 /* gb-sct.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gb-sct.png"; sourceTree = "<group>"; };
@@ -3383,6 +3385,7 @@
 				B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */,
 				B9E6D7D02B12850D000BC88D /* CNContactStoreDependency.swift */,
 				B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */,
+				B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */,
 				B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */,
 				B925A0932B6480A400111413 /* UIPasteboardDependency.swift */,
 				B900B54B2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift */,
@@ -4670,6 +4673,7 @@
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+CoreNetworkingExtensions.swift in Sources */,
 				B990F5A82B81C60B00C7BE00 /* ContactSelectorPageReducer.swift in Sources */,
+				B9CF639E2C6F244E00A6208F /* ContactNameServiceDependency.swift in Sources */,
 				B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */,
 				B9EC04CF2B79674800A16700 /* SettingsPageViewStrings.swift in Sources */,
 				B9428A242C3DC29A0024E1B5 /* ReportDelegateDependency.swift in Sources */,

@@ -103,6 +103,12 @@ public struct Database {
             }
         }
     }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        coreDatabase.clearCache()
+    }
 }
 
 /* MARK: CoreDatabase Dependency */

@@ -14,12 +14,16 @@ import Foundation
 import CoreArchitecture
 import FirebaseDatabase
 
-public struct CoreDatabase {
+public final class CoreDatabase {
     // MARK: - Types
 
     public enum QueryStrategy {
         case first(Int)
         case last(Int)
+    }
+
+    private enum CacheKey: String, CaseIterable {
+        case dataSamples
     }
 
     // MARK: - Dependencies
@@ -29,7 +33,7 @@ public struct CoreDatabase {
 
     // MARK: - Properties
 
-    private let cache: NSCache<NSString, DataSample> = .init()
+    @Cached(CacheKey.dataSamples) private var cachedDataSamples: [String: DataSample]?
 
     // MARK: - ID Key Generation
 
@@ -149,10 +153,13 @@ public struct CoreDatabase {
                 return
             }
 
-            self.cache.setObject(
-                .init(.now, data: value, expiresAfter: .milliseconds(100)), // TODO: Make this into a globally configurable value.
-                forKey: .init(string: path)
+            var cachedDataSamples = self.cachedDataSamples ?? [:]
+            cachedDataSamples[path] = .init(
+                .now,
+                data: value,
+                expiresAfter: .milliseconds(100) // TODO: Make this a globally configurable value.
             )
+            self.cachedDataSamples = cachedDataSamples
             completion(.success(value))
         } withCancel: { error in
             timeout.cancel()
@@ -220,10 +227,13 @@ public struct CoreDatabase {
                 return
             }
 
-            cache.setObject(
-                .init(.now, data: value, expiresAfter: .milliseconds(100)), // TODO: Make this into a globally configurable value.
-                forKey: .init(string: path)
+            var cachedDataSamples = cachedDataSamples ?? [:]
+            cachedDataSamples[path] = .init(
+                .now,
+                data: value,
+                expiresAfter: .milliseconds(100) // TODO: Make this into a globally configurable value.
             )
+            self.cachedDataSamples = cachedDataSamples
             completion(.success(value))
         }
 
@@ -284,7 +294,11 @@ public struct CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
-        cache.removeObject(forKey: .init(string: key))
+        if var cachedDataSamples {
+            cachedDataSamples[key] = nil
+            self.cachedDataSamples = cachedDataSamples
+        }
+
         firebaseDatabase.child(key).setValue(value) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
@@ -332,7 +346,11 @@ public struct CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
-        cache.removeObject(forKey: .init(string: key))
+        if var cachedDataSamples {
+            cachedDataSamples[key] = nil
+            self.cachedDataSamples = cachedDataSamples
+        }
+
         firebaseDatabase.child(key).updateChildValues(data) { error, _ in
             timeout.cancel()
             guard canComplete else { return }
@@ -340,13 +358,22 @@ public struct CoreDatabase {
         }
     }
 
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        cachedDataSamples = nil
+    }
+
     // MARK: - Auxiliary
 
     private func cachedValue(atPath path: String) -> Any? {
-        guard let cachedValue = cache.object(forKey: .init(string: path)) else { return nil }
-        guard !cachedValue.isExpired,
-              !isEmpty(cachedValue) else {
-            cache.removeObject(forKey: .init(string: path))
+        guard var cachedDataSamples,
+              let cachedDataSample = cachedDataSamples[path] else { return nil }
+
+        guard !cachedDataSample.isExpired,
+              !isEmpty(cachedDataSample) else {
+            cachedDataSamples[path] = nil
+            self.cachedDataSamples = cachedDataSamples
             return nil
         }
 
@@ -356,7 +383,7 @@ public struct CoreDatabase {
             metadata: [self, #file, #function, #line]
         )
 
-        return cachedValue.data
+        return cachedDataSample.data
     }
 
     private func isEmpty(_ value: Any?) -> Bool { value as? NSNull != nil }

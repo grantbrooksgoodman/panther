@@ -78,9 +78,9 @@ public struct ConversationCellViewData: Equatable {
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
             titleLabelText = contactPair.contact.fullName
-            if let imageData = contactPair.contact.imageData,
+            if let image = contactPair.contact.image,
                users.count == 1 {
-                thumbnailImage = UIImage(data: imageData)
+                thumbnailImage = image
             }
         } else {
             titleLabelText = lastUser.phoneNumber.formattedString(useFailsafe: false)

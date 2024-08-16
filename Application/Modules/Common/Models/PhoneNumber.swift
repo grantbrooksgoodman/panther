@@ -14,7 +14,7 @@ import Foundation
 import CoreArchitecture
 import PhoneNumberKit
 
-public struct PhoneNumber: Codable, EncodedHashable, Equatable {
+public final class PhoneNumber: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     public let callingCode: String
@@ -22,6 +22,9 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
     public let label: String?
     public let nationalNumberString: String
     public let regionCode: String
+
+    private var formattedString: String?
+    private var formattedStringRegionCode: String?
 
     // MARK: - Computed Properties
 
@@ -52,7 +55,7 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
         self.internalFormattedString = internalFormattedString
     }
 
-    public init(_ cnLabeledPhoneNumber: CNLabeledValue<CNPhoneNumber>) {
+    public convenience init(_ cnLabeledPhoneNumber: CNLabeledValue<CNPhoneNumber>) {
         @Dependency(\.commonServices) var services: CommonServices
 
         var localizedLabel: String?
@@ -110,14 +113,14 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
         )
     }
 
-    public init(
+    public convenience init(
         _ string: String,
         label: String? = nil
     ) {
         self.init(.init(stringValue: string.digits), label: label)
     }
 
-    private init(
+    private convenience init(
         _ cnPhoneNumber: CNPhoneNumber,
         label: String?
     ) {
@@ -128,6 +131,13 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
 
     public func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
         let regionCode = regionCode ?? self.regionCode
+
+        if let formattedStringRegionCode,
+           formattedStringRegionCode == regionCode,
+           let formattedString {
+            return formattedString
+        }
+
         let partiallyFormatted = partiallyFormatted(forRegion: regionCode)
 
         guard !partiallyFormatted.digits.hasPrefix(callingCode) else {
@@ -135,7 +145,11 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
             return "+\(partiallyFormatted.trimmingLeadingWhitespace)"
         }
 
-        return "+\(callingCode) \(partiallyFormatted.trimmingLeadingWhitespace)"
+        let formattedString = "+\(callingCode) \(partiallyFormatted.trimmingLeadingWhitespace)"
+        self.formattedString = formattedString
+        formattedStringRegionCode = regionCode
+
+        return formattedString
     }
 
     public func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
@@ -209,5 +223,11 @@ public struct PhoneNumber: Codable, EncodedHashable, Equatable {
         }
 
         return formattedNumber ?? internalFormattedString ?? fallbackFormatted
+    }
+
+    // MARK: - Equatable Conformance
+
+    public static func == (left: PhoneNumber, right: PhoneNumber) -> Bool {
+        left.hashFactors == right.hashFactors
     }
 }

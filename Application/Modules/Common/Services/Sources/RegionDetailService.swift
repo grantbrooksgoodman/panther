@@ -13,7 +13,7 @@ import UIKit
 /* 3rd-party */
 import CoreArchitecture
 
-public struct RegionDetailService {
+public final class RegionDetailService {
     // MARK: - Types
 
     public enum QueryStrategy {
@@ -46,7 +46,12 @@ public struct RegionDetailService {
 
     // MARK: - Properties
 
-    private let cache: Cache<CacheKey> = .init()
+    @Cached(CacheKey.imagesForRegionCodes) private var cachedImagesForRegionCodes: [String: UIImage]?
+    @Cached(CacheKey.imagesForRegionTitles) private var cachedImagesForRegionTitles: [String: UIImage]?
+    @Cached(CacheKey.localizedRegionNamesForRegionCodes) private var cachedLocalizedRegionNamesForRegionCodes: [String: String]?
+    @Cached(CacheKey.regionTitlesForAllCallingCodes) private var cachedRegionTitlesForAllCallingCodes: [String]?
+    @Cached(CacheKey.regionTitlesForCallingCodes) private var cachedRegionTitlesForCallingCodes: [String: (String, RegionTitleFormat)]?
+    @Cached(CacheKey.regionTitlesForRegionCodes) private var cachedRegionTitlesForRegionCodes: [String: (String, RegionTitleFormat)]?
 
     // MARK: - Computed Properties
 
@@ -73,7 +78,7 @@ public struct RegionDetailService {
 
         switch strategy {
         case let .regionCode(regionCode):
-            var cachedValue = cache.value(forKey: .imagesForRegionCodes) as? [String: UIImage] ?? .init()
+            var cachedValue = cachedImagesForRegionCodes ?? .init()
             if let image = cachedValue[regionCode] {
                 return image
             }
@@ -82,12 +87,11 @@ public struct RegionDetailService {
                   let image = UIImage(named: "\(match.lowercased()).png") else { return nil }
 
             cachedValue[regionCode] = image
-            cache.set(cachedValue, forKey: .imagesForRegionCodes)
-
+            cachedImagesForRegionCodes = cachedValue
             return image
 
         case let .regionTitle(regionTitle):
-            var cachedValue = cache.value(forKey: .imagesForRegionTitles) as? [String: UIImage] ?? .init()
+            var cachedValue = cachedImagesForRegionTitles ?? .init()
             if let image = cachedValue[regionTitle] {
                 return image
             }
@@ -98,7 +102,7 @@ public struct RegionDetailService {
                   let image = UIImage(named: "\(match.lowercased()).png") else { return nil }
 
             cachedValue[regionTitle] = image
-            cache.set(cachedValue, forKey: .imagesForRegionCodes)
+            cachedImagesForRegionCodes = cachedValue
 
             return image
 
@@ -153,14 +157,14 @@ public struct RegionDetailService {
     // MARK: - Region Titles
 
     public func localizedRegionName(regionCode: String) -> String {
-        var cachedValue = cache.value(forKey: .localizedRegionNamesForRegionCodes) as? [String: String] ?? .init()
+        var cachedValue = cachedLocalizedRegionNamesForRegionCodes ?? .init()
         if let string = cachedValue[regionCode] {
             return string
         }
 
         func setCacheValue(_ key: String, _ value: String) {
             cachedValue[key] = value
-            cache.set(cachedValue, forKey: .localizedRegionNamesForRegionCodes)
+            cachedLocalizedRegionNamesForRegionCodes = cachedValue
         }
 
         guard callingCodes[regionCode] != nil else { return regionCode }
@@ -200,13 +204,13 @@ public struct RegionDetailService {
     }
 
     private func getRegionTitlesForAllCallingCodes() -> [String] {
-        if let cachedValue = cache.value(forKey: .regionTitlesForAllCallingCodes) as? [String],
+        if let cachedValue = cachedRegionTitlesForAllCallingCodes,
            !cachedValue.isEmpty {
             return cachedValue
         }
 
         let titles = Array(callingCodes.keys).compactMap { regionTitle(regionCode: $0, titleFormat: .regionNameFirst) }.sorted()
-        cache.set(titles, forKey: .regionTitlesForAllCallingCodes)
+        cachedRegionTitlesForAllCallingCodes = titles
         return titles
     }
 
@@ -214,7 +218,7 @@ public struct RegionDetailService {
         callingCode: String,
         titleFormat: RegionTitleFormat
     ) -> String? {
-        var cachedValue = cache.value(forKey: .regionTitlesForCallingCodes) as? [String: (String, RegionTitleFormat)] ?? .init()
+        var cachedValue = cachedRegionTitlesForCallingCodes ?? .init()
         if let tuple = cachedValue[callingCode],
            tuple.1 == titleFormat {
             return tuple.0
@@ -222,7 +226,7 @@ public struct RegionDetailService {
 
         func setCacheValue(_ key: String, _ value: String) {
             cachedValue[key] = (value, titleFormat)
-            cache.set(cachedValue, forKey: .regionTitlesForCallingCodes)
+            cachedRegionTitlesForCallingCodes = cachedValue
         }
 
         guard Array(callingCodes.values).contains(callingCode) else { return nil }
@@ -246,7 +250,7 @@ public struct RegionDetailService {
         regionCode: String,
         titleFormat: RegionTitleFormat
     ) -> String? {
-        var cachedValue = cache.value(forKey: .regionTitlesForRegionCodes) as? [String: (String, RegionTitleFormat)] ?? .init()
+        var cachedValue = cachedRegionTitlesForRegionCodes ?? .init()
         if let tuple = cachedValue[regionCode],
            tuple.1 == titleFormat {
             return tuple.0
@@ -254,7 +258,7 @@ public struct RegionDetailService {
 
         func setCacheValue(_ key: String, _ value: String) {
             cachedValue[key] = (value, titleFormat)
-            cache.set(cachedValue, forKey: .regionTitlesForRegionCodes)
+            cachedRegionTitlesForRegionCodes = cachedValue
         }
 
         guard let callingCode = callingCodes[regionCode] else { return "" }
@@ -283,6 +287,13 @@ public struct RegionDetailService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedImagesForRegionCodes = nil
+        cachedImagesForRegionTitles = nil
+
+        cachedLocalizedRegionNamesForRegionCodes = nil
+
+        cachedRegionTitlesForAllCallingCodes = nil
+        cachedRegionTitlesForCallingCodes = nil
+        cachedRegionTitlesForRegionCodes = nil
     }
 }

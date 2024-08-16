@@ -9,6 +9,7 @@
 /* Native */
 import Contacts
 import Foundation
+import UIKit
 
 /* 3rd-party */
 import CoreArchitecture
@@ -37,6 +38,8 @@ public struct Contact: Codable, EncodedHashable, Equatable {
     public let lastName: String
 
     // MARK: - Computed Properties
+
+    public var image: UIImage? { _ContactImageArchive.cachedImagesForContactIDs?[id] }
 
     public var fullName: String {
         if !firstName.isBlank,
@@ -73,6 +76,14 @@ public struct Contact: Codable, EncodedHashable, Equatable {
         self.lastName = lastName
         self.phoneNumbers = phoneNumbers
         self.imageData = imageData
+        if let imageData {
+            if var cachedImagesForContactIDs = _ContactImageArchive.cachedImagesForContactIDs {
+                cachedImagesForContactIDs[id] = .init(data: imageData)
+                _ContactImageArchive.cachedImagesForContactIDs = cachedImagesForContactIDs
+            } else if let image = UIImage(data: imageData) {
+                _ContactImageArchive.cachedImagesForContactIDs = [id: image]
+            }
+        }
     }
 
     public init(_ contact: CNContact) {
@@ -88,17 +99,26 @@ public struct Contact: Codable, EncodedHashable, Equatable {
     }
 }
 
-/* MARK: ContactNameService Dependency */
-
-private enum ContactNameServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ContactNameService {
-        .init()
+public enum ContactImageArchive {
+    public static func clearCache() {
+        _ContactImageArchive.clearCache()
     }
 }
 
-private extension DependencyValues {
-    var contactNameService: ContactNameService {
-        get { self[ContactNameServiceDependency.self] }
-        set { self[ContactNameServiceDependency.self] = newValue }
+private enum _ContactImageArchive {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case imagesForContactIDs
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.imagesForContactIDs) public static var cachedImagesForContactIDs: [String: UIImage]?
+
+    // MARK: - Clear Cache
+
+    public static func clearCache() {
+        cachedImagesForContactIDs = nil
     }
 }

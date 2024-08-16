@@ -14,7 +14,7 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public struct ContactService {
+public final class ContactService {
     // MARK: - Types
 
     public enum CacheKey: String, CaseIterable {
@@ -30,9 +30,12 @@ public struct ContactService {
 
     // MARK: - Properties
 
-    public let cache: Cache<CacheKey> = .init()
     public let contactPairArchive: ContactPairArchiveService
     public let sync: ContactSyncService
+
+    @Cached(CacheKey.cnContacts) public var cachedCNContacts: [CNContact]?
+
+    @Cached(CacheKey.contacts) private var cachedContacts: [Contact]?
 
     // MARK: - Init
 
@@ -66,10 +69,10 @@ public struct ContactService {
         }
 
         func completeWithCacheIfPresent() {
-            guard let cachedValue = cache.value(forKey: .contacts) as? [Contact],
-                  !cachedValue.isEmpty,
+            guard let cachedContacts,
+                  !cachedContacts.isEmpty,
                   canComplete else { return }
-            completion(.success(cachedValue))
+            completion(.success(cachedContacts))
         }
 
         if cacheStrategy == .returnCacheFirst {
@@ -138,9 +141,9 @@ public struct ContactService {
                 return
             }
 
-            self.cache.set(cnContacts, forKey: .cnContacts)
             contacts = contacts.sorted { $0.firstName < $1.firstName }
-            self.cache.set(contacts, forKey: .contacts)
+            self.cachedCNContacts = cnContacts
+            self.cachedContacts = contacts
 
             guard canComplete else { return }
             completion(.success(contacts))
@@ -150,8 +153,8 @@ public struct ContactService {
     // MARK: - Fetch Contacts by Phone Number
 
     public func fetchContacts(by phoneNumber: PhoneNumber) async -> Callback<[Contact], Exception> {
-        guard let cachedValue = cache.value(forKey: .contacts) as? [Contact],
-              !cachedValue.isEmpty else {
+        guard let cachedContacts,
+              !cachedContacts.isEmpty else {
             let fetchAllContactsResult = await fetchAllContacts()
 
             switch fetchAllContactsResult {
@@ -172,11 +175,11 @@ public struct ContactService {
             return true
         }
 
-        let matches = cachedValue.filter { satisfiesConstraints($0) }
+        let matches = cachedContacts.filter { satisfiesConstraints($0) }
         guard !matches.isEmpty else {
             return .failure(.init(
                 "No contacts match the given phone number.",
-                extraParams: ["Contacts": cachedValue,
+                extraParams: ["Contacts": cachedContacts,
                               "PhoneNumber": phoneNumber.compiledNumberString],
                 metadata: [self, #file, #function, #line]
             ))
@@ -188,6 +191,7 @@ public struct ContactService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedCNContacts = nil
+        cachedContacts = nil
     }
 }

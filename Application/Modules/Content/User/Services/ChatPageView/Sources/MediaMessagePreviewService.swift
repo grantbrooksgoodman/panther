@@ -30,8 +30,11 @@ public final class MediaMessagePreviewService {
 
     // MARK: - Properties
 
-    public let cache: Cache<CacheKey> = .init()
+    @Cached(CacheKey.images) public var cachedImages: [URL: UIImage]?
+    @Cached(CacheKey.thumbnails) public var cachedThumbnails: [URL: UIImage]?
+
     public private(set) var isPreviewingMedia = false
+
     private let viewController: ChatPageViewController
 
     // MARK: - Computed Properties
@@ -89,7 +92,8 @@ public final class MediaMessagePreviewService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedImages = nil
+        cachedThumbnails = nil
     }
 
     // MARK: - Auxiliary

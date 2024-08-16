@@ -12,7 +12,7 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public struct CommonPropertyLists {
+public final class CommonPropertyLists {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -20,19 +20,23 @@ public struct CommonPropertyLists {
         case lookupTables
     }
 
+    // MARK: - Dependencies
+
+    @Dependency(\.mainBundle) private var mainBundle: Bundle
+
     // MARK: - Properties
 
     public static let shared = CommonPropertyLists()
 
-    private let cache: Cache<CacheKey> = .init()
+    @Cached(CacheKey.callingCodes) private var cachedCallingCodes: [String: String]?
+    @Cached(CacheKey.lookupTables) private var cachedLookupTables: [String: [String]]?
 
     // MARK: - Computed Properties
 
     public var callingCodes: [String: String] {
-        @Dependency(\.mainBundle) var mainBundle: Bundle
-        if let cachedValue = cache.value(forKey: .callingCodes) as? [String: String],
-           !cachedValue.isEmpty {
-            return cachedValue
+        if let cachedCallingCodes,
+           !cachedCallingCodes.isEmpty {
+            return cachedCallingCodes
         }
 
         guard let filePath = mainBundle.url(forResource: "CallingCodes", withExtension: "plist"),
@@ -41,15 +45,14 @@ public struct CommonPropertyLists {
             return .init()
         }
 
-        cache.set(dictionary, forKey: .callingCodes)
+        cachedCallingCodes = dictionary
         return dictionary
     }
 
     public var lookupTables: [String: [String]] {
-        @Dependency(\.mainBundle) var mainBundle: Bundle
-        if let cachedValue = cache.value(forKey: .lookupTables) as? [String: [String]],
-           !cachedValue.isEmpty {
-            return cachedValue
+        if let cachedLookupTables,
+           !cachedLookupTables.isEmpty {
+            return cachedLookupTables
         }
 
         guard let filePath = mainBundle.url(forResource: "LookupTables", withExtension: "plist"),
@@ -58,7 +61,7 @@ public struct CommonPropertyLists {
             return .init()
         }
 
-        cache.set(dictionary, forKey: .lookupTables)
+        cachedLookupTables = dictionary
         return dictionary
     }
 
@@ -69,6 +72,7 @@ public struct CommonPropertyLists {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedCallingCodes = nil
+        cachedLookupTables = nil
     }
 }

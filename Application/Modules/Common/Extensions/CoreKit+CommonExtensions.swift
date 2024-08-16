@@ -31,19 +31,23 @@ public extension CoreKit.Utilities {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         @Dependency(\.commonServices) var commonServices: CommonServices
         @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
-        @Dependency(\.networking.services) var networkServices: NetworkServices
+        @Dependency(\.networking) var networking: Networking
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
 
         commonServices.contact.contactPairArchive.clearArchive()
-        networkServices.conversation.archive.clearArchive()
+        networking.services.conversation.archive.clearArchive()
         localTranslationArchiver.clearArchive()
+
+        ContactImageArchive.clearCache()
+        Localization.clearCache()
 
         chatInfoPageViewService.clearCache()
         chatPageViewService.mediaMessagePreview?.clearCache()
         commonServices.contact.clearCache()
         commonServices.propertyLists.clearCache()
         commonServices.regionDetail.clearCache()
-        networkServices.user.clearCache()
+        networking.database.clearCache()
+        networking.services.user.clearCache()
         settingsPageViewService.clearCache()
     }
 

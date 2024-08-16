@@ -41,8 +41,7 @@ public final class SettingsPageViewService {
 
     // MARK: - Properties
 
-    private let cache: Cache<CacheKey> = .init()
-
+    @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
     @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Init
@@ -309,8 +308,8 @@ public final class SettingsPageViewService {
 
     /// `.viewAppeared`
     public func fetchCNContactForCurrentUser() async -> Callback<CNContact, Exception> {
-        if let cachedValue = cache.value(forKey: .cnContactForCurrentUser) as? CNContact {
-            return .success(cachedValue)
+        if let cachedCNContactForCurrentUser {
+            return .success(cachedCNContactForCurrentUser)
         }
 
         guard let currentUser = userSession.currentUser else {
@@ -324,7 +323,7 @@ public final class SettingsPageViewService {
 
         switch firstCNContactResult {
         case let .success(cnContact):
-            cache.set(cnContact, forKey: .cnContactForCurrentUser)
+            cachedCNContactForCurrentUser = cnContact
             return .success(cnContact)
 
         case let .failure(exception):
@@ -335,6 +334,6 @@ public final class SettingsPageViewService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedCNContactForCurrentUser = nil
     }
 }

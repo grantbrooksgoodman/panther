@@ -19,8 +19,8 @@ public extension ContactService {
 
         let commonParams = ["PhoneNumber": phoneNumber.encoded]
 
-        guard let cachedValue = cache.value(forKey: .cnContacts) as? [CNContact],
-              !cachedValue.isEmpty else {
+        guard let cachedCNContacts,
+              !cachedCNContacts.isEmpty else {
             let fetchAllContactsResult = await fetchAllContacts()
 
             switch fetchAllContactsResult {
@@ -41,7 +41,7 @@ public extension ContactService {
             return true
         }
 
-        guard let match = cachedValue.first(where: { satisfiesConstraints(.init($0)) }) else {
+        guard let match = cachedCNContacts.first(where: { satisfiesConstraints(.init($0)) }) else {
             return .failure(.init(
                 "No contacts found for provided phone number.",
                 metadata: [self, #file, #function, #line]

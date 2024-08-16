@@ -19,29 +19,28 @@ extension MediaFile: MediaItem {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
 
-        if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .thumbnails) as? [URL: UIImage],
+        if let cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails,
            let thumbnailPath = urlPath.thumbnailPath,
-           let cachedThumbnail = cacheValue[thumbnailPath] {
+           let cachedThumbnail = cachedThumbnails[thumbnailPath] {
             return cachedThumbnail
-        } else if let cacheValue = mediaMessagePreviewService?.cache.value(forKey: .images) as? [URL: UIImage],
-                  let cachedImage = cacheValue[urlPath] {
+        } else if let cachedImage = mediaMessagePreviewService?.cachedImages?[urlPath] {
             return cachedImage
         }
 
         guard let thumbnailPath = urlPath.thumbnailPath,
               fileManager.fileExists(atPath: thumbnailPath.path()) else {
             guard let image = UIImage(contentsOfFile: urlPath.path()) else { return .missing }
-            if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .images) as? [URL: UIImage] {
-                cacheValue[urlPath] = image
-                mediaMessagePreviewService?.cache.set(cacheValue, forKey: .images)
+            if var cachedImages = mediaMessagePreviewService?.cachedImages {
+                cachedImages[urlPath] = image
+                mediaMessagePreviewService?.cachedImages = cachedImages
             }
             return image
         }
 
         guard let image = UIImage(contentsOfFile: thumbnailPath.path()) else { return nil }
-        if var cacheValue = mediaMessagePreviewService?.cache.value(forKey: .thumbnails) as? [URL: UIImage] {
-            cacheValue[thumbnailPath] = image
-            mediaMessagePreviewService?.cache.set(cacheValue, forKey: .thumbnails)
+        if var cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails {
+            cachedThumbnails[thumbnailPath] = image
+            mediaMessagePreviewService?.cachedThumbnails = cachedThumbnails
         }
         return image
     }

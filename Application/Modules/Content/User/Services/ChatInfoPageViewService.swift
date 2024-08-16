@@ -15,7 +15,7 @@ import UIKit
 import AlertKit
 import CoreArchitecture
 
-public struct ChatInfoPageViewService {
+public final class ChatInfoPageViewService {
     // MARK: - Types
 
     public enum MetadataChangeType {
@@ -36,7 +36,8 @@ public struct ChatInfoPageViewService {
 
     // MARK: - Properties
 
-    private let cache: Cache<CacheKey> = .init()
+    // swiftlint:disable:next identifier_name
+    @Cached(CacheKey.participantsForEncodedConversationIDs) private var cachedParticipantsForEncodedConversationIDs: [String: [ChatParticipant]]?
 
     // MARK: - Init
 
@@ -50,8 +51,9 @@ public struct ChatInfoPageViewService {
             return .failure(.init("No current conversation.", metadata: [self, #file, #function, #line]))
         }
 
-        if let cachedValue = cache.value(forKey: .participantsForEncodedConversationIDs) as? [String: [ChatParticipant]],
-           let participants = cachedValue[currentConversation.id.encoded] {
+        // swiftlint:disable:next identifier_name
+        if let cachedParticipantsForEncodedConversationIDs,
+           let participants = cachedParticipantsForEncodedConversationIDs[currentConversation.id.encoded] {
             return .success(participants)
         }
 
@@ -122,11 +124,11 @@ public struct ChatInfoPageViewService {
         func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] { participants.sorted(by: { $0.displayName < $1.displayName }) }
         let sortedParticipants = sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
 
-        if var cachedValue = cache.value(forKey: .participantsForEncodedConversationIDs) as? [String: [ChatParticipant]] {
+        if var cachedValue = cachedParticipantsForEncodedConversationIDs {
             cachedValue[currentConversation.id.encoded] = sortedParticipants
-            cache.set(cachedValue, forKey: .participantsForEncodedConversationIDs)
+            cachedParticipantsForEncodedConversationIDs = cachedValue
         } else {
-            cache.set([currentConversation.id.encoded: sortedParticipants], forKey: .participantsForEncodedConversationIDs)
+            cachedParticipantsForEncodedConversationIDs = [currentConversation.id.encoded: sortedParticipants]
         }
 
         return .success(sortedParticipants)
@@ -219,6 +221,6 @@ public struct ChatInfoPageViewService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cache.clear()
+        cachedParticipantsForEncodedConversationIDs = nil
     }
 }

@@ -85,14 +85,13 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard let users = currentConversation?.users,
-              let matchingUser = users.first(where: { $0.id == message.fromAccountID }), // TODO: Cache the below value.
+              let matchingUser = users.first(where: { $0.id == message.fromAccountID }),
               let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
             configureGenericAvatar()
             return
         }
 
-        guard let imageData = contactPair.contact.imageData,
-              let image = UIImage(data: imageData) else {
+        guard let image = contactPair.contact.image else {
             avatarView.set(avatar: .init(initials: contactPair.contact.initials))
             return
         }
