@@ -33,13 +33,13 @@ public final class MenuService {
 
     // MARK: - Properties
 
-    public private(set) var isShowingMenu = false
     public private(set) var speakingCell: MessageContentCell?
     public private(set) var speakingMessage: Message?
 
     private let menuInteraction: UIEditMenuInteraction
     private let viewController: ChatPageViewController
 
+    private var isShowingMenu = false
     private var selectedCell: MessageContentCell?
 
     // MARK: - Computed Properties
@@ -91,6 +91,7 @@ public final class MenuService {
     // MARK: - Dismiss Menu
 
     public func dismissMenu() {
+        guard isShowingMenu else { return }
         menuInteraction.dismissMenu()
     }
 
@@ -184,7 +185,7 @@ public final class MenuService {
 
     private func handleSpeakAction() {
         Task { @MainActor in
-            func processed(_ string: String?) -> String { string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? .bangQualifiedEmpty }
+            func processed(_ string: String?) -> String { string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? "" }
 
             guard let selectedCell = selectedCell as? TextMessageCell,
                   let selectedMessage,

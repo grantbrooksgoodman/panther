@@ -31,7 +31,7 @@ public final class User: Codable, Equatable {
 
     // MARK: - Computed Properties
 
-    /// - Note: This property will return `0` for users other than the current user.
+    /// - Note: Will return `0` for users other than the current user.
     public var badgeNumber: Int {
         get async {
             func calculateBadgeNumber() async -> Int {

@@ -11,7 +11,6 @@ import Foundation
 
 /* 3rd-party */
 import CoreArchitecture
-import Translator
 
 public extension CoreKit.GCD {
     var newSerialQueue: DispatchQueue {
@@ -26,30 +25,7 @@ public extension CoreKit.GCD {
 }
 
 public extension CoreKit.Utilities {
-    func clearCaches() {
-        @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
-        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        @Dependency(\.commonServices) var commonServices: CommonServices
-        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
-        @Dependency(\.networking) var networking: Networking
-        @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
-
-        commonServices.contact.contactPairArchive.clearArchive()
-        networking.services.conversation.archive.clearArchive()
-        localTranslationArchiver.clearArchive()
-
-        ContactImageArchive.clearCache()
-        Localization.clearCache()
-
-        chatInfoPageViewService.clearCache()
-        chatPageViewService.mediaMessagePreview?.clearCache()
-        commonServices.contact.clearCache()
-        commonServices.propertyLists.clearCache()
-        commonServices.regionDetail.clearCache()
-        networking.database.clearCache()
-        networking.services.user.clearCache()
-        settingsPageViewService.clearCache()
-    }
+    // MARK: - Methods
 
     func destroyConversationDatabase() async -> Exception? {
         @Dependency(\.networking) var networking: Networking

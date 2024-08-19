@@ -446,10 +446,10 @@ public final class UserSessionService {
 
         guard let conversations = currentUser
             .conversations?
-            .filter({ $0.participants.first(where: { $0.userID == currentUser.id })?.isTyping ?? false }) else { return nil }
+            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return nil }
 
         for conversation in conversations {
-            guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUser.id }) else { continue }
+            guard let currentUserParticipant = conversation.currentUserParticipant else { continue }
 
             var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
             newParticipants.append(.init(

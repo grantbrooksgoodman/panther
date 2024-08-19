@@ -125,6 +125,12 @@ public final class ChatPageViewService {
             self.inputBar?.configureInputBar(forceUpdate: true)
         }
 
+        Task {
+            if let exception = await typingIndicator?.textViewDidChange(to: "") {
+                Logger.log(exception, with: .toast())
+            }
+        }
+
         viewController?.becomeFirstResponder()
         viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
@@ -142,8 +148,8 @@ public final class ChatPageViewService {
         guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
         chatPageState.setIsPresented(false)
 
-        Task {
-            if let exception = await inputBar?.textViewDidChange(to: "") {
+        Task.background {
+            if let exception = await typingIndicator?.textViewDidChange(to: "") {
                 Logger.log(exception, with: .toast())
             }
         }
@@ -183,6 +189,7 @@ public final class ChatPageViewService {
 
     public func redrawForAppearanceChange() {
         Task { @MainActor in
+            inputBar?.configureInputBar(forceUpdate: true)
             inputBar?.setAttachMediaButtonImage()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
             NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
@@ -195,6 +202,7 @@ public final class ChatPageViewService {
 
     public func reloadCollectionView() {
         Task { @MainActor in
+            menu?.dismissMenu()
             viewController?.messagesCollectionView.reloadDataAndKeepOffset()
         }
     }

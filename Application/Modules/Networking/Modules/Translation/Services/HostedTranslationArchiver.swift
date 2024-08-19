@@ -16,7 +16,7 @@ import Translator
 public struct HostedTranslationArchiver {
     // MARK: - Dependencies
 
-    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiver
+    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
     @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Archive Recent Translations
@@ -59,7 +59,7 @@ public struct HostedTranslationArchiver {
 
                 let decoded: Translation = .init(
                     input: .init(components.input),
-                    output: components.output.sanitized,
+                    output: components.output,
                     languagePair: languagePair
                 )
                 localTranslationArchiver.addValue(decoded)
@@ -119,7 +119,7 @@ public struct HostedTranslationArchiver {
             return .success(
                 .init(
                     input: .init(components.input),
-                    output: components.output.sanitized,
+                    output: components.output,
                     languagePair: languagePair
                 )
             )

@@ -18,7 +18,6 @@ public struct SelectLanguagePageReducer: Reducer {
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
 
     // MARK: - Properties
@@ -101,7 +100,7 @@ public struct SelectLanguagePageReducer: Reducer {
             }
 
             if let selectedLanguageCode = localizedLanguageCodeDictionary.keys(for: state.selectedLanguage).first {
-                regionDetailService.clearCache()
+                coreUtilities.clearCaches(domains: [.regionDetailService])
                 coreUtilities.setLanguageCode(selectedLanguageCode)
 
                 navigationCoordinator.navigate(to: .onboarding(.push(.verifyNumber)))

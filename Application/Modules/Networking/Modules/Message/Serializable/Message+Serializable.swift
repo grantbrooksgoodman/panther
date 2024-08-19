@@ -107,7 +107,8 @@ extension Message: Serializable {
         let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
         let references = translationReferences.compactMap { TranslationReference($0) }
 
-        // NIT: Fuzzy on what effect making translations idempotent has.
+        /* If all the translations are originally from the current language code,
+         makeIdempotent will only decode the first reference and return a translation built from the original input. */
         let getTranslationsResult = await getTranslations(
             references: references,
             makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode } && references.count > 1
@@ -137,7 +138,10 @@ extension Message: Serializable {
         func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
             @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
 
-            func validateAndReturn(_ translation: Translation) -> Callback<Translation, Exception> {
+            let decodeResult = await Translation.decode(from: reference)
+
+            switch decodeResult {
+            case let .success(translation):
                 if let exception = TranslationValidator.validate(
                     translation: translation,
                     metadata: [self, #file, #function, #line]
@@ -146,29 +150,6 @@ extension Message: Serializable {
                 }
 
                 return .success(translation)
-            }
-
-            let decodeResult = await Translation.decode(from: reference)
-
-            switch decodeResult {
-            case let .success(translation):
-                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
-
-                guard !makeIdempotent else {
-                    let idempotentTranslation: Translation = .init(
-                        input: input,
-                        output: input.value.base64Decoded,
-                        languagePair: .init(from: translation.languagePair.from, to: translation.languagePair.from)
-                    )
-
-                    return validateAndReturn(idempotentTranslation)
-                }
-
-                return validateAndReturn(.init(
-                    input: input,
-                    output: translation.output.base64Decoded,
-                    languagePair: translation.languagePair
-                ))
 
             case let .failure(exception):
                 return .failure(exception)
@@ -183,18 +164,7 @@ extension Message: Serializable {
             ))
         }
 
-        guard !makeIdempotent else {
-            let getTranslationResult = await getTranslation(firstReference)
-
-            switch getTranslationResult {
-            case let .success(translation):
-                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
-                return .success([.init(input: input, output: translation.output.base64Decoded, languagePair: translation.languagePair)])
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
+        let references = makeIdempotent ? [firstReference] : references
 
         var translations = [Translation]()
         for reference in references {
@@ -202,8 +172,7 @@ extension Message: Serializable {
 
             switch getTranslationResult {
             case let .success(translation):
-                let input = TranslationInput(translation.input.original.base64Decoded, alternate: translation.input.alternate?.base64Decoded)
-                translations.append(.init(input: input, output: translation.output.base64Decoded, languagePair: translation.languagePair))
+                translations.append(translation)
 
             case let .failure(exception):
                 return .failure(exception)

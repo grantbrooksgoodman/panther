@@ -28,11 +28,11 @@ extension Translation: Serializable {
 
     public static func decode(from data: TranslationReference) async -> Callback<Translation, Exception> {
         @Dependency(\.networking.services.translation.archiver) var hostedTranslationArchiver: HostedTranslationArchiver
-        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
+        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiverDelegate
 
         func addToArchive(_ translation: Translation) {
             guard translation.input.value != translation.output else { return }
-            localTranslationArchiver.addValue(translation.withSanitizedOutput)
+            localTranslationArchiver.addValue(translation)
         }
 
         switch data.type {
@@ -55,12 +55,11 @@ extension Translation: Serializable {
                 return .success(decoded)
             }
 
-            // FIXME: Experienced crash here. Consider using await MainActor.run.
             if let archivedTranslation = localTranslationArchiver.getValue(
-                hash: hash,
+                inputValueEncodedHash: hash,
                 languagePair: data.languagePair
             ) {
-                return .success(archivedTranslation.withSanitizedOutput)
+                return .success(archivedTranslation)
             }
 
             let findArchivedTranslationResult = await hostedTranslationArchiver.findArchivedTranslation(
@@ -78,11 +77,14 @@ extension Translation: Serializable {
             }
 
         case let .idempotent(encodedValue):
-            return .success(.init(
+            let decoded: Translation = .init(
                 input: .init(encodedValue.base64Decoded),
-                output: encodedValue.base64Decoded,
+                output: encodedValue.base64Decoded.sanitized,
                 languagePair: data.languagePair
-            ))
+            )
+
+            addToArchive(decoded)
+            return .success(decoded)
         }
     }
 }

@@ -72,7 +72,7 @@ public final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     public func setCurrentConversation(_ currentConversation: Conversation) {
-        completeMessageArray = currentConversation.messages?.sortedByAscendingSentDate
+        completeMessageArray = currentConversation.messages?.unique.sortedByAscendingSentDate
         self.currentConversation = withMessagesOffset(currentConversation.withMessagesSortedByAscendingSentDate)
     }
 
@@ -99,21 +99,19 @@ public final class ConversationSessionService {
             metadata: [self, #file, #function, #line]
         )
 
-        if let currentUserID {
-            guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUserID }),
-                  !currentUserParticipant.hasDeletedConversation else {
-                Logger.log(
-                    .init(
-                        "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
-                        extraParams: ["ConversationIDKey": conversation.id.key,
-                                      "ConversationIDHash": conversation.id.hash],
-                        metadata: [self, #file, #function, #line]
-                    ),
-                    domain: .conversation
-                )
+        guard let currentUserParticipant = conversation.currentUserParticipant,
+              !currentUserParticipant.hasDeletedConversation else {
+            Logger.log(
+                .init(
+                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    extraParams: ["ConversationIDKey": conversation.id.key,
+                                  "ConversationIDHash": conversation.id.hash],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .conversation
+            )
 
-                return await updateData(conversation)
-            }
+            return await updateData(conversation)
         }
 
         guard let currentMessages = conversation.messages?.uniquedByID else {
@@ -187,7 +185,7 @@ public final class ConversationSessionService {
     private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
         let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: hashKeyPath)
+        let getValuesResult = await networking.database.getValues(at: hashKeyPath, cacheStrategy: .disregardCache)
 
         switch getValuesResult {
         case let .success(values):
@@ -376,7 +374,7 @@ public final class ConversationSessionService {
 
     private func withMessagesOffset(_ conversation: Conversation) -> Conversation {
         let amountToGet = Int(messageOffset)
-        guard let messages = conversation.messages,
+        guard let messages = conversation.messages?.unique,
               messages.count > amountToGet else { return conversation }
 
         return .init(

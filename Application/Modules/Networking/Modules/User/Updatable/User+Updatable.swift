@@ -28,7 +28,7 @@ extension User: Updatable {
         ]
     }
 
-    // MARK: - Methods
+    // MARK: - Modify Key
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
         switch key {
@@ -72,6 +72,8 @@ extension User: Updatable {
             )
         }
     }
+
+    // MARK: - Upate Value
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<User, Exception> {
         @Dependency(\.networking) var networking: Networking

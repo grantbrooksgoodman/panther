@@ -57,16 +57,14 @@ public struct ConversationsPageObserver: Observer {
         case .newChatSheetDismissed:
             send(.isPresentingNewChatSheetChanged(false))
 
-        case .traitCollectionChanged:
+        case .traitCollectionChanged,
+             .updatedContactPairArchive:
             guard !chatPageState.isPresented else {
                 chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { send(.traitCollectionChanged) }
                 return
             }
 
             send(.traitCollectionChanged)
-
-        case .updatedContactPairArchive:
-            send(.updatedContactPairArchive)
 
         case .updatedCurrentUser:
             guard chatPageState.isPresented else {

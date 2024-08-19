@@ -34,7 +34,6 @@ public struct ConversationsPageReducer: Reducer {
 
         case pulledToRefresh
         case traitCollectionChanged
-        case updatedContactPairArchive
         case updatedCurrentUser
     }
 
@@ -106,8 +105,9 @@ public struct ConversationsPageReducer: Reducer {
             }
 
         case .animatedComposeToolbarButtonAppeared:
+            let currentAnimationAmount = state.animationAmount
             return .task(delay: .seconds(1)) {
-                .composeToolbarButtonAnimationAmountSet(1.4)
+                .composeToolbarButtonAnimationAmountSet(currentAnimationAmount == 1.4 ? 1 : 1.4)
             }
 
         case .composeToolbarButtonTapped:
@@ -129,8 +129,7 @@ public struct ConversationsPageReducer: Reducer {
         case .settingsToolbarButtonTapped:
             state.isPresentingSettingsSheet = true
 
-        case .traitCollectionChanged,
-             .updatedContactPairArchive:
+        case .traitCollectionChanged:
             NavigationBar.setAppearance(.appDefault)
             state.viewID = UUID()
 

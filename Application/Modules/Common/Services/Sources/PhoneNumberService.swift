@@ -14,13 +14,25 @@ import Foundation
 import CoreArchitecture
 import PhoneNumberKit
 
-public struct PhoneNumberService {
+public final class PhoneNumberService {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case possibleCallingCodesForNumbers
+        case possibleHashesForNumbers
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit
     @Dependency(\.commonServices) private var services: CommonServices
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.possibleCallingCodesForNumbers) private var cachedPossibleCallingCodesForNumbers: [String: [String]]?
+    @Cached(CacheKey.possibleHashesForNumbers) private var cachedPossibleHashesForNumbers: [String: [String]]?
 
     // MARK: - Computed Properties
 
@@ -36,7 +48,18 @@ public struct PhoneNumberService {
     // MARK: - Calling Code Determination
 
     public func possibleCallingCodes(for number: String) -> [String]? {
-        guard let countryCodes = matchingCountryCodes(for: number) else { return callingCodes(for: number.count) }
+        if let cachedPossibleHashesForNumbers,
+           let cachedValue = cachedPossibleHashesForNumbers[number] {
+            return cachedValue
+        }
+
+        guard let countryCodes = matchingCountryCodes(for: number) ?? callingCodes(for: number.count),
+              !countryCodes.isEmpty else { return nil }
+
+        var newCacheValue = cachedPossibleHashesForNumbers ?? [:]
+        newCacheValue[number] = countryCodes
+        cachedPossibleHashesForNumbers = newCacheValue
+
         return countryCodes
     }
 
@@ -92,6 +115,11 @@ public struct PhoneNumberService {
     // MARK: - Hash Generation
 
     public func possibleHashes(for number: String) -> [String]? {
+        if let cachedPossibleCallingCodesForNumbers,
+           let cachedValue = cachedPossibleCallingCodesForNumbers[number] {
+            return cachedValue
+        }
+
         var hashes = [number.encodedHash]
 
         if let countryCodes = matchingCountryCodes(for: number) {
@@ -100,7 +128,11 @@ public struct PhoneNumberService {
             }
         }
 
-        return hashes.isEmpty ? nil : hashes
+        var newCacheValue = cachedPossibleCallingCodesForNumbers ?? [:]
+        newCacheValue[number] = hashes
+        cachedPossibleCallingCodesForNumbers = newCacheValue
+
+        return hashes
     }
 
     public func possibleHashes(for numbers: [String]) -> [String]? {

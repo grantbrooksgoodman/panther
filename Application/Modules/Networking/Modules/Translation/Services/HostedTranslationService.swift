@@ -16,7 +16,7 @@ import Translator
 public struct HostedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiver
+    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
     @Dependency(\.translationService) private var translator: TranslationService
 
     // MARK: - Properties
@@ -51,7 +51,7 @@ public struct HostedTranslationService {
         case let .success(translations):
             let outputs = strings.keyPairs.reduce(into: [TranslationOutputMap]()) { partialResult, keyPair in
                 if let translation = translations.first(where: { $0.input.value == keyPair.input.value }) {
-                    partialResult.append(.init(key: keyPair.key, value: translation.output.sanitized))
+                    partialResult.append(.init(key: keyPair.key, value: translation.output))
                 } else {
                     partialResult.append(keyPair.defaultOutputMap)
                 }
@@ -89,7 +89,7 @@ public struct HostedTranslationService {
 
             switch translateResult {
             case let .success(translation):
-                translations.append(translation.withSanitizedOutput)
+                translations.append(translation)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -122,22 +122,25 @@ public struct HostedTranslationService {
         if languagePair.isIdempotent {
             let translation: Translation = .init(
                 input: input,
-                output: input.value,
+                output: input.value.sanitized,
                 languagePair: languagePair
             )
 
-            return .success(translation.withSanitizedOutput)
+            return .success(translation)
         }
 
         if let archivedTranslation = localTranslationArchiver.getValue(
-            hash: input.value.encodedHash,
+            inputValueEncodedHash: input.value.encodedHash,
             languagePair: languagePair
         ) {
             if TranslationValidator.validate(
                 translation: archivedTranslation,
                 metadata: [self, #file, #function, #line]
             ) != nil || archivedTranslation.input.value == archivedTranslation.output {
-                localTranslationArchiver.removeValue(input: input, languagePair: languagePair)
+                localTranslationArchiver.removeValue(
+                    inputValueEncodedHash: input.value.encodedHash,
+                    languagePair: languagePair
+                )
                 return await translate(
                     input,
                     with: languagePair,
@@ -145,7 +148,7 @@ public struct HostedTranslationService {
                 )
             }
 
-            return .success(archivedTranslation.withSanitizedOutput)
+            return .success(archivedTranslation)
         }
 
         let sameInputOutputLanguage = await languageRecognition.matchConfidence(for: input.value, inLanguage: languagePair.to) > 0.8
@@ -182,11 +185,9 @@ public struct HostedTranslationService {
                 )
             }
 
-            let sanitizedTranslation = translation.withSanitizedOutput
-            guard sanitizedTranslation.input.value != sanitizedTranslation.output else { return .success(sanitizedTranslation) }
-
-            localTranslationArchiver.addValue(sanitizedTranslation)
-            return .success(sanitizedTranslation)
+            guard translation.input.value != translation.output else { return .success(translation) }
+            localTranslationArchiver.addValue(translation)
+            return .success(translation)
 
         case let .failure(exception):
             guard exception.isEqual(to: .noValueExists) else {
@@ -219,7 +220,7 @@ public struct HostedTranslationService {
             case let .success(translation):
                 let translation: Translation = .init(
                     input: input,
-                    output: translation.output.sanitized,
+                    output: translation.output,
                     languagePair: translation.languagePair
                 )
 

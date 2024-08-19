@@ -26,7 +26,7 @@ public final class ChatInfoPageViewService {
     }
 
     private enum CacheKey: String, CaseIterable {
-        case participantsForEncodedConversationIDs
+        case chatParticipantsForUserIDs
     }
 
     // MARK: - Dependencies
@@ -36,12 +36,7 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name
-    @Cached(CacheKey.participantsForEncodedConversationIDs) private var cachedParticipantsForEncodedConversationIDs: [String: [ChatParticipant]]?
-
-    // MARK: - Init
-
-    public init() {}
+    @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
 
     // MARK: - Get Chat Participants
 
@@ -49,12 +44,6 @@ public final class ChatInfoPageViewService {
     public func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
         guard let currentConversation else {
             return .failure(.init("No current conversation.", metadata: [self, #file, #function, #line]))
-        }
-
-        // swiftlint:disable:next identifier_name
-        if let cachedParticipantsForEncodedConversationIDs,
-           let participants = cachedParticipantsForEncodedConversationIDs[currentConversation.id.encoded] {
-            return .success(participants)
         }
 
         guard let users = currentConversation.users else {
@@ -68,6 +57,13 @@ public final class ChatInfoPageViewService {
         var chatParticipants = [ChatParticipant]()
 
         for user in users {
+            if let cachedChatParticipantsForUserIDs,
+               let cachedChatParticipant = cachedChatParticipantsForUserIDs[user.id] {
+                chatParticipants.append(cachedChatParticipant)
+                continue
+            }
+
+            var chatParticipant: ChatParticipant?
             let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
 
             switch firstCNContactResult {
@@ -77,12 +73,10 @@ public final class ChatInfoPageViewService {
                     numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
                 )
 
-                chatParticipants.append(
-                    .init(
-                        displayName: contactPair.contact.fullName,
-                        cnContactContainer: .init(cnContact.mutableCopy() as? CNMutableContact),
-                        contactPair: contactPair
-                    )
+                chatParticipant = .init(
+                    displayName: contactPair.contact.fullName,
+                    cnContactContainer: .init(cnContact.mutableCopy() as? CNMutableContact),
+                    contactPair: contactPair
                 )
 
             case .failure:
@@ -99,13 +93,21 @@ public final class ChatInfoPageViewService {
                     numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
                 )
 
-                chatParticipants.append(
-                    .init(
-                        displayName: contactPair.contact.fullName,
-                        cnContactContainer: .init(cnContact, isUnknown: true),
-                        contactPair: contactPair
-                    )
+                chatParticipant = .init(
+                    displayName: contactPair.contact.fullName,
+                    cnContactContainer: .init(cnContact, isUnknown: true),
+                    contactPair: contactPair
                 )
+            }
+
+            guard let chatParticipant else { continue }
+            chatParticipants.append(chatParticipant)
+
+            if var cachedValue = cachedChatParticipantsForUserIDs {
+                cachedValue[user.id] = chatParticipant
+                cachedChatParticipantsForUserIDs = cachedValue
+            } else {
+                cachedChatParticipantsForUserIDs = [user.id: chatParticipant]
             }
         }
 
@@ -122,16 +124,7 @@ public final class ChatInfoPageViewService {
         }
 
         func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] { participants.sorted(by: { $0.displayName < $1.displayName }) }
-        let sortedParticipants = sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
-
-        if var cachedValue = cachedParticipantsForEncodedConversationIDs {
-            cachedValue[currentConversation.id.encoded] = sortedParticipants
-            cachedParticipantsForEncodedConversationIDs = cachedValue
-        } else {
-            cachedParticipantsForEncodedConversationIDs = [currentConversation.id.encoded: sortedParticipants]
-        }
-
-        return .success(sortedParticipants)
+        return .success(sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix))
     }
 
     // MARK: - Present Change Metadata Action Sheet
@@ -221,6 +214,6 @@ public final class ChatInfoPageViewService {
     // MARK: - Clear Cache
 
     public func clearCache() {
-        cachedParticipantsForEncodedConversationIDs = nil
+        cachedChatParticipantsForUserIDs = nil
     }
 }

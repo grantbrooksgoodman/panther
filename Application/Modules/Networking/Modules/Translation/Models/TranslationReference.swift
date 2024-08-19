@@ -72,7 +72,7 @@ public struct TranslationReference: Codable, Equatable {
 
         self.init(
             languagePair: languagePair,
-            type: isIdempotent ? .idempotent(reference.base64Encoded) : .archived(reference)
+            type: isIdempotent ? .idempotent(reference) : .archived(reference)
         )
     }
 

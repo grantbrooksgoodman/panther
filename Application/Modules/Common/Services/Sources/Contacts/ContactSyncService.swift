@@ -15,6 +15,7 @@ import CoreArchitecture
 public struct ContactSyncService {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -37,7 +38,8 @@ public struct ContactSyncService {
                     domain: .contacts,
                     metadata: [self, #file, #function, #line]
                 )
-                services.contact.contactPairArchive.clearArchive()
+
+                coreUtilities.clearCaches(domains: [.contactPairArchive])
                 return await updateContactPairArchive()
             }
 
@@ -62,9 +64,7 @@ public struct ContactSyncService {
         case let .success(localUserNumberHashes):
             guard let persistedLocalUserNumberHashes,
                   persistedLocalUserNumberHashes.sorted() == localUserNumberHashes.sorted() else {
-                if let exception = await updatePersistedLocalUserNumberHashes(with: localUserNumberHashes) {
-                    return .failure(exception)
-                }
+                persistedLocalUserNumberHashes = localUserNumberHashes
                 return .success(true)
             }
 
@@ -74,9 +74,7 @@ public struct ContactSyncService {
             case let .success(serverUserNumberHashes):
                 guard let persistedServerUserNumberHashes,
                       persistedServerUserNumberHashes.sorted() == serverUserNumberHashes.sorted() else {
-                    if let exception = await updatePersistedServerUserNumberHashes(with: serverUserNumberHashes) {
-                        return .failure(exception)
-                    }
+                    persistedServerUserNumberHashes = serverUserNumberHashes
                     return .success(true)
                 }
 
@@ -202,45 +200,5 @@ public struct ContactSyncService {
         case let .failure(exception):
             return .failure(exception)
         }
-    }
-
-    // MARK: - Persisted Hash Updating
-
-    private func updatePersistedLocalUserNumberHashes(with value: [String]? = nil) async -> Exception? {
-        guard let value,
-              !value.isEmpty else {
-            let getLocalUserNumberHashesResult = await getLocalUserNumberHashes()
-
-            switch getLocalUserNumberHashesResult {
-            case let .success(localUserNumberHashes):
-                persistedLocalUserNumberHashes = localUserNumberHashes
-            case let .failure(exception):
-                return exception
-            }
-
-            return nil
-        }
-
-        persistedLocalUserNumberHashes = value
-        return nil
-    }
-
-    private func updatePersistedServerUserNumberHashes(with value: [String]? = nil) async -> Exception? {
-        guard let value,
-              !value.isEmpty else {
-            let getServerUserNumberHashesResult = await getServerUserNumberHashes()
-
-            switch getServerUserNumberHashesResult {
-            case let .success(serverUserNumberHashes):
-                persistedServerUserNumberHashes = serverUserNumberHashes
-            case let .failure(exception):
-                return exception
-            }
-
-            return nil
-        }
-
-        persistedServerUserNumberHashes = value
-        return nil
     }
 }

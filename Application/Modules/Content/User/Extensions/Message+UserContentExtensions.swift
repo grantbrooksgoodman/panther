@@ -44,7 +44,7 @@ extension Message: MessageType {
 
                 return .attributedText(
                     .messageCellString(
-                        isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
+                        isFromCurrentUser ? translation.input.value.sanitized : translation.output,
                         foregroundColor: attributedStringForegroundColor
                     )
                 )
@@ -64,12 +64,12 @@ extension Message: MessageType {
 
         guard let translation else { return .text("�") }
         guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
-            return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized)
+            return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output)
         }
 
         return .attributedText(
             .messageCellString(
-                isFromCurrentUser ? translation.output.sanitized : translation.input.value.sanitized,
+                isFromCurrentUser ? translation.output : translation.input.value.sanitized,
                 foregroundColor: attributedStringForegroundColor
             )
         )

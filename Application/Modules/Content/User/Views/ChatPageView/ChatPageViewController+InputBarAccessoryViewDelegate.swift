@@ -28,9 +28,9 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
     // MARK: - Text View Did Change
 
     public func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
-        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
-        Task {
-            if let exception = await inputBarService?.textViewDidChange(to: text) {
+        @Dependency(\.chatPageViewService.typingIndicator) var typingIndicatorService: TypingIndicatorService?
+        Task.background {
+            if let exception = await typingIndicatorService?.textViewDidChange(to: text) {
                 Logger.log(exception)
             }
         }

@@ -11,12 +11,6 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-extension String: EncodedHashable {
-    public var hashFactors: [String] {
-        [self]
-    }
-}
-
 public extension String {
     var alphaEncoded: String {
         addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? self

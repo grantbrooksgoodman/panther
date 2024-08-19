@@ -114,8 +114,7 @@ extension Conversation: Serializable {
             return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserParticipant = participants.first(where: { $0.userID == currentUserID }),
+        guard let currentUserParticipant = participants.firstWithCurrentUserID,
               !currentUserParticipant.hasDeletedConversation else {
             let decoded: Conversation = .init(
                 conversationID,

@@ -58,10 +58,10 @@ public enum PLISTGenerator {
         text: String,
         toLanguages: [String]
     ) async -> Callback<String, Exception> {
+        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.translationService) var translator: TranslationService
-        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiver
 
-        localTranslationArchiver.clearArchive()
+        coreUtilities.clearCaches(domains: [.localTranslationArchive])
         var resolvedTranslations = [String: String]()
 
         Logger.openStream(metadata: [self, #file, #function, #line])

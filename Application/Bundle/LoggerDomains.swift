@@ -14,6 +14,7 @@ public enum LoggerDomain: String, CaseIterable {
 
     case alertKit
     case analytics
+    case caches
     case general
     case bugPrevention
     case chatPageState

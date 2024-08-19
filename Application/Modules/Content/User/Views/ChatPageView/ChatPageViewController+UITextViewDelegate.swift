@@ -64,7 +64,8 @@ extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Did Change
 
     public func textViewDidChange(_ textView: UITextView) {
-        @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
-        inputBarService?.configureInputBar()
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        chatPageViewService.menu?.dismissMenu()
+        chatPageViewService.inputBar?.configureInputBar()
     }
 }

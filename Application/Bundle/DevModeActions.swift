@@ -20,16 +20,6 @@ import CoreArchitecture
 public extension DevModeService {
     // MARK: - Properties
 
-    static var clearCachesAction: DevModeAction {
-        func clearCaches() {
-            @Dependency(\.coreKit) var core: CoreKit
-            core.utils.clearCaches()
-            core.hud.flash(image: .success)
-        }
-
-        return .init(title: "Clear Caches", perform: clearCaches)
-    }
-
     static var destroyConversationDatabaseAction: DevModeAction {
         func destroyConversationDatabase() {
             Task {
@@ -105,7 +95,6 @@ public extension DevModeService {
         func presentCustomOptions() {
             Task {
                 let actions = [
-                    clearCachesAction,
                     eraseDocumentsDirectoryAction,
                     eraseTemporaryDirectoryAction,
                     setCurrentUserIDAction,

@@ -13,14 +13,28 @@ import Foundation
 import CoreArchitecture
 
 public struct ConversationsPageViewService {
+    // MARK: - Types
+
+    private enum ReloadType: String {
+        /// Force update last 1/3 of conversations.
+        case full
+
+        /// No force updating.
+        case minimal
+
+        /// Force update last conversation.
+        case partial
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.networking.services.conversation.archive) private var conversationArchive: ConversationArchiveService
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
-    // MARK: - Methods
+    // MARK: - Public
 
     public func viewAppeared() {
         userSession.startObservingCurrentUserChanges()
@@ -50,12 +64,12 @@ public struct ConversationsPageViewService {
                 metadata: [self, #file, #function, #line]
             )
 
-            coreGCD.after(.milliseconds(500)) {
+            core.gcd.after(.milliseconds(500)) {
                 Observables.traitCollectionChanged.trigger()
             }
         }
 
-        coreGCD.after(.seconds(1)) {
+        core.gcd.after(.seconds(1)) {
             Task { @MainActor in
                 guard await services.permission.notificationPermissionStatus == .unknown else {
                     services.review.promptToReview()
@@ -78,35 +92,67 @@ public struct ConversationsPageViewService {
 
     /// `.pulledToRefresh`
     public func reloadData() async -> Callback<[Conversation], Exception> {
-        func syncContactPairArchive() async -> Exception? {
-            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
-               !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
-                return exception
+        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
+
+        func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
+            if let conversations = userSession.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate,
+               let firstConversation = conversations.first,
+               type == .full || type == .partial {
+                let array = type == .full ? conversations[0 ... conversations.count / 3] : [firstConversation]
+                array.forEach { markStale(conversation: $0) }
             }
 
-            return nil
+            let setCurrentUserResult = await userSession.setCurrentUser()
+
+            switch setCurrentUserResult {
+            case let .success(user):
+                if let exception = await user.setConversations() {
+                    return .failure(exception)
+                }
+
+                if let exception = await user.conversations?.visibleForCurrentUser.setUsers() {
+                    return .failure(exception)
+                }
+
+                @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+                guard (contactPairArchive ?? []).isEmpty || randomBool else { return .success(user.conversations ?? []) }
+
+                if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
+                   !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
+                    return .failure(exception)
+                }
+
+                return .success(user.conversations ?? [])
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
         }
 
-        let setCurrentUserResult = await userSession.setCurrentUser()
+        return await reloadData(type: randomBool ? .full : randomBool ? .partial : .minimal)
+    }
 
-        switch setCurrentUserResult {
-        case let .success(user):
-            if let exception = await user.setConversations() {
-                return .failure(exception)
-            }
+    // MARK: - Auxiliary
 
-            if let exception = await user.conversations?.visibleForCurrentUser.setUsers() {
-                return .failure(exception)
-            }
+    private func markStale(conversation: Conversation) {
+        var newConversationMessageIDs = [String]()
+        var newConversationMessages = [Message]()
 
-            if let exception = await syncContactPairArchive() {
-                return .failure(exception)
-            }
-
-            return .success(user.conversations ?? [])
-
-        case let .failure(exception):
-            return .failure(exception)
+        if let conversationMessages = conversation.messages,
+           conversationMessages.count > 1 {
+            newConversationMessages = .init(conversationMessages[0 ... conversationMessages.count - 2])
+            newConversationMessageIDs = newConversationMessages.map(\.id)
         }
+
+        let newConversation: Conversation = .init(
+            .init(key: conversation.id.key, hash: .bangQualifiedEmpty),
+            messageIDs: newConversationMessageIDs,
+            messages: newConversationMessages,
+            metadata: conversation.metadata,
+            participants: conversation.participants,
+            users: conversation.users
+        )
+
+        conversationArchive.addValue(newConversation)
     }
 }

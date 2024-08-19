@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable type_body_length
 
 /* Native */
 import AVFAudio
@@ -30,7 +30,6 @@ public final class InputBarService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
@@ -44,7 +43,6 @@ public final class InputBarService {
     private let viewController: ChatPageViewController
 
     private var isStoppingRecording = false
-    private var isUpdatingIsTypingForCurrentUser = false
 
     // MARK: - Computed Properties
 
@@ -88,6 +86,19 @@ public final class InputBarService {
     ) {
         mainQueue.async {
             let forRecording = forRecording ?? self.shouldConfigureInputBarForRecording
+            if !forceUpdate {
+                switch forRecording {
+                case true:
+                    guard !self.inputBar.sendButton.isRecordButton else { return }
+
+                case false:
+                    guard self.inputBar.sendButton.isRecordButton else {
+                        self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+                        return
+                    }
+                }
+            }
 
             self.inputBar.sendButton.centerYAnchor.constraint(
                 equalTo: self.inputBar.contentView.centerYAnchor,
@@ -101,10 +112,6 @@ public final class InputBarService {
 
             switch forRecording {
             case true:
-                if !forceUpdate {
-                    guard !self.inputBar.sendButton.isRecordButton else { return }
-                }
-
                 self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.recordButtonSemanticTag)
 
                 UIView.transition(
@@ -137,14 +144,6 @@ public final class InputBarService {
                 }
 
             case false:
-                if !forceUpdate {
-                    guard self.inputBar.sendButton.isRecordButton else {
-                        self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
-                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
-                        return
-                    }
-                }
-
                 self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.sendButtonSemanticTag)
                 self.chatPageViewService.inputBarGestureRecognizer?.removeInputBarGestureRecognizers()
 
@@ -350,20 +349,6 @@ public final class InputBarService {
         }
     }
 
-    // MARK: - Text View Did Change
-
-    public func textViewDidChange(to text: String) async -> Exception? {
-        guard !isUpdatingIsTypingForCurrentUser else { return nil }
-        isUpdatingIsTypingForCurrentUser = true
-
-        defer { isUpdatingIsTypingForCurrentUser = false }
-        if let exception = await updateIsTypingForCurrentUser(!text.isBlank) {
-            return exception
-        }
-
-        return nil
-    }
-
     // MARK: - Toggle Sending UI
 
     public func toggleSendingUI(
@@ -399,43 +384,6 @@ public final class InputBarService {
             self.core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { self.services.haptics.generateFeedback(.heavy) }
         }
     }
-
-    private func updateIsTypingForCurrentUser(_ isTyping: Bool) async -> Exception? {
-        @Persistent(.currentUserID) var currentUserID: String?
-
-        guard let conversation = await viewController.currentConversation,
-              conversation.participants.count == 2 else { return nil }
-
-        guard let currentUserParticipant = conversation.participants.first(where: { $0.userID == currentUserID }) else {
-            return .init(
-                "Failed to find current user in conversation participants.",
-                metadata: [self, #file, #function, #line]
-            )
-        }
-
-        guard isTyping != currentUserParticipant.isTyping else { return nil }
-
-        var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
-        newParticipants.append(.init(
-            userID: currentUserParticipant.userID,
-            hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-            isTyping: isTyping
-        ))
-
-        clientSession.user.stopObservingCurrentUserChanges()
-        let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-        clientSession.user.startObservingCurrentUserChanges()
-
-        switch updateValueResult {
-        case let .success(conversation):
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
-            clientSession.conversation.setCurrentConversation(conversation)
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
-    }
 }
 
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable type_body_length

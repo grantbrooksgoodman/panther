@@ -103,7 +103,7 @@ public final class RecipientBarConfigService {
 
             // NIT: Observed bugs with this disabled, but iMessage does it this way.
 //            viewController.messageInputBar.inputTextView.text = ""
-            _ = await chatPageViewService.inputBar?.textViewDidChange(to: "")
+            Task.background { _ = await chatPageViewService.typingIndicator?.textViewDidChange(to: "") }
 
             defer { setInsetsAndReload() }
 

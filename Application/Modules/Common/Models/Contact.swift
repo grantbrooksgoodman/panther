@@ -39,7 +39,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
 
     // MARK: - Computed Properties
 
-    public var image: UIImage? { _ContactImageArchive.cachedImagesForContactIDs?[id] }
+    public var image: UIImage? { _ContactImageArchive.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
 
     public var fullName: String {
         if !firstName.isBlank,
@@ -120,5 +120,19 @@ private enum _ContactImageArchive {
 
     public static func clearCache() {
         cachedImagesForContactIDs = nil
+    }
+}
+
+private extension UIImage {
+    convenience init?(data: Data?, id: String) {
+        guard let data else { return nil }
+        if var cachedImagesForContactIDs = _ContactImageArchive.cachedImagesForContactIDs {
+            cachedImagesForContactIDs[id] = .init(data: data)
+            _ContactImageArchive.cachedImagesForContactIDs = cachedImagesForContactIDs
+        } else if let image = UIImage(data: data) {
+            _ContactImageArchive.cachedImagesForContactIDs = [id: image]
+        }
+
+        self.init(data: data)
     }
 }

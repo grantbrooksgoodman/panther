@@ -237,7 +237,7 @@ public struct MessageSessionService {
 
         switch createMessageResult {
         case let .success(message):
-            Task(priority: .background) {
+            Task.background {
                 if let exception = await services.notification.notify(
                     otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
                     of: message

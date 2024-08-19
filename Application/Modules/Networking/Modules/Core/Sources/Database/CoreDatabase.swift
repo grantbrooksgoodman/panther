@@ -5,7 +5,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -34,6 +34,7 @@ public final class CoreDatabase {
     // MARK: - Properties
 
     @Cached(CacheKey.dataSamples) private var cachedDataSamples: [String: DataSample]?
+    private var globalCacheStrategy: CacheStrategy?
 
     // MARK: - ID Key Generation
 
@@ -41,6 +42,12 @@ public final class CoreDatabase {
         // swiftformat:disable acronyms
         firebaseDatabase.child(path).childByAutoId().key
         // swiftformat:enable acronyms
+    }
+
+    // MARK: - Global Cache Strategy
+
+    public func setGlobalCacheStrategy(_ globalCacheStrategy: CacheStrategy?) {
+        self.globalCacheStrategy = globalCacheStrategy
     }
 
     // MARK: - Data Integrity Validation
@@ -93,25 +100,18 @@ public final class CoreDatabase {
 
     // MARK: - Value Retrieval
 
-    /**
-     Gets values on the server for a given path.
-
-     - Parameter path: The server path at which to retrieve values.
-     - Parameter timeout: An optional timeout `Duration` for the operation; defaults to 10 seconds.
-     - Parameter completion: Returns the Firebase snapshot value.
-     */
     public func getValues(
         at path: String,
         prependingEnvironment: Bool,
+        cacheStrategy: CacheStrategy,
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
+        let cacheStrategy = globalCacheStrategy ?? cacheStrategy
         guard delegates.connectionStatusProvider.isOnline else {
             completion(.failure(.internetConnectionOffline([self, #file, #function, #line])))
             return
         }
-
-        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
@@ -119,6 +119,17 @@ public final class CoreDatabase {
             didComplete = true
             delegates.activityIndicator.hide()
             return true
+        }
+
+        let path = prependingEnvironment ? path.prepended : path
+        func completeWithCacheIfPresent() {
+            guard let cachedValue = cachedValue(atPath: path),
+                  canComplete else { return }
+            completion(.success(cachedValue))
+        }
+
+        if cacheStrategy == .returnCacheFirst {
+            completeWithCacheIfPresent()
         }
 
         let timeout = Timeout(after: duration) {
@@ -132,19 +143,19 @@ public final class CoreDatabase {
             metadata: [self, #file, #function, #line]
         )
 
-        let path = prependingEnvironment ? path.prepended : path
-        if let cachedValue = cachedValue(atPath: path) {
-            guard canComplete else { return }
-            completion(.success(cachedValue))
-            return
-        }
+        let observeSingleEventStartDate = Date.now
+        delegates.activityIndicator.show()
 
         firebaseDatabase.child(path).observeSingleEvent(of: .value) { snapshot in
             timeout.cancel()
-            guard canComplete else { return }
 
             guard !self.isEmpty(snapshot.value),
                   let value = snapshot.value else {
+                if cacheStrategy == .returnCacheOnFailure {
+                    completeWithCacheIfPresent()
+                }
+
+                guard canComplete else { return }
                 completion(.failure(.init(
                     "No value exists at the specified key path.",
                     extraParams: ["Path": path],
@@ -157,30 +168,37 @@ public final class CoreDatabase {
             cachedDataSamples[path] = .init(
                 .now,
                 data: value,
-                expiresAfter: .milliseconds(100) // TODO: Make this a globally configurable value.
+                expiresAfter: .milliseconds(Networking.cacheExpiryMilliseconds(for: observeSingleEventStartDate))
             )
             self.cachedDataSamples = cachedDataSamples
+
+            guard canComplete else { return }
             completion(.success(value))
         } withCancel: { error in
             timeout.cancel()
+            if cacheStrategy == .returnCacheOnFailure {
+                completeWithCacheIfPresent()
+            }
+
             guard canComplete else { return }
             completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
         }
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func queryValues(
         at path: String,
-        strategy: QueryStrategy = .first(10),
+        strategy: QueryStrategy,
         prependingEnvironment: Bool,
+        cacheStrategy: CacheStrategy,
         timeout duration: Duration,
         completion: @escaping (_ callback: Callback<Any, Exception>) -> Void
     ) {
+        let cacheStrategy = globalCacheStrategy ?? cacheStrategy
         guard delegates.connectionStatusProvider.isOnline else {
             completion(.failure(.internetConnectionOffline([self, #file, #function, #line])))
             return
         }
-
-        delegates.activityIndicator.show()
 
         var didComplete = false
         var canComplete: Bool {
@@ -195,30 +213,33 @@ public final class CoreDatabase {
             completion(.failure(.timedOut([self, #file, #function, #line])))
         }
 
-        Logger.log(
-            "Querying values at path \"\(path)\".",
-            domain: .database,
-            metadata: [self, #file, #function, #line]
-        )
-
         let path = prependingEnvironment ? path.prepended : path
-        if let cachedValue = cachedValue(atPath: path) {
-            guard canComplete else { return }
+        func completeWithCacheIfPresent() {
+            guard let cachedValue = cachedValue(atPath: path),
+                  canComplete else { return }
             completion(.success(cachedValue))
-            return
         }
 
         func processReturnValues(_ error: Error?, _ snapshot: DataSnapshot?) {
             timeout.cancel()
-            guard canComplete else { return }
 
             guard let snapshot else {
+                if cacheStrategy == .returnCacheOnFailure {
+                    completeWithCacheIfPresent()
+                }
+
+                guard canComplete else { return }
                 completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
                 return
             }
 
             guard !isEmpty(snapshot.value),
                   let value = snapshot.value else {
+                if cacheStrategy == .returnCacheOnFailure {
+                    completeWithCacheIfPresent()
+                }
+
+                guard canComplete else { return }
                 completion(.failure(.init(
                     "No value exists at the specified key path.",
                     extraParams: ["Path": path],
@@ -231,13 +252,27 @@ public final class CoreDatabase {
             cachedDataSamples[path] = .init(
                 .now,
                 data: value,
-                expiresAfter: .milliseconds(100) // TODO: Make this into a globally configurable value.
+                expiresAfter: .milliseconds(Networking.cacheExpiryMilliseconds(for: queryLimitedStartDate))
             )
             self.cachedDataSamples = cachedDataSamples
+
+            guard canComplete else { return }
             completion(.success(value))
         }
 
+        if cacheStrategy == .returnCacheFirst {
+            completeWithCacheIfPresent()
+        }
+
+        Logger.log(
+            "Querying values at path \"\(path)\".",
+            domain: .database,
+            metadata: [self, #file, #function, #line]
+        )
+
         let reference = firebaseDatabase.child(path)
+        let queryLimitedStartDate = Date.now
+        delegates.activityIndicator.show()
 
         switch strategy {
         case let .first(limit):
@@ -294,10 +329,7 @@ public final class CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
-        if var cachedDataSamples {
-            cachedDataSamples[key] = nil
-            self.cachedDataSamples = cachedDataSamples
-        }
+        cachedDataSamples?[key] = nil
 
         firebaseDatabase.child(key).setValue(value) { error, _ in
             timeout.cancel()
@@ -346,10 +378,7 @@ public final class CoreDatabase {
         )
 
         let key = prependingEnvironment ? key.prepended : key
-        if var cachedDataSamples {
-            cachedDataSamples[key] = nil
-            self.cachedDataSamples = cachedDataSamples
-        }
+        cachedDataSamples?[key] = nil
 
         firebaseDatabase.child(key).updateChildValues(data) { error, _ in
             timeout.cancel()
@@ -367,13 +396,12 @@ public final class CoreDatabase {
     // MARK: - Auxiliary
 
     private func cachedValue(atPath path: String) -> Any? {
-        guard var cachedDataSamples,
+        guard let cachedDataSamples,
               let cachedDataSample = cachedDataSamples[path] else { return nil }
 
         guard !cachedDataSample.isExpired,
               !isEmpty(cachedDataSample) else {
-            cachedDataSamples[path] = nil
-            self.cachedDataSamples = cachedDataSamples
+            self.cachedDataSamples?[path] = nil
             return nil
         }
 
@@ -395,4 +423,4 @@ private extension String {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

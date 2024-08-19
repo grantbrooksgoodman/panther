@@ -22,7 +22,7 @@ public extension Array where Element == Conversation {
     }
 
     var sortedByLatestMessageSentDate: [Conversation] {
-        guard allSatisfy({ $0.messages != nil }) else { return self }
+        guard allSatisfy({ $0.messages != nil && !($0.messages?.isEmpty ?? true) }) else { return self }
         return sorted(by: { $0.messages!
                 .sorted(by: { $0.sentDate > $1.sentDate })
                 .first!.sentDate >
@@ -42,17 +42,9 @@ public extension Array where Element == Conversation {
         return conversations
     }
 
-    /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants which the user has blocked.
+    /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants the user has blocked.
     var visibleForCurrentUser: [Conversation] {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else { return self }
-
-        func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            guard let participant = conversation.participants.first(where: { $0.userID == currentUserID }) else { return false }
-            return !participant.hasDeletedConversation
-        }
-
-        return filter { satisfiesConstraints($0) }.filteringBlockedUsers
+        filter { !($0.currentUserParticipant?.hasDeletedConversation ?? true) }.filteringBlockedUsers
     }
 
     // MARK: - Methods

@@ -11,4 +11,5 @@ import Foundation
 
 public enum MessageDeliveryServiceEffectID: String {
     case reloadCollectionView
+    case updateIsTypingForCurrentUser
 }

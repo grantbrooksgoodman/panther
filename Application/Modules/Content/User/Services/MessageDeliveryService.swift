@@ -100,7 +100,6 @@ public final class MessageDeliveryService {
                 guard currentConversation.id.key == conversation.id.key else { return nil }
             }
 
-            chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -149,7 +148,6 @@ public final class MessageDeliveryService {
                 guard currentConversation.id.key == conversation.id.key else { return nil }
             }
 
-            chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -198,7 +196,6 @@ public final class MessageDeliveryService {
                 guard currentConversation.id.key == conversation.id.key else { return nil }
             }
 
-            chatPageViewService.menu?.dismissMenu()
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
             return nil
@@ -281,7 +278,6 @@ public final class MessageDeliveryService {
             guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        chatPageViewService.menu?.dismissMenu()
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.recipientBar?.layout.removeFromSuperview()
         chatPageViewService.reloadCollectionView()
@@ -291,11 +287,25 @@ public final class MessageDeliveryService {
         switch isSendingMessage {
         case true:
             guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
+
+            Logger.log(.init(
+                "Running effects for change of \"isSendingMessage\" to TRUE.",
+                extraParams: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToTrue.keys.map(\.rawValue)],
+                metadata: [self, #file, #function, #line]
+            ))
+
             uponIsSendingMessageChangedToTrue.values.forEach { $0() }
             uponIsSendingMessageChangedToTrue = .init()
 
         case false:
             guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
+
+            Logger.log(.init(
+                "Running effects for change of \"isSendingMessage\" to FALSE.",
+                extraParams: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToFalse.keys.map(\.rawValue)],
+                metadata: [self, #file, #function, #line]
+            ))
+
             uponIsSendingMessageChangedToFalse.values.forEach { $0() }
             uponIsSendingMessageChangedToFalse = .init()
         }

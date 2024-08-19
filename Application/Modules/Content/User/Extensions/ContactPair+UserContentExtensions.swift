@@ -23,6 +23,7 @@ public extension ContactPair {
 
     var containsCurrentUser: Bool {
         @Persistent(.currentUserID) var currentUserID: String?
+        // TODO: Audit this – contains(where:) might be better.
         return users.map(\.id).allSatisfy { $0 == currentUserID }
     }
 

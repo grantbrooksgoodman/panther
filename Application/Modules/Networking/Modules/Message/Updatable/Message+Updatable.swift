@@ -22,7 +22,7 @@ extension Message: Updatable {
 
     public var updatableKeys: [SerializationKeys] { [.readDate] }
 
-    // MARK: - Methods
+    // MARK: - Modify Key
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Message? {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
@@ -48,6 +48,8 @@ extension Message: Updatable {
             )
         }
     }
+
+    // MARK: - Update Value
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Message, Exception> {
         @Dependency(\.networking) var networking: Networking

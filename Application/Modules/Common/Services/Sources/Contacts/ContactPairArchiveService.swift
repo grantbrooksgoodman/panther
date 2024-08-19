@@ -25,16 +25,20 @@ public final class ContactPairArchiveService {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
 
+    // Array
     @Cached(CacheKey.archive) private var cachedArchive: [ContactPair]?
+    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
+
+    // Dictionary
     @Cached(CacheKey.contactPairsForContactHashes) private var cachedContactPairsForContactHashes: [String: ContactPair]?
     @Cached(CacheKey.contactPairsForPhoneNumbers) private var cachedContactPairsForPhoneNumbers: [String: ContactPair]?
     @Cached(CacheKey.contactPairsForUserNumberHashes) private var cachedContactPairsForUserNumberHashes: [String: ContactPair]?
-    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
 
     // MARK: - Computed Properties
 
@@ -75,6 +79,11 @@ public final class ContactPairArchiveService {
         }
 
         archive = values
+        cachedContactPairsForContactHashes = cachedContactPairsForContactHashes?.filter { !contactPairs.contains($0.value) }
+        cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
+        cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !contactPairs.contains($0.value) }
+
+        coreUtilities.clearCaches(domains: [.contactImageArchive])
         Observables.updatedContactPairArchive.trigger()
     }
 
@@ -85,6 +94,7 @@ public final class ContactPairArchiveService {
         cachedContactPairsForContactHashes = nil
         cachedContactPairsForPhoneNumbers = nil
         cachedContactPairsForUserNumberHashes = nil
+        coreUtilities.clearCaches(domains: [.contactImageArchive])
     }
 
     public func removeValue(userNumberHashes: [String]) {
@@ -95,6 +105,11 @@ public final class ContactPairArchiveService {
 
         guard archive.contains(where: { satisfiesConstraints($0) }) else { return }
         archive.removeAll(where: { satisfiesConstraints($0) })
+        cachedContactPairsForContactHashes = cachedContactPairsForContactHashes?.filter { !satisfiesConstraints($0.value) }
+        cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !satisfiesConstraints($0.value) }
+        cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !satisfiesConstraints($0.value) }
+
+        coreUtilities.clearCaches(domains: [.contactImageArchive])
         Observables.updatedContactPairArchive.trigger()
 
         Logger.log(

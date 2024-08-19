@@ -28,17 +28,36 @@ public struct Database {
         coreDatabase.generateKey(for: path)
     }
 
+    // MARK: - Global Cache Strategy
+
+    /// Overrides the `CacheStrategy` for all `Database` methods. Pass `nil` to revert the override.
+    public func setGlobalCacheStrategy(_ globalCacheStrategy: CacheStrategy?) {
+        coreDatabase.setGlobalCacheStrategy(globalCacheStrategy)
+    }
+
     // MARK: - Value Retrieval
 
+    /**
+     Gets the hosted values at the given path.
+
+     - Parameter path: The hosting path at which to retrieve values.
+     - Parameter prependingEnvironment: Pass `true` to prepend the current network environment to the given `path`.
+     - Parameter cacheStrategy: The caching strategy to use; defaults to `.returnCacheFirst`.
+     - Parameter timeout: An optional timeout `Duration` for the operation; defaults to `.seconds(10)`.
+
+     - Returns: A `Callback` type composed of the data value at the given path or an `Exception`.
+     */
     public func getValues(
         at path: String,
         prependingEnvironment: Bool = true,
+        cacheStrategy: CacheStrategy = .returnCacheFirst,
         timeout duration: Duration = .seconds(10)
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
             coreDatabase.getValues(
                 at: path,
                 prependingEnvironment: prependingEnvironment,
+                cacheStrategy: cacheStrategy,
                 timeout: duration
             ) { getValuesResult in
                 continuation.resume(returning: getValuesResult)
@@ -50,6 +69,7 @@ public struct Database {
         at path: String,
         strategy: CoreDatabase.QueryStrategy = .first(10),
         prependingEnvironment: Bool = true,
+        cacheStrategy: CacheStrategy = .returnCacheFirst,
         timeout duration: Duration = .seconds(10)
     ) async -> Callback<Any, Exception> {
         return await withCheckedContinuation { continuation in
@@ -57,6 +77,7 @@ public struct Database {
                 at: path,
                 strategy: strategy,
                 prependingEnvironment: prependingEnvironment,
+                cacheStrategy: cacheStrategy,
                 timeout: duration
             ) { queryValuesResult in
                 continuation.resume(returning: queryValuesResult)

@@ -147,6 +147,10 @@ public final class SettingsPageViewService {
                 Task {
                     await self.uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
+                    if let exception = self.userSession.stopObservingCurrentUserChanges() {
+                        Logger.log(exception)
+                    }
+
                     if let exception = await self.userSession.deleteAccount() {
                         await self.uiApplication.keyWindow?.removeOverlay()
                         Logger.log(exception, with: .toast())

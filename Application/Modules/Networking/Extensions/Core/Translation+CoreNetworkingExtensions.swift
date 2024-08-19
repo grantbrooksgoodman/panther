@@ -15,12 +15,4 @@ public extension Translation {
     var reference: TranslationReference {
         .init(self)
     }
-
-    var withSanitizedOutput: Translation {
-        .init(
-            input: input,
-            output: output.sanitized,
-            languagePair: languagePair
-        )
-    }
 }

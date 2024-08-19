@@ -50,6 +50,15 @@ public extension Array where Element == Message {
     var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
 }
 
+public extension Array where Element == Participant {
+    var firstWithCurrentUserID: Participant? {
+        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
+        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
+        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID else { return nil }
+        return first(where: { $0.userID == resolvedCurrentUserID })
+    }
+}
+
 public extension Array where Element == String {
     /// Sorts the array with alphabetically-prefixed strings taking priority.
     var alphabeticallySorted: [String] {

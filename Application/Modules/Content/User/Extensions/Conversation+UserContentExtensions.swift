@@ -9,8 +9,13 @@
 /* Native */
 import Foundation
 
+/* 3rd-party */
+import CoreArchitecture
+
 public extension Conversation {
     // MARK: - Properties
+
+    var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
 
     static var empty: Conversation {
         .init(

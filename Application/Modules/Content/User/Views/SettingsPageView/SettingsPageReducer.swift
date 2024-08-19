@@ -238,6 +238,7 @@ public struct SettingsPageReducer: Reducer {
             state.contactDetailViewImage = contact.image
             state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
             state.contactDetailViewTitleLabelText = contact.fullName
+            state.viewID = UUID()
 
         case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText

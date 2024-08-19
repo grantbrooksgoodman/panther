@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public struct ConversationID: Codable, Equatable {
+public struct ConversationID: Codable, Hashable {
     // MARK: - Properties
 
     public let hash: String

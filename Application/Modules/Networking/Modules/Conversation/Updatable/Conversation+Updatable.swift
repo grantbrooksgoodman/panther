@@ -28,7 +28,7 @@ extension Conversation: Updatable {
         ]
     }
 
-    // MARK: - Methods
+    // MARK: - Modify Key
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Conversation? {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
@@ -73,6 +73,8 @@ extension Conversation: Updatable {
         }
     }
 
+    // MARK: - Update Value
+
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
         @Dependency(\.networking) var networking: Networking
         @Dependency(\.clientSession.user) var userSession: UserSessionService
@@ -92,7 +94,7 @@ extension Conversation: Updatable {
             ))
         }
 
-        guard let updated = modifyKey(key, withValue: value) else {
+        guard var updated = modifyKey(key, withValue: value) else {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
@@ -104,6 +106,12 @@ extension Conversation: Updatable {
             let messageIDs = messages.map(\.id).isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messages.map(\.id)
             if let exception = await networking.database.setValue(messageIDs.unique, forKey: valueKeyPath) {
                 return .failure(exception)
+            }
+
+            let updateIsTypingResult = await updateIsTyping(updated)
+            switch updateIsTypingResult {
+            case let .success(updatedConversation): updated = updatedConversation
+            case let .failure(exception): return .failure(exception)
             }
         } else if let serializable = value as? any Serializable {
             if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
@@ -154,6 +162,8 @@ extension Conversation: Updatable {
         return .success(updated)
     }
 
+    // MARK: - Auxiliary
+
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(
             .init(key: conversation.id.key, hash: conversation.encodedHash),
@@ -163,5 +173,44 @@ extension Conversation: Updatable {
             participants: conversation.participants,
             users: conversation.users
         )
+    }
+
+    /// It's optimal to set `isTyping` to `false` in the same call as appending messages during a send operation so the conversation hash doesn't need to be recomputed twice.
+    private func updateIsTyping(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        @Dependency(\.networking) var networking: Networking
+
+        guard let currentUserParticipant = conversation.currentUserParticipant else {
+            return .failure(.init(
+                "Failed to resolve current user participant.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        var newParticipants = [Participant]()
+        newParticipants = participants.filter { $0 != currentUserParticipant }
+        newParticipants.append(.init(
+            userID: currentUserParticipant.userID,
+            hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+            isTyping: false
+        ))
+
+        // TODO: Audit whether or not it is necessary to update the ID hash here.
+        let updatedConversation = updateIDHash(.init(
+            conversation.id,
+            messageIDs: conversation.messageIDs,
+            messages: conversation.messages,
+            metadata: conversation.metadata,
+            participants: newParticipants,
+            users: conversation.users
+        ))
+
+        if let exception = await networking.database.setValue(
+            updatedConversation.participants.map(\.encoded),
+            forKey: "\(networking.config.paths.conversations)/\(updatedConversation.id.key)/\(SerializationKeys.participants.rawValue)"
+        ) {
+            return .failure(exception)
+        }
+
+        return .success(updatedConversation)
     }
 }

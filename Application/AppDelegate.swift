@@ -28,7 +28,6 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     @Dependency(\.build) private var build: Build
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
-    @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.translatorConfig) private var translatorConfig: Translator.Config
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -61,7 +60,6 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
         Logger.setDomainsExcludedFromSessionRecord(BuildConfig.loggerDomainsExcludedFromSessionRecord)
         Logger.subscribe(to: BuildConfig.loggerDomainSubscriptions)
-        translatorConfig.registerLoggerDelegate(Logger.TranslationLogger())
 
         @Persistent(.breadcrumbsCaptureEnabled) var breadcrumbsCaptureEnabled: Bool?
         @Persistent(.breadcrumbsCapturesAllViews) var breadcrumbsCapturesAllViews: Bool?
@@ -99,14 +97,19 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
             ThemeService.setTheme(AppTheme.default.theme, checkStyle: false)
         }
 
-        /* MARK: AlertKit Setup */
+        /* MARK: AlertKit & Translator Setup */
 
         alertKitConfig.overrideTargetLanguageCode(RuntimeStorage.languageCode)
         alertKitConfig.overrideTranslationHUDConfig(.init(appearsAfter: .milliseconds(500), isModal: true))
 
         alertKitConfig.registerLoggerDelegate(Logger.AlertKitLogger())
         alertKitConfig.registerPresentationDelegate(core)
-        alertKitConfig.registerReportDelegate(reportDelegate)
+
+        ReportDelegate.registerWithDependencies()
+        TranslationDelegate.registerWithDependencies()
+
+        LocalTranslationArchiverDelegate.registerWithDependencies()
+        translatorConfig.registerLoggerDelegate(Logger.TranslationLogger())
 
         /* MARK: Navigation Setup */
 

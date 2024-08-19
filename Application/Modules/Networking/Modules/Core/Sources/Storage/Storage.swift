@@ -16,6 +16,13 @@ public struct Storage {
 
     @Dependency(\.coreStorage) private var coreStorage: CoreStorage
 
+    // MARK: - Global Cache Strategy
+
+    /// Overrides the `CacheStrategy` for all `Storage` methods. Pass `nil` to revert the override.
+    public func setGlobalCacheStrategy(_ globalCacheStrategy: CacheStrategy?) {
+        coreStorage.setGlobalCacheStrategy(globalCacheStrategy)
+    }
+
     // MARK: - Data Upload
 
     public func upload(
@@ -60,6 +67,7 @@ public struct Storage {
         at path: String,
         to localPath: URL,
         prependingEnvironment: Bool = true,
+        cacheStrategy: CacheStrategy = .returnCacheFirst,
         timeout duration: Duration = .seconds(10)
     ) async -> Exception? {
         return await withCheckedContinuation { continuation in
@@ -67,6 +75,7 @@ public struct Storage {
                 at: path,
                 to: localPath,
                 prependingEnvironment: prependingEnvironment,
+                cacheStrategy: cacheStrategy,
                 timeout: duration
             ) { exception in
                 continuation.resume(returning: exception)
@@ -79,17 +88,25 @@ public struct Storage {
     public func itemExists(
         at path: String,
         prependingEnvironment: Bool = true,
+        cacheStrategy: CacheStrategy = .returnCacheFirst,
         timeout duration: Duration = .seconds(10)
     ) async -> Callback<Bool, Exception> {
         return await withCheckedContinuation { continuation in
             coreStorage.itemExists(
                 at: path,
                 prependingEnvironment: prependingEnvironment,
+                cacheStrategy: cacheStrategy,
                 timeout: duration
             ) { itemExistsResult in
                 continuation.resume(returning: itemExistsResult)
             }
         }
+    }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        coreStorage.clearCache()
     }
 }
 
