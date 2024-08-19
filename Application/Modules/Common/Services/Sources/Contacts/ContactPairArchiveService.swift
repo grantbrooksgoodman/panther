@@ -83,7 +83,7 @@ public final class ContactPairArchiveService {
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
         cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !contactPairs.contains($0.value) }
 
-        coreUtilities.clearCaches(domains: [.contactImageArchive])
+        coreUtilities.clearCaches(domains: [.contactImage])
         Observables.updatedContactPairArchive.trigger()
     }
 
@@ -94,7 +94,7 @@ public final class ContactPairArchiveService {
         cachedContactPairsForContactHashes = nil
         cachedContactPairsForPhoneNumbers = nil
         cachedContactPairsForUserNumberHashes = nil
-        coreUtilities.clearCaches(domains: [.contactImageArchive])
+        coreUtilities.clearCaches(domains: [.contactImage])
     }
 
     public func removeValue(userNumberHashes: [String]) {
@@ -109,7 +109,7 @@ public final class ContactPairArchiveService {
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !satisfiesConstraints($0.value) }
         cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !satisfiesConstraints($0.value) }
 
-        coreUtilities.clearCaches(domains: [.contactImageArchive])
+        coreUtilities.clearCaches(domains: [.contactImage])
         Observables.updatedContactPairArchive.trigger()
 
         Logger.log(

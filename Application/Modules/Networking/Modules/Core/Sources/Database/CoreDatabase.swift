@@ -122,14 +122,16 @@ public final class CoreDatabase {
         }
 
         let path = prependingEnvironment ? path.prepended : path
-        func completeWithCacheIfPresent() {
+        func completeWithCacheIfPresent() -> Bool {
             guard let cachedValue = cachedValue(atPath: path),
-                  canComplete else { return }
+                  canComplete else { return false }
             completion(.success(cachedValue))
+            return true
         }
 
-        if cacheStrategy == .returnCacheFirst {
-            completeWithCacheIfPresent()
+        if cacheStrategy == .returnCacheFirst,
+           completeWithCacheIfPresent() {
+            return
         }
 
         let timeout = Timeout(after: duration) {
@@ -151,8 +153,9 @@ public final class CoreDatabase {
 
             guard !self.isEmpty(snapshot.value),
                   let value = snapshot.value else {
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 guard canComplete else { return }
@@ -176,8 +179,9 @@ public final class CoreDatabase {
             completion(.success(value))
         } withCancel: { error in
             timeout.cancel()
-            if cacheStrategy == .returnCacheOnFailure {
-                completeWithCacheIfPresent()
+            if cacheStrategy == .returnCacheOnFailure,
+               completeWithCacheIfPresent() {
+                return
             }
 
             guard canComplete else { return }
@@ -214,18 +218,20 @@ public final class CoreDatabase {
         }
 
         let path = prependingEnvironment ? path.prepended : path
-        func completeWithCacheIfPresent() {
+        func completeWithCacheIfPresent() -> Bool {
             guard let cachedValue = cachedValue(atPath: path),
-                  canComplete else { return }
+                  canComplete else { return false }
             completion(.success(cachedValue))
+            return true
         }
 
         func processReturnValues(_ error: Error?, _ snapshot: DataSnapshot?) {
             timeout.cancel()
 
             guard let snapshot else {
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 guard canComplete else { return }
@@ -235,8 +241,9 @@ public final class CoreDatabase {
 
             guard !isEmpty(snapshot.value),
                   let value = snapshot.value else {
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 guard canComplete else { return }
@@ -260,8 +267,9 @@ public final class CoreDatabase {
             completion(.success(value))
         }
 
-        if cacheStrategy == .returnCacheFirst {
-            completeWithCacheIfPresent()
+        if cacheStrategy == .returnCacheFirst,
+           completeWithCacheIfPresent() {
+            return
         }
 
         Logger.log(
@@ -407,7 +415,7 @@ public final class CoreDatabase {
 
         Logger.log(
             "Returning cached value for data at path \"\(path)\".",
-            domain: .database,
+            domain: .caches,
             metadata: [self, #file, #function, #line]
         )
 

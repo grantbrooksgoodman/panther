@@ -133,7 +133,7 @@ public final class UserService {
            !cachedUserNumberHashSnapshot.isExpired {
             Logger.log(
                 "Returning cached user number hash snapshot.",
-                domain: .user,
+                domain: .caches,
                 metadata: [self, #file, #function, #line]
             )
             return .success(cachedUserNumberHashSnapshot.hashes)
@@ -210,7 +210,7 @@ public final class UserService {
                     extraParams: ["UserID": id],
                     metadata: [self, #file, #function, #line]
                 ),
-                domain: .user
+                domain: .caches
             )
             return await User.decode(from: match.data)
         }

@@ -39,7 +39,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
 
     // MARK: - Computed Properties
 
-    public var image: UIImage? { _ContactImageArchive.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
+    public var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
 
     public var fullName: String {
         if !firstName.isBlank,
@@ -77,11 +77,11 @@ public struct Contact: Codable, EncodedHashable, Equatable {
         self.phoneNumbers = phoneNumbers
         self.imageData = imageData
         if let imageData {
-            if var cachedImagesForContactIDs = _ContactImageArchive.cachedImagesForContactIDs {
+            if var cachedImagesForContactIDs = _ContactImageCache.cachedImagesForContactIDs {
                 cachedImagesForContactIDs[id] = .init(data: imageData)
-                _ContactImageArchive.cachedImagesForContactIDs = cachedImagesForContactIDs
+                _ContactImageCache.cachedImagesForContactIDs = cachedImagesForContactIDs
             } else if let image = UIImage(data: imageData) {
-                _ContactImageArchive.cachedImagesForContactIDs = [id: image]
+                _ContactImageCache.cachedImagesForContactIDs = [id: image]
             }
         }
     }
@@ -99,13 +99,13 @@ public struct Contact: Codable, EncodedHashable, Equatable {
     }
 }
 
-public enum ContactImageArchive {
+public enum ContactImageCache {
     public static func clearCache() {
-        _ContactImageArchive.clearCache()
+        _ContactImageCache.clearCache()
     }
 }
 
-private enum _ContactImageArchive {
+private enum _ContactImageCache {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -126,11 +126,11 @@ private enum _ContactImageArchive {
 private extension UIImage {
     convenience init?(data: Data?, id: String) {
         guard let data else { return nil }
-        if var cachedImagesForContactIDs = _ContactImageArchive.cachedImagesForContactIDs {
+        if var cachedImagesForContactIDs = _ContactImageCache.cachedImagesForContactIDs {
             cachedImagesForContactIDs[id] = .init(data: data)
-            _ContactImageArchive.cachedImagesForContactIDs = cachedImagesForContactIDs
+            _ContactImageCache.cachedImagesForContactIDs = cachedImagesForContactIDs
         } else if let image = UIImage(data: data) {
-            _ContactImageArchive.cachedImagesForContactIDs = [id: image]
+            _ContactImageCache.cachedImagesForContactIDs = [id: image]
         }
 
         self.init(data: data)

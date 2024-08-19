@@ -125,6 +125,7 @@ public final class RecipientBarActionHandlerService {
                 }
 
                 guard (contactPairArchive ?? []).isEmpty else {
+                    chatPageViewService.recipientBar?.tableView.resolveContactPairs()
                     selectContactButtonTapped()
                     return
                 }

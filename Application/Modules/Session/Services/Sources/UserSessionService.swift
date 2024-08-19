@@ -225,76 +225,30 @@ public final class UserSessionService {
             return .init("Current user ID has not been set.", metadata: [self, #file, #function, #line])
         }
 
-        func deleteUser() async -> Exception? {
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(networking.config.paths.users)/\(currentUserID)") {
+        let getValuesResult = await networking.database.getValues(at: networking.config.paths.deletedUsers)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard var array = values as? [String] else {
+                return .typecastFailed("array", metadata: [self, #file, #function, #line])
+            }
+
+            array.append(currentUserID)
+            array = array.filter { $0 != .bangQualifiedEmpty }.unique
+
+            if let exception = await networking.database.setValue(array, forKey: networking.config.paths.deletedUsers) {
                 return exception
             }
-
-            let getValuesResult = await networking.database.getValues(at: networking.config.paths.deletedUsers)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard var array = values as? [String] else {
-                    return .typecastFailed("array", metadata: [self, #file, #function, #line])
-                }
-
-                array.append(currentUserID)
-                array = array.filter { $0 != .bangQualifiedEmpty }.unique
-
-                if let exception = await networking.database.setValue(array, forKey: networking.config.paths.deletedUsers) {
-                    return exception
-                }
-
-                return nil
-
-            case let .failure(exception):
-                return exception
-            }
-        }
-
-        let getUserResult = await networking.services.user.getUser(id: currentUserID)
-
-        switch getUserResult {
-        case let .success(user):
-            let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(user.phoneNumber.nationalNumberString.digits.encodedHash)"
-            let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard var array = values as? [String] else {
-                    return .typecastFailed("array", metadata: [self, #file, #function, #line])
-                }
-
-                array = array.filter { $0 != currentUserID }.unique
-
-                if let exception = await networking.database.setValue(
-                    array.isBangQualifiedEmpty ? NSNull() : array,
-                    forKey: userNumberHashesPath
-                ) {
-                    return exception
-                }
-
-            case let .failure(exception):
-                return exception
-            }
-
-            if let exception = await user.setConversations() {
-                return exception
-            }
-
-            guard let conversations = user.conversations else { return await deleteUser() }
-
-            for conversation in conversations {
-                if let exception = await conversationSession.deleteConversation(conversation, forced: true) {
-                    return exception
-                }
-            }
-
-            return await deleteUser()
 
         case let .failure(exception):
             return exception
         }
+
+        if let exception = await networking.services.integrity.resolveSession() {
+            return exception
+        }
+
+        return await networking.services.integrity.repairMalformedUsers([currentUserID]).exception
     }
 
     // MARK: - Get Users for Conversation

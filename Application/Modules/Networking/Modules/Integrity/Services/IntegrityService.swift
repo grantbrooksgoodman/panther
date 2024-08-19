@@ -89,7 +89,7 @@ public final class IntegrityService {
         var exceptions = [Exception]()
         var tookAction = false
 
-        for conversationIDKey in idKeys ?? malformedConversationIDKeys {
+        for conversationIDKey in (idKeys ?? malformedConversationIDKeys).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
 
             for userID in usersReferencing(conversationIDKey: conversationIDKey) {
@@ -138,7 +138,7 @@ public final class IntegrityService {
         var exceptions = [Exception]()
         var tookAction = false
 
-        for messageID in messageIDs ?? malformedMessageIDs {
+        for messageID in (messageIDs ?? malformedMessageIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
 
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
@@ -178,11 +178,11 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func repairMalformedUsers() async -> (tookAction: Bool, exception: Exception?) {
+    public func repairMalformedUsers(_ userIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
-        for userID in malformedUserIDs {
+        for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
             guard await networking.services.user.legacy.convertUser(id: userID) != nil else { continue }
 
@@ -228,9 +228,10 @@ public final class IntegrityService {
                 }
             }
 
-            guard let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+            guard var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+            conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }
 
-            if let exception = await repairMalformedConversations(conversationIDStrings).exception {
+            if let exception = await repairMalformedConversations(conversationIDKeys).exception {
                 exceptions.append(exception)
             }
         }
@@ -246,26 +247,23 @@ public final class IntegrityService {
 
         for (key, value) in session.userData {
             guard let dictionary = value as? [String: Any],
-                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
-            var filteredConversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }
-            for conversationIDString in filteredConversationIDStrings where !session
+            conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }.filter { !$0.isBangQualifiedEmpty }
+
+            var filteredConversationIDKeys = conversationIDKeys
+            for conversationIDKey in filteredConversationIDKeys where !session
                 .conversationData
                 .keys
-                .contains(where: {
-                    $0.hasPrefix(conversationIDString.components(separatedBy: " | ").first ?? conversationIDString)
-                }) {
-                filteredConversationIDStrings = filteredConversationIDStrings.filter { $0 != conversationIDString }
+                .contains(where: { $0.hasPrefix(conversationIDKey) }) {
+                filteredConversationIDKeys = filteredConversationIDKeys.filter { $0 != conversationIDKey }
             }
 
-            guard conversationIDStrings
-                .filter({ !$0.isBangQualifiedEmpty })
-                .sorted() != filteredConversationIDStrings
-                .sorted() else { continue }
-
+            guard conversationIDKeys.sorted() != filteredConversationIDKeys.sorted() else { continue }
             tookAction = true
+
             if let exception = await networking.database.setValue(
-                filteredConversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDStrings,
+                filteredConversationIDKeys.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDKeys,
                 forKey: "\(networking.config.paths.users)/\(key)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
                 exceptions.append(exception)
@@ -331,12 +329,12 @@ public final class IntegrityService {
                 }
             } else {
                 for userID in usersNotReferencing {
-                    tookAction = true
                     guard let dictionary = session.userData[userID] as? [String: Any],
                           var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
                     conversationIDStrings.append("\(key) | !")
                     conversationIDStrings = conversationIDStrings.unique
+                    tookAction = true
 
                     if let exception = await networking.database.setValue(
                         conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings,

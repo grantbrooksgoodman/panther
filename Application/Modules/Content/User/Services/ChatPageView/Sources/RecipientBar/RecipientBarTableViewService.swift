@@ -41,7 +41,7 @@ public final class RecipientBarTableViewService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
-        contactPairs = getContactPairs()
+        resolveContactPairs()
     }
 
     // MARK: - Reload Data
@@ -57,6 +57,12 @@ public final class RecipientBarTableViewService {
 
         queriedContactPairs = contactPairs
         tableView.reloadData()
+    }
+
+    // MARK: - Resolve Contact Pairs
+
+    public func resolveContactPairs() {
+        contactPairs = getContactPairs()
     }
 
     // MARK: - Set Query

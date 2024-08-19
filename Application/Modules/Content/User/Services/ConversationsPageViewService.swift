@@ -135,13 +135,13 @@ public struct ConversationsPageViewService {
     // MARK: - Auxiliary
 
     private func markStale(conversation: Conversation) {
-        var newConversationMessageIDs = [String]()
-        var newConversationMessages = [Message]()
+        var newConversationMessageIDs = conversation.messageIDs
+        var newConversationMessages = conversation.messages
 
         if let conversationMessages = conversation.messages,
            conversationMessages.count > 1 {
             newConversationMessages = .init(conversationMessages[0 ... conversationMessages.count - 2])
-            newConversationMessageIDs = newConversationMessages.map(\.id)
+            newConversationMessageIDs = (newConversationMessages ?? []).map(\.id)
         }
 
         let newConversation: Conversation = .init(

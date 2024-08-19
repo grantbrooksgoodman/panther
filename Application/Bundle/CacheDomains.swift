@@ -19,11 +19,12 @@ public extension CoreKit.Utilities {
     enum CacheDomain: CaseIterable {
         case chatInfoPageViewService
         case commonPropertyLists
-        case contactImageArchive
+        case contactImage
         case contactPairArchive
         case contactService
         case conversationArchive
         case database
+        case encodedHash
         case localization
         case localTranslationArchive
         case mediaMessagePreviewService
@@ -45,11 +46,12 @@ public extension CoreKit.Utilities {
 
         if domains.contains(.chatInfoPageViewService) { chatInfoPageViewService.clearCache() }
         if domains.contains(.commonPropertyLists) { commonServices.propertyLists.clearCache() }
-        if domains.contains(.contactImageArchive) { ContactImageArchive.clearCache() }
+        if domains.contains(.contactImage) { ContactImageCache.clearCache() }
         if domains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
         if domains.contains(.contactService) { commonServices.contact.clearCache() }
         if domains.contains(.conversationArchive) { networking.services.conversation.archive.clearArchive() }
         if domains.contains(.database) { networking.database.clearCache() }
+        if domains.contains(.encodedHash) { EncodedHashCache.clearCache() }
         if domains.contains(.localTranslationArchive) { localTranslationArchiver.clearArchive() }
         if domains.contains(.localization) { Localization.clearCache() }
         if domains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }

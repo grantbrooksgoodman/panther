@@ -176,14 +176,16 @@ public final class CoreStorage {
         }
 
         let path = prependingEnvironment ? path.prependingCurrentEnvironment : path
-        func completeWithCacheIfPresent() {
+        func completeWithCacheIfPresent() -> Bool {
             guard cachedDownloadItemResultIsValid(localPath: localPath, networkPath: path),
-                  canComplete else { return }
+                  canComplete else { return false }
             completion(nil)
+            return true
         }
 
-        if cacheStrategy == .returnCacheFirst {
-            completeWithCacheIfPresent()
+        if cacheStrategy == .returnCacheFirst,
+           completeWithCacheIfPresent() {
+            return
         }
 
         let timeout = Timeout(after: duration) {
@@ -219,9 +221,8 @@ public final class CoreStorage {
                 completion(nil)
 
             case let .failure(error):
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
-                }
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {}
 
                 guard canComplete else { return }
                 completion(.init(error, metadata: [self, #file, #function, #line]))
@@ -253,14 +254,16 @@ public final class CoreStorage {
         }
 
         let path = prependingEnvironment ? path.prependingCurrentEnvironment : path
-        func completeWithCacheIfPresent() {
+        func completeWithCacheIfPresent() -> Bool {
             guard let cachedItemExistsResult = cachedItemExistsResult(path: path),
-                  canComplete else { return }
+                  canComplete else { return false }
             completion(.success(cachedItemExistsResult))
+            return true
         }
 
-        if cacheStrategy == .returnCacheFirst {
-            completeWithCacheIfPresent()
+        if cacheStrategy == .returnCacheFirst,
+           completeWithCacheIfPresent() {
+            return
         }
 
         let timeout = Timeout(after: duration) {
@@ -301,8 +304,9 @@ public final class CoreStorage {
                     Logger.log(exception)
                 }
 
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 var cachedItemExistsResults = self.cachedItemExistsResults ?? [:]
@@ -341,7 +345,7 @@ public final class CoreStorage {
 
         Logger.log(
             "Returning cached download item result for network path \"\(networkPath)\".",
-            domain: .storage,
+            domain: .caches,
             metadata: [self, #file, #function, #line]
         )
 
@@ -359,7 +363,7 @@ public final class CoreStorage {
 
         Logger.log(
             "Returning cached item exists result for network path \"\(path)\".",
-            domain: .storage,
+            domain: .caches,
             metadata: [self, #file, #function, #line]
         )
 

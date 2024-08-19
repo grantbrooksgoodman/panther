@@ -15,8 +15,8 @@ import CoreArchitecture
 public enum BuildConfig {
     // MARK: - Flags
 
-    public static let loggingEnabled = false
-    public static let timebombActive = false
+    public static let loggingEnabled = true
+    public static let timebombActive = true
 
     // MARK: - Names
 
@@ -27,12 +27,13 @@ public enum BuildConfig {
 
     public static let appStoreReleaseVersion = 3
     public static let dmyFirstCompileDateString = "11112023"
-    public static let stage: Build.Stage = .generalRelease
+    public static let stage: Build.Stage = .beta
 
     // MARK: - Other
 
     public static let languageCode = Locale.systemLanguageCode
     public static let loggerDomainsExcludedFromSessionRecord: [LoggerDomain] = [
+        .caches,
         .observer,
     ]
     public static let loggerDomainSubscriptions: [LoggerDomain] = [

@@ -22,6 +22,7 @@ public struct ConversationsPageObserver: Observer {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.networking) private var networking: Networking
 
     // MARK: - Properties
 
@@ -89,6 +90,9 @@ public struct ConversationsPageObserver: Observer {
 
     private func updateConversations() {
         Task { @MainActor in
+            networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
+            networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
+
             let setCurrentUserResult = await clientSession.user.setCurrentUser()
 
             switch setCurrentUserResult {
@@ -104,6 +108,11 @@ public struct ConversationsPageObserver: Observer {
 
             if let exception = await clientSession.user.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
                 Logger.log(exception, with: .toast())
+            }
+
+            defer {
+                networking.database.setGlobalCacheStrategy(nil)
+                networking.storage.setGlobalCacheStrategy(nil)
             }
 
             guard chatPageState.isPresented else {

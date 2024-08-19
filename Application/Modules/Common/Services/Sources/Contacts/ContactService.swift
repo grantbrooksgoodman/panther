@@ -68,20 +68,23 @@ public final class ContactService {
             return true
         }
 
-        func completeWithCacheIfPresent() {
+        func completeWithCacheIfPresent() -> Bool {
             guard let cachedContacts,
                   !cachedContacts.isEmpty,
-                  canComplete else { return }
+                  canComplete else { return false }
             completion(.success(cachedContacts))
+            return true
         }
 
-        if cacheStrategy == .returnCacheFirst {
-            completeWithCacheIfPresent()
+        if cacheStrategy == .returnCacheFirst,
+           completeWithCacheIfPresent() {
+            return
         }
 
         guard services.permission.contactPermissionStatus == .granted else {
-            if cacheStrategy == .returnCacheOnFailure {
-                completeWithCacheIfPresent()
+            if cacheStrategy == .returnCacheOnFailure,
+               completeWithCacheIfPresent() {
+                return
             }
 
             guard canComplete else { return }
@@ -103,8 +106,9 @@ public final class ContactService {
             CNContactThumbnailImageDataKey,
             CNContactViewController.descriptorForRequiredKeys(),
         ] as? [CNKeyDescriptor] else {
-            if cacheStrategy == .returnCacheOnFailure {
-                completeWithCacheIfPresent()
+            if cacheStrategy == .returnCacheOnFailure,
+               completeWithCacheIfPresent() {
+                return
             }
 
             guard canComplete else { return }
@@ -123,8 +127,9 @@ public final class ContactService {
                     }
                 }
             } catch {
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 guard canComplete else { return }
@@ -132,8 +137,9 @@ public final class ContactService {
             }
 
             guard !contacts.isEmpty else {
-                if cacheStrategy == .returnCacheOnFailure {
-                    completeWithCacheIfPresent()
+                if cacheStrategy == .returnCacheOnFailure,
+                   completeWithCacheIfPresent() {
+                    return
                 }
 
                 guard canComplete else { return }
