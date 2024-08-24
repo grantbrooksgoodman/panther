@@ -48,7 +48,8 @@ extension User: Serializable {
     public static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] as? String != nil,
               data[Keys.blockedUserIDs.rawValue] as? [String] != nil,
-              data[Keys.conversationIDs.rawValue] as? [String] != nil,
+              let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
+              conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] as? String != nil,

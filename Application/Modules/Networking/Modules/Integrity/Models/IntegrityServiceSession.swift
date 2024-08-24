@@ -17,7 +17,7 @@ public final class IntegrityServiceSession {
 
     public let conversationData: [String: Any]
     public let messageData: [String: Any]
-    public let translationData: [String: Any]
+    public let translationData: [String: [String: Any]]
     public let userData: [String: Any]
     public let userNumberHashData: [String: Any]
 
@@ -38,7 +38,7 @@ public final class IntegrityServiceSession {
     private init(
         conversationData: [String: Any],
         messageData: [String: Any],
-        translationData: [String: Any],
+        translationData: [String: [String: Any]],
         userData: [String: Any],
         userNumberHashData: [String: Any]
     ) {
@@ -56,7 +56,7 @@ public final class IntegrityServiceSession {
 
         var conversationData: [String: Any]?
         var messageData: [String: Any]?
-        var translationData: [String: Any]?
+        var translationData: [String: [String: Any]]?
         var userData: [String: Any]?
         var userNumberHashData: [String: Any]?
 
@@ -98,7 +98,7 @@ public final class IntegrityServiceSession {
 
         switch getTranslationValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
+            guard let dictionary = values as? [String: [String: Any]] else {
                 return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
 

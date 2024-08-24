@@ -425,6 +425,82 @@ public final class CoreDatabase {
     private func isEmpty(_ value: Any?) -> Bool { value as? NSNull != nil }
 }
 
+public extension CoreDatabase {
+    func clearTemporaryCaches() {
+        cachedDataSamples = cachedDataSamples?.filter { $0.value.expiryThreshold != .seconds(60) }
+    }
+
+    func populateTemporaryCaches() async -> Exception? {
+        @Dependency(\.networking) var networking: Networking
+
+        let resolveResult = await IntegrityServiceSession.resolve()
+
+        switch resolveResult {
+        case let .success(session):
+            var cachedValue = cachedDataSamples ?? .init()
+
+            for (key, value) in session.conversationData {
+                let path = "\(networking.config.environment.shortString)/\(networking.config.paths.conversations)/\(key)"
+                cachedValue[path] = .init(
+                    .now,
+                    data: value,
+                    expiresAfter: .seconds(60)
+                )
+            }
+
+            for (key, value) in session.messageData {
+                let path = "\(networking.config.environment.shortString)/\(networking.config.paths.messages)/\(key)"
+                cachedValue[path] = .init(
+                    .now,
+                    data: value,
+                    expiresAfter: .seconds(60)
+                )
+            }
+
+            for (key, value) in session.translationData {
+                for (translationKey, translationValue) in value {
+                    let path = "\(networking.config.environment.shortString)/\(networking.config.paths.translations)/\(key)/\(translationKey)"
+                    cachedValue[path] = .init(
+                        .now,
+                        data: translationValue,
+                        expiresAfter: .seconds(600)
+                    )
+                }
+            }
+
+            for (key, value) in session.userData {
+                let path = "\(networking.config.environment.shortString)/\(networking.config.paths.users)/\(key)"
+                cachedValue[path] = .init(
+                    .now,
+                    data: value,
+                    expiresAfter: .seconds(60)
+                )
+            }
+
+            for (key, value) in session.userNumberHashData {
+                let path = "\(networking.config.environment.shortString)/\(networking.config.paths.userNumberHashes)/\(key)"
+                cachedValue[path] = .init(
+                    .now,
+                    data: value,
+                    expiresAfter: .seconds(600)
+                )
+            }
+
+            cachedDataSamples = cachedValue
+            Logger.log(
+                "Established database snapshot.",
+                domain: .database,
+                metadata: [self, #file, #function, #line]
+            )
+
+        case let .failure(exception):
+            return exception
+        }
+
+        return nil
+    }
+}
+
 private extension String {
     var prepended: String {
         prependingCurrentEnvironment

@@ -247,23 +247,26 @@ public final class IntegrityService {
 
         for (key, value) in session.userData {
             guard let dictionary = value as? [String: Any],
-                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
 
-            conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }.filter { !$0.isBangQualifiedEmpty }
-
-            var filteredConversationIDKeys = conversationIDKeys
-            for conversationIDKey in filteredConversationIDKeys where !session
+            var filteredConversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }
+            for conversationIDString in filteredConversationIDStrings where !session
                 .conversationData
                 .keys
-                .contains(where: { $0.hasPrefix(conversationIDKey) }) {
-                filteredConversationIDKeys = filteredConversationIDKeys.filter { $0 != conversationIDKey }
+                .contains(where: {
+                    $0.hasPrefix(conversationIDString.components(separatedBy: " | ").first ?? conversationIDString)
+                }) {
+                filteredConversationIDStrings = filteredConversationIDStrings.filter { $0 != conversationIDString }
             }
 
-            guard conversationIDKeys.sorted() != filteredConversationIDKeys.sorted() else { continue }
-            tookAction = true
+            guard conversationIDStrings
+                .filter({ !$0.isBangQualifiedEmpty })
+                .sorted() != filteredConversationIDStrings
+                .sorted() else { continue }
 
+            tookAction = true
             if let exception = await networking.database.setValue(
-                filteredConversationIDKeys.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDKeys,
+                filteredConversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDStrings,
                 forKey: "\(networking.config.paths.users)/\(key)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
                 exceptions.append(exception)

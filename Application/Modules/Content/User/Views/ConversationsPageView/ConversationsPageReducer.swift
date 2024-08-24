@@ -16,6 +16,8 @@ public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
@@ -134,6 +136,26 @@ public struct ConversationsPageReducer: Reducer {
             state.viewID = UUID()
 
         case .updatedCurrentUser:
+            /// - NOTE: Fixes a bug in which mistimed updates would fail to set users on all conversations.
+            /// - Returns: `true` if the page needed refreshing.
+            func refreshUsersIfNeeded() -> Bool {
+                guard let conversations else { return false }
+                guard conversations.allSatisfy({ $0.users != nil }) else {
+                    Logger.log(
+                        "Intercepted badly set users on conversations bug.",
+                        with: isDeveloperModeEnabled ? .toast() : nil,
+                        metadata: [self, #file, #function, #line]
+                    )
+
+                    // TODO: Audit whether Observables.traitCollectionChanged.trigger() is needed here instead.
+                    coreGCD.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }
+                    return true
+                }
+
+                return false
+            }
+
+            guard !refreshUsersIfNeeded() else { return .none }
             state.conversations = conversations ?? state.conversations
             return .task {
                 .composeToolbarButtonAnimationAmountSet(1)

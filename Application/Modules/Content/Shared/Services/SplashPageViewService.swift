@@ -14,6 +14,7 @@ import Foundation
 /* 3rd-party */
 import AlertKit
 import CoreArchitecture
+import Translator
 
 public final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
@@ -22,7 +23,7 @@ public final class SplashPageViewService: ObservableObject {
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
-    @Dependency(\.networking.services) private var networkServices: NetworkServices
+    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -78,7 +79,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: AKCore Delegate Setup */
 
         alertKitConfig.registerReportDelegate(ErrorReportingService())
-        alertKitConfig.registerTranslationDelegate(networkServices.translation)
+        alertKitConfig.registerTranslationDelegate(networking.services.translation)
 
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
@@ -94,7 +95,9 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: Cache Setup */
 
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         @Persistent(.currentUserID) var currentUserID: String?
+        @Persistent(.translationArchive) var translationArchive: [Translation]?
 
         if let currentUserID {
             let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
@@ -124,7 +127,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: HostedTranslationArchiver Setup */
 
         if currentUserID == nil {
-            if let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.services.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             } else {
                 initializationProgress += 0.01
@@ -167,6 +170,11 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.setLanguageCode(currentUser.languageCode)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
+            if ((currentUser.conversationIDs ?? []).count > 3 && (conversationArchive ?? []).isEmpty) || (translationArchive ?? []).isEmpty,
+               let exception = await networking.database.populateTemporaryCaches() {
+                Logger.log(exception)
+            }
+
             if let exception = await currentUser.setConversations() {
                 return exception
             }
@@ -193,6 +201,8 @@ public final class SplashPageViewService: ObservableObject {
             let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)
             didClearCaches = nil
 
+            defer { ContactPairArchiveStatus.setNeedsUpdate(false) }
+
             if !mustUpdateContactPairArchive {
                 guard randomBool, randomBool, randomBool else {
                     initializationProgress = 1
@@ -205,9 +215,7 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            ContactPairArchiveStatus.setNeedsUpdate(false)
-
-            if let exception = await networkServices.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.services.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             }
 
@@ -229,7 +237,7 @@ public final class SplashPageViewService: ObservableObject {
         func attemptDatabaseRepair() async -> Exception? {
             didAttemptDatabaseRepair = true
             loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
-            return await networkServices.integrity.repairDatabase()
+            return await networking.services.integrity.repairDatabase()
         }
 
         @Persistent(.currentUserID) var currentUserID: String?
@@ -237,7 +245,7 @@ public final class SplashPageViewService: ObservableObject {
         if let currentUserID,
            !didAttemptUserConversion {
             didAttemptUserConversion = true
-            if let exception = await networkServices.user.legacy.convertUser(id: currentUserID) {
+            if let exception = await networking.services.user.legacy.convertUser(id: currentUserID) {
                 guard !exception.isEqual(to: .userDoesNotNeedConversion) else { return await attemptDatabaseRepair() }
                 return exception
             }

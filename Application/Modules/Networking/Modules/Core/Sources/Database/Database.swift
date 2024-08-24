@@ -125,10 +125,24 @@ public struct Database {
         }
     }
 
+    // MARK: - Populate Cache
+
+    /// Temporarily populates the cache with a long-lasting snapshot of the database at the current moment.
+    public func populateTemporaryCaches() async -> Exception? {
+        await coreDatabase.populateTemporaryCaches()
+    }
+
     // MARK: - Clear Cache
 
     public func clearCache() {
         coreDatabase.clearCache()
+    }
+
+    // MARK: - Clear Temporary Caches
+
+    /// Clears select long-lasting caches.
+    public func clearTemporaryCaches() {
+        coreDatabase.clearTemporaryCaches()
     }
 }
 

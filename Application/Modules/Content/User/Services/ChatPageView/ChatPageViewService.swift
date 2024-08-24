@@ -95,8 +95,7 @@ public final class ChatPageViewService {
             viewController?.messageInputBar.inputTextView.placeholder = ""
         }
 
-        /// Assists with a bug fix; see `configureInputBarForMessageSendState()`.
-        viewController?.messageInputBar.alpha = messageDeliveryService.isSendingMessage ? 0 : 1
+        viewController?.messageInputBar.alpha = configuration == .default ? 0 : 1
     }
 
     public func onViewDidAppear() {
@@ -119,7 +118,17 @@ public final class ChatPageViewService {
         inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
         menu?.configureMenuGestureRecognizer()
 
-        configureInputBarForMessageSendState()
+        if configuration == .default {
+            inputBar?.becomeFirstResponder()
+            core.ui.resignFirstResponder()
+
+            UIView.animate(
+                withDuration: Floats.inputBarAppearanceAnimationDuration,
+                delay: Floats.inputBarAppearanceAnimationDuration
+            ) {
+                self.viewController?.messageInputBar.alpha = 1
+            }
+        }
 
         services.connectionStatus.addEffectUponConnectionChanged(id: .configureInputBar) {
             self.inputBar?.configureInputBar(forceUpdate: true)
@@ -132,7 +141,6 @@ public final class ChatPageViewService {
         }
 
         viewController?.becomeFirstResponder()
-        viewController?.messagesCollectionView.scrollToLastItem(animated: true)
     }
 
     public func onViewWillDisappear() {
@@ -229,24 +237,6 @@ public final class ChatPageViewService {
         Task { @MainActor in
             guard let parent = viewController?.parent else { return }
             parent.navigationItem.title = navigationTitle
-        }
-    }
-
-    /// - NOTE: Fixes a bug in which a message in the process of sending would cause the input bar's appearance to be offset.
-    private func configureInputBarForMessageSendState() {
-        guard messageDeliveryService.isSendingMessage else { return }
-
-        Logger.log(
-            "Intercepted input bar appearance bug.",
-            domain: .bugPrevention,
-            metadata: [self, #file, #function, #line]
-        )
-
-        inputBar?.becomeFirstResponder()
-        core.ui.resignFirstResponder()
-
-        UIView.animate(withDuration: Floats.inputBarAppearanceAnimationDuration) {
-            self.viewController?.messageInputBar.alpha = 1
         }
     }
 

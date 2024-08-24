@@ -45,11 +45,16 @@ public struct Cached<KeyType: RawRepresentable, ObjectType> where KeyType.RawVal
 
     private let cache: Cache<KeyType> = .init()
     private let key: KeyType
+    private let logsAccess: Bool
 
     // MARK: - Init
 
-    public init(_ key: KeyType) {
+    public init(
+        _ key: KeyType,
+        logsAccess: Bool = false
+    ) {
         self.key = key
+        self.logsAccess = logsAccess
     }
 
     // MARK: - WrappedValue
@@ -76,6 +81,7 @@ public struct Cached<KeyType: RawRepresentable, ObjectType> where KeyType.RawVal
     // MARK: - Logging
 
     private func log(_ type: LoggingActionType, key: KeyType) {
+        guard logsAccess else { return }
         Logger.log(
             "\(type.rawValue) cached value for key \"\(key.rawValue)\".",
             domain: .caches,

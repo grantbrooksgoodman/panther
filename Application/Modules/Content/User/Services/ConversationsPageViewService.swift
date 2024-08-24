@@ -12,10 +12,12 @@ import Foundation
 /* 3rd-party */
 import CoreArchitecture
 
-public struct ConversationsPageViewService {
+public final class ConversationsPageViewService {
     // MARK: - Types
 
     private enum ReloadType: String {
+        /* MARK: Cases */
+
         /// Force update last 1/3 of conversations.
         case full
 
@@ -24,15 +26,29 @@ public struct ConversationsPageViewService {
 
         /// Force update last conversation.
         case partial
+
+        /* MARK: Properties */
+
+        public var next: ReloadType {
+            switch self {
+            case .full: .partial
+            case .minimal: .full
+            case .partial: .minimal
+            }
+        }
     }
 
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.networking.services.conversation.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.networking) private var networking: Networking
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
+
+    // MARK: - Properties
+
+    private var currentReloadType: ReloadType = .full
 
     // MARK: - Public
 
@@ -69,19 +85,21 @@ public struct ConversationsPageViewService {
             }
         }
 
+        networking.database.clearTemporaryCaches()
+
         core.gcd.after(.seconds(1)) {
             Task { @MainActor in
-                guard await services.permission.notificationPermissionStatus == .unknown else {
-                    services.review.promptToReview()
+                guard await self.services.permission.notificationPermissionStatus == .unknown else {
+                    self.services.review.promptToReview()
                     return
                 }
 
-                _ = await services.permission.requestPermission(for: .notifications)
+                _ = await self.services.permission.requestPermission(for: .notifications)
             }
         }
 
         services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
-            guard !build.isOnline else { return }
+            guard !self.build.isOnline else { return }
             showOfflineModeToast()
         }
 
@@ -92,17 +110,24 @@ public struct ConversationsPageViewService {
 
     /// `.pulledToRefresh`
     public func reloadData() async -> Callback<[Conversation], Exception> {
-        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
-
         func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
             if let conversations = userSession.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate,
                let firstConversation = conversations.first,
                type == .full || type == .partial {
-                let array = type == .full ? conversations[0 ... conversations.count / 3] : [firstConversation]
+                var array = [firstConversation]
+                if type == .full {
+                    if conversations.count > 5 {
+                        array = Array(conversations[0 ... conversations.count / 3])
+                    } else {
+                        array = conversations
+                    }
+                }
+
                 array.forEach { markStale(conversation: $0) }
             }
 
             let setCurrentUserResult = await userSession.setCurrentUser()
+            currentReloadType = currentReloadType.next
 
             switch setCurrentUserResult {
             case let .success(user):
@@ -115,6 +140,7 @@ public struct ConversationsPageViewService {
                 }
 
                 @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+                var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
                 guard (contactPairArchive ?? []).isEmpty || randomBool else { return .success(user.conversations ?? []) }
 
                 if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
@@ -129,7 +155,7 @@ public struct ConversationsPageViewService {
             }
         }
 
-        return await reloadData(type: randomBool ? .full : randomBool ? .partial : .minimal)
+        return await reloadData(type: currentReloadType)
     }
 
     // MARK: - Auxiliary
@@ -153,6 +179,6 @@ public struct ConversationsPageViewService {
             users: conversation.users
         )
 
-        conversationArchive.addValue(newConversation)
+        networking.services.conversation.archive.addValue(newConversation)
     }
 }

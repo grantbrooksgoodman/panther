@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import AVFAudio
@@ -18,6 +18,12 @@ import CoreArchitecture
 import InputBarAccessoryView
 
 public final class InputBarService {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case shouldConfigureInputBarForRecording
+    }
+
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService.InputBar
@@ -42,6 +48,11 @@ public final class InputBarService {
 
     private let viewController: ChatPageViewController
 
+    // swiftlint:disable:next identifier_name
+    @Cached(CacheKey.shouldConfigureInputBarForRecording) private var cachedShouldConfigureInputBarForRecording: (
+        encodedConversationID: String,
+        shouldConfigureForRecording: Bool
+    )?
     private var isStoppingRecording = false
 
     // MARK: - Computed Properties
@@ -63,14 +74,33 @@ public final class InputBarService {
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
+        let isSendingMessage = messageDeliveryService.isSendingMessage
         let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
 
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder }
-        return !isConversationEmpty && !isRecipientBarFirstResponder && !isTextViewTextBlank
+        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage }
+        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage && !isTextViewTextBlank
     }
 
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
-    private var shouldConfigureInputBarForRecording: Bool { inputBarConfigService.canConfigureInputBarForRecording && inputBar.inputTextView.text.isEmpty }
+    private var shouldConfigureInputBarForRecording: Bool {
+        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
+        if !isTextViewTextBlank,
+           let cachedValue = cachedShouldConfigureInputBarForRecording,
+           cachedValue.encodedConversationID == viewController.currentConversation?.id.encoded {
+            return cachedValue.shouldConfigureForRecording
+        }
+
+        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
+        let shouldConfigureForRecording = canConfigureInputBarForRecording && isTextViewTextBlank
+
+        guard !isTextViewTextBlank else { return shouldConfigureForRecording }
+        cachedShouldConfigureInputBarForRecording = (
+            viewController.currentConversation?.id.encoded ?? .bangQualifiedEmpty,
+            shouldConfigureForRecording
+        )
+
+        return shouldConfigureForRecording
+    }
 
     // MARK: - Init
 
@@ -386,4 +416,4 @@ public final class InputBarService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length
