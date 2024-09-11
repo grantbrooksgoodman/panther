@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public enum HostedTranslationServiceExceptions {
     public static func inputsFailValidation(
         extraParams: [String: Any],

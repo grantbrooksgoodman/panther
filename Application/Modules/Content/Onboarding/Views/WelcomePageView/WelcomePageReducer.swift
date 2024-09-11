@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
@@ -71,7 +71,7 @@ public struct WelcomePageReducer: Reducer {
         case .action(.viewFirstAppeared):
             state.viewState = .loading
             core.ui.overrideUserInterfaceStyle(.unspecified)
-            ThemeService.setTheme(AppTheme.default.theme, checkStyle: false)
+            ThemeService.setTheme(AppTheme.appDefault.theme, checkStyle: false)
 
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)

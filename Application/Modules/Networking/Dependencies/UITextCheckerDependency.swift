@@ -9,8 +9,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum UITextCheckerDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> UITextChecker {

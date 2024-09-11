@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum InviteQRCodePageViewServiceDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> InviteQRCodePageViewService {

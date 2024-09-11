@@ -8,8 +8,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public extension Networking {
     static func cacheExpiryMilliseconds(for startDate: Date) -> Int {

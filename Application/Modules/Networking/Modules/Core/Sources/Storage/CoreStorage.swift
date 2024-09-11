@@ -10,8 +10,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseStorage
 
 public final class CoreStorage {

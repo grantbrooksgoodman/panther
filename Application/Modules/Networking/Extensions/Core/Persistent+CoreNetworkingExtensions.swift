@@ -8,8 +8,11 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Persistent {
-    convenience init(_ coreNetworkingKey: UserDefaultsKeyDomain.CoreNetworkingDefaultsKey) {
-        self.init(.app(.coreNetworking(coreNetworkingKey)))
+    convenience init(_ coreNetworkingKey: UserDefaultsKey.CoreNetworkingDefaultsKey) {
+        self.init(.coreNetworking(coreNetworkingKey))
     }
 }

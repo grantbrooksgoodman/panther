@@ -9,8 +9,11 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Persistent {
-    convenience init(_ conversationArchiveServiceKey: UserDefaultsKeyDomain.ConversationArchiveServiceDefaultsKey) {
-        self.init(.app(.conversationArchiveService(conversationArchiveServiceKey)))
+    convenience init(_ conversationArchiveServiceKey: UserDefaultsKey.ConversationArchiveServiceDefaultsKey) {
+        self.init(.conversationArchiveService(conversationArchiveServiceKey))
     }
 }

@@ -10,8 +10,10 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import MessageKit
 
 extension ChatPageViewController: MessagesDataSource {
@@ -164,13 +166,13 @@ extension ChatPageViewController: MessagesDataSource {
             .foregroundColor: UIColor(Colors.messageTopLabelAttributedTextAttributesForeground),
         ]
 
-        let isDefaultTheme = ThemeService.isDefaultThemeApplied
+        let isAppDefaultTheme = ThemeService.isAppDefaultThemeApplied
 
         guard let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
-            return .init(string: "\(isDefaultTheme ? "   " : "")\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
+            return .init(string: "\(isAppDefaultTheme ? "   " : "")\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
         }
 
-        return .init(string: "\(isDefaultTheme ? "   " : "")\(contactPair.contact.fullName)", attributes: attributes)
+        return .init(string: "\(isAppDefaultTheme ? "   " : "")\(contactPair.contact.fullName)", attributes: attributes)
     }
 
     // MARK: - Number of Sections

@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
@@ -199,7 +199,7 @@ public struct SignInPageReducer: Reducer {
                     return .verifyPhoneNumberReturned(result)
                 }
             } else {
-                uiApplication.keyWindow?.removeOverlay()
+                uiApplication.mainWindow?.removeOverlay()
                 return .task {
                     let result = await onboardingService.presentAccountDoesNotExistAlert()
                     return .accountDoesNotExistAlertDismissed(cancelled: result)
@@ -218,7 +218,7 @@ public struct SignInPageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.stack([.selectLanguage])))
 
         case let .authenticateUserReturned(.success(userID)):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
@@ -227,7 +227,7 @@ public struct SignInPageReducer: Reducer {
             navigationCoordinator.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.verificationCode.count == 6
@@ -238,7 +238,7 @@ public struct SignInPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
             switch state.configuration {
             case .phoneNumber:
@@ -272,7 +272,7 @@ public struct SignInPageReducer: Reducer {
             state.regionMenuViewID = UUID()
 
         case let .verifyPhoneNumberReturned(.success(authID)):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = false
@@ -281,7 +281,7 @@ public struct SignInPageReducer: Reducer {
             state.configuration = .verificationCode
 
         case let .verifyPhoneNumberReturned(.failure(exception)):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength

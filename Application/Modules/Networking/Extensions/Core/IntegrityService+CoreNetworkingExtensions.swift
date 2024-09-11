@@ -10,9 +10,9 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public extension IntegrityService {
     func repairDatabase(

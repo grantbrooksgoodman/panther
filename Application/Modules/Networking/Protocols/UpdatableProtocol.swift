@@ -8,6 +8,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public protocol Updatable {
     // MARK: - Associated Types
 

@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 // MARK: - String
 
 public extension AppConstants.Strings {

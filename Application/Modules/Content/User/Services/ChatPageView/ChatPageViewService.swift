@@ -11,8 +11,10 @@ import AVFAudio
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import MessageKit
 
 public final class ChatPageViewService {
@@ -261,7 +263,7 @@ public final class ChatPageViewService {
     }
 
     private func toggleBuildInfoOverlay(on: Bool) {
-        guard let overlayWindow = uiApplication.keyWindow?.firstSubview(for: Strings.buildInfoOverlayWindowSemanticTag) as? UIWindow else { return }
-        overlayWindow.isHidden = build.stage == .generalRelease || !on
+        guard let overlayWindow = uiApplication.mainWindow?.firstSubview(for: Strings.buildInfoOverlayWindowSemanticTag) as? UIWindow else { return }
+        overlayWindow.isHidden = build.milestone == .generalRelease || !on
     }
 }

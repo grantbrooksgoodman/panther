@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 public extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
         let scrollEdgeConfig: NavigationBarConfiguration = .init(

@@ -10,8 +10,10 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import MessageKit
 
 public final class AlternateMessageService {

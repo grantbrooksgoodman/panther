@@ -10,8 +10,8 @@
 import Foundation
 import PhotosUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class CameraPickerService: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // MARK: - Dependencies

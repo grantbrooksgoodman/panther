@@ -10,9 +10,9 @@
 import Foundation
 import PhotosUI
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class MediaPickerService: PHPickerViewControllerDelegate {
     // MARK: - Dependencies

@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension UITheme {
     var nonEnglishName: String? {
         switch name {

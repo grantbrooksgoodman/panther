@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 // MARK: - Color
 
 public extension AppConstants.Colors {

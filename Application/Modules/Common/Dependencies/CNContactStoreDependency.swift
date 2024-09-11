@@ -10,8 +10,8 @@
 import Contacts
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum CNContactStoreDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> CNContactStore {

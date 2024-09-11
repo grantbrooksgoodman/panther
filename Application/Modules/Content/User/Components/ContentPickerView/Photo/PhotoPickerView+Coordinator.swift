@@ -11,8 +11,8 @@ import Foundation
 import PhotosUI
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public extension PhotoPickerView {
     final class Coordinator: NSObject, PHPickerViewControllerDelegate {

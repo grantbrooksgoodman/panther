@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension TranslatedLabelStringCollection {
     enum InviteQRCodePageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases

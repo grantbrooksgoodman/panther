@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import Translator
 
 public struct TranslationReference: Codable, Equatable {

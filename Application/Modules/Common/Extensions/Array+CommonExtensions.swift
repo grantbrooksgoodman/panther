@@ -10,8 +10,8 @@
 import ContactsUI
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public extension Array where Element == CNLabeledValue<CNPhoneNumber> {
     var asPhoneNumbers: [PhoneNumber] {

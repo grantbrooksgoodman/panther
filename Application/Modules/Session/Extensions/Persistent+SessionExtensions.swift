@@ -9,8 +9,11 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Persistent {
-    convenience init(_ userSessionServiceKey: UserDefaultsKeyDomain.UserSessionServiceDefaultsKey) {
-        self.init(.app(.userSessionService(userSessionServiceKey)))
+    convenience init(_ userSessionServiceKey: UserDefaultsKey.UserSessionServiceDefaultsKey) {
+        self.init(.userSessionService(userSessionServiceKey))
     }
 }

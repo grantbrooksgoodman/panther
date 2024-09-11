@@ -10,9 +10,11 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
+
+/* 3rd-party */
 import InputBarAccessoryView
 
 public final class InputBarGestureRecognizerService {

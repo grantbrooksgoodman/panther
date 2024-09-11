@@ -11,8 +11,8 @@ import Contacts
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies

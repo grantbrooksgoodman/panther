@@ -10,26 +10,22 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import AlertKit
-import CoreArchitecture
 import FirebaseAnalytics
 import FirebaseCore
 import FirebaseMessaging
-import Translator
 
 @main
 public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
-    @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.breadcrumbs) private var breadcrumbs: Breadcrumbs
-    @Dependency(\.build) private var build: Build
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.firebaseMessaging) private var firebaseMessaging: Messaging
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.translatorConfig) private var translatorConfig: Translator.Config
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -37,118 +33,15 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     // MARK: - UIApplication
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        preInitialize()
+        Application.initialize()
         setUpFirebase()
         setUpPushNotifications()
-
-        /* Encapsulate further work here into setup functions. */
-
         return true
     }
 
     public func applicationWillTerminate(_ application: UIApplication) {
         userSession.persistOfflineCurrentUser()
         services.analytics.logEvent(.terminateApp)
-    }
-
-    // MARK: - Initialization + Setup
-
-    private func preInitialize() {
-        /* MARK: Defaults Keys & Logging Setup */
-
-        RuntimeStorage.store(BuildConfig.languageCode, as: .languageCode)
-
-        Logger.setDomainsExcludedFromSessionRecord(BuildConfig.loggerDomainsExcludedFromSessionRecord)
-        Logger.subscribe(to: BuildConfig.loggerDomainSubscriptions)
-
-        @Persistent(.breadcrumbsCaptureEnabled) var breadcrumbsCaptureEnabled: Bool?
-        @Persistent(.breadcrumbsCapturesAllViews) var breadcrumbsCapturesAllViews: Bool?
-        if build.stage == .generalRelease {
-            breadcrumbsCaptureEnabled = false
-            breadcrumbsCapturesAllViews = nil
-        } else if let breadcrumbsCaptureEnabled,
-                  let breadcrumbsCapturesAllViews,
-                  breadcrumbsCaptureEnabled {
-            breadcrumbs.startCapture(uniqueViewsOnly: !breadcrumbsCapturesAllViews)
-        }
-
-        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
-        if hidesBuildInfoOverlay == nil {
-            hidesBuildInfoOverlay = false
-        }
-
-        /* MARK: Developer Mode Setup */
-
-        DevModeService.addCustomActions()
-
-        /* MARK: Theme Setup */
-
-        @Persistent(.pendingThemeID) var pendingThemeID: String?
-        @Persistent(.currentThemeID) var currentThemeID: String?
-
-        if let themeID = pendingThemeID,
-           let correspondingCase = AppTheme.allCases.first(where: { $0.theme.encodedHash == themeID }) {
-            ThemeService.setTheme(correspondingCase.theme, checkStyle: false)
-            pendingThemeID = nil
-        } else if let currentThemeID,
-                  let correspondingCase = AppTheme.allCases.first(where: { $0.theme.encodedHash == currentThemeID }) {
-            ThemeService.setTheme(correspondingCase.theme, checkStyle: false)
-        } else {
-            ThemeService.setTheme(AppTheme.default.theme, checkStyle: false)
-        }
-
-        /* MARK: AlertKit & Translator Setup */
-
-        alertKitConfig.overrideTargetLanguageCode(RuntimeStorage.languageCode)
-        alertKitConfig.overrideTranslationHUDConfig(.init(appearsAfter: .milliseconds(500), isModal: true))
-
-        alertKitConfig.registerLoggerDelegate(Logger.AlertKitLogger())
-        alertKitConfig.registerPresentationDelegate(core)
-
-        ReportDelegate.registerWithDependencies()
-        TranslationDelegate.registerWithDependencies()
-
-        LocalTranslationArchiverDelegate.registerWithDependencies()
-        translatorConfig.registerLoggerDelegate(Logger.TranslationLogger())
-
-        /* MARK: Navigation Setup */
-
-        let navigationCoordinator: NavigationCoordinator<RootNavigationService> = .init(
-            .init(modal: .splash),
-            navigating: RootNavigationService()
-        )
-
-        NavigationCoordinatorResolver.shared.store(navigationCoordinator)
-
-        /* MARK: Localization Setup */
-
-        let localizedStrings = Localization.localizedStrings
-        guard !localizedStrings.isEmpty else {
-            Logger.log(.init("Missing localized strings.", metadata: [self, #file, #function, #line]))
-            return
-        }
-
-        let unsupportedLanguageCodes = ["ba", "ceb", "jv", "la", "mr", "ms", "udm"]
-        let supportedLanguages = localizedStrings["language_codes"]?.filter { !unsupportedLanguageCodes.contains($0.key) }
-        guard let supportedLanguages else {
-            Logger.log(.init("No supported languages.", metadata: [self, #file, #function, #line]))
-            return
-        }
-
-        RuntimeStorage.store(supportedLanguages, as: .languageCodeDictionary)
-        guard let languageCodeDictionary = RuntimeStorage.languageCodeDictionary else { return }
-
-        guard languageCodeDictionary[RuntimeStorage.languageCode] != nil else {
-            Logger.log(
-                .init(
-                    "Unsupported language code; reverting to English.",
-                    metadata: [self, #file, #function, #line]
-                )
-            )
-
-            core.utils.setLanguageCode("en")
-            return
-        }
     }
 
     // MARK: - Set Up Firebase
@@ -182,7 +75,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-        core.utils.eraseTemporaryDirectory()
+        coreUtilities.eraseTemporaryDirectory()
     }
 
     // MARK: - MessagingDelegate Conformance

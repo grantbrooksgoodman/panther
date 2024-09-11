@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 extension Participant: Serializable {
     // MARK: - Type Aliases
 

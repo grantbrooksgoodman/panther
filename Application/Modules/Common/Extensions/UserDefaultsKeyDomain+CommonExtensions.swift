@@ -9,7 +9,10 @@
 /* Native */
 import Foundation
 
-public extension UserDefaultsKeyDomain {
+/* Proprietary */
+import AppSubsystem
+
+public extension UserDefaultsKey {
     // MARK: - Types
 
     enum GeneralAppDefaultsKey: String {
@@ -43,13 +46,13 @@ public extension UserDefaultsKeyDomain {
 
     // MARK: - Properties
 
-    static let permanentKeys: [UserDefaultsKeyDomain] = [
-        .app(.coreNetworking(.networkEnvironment)),
-        .app(.devModeService(.indicatesNetworkActivity)),
-        .core(.breadcrumbsCaptureEnabled),
-        .core(.breadcrumbsCapturesAllViews),
-        .core(.currentThemeID),
-        .core(.developerModeEnabled),
-        .core(.hidesBuildInfoOverlay),
+    static let permanentKeys: [UserDefaultsKey] = [
+        .coreNetworking(.networkEnvironment),
+        .devModeService(.indicatesNetworkActivity),
+        .breadcrumbsCaptureEnabled,
+        .breadcrumbsCapturesAllViews,
+        .currentThemeID,
+        .developerModeEnabled,
+        .hidesBuildInfoOverlay,
     ]
 }

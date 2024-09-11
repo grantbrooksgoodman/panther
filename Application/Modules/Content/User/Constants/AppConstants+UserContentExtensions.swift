@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 // swiftlint:disable identifier_name
 
 // MARK: - CGFloat

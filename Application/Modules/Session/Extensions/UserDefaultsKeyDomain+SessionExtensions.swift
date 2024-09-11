@@ -9,7 +9,10 @@
 /* Native */
 import Foundation
 
-public extension UserDefaultsKeyDomain {
+/* Proprietary */
+import AppSubsystem
+
+public extension UserDefaultsKey {
     enum UserSessionServiceDefaultsKey: String {
         case currentUserID
         case offlineCurrentUser

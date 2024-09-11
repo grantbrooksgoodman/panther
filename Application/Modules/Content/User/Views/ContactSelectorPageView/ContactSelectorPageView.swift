@@ -10,9 +10,9 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
-import CoreArchitecture
 
 public struct ContactSelectorPageView: View {
     // MARK: - Constants Accessors

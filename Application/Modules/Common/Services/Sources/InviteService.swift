@@ -10,21 +10,22 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
-    @Dependency(\.uiApplication.keyWindow?.rootViewController) private var keyViewController: UIViewController?
+    @Dependency(\.uiApplication.mainWindow?.rootViewController) private var keyViewController: UIViewController?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
 
     // MARK: - Present Invitation Prompt
 
+    @MainActor
     public func presentInvitationPrompt() async -> Exception? {
         guard let presentInviteLanguagePicker = await promptToTranslate() else { return nil }
 
@@ -36,10 +37,7 @@ public struct InviteService {
             return nil
         }
 
-        Task { @MainActor in
-            keyViewController?.dismiss(animated: true)
-        }
-
+        keyViewController?.dismiss(animated: true)
         coreGCD.after(.seconds(2)) {
             RootSheets.present(.inviteLanguagePicker)
         }

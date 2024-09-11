@@ -9,55 +9,74 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 import Translator
 
-public extension CoreKit.Utilities {
+public extension CacheDomain {
     // MARK: - Types
 
-    enum CacheDomain: CaseIterable {
-        case chatInfoPageViewService
-        case commonPropertyLists
-        case contactImage
-        case contactPairArchive
-        case contactService
-        case conversationArchive
-        case database
-        case encodedHash
-        case localization
-        case localTranslationArchive
-        case mediaMessagePreviewService
-        case regionDetailService
-        case settingsPageViewService
-        case storage
-        case userService
+    struct List: AppSubsystem.Delegates.CacheDomainListDelegate {
+        public var allCacheDomains: [CacheDomain] {
+            [
+                .chatInfoPageViewService,
+                .commonPropertyLists,
+                .contactImage,
+                .contactPairArchive,
+                .contactService,
+                .conversationArchive,
+                .database,
+                .encodedHash,
+                .localization,
+                .localTranslationArchive,
+                .mediaMessagePreviewService,
+                .regionDetailService,
+                .settingsPageViewService,
+                .storage,
+                .userService,
+            ]
+        }
     }
 
-    // MARK: - Clear Caches
+    // MARK: - Properties
 
-    func clearCaches(domains: [CacheDomain] = CacheDomain.allCases) {
+    static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService")
+    static let commonPropertyLists: CacheDomain = .init("commonPropertyLists")
+    static let contactImage: CacheDomain = .init("contactImage")
+    static let contactPairArchive: CacheDomain = .init("contactPairArchive")
+    static let contactService: CacheDomain = .init("contactService")
+    static let conversationArchive: CacheDomain = .init("conversationArchive")
+    static let database: CacheDomain = .init("database")
+    static let localization: CacheDomain = .init("localization")
+    static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
+    static let regionDetailService: CacheDomain = .init("regionDetailService")
+    static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
+    static let storage: CacheDomain = .init("storage")
+    static let userService: CacheDomain = .init("userService")
+}
+
+public extension CoreKit.Utilities {
+    func clearCaches(_ domains: [CacheDomain] = CacheDomain.allCases) {
         @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
         @Dependency(\.commonServices) var commonServices: CommonServices
-        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiverDelegate
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
         @Dependency(\.networking) var networking: Networking
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
 
-        if domains.contains(.chatInfoPageViewService) { chatInfoPageViewService.clearCache() }
-        if domains.contains(.commonPropertyLists) { commonServices.propertyLists.clearCache() }
-        if domains.contains(.contactImage) { ContactImageCache.clearCache() }
-        if domains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
-        if domains.contains(.contactService) { commonServices.contact.clearCache() }
-        if domains.contains(.conversationArchive) { networking.services.conversation.archive.clearArchive() }
-        if domains.contains(.database) { networking.database.clearCache() }
-        if domains.contains(.encodedHash) { EncodedHashCache.clearCache() }
-        if domains.contains(.localTranslationArchive) { localTranslationArchiver.clearArchive() }
-        if domains.contains(.localization) { Localization.clearCache() }
-        if domains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
-        if domains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
-        if domains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
-        if domains.contains(.storage) { networking.storage.clearCache() }
-        if domains.contains(.userService) { networking.services.user.clearCache() }
+        let appDomains = clearCaches(domains: domains)
+
+        if appDomains.contains(.chatInfoPageViewService) { chatInfoPageViewService.clearCache() }
+        if appDomains.contains(.commonPropertyLists) { commonServices.propertyLists.clearCache() }
+        if appDomains.contains(.contactImage) { ContactImageCache.clearCache() }
+        if appDomains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
+        if appDomains.contains(.contactService) { commonServices.contact.clearCache() }
+        if appDomains.contains(.conversationArchive) { networking.services.conversation.archive.clearArchive() }
+        if appDomains.contains(.database) { networking.database.clearCache() }
+        if appDomains.contains(.localization) { Localization.clearCache() }
+        if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
+        if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
+        if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
+        if appDomains.contains(.storage) { networking.storage.clearCache() }
+        if appDomains.contains(.userService) { networking.services.user.clearCache() }
     }
 }

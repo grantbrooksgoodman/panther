@@ -9,4 +9,7 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 extension Build: ConnectionStatusProvider {}

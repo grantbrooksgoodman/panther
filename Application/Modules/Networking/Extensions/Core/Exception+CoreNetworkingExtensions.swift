@@ -8,6 +8,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Exception {
     static func invalidType(
         value: Any,

@@ -11,8 +11,8 @@ import Contacts
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct Contact: Codable, EncodedHashable, Equatable {
     // MARK: - Properties

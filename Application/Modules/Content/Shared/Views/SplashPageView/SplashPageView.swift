@@ -10,9 +10,9 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
-import CoreArchitecture
 
 public struct SplashPageView: View {
     // MARK: - Dependencies
@@ -42,8 +42,8 @@ public struct SplashPageView: View {
         VStack {
             Image(.hello)
                 .resizable()
-                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? .template : .original)
-                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
+                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? .template : .original)
+                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
                 .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                 .padding(.bottom, Floats.padding)
 
@@ -52,6 +52,7 @@ public struct SplashPageView: View {
                     .animation(.easeIn, value: viewService.initializationProgress)
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
+                    .tint(Color.accent)
                     .padding(.horizontal, Floats.progressBarHorizontalPadding)
                     .padding(.top, Floats.progressBarTopPadding)
             } else {
@@ -64,7 +65,7 @@ public struct SplashPageView: View {
         }
         .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .preferredStatusBarStyle(ThemeService.isDefaultThemeApplied ? .default : .lightContent)
+        .preferredStatusBarStyle(ThemeService.isAppDefaultThemeApplied ? .default : .lightContent)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }
@@ -82,6 +83,7 @@ public struct SplashPageView: View {
                             maxWidth: Floats.progressBarActivityIndicatorFrameMaxWidth,
                             maxHeight: Floats.progressBarActivityIndicatorFrameMaxHeight
                         )
+                        .tint(Color(uiColor: .systemGray))
 
                     Components.text(
                         viewService.loadingLabelText,

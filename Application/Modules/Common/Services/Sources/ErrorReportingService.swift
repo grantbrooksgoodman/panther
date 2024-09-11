@@ -10,9 +10,9 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
@@ -40,7 +40,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         var parameters = [
             "Build SKU": build.buildSKU,
             "Bundle Revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
-            "Bundle Version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
+            "Bundle Version": "\(build.bundleVersion) (\(build.buildNumber)\(build.milestone.shortString))",
             "Connection Status": build.isOnline ? "online" : "offline",
             "Device Model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
             "Language Code": RuntimeStorage.languageCode,
@@ -79,7 +79,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         showsToastOnSuccess: Bool = true
     ) {
         Task { @MainActor in
-            let buildNumberString = "\(build.buildNumber)\(build.stage.shortString)"
+            let buildNumberString = "\(build.buildNumber)\(build.milestone.shortString)"
             let bundleVersionString = build.bundleVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
 

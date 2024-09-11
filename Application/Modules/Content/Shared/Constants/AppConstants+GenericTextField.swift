@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension AppConstants.CGFloats {
     enum GenericTextField {
         public static let defaultDividerXOffset: CGFloat = 0

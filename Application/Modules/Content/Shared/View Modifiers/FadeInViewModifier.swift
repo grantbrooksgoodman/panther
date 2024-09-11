@@ -10,8 +10,8 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 private struct FadeInViewModifier: ViewModifier {
     // MARK: - Dependencies

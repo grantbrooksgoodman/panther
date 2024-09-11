@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 public extension UIImage {
     // MARK: - Type Aliases
 

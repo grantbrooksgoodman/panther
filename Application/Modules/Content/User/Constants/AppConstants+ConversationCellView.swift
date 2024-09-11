@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 // MARK: - CGFloat
 
 public extension AppConstants.CGFloats {

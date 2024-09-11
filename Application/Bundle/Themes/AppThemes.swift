@@ -10,46 +10,42 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /**
- Use this enum to build new `UITheme`s.
+ Use this extension to build new UI themes.
  */
-public enum AppTheme: CaseIterable {
+public extension AppTheme {
     // MARK: - Type Aliases
 
     private typealias Item = UITheme.ColoredItem
 
-    // MARK: - Cases
+    // MARK: - Types
 
-    case `default`
-    case bluesky
-    case dusk
-    case firebrand
-    case twilight
-
-    // MARK: - Properties
-
-    public var theme: UITheme {
-        switch self {
-        case .default:
-            return .init(name: "Default", items: defaultColoredItems)
-
-        case .bluesky:
-            return .init(name: "Bluesky", items: blueskyColoredItems, style: .dark)
-
-        case .dusk:
-            return .init(name: "Dusk", items: duskColoredItems, style: .dark)
-
-        case .firebrand:
-            return .init(name: "Firebrand", items: firebrandColoredItems, style: .dark)
-
-        case .twilight:
-            return .init(name: "Twilight", items: twilightColoredItems, style: .dark)
+    struct List: AppSubsystem.Delegates.AppThemeListDelegate {
+        public var allAppThemes: [AppTheme] {
+            [
+                .appDefault,
+                .bluesky,
+                .dusk,
+                .firebrand,
+                .twilight,
+            ]
         }
     }
 
-    // MARK: - Colored Item Accessors
+    // MARK: - Themes
 
-    private var defaultColoredItems: [Item] {
+    static let appDefault: AppTheme = .init(.init(name: "Default", items: appDefaultColoredItems))
+    static let bluesky: AppTheme = .init(.init(name: "Bluesky", items: blueskyColoredItems, style: .dark))
+    static let dusk: AppTheme = .init(.init(name: "Dusk", items: duskColoredItems, style: .dark))
+    static let firebrand: AppTheme = .init(.init(name: "Firebrand", items: firebrandColoredItems, style: .dark))
+    static let twilight: AppTheme = .init(.init(name: "Twilight", items: twilightColoredItems, style: .dark))
+
+    // MARK: - Colored Items
+
+    private static var appDefaultColoredItems: [Item] {
         let accentColor = UIColor.systemBlue
 
         let accent = Item(type: .accent, set: .init(primary: accentColor))
@@ -80,7 +76,7 @@ public enum AppTheme: CaseIterable {
         ]
     }
 
-    private var blueskyColoredItems: [Item] {
+    private static var blueskyColoredItems: [Item] {
         let accentColor = UIColor(hex: 0x30AAF2)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -112,7 +108,7 @@ public enum AppTheme: CaseIterable {
         ]
     }
 
-    private var duskColoredItems: [Item] {
+    private static var duskColoredItems: [Item] {
         let accentColor = UIColor(hex: 0xFA8231)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -144,7 +140,7 @@ public enum AppTheme: CaseIterable {
         ]
     }
 
-    private var firebrandColoredItems: [Item] {
+    private static var firebrandColoredItems: [Item] {
         let accentColor = UIColor(hex: 0xFF5252)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -176,7 +172,7 @@ public enum AppTheme: CaseIterable {
         ]
     }
 
-    private var twilightColoredItems: [Item] {
+    private static var twilightColoredItems: [Item] {
         let accentColor = UIColor(hex: 0x786DC4)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -207,4 +203,8 @@ public enum AppTheme: CaseIterable {
             subtitleText,
         ]
     }
+}
+
+public extension ThemeService {
+    static var isAppDefaultThemeApplied: Bool { currentTheme == AppTheme.appDefault.theme }
 }

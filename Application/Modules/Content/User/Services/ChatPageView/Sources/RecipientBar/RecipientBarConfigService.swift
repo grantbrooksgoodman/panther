@@ -11,8 +11,8 @@ import AVFAudio
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class RecipientBarConfigService {
     // MARK: - Types

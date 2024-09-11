@@ -8,7 +8,7 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import Translator
 
 public extension Array where Element == String {

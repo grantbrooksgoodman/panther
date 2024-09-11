@@ -14,9 +14,9 @@ import Foundation
 import QuickLook
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class MediaActionHandlerService {
     // MARK: - Constants Accessors

@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 public struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
     // MARK: - Type Aliases
 

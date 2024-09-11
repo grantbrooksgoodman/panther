@@ -10,9 +10,9 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
-import CoreArchitecture
 
 public struct ConversationsContentPageView: View {
     // MARK: - Constants Accessors
@@ -65,7 +65,7 @@ public struct ConversationsContentPageView: View {
                             )
                         }
                     }
-                    .background(ThemeService.isDefaultThemeApplied ? Color.background : nil)
+                    .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                     .listStyle(.plain)
                     .navigationTitle(viewModel.strings.value(for: .navigationTitle))
                     .refreshable {

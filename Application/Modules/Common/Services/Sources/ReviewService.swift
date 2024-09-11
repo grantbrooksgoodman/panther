@@ -10,8 +10,8 @@
 import Foundation
 import StoreKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct ReviewService {
     // MARK: - Dependencies
@@ -50,7 +50,7 @@ public struct ReviewService {
 
     public func promptToReview() {
         guard canPromptToReview,
-              let windowScene = uiApplication.keyWindow?.windowScene else { return }
+              let windowScene = uiApplication.mainWindow?.windowScene else { return }
         SKStoreReviewController.requestReview(in: windowScene)
 
         @Persistent(.lastRequestedReviewForBuildNumber) var lastRequestedReviewForBuildNumber: Int?

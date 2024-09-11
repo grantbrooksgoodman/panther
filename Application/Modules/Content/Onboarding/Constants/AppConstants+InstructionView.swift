@@ -10,13 +10,16 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 // MARK: - CGFloat
 
 public extension AppConstants.CGFloats {
     enum InstructionView {
         public static let frameHeight: CGFloat = 200
-        public static let keyWindowSizeWidthDivisor: CGFloat = 2
         public static let leadingPadding: CGFloat = 20
+        public static let mainWindowSizeWidthDivisor: CGFloat = 2
 
         public static let subtitleLabelFontSize: CGFloat = 14
         public static let subtitleLabelMinimumScaleFactor: CGFloat = 0.01

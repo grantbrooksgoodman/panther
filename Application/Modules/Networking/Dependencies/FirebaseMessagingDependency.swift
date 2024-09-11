@@ -9,8 +9,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseMessaging
 
 public enum FirebaseMessagingDependency: DependencyKey {

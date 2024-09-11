@@ -10,9 +10,9 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
-import CoreArchitecture
 
 public struct ConversationCellView: View {
     // MARK: - Constants Accessors
@@ -209,7 +209,7 @@ public struct ConversationCellView: View {
     private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
         var pageView: AnyView = .init(
             ChatPageView(viewModel.conversation, configuration: configuration)
-                .background(ThemeService.isDefaultThemeApplied ? .clear : .navigationBarBackground)
+                .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
                 .ignoresSafeArea(.keyboard)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(viewModel.cellViewData.titleLabelText)

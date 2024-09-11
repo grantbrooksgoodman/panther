@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct InputBarConfigService {
     // MARK: - Constants Accessors
@@ -49,7 +49,7 @@ public struct InputBarConfigService {
         guard build.isOnline else { return .init(systemName: Strings.sendButtonOfflineImageSystemName) }
 
         guard forRecording else {
-            guard ThemeService.isDefaultThemeApplied else {
+            guard ThemeService.isAppDefaultThemeApplied else {
                 return isHighlighted ? .sendAlternateHighlighted : .sendAlternate
             }
 

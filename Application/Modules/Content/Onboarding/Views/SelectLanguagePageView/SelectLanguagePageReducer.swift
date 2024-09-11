@@ -9,9 +9,9 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
@@ -100,7 +100,7 @@ public struct SelectLanguagePageReducer: Reducer {
             }
 
             if let selectedLanguageCode = localizedLanguageCodeDictionary.keys(for: state.selectedLanguage).first {
-                coreUtilities.clearCaches(domains: [.regionDetailService])
+                coreUtilities.clearCaches([.localization, .regionDetailService])
                 coreUtilities.setLanguageCode(selectedLanguageCode)
 
                 navigationCoordinator.navigate(to: .onboarding(.push(.verifyNumber)))

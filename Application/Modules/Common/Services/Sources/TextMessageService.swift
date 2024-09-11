@@ -10,8 +10,8 @@
 import Foundation
 import MessageUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class TextMessageService: NSObject, MFMessageComposeViewControllerDelegate {
     // MARK: - Dependencies

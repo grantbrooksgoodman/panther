@@ -10,9 +10,9 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
-import CoreArchitecture
 
 public struct PermissionContentPageView: View {
     // MARK: - Constants Accessors

@@ -10,8 +10,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseDatabase
 
 public final class CoreDatabase {
@@ -482,7 +484,7 @@ public extension CoreDatabase {
                 cachedValue[path] = .init(
                     .now,
                     data: value,
-                    expiresAfter: .seconds(600)
+                    expiresAfter: .seconds(60)
                 )
             }
 

@@ -10,8 +10,8 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
@@ -101,7 +101,11 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case .action(.chatInfoToolbarButtonTapped):
-            RootSheets.present(.chatInfoPageView)
+            return .fireAndForget {
+                Task { @MainActor in
+                    RootSheets.present(.chatInfoPageView)
+                }
+            }
 
         case .action(.chatPageViewAppeared):
             services.analytics.logEvent(.accessChat)

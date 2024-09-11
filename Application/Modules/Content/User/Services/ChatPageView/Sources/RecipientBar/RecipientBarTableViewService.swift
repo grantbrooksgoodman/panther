@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class RecipientBarTableViewService {
     // MARK: - Types

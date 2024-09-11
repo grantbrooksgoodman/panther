@@ -9,9 +9,9 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public struct ConversationCellViewService {
     // MARK: - Dependencies
@@ -65,7 +65,7 @@ public struct ConversationCellViewService {
                     coreUtilities.eraseDocumentsDirectory()
                     coreUtilities.eraseTemporaryDirectory()
 
-                    defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+                    defaults.reset(keeping: UserDefaultsKey.permanentKeys)
 
                     @Persistent(.currentUserID) var currentUserID: String?
                     currentUserID = user.id

@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 extension PhoneNumber: Serializable {
     // MARK: - Type Aliases
 

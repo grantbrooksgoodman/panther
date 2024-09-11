@@ -11,9 +11,9 @@ import Contacts
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class SettingsPageViewService {
     // MARK: - Types
@@ -61,7 +61,7 @@ public final class SettingsPageViewService {
         Task {
             var actions = [AKAction]()
 
-            func isCurrentTheme(_ theme: UITheme) -> Bool { theme.name == ThemeService.currentTheme.name }
+            func isCurrentTheme(_ theme: UITheme) -> Bool { theme.encodedHash == ThemeService.currentTheme.encodedHash }
             func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
 
             actions = AppTheme.allCases.map { appTheme in
@@ -84,8 +84,8 @@ public final class SettingsPageViewService {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            var defaultsKeysToKeep: [UserDefaultsKeyDomain] = UserDefaultsKeyDomain.permanentKeys
-            defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
+            var defaultsKeysToKeep: [UserDefaultsKey] = UserDefaultsKey.permanentKeys
+            defaultsKeysToKeep.append(.userSessionService(.currentUserID))
             defaults.reset(keeping: defaultsKeysToKeep)
 
             @Persistent(.didClearCaches) var didClearCaches: Bool?
@@ -131,7 +131,7 @@ public final class SettingsPageViewService {
                 core.utils.eraseDocumentsDirectory()
                 core.utils.eraseTemporaryDirectory()
 
-                defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+                defaults.reset(keeping: UserDefaultsKey.permanentKeys)
 
                 exit(0)
             }
@@ -145,19 +145,19 @@ public final class SettingsPageViewService {
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
                 Task {
-                    await self.uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+                    await self.uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
                     if let exception = self.userSession.stopObservingCurrentUserChanges() {
                         Logger.log(exception)
                     }
 
                     if let exception = await self.userSession.deleteAccount() {
-                        await self.uiApplication.keyWindow?.removeOverlay()
+                        await self.uiApplication.mainWindow?.removeOverlay()
                         Logger.log(exception, with: .toast())
                         return
                     }
 
-                    await self.uiApplication.keyWindow?.removeOverlay()
+                    await self.uiApplication.mainWindow?.removeOverlay()
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
                         Task { await clearCachesAndExit() }
@@ -185,7 +185,9 @@ public final class SettingsPageViewService {
             }
 
             let showQRCodeAction: AKAction = .init("Show QR Code") {
-                RootSheets.present(.inviteQRCodePageView)
+                Task { @MainActor in
+                    RootSheets.present(.inviteQRCodePageView)
+                }
             }
 
             await AKActionSheet(
@@ -235,7 +237,7 @@ public final class SettingsPageViewService {
                     }
 
                     self.services.analytics.logEvent(.logOut)
-                    self.defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+                    self.defaults.reset(keeping: UserDefaultsKey.permanentKeys)
                     self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
                     self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
                 }
@@ -263,19 +265,19 @@ public final class SettingsPageViewService {
                 alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
                 RuntimeStorage.remove(.overriddenLanguageCode)
                 core.hud.showSuccess(text: "Set to \(languageName)")
-                uiApplication.keyWindow?.rootViewController?.dismiss(animated: true)
+                uiApplication.mainWindow?.rootViewController?.dismiss(animated: true)
                 return
             }
 
             alertKitConfig.overrideTargetLanguageCode("en")
             RuntimeStorage.store("en", as: .overriddenLanguageCode)
             core.hud.showSuccess(text: "Set to English")
-            uiApplication.keyWindow?.rootViewController?.dismiss(animated: true)
+            uiApplication.mainWindow?.rootViewController?.dismiss(animated: true)
         }
 
         typealias Colors = AppConstants.Colors.SettingsPageView
 
-        guard build.stage != .generalRelease else { return nil }
+        guard build.milestone != .generalRelease else { return nil }
 
         var items = [StaticListItem]()
 

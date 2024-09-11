@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum ContactNameServiceDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> ContactNameService {

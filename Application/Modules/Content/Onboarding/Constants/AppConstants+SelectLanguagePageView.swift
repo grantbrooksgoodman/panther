@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 // MARK: - CGFloat
 
 public extension AppConstants.CGFloats {
@@ -29,8 +32,6 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum SelectLanguagePageView {
-//        public static let backButtonForeground: Color = .blue
-//        public static let continueButtonForeground: Color = .blue
         public static let instructionLabelForeground: Color = .gray
     }
 }

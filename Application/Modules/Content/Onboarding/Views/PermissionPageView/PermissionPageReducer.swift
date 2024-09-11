@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
@@ -96,7 +96,7 @@ public struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isFinishButtonEnabled = false
 
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
             return .task {
                 let result = await onboardingService.presentEULAAlert()
@@ -118,7 +118,7 @@ public struct PermissionPageReducer: Reducer {
             }
 
         case let .feedback(.createUserReturned(exception)):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             if let exception {
                 state.isBackButtonEnabled = true
@@ -131,7 +131,7 @@ public struct PermissionPageReducer: Reducer {
 
         case let .feedback(.eulaAlertDismissed(cancelled: cancelled)):
             guard !cancelled else {
-                uiApplication.keyWindow?.removeOverlay()
+                uiApplication.mainWindow?.removeOverlay()
                 state.isBackButtonEnabled = true
                 state.isFinishButtonEnabled = true
                 return .none

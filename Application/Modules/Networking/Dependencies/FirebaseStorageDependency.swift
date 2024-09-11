@@ -8,8 +8,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseStorage
 
 public enum FirebaseStorageDependency: DependencyKey {

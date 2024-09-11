@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
@@ -150,7 +150,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
         case let .feedback(.accountExistsReturned(accountExists)):
             if accountExists {
-                uiApplication.keyWindow?.removeOverlay()
+                uiApplication.mainWindow?.removeOverlay()
                 return .task {
                     let result = await onboardingService.presentAccountExistsAlert()
                     return .accountExistsAlertDismissed(cancelled: result)
@@ -167,7 +167,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
             let phoneNumber = state.phoneNumber
             return .task {
@@ -195,7 +195,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.regionMenuViewID = UUID()
 
         case let .feedback(.verifyPhoneNumberReturned(.success(authID))):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = true
@@ -207,7 +207,7 @@ public struct VerifyNumberPageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.push(.authCode)))
 
         case let .feedback(.verifyPhoneNumberReturned(.failure(exception))):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength

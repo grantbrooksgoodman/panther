@@ -10,8 +10,10 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import InputBarAccessoryView
 import MessageKit
 

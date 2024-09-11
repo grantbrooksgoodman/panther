@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
@@ -103,7 +103,7 @@ public struct AuthCodePageReducer: Reducer {
             state.isContinueButtonEnabled = verificationCode.count == 6
 
         case let .feedback(.authenticateUserReturned(.success(userID))):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = true
@@ -113,7 +113,7 @@ public struct AuthCodePageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.push(.permission)))
 
         case let .feedback(.authenticateUserReturned(.failure(exception))):
-            uiApplication.keyWindow?.removeOverlay()
+            uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.verificationCode.count == 6
@@ -124,7 +124,7 @@ public struct AuthCodePageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.keyWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
 
             let verificationCode = state.verificationCode
             return .task {

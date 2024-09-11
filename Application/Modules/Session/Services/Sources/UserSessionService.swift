@@ -11,8 +11,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseDatabase
 
 public final class UserSessionService {

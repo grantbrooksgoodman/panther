@@ -9,8 +9,11 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Persistent {
-    convenience init(_ settingsPageViewServiceKey: UserDefaultsKeyDomain.SettingsPageViewServiceDefaultsKey) {
-        self.init(.app(.settingsPageViewService(settingsPageViewServiceKey)))
+    convenience init(_ settingsPageViewServiceKey: UserDefaultsKey.SettingsPageViewServiceDefaultsKey) {
+        self.init(.settingsPageViewService(settingsPageViewServiceKey))
     }
 }

@@ -9,42 +9,30 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
-public enum ObservableKey: String {
-    // MARK: - App Cases
+public extension ObservableKey {
+    /* Add keys here to define new values for Observer instances. */
 
-    /* Add cases here to define new values for Observer instances. */
-
-    case contactSelectorPresentationPending
-    case isNetworkActivityOccurring
-    case networkActivityOccurred
-    case newChatSheetDismissed
-    case traitCollectionChanged
-    case updatedContactPairArchive
-    case updatedCurrentUser
-
-    // MARK: - Core Cases
-
-    case breadcrumbsDidCapture
-    case isDeveloperModeEnabled
-    case languageCodeChanged
-    case rootViewSheet
-    case rootViewToast
-    case rootViewToastAction
-    case themedViewAppearanceChanged
+    static let contactSelectorPresentationPending: ObservableKey = .init("contactSelectorPresentationPending")
+    static let isNetworkActivityOccurring: ObservableKey = .init("isNetworkActivityOccurring")
+    static let networkActivityOccurred: ObservableKey = .init("networkActivityOccurred")
+    static let newChatSheetDismissed: ObservableKey = .init("newChatSheetDismissed")
+    static let traitCollectionChanged: ObservableKey = .init("traitCollectionChanged")
+    static let updatedContactPairArchive: ObservableKey = .init("updatedContactPairArchive")
+    static let updatedCurrentUser: ObservableKey = .init("updatedCurrentUser")
 }
 
 /// For sending and accessing observed values between scopes.
-public enum Observables {
+public extension Observables {
     /* Add new properties conforming to Observable here. */
 
-    public static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
-    public static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
-    public static let networkActivityOccurred: Observable<Nil> = .init(key: .networkActivityOccurred)
-    public static let newChatSheetDismissed: Observable<Nil> = .init(key: .newChatSheetDismissed)
-    public static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)
-    public static let updatedContactPairArchive: Observable<Nil> = .init(key: .updatedContactPairArchive)
-    public static let updatedCurrentUser: Observable<Nil> = .init(key: .updatedCurrentUser)
+    static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
+    static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
+    static let networkActivityOccurred: Observable<Nil> = .init(key: .networkActivityOccurred)
+    static let newChatSheetDismissed: Observable<Nil> = .init(key: .newChatSheetDismissed)
+    static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)
+    static let updatedContactPairArchive: Observable<Nil> = .init(key: .updatedContactPairArchive)
+    static let updatedCurrentUser: Observable<Nil> = .init(key: .updatedCurrentUser)
 }

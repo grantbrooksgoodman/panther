@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class NetworkActivityViewObserver: Observer {
     // MARK: - Type Aliases
@@ -54,7 +54,7 @@ public final class NetworkActivityViewObserver: Observer {
             send(.isVisibleChanged(value))
 
             @Persistent(.indicatesNetworkActivity) var indicatesNetworkActivity: Bool?
-            if build.stage != .generalRelease,
+            if build.milestone != .generalRelease,
                build.developerModeEnabled,
                let indicatesNetworkActivity,
                indicatesNetworkActivity {

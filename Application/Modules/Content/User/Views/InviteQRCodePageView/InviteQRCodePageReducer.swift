@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct InviteQRCodePageReducer: Reducer {
     // MARK: - Dependencies
@@ -72,7 +72,7 @@ public struct InviteQRCodePageReducer: Reducer {
 
         case .action(.doneButtonTapped):
             RootSheets.dismiss()
-            if ThemeService.isDefaultThemeApplied,
+            if ThemeService.isAppDefaultThemeApplied,
                !ThemeService.isDarkModeActive {
                 StatusBarStyle.override(.darkContent)
             }

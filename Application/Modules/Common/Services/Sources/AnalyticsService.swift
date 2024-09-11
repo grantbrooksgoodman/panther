@@ -9,8 +9,10 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import FirebaseAnalytics
 
 public struct AnalyticsService {
@@ -65,7 +67,7 @@ public struct AnalyticsService {
         var parameters = [
             "build_sku": build.buildSKU,
             "bundle_revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
-            "bundle_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.stage.shortString))",
+            "bundle_version": "\(build.bundleVersion) (\(build.buildNumber)\(build.milestone.shortString))",
             "connection_status": build.isOnline ? "online" : "offline",
             "device_model": "\(SystemInformation.modelName) (\(SystemInformation.modelCode.lowercased()))",
             "language_code": RuntimeStorage.languageCode,
@@ -92,7 +94,7 @@ public struct AnalyticsService {
         Task { @MainActor in
             if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
                 guard networkConfig.environment == .production,
-                      build.stage == .generalRelease else { return }
+                      build.milestone == .generalRelease else { return }
             }
 
             var parameters = commonParams

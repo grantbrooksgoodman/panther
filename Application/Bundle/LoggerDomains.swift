@@ -9,25 +9,48 @@
 /* Native */
 import Foundation
 
-public enum LoggerDomain: String, CaseIterable {
-    /* Add cases here to expose new domains to the logger. */
+/* Proprietary */
+import AppSubsystem
 
-    case alertKit
-    case analytics
-    case caches
-    case general
-    case bugPrevention
-    case chatPageState
-    case contacts
-    case conversation
-    case database
-    case dataIntegrity
-    case hostedTranslation
-    case notifications
-    case observer
-    case queue
-    case storage
-    case translation
-    case user
-    case userSession
+public extension LoggerDomain {
+    static let domainsExcludedFromSessionRecord: [LoggerDomain] = [
+        .observer,
+    ]
+
+    static let subscribedDomains: [LoggerDomain] = [
+        .alertKit,
+        .analytics,
+        .bugPrevention,
+        .caches,
+        .chatPageState,
+        .contacts,
+        .conversation,
+        .dataIntegrity,
+        .general,
+        .hostedTranslation,
+        .notifications,
+        .queue,
+        .translation,
+        .user,
+        .userSession,
+    ]
+
+    static let alertKit: LoggerDomain = .init("alertKit")
+    static let analytics: LoggerDomain = .init("analytics")
+    static let bugPrevention: LoggerDomain = .init("bugPrevention")
+    static let caches: LoggerDomain = .init("caches")
+    static let chatPageState: LoggerDomain = .init("chatPageState")
+    static let contacts: LoggerDomain = .init("contacts")
+    static let conversation: LoggerDomain = .init("conversation")
+    static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
+    static let database: LoggerDomain = .init("database")
+    static let general: LoggerDomain = .init("general")
+    static let hostedTranslation: LoggerDomain = .init("hostedTranslation")
+    static let notifications: LoggerDomain = .init("notifications")
+    static let observer: LoggerDomain = .init("observer")
+    static let queue: LoggerDomain = .init("queue")
+    static let storage: LoggerDomain = .init("storage")
+    static let translation: LoggerDomain = .init("translation")
+    static let user: LoggerDomain = .init("user")
+    static let userSession: LoggerDomain = .init("userSession")
 }

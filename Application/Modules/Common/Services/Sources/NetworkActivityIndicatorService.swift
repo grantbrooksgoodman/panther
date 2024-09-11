@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public struct NetworkActivityIndicatorService: NetworkActivityIndicator {
     public func hide() {
         Observables.isNetworkActivityOccurring.value = false

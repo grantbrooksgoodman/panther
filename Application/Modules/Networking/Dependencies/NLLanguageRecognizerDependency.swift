@@ -9,8 +9,8 @@
 import Foundation
 import NaturalLanguage
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum NLLanguageRecognizerDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> NLLanguageRecognizer {

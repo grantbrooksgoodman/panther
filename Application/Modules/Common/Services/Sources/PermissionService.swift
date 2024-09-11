@@ -14,9 +14,9 @@ import Speech
 import UIKit
 import UserNotifications
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public struct PermissionService {
     // MARK: - Types

@@ -10,8 +10,8 @@
 import AVFoundation
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum AVSpeechSynthesizerDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> AVSpeechSynthesizer {

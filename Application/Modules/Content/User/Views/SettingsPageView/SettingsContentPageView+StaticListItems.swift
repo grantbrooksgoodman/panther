@@ -10,6 +10,9 @@
 import Foundation
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 public extension SettingsContentPageView {
     // MARK: - Constants Accessors
 

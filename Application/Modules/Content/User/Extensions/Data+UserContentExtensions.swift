@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Data {
     static func fromURL(_ url: URL) -> Callback<Data, Exception> {
         let commonParams = ["URLPath": url.path()]

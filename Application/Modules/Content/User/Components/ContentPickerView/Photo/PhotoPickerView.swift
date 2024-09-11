@@ -11,6 +11,9 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
+/* Proprietary */
+import AppSubsystem
+
 public struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
     // MARK: - Type Aliases
 

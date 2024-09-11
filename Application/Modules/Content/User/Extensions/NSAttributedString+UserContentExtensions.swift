@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public extension NSAttributedString {
     static func messageCellString(_ text: String, foregroundColor: UIColor) -> NSAttributedString {

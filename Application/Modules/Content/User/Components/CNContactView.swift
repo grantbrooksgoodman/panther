@@ -11,8 +11,8 @@ import ContactsUI
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct CNContactView: View {
     // MARK: - Properties

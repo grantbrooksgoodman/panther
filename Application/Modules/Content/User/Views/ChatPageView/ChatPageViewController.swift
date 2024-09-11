@@ -10,8 +10,10 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import MessageKit
 
 public final class ChatPageViewController: MessagesViewController {
@@ -80,7 +82,7 @@ public final class ChatPageViewController: MessagesViewController {
         guard let message = currentConversation?.messages?.itemAt(indexPath.section),
               let textCell = cell as? TextMessageCell else { return cell }
 
-        if !ThemeService.isDefaultThemeApplied /* , */
+        if !ThemeService.isAppDefaultThemeApplied /* , */
         /*! currentMessage.isDisplayingAlternate */ {
             typealias Floats = AppConstants.CGFloats.ChatPageView
             if message.isFromCurrentUser {

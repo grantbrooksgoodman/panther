@@ -13,8 +13,10 @@ import AVFAudio
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import InputBarAccessoryView
 
 public final class InputBarService {

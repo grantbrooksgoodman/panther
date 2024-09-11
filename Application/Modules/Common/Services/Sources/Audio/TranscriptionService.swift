@@ -10,8 +10,8 @@
 import Foundation
 import Speech
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct TranscriptionService {
     // MARK: - Dependencies

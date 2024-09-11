@@ -9,28 +9,31 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 public extension Persistent {
-    convenience init(_ generalKey: UserDefaultsKeyDomain.GeneralAppDefaultsKey) {
-        self.init(.app(.general(generalKey)))
+    convenience init(_ generalKey: UserDefaultsKey.GeneralAppDefaultsKey) {
+        self.init(.general(generalKey))
     }
 
-    convenience init(_ audioServiceKey: UserDefaultsKeyDomain.AudioServiceDefaultsKey) {
-        self.init(.app(.audioService(audioServiceKey)))
+    convenience init(_ audioServiceKey: UserDefaultsKey.AudioServiceDefaultsKey) {
+        self.init(.audioService(audioServiceKey))
     }
 
-    convenience init(_ contactPairArchiveServiceKey: UserDefaultsKeyDomain.ContactPairArchiveServiceDefaultsKey) {
-        self.init(.app(.contactPairArchiveService(contactPairArchiveServiceKey)))
+    convenience init(_ contactPairArchiveServiceKey: UserDefaultsKey.ContactPairArchiveServiceDefaultsKey) {
+        self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
 
-    convenience init(_ contactSyncServiceKey: UserDefaultsKeyDomain.ContactSyncServiceDefaultsKey) {
-        self.init(.app(.contactSyncService(contactSyncServiceKey)))
+    convenience init(_ contactSyncServiceKey: UserDefaultsKey.ContactSyncServiceDefaultsKey) {
+        self.init(.contactSyncService(contactSyncServiceKey))
     }
 
-    convenience init(_ reviewServiceKey: UserDefaultsKeyDomain.ReviewServiceDefaultsKey) {
-        self.init(.app(.reviewService(reviewServiceKey)))
+    convenience init(_ reviewServiceKey: UserDefaultsKey.ReviewServiceDefaultsKey) {
+        self.init(.reviewService(reviewServiceKey))
     }
 
-    convenience init(_ updateServiceKey: UserDefaultsKeyDomain.UpdateServiceDefaultsKey) {
-        self.init(.app(.updateService(updateServiceKey)))
+    convenience init(_ updateServiceKey: UserDefaultsKey.UpdateServiceDefaultsKey) {
+        self.init(.updateService(updateServiceKey))
     }
 }

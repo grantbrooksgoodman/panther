@@ -10,8 +10,8 @@
 import Foundation
 import QuickLook
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum QLThumbnailGeneratorDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> QLThumbnailGenerator {

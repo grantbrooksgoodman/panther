@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public extension Date { // swiftlint:disable:next identifier_name
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {

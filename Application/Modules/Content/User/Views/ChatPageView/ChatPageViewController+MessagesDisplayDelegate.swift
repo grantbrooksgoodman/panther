@@ -10,8 +10,10 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import MessageKit
 
 extension ChatPageViewController: MessagesDisplayDelegate {
@@ -58,7 +60,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             return
         }
 
-        guard ThemeService.isDefaultThemeApplied else { return }
+        guard ThemeService.isAppDefaultThemeApplied else { return }
         cell.progressView.trackTintColor = message
             .backgroundColor
             .darker(by: Floats.audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage)?
@@ -141,7 +143,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
     ) -> MessageStyle {
         guard let message = message as? Message else { return .none }
 
-        guard ThemeService.isDefaultThemeApplied else {
+        guard ThemeService.isAppDefaultThemeApplied else {
             return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius }
         }
 

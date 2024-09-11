@@ -8,7 +8,10 @@
 /* Native */
 import Foundation
 
-public extension UserDefaultsKeyDomain {
+/* Proprietary */
+import AppSubsystem
+
+public extension UserDefaultsKey {
     enum CoreNetworkingDefaultsKey: String {
         case networkEnvironment
     }

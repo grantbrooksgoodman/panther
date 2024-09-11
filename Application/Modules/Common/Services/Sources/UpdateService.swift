@@ -10,9 +10,9 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class UpdateService {
     // MARK: - Types
@@ -152,7 +152,7 @@ public final class UpdateService {
         isPersistingForcedUpdateCTA = true
 
         Task { @MainActor in
-            uiApplication.keyWindow?.isUserInteractionEnabled = true
+            uiApplication.mainWindow?.isUserInteractionEnabled = true
         }
 
         let updateAction: AKAction = .init("Update", style: .preferred) {
@@ -160,7 +160,7 @@ public final class UpdateService {
                 self.firstPostponedUpdate = nil
                 self.relaunchesSinceLastPostponedUpdate = 0
 
-                self.uiApplication.keyWindow?.isUserInteractionEnabled = false
+                self.uiApplication.mainWindow?.isUserInteractionEnabled = false
                 await self.uiApplication.open(url)
 
                 self.buildNumberWhenLastForcedToUpdate = self.build.buildNumber

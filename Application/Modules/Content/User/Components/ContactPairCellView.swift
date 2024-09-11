@@ -10,7 +10,8 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
 
 public struct ContactPairCellView: View {

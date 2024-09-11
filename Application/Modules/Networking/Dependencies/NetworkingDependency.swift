@@ -8,8 +8,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public enum NetworkingDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> Networking {
@@ -18,7 +18,7 @@ public enum NetworkingDependency: DependencyKey {
 
         return .init(
             config: .init(
-                environment: BuildConfig.networkEnvironment,
+                environment: Application.networkEnvironment,
                 paths: .init()
             ),
             delegates: .init(

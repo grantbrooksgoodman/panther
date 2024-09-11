@@ -10,8 +10,8 @@
 import AVFoundation
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public final class AudioFile: Codable, Equatable {
     // MARK: - Constants Accessors

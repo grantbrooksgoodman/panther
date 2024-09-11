@@ -11,9 +11,9 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 import Translator
 
 public final class SplashPageViewService: ObservableObject {
@@ -110,8 +110,8 @@ public final class SplashPageViewService: ObservableObject {
                     core.utils.eraseDocumentsDirectory()
                     core.utils.eraseTemporaryDirectory()
 
-                    var defaultsKeysToKeep = UserDefaultsKeyDomain.permanentKeys
-                    defaultsKeysToKeep.append(.app(.userSessionService(.currentUserID)))
+                    var defaultsKeysToKeep = UserDefaultsKey.permanentKeys
+                    defaultsKeysToKeep.append(.userSessionService(.currentUserID))
                     defaults.reset(keeping: defaultsKeysToKeep)
 
                     if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
@@ -256,7 +256,7 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: UserDefaultsKeyDomain.permanentKeys)
+            defaults.reset(keeping: UserDefaultsKey.permanentKeys)
             didAttemptDatabaseRepair = false
         }
 

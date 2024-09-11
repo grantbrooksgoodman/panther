@@ -10,8 +10,8 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 extension RecipientBar: UITableViewDataSource {
     // MARK: - Cell for Row at Index Path

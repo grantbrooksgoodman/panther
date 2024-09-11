@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct NetworkActivityReducer: Reducer {
     // MARK: - Dependencies
@@ -59,7 +59,7 @@ public struct NetworkActivityReducer: Reducer {
         case let .action(.isVisibleChanged(isVisible)):
             @Persistent(.indicatesNetworkActivity) var indicatesNetworkActivity: Bool?
             var canShowIndicator: Bool {
-                guard build.stage != .generalRelease,
+                guard build.milestone != .generalRelease,
                       build.developerModeEnabled,
                       let indicatesNetworkActivity,
                       indicatesNetworkActivity else { return false }

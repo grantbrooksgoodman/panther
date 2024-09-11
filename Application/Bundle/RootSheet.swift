@@ -10,47 +10,34 @@
 import Foundation
 import SwiftUI
 
-public enum RootSheet {
-    // MARK: - Cases
+/* Proprietary */
+import AppSubsystem
 
-    /* Add cases here to expose new views for presentation on the root sheet. */
+@MainActor
+public extension RootSheet {
+    /* Add values here to expose new views for presentation on the root sheet. */
 
-    case chatInfoPageView
-    case inviteLanguagePicker
-    case inviteQRCodePageView
+    static let chatInfoPageView: RootSheet = .init(.init(
+        ChatInfoPageView(
+            .init(
+                initialState: .init(),
+                reducer: ChatInfoPageReducer()
+            ))
+    ))
 
-    // MARK: - Properties
+    static let inviteLanguagePicker: RootSheet = .init(.init(
+        InviteLanguagePickerView(
+            .init(
+                initialState: .init(),
+                reducer: InviteLanguagePickerReducer()
+            ))
+    ))
 
-    @MainActor
-    public var view: AnyView {
-        switch self {
-        case .chatInfoPageView:
-            return .init(
-                ChatInfoPageView(
-                    .init(
-                        initialState: .init(),
-                        reducer: ChatInfoPageReducer()
-                    )
-                ))
-
-        case .inviteLanguagePicker:
-            return .init(
-                InviteLanguagePickerView(
-                    .init(
-                        initialState: .init(),
-                        reducer: InviteLanguagePickerReducer()
-                    )
-                ))
-
-        case .inviteQRCodePageView:
-            return .init(
-                InviteQRCodePageView(
-                    .init(
-                        initialState: .init(),
-                        reducer: InviteQRCodePageReducer()
-                    )
-                )
-            )
-        }
-    }
+    static let inviteQRCodePageView: RootSheet = .init(.init(
+        InviteQRCodePageView(
+            .init(
+                initialState: .init(),
+                reducer: InviteQRCodePageReducer()
+            ))
+    ))
 }

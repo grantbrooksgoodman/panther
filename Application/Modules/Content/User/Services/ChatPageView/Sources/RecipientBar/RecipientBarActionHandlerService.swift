@@ -10,9 +10,9 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
+/* Proprietary */
 import AlertKit
-import CoreArchitecture
+import AppSubsystem
 
 public final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors

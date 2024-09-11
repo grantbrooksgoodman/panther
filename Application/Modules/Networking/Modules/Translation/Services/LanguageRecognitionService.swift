@@ -11,8 +11,8 @@ import Foundation
 import NaturalLanguage
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct LanguageRecognitionService {
     // MARK: - Dependencies

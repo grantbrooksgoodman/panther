@@ -10,8 +10,10 @@
 import Contacts
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
-import CoreArchitecture
 import PhoneNumberKit
 
 public final class PhoneNumber: Codable, EncodedHashable, Equatable {

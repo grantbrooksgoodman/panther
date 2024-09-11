@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public struct BuildInfoButtonStrings: Equatable {
     // MARK: - Types
@@ -64,7 +64,7 @@ public struct BuildInfoButtonStrings: Equatable {
 
         switch key {
         case .bundleVersionAndBuildNumber: // swiftlint:disable:next line_length
-            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.stage.shortString)/\(build.bundleRevision.lowercased()))"
+            labelText = "\(localizedVersionString) \(build.bundleVersion) (\(String(build.buildNumber))\(build.milestone.shortString)/\(build.bundleRevision.lowercased()))"
 
         case .buildSKU:
             labelText = build.buildSKU

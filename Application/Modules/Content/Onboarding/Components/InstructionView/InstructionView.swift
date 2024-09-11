@@ -10,7 +10,8 @@
 import Foundation
 import SwiftUI
 
-/* 3rd-party */
+/* Proprietary */
+import AppSubsystem
 import ComponentKit
 
 public struct InstructionView: View {
@@ -22,11 +23,11 @@ public struct InstructionView: View {
     // MARK: - Properties
 
     private let strings: InstructionViewStrings
-    @Environment(\.keyWindowSize) private var keyWindowSize: CGSize
+    @Environment(\.mainWindowSize) private var mainWindowSize: CGSize
 
     // MARK: - Computed Properties
 
-    private var halfOfScreenWidth: CGFloat { keyWindowSize.width / Floats.keyWindowSizeWidthDivisor }
+    private var halfOfScreenWidth: CGFloat { mainWindowSize.width / Floats.mainWindowSizeWidthDivisor }
 
     // MARK: - Init
 

@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-/* 3rd-party */
-import CoreArchitecture
+/* Proprietary */
+import AppSubsystem
 
 public protocol ContentPicker<Content> {
     associatedtype Content
@@ -22,7 +22,7 @@ public protocol ContentPicker<Content> {
 
 public extension ContentPicker {
     func dismiss(_ exception: Exception? = nil) {
-        @Dependency(\.uiApplication.keyWindow?.rootViewController) var keyViewController: UIViewController?
+        @Dependency(\.uiApplication.mainWindow?.rootViewController) var keyViewController: UIViewController?
         keyViewController?.dismiss(animated: true)
         onDismiss(exception)
     }
