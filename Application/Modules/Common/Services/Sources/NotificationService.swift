@@ -144,12 +144,12 @@ public final class NotificationService {
 
         switch await uiApplication.applicationState {
         case .active:
-            Observables.rootViewToast.value = .init(
+            Toast.show(.init(
                 .capsule(),
                 title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
                 message: notification.request.content.body,
                 perpetuation: .ephemeral(.seconds(5))
-            )
+            ))
 
             return .success([])
 

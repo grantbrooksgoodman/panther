@@ -150,12 +150,7 @@ public extension DevModeAction {
                 @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                 @Dependency(\.userDefaults) var defaults: UserDefaults
 
-                defaults.reset(keeping: [.breadcrumbsCaptureEnabled,
-                                         .breadcrumbsCapturesAllViews,
-                                         .currentThemeID,
-                                         .developerModeEnabled,
-                                         .hidesBuildInfoOverlay])
-                defaults.set(true, forKey: .developerModeEnabled)
+                defaults.reset(keeping: UserDefaultsKey.permanentKeys)
                 coreHUD.showSuccess(text: "Reset UserDefaults")
             }
 

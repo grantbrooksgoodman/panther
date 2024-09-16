@@ -31,7 +31,7 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
         chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
-        chatPageViewService.menu?.resetSpeakingCell()
+        chatPageViewService.menu?.resetSpeakingMessage()
     }
 
     // MARK: - Did Finish Utterance
@@ -47,7 +47,7 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
         chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
-        chatPageViewService.menu?.resetSpeakingCell()
+        chatPageViewService.menu?.resetSpeakingMessage()
     }
 
     // MARK: - Will Speak Range of Speech String

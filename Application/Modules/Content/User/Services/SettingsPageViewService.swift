@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Contacts
 import Foundation
@@ -30,10 +32,10 @@ public final class SettingsPageViewService {
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
-    @Dependency(\.buildInfoOverlayViewService) private var buildInfoOverlayViewService: BuildInfoOverlayViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
@@ -205,7 +207,15 @@ public final class SettingsPageViewService {
     }
 
     public func sendFeedbackButtonTapped() {
-        buildInfoOverlayViewService.sendFeedbackButtonTapped()
+        Task {
+            await AKActionSheet(
+                title: "File a Report",
+                actions: [
+                    .init("Send Feedback") { self.reportDelegate.sendFeedback() },
+                    .init("Report Bug") { self.reportDelegate.reportBug() },
+                ]
+            ).present()
+        }
     }
 
     public func signOutButtonTapped() {
@@ -343,3 +353,5 @@ public final class SettingsPageViewService {
         cachedCNContactForCurrentUser = nil
     }
 }
+
+// swiftlint:enable type_body_length

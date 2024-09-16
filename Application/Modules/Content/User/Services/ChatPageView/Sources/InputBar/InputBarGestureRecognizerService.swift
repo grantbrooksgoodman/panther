@@ -194,11 +194,11 @@ public final class InputBarGestureRecognizerService {
 
     @objc
     private func showRecordingInstructionToast() {
-        Observables.rootViewToast.value = .init(
+        Toast.show(.init(
             .banner(style: .info, appearanceEdge: .bottom, showsDismissButton: false),
             message: Localized(.holdDownToRecord).wrappedValue,
             perpetuation: .ephemeral(.seconds(Floats.recordingInstructionToastPerpetuationDuration))
-        )
+        ))
     }
 
     // MARK: - Auxiliary
@@ -215,18 +215,18 @@ public final class InputBarGestureRecognizerService {
         }
 
         guard exception.descriptor == Strings.noSpeechDetectedExceptionDescriptor else {
-            Observables.rootViewToast.value = .init(
+            Toast.show(.init(
                 .banner(style: .error, appearanceEdge: .bottom, showsDismissButton: false),
                 message: Localized(.tryAgain).wrappedValue,
                 perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-            )
+            ))
             return
         }
 
-        Observables.rootViewToast.value = .init(
+        Toast.show(.init(
             .banner(style: .warning, appearanceEdge: .bottom, showsDismissButton: false),
             message: Localized(.noSpeechDetected).wrappedValue,
             perpetuation: .ephemeral(.seconds(Floats.errorToastPerpetuationDuration))
-        )
+        ))
     }
 }

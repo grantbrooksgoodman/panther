@@ -30,9 +30,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> UIColor {
-        guard let messages = currentConversation?.messages,
-              indexPath.section < messages.count else { return .senderBubble }
-        return messages[indexPath.section].backgroundColor
+        currentConversation?.messages?.itemAt(indexPath.section)?.backgroundColor ?? .senderBubble
     }
 
     // MARK: - Configure Audio Cell
@@ -148,7 +146,6 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard message.documentComponent == nil else { return .bubbleOutline(.gray) }
-
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)
     }
 }

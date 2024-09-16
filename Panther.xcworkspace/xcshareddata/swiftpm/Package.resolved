@@ -1,5 +1,5 @@
 {
-  "originHash" : "84795c915cfb2c9b2eeb91b8fbe2700722b3a7b0abb1a8ddaff6742a1660cb74",
+  "originHash" : "a4632af18c3c190fc06f5c00d2050385a388428cd7e84f78c6285871898ac66c",
   "pins" : [
     {
       "identity" : "alert-kit",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/grantbrooksgoodman/app-subsystem",
       "state" : {
         "branch" : "main",
-        "revision" : "bda8442a8931f97c7279775a7be24ed4d82a6947"
+        "revision" : "bcfbf7ed9c8c1776b8c6db6363fcc71674fe1d96"
       }
     },
     {

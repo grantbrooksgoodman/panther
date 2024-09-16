@@ -46,13 +46,9 @@ public extension UserDefaultsKey {
 
     // MARK: - Properties
 
-    static let permanentKeys: [UserDefaultsKey] = [
-        .coreNetworking(.networkEnvironment),
-        .devModeService(.indicatesNetworkActivity),
-        .breadcrumbsCaptureEnabled,
-        .breadcrumbsCapturesAllViews,
-        .currentThemeID,
-        .developerModeEnabled,
-        .hidesBuildInfoOverlay,
-    ]
+    static var permanentKeys: [UserDefaultsKey] {
+        var keys: [UserDefaultsKey] = [.coreNetworking(.networkEnvironment), .devModeService(.indicatesNetworkActivity)]
+        keys.append(contentsOf: UserDefaultsKey.coreKeys)
+        return keys
+    }
 }

@@ -143,6 +143,7 @@ public struct ConversationsPageReducer: Reducer {
                 guard conversations.allSatisfy({ $0.users != nil }) else {
                     Logger.log(
                         "Intercepted badly set users on conversations bug.",
+                        domain: .bugPrevention,
                         with: isDeveloperModeEnabled ? .toast() : nil,
                         metadata: [self, #file, #function, #line]
                     )

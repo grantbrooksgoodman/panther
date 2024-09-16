@@ -29,7 +29,7 @@ public enum Application {
 
         AppSubsystem.delegates.register(
             appThemeListDelegate: AppTheme.List(),
-            buildInfoOverlayDotIndicatorColorDelegate: BuildInfoOverlayView.DotIndicatorColorDelegate(),
+            buildInfoOverlayDotIndicatorColorDelegate: BuildInfoOverlay.DotIndicatorColorDelegate(),
             cacheDomainListDelegate: CacheDomain.List(),
             devModeAppActionDelegate: DevModeAction.AppActions(),
             localizedStringsDelegate: Localization.LocalizedStringsDelegate(),
@@ -72,7 +72,7 @@ public enum Application {
     }
 }
 
-private extension BuildInfoOverlayView {
+private extension BuildInfoOverlay {
     struct DotIndicatorColorDelegate: AppSubsystem.Delegates.BuildInfoOverlayDotIndicatorColorDelegate {
         public var developerModeIndicatorDotColor: Color {
             @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment

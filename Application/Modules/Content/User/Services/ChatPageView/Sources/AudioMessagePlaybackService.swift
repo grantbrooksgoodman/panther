@@ -158,10 +158,8 @@ public final class AudioMessagePlaybackService {
     }
 
     private func message(for cell: AudioMessageCell) -> Message? {
-        guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-              let messages = viewController.currentConversation?.messages,
-              indexPath.section < messages.count else { return nil }
-        return messages[indexPath.section]
+        guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
+        return viewController.currentConversation?.messages?.itemAt(indexPath.section)
     }
 
     public func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {

@@ -144,8 +144,6 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatPageViewService {
-        public static let buildInfoOverlayWindowSemanticTag = "BUILD_INFO_OVERLAY_WINDOW"
-
         enum AudioMessagePlayback {
             public static let cellDefaultDurationLabelText = "0:00"
         }

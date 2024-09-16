@@ -35,7 +35,6 @@ public final class MenuService {
 
     // MARK: - Properties
 
-    public private(set) var speakingCell: MessageContentCell?
     public private(set) var speakingMessage: Message?
 
     private let menuInteraction: UIEditMenuInteraction
@@ -45,6 +44,15 @@ public final class MenuService {
     private var selectedCell: MessageContentCell?
 
     // MARK: - Computed Properties
+
+    public var speakingCell: MessageContentCell? {
+        viewController.messagesCollectionView.visibleCells.first(where: {
+            guard let indexPath = viewController.messagesCollectionView.indexPath(for: $0),
+                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+                  message.isSpeakingMessage else { return false }
+            return true
+        }) as? MessageContentCell
+    }
 
     private var selectedMessage: Message? {
         guard let selectedCell,
@@ -59,10 +67,9 @@ public final class MenuService {
         menuInteraction = .init(delegate: viewController)
     }
 
-    // MARK: - Reset Speaking Cell
+    // MARK: - Reset Speaking Message
 
-    public func resetSpeakingCell() {
-        speakingCell = nil
+    public func resetSpeakingMessage() {
         speakingMessage = nil
     }
 
@@ -73,12 +80,6 @@ public final class MenuService {
 
         guard !isShowingMenu else { return }
         animateDeselection(forCellAt: index)
-    }
-
-    // MARK: - Set Speaking Cell
-
-    public func setSpeakingCell(_ speakingCell: MessageContentCell) {
-        self.speakingCell = speakingCell
     }
 
     // MARK: - Configure Menu Gesture Recognizer
@@ -221,11 +222,10 @@ public final class MenuService {
 
             let utterance: AVSpeechUtterance = .init(string: messageLabelText)
             utterance.voice = services.audio.textToSpeech.highestQualityVoice(utteranceLanguageCode, mustIncludeAudioFileSettings: true)
-            services.audio.activateAudioSession()
-            avSpeechSynthesizer.speak(utterance)
 
-            speakingCell = selectedCell
+            services.audio.activateAudioSession()
             speakingMessage = selectedMessage
+            avSpeechSynthesizer.speak(utterance)
         }
     }
 

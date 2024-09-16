@@ -66,39 +66,6 @@ public final class ChatPageViewController: MessagesViewController {
         viewService.onScrollViewDidScrollToTop()
     }
 
-    // MARK: - UICollectionView
-
-    override public func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
-        if let typingIndicatorCell = super.collectionView(collectionView, cellForItemAt: indexPath) as? TypingIndicatorCell {
-            return typingIndicatorCell
-        }
-
-        guard let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as? MessageCollectionViewCell else { return .init() }
-        cell.tag = indexPath.section
-
-        guard let message = currentConversation?.messages?.itemAt(indexPath.section),
-              let textCell = cell as? TextMessageCell else { return cell }
-
-        if !ThemeService.isAppDefaultThemeApplied /* , */
-        /*! currentMessage.isDisplayingAlternate */ {
-            typealias Floats = AppConstants.CGFloats.ChatPageView
-            if message.isFromCurrentUser {
-                textCell.messageLabel.textInsets.right = Floats.textCellMessageLabelRightTextInset
-            } else {
-                textCell.messageLabel.textInsets.left = Floats.textCellMessageLabelLeftTextInset
-            }
-        }
-
-        if message.isSpeakingMessage {
-            viewService.menu?.setSpeakingCell(textCell)
-        }
-
-        return textCell
-    }
-
     // MARK: - UITraitCollection
 
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

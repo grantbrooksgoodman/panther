@@ -147,10 +147,7 @@ public final class ChatPageViewService {
 
     public func onViewWillDisappear() {
         guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
-
-        @Persistent(.hidesBuildInfoOverlay) var hidesBuildInfoOverlay: Bool?
-        toggleBuildInfoOverlay(on: !(hidesBuildInfoOverlay ?? false))
-
+        toggleBuildInfoOverlay(on: true)
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
@@ -263,7 +260,13 @@ public final class ChatPageViewService {
     }
 
     private func toggleBuildInfoOverlay(on: Bool) {
-        guard let overlayWindow = uiApplication.mainWindow?.firstSubview(for: Strings.buildInfoOverlayWindowSemanticTag) as? UIWindow else { return }
-        overlayWindow.isHidden = build.milestone == .generalRelease || !on
+        @Persistent(.init("hidesBuildInfoOverlay")) var hidesBuildInfoOverlay: Bool?
+        guard build.milestone != .generalRelease,
+              !(hidesBuildInfoOverlay ?? false) else { return }
+
+        switch !on {
+        case true: BuildInfoOverlay.hide(persistSetting: false)
+        case false: BuildInfoOverlay.show(persistSetting: false)
+        }
     }
 }

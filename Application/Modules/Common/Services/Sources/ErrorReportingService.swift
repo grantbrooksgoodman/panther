@@ -107,15 +107,13 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             reportedErrorCodes.append(errorCode)
             guard showsToastOnSuccess else { return }
 
-            Observables.rootViewToast.value = .init(
+            Toast.show(.init(
                 .capsule(style: .success),
                 message: Localized(.errorReportedSuccessfully).wrappedValue,
                 perpetuation: build.developerModeEnabled ? .persistent : .ephemeral(.seconds(3))
-            )
-
-            guard build.developerModeEnabled else { return }
-            Observables.rootViewToastAction.value = {
-                guard let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return }
+            )) {
+                guard self.build.developerModeEnabled,
+                      let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return }
                 let environmentShortString = self.networking.config.environment.shortString
                 let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(buildNumberString)"
                 guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return }

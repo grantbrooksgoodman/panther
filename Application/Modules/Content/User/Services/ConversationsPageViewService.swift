@@ -65,11 +65,11 @@ public final class ConversationsPageViewService {
     /// `.resolveReturned(.success(_))`
     public func viewLoaded() {
         func showOfflineModeToast() {
-            Observables.rootViewToast.value = .init(
+            Toast.show(.init(
                 .capsule(style: .warning),
                 message: Localized(.offlineMode).wrappedValue,
                 perpetuation: .ephemeral(.seconds(10))
-            )
+            ))
         }
 
         /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.

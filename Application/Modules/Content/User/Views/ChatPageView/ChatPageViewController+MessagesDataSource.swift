@@ -87,9 +87,11 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        guard let messages = currentConversation?.messages,
-              indexPath.section < messages.count else { return nil }
-        return messages[indexPath.section].sentDate.chatPageMessageSeparatorAttributedDateString
+        currentConversation?
+            .messages?
+            .itemAt(indexPath.section)?
+            .sentDate
+            .chatPageMessageSeparatorAttributedDateString
     }
 
     // MARK: - Message Bottom Label Attributed Text
@@ -111,11 +113,8 @@ extension ChatPageViewController: MessagesDataSource {
         at indexPath: IndexPath,
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
-        guard let messages = currentConversation?.messages,
-              !messages.isEmpty,
-              !isSectionReservedForTypingIndicator(indexPath.section) else { return Message.empty }
-        guard indexPath.section < messages.count else { return messages.last! }
-        return messages[indexPath.section]
+        guard !isSectionReservedForTypingIndicator(indexPath.section) else { return Message.empty }
+        return currentConversation?.messages?.itemAt(indexPath.section) ?? Message.empty
     }
 
     // MARK: - Message Timestamp Label Attributed Text
@@ -124,10 +123,9 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        guard let messages = currentConversation?.messages,
-              indexPath.section < messages.count else { return nil }
+        guard let sentDate = currentConversation?.messages?.itemAt(indexPath.section)?.sentDate else { return nil }
         return .init(
-            string: DateFormatter.localizedString(from: messages[indexPath.section].sentDate, dateStyle: .none, timeStyle: .short),
+            string: DateFormatter.localizedString(from: sentDate, dateStyle: .none, timeStyle: .short),
             attributes: [
                 .font: UIFont.systemFont(ofSize: Floats.messageTimestampLabelAttributedTextAttributesSystemFontSize),
                 .foregroundColor: UIColor(Colors.messageTimestampLabelAttributedTextAttributesForeground),
