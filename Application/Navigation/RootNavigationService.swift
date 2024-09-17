@@ -22,6 +22,7 @@ public struct RootNavigationService: Navigating {
     public enum Route {
         case onboarding(OnboardingRoute)
         case root(RootRoute)
+        case settings(SettingsRoute)
     }
 
     // MARK: - Navigate to Route
@@ -33,6 +34,9 @@ public struct RootNavigationService: Navigating {
 
         case let .root(rootRoute):
             RootNavigator.navigate(to: rootRoute, on: &state)
+
+        case let .settings(settingsRoute):
+            SettingsNavigator.navigate(to: settingsRoute, on: &state.settings)
         }
     }
 }

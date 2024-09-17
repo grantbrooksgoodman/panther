@@ -18,6 +18,10 @@ public struct InviteQRCodePageReducer: Reducer {
 
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
 
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
     // MARK: - Actions
 
     public enum Action {
@@ -71,7 +75,7 @@ public struct InviteQRCodePageReducer: Reducer {
             }
 
         case .action(.doneButtonTapped):
-            RootSheets.dismiss()
+            navigationCoordinator.navigate(to: .settings(.sheet(nil)))
             if ThemeService.isAppDefaultThemeApplied,
                !ThemeService.isDarkModeActive {
                 StatusBarStyle.override(.darkContent)

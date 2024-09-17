@@ -27,6 +27,7 @@ public final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
 
@@ -75,6 +76,10 @@ public final class MediaMessagePreviewService {
               fileManager.fileExists(atPath: filePath),
               !isPreviewingMedia else { return }
 
+        let inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
+        let recipientBarWasFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
+        coreUI.resignFirstResponder()
+
         if let exception = quickViewer.preview(
             filesAtPaths: mediaPaths,
             startingIndex: mediaPaths.firstIndex(of: filePath) ?? 0,
@@ -86,6 +91,11 @@ public final class MediaMessagePreviewService {
         quickViewer.onDismiss {
             self.chatPageViewService.redrawForAppearanceChange()
             self.isPreviewingMedia = false
+            if inputBarWasFirstResponder {
+                self.chatPageViewService.inputBar?.becomeFirstResponder()
+            } else if recipientBarWasFirstResponder {
+                self.chatPageViewService.recipientBar?.layout.textField?.becomeFirstResponder()
+            }
         }
 
         isPreviewingMedia = true

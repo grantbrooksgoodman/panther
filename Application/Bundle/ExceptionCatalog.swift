@@ -10,6 +10,7 @@
 import Foundation
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 
 /**
@@ -18,7 +19,13 @@ import AppSubsystem
 public extension AppException {
     // MARK: - Types
 
-    struct UserFacingDescriptorDelegate: AppSubsystem.Delegates.UserFacingDescriptorDelegate {
+    struct ExceptionMetadataDelegate: AppSubsystem.Delegates.ExceptionMetadataDelegate {
+        public func isReportable(_ hashlet: String) -> Bool {
+            @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
+            guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
+            return !errorReportingService.reportedErrorCodes.contains(hashlet)
+        }
+
         // swiftlint:disable line_length
         public func userFacingDescriptor(for descriptor: String) -> String? {
             switch descriptor {

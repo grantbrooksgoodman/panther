@@ -32,8 +32,8 @@ public enum Application {
             buildInfoOverlayDotIndicatorColorDelegate: BuildInfoOverlay.DotIndicatorColorDelegate(),
             cacheDomainListDelegate: CacheDomain.List(),
             devModeAppActionDelegate: DevModeAction.AppActions(),
-            localizedStringsDelegate: Localization.LocalizedStringsDelegate(),
-            userFacingDescriptorDelegate: AppException.UserFacingDescriptorDelegate()
+            exceptionMetadataDelegate: AppException.ExceptionMetadataDelegate(),
+            localizedStringsDelegate: Localization.LocalizedStringsDelegate()
         )
 
         AppSubsystem.initialize(

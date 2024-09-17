@@ -211,12 +211,12 @@ public final class InputBarService {
 
     // MARK: - Become First Responder
 
-    // TODO: Fix bugs associated with this method.
     public func becomeFirstResponder() {
-        guard chatPageState.isPresented else { return }
-        while !inputBar.inputTextView.isFirstResponder {
-            guard chatPageState.isPresented,
-                  inputBar.inputTextView.canBecomeFirstResponder else { break }
+        let startDate = Date.now
+        while chatPageState.isPresented,
+              !inputBar.inputTextView.isFirstResponder,
+              abs(startDate.seconds(from: .now)) < 5 {
+            guard inputBar.inputTextView.canBecomeFirstResponder else { break }
             inputBar.inputTextView.becomeFirstResponder()
         }
     }
@@ -327,7 +327,12 @@ public final class InputBarService {
 
         becomeFirstResponder()
         core.gcd.after(.milliseconds(Floats.forceAppearanceDelayMilliseconds)) {
-            while !textField.isFirstResponder { textField.becomeFirstResponder() }
+            let startDate = Date.now
+            while self.chatPageState.isPresented,
+                  !textField.isFirstResponder,
+                  abs(startDate.seconds(from: .now)) < 5 {
+                textField.becomeFirstResponder()
+            }
             self.viewController.view.isUserInteractionEnabled = true
             self.isForcingAppearance = false
         }

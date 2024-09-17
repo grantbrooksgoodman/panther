@@ -187,9 +187,7 @@ public final class SettingsPageViewService {
             }
 
             let showQRCodeAction: AKAction = .init("Show QR Code") {
-                Task { @MainActor in
-                    RootSheets.present(.inviteQRCodePageView)
-                }
+                self.navigationCoordinator.navigate(to: .settings(.sheet(.inviteQRCode)))
             }
 
             await AKActionSheet(

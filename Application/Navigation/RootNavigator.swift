@@ -28,6 +28,7 @@ public struct RootNavigatorState: NavigatorState {
     // MARK: - Properties
 
     public var onboarding: OnboardingNavigatorState = .init()
+    public var settings: SettingsNavigatorState = .init()
 
     public var modal: ModalPaths?
     public var sheet: SheetPaths?

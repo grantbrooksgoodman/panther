@@ -21,6 +21,9 @@ public struct InviteLanguagePickerReducer: Reducer {
     // MARK: - Actions
 
     public enum Action {
+        case viewAppeared
+        case viewDisappeared
+
         case cancelHeaderItemTapped
         case doneHeaderItemTapped
 
@@ -28,7 +31,6 @@ public struct InviteLanguagePickerReducer: Reducer {
         case selectedLanguageCodeChanged(String)
 
         case traitCollectionChanged
-        case viewDisappeared
     }
 
     // MARK: - Feedback
@@ -74,6 +76,13 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
+        case .action(.viewAppeared):
+            state.isDoneHeaderItemEnabled = false
+            state.traitCollectionChanged = false
+
+            state.searchQuery = ""
+            state.selectedLanguageCode = ""
+
         case .action(.cancelHeaderItemTapped):
             RootSheets.dismiss()
 

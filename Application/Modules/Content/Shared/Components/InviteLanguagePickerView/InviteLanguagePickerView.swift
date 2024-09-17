@@ -70,6 +70,9 @@ public struct InviteLanguagePickerView: View {
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)
         }
+        .onAppear {
+            viewModel.send(.viewAppeared)
+        }
         .onDisappear {
             viewModel.send(.viewDisappeared)
         }

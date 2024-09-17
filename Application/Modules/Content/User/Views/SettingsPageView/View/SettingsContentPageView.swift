@@ -23,7 +23,17 @@ public struct SettingsContentPageView: View {
 
     // MARK: - Properties
 
+    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     @ObservedObject public var viewModel: ViewModel<SettingsPageReducer>
+
+    // MARK: - Bindings
+
+    private var sheetBinding: Binding<SettingsNavigatorState.SheetPaths?> {
+        navigationCoordinator.navigable(
+            \.settings.sheet,
+            route: { .settings(.sheet($0)) }
+        )
+    }
 
     // MARK: - Init
 
@@ -61,6 +71,7 @@ public struct SettingsContentPageView: View {
             .accentColor(Color.accent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .interactiveDismissDisabled(true)
+            .sheet(item: sheetBinding) { sheetView(for: $0) }
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
         .id(viewModel.viewID)
@@ -122,6 +133,19 @@ public struct SettingsContentPageView: View {
             ) {
                 viewModel.send(.doneToolbarButtonTapped)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetView(for path: SettingsNavigatorState.SheetPaths) -> some View {
+        switch path {
+        case .inviteQRCode:
+            InviteQRCodePageView(
+                .init(
+                    initialState: .init(),
+                    reducer: InviteQRCodePageReducer()
+                )
+            )
         }
     }
 

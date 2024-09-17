@@ -28,7 +28,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
 
     // MARK: - Properties
 
-    private var reportedErrorCodes = [String]()
+    public private(set) var reportedErrorCodes = [String]()
 
     // MARK: - Init
 
@@ -107,19 +107,27 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             reportedErrorCodes.append(errorCode)
             guard showsToastOnSuccess else { return }
 
-            Toast.show(.init(
-                .capsule(style: .success),
-                message: Localized(.errorReportedSuccessfully).wrappedValue,
-                perpetuation: build.developerModeEnabled ? .persistent : .ephemeral(.seconds(3))
-            )) {
+            var toastAction: (() -> Void)? {
                 guard self.build.developerModeEnabled,
-                      let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return }
+                      let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString, // swiftlint:disable:next line_length
+                      let encodedRevisionString = "\(build.bundleRevision) | \(buildNumberString)".addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
                 let environmentShortString = self.networking.config.environment.shortString
-                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(buildNumberString)"
-                guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return }
-                self.uiApplication.open(url)
-                self.uiPasteboard.string = url.absoluteString
+                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(encodedRevisionString)"
+                guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return nil }
+                return {
+                    self.uiApplication.open(url)
+                    self.uiPasteboard.string = url.absoluteString
+                }
             }
+
+            Toast.show(
+                .init(
+                    .capsule(style: .success),
+                    message: Localized(.errorReportedSuccessfully).wrappedValue,
+                    perpetuation: build.developerModeEnabled ? .persistent : .ephemeral(.seconds(3))
+                ),
+                onTap: toastAction
+            )
         }
     }
 }

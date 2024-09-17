@@ -32,12 +32,4 @@ public extension RootSheet {
                 reducer: InviteLanguagePickerReducer()
             ))
     ))
-
-    static let inviteQRCodePageView: RootSheet = .init(.init(
-        InviteQRCodePageView(
-            .init(
-                initialState: .init(),
-                reducer: InviteQRCodePageReducer()
-            ))
-    ))
 }
