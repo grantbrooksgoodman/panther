@@ -17,7 +17,6 @@ import AppSubsystem
 public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
-    @Dependency(\.rootWindowScene) private var rootWindowScene: RootWindowScene
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -30,7 +29,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        window = rootWindowScene.instantiate(scene, rootView: RootView().showsNetworkActivity())
+        window = RootWindowScene.instantiate(scene, rootView: RootView().showsNetworkActivity())
     }
 
     public func sceneDidBecomeActive(_ scene: UIScene) {
@@ -39,11 +38,8 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Observables.traitCollectionChanged.trigger()
         services.analytics.logEvent(.openApp)
 
-        if services.update.isPersistingForcedUpdateCTA {
-            Task {
-                await services.update.promptToUpdateIfNeeded()
-            }
-        }
+        guard services.update.isPersistingForcedUpdateCTA else { return }
+        Task { await services.update.promptToUpdateIfNeeded() }
     }
 
     public func sceneDidDisconnect(_ scene: UIScene) {
@@ -78,7 +74,7 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         UIInterfaceOrientation,
         traitCollection previousTraitCollection: UITraitCollection
     ) {
-        rootWindowScene.traitCollectionChanged()
+        RootWindowScene.traitCollectionChanged()
         Observables.traitCollectionChanged.trigger()
     }
 }

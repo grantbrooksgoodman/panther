@@ -198,6 +198,7 @@ public final class ChatPageViewService {
         Task { @MainActor in
             inputBar?.configureInputBar(forceUpdate: true)
             inputBar?.setAttachMediaButtonImage()
+            recipientBar?.layout.layoutSubviews()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
             NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
             StatusBarStyle.restore()

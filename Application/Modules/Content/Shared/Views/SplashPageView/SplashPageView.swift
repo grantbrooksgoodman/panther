@@ -40,12 +40,14 @@ public struct SplashPageView: View {
 
     public var body: some View {
         VStack {
-            Image(.hello)
-                .resizable()
-                .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? .template : .original)
-                .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
-                .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                .padding(.bottom, Floats.padding)
+            ThemedView {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? .template : .original)
+                    .foregroundColor((ThemeService.isDarkModeActive || !ThemeService.isAppDefaultThemeApplied) ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.padding)
+            }
 
             if viewModel.shouldShowProgressBar {
                 progressBar
@@ -65,7 +67,10 @@ public struct SplashPageView: View {
         }
         .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .preferredStatusBarStyle(ThemeService.isAppDefaultThemeApplied ? .default : .lightContent)
+        .preferredStatusBarStyle(
+            ThemeService.isDarkModeActive ? .lightContent : (ThemeService.isAppDefaultThemeApplied ? .darkContent : .lightContent)
+        )
+        .redrawsOnTraitCollectionChange()
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }
@@ -85,10 +90,12 @@ public struct SplashPageView: View {
                         )
                         .tint(Color(uiColor: .systemGray))
 
-                    Components.text(
-                        viewService.loadingLabelText,
-                        foregroundColor: .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
-                    )
+                    ThemedView {
+                        Components.text(
+                            viewService.loadingLabelText,
+                            foregroundColor: .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
+                        )
+                    }
                 }
             }
         } else {

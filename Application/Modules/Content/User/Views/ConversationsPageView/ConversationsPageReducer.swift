@@ -71,7 +71,7 @@ public struct ConversationsPageReducer: Reducer {
 
         // Other
         public var animationAmount: CGFloat = 1
-        public var viewID = UUID()
+        public var viewID: UUID { Dependency(\.conversationsPageViewService.viewID).wrappedValue }
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -132,8 +132,7 @@ public struct ConversationsPageReducer: Reducer {
             state.isPresentingSettingsSheet = true
 
         case .traitCollectionChanged:
-            NavigationBar.setAppearance(.appDefault)
-            state.viewID = UUID()
+            viewService.updateAppearance()
 
         case .updatedCurrentUser:
             /// - NOTE: Fixes a bug in which mistimed updates would fail to set users on all conversations.

@@ -49,10 +49,7 @@ public struct ConversationsContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView(
-            navigationBarAppearance: .appDefault,
-            redrawsOnAppearanceChange: true
-        ) {
+        ThemedView(navigationBarAppearance: .appDefault) {
             VStack {
                 NavigationView {
                     List {
@@ -79,6 +76,9 @@ public struct ConversationsContentPageView: View {
                 .accentColor(Color.accent)
                 .id(viewModel.viewID)
             }
+        }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
         }
         .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
         .sheet(isPresented: newChatSheetBinding) {

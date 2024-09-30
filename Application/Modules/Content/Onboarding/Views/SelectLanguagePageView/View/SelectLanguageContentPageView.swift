@@ -53,7 +53,7 @@ public struct SelectLanguageContentPageView: View {
                 )
                 .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                ThemedView {
+                ThemedView(redrawsOnAppearanceChange: true) {
                     Picker("", selection: selectedLanguageBinding) {
                         ForEach(viewModel.languages, id: \.self) {
                             Components.text($0)

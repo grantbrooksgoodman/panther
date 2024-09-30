@@ -60,11 +60,6 @@ public struct ConversationsPageObserver: Observer {
 
         case .traitCollectionChanged,
              .updatedContactPairArchive:
-            guard !chatPageState.isPresented else {
-                chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { send(.traitCollectionChanged) }
-                return
-            }
-
             send(.traitCollectionChanged)
 
         case .updatedCurrentUser:
