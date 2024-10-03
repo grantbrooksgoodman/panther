@@ -425,14 +425,12 @@ public final class IntegrityService {
 
             let jpegImageFilePath = "\(pathPrefix).\(MediaFileExtension.image(.jpeg).rawValue)"
             let pdfDocumentFilePath = "\(pathPrefix).\(MediaFileExtension.document(.pdf).rawValue)"
-            let pngImageFilePath = "\(pathPrefix).\(MediaFileExtension.image(.png).rawValue)"
             let mp4VideoFilePath = "\(pathPrefix).\(MediaFileExtension.video(.mp4).rawValue)"
 
             let mediaThumbnailFilePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
             var jpegImageFileItemExists = false
             var pdfDocumentFileExists = false
-            var pngImageFileItemExists = false
             var mp4VideoFileItemExists = false
 
             // Check JPEG exists
@@ -478,20 +476,6 @@ public final class IntegrityService {
                 }
             }
 
-            // Check PNG exists
-
-            let pngImageFileItemExistsResult = await networking.storage.itemExists(at: pngImageFilePath)
-
-            switch pngImageFileItemExistsResult {
-            case let .success(itemExists):
-                pngImageFileItemExists = itemExists
-
-            case let .failure(exception):
-                exceptions.append(exception)
-            }
-
-            guard !pngImageFileItemExists else { continue }
-
             // Check MP4 exists
 
             let mp4VideoFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoFilePath)
@@ -526,7 +510,6 @@ public final class IntegrityService {
             guard [
                 jpegImageFileItemExists,
                 pdfDocumentFileExists,
-                pngImageFileItemExists,
                 mp4VideoFileItemExists,
             ].contains(true) else {
                 tookAction = true

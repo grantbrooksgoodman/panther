@@ -87,7 +87,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
             return !isAudioCAF && !isAudioM4A
         }
 
-        let fileExtensions = MediaFileExtension.allCases.map(\.rawValue).filter { satisfiesConstraints($0) }
+        let fileExtensions = MediaFileExtension.hostedCases.map(\.rawValue).filter { satisfiesConstraints($0) }
         for fileExtension in fileExtensions {
             let itemExistsResult = await networking.storage.itemExists(at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)")
 

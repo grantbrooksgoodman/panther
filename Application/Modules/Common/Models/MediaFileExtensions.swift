@@ -21,11 +21,19 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
     /* MARK: Properties */
 
+    public static let hostedCases: [MediaFileExtension] = [
+        .audio(.m4a),
+        .document(.pdf),
+        .image(.jpeg),
+        .video(.mp4),
+    ]
+
     public static var allCases: [MediaFileExtension] = [
         .audio(.caf),
         .audio(.m4a),
         .document(.pdf),
         .image(.jpeg),
+        .image(.jpg),
         .image(.png),
         .video(.mp4),
     ]
@@ -91,6 +99,8 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
             self = .document(.pdf)
         } else if string == ImageFileExtension.jpeg.rawValue {
             self = .image(.jpeg)
+        } else if string == ImageFileExtension.jpg.rawValue {
+            self = .image(.jpg)
         } else if string == ImageFileExtension.png.rawValue {
             self = .image(.png)
         } else if string == VideoFileExtension.mp4.rawValue {
@@ -141,13 +151,15 @@ public enum ImageFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case jpeg
+    case jpg
     case png
 
     /* MARK: Properties */
 
     public var contentTypeString: String {
         switch self {
-        case .jpeg: "image/jpeg"
+        case .jpeg,
+             .jpg: "image/jpeg"
         case .png: "image/png"
         }
     }

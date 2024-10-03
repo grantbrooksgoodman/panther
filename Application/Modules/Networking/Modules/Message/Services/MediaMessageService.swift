@@ -50,7 +50,7 @@ public struct MediaMessageService {
     public func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
-        for fileExtension in MediaFileExtension.allCases.map(\.rawValue) {
+        for fileExtension in MediaFileExtension.hostedCases.map(\.rawValue) {
             if let exception = await networking.storage.deleteItem(
                 at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)"
             ) {

@@ -98,6 +98,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
             url.stopAccessingSecurityScopedResource()
 
             if fileExtension == MediaFileExtension.image(.jpeg).rawValue ||
+                fileExtension == MediaFileExtension.image(.jpg).rawValue ||
                 fileExtension == MediaFileExtension.image(.png).rawValue,
                 let image = UIImage(contentsOfFile: temporaryFilePath.path()) {
                 dismiss(.success(.image(image)))
