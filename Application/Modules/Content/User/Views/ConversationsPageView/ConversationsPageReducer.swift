@@ -15,6 +15,7 @@ import AppSubsystem
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
@@ -71,7 +72,7 @@ public struct ConversationsPageReducer: Reducer {
 
         // Other
         public var animationAmount: CGFloat = 1
-        public var viewID: UUID { Dependency(\.conversationsPageViewService.viewID).wrappedValue }
+        public var viewID = UUID()
         public var viewState: ViewState = .loading
 
         /* MARK: Init */
@@ -132,7 +133,13 @@ public struct ConversationsPageReducer: Reducer {
             state.isPresentingSettingsSheet = true
 
         case .traitCollectionChanged:
-            viewService.updateAppearance()
+            guard !chatPageState.isPresented else {
+                chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
+                return .none
+            }
+
+            NavigationBar.setAppearance(.appDefault)
+            state.viewID = UUID()
 
         case .updatedCurrentUser:
             /// - NOTE: Fixes a bug in which mistimed updates would fail to set users on all conversations.

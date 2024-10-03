@@ -45,6 +45,7 @@ public final class ChatPageViewService {
     public private(set) var mediaActionHandler: MediaActionHandlerService?
     public private(set) var mediaMessagePreview: MediaMessagePreviewService?
     public private(set) var menu: MenuService?
+    public private(set) var readDate: ReadDateService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var typingIndicator: TypingIndicatorService?
@@ -73,6 +74,7 @@ public final class ChatPageViewService {
         mediaActionHandler = .init(viewController)
         mediaMessagePreview = .init(viewController)
         menu = .init(viewController)
+        readDate = .init(viewController)
         recordingUI = .init(viewController)
         typingIndicator = .init(viewController)
 
@@ -121,6 +123,7 @@ public final class ChatPageViewService {
         menu?.configureMenuGestureRecognizer()
 
         if configuration == .default {
+            services.analytics.logEvent(.accessChat)
             inputBar?.becomeFirstResponder()
             core.ui.resignFirstResponder()
 
@@ -137,6 +140,10 @@ public final class ChatPageViewService {
         }
 
         Task {
+            if let exception = await readDate?.updateReadDateForUnreadMessages() {
+                Logger.log(exception, with: .toast())
+            }
+
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
                 Logger.log(exception, with: .toast())
             }
@@ -147,6 +154,7 @@ public final class ChatPageViewService {
 
     public func onViewWillDisappear() {
         guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        NavigationBar.setAppearance(.appDefault)
         toggleBuildInfoOverlay(on: true)
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
@@ -163,6 +171,9 @@ public final class ChatPageViewService {
 
         alternateMessage?.restoreAllAlternateTextMessageIDs()
         alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
+
+        clientSession.conversation.setCurrentConversation(nil)
+        clientSession.conversation.resetMessageOffset()
 
         services.connectionStatus.removeEffect(.configureInputBar)
 

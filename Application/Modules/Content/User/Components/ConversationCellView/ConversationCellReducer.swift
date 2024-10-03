@@ -16,10 +16,13 @@ import AppSubsystem
 public struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.chatPageViewService.mediaMessagePreview) private var mediaMessagePreviewService: MediaMessagePreviewService?
-    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
+
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -27,8 +30,7 @@ public struct ConversationCellReducer: Reducer {
         case viewAppeared
 
         case blockUsersButtonTapped
-        case chatInfoToolbarButtonTapped
-        case chatPageViewAppeared
+        case cellTapped
         case deleteConversationButtonTapped
         case reportUsersButtonTapped
         case userInfoBadgeTapped
@@ -39,8 +41,6 @@ public struct ConversationCellReducer: Reducer {
     public enum Feedback {
         case deleteConversationReturned(Exception?)
         case deletionActionSheetDismissed(cancelled: Bool)
-        case modifyBadgeNumberReturned(Exception?)
-        case updateReadDateReturned(Callback<Conversation, Exception>)
     }
 
     // MARK: - State
@@ -54,7 +54,6 @@ public struct ConversationCellReducer: Reducer {
         @Localized(.reportUser) public var reportUsersButtonText: String
 
         // Other
-        public var badgeDecrementAmount = 0
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
 
@@ -100,34 +99,8 @@ public struct ConversationCellReducer: Reducer {
                 Logger.log(exception)
             }
 
-        case .action(.chatInfoToolbarButtonTapped):
-            return .fireAndForget {
-                Task { @MainActor in
-                    RootSheets.present(.chatInfoPageView)
-                }
-            }
-
-        case .action(.chatPageViewAppeared):
-            services.analytics.logEvent(.accessChat)
-            guard !(mediaMessagePreviewService?.isPreviewingMedia ?? false) else { return .none }
-
-            // NIT: In hindsight, it's a bit weird that this logic lives here instead of ChatPageViewService.
-            let conversation = state.conversation
-
-            guard let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),
-                  messages.last?.readDate == nil else {
-                return .none
-            }
-
-            let unreadMessages = messages.filter { $0.readDate == nil }
-            guard !unreadMessages.isEmpty else { return .none }
-
-            state.badgeDecrementAmount = unreadMessages.count
-            clientSession.user.stopObservingCurrentUserChanges()
-            return .task {
-                let result = await conversation.updateReadDate(for: unreadMessages)
-                return .updateReadDateReturned(result)
-            }
+        case .action(.cellTapped):
+            navigationCoordinator.navigate(to: .userContent(.push(.chat(state.conversation))))
 
         case .action(.deleteConversationButtonTapped):
             let title = state.cellViewData.titleLabelText
@@ -150,7 +123,7 @@ public struct ConversationCellReducer: Reducer {
             defer { clientSession.user.startObservingCurrentUserChanges() }
 
             guard let exception else {
-                services.analytics.logEvent(.deleteConversation)
+                analyticsService.logEvent(.deleteConversation)
                 return .none
             }
 
@@ -165,29 +138,6 @@ public struct ConversationCellReducer: Reducer {
                 let result = await clientSession.conversation.deleteConversation(conversation)
                 return .deleteConversationReturned(result)
             }
-
-        case let .feedback(.modifyBadgeNumberReturned(exception)):
-            defer { state.badgeDecrementAmount = 0 }
-            guard let exception else { return .none }
-            Logger.log(exception, with: .toast())
-
-        case .feedback(.updateReadDateReturned(.success)):
-            Logger.log(
-                "Updated read date for \(state.badgeDecrementAmount) message\(state.badgeDecrementAmount == 1 ? "" : "s").",
-                domain: .conversation,
-                metadata: [self, #file, #function, #line]
-            )
-
-            clientSession.user.startObservingCurrentUserChanges()
-
-            let badgeDecrementAmount = state.badgeDecrementAmount
-            return .task {
-                let result = await services.notification.modifyBadgeNumber(.decrement(by: badgeDecrementAmount))
-                return .modifyBadgeNumberReturned(result)
-            }
-
-        case let .feedback(.updateReadDateReturned(.failure(exception))):
-            Logger.log(exception)
         }
 
         return .none

@@ -3,7 +3,7 @@
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 11/11/2023.
-//  Copyright © NEOTechnica Corporation. All rights reserved.
+//  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */

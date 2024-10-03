@@ -32,16 +32,6 @@ public struct RootView: View {
     @ViewBuilder
     private var rootPage: some View {
         switch navigationCoordinator.state.modal {
-        case .conversations:
-            withTransition {
-                ConversationsPageView(
-                    .init(
-                        initialState: .init(),
-                        reducer: ConversationsPageReducer()
-                    )
-                )
-            }
-
         case .onboarding:
             withTransition {
                 OnboardingContainerView()
@@ -53,6 +43,16 @@ public struct RootView: View {
                     .init(
                         initialState: .init(),
                         reducer: SplashPageReducer()
+                    )
+                )
+            }
+
+        case .userContent:
+            withTransition {
+                UserContentContainerView(
+                    .init(
+                        initialState: .init(),
+                        reducer: UserContentContainerReducer()
                     )
                 )
             }

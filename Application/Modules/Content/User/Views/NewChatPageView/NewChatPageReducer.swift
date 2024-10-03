@@ -23,11 +23,10 @@ public struct NewChatPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case conversationChanged(Conversation)
+        case doneToolbarButtonTapped
+
         case isPresentedChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
-
-        case doneToolbarButtonTapped
     }
 
     // MARK: - Feedback
@@ -82,9 +81,6 @@ public struct NewChatPageReducer: Reducer {
         case .action(.viewAppeared):
             analyticsService.logEvent(.accessNewChatPage)
             NavigationBar.setAppearance(.themed(showsDivider: false))
-
-        case let .action(.conversationChanged(conversation)):
-            state.conversation = conversation
 
         case .action(.doneToolbarButtonTapped):
             state.isPresented.wrappedValue = false

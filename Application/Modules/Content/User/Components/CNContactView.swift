@@ -30,16 +30,10 @@ public struct CNContactView: View {
     // MARK: - View
 
     public var body: some View {
-        Group {
-            if #available(iOS 17.0, *) {
-                _CNContactView(cnContact, isUnknown: isUnknown)
-                    .navigationBarBackButtonHidden()
-                    .navigationTitle("\u{2800}")
-            } else {
-                _CNContactView(cnContact, isUnknown: isUnknown)
-            }
-        }
-        .background(Color.listViewBackground)
+        _CNContactView(cnContact, isUnknown: isUnknown)
+            .navigationBarBackButtonHidden()
+            .navigationTitle("\u{2800}")
+            .background(Color.listViewBackground)
     }
 }
 

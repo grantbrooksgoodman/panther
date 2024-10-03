@@ -71,9 +71,9 @@ public final class ConversationSessionService {
 
     // MARK: - Set Current Conversation
 
-    public func setCurrentConversation(_ currentConversation: Conversation) {
-        completeMessageArray = currentConversation.messages?.unique.sortedByAscendingSentDate
-        self.currentConversation = withMessagesOffset(currentConversation.withMessagesSortedByAscendingSentDate)
+    public func setCurrentConversation(_ currentConversation: Conversation?) {
+        completeMessageArray = currentConversation?.messages?.unique.sortedByAscendingSentDate
+        self.currentConversation = withMessagesOffset(currentConversation?.withMessagesSortedByAscendingSentDate)
     }
 
     // MARK: - Message Offset
@@ -372,9 +372,10 @@ public final class ConversationSessionService {
         }
     }
 
-    private func withMessagesOffset(_ conversation: Conversation) -> Conversation {
+    private func withMessagesOffset(_ conversation: Conversation?) -> Conversation? {
         let amountToGet = Int(messageOffset)
-        guard let messages = conversation.messages?.unique,
+        guard let conversation,
+              let messages = conversation.messages?.unique,
               messages.count > amountToGet else { return conversation }
 
         return .init(

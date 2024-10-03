@@ -16,9 +16,9 @@ public struct RootNavigatorState: NavigatorState {
     // MARK: - Types
 
     public enum ModalPaths: Paths {
-        case conversations
         case onboarding
         case splash
+        case userContent
     }
 
     public enum SeguePaths: Paths {}
@@ -29,6 +29,7 @@ public struct RootNavigatorState: NavigatorState {
 
     public var onboarding: OnboardingNavigatorState = .init()
     public var settings: SettingsNavigatorState = .init()
+    public var userContent: UserContentNavigatorState = .init()
 
     public var modal: ModalPaths?
     public var sheet: SheetPaths?

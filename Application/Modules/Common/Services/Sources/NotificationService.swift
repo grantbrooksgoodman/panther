@@ -25,12 +25,13 @@ public final class NotificationService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: Networking
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -63,11 +64,15 @@ public final class NotificationService {
 
     // MARK: - Notify Users of Message
 
-    public func notify(_ users: [User], of message: Message) async -> Exception? {
+    public func notify(
+        _ users: [User],
+        of message: Message,
+        conversationIDKey: String
+    ) async -> Exception? {
         func notify(_ user: User, of message: Message) async -> Exception? {
             let commonParams = ["UserID": user.id]
 
-            guard let currentUser = userSession.currentUser else {
+            guard let currentUser = clientSession.user.currentUser else {
                 return .init(
                     "Current user has not been set.",
                     metadata: [self, #file, #function, #line]
@@ -109,7 +114,10 @@ public final class NotificationService {
                     title: currentUser.phoneNumber.formattedString(),
                     body: body ?? .bangQualifiedEmpty,
                     pushToken: pushToken,
-                    extraParams: ["userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash]
+                    extraParams: [
+                        "conversationIDKey": conversationIDKey,
+                        "userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash,
+                    ]
                 ) {
                     return exception.appending(extraParams: commonParams)
                 }
@@ -131,6 +139,7 @@ public final class NotificationService {
 
     // MARK: - Respond to Notification
 
+    @MainActor
     public func respondToNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
         Logger.log(
             "Received notification.\n\"\(notification.request.content.body)\"",
@@ -138,18 +147,51 @@ public final class NotificationService {
             metadata: [self, #file, #function, #line]
         )
 
-        if let exception = await modifyBadgeNumber(.increment()) {
+        guard let currentUser = clientSession.user.currentUser else {
+            return .failure(.init(
+                "No current user – will not respond to notification.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        if uiApplication.applicationState != .active,
+           let exception = await modifyBadgeNumber(.increment()) {
             return .failure(exception)
         }
 
-        switch await uiApplication.applicationState {
+        switch uiApplication.applicationState {
         case .active:
-            Toast.show(.init(
+            let toast: Toast = .init(
                 .capsule(),
                 title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
                 message: notification.request.content.body,
                 perpetuation: .ephemeral(.seconds(5))
-            ))
+            )
+
+            guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String else {
+                Toast.show(toast)
+                return .success([])
+            }
+
+            if clientSession.conversation.currentConversation?.id.key != conversationIDKey {
+                guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
+                    Toast.show(toast)
+                    return .success([])
+                }
+
+                Toast.show(toast) {
+                    @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
+                    guard self.chatPageState.isPresented else {
+                        return navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+                    }
+
+                    navigationCoordinator.navigate(to: .userContent(.stack([])))
+                    self.chatPageState.addEffectUponIsPresented(changedTo: false, id: .deeplinkToOtherChat) {
+                        navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+                    }
+                }
+            }
 
             return .success([])
 

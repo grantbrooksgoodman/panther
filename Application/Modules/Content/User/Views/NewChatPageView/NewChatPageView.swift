@@ -29,13 +29,6 @@ public struct NewChatPageView: View {
         )
     }
 
-    private var conversationBinding: Binding<Conversation> {
-        viewModel.binding(
-            for: \.conversation,
-            sendAction: { .conversationChanged($0) }
-        )
-    }
-
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<NewChatPageReducer>) {

@@ -58,29 +58,6 @@ public extension UIImage {
         return compressedData
     }
 
-    static func document(tintColor: UIColor = .systemGray3) -> UIImage {
-        let config: UIImage.SymbolConfiguration = .init(
-            pointSize: 100,
-            weight: .regular,
-            scale: .medium
-        )
-
-        return .init(
-            systemName: Strings.documentImageSystemName,
-            withConfiguration: config
-        )?.withTintColor(
-            tintColor,
-            renderingMode: .alwaysOriginal
-        ).withAlignmentRectInsets(
-            .init(
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0
-            )
-        ) ?? .init()
-    }
-
     func resized(toPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {
         let imageSize = CGSize(width: size.width * percentage, height: size.height * percentage)
         let format = imageRendererFormat

@@ -225,6 +225,20 @@ public struct MessageSessionService {
             }
         }
 
+        func notifyUsers(of message: Message, conversationIDKey: String) {
+            Task.background {
+                if let exception = await services.notification.notify(
+                    otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
+                    of: message,
+                    conversationIDKey: conversationIDKey
+                ) {
+                    Logger.log(exception)
+                }
+
+                incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)
+            }
+        }
+
         clientSession.user.stopObservingCurrentUserChanges()
 
         let createMessageResult = await networking.services.message.createMessage(
@@ -237,20 +251,10 @@ public struct MessageSessionService {
 
         switch createMessageResult {
         case let .success(message):
-            Task.background {
-                if let exception = await services.notification.notify(
-                    otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
-                    of: message
-                ) {
-                    Logger.log(exception)
-                }
-            }
-
-            incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)
-
             if let conversation {
-                let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
+                notifyUsers(of: message, conversationIDKey: conversation.id.key)
 
+                let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
                 guard newParticipants.map(\.hasDeletedConversation) != conversation.participants.map(\.hasDeletedConversation) else {
                     return await addMessage(message, to: conversation)
                 }
@@ -282,6 +286,7 @@ public struct MessageSessionService {
 
                 switch createConversationResult {
                 case let .success(conversation):
+                    notifyUsers(of: message, conversationIDKey: conversation.id.key)
                     return .success(conversation)
 
                 case let .failure(exception):

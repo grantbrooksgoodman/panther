@@ -233,7 +233,6 @@ public final class RecipientBarLayoutService {
 
         selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
         while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
-
         selectContactButton.center.y = recipientBarView.center.y
 
         return selectContactButton

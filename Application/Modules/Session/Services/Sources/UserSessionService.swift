@@ -339,6 +339,7 @@ public final class UserSessionService {
 
     // MARK: - Push Tokens
 
+    // NIT: Unused.
     @discardableResult
     public func resetPushTokens() async -> Exception? {
         notificationService.setPushToken(nil)

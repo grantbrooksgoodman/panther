@@ -10,6 +10,7 @@
 import Foundation
 
 public enum ChatPageStateServiceEffectID: String {
+    case deeplinkToOtherChat
     case updateAppearance
     case updateConversations
     case updateCurrentUser

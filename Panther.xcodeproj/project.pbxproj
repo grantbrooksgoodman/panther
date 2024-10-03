@@ -144,6 +144,11 @@
 		B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758212BCF7A35001E4872 /* ContentPickerView.swift */; };
 		B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758242BCF864D001E4872 /* ContentPicker.swift */; };
 		B94758272BCF8689001E4872 /* ContentPickerContentSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758262BCF8689001E4872 /* ContentPickerContentSource.swift */; };
+		B947F2D42CAC7C7A004CD880 /* UserContentNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D32CAC7C7A004CD880 /* UserContentNavigator.swift */; };
+		B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D52CAC7D14004CD880 /* UserContentContainerView.swift */; };
+		B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */; };
+		B947F2DB2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */; };
+		B947F2DD2CAC8AD9004CD880 /* ReadDateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */; };
 		B94D767A2BBB5A11002B4BC6 /* SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */; };
 		B94D767E2BBB5A2E002B4BC6 /* SignInContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */; };
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
@@ -924,6 +929,11 @@
 		B94758212BCF7A35001E4872 /* ContentPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerView.swift; sourceTree = "<group>"; };
 		B94758242BCF864D001E4872 /* ContentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPicker.swift; sourceTree = "<group>"; };
 		B94758262BCF8689001E4872 /* ContentPickerContentSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerContentSource.swift; sourceTree = "<group>"; };
+		B947F2D32CAC7C7A004CD880 /* UserContentNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentNavigator.swift; sourceTree = "<group>"; };
+		B947F2D52CAC7D14004CD880 /* UserContentContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerView.swift; sourceTree = "<group>"; };
+		B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerReducer.swift; sourceTree = "<group>"; };
+		B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+UserContentContainerView.swift"; sourceTree = "<group>"; };
+		B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadDateService.swift; sourceTree = "<group>"; };
 		B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageView.swift; sourceTree = "<group>"; };
 		B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInContentPageView.swift; sourceTree = "<group>"; };
 		B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageReducer.swift; sourceTree = "<group>"; };
@@ -1912,6 +1922,15 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		B947F2D72CAC8078004CD880 /* UserContentContainerView */ = {
+			isa = PBXGroup;
+			children = (
+				B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */,
+				B947F2D52CAC7D14004CD880 /* UserContentContainerView.swift */,
+			);
+			path = UserContentContainerView;
+			sourceTree = "<group>";
+		};
 		B94D767B2BBB5A15002B4BC6 /* SignInPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -2261,6 +2280,7 @@
 			children = (
 				B99CC5532C1927BC00319F02 /* OnboardingNavigator.swift */,
 				B900BB022C98DDE200EED8E4 /* SettingsNavigator.swift */,
+				B947F2D32CAC7C7A004CD880 /* UserContentNavigator.swift */,
 			);
 			path = Navigators;
 			sourceTree = "<group>";
@@ -2307,6 +2327,7 @@
 				B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */,
 				B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */,
 				B92646932B7466B000E0F385 /* MenuService.swift */,
+				B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
@@ -3152,6 +3173,7 @@
 				B942624E2C4622880026CDE8 /* InviteQRCodePageView */,
 				B9EC04BA2B783CE400A16700 /* NewChatPageView */,
 				B9EC04C62B79671300A16700 /* SettingsPageView */,
+				B947F2D72CAC8078004CD880 /* UserContentContainerView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3218,6 +3240,7 @@
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
+				B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */,
 				B918222B2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift */,
 				B9F47AFD2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift */,
 			);
@@ -3895,6 +3918,7 @@
 				B99195772B47C7CA00BD5BBC /* SelectLanguageContentPageView.swift in Sources */,
 				B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */,
 				B995A45D2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift in Sources */,
+				B947F2D42CAC7C7A004CD880 /* UserContentNavigator.swift in Sources */,
 				B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */,
 				B9E0E1042B20FE7100C14274 /* AudioMessageService.swift in Sources */,
 				B9A907362BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift in Sources */,
@@ -3905,10 +3929,12 @@
 				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,
 				B9D0D93B2B03019E00078A93 /* FirebasePhoneAuthProviderDependency.swift in Sources */,
 				B918222A2B6DEA450068BDAB /* UIView+UserContentExtensions.swift in Sources */,
+				B947F2DB2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift in Sources */,
 				B96EDD912B6360C500CB925B /* CNContactView.swift in Sources */,
 				B9D0D9452B03019E00078A93 /* NetworkConfig.swift in Sources */,
 				B906C0132C470A2100F414DA /* ModerationType.swift in Sources */,
 				B93BD4F62C90399F00E8D242 /* Application.swift in Sources */,
+				B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
@@ -3950,6 +3976,7 @@
 				B9D0D9402B03019E00078A93 /* Array+CoreNetworkingExtensions.swift in Sources */,
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
+				B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */,
 				B9E0E0FC2B20F03300C14274 /* CoreStorage.swift in Sources */,
 				B9F47AF32B585FBF00D86C67 /* AvatarImageView.swift in Sources */,
 				B9E6D7B42B126188000BC88D /* PhoneNumberService.swift in Sources */,
@@ -4126,6 +4153,7 @@
 				B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */,
 				B9931B312B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift in Sources */,
 				B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */,
+				B947F2DD2CAC8AD9004CD880 /* ReadDateService.swift in Sources */,
 				B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */,
 				B900BB032C98DDE200EED8E4 /* SettingsNavigator.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,

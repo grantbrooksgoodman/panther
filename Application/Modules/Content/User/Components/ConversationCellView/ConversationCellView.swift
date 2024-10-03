@@ -34,22 +34,19 @@ public struct ConversationCellView: View {
     // MARK: - Body
 
     public var body: some View {
-        ZStack {
-            NavigationLink {
-                chatPageView(configuration: .default)
-            } label: {
-                EmptyView()
-            }
-            .buttonStyle(.plain)
-            .frame(width: Floats.navigationLinkFrameWidth)
-            .opacity(Floats.navigationLinkOpacity)
-
+        Button {
+            viewModel.send(.cellTapped)
+        } label: {
             cellView
         }
         .contextMenu {
             contextMenuButtons
         } preview: {
-            chatPageView(configuration: .preview)
+            ChatPageView(
+                viewModel.conversation,
+                configuration: .preview
+            )
+            .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
         }
         .frame(height: Floats.frameHeight)
         .swipeActions(edge: .leading, allowsFullSwipe: false) { swipeActionButtons(.leading) }
@@ -189,45 +186,5 @@ public struct ConversationCellView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Chat Info Toolbar Button
-
-    private var chatInfoToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Components.button(
-                symbolName: Strings.chatInfoButtonImageSystemName,
-                usesIntrinsicSize: false
-            ) {
-                viewModel.send(.chatInfoToolbarButtonTapped)
-            }
-        }
-    }
-
-    // MARK: - Chat Page View
-
-    private func chatPageView(configuration: ChatPageView.Configuration) -> some View {
-        var pageView: AnyView = .init(
-            ChatPageView(viewModel.conversation, configuration: configuration)
-                .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
-                .ignoresSafeArea(.keyboard)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle(viewModel.cellViewData.titleLabelText)
-                .toolbar {
-                    chatInfoToolbarButton
-                }
-        )
-
-        guard configuration == .preview else {
-            pageView = AnyView(
-                pageView
-                    .onAppear {
-                        viewModel.send(.chatPageViewAppeared)
-                    }
-            )
-            return pageView
-        }
-
-        return pageView
     }
 }

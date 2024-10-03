@@ -77,6 +77,7 @@ public struct ConversationsContentPageView: View {
                 .id(viewModel.viewID)
             }
         }
+        .navigationBarBackButtonHidden()
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)
         }

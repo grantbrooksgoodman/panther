@@ -1,0 +1,52 @@
+//
+//  UserContentContainerReducer.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 01/10/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+/* Proprietary */
+import AppSubsystem
+
+public struct UserContentContainerReducer: Reducer {
+    // MARK: - Actions
+
+    public enum Action {
+        case viewAppeared
+        case chatInfoToolbarButtonTapped
+    }
+
+    // MARK: - Feedback
+
+    public enum Feedback {}
+
+    // MARK: - State
+
+    public struct State: Equatable {
+        /* MARK: Init */
+
+        public init() {}
+    }
+
+    // MARK: - Reduce
+
+    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
+        switch event {
+        case .action(.viewAppeared):
+            NavigationBar.setAppearance(.appDefault)
+
+        case .action(.chatInfoToolbarButtonTapped):
+            return .fireAndForget {
+                Task { @MainActor in
+                    RootSheets.present(.chatInfoPageView)
+                }
+            }
+        }
+
+        return .none
+    }
+}
