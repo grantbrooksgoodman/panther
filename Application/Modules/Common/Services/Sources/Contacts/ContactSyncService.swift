@@ -39,7 +39,10 @@ public struct ContactSyncService {
                     metadata: [self, #file, #function, #line]
                 )
 
-                coreUtilities.clearCaches(domains: [.contactPairArchive])
+                coreUtilities.clearCaches(domains: [
+                    .contactPairArchive,
+                    .queriedContactPairs,
+                ])
                 return await updateContactPairArchive()
             }
 

@@ -173,6 +173,14 @@ public final class NotificationService {
                 return .success([])
             }
 
+            guard let conversationIDKeys = currentUser.conversations?.visibleForCurrentUser.map({ $0.id.key }),
+                  conversationIDKeys.contains(conversationIDKey) else {
+                return .failure(.init(
+                    "Current user is not participating in the conversation associated with this notification.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
             if clientSession.conversation.currentConversation?.id.key != conversationIDKey {
                 guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
                     Toast.show(toast)

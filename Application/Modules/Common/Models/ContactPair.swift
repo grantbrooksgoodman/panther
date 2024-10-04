@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public struct ContactPair: Codable, Equatable {
+public struct ContactPair: Codable, Hashable {
     // MARK: - Properties
 
     public let contact: Contact
@@ -21,5 +21,13 @@ public struct ContactPair: Codable, Equatable {
         assert(!numberPairs.isEmpty, "Initialized ContactPair with empty NumberPair array")
         self.contact = contact
         self.numberPairs = numberPairs
+    }
+
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(contact.id)
+        hasher.combine(numberPairs.map(\.phoneNumber.compiledNumberString))
+        hasher.combine(numberPairs.map { $0.users.map(\.id) }.reduce([], +))
     }
 }

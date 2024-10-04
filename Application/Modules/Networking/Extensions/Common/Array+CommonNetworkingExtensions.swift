@@ -22,14 +22,10 @@ public extension Array where Element == Conversation {
     }
 
     var sortedByLatestMessageSentDate: [Conversation] {
-        guard allSatisfy({ $0.messages != nil && !($0.messages?.isEmpty ?? true) }) else { return self }
-        return sorted(by: { $0.messages!
-                .sorted(by: { $0.sentDate > $1.sentDate })
-                .first!.sentDate >
-                $1.messages!
-                .sorted(by: { $0.sentDate > $1.sentDate })
-                .first!.sentDate
-        })
+        let filtered = filter { $0.messages?.isEmpty == false }
+        return filtered.map { conversation in
+            (conversation, conversation.messages!.max(by: { $0.sentDate < $1.sentDate })!.sentDate)
+        }.sorted(by: { $0.1 > $1.1 }).map { $0.0 }
     }
 
     var uniquedByIDKey: [Conversation] {

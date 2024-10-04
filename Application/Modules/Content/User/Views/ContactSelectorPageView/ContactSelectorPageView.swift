@@ -56,10 +56,11 @@ public struct ContactSelectorPageView: View {
                 cancelToolbarButton
                 inviteToolbarButton
             }
+            .navigationBarAppearance(.themed(showsDivider: false))
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(viewModel.navigationTitle)
         }
-        .navigationBarAppearance(.themed(showsDivider: false))
+        .redrawsOnTraitCollectionChange()
     }
 
     private var cancelToolbarButton: some ToolbarContent {

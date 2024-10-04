@@ -30,6 +30,7 @@ public extension CacheDomain {
                 .localization,
                 .localTranslationArchive,
                 .mediaMessagePreviewService,
+                .queriedContactPairs,
                 .regionDetailService,
                 .settingsPageViewService,
                 .storage,
@@ -49,6 +50,7 @@ public extension CacheDomain {
     static let database: CacheDomain = .init("database")
     static let localization: CacheDomain = .init("localization")
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
+    static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
     static let regionDetailService: CacheDomain = .init("regionDetailService")
     static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
     static let storage: CacheDomain = .init("storage")
@@ -74,6 +76,7 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.database) { networking.database.clearCache() }
         if appDomains.contains(.localization) { Localization.clearCache() }
         if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
+        if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
         if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
         if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
         if appDomains.contains(.storage) { networking.storage.clearCache() }

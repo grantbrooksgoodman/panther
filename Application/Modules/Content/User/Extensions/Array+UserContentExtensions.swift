@@ -33,9 +33,32 @@ public extension Array where Element == ContactPair {
 
     func queried(by searchTerm: String) -> [ContactPair] {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
+
         guard !searchTerm.isEmpty else { return self } // Still want to capture pure whitespace, hence .isEmpty and not .isBlank.
-        return filter { "\($0.contact)".lowercased().contains(searchTerm.lowercased()) }
-            .filter { !(recipientBarContactSelectionUIService?.selectedContactPairs ?? []).contains($0) }
+        if let cachedValue = QueriedContactPairCache.cachedContactPairsForSearchTerms?[searchTerm] {
+            return cachedValue
+        }
+
+        let lowercasedSearchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
+        let selectedContactPairs = Set(recipientBarContactSelectionUIService?.selectedContactPairs ?? [])
+
+        let queriedContactPairs = filter { contactPair in
+            guard !selectedContactPairs.contains(contactPair) else { return false }
+
+            let contact = contactPair.contact
+            let validTerms = [
+                contact.fullName,
+                contact.firstName,
+                contact.lastName,
+            ] + contact.phoneNumbers.compiledNumberStrings
+
+            return validTerms.contains { $0.lowercasedTrimmingWhitespaceAndNewlines.contains(lowercasedSearchTerm) }
+        }
+
+        var cachedContactPairsForSearchTerms = QueriedContactPairCache.cachedContactPairsForSearchTerms ?? [:]
+        cachedContactPairsForSearchTerms[searchTerm] = queriedContactPairs
+        QueriedContactPairCache.cachedContactPairsForSearchTerms = cachedContactPairsForSearchTerms
+        return queriedContactPairs
     }
 }
 
