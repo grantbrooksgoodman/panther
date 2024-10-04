@@ -16,6 +16,7 @@ import AppSubsystem
 public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
 
     // MARK: - Properties
@@ -28,6 +29,9 @@ public struct NewChatPageReducer: Reducer {
         case viewAppeared
 
         case doneToolbarButtonTapped
+        case firstMessageSent
+
+        case isDoneToolbarButtonEnabledChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
     }
 
@@ -41,11 +45,13 @@ public struct NewChatPageReducer: Reducer {
         /* MARK: Properties */
 
         // Bool
+        public var isDoneToolbarButtonEnabled = true
         public var isPresentingContactSelectorSheet = false
+        public var shouldUseBoldDoneToolbarButton = false
 
         // String
-        @Localized(.cancel) public var doneToolbarButtonText: String
-        @Localized(.newMessage) public var navigationTitle: String
+        public var doneToolbarButtonText = ""
+        public var navigationTitle = ""
 
         // Other
         public var conversation: Conversation = .empty
@@ -61,10 +67,24 @@ public struct NewChatPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             analyticsService.logEvent(.accessNewChatPage)
+
+            state.doneToolbarButtonText = Localized(.cancel).wrappedValue
+            state.navigationTitle = Localized(.newMessage).wrappedValue
             NavigationBar.setAppearance(.themed(showsDivider: false))
 
         case .action(.doneToolbarButtonTapped):
             navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
+
+        case .action(.firstMessageSent):
+            guard let currentConversation,
+                  let cellViewData = ConversationCellViewData(currentConversation) else { return .none }
+
+            state.doneToolbarButtonText = Localized(.done).wrappedValue
+            state.navigationTitle = cellViewData.titleLabelText
+            state.shouldUseBoldDoneToolbarButton = true
+
+        case let .action(.isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled)):
+            state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
 
         case let .action(.isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet)):
             state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet

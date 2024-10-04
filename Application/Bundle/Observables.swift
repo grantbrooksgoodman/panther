@@ -16,7 +16,9 @@ public extension ObservableKey {
     /* Add keys here to define new values for Observer instances. */
 
     static let contactSelectorPresentationPending: ObservableKey = .init("contactSelectorPresentationPending")
+    static let firstMessageSentInNewChat: ObservableKey = .init("firstMessageSentInNewChat")
     static let isNetworkActivityOccurring: ObservableKey = .init("isNetworkActivityOccurring")
+    static let isNewChatPageDoneToolbarButtonEnabled: ObservableKey = .init("isNewChatPageDoneToolbarButtonEnabled")
     static let networkActivityOccurred: ObservableKey = .init("networkActivityOccurred")
     static let traitCollectionChanged: ObservableKey = .init("traitCollectionChanged")
     static let updatedContactPairArchive: ObservableKey = .init("updatedContactPairArchive")
@@ -28,7 +30,9 @@ public extension Observables {
     /* Add new properties conforming to Observable here. */
 
     static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
+    static let firstMessageSentInNewChat: Observable<Nil> = .init(key: .firstMessageSentInNewChat)
     static let isNetworkActivityOccurring: Observable<Bool> = .init(.isNetworkActivityOccurring, false)
+    static let isNewChatPageDoneToolbarButtonEnabled: Observable<Bool> = .init(.isNewChatPageDoneToolbarButtonEnabled, true)
     static let networkActivityOccurred: Observable<Nil> = .init(key: .networkActivityOccurred)
     static let traitCollectionChanged: Observable<Nil> = .init(key: .traitCollectionChanged)
     static let updatedContactPairArchive: Observable<Nil> = .init(key: .updatedContactPairArchive)

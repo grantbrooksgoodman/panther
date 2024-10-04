@@ -29,7 +29,6 @@ public final class RecipientBarActionHandlerService {
 
     // MARK: - Properties
 
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     private let viewController: ChatPageViewController
 
     // MARK: - Init
@@ -72,11 +71,6 @@ public final class RecipientBarActionHandlerService {
     }
 
     // MARK: - Selector Action Handlers
-
-    @objc
-    public func doneButtonTapped() {
-        navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
-    }
 
     @objc
     public func selectContactButtonTapped() {
@@ -181,7 +175,7 @@ public final class RecipientBarActionHandlerService {
 
             let phoneNumber = PhoneNumber(text)
             guard !phoneNumber.compiledNumberString.isBlank,
-                  text.digits.count == text.trimmingWhitespace.count else {
+                  text.digits.count == text.removingOccurrences(of: ["-", "+"]).trimmingWhitespace.count else {
                 contactSelectionUIService.selectContactPair(.mock(withName: text))
                 return
             }

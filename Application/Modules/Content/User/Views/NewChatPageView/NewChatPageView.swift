@@ -69,9 +69,14 @@ public struct NewChatPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Components.button(viewModel.doneToolbarButtonText) {
+            Components.button(
+                viewModel.doneToolbarButtonText,
+                font: viewModel.shouldUseBoldDoneToolbarButton ? .systemSemibold : .system,
+                foregroundColor: viewModel.isDoneToolbarButtonEnabled ? .accent : .disabled
+            ) {
                 viewModel.send(.doneToolbarButtonTapped)
             }
+            .disabled(!viewModel.isDoneToolbarButtonEnabled)
         }
     }
 }

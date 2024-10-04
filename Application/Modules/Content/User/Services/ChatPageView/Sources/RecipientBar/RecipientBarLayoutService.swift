@@ -68,24 +68,7 @@ public final class RecipientBarLayoutService {
             recipientBarView?.removeFromSuperview()
             viewController.messagesCollectionView.contentInset.top = 0
             viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = 0
-
-            guard let actionHandlerService = service?.actionHandler,
-                  let parent = viewController.parent else { return }
-
-            let doneButton = UIBarButtonItem(
-                title: Localized(.done).wrappedValue,
-                style: .done,
-                target: actionHandlerService,
-                action: #selector(actionHandlerService.doneButtonTapped)
-            )
-
-            doneButton.tintColor = .accent
-            parent.navigationItem.rightBarButtonItem = doneButton
-
-            guard let conversation = viewController.currentConversation,
-                  let cellViewData = ConversationCellViewData(conversation) else { return }
-
-            parent.navigationItem.title = cellViewData.titleLabelText
+            Observables.isNewChatPageDoneToolbarButtonEnabled.value = true
         }
     }
 
@@ -93,10 +76,10 @@ public final class RecipientBarLayoutService {
 
     public func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
         Task { @MainActor in
+            Observables.isNewChatPageDoneToolbarButtonEnabled.value = isUserInteractionEnabled
+
             guard let recipientBarView,
                   let textField else { return }
-
-            configureCancelBarButtonItem(isUserInteractionEnabled)
 
             switch isUserInteractionEnabled {
             case true:
@@ -152,23 +135,6 @@ public final class RecipientBarLayoutService {
         let darkBackground: UIColor = ThemeService.isAppDefaultThemeApplied ? .listViewBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
         recipientBarView?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
-    }
-
-    private func configureCancelBarButtonItem(_ isEnabled: Bool) {
-        guard let actionHandlerService = service?.actionHandler,
-              let parent = viewController.parent else { return }
-
-        let cancelButton = UIBarButtonItem(
-            title: Localized(.cancel).wrappedValue,
-            style: .plain,
-            target: actionHandlerService,
-            action: #selector(actionHandlerService.doneButtonTapped)
-        )
-
-        cancelButton.isEnabled = isEnabled
-        cancelButton.tintColor = .accent
-
-        parent.navigationItem.rightBarButtonItem = cancelButton
     }
 
     private func configureSelectContactButton() {

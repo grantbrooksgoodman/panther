@@ -165,7 +165,13 @@ public final class ConversationsPageViewService {
             return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
         }
 
-        NavigationBar.setAppearance(.appDefault)
+        @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+        guard navigationCoordinator.state.userContent.sheet == nil else { return }
+
+        Task { @MainActor in
+            NavigationBar.setAppearance(.appDefault)
+            StatusBarStyle.override(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+        }
     }
 
     // MARK: - Auxiliary

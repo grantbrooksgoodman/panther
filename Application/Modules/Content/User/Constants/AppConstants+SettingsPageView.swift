@@ -28,6 +28,9 @@ public extension AppConstants.CGFloats {
         public static let contactDetailViewHorizontalPadding: CGFloat = 20
         public static let contactDetailViewTopPadding: CGFloat = 30
 
+        public static let deleteAccountOverlayAlpha: CGFloat = 0.5
+        public static let signOutNavigationDelayMilliseconds: CGFloat = 500
+
         public static let staticListViewBottomPadding: CGFloat = 20
         public static let staticListViewHorizontalPadding: CGFloat = 20
     }

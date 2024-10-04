@@ -281,6 +281,7 @@ public final class MessageDeliveryService {
         clientSession.conversation.setCurrentConversation(newConversation)
         chatPageViewService.recipientBar?.layout.removeFromSuperview()
         chatPageViewService.reloadCollectionView()
+        Observables.firstMessageSentInNewChat.trigger()
     }
 
     private func didSetIsSendingMessage() {

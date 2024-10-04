@@ -98,7 +98,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
             return presentationOptions
 
         case let .failure(exception):
-            Logger.log(exception)
+            Logger.log(exception, domain: .notifications)
             return []
         }
     }

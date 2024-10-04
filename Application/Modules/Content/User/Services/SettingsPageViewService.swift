@@ -26,6 +26,7 @@ public final class SettingsPageViewService {
 
     // MARK: - Constants Accessors
 
+    private typealias Floats = AppConstants.CGFloats.SettingsPageView
     private typealias Strings = AppConstants.Strings.SettingsPageView
 
     // MARK: - Dependencies
@@ -147,7 +148,10 @@ public final class SettingsPageViewService {
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
                 Task {
-                    await self.uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+                    await self.uiApplication.mainWindow?.addOverlay(
+                        alpha: Floats.deleteAccountOverlayAlpha,
+                        activityIndicator: (.large, .white)
+                    )
 
                     if let exception = self.userSession.stopObservingCurrentUserChanges() {
                         Logger.log(exception)
@@ -246,8 +250,12 @@ public final class SettingsPageViewService {
 
                     self.services.analytics.logEvent(.logOut)
                     self.defaults.reset(keeping: UserDefaultsKey.permanentKeys)
-                    self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
-                    self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+
+                    self.navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
+                    self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
+                        self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
+                        self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+                    }
                 }
             }
 
