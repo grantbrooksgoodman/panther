@@ -18,14 +18,16 @@ public struct NewChatPageReducer: Reducer {
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
 
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
 
         case doneToolbarButtonTapped
-
-        case isPresentedChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
     }
 
@@ -39,7 +41,6 @@ public struct NewChatPageReducer: Reducer {
         /* MARK: Properties */
 
         // Bool
-        public var isPresented: Binding<Bool>
         public var isPresentingContactSelectorSheet = false
 
         // String
@@ -51,27 +52,7 @@ public struct NewChatPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init(_ isPresented: Binding<Bool>) {
-            self.isPresented = isPresented
-        }
-
-        /* MARK: Equatable Conformance */
-
-        public static func == (left: State, right: State) -> Bool {
-            let sameConversation = left.conversation == right.conversation
-            let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
-            let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
-            let sameIsPresentingContactSelectorSheet = left.isPresentingContactSelectorSheet == right.isPresentingContactSelectorSheet
-            let sameNavigationTitle = left.navigationTitle == right.navigationTitle
-
-            guard sameConversation,
-                  sameDoneToolbarButtonText,
-                  sameIsPresented,
-                  sameIsPresentingContactSelectorSheet,
-                  sameNavigationTitle else { return false }
-
-            return true
-        }
+        public init() {}
     }
 
     // MARK: - Reduce
@@ -83,12 +64,7 @@ public struct NewChatPageReducer: Reducer {
             NavigationBar.setAppearance(.themed(showsDivider: false))
 
         case .action(.doneToolbarButtonTapped):
-            state.isPresented.wrappedValue = false
-
-        case let .action(.isPresentedChanged(isPresented)):
-            state.isPresented.wrappedValue = isPresented
-            guard !isPresented else { return .none }
-            analyticsService.logEvent(.dismissNewChatPage)
+            navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
 
         case let .action(.isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet)):
             state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet

@@ -50,7 +50,7 @@ public struct ChatInfoContentPageView: View {
     // MARK: - Body
 
     public var body: some View {
-        ThemedView {
+        ThemedView(navigationBarAppearance: .default()) {
             NavigationView {
                 contentView
                     .id(viewModel.viewID)

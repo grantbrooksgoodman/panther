@@ -29,6 +29,7 @@ public final class RecipientBarActionHandlerService {
 
     // MARK: - Properties
 
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     private let viewController: ChatPageViewController
 
     // MARK: - Init
@@ -74,7 +75,7 @@ public final class RecipientBarActionHandlerService {
 
     @objc
     public func doneButtonTapped() {
-        Observables.newChatSheetDismissed.trigger()
+        navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
     }
 
     @objc

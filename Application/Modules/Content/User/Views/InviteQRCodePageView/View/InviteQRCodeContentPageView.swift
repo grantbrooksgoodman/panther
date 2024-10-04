@@ -32,7 +32,7 @@ public struct InviteQRCodeContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView {
+        ThemedView(navigationBarAppearance: .default()) {
             VStack {
                 Components.text(
                     viewModel.strings.value(for: .instructionLabelText),

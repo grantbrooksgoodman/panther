@@ -15,7 +15,6 @@ import AppSubsystem
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
@@ -23,15 +22,16 @@ public struct ConversationsPageReducer: Reducer {
     @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
 
         case animatedComposeToolbarButtonAppeared
-        case isPresentingNewChatSheetChanged(Bool)
-        case isPresentingSettingsSheetChanged(Bool)
-
         case composeToolbarButtonTapped
         case settingsToolbarButtonTapped
 
@@ -66,8 +66,6 @@ public struct ConversationsPageReducer: Reducer {
         public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
 
         // Bool
-        public var isPresentingNewChatSheet = false
-        public var isPresentingSettingsSheet = false
         public var isRefreshing = false
 
         // Other
@@ -114,13 +112,7 @@ public struct ConversationsPageReducer: Reducer {
             }
 
         case .composeToolbarButtonTapped:
-            state.isPresentingNewChatSheet = true
-
-        case let .isPresentingNewChatSheetChanged(isPresentingNewChatSheet):
-            state.isPresentingNewChatSheet = isPresentingNewChatSheet
-
-        case let .isPresentingSettingsSheetChanged(isPresentingSettingsSheet):
-            state.isPresentingSettingsSheet = isPresentingSettingsSheet
+            navigationCoordinator.navigate(to: .userContent(.sheet(.newChat)))
 
         case .pulledToRefresh:
             state.isRefreshing = true
@@ -130,15 +122,10 @@ public struct ConversationsPageReducer: Reducer {
             }
 
         case .settingsToolbarButtonTapped:
-            state.isPresentingSettingsSheet = true
+            navigationCoordinator.navigate(to: .userContent(.sheet(.settings)))
 
         case .traitCollectionChanged:
-            guard !chatPageState.isPresented else {
-                chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
-                return .none
-            }
-
-            NavigationBar.setAppearance(.appDefault)
+            viewService.traitCollectionChanged()
             state.viewID = UUID()
 
         case .updatedCurrentUser:

@@ -33,6 +33,13 @@ public struct UserContentContainerView: View {
         )
     }
 
+    private var sheetBinding: Binding<UserContentNavigatorState.SheetPaths?> {
+        navigationCoordinator.navigable(
+            \.userContent.sheet,
+            route: { .userContent(.sheet($0)) }
+        )
+    }
+
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<UserContentContainerReducer>) {
@@ -51,9 +58,7 @@ public struct UserContentContainerView: View {
                 )
             )
             .navigationDestination(for: UserContentNavigatorState.SeguePaths.self) { destinationView(for: $0) }
-        }
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
+            .sheet(item: sheetBinding) { sheetView(for: $0) }
         }
     }
 
@@ -85,6 +90,27 @@ public struct UserContentContainerView: View {
         switch path {
         case let .chat(conversation):
             chatPageView(conversation)
+        }
+    }
+
+    @ViewBuilder
+    private func sheetView(for path: UserContentNavigatorState.SheetPaths) -> some View {
+        switch path {
+        case .newChat:
+            NewChatPageView(
+                .init(
+                    initialState: .init(),
+                    reducer: NewChatPageReducer()
+                )
+            )
+
+        case .settings:
+            SettingsPageView(
+                .init(
+                    initialState: .init(),
+                    reducer: SettingsPageReducer()
+                )
+            )
         }
     }
 }

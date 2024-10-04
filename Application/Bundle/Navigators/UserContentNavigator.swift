@@ -21,7 +21,10 @@ public struct UserContentNavigatorState: NavigatorState {
         case chat(Conversation)
     }
 
-    public enum SheetPaths: Paths {}
+    public enum SheetPaths: Paths {
+        case newChat
+        case settings
+    }
 
     // MARK: - Properties
 
@@ -40,6 +43,9 @@ public enum UserContentNavigator {
         case let .push(path):
             state.stack.append(path)
 
+        case let .sheet(path):
+            state.sheet = path
+
         case let .stack(paths):
             state.stack = paths
         }
@@ -50,6 +56,7 @@ public extension RootNavigationService.Route {
     enum UserContentRoute {
         case pop
         case push(UserContentNavigatorState.SeguePaths)
+        case sheet(UserContentNavigatorState.SheetPaths?)
         case stack([UserContentNavigatorState.SeguePaths])
     }
 }

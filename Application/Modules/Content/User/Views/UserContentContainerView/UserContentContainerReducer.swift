@@ -16,7 +16,6 @@ public struct UserContentContainerReducer: Reducer {
     // MARK: - Actions
 
     public enum Action {
-        case viewAppeared
         case chatInfoToolbarButtonTapped
     }
 
@@ -36,9 +35,6 @@ public struct UserContentContainerReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
-        case .action(.viewAppeared):
-            NavigationBar.setAppearance(.appDefault)
-
         case .action(.chatInfoToolbarButtonTapped):
             return .fireAndForget {
                 Task { @MainActor in

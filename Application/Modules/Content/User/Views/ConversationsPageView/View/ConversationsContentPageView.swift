@@ -22,23 +22,8 @@ public struct ConversationsContentPageView: View {
 
     // MARK: - Properties
 
+    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     @ObservedObject private var viewModel: ViewModel<ConversationsPageReducer>
-
-    // MARK: - Bindings
-
-    private var newChatSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingNewChatSheet,
-            sendAction: { .isPresentingNewChatSheetChanged($0) }
-        )
-    }
-
-    private var settingsSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingSettingsSheet,
-            sendAction: { .isPresentingSettingsSheetChanged($0) }
-        )
-    }
 
     // MARK: - Init
 
@@ -49,7 +34,7 @@ public struct ConversationsContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView(navigationBarAppearance: .appDefault) {
+        ThemedView {
             VStack {
                 NavigationView {
                     List {
@@ -64,6 +49,7 @@ public struct ConversationsContentPageView: View {
                     }
                     .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                     .listStyle(.plain)
+                    .navigationBarAppearance(.appDefault)
                     .navigationTitle(viewModel.strings.value(for: .navigationTitle))
                     .refreshable {
                         await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
@@ -82,22 +68,6 @@ public struct ConversationsContentPageView: View {
             viewModel.send(.traitCollectionChanged)
         }
         .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
-        .sheet(isPresented: newChatSheetBinding) {
-            NewChatPageView(
-                .init(
-                    initialState: .init(newChatSheetBinding),
-                    reducer: NewChatPageReducer()
-                )
-            )
-        }
-        .sheet(isPresented: settingsSheetBinding) {
-            SettingsPageView(
-                .init(
-                    initialState: .init(settingsSheetBinding),
-                    reducer: SettingsPageReducer()
-                )
-            )
-        }
     }
 
     private var composeToolbarButton: some ToolbarContent {

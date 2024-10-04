@@ -22,6 +22,10 @@ public struct SettingsPageReducer: Reducer {
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
 
+    // MARK: - Properties
+
+    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+
     // MARK: - Actions
 
     public enum Action {
@@ -74,7 +78,6 @@ public struct SettingsPageReducer: Reducer {
         public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
         // Bool
-        public var isPresented: Binding<Bool>
         public var traitCollectionChanged = false
 
         // String
@@ -109,43 +112,7 @@ public struct SettingsPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init(_ isPresented: Binding<Bool>) {
-            self.isPresented = isPresented
-        }
-
-        /* MARK: Equatable Conformance */
-
-        public static func == (left: State, right: State) -> Bool {
-            let sameBuildInfoButtonStrings = left.buildInfoButtonStrings == right.buildInfoButtonStrings
-            let sameCNContact = left.cnContact == right.cnContact
-            let sameContactDetailViewImage = left.contactDetailViewImage == right.contactDetailViewImage
-            let sameContactDetailViewSubtitleLabelText = left.contactDetailViewSubtitleLabelText == right.contactDetailViewSubtitleLabelText
-            let sameContactDetailViewTitleLabelText = left.contactDetailViewTitleLabelText == right.contactDetailViewTitleLabelText
-            let sameDeveloperModeListItems = left.developerModeListItems == right.developerModeListItems
-            let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
-            let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
-            let sameNavigationTitle = left.navigationTitle == right.navigationTitle
-            let sameStrings = left.strings == right.strings
-            let sameTraitCollectionChanged = left.traitCollectionChanged == right.traitCollectionChanged
-            let sameViewID = left.viewID == right.viewID
-            let sameViewState = left.viewState == right.viewState
-
-            guard sameBuildInfoButtonStrings,
-                  sameCNContact,
-                  sameContactDetailViewImage,
-                  sameContactDetailViewSubtitleLabelText,
-                  sameContactDetailViewTitleLabelText,
-                  sameDeveloperModeListItems,
-                  sameDoneToolbarButtonText,
-                  sameIsPresented,
-                  sameNavigationTitle,
-                  sameStrings,
-                  sameTraitCollectionChanged,
-                  sameViewID,
-                  sameViewState else { return false }
-
-            return true
-        }
+        public init() {}
     }
 
     // MARK: - Reduce
@@ -195,7 +162,7 @@ public struct SettingsPageReducer: Reducer {
             viewService.deleteAccountButtonTapped()
 
         case .doneToolbarButtonTapped:
-            state.isPresented.wrappedValue = false
+            navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
 
         case .inviteFriendsButtonTapped:
             viewService.inviteFriendsButtonTapped()
@@ -217,9 +184,13 @@ public struct SettingsPageReducer: Reducer {
             state.viewID = UUID()
 
         case .viewDisappeared:
-            NavigationBar.setAppearance(.appDefault)
-            guard state.traitCollectionChanged else { return .none }
-            Observables.traitCollectionChanged.trigger()
+            let traitCollectionChanged = state.traitCollectionChanged
+            return .task { @MainActor in
+                NavigationBar.setAppearance(.appDefault)
+                guard traitCollectionChanged else { return .none }
+                Observables.traitCollectionChanged.trigger()
+                return .none
+            }
         }
 
         return .none
