@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public struct Message: Codable, EncodedHashable, Equatable {
@@ -70,7 +71,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Resolve Media File Extension
 
     public func resolveMediaFileExtension(_ messageID: String) async -> Callback<String, Exception> {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
         let commonParams = ["MessageID": messageID]
 
@@ -89,7 +90,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
 
         let fileExtensions = MediaFileExtension.hostedCases.map(\.rawValue).filter { satisfiesConstraints($0) }
         for fileExtension in fileExtensions {
-            let itemExistsResult = await networking.storage.itemExists(at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)")
+            let itemExistsResult = await networking.storage.itemExists(at: "\(NetworkPath.media.rawValue)/\(messageID).\(fileExtension)")
 
             switch itemExistsResult {
             case let .success(itemExists):

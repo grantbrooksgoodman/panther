@@ -23,6 +23,8 @@ public struct ContactSelectorPageReducer: Reducer {
     // MARK: - Actions
 
     public enum Action {
+        case viewAppeared
+
         case cancelToolbarButtonTapped
         case inviteToolbarButtonTapped
 
@@ -105,6 +107,9 @@ public struct ContactSelectorPageReducer: Reducer {
 
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
+        case .action(.viewAppeared):
+            NavigationBar.setAppearance(.themed(showsDivider: false))
+
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false
             core.ui.resignFirstResponder()

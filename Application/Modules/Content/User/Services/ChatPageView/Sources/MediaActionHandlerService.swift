@@ -17,6 +17,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public final class MediaActionHandlerService {
     // MARK: - Constants Accessors
@@ -28,7 +29,6 @@ public final class MediaActionHandlerService {
 
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
-    @Dependency(\.networking.config.paths.media) private var mediaPath: String
     @Dependency(\.qlThumbnailGenerator) private var qlThumbnailGenerator: QLThumbnailGenerator
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -81,7 +81,7 @@ public final class MediaActionHandlerService {
             )
         }
 
-        let networkPath = "\(mediaPath)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
+        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
         let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
 
         let dataFromURLResult = Data.fromURL(url)
@@ -140,7 +140,7 @@ public final class MediaActionHandlerService {
             return .init("Failed to compress image.", metadata: [self, #file, #function, #line])
         }
 
-        let networkPath = "\(mediaPath)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
+        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
         let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
 
         if let exception = fileManager.createFile(
@@ -162,7 +162,7 @@ public final class MediaActionHandlerService {
     // MARK: - Process & Send Video
 
     private func processAndSendVideo(_ url: URL) async -> Exception? {
-        let networkPath = "\(mediaPath)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
         let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
 
         if let exception = await compressVideo(at: url, outputURL: localPath) {

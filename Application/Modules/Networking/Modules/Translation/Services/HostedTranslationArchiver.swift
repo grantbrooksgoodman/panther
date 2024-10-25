@@ -11,13 +11,14 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public struct HostedTranslationArchiver {
     // MARK: - Dependencies
 
     @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Archive Recent Translations
 
@@ -36,7 +37,7 @@ public struct HostedTranslationArchiver {
         }
 
         let queryValuesResult = await networking.database.queryValues(
-            at: "\(networking.config.paths.translations)/\(languagePair.string)",
+            at: "\(NetworkPath.translations.rawValue)/\(languagePair.string)",
             strategy: .last(100)
         )
 
@@ -84,7 +85,7 @@ public struct HostedTranslationArchiver {
     // MARK: - Find Archived Translations
 
     public func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
-        let path = "\(networking.config.paths.translations)/\(languagePair.string)/\(id)"
+        let path = "\(NetworkPath.translations.rawValue)/\(languagePair.string)/\(id)"
         let commonParams = ["Path": path]
 
         if let exception = TranslationValidator.validate(
@@ -136,7 +137,7 @@ public struct HostedTranslationArchiver {
         for input: TranslationInput,
         languagePair: LanguagePair
     ) async -> Exception? {
-        let path = "\(networking.config.paths.translations)/\(languagePair.string)"
+        let path = "\(NetworkPath.translations.rawValue)/\(languagePair.string)"
 
         if let exception = await networking.database.updateChildValues(
             forKey: path,
@@ -170,7 +171,7 @@ public struct HostedTranslationArchiver {
         let languagePairString = translation.languagePair.string
 
         if let exception = await networking.database.updateChildValues(
-            forKey: "\(networking.config.paths.translations)/\(languagePairString)",
+            forKey: "\(NetworkPath.translations.rawValue)/\(languagePairString)",
             with: [translation.reference.type.key: referenceValue]
         ) {
             return exception

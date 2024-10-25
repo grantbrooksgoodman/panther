@@ -19,7 +19,7 @@ public struct ConversationsPageReducer: Reducer {
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
     // MARK: - Properties
@@ -141,7 +141,6 @@ public struct ConversationsPageReducer: Reducer {
                         metadata: [self, #file, #function, #line]
                     )
 
-                    // TODO: Audit whether Observables.traitCollectionChanged.trigger() is needed here instead.
                     coreGCD.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }
                     return true
                 }

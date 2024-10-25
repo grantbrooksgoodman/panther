@@ -13,6 +13,7 @@ import UserNotifications
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class NotificationService {
     // MARK: - Types
@@ -28,7 +29,7 @@ public final class NotificationService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter

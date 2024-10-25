@@ -64,6 +64,7 @@ public extension AppConstants.CGFloats.ChatPageViewService {
 
             public static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
 
+            public static let selectContactButtonMinXDecrement: CGFloat = 5
             public static let selectContactButtonXOriginDecrement: CGFloat = 10
             public static let selectContactButtonFrameHeight: CGFloat = 26
             public static let selectContactButtonFrameWidth: CGFloat = 26

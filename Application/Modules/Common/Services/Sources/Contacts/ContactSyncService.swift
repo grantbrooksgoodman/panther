@@ -11,12 +11,13 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct ContactSyncService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -132,7 +133,7 @@ public struct ContactSyncService {
 
             var contactPairs = [ContactPair]()
             for contact in needingFetch {
-                let getUsersResult = await networking.services.user.getUsers(phoneNumbers: contact.phoneNumbers)
+                let getUsersResult = await networking.userService.getUsers(phoneNumbers: contact.phoneNumbers)
 
                 switch getUsersResult {
                 case let .success(numberPairs):
@@ -144,9 +145,9 @@ public struct ContactSyncService {
 
                     if !exception.isEqual(toAny: [
                         .mismatchedHashAndCallingCode,
+                        .Networking.Database.noValueExists,
                         .noUsersWithPhoneNumbers,
                         .noUserWithHashes,
-                        .noValueExists,
                     ]) {
                         return exception
                     }
@@ -187,7 +188,7 @@ public struct ContactSyncService {
     }
 
     private func getServerUserNumberHashes() async -> Callback<[String], Exception> {
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.userNumberHashes.rawValue)
 
         switch getValuesResult {
         case let .success(values):

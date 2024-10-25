@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public extension CoreKit.GCD {
     var newSerialQueue: DispatchQueue {
@@ -28,9 +29,9 @@ public extension CoreKit.Utilities {
     // MARK: - Methods
 
     func destroyConversationDatabase() async -> Exception? {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.users)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -42,13 +43,13 @@ public extension CoreKit.Utilities {
             for userID in userIDs {
                 if let exception = await networking.database.setValue(
                     [String.bangQualifiedEmpty],
-                    forKey: "\(networking.config.paths.users)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                    forKey: "\(NetworkPath.users)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
                 ) {
                     return exception
                 }
             }
 
-            for keyPath in [networking.config.paths.conversations, networking.config.paths.messages] {
+            for keyPath in [NetworkPath.conversations.rawValue, NetworkPath.messages.rawValue] {
                 if let exception = await networking.database.setValue(
                     NSNull(),
                     forKey: keyPath
@@ -58,7 +59,7 @@ public extension CoreKit.Utilities {
             }
 
             // TODO: Rewrite to delete all audio message inputs.
-//            if let exception = await networking.storage.deleteItem(at: networking.config.paths.audioMessageInputs) {
+//            if let exception = await networking.storage.deleteItem(at: NetworkPath.audioMessageInputs) {
 //                return exception
 //            }
 
@@ -102,9 +103,9 @@ public extension CoreKit.Utilities {
     }
 
     func resetPushTokens() async -> Exception? {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.users)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -116,7 +117,7 @@ public extension CoreKit.Utilities {
             for userID in userIDs {
                 if let exception = await networking.database.setValue(
                     [String.bangQualifiedEmpty],
-                    forKey: "\(networking.config.paths.users)/\(userID)/\(User.SerializationKeys.pushTokens.rawValue)"
+                    forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.pushTokens.rawValue)"
                 ) {
                     return exception
                 }

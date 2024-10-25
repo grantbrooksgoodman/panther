@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension Message: Updatable {
     // MARK: - Type Aliases
@@ -52,7 +53,7 @@ extension Message: Updatable {
     // MARK: - Update Value
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Message, Exception> {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
@@ -62,7 +63,7 @@ extension Message: Updatable {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
-        let messageKeyPath = "\(networking.config.paths.messages)/\(id)/"
+        let messageKeyPath = "\(NetworkPath.messages.rawValue)/\(id)/"
 
         let valueKeyPath = messageKeyPath + key.rawValue
         if let serializable = value as? any Serializable {

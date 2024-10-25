@@ -69,7 +69,7 @@ extension Message: Serializable {
 
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.services.message) var messageService: MessageService
+        @Dependency(\.networking.messageService) var messageService: MessageService
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard let id = data[Keys.id.rawValue] as? String,
@@ -136,7 +136,7 @@ extension Message: Serializable {
         makeIdempotent: Bool
     ) async -> Callback<[Translation], Exception> {
         func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
-            @Dependency(\.networking.services.translation.archiver) var translationArchiver: HostedTranslationArchiver
+            @Dependency(\.networking.translationService.archiver) var translationArchiver: HostedTranslationArchiver
 
             let decodeResult = await Translation.decode(from: reference)
 

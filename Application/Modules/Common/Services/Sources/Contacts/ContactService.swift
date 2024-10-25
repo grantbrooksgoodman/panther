@@ -13,6 +13,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class ContactService {
     // MARK: - Types

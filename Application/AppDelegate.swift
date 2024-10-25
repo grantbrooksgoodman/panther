@@ -34,7 +34,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Application.initialize()
-        setUpFirebase()
+        setUpFirebaseAnalytics()
         setUpPushNotifications()
         return true
     }
@@ -44,10 +44,9 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         services.analytics.logEvent(.terminateApp)
     }
 
-    // MARK: - Set Up Firebase
+    // MARK: - Set Up Firebase Analytics
 
-    private func setUpFirebase() {
-        FirebaseApp.configure()
+    private func setUpFirebaseAnalytics() {
         Analytics.setAnalyticsCollectionEnabled(true)
     }
 

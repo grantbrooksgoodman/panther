@@ -25,7 +25,7 @@ public final class RecipientBarActionHandlerService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.networking.services.user) private var userService: UserService
+    @Dependency(\.networking.userService) private var userService: UserService
 
     // MARK: - Properties
 

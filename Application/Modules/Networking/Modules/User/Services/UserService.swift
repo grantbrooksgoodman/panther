@@ -13,6 +13,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class UserService {
     // MARK: - Types
@@ -25,7 +26,7 @@ public final class UserService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
@@ -57,14 +58,14 @@ public final class UserService {
             ))
         }
 
-        let userNumberHashesPath = "\(networking.config.paths.userNumberHashes)/\(phoneNumber.nationalNumberString.digits.encodedHash)"
+        let userNumberHashesPath = "\(NetworkPath.userNumberHashes.rawValue)/\(phoneNumber.nationalNumberString.digits.encodedHash)"
         var newValues = [id]
 
         let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)
 
         switch getValuesResult {
         case let .failure(exception):
-            if !exception.isEqual(to: .noValueExists) {
+            if !exception.isEqual(to: .Networking.Database.noValueExists) {
                 return .failure(exception)
             }
 
@@ -91,7 +92,7 @@ public final class UserService {
 
         if let exception = await networking.database.setValue(
             data,
-            forKey: "\(networking.config.paths.users)/\(id)"
+            forKey: "\(NetworkPath.users.rawValue)/\(id)"
         ) {
             return .failure(exception)
         }
@@ -139,7 +140,7 @@ public final class UserService {
             return .success(cachedUserNumberHashSnapshot.hashes)
         }
 
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.userNumberHashes.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -215,7 +216,7 @@ public final class UserService {
             return await User.decode(from: match.data)
         }
 
-        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.users)/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.users.rawValue)/\(id)")
 
         switch getValuesResult {
         case let .success(values):
@@ -367,7 +368,10 @@ public final class UserService {
                 matches.append(.init(phoneNumber: number, users: users))
 
             case let .failure(exception):
-                if !exception.isEqual(toAny: [.noUserWithHashes, .noValueExists]) {
+                if !exception.isEqual(toAny: [
+                    .Networking.Database.noValueExists,
+                    .noUserWithHashes,
+                ]) {
                     return .failure(exception.appending(extraParams: commonParams))
                 }
             }

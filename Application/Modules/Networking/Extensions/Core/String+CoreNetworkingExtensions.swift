@@ -61,31 +61,4 @@ public extension String {
     var isBlank: Bool {
         lowercasedTrimmingWhitespaceAndNewlines.isEmpty
     }
-
-    var prependingCurrentEnvironment: String {
-        @Dependency(\.networking.config.environment.shortString) var environmentString: String
-        return "\(environmentString)/\(trimmingBorderedForwardSlashes)"
-    }
-
-    var trimmingBorderedForwardSlashes: String {
-        trimmingLeadingForwardSlashes.trimmingTrailingForwardSlashes
-    }
-
-    private var trimmingLeadingForwardSlashes: String {
-        var string = self
-        while string.hasPrefix("/") {
-            string = string.dropPrefix()
-        }
-
-        return string
-    }
-
-    private var trimmingTrailingForwardSlashes: String {
-        var string = self
-        while string.hasSuffix("/") {
-            string = string.dropSuffix()
-        }
-
-        return string
-    }
 }

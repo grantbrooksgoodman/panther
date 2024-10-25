@@ -65,7 +65,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     /// - Note: This method need only be called for conversations in which the current user is not participating.
     public func setMessages() async -> Exception? {
-        @Dependency(\.networking.services.message) var messageService: MessageService
+        @Dependency(\.networking.messageService) var messageService: MessageService
 
         let getMessagesResult = await messageService.getMessages(ids: messageIDs)
 

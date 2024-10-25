@@ -190,7 +190,7 @@ public struct HostedTranslationService {
             return .success(translation)
 
         case let .failure(exception):
-            guard exception.isEqual(to: .noValueExists) else {
+            guard exception.isEqual(to: .Networking.Database.noValueExists) else {
                 return .failure(exception)
             }
 

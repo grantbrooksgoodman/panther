@@ -11,12 +11,13 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct ConversationService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
 
@@ -41,7 +42,7 @@ public struct ConversationService {
             ))
         }
 
-        let path = networking.config.paths.conversations
+        let path = NetworkPath.conversations.rawValue
         guard let id = networking.database.generateKey(for: path) else {
             return .failure(.init(
                 "Failed to generate key for new conversation.",
@@ -130,7 +131,7 @@ public struct ConversationService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let path = networking.config.paths.conversations
+        let path = NetworkPath.conversations.rawValue
         let getValuesResult = await networking.database.getValues(at: "\(path)/\(idKey)")
 
         switch getValuesResult {
@@ -163,7 +164,7 @@ public struct ConversationService {
     }
 
     private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        let usersPath = networking.config.paths.users
+        let usersPath = NetworkPath.users.rawValue
         let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
@@ -203,7 +204,7 @@ public struct ConversationService {
                 conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
                 conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
 
-                let path = networking.config.paths.users
+                let path = NetworkPath.users.rawValue
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
                     forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
@@ -249,7 +250,7 @@ public struct ConversationService {
             conversationIDStrings.append(conversationID.encoded)
             conversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }.unique
 
-            let path = networking.config.paths.users
+            let path = NetworkPath.users.rawValue
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
                 forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"

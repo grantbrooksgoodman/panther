@@ -56,7 +56,7 @@ extension Conversation: Serializable {
 
     public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-        @Dependency(\.networking.services.message) var messageService: MessageService
+        @Dependency(\.networking.messageService) var messageService: MessageService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],

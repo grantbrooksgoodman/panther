@@ -12,11 +12,12 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct LegacyUserService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Methods
 
@@ -27,7 +28,7 @@ public struct LegacyUserService {
     public func convertUser(id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
-        let userPath = "\(networking.config.paths.users)/\(id)"
+        let userPath = "\(NetworkPath.users.rawValue)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {
@@ -104,7 +105,7 @@ public struct LegacyUserService {
                 }
 
                 let newHash = nationalNumberString.encodedHash
-                let newHashPath = "\(networking.config.paths.userNumberHashes)/\(newHash)"
+                let newHashPath = "\(NetworkPath.userNumberHashes.rawValue)/\(newHash)"
                 let getValuesResult = await networking.database.getValues(at: newHashPath)
 
                 switch getValuesResult {
@@ -128,7 +129,7 @@ public struct LegacyUserService {
                     )
 
                 case let .failure(exception):
-                    guard exception.isEqual(to: .noValueExists) else {
+                    guard exception.isEqual(to: .Networking.Database.noValueExists) else {
                         return exception.appending(extraParams: commonParams)
                     }
 
@@ -157,7 +158,7 @@ public struct LegacyUserService {
     public func renameNumberData(forUser id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
-        let userPath = "\(networking.config.paths.users)/\(id)"
+        let userPath = "\(NetworkPath.users.rawValue)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
 
         switch getValuesResult {

@@ -12,11 +12,12 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -85,7 +86,7 @@ public struct PermissionPageReducer: Reducer {
             state.viewState = .loading
 
             return .task {
-                let result = await networking.services.translation.resolve(PermissionPageViewStrings.self)
+                let result = await networking.translationService.resolve(PermissionPageViewStrings.self)
                 return .resolveReturned(result)
             }
 

@@ -5,13 +5,6 @@ target 'Hello' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Firebase
-  pod 'FirebaseAnalytics'
-  pod 'FirebaseAuth'
-  pod 'FirebaseDatabase'
-  pod 'FirebaseMessaging'
-  pod 'FirebaseStorage'
-
   # Linting
   pod 'SwiftFormat/CLI', '~> 0.49'
   pod 'SwiftLint'

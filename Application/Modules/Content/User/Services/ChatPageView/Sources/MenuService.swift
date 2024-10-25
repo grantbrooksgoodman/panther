@@ -28,7 +28,7 @@ public final class MenuService {
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.networking.services.translation.languageRecognition) private var languageRecognitionService: LanguageRecognitionService
+    @Dependency(\.networking.translationService.languageRecognition) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard

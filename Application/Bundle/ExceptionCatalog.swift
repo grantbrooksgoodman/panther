@@ -54,9 +54,7 @@ public extension AppException {
 
     static let contactAccessDenied: AppException = .init("C8DC")
     static let currentUserIDNotSet: AppException = .init("EA90")
-    static let decodingFailed: AppException = .init("20FC")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
-    static let genericStorageError: AppException = .init("C81B")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
     static let noAudioRecorderToStop: AppException = .init("E44E")
@@ -65,11 +63,8 @@ public extension AppException {
     static let noSpeechDetected: AppException = .init("24F2")
     static let noUserWithHashes: AppException = .init("1181")
     static let noUsersWithPhoneNumbers: AppException = .init("74AA")
-    static let noValueExists: AppException = .init("BE3A")
     static let sameTranslationInputOutput: AppException = .init("6CEB")
-    static let storageItemDoesNotExist: AppException = .init("9207")
     static let timedOut: AppException = .init("801F")
-    static let userDoesNotNeedConversion: AppException = .init("CCAB")
 
     // TODO: All of the below need regeneration.
 

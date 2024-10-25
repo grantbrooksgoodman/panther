@@ -12,13 +12,14 @@ import Foundation
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public struct ModerationSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Content Moderation
@@ -102,7 +103,7 @@ public struct ModerationSessionService {
             return .failure(.init("Current user ID has not been set.", metadata: [self, #file, #function, #line]))
         }
 
-        let path = "\(networking.config.paths.users)/\(currentUserID)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
+        let path = "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {
@@ -111,7 +112,7 @@ public struct ModerationSessionService {
                 return .failure(.typecastFailed("array", metadata: [self, #file, #function, #line]))
             }
 
-            return await networking.services.user.getUsers(ids: array)
+            return await networking.userService.getUsers(ids: array)
 
         case let .failure(exception):
             return .failure(exception)
@@ -119,7 +120,7 @@ public struct ModerationSessionService {
     }
 
     private func getReportedUserIDs() async -> Callback<[String: Int], Exception> {
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.reportedUsers)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.reportedUsers.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -193,7 +194,7 @@ public struct ModerationSessionService {
 
             if let exception = await networking.database.setValue(
                 reportedUserIDs,
-                forKey: networking.config.paths.reportedUsers
+                forKey: NetworkPath.reportedUsers.rawValue
             ) {
                 return exception
             }
@@ -206,7 +207,7 @@ public struct ModerationSessionService {
 
             if let exception = await networking.database.setValue(
                 reportedUserIDs,
-                forKey: networking.config.paths.reportedUsers
+                forKey: NetworkPath.reportedUsers.rawValue
             ) {
                 return exception
             }

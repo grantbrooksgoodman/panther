@@ -11,11 +11,12 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct MediaMessageService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Get Media Component
 
@@ -52,17 +53,17 @@ public struct MediaMessageService {
 
         for fileExtension in MediaFileExtension.hostedCases.map(\.rawValue) {
             if let exception = await networking.storage.deleteItem(
-                at: "\(networking.config.paths.media)/\(messageID).\(fileExtension)"
+                at: "\(NetworkPath.media.rawValue)/\(messageID).\(fileExtension)"
             ) {
-                guard !exception.isEqual(to: .storageItemDoesNotExist) else { continue }
+                guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { continue }
                 exceptions.append(exception)
             }
         }
 
         if let exception = await networking.storage.deleteItem(
-            at: "\(networking.config.paths.media)/\(messageID)\(MediaFile.thumbnailImageNameSuffix)"
+            at: "\(NetworkPath.media.rawValue)/\(messageID)\(MediaFile.thumbnailImageNameSuffix)"
         ) {
-            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return exceptions.compiledException }
+            guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { return exceptions.compiledException }
             exceptions.append(exception)
         }
 
@@ -72,7 +73,7 @@ public struct MediaMessageService {
     // MARK: - Upload Media Component
 
     public func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
-        let pathPrefix = "\(networking.config.paths.media)/\(message.id)"
+        let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
         let mediaNetworkPath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailNetworkPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 

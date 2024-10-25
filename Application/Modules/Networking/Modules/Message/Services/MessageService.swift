@@ -11,13 +11,14 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public struct MessageService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
 
@@ -53,7 +54,7 @@ public struct MessageService {
             ))
         }
 
-        guard let id = networking.database.generateKey(for: networking.config.paths.messages) else {
+        guard let id = networking.database.generateKey(for: NetworkPath.messages.rawValue) else {
             return .failure(.init(
                 "Failed to generate key for new message.",
                 metadata: [self, #file, #function, #line]
@@ -113,7 +114,7 @@ public struct MessageService {
         }
 
         if let exception = await networking.database.updateChildValues(
-            forKey: "\(networking.config.paths.messages)/\(id)",
+            forKey: "\(NetworkPath.messages.rawValue)/\(id)",
             with: data
         ) {
             return .failure(exception)
@@ -132,7 +133,7 @@ public struct MessageService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "\(networking.config.paths.messages)/\(id)")
+        let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.messages.rawValue)/\(id)")
 
         switch getValuesResult {
         case let .success(values):
@@ -198,17 +199,17 @@ public struct MessageService {
         updateConversationHash: Bool = true
     ) async -> Exception? {
         func deleteMessage() async -> Exception? {
-            if let exception = await networking.services.message.audio.deleteInputAudioComponent(for: messageID) {
+            if let exception = await networking.messageService.audio.deleteInputAudioComponent(for: messageID) {
                 return exception
             }
 
-            if let exception = await networking.services.message.media.deleteMediaComponent(for: messageID) {
+            if let exception = await networking.messageService.media.deleteMediaComponent(for: messageID) {
                 return exception
             }
 
             if let exception = await networking.database.setValue(
                 NSNull(),
-                forKey: "\(networking.config.paths.messages)/\(messageID)"
+                forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
             ) {
                 return exception
             }
@@ -224,7 +225,7 @@ public struct MessageService {
             return exception
         }
 
-        let path = "\(networking.config.paths.conversations)/\(conversation.id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
+        let path = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
         let getValuesResult = await networking.database.getValues(at: path)
 
         switch getValuesResult {

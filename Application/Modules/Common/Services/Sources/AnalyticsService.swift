@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 /* 3rd-party */
 import FirebaseAnalytics
@@ -21,7 +22,6 @@ public struct AnalyticsService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
-    @Dependency(\.networking.config) private var networkConfig: NetworkConfig
 
     // MARK: - Types
 
@@ -93,7 +93,7 @@ public struct AnalyticsService {
     public func logEvent(_ event: AnalyticsEvent, extraParams: [String: String]? = nil) {
         Task { @MainActor in
             if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
-                guard networkConfig.environment == .production,
+                guard Networking.config.environment == .production,
                       build.milestone == .generalRelease else { return }
             }
 

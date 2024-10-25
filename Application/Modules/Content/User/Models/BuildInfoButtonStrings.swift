@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct BuildInfoButtonStrings: Equatable {
     // MARK: - Types
@@ -55,7 +56,6 @@ public struct BuildInfoButtonStrings: Equatable {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar
         @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
-        @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
 
         @Persistent(.currentUserID) var fallbackCurrentUserID: String?
         @Localized(.version) var localizedVersionString: String
@@ -73,7 +73,7 @@ public struct BuildInfoButtonStrings: Equatable {
             labelText = "7B0U3X1V | \(build.projectID)"
 
         case .userIDAndNetworkEnvironment:
-            labelText = "\(currentUserID ?? fallbackCurrentUserID ?? "�") | \(networkEnvironment.shortString)"
+            labelText = "\(currentUserID ?? fallbackCurrentUserID ?? "�") | \(Networking.config.environment.shortString)"
 
         case .copyright:
             labelText = "Copyright © \(calendar.component(.year, from: Date())) NEOTechnica Corp."

@@ -56,11 +56,13 @@ public struct ContactSelectorPageView: View {
                 cancelToolbarButton
                 inviteToolbarButton
             }
-            .navigationBarAppearance(.themed(showsDivider: false))
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(viewModel.navigationTitle)
         }
         .redrawsOnTraitCollectionChange()
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
     }
 
     private var cancelToolbarButton: some ToolbarContent {

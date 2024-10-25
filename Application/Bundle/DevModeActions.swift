@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 /**
  Use this extension to add new actions to the Developer Mode menu.
@@ -49,11 +50,10 @@ public extension DevModeAction {
             func destroyConversationDatabase() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.networking.config.environment.description) var networkEnvironment: String
 
                     let confirmed = await AKConfirmationAlert(
                         title: "Destroy Database", // swiftlint:disable:next line_length
-                        message: "This will delete all conversations for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                        message: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
                         confirmButtonStyle: .destructivePreferred
                     ).present(translating: [])
 
@@ -120,11 +120,10 @@ public extension DevModeAction {
             func resetPushTokens() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.networking.config.environment.description) var networkEnvironment: String
 
                     let confirmed = await AKConfirmationAlert(
                         title: "Reset Push Tokens", // swiftlint:disable:next line_length
-                        message: "This will remove all push tokens for all users in the \(networkEnvironment.uppercased()) environment.\n\nThis operation cannot be undone.",
+                        message: "This will remove all push tokens for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
                         confirmButtonStyle: .destructivePreferred
                     ).present(translating: [])
 
@@ -200,9 +199,7 @@ public extension DevModeAction {
                         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
                         @Dependency(\.userDefaults) var defaults: UserDefaults
 
-                        @Persistent(.networkEnvironment) var persistentEnvironment: NetworkEnvironment?
-
-                        persistentEnvironment = environment
+                        Networking.config.setEnvironment(environment)
 
                         coreUtilities.clearCaches()
                         coreUtilities.eraseDocumentsDirectory()
@@ -210,15 +207,11 @@ public extension DevModeAction {
 
                         defaults.reset(keeping: UserDefaultsKey.permanentKeys)
 
-                        let environmentString = (persistentEnvironment ?? .production).description
-
                         await AKAlert(
-                            message: "Switched to \(environmentString) environment. You must now restart the app.",
+                            message: "Switched to \(environment.description) environment. You must now restart the app.",
                             actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
                         ).present(translating: [])
                     }
-
-                    @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
 
                     let switchToDevelopmentAction: AKAction = .init("Switch to Development") {
                         Task { await switchTo(.development) }
@@ -233,7 +226,7 @@ public extension DevModeAction {
                     }
 
                     var actions = [AKAction]()
-                    switch networkEnvironment {
+                    switch Networking.config.environment {
                     case .development:
                         actions = [
                             switchToProductionAction,
@@ -254,7 +247,7 @@ public extension DevModeAction {
                     }
 
                     await AKActionSheet(
-                        title: "Switch from \(networkEnvironment.description) Environment",
+                        title: "Switch from \(Networking.config.environment.description) Environment",
                         actions: actions
                     ).present(translating: [])
                 }

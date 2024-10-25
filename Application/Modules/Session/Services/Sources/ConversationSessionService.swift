@@ -13,6 +13,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class ConversationSessionService {
     // MARK: - Constants Accessors
@@ -21,7 +22,7 @@ public final class ConversationSessionService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
 
@@ -91,7 +92,7 @@ public final class ConversationSessionService {
     // MARK: - Value Updating
 
     public func updateConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
 
         Logger.log(
             "Updating conversation with ID \(conversation.id.key).",
@@ -142,7 +143,7 @@ public final class ConversationSessionService {
                 return await updateData(conversation)
             }
 
-            let getMessagesResult = await networking.services.message.getMessages(ids: filteredMessageIDs)
+            let getMessagesResult = await networking.messageService.getMessages(ids: filteredMessageIDs)
 
             switch getMessagesResult {
             case let .success(messages):
@@ -183,7 +184,7 @@ public final class ConversationSessionService {
     }
 
     private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
         let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
         let getValuesResult = await networking.database.getValues(at: hashKeyPath, cacheStrategy: .disregardCache)
 
@@ -208,7 +209,7 @@ public final class ConversationSessionService {
     }
 
     private func updateMetadata(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
         let metadataKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.metadata.rawValue)"
         let getValuesResult = await networking.database.getValues(at: metadataKeyPath)
 
@@ -241,7 +242,7 @@ public final class ConversationSessionService {
     }
 
     private func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(networking.config.paths.conversations)/\(conversation.id.key)"
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
         let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.participants.rawValue)"
         let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
 
@@ -301,14 +302,14 @@ public final class ConversationSessionService {
             }
         }
 
-        if let exception = await networking.services.conversation.removeConversationFromUsers(
+        if let exception = await networking.conversationService.removeConversationFromUsers(
             userIDs: conversation.participants.map(\.userID),
             conversationIDKey: conversation.id.key
         ) {
             return exception
         }
 
-        if let exception = await networking.services.message.deleteMessages(
+        if let exception = await networking.messageService.deleteMessages(
             ids: conversation.messageIDs,
             in: conversation,
             updateConversationHash: false
@@ -316,7 +317,7 @@ public final class ConversationSessionService {
             return exception
         }
 
-        let path = networking.config.paths.conversations
+        let path = NetworkPath.conversations.rawValue
         if let exception = await networking.database.setValue(
             NSNull(),
             forKey: "\(path)/\(conversation.id.key)"
@@ -347,7 +348,7 @@ public final class ConversationSessionService {
         newParticipants = newParticipants.unique
         let encodedParticipants = newParticipants.map(\.encoded)
 
-        let path = networking.config.paths.conversations
+        let path = NetworkPath.conversations.rawValue
         if let exception = await networking.database.setValue(
             encodedParticipants,
             forKey: "\(path)/\(conversation.id.key)/\(Conversation.SerializationKeys.participants.rawValue)"

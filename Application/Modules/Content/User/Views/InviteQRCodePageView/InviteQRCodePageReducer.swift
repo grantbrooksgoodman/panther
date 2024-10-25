@@ -16,7 +16,7 @@ import AppSubsystem
 public struct InviteQRCodePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
 
     // MARK: - Properties
 

@@ -12,12 +12,13 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -82,7 +83,7 @@ public struct AuthCodePageReducer: Reducer {
             state.viewState = .loading
 
             return .task {
-                let result = await networking.services.translation.resolve(AuthCodePageViewStrings.self)
+                let result = await networking.translationService.resolve(AuthCodePageViewStrings.self)
                 return .resolveReturned(result)
             }
 

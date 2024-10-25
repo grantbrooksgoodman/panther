@@ -5,7 +5,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable cyclomatic_complexity
+// swiftlint:disable cyclomatic_complexity function_body_length
 
 /* Native */
 import Foundation
@@ -20,6 +20,9 @@ public extension IntegrityService {
         _ methodsUsedForRepair: [String]? = nil
     ) async -> Exception? {
         @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        userSession.stopObservingCurrentUserChanges()
 
         var exceptions = exceptions ?? .init()
         var methodsUsedForRepair = methodsUsedForRepair ?? .init()
@@ -27,6 +30,7 @@ public extension IntegrityService {
         // Resolve Integrity Service Session
 
         if let exception = await resolveSession() {
+            userSession.startObservingCurrentUserChanges()
             return exception
         }
 
@@ -117,6 +121,8 @@ public extension IntegrityService {
             return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
+        defer { userSession.startObservingCurrentUserChanges() }
+
         if !methodsUsedForRepair.isEmpty {
             Logger.log(
                 "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)",
@@ -144,4 +150,4 @@ public extension IntegrityService {
     }
 }
 
-// swiftlint:enable cyclomatic_complexity
+// swiftlint:enable cyclomatic_complexity function_body_length

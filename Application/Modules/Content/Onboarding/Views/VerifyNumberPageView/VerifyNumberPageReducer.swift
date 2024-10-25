@@ -12,12 +12,13 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -112,7 +113,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             return .task {
-                let result = await networking.services.translation.resolve(VerifyNumberPageViewStrings.self)
+                let result = await networking.translationService.resolve(VerifyNumberPageViewStrings.self)
                 return .resolveReturned(result)
             }
 
@@ -171,7 +172,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
             let phoneNumber = state.phoneNumber
             return .task {
-                let result = await networking.services.user.accountExists(for: phoneNumber)
+                let result = await networking.userService.accountExists(for: phoneNumber)
                 return .accountExistsReturned(result)
             }
 

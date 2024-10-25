@@ -13,6 +13,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 /* 3rd-party */
 import FirebaseDatabase
@@ -23,9 +24,8 @@ public final class UserSessionService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.firebaseDatabase) private var firebaseDatabase: DatabaseReference
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
@@ -62,8 +62,8 @@ public final class UserSessionService {
 
     private var currentUserDatabaseReference: DatabaseReference? {
         guard let currentUser else { return nil }
-        return firebaseDatabase.child(
-            "\(networking.config.environment.shortString)/\(networking.config.paths.users)/\(currentUser.id)"
+        return Database.database().reference().child(
+            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
         )
     }
 
@@ -90,7 +90,7 @@ public final class UserSessionService {
 
         isUpdatingCurrentUser = true
 
-        let getUserResult = await networking.services.user.getUser(id: currentUserID)
+        let getUserResult = await networking.userService.getUser(id: currentUserID)
 
         switch getUserResult {
         case let .success(user):
@@ -195,7 +195,7 @@ public final class UserSessionService {
 
             // Remove deleted conversations
             for id in currentConversationIDStrings where !updatedConversationIDStrings.contains(id) {
-                self.networking.services.conversation.archive.removeValue(idKey: id)
+                self.networking.conversationService.archive.removeValue(idKey: id)
             }
 
             updateCurrentUser()
@@ -227,7 +227,7 @@ public final class UserSessionService {
             return .init("Current user ID has not been set.", metadata: [self, #file, #function, #line])
         }
 
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.deletedUsers)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -238,7 +238,7 @@ public final class UserSessionService {
             array.append(currentUserID)
             array = array.filter { $0 != .bangQualifiedEmpty }.unique
 
-            if let exception = await networking.database.setValue(array, forKey: networking.config.paths.deletedUsers) {
+            if let exception = await networking.database.setValue(array, forKey: NetworkPath.deletedUsers.rawValue) {
                 return exception
             }
 
@@ -246,11 +246,11 @@ public final class UserSessionService {
             return exception
         }
 
-        if let exception = await networking.services.integrity.resolveSession() {
+        if let exception = await networking.integrityService.resolveSession() {
             return exception
         }
 
-        return await networking.services.integrity.repairMalformedUsers([currentUserID]).exception
+        return await networking.integrityService.repairMalformedUsers([currentUserID]).exception
     }
 
     // MARK: - Get Users for Conversation
@@ -264,7 +264,7 @@ public final class UserSessionService {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        let getUsersResult = await networking.services.user.getUsers(ids: userIDs)
+        let getUsersResult = await networking.userService.getUsers(ids: userIDs)
 
         switch getUsersResult {
         case let .success(users):

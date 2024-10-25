@@ -49,7 +49,7 @@ extension User: Serializable {
         guard data[Keys.id.rawValue] as? String != nil,
               data[Keys.blockedUserIDs.rawValue] as? [String] != nil,
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
-              conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
+              conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }) || conversationIDStrings == ["!"],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] as? String != nil,

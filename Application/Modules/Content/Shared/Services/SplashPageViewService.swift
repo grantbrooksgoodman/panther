@@ -14,6 +14,7 @@ import Foundation
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 import Translator
 
 public final class SplashPageViewService: ObservableObject {
@@ -23,7 +24,7 @@ public final class SplashPageViewService: ObservableObject {
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -79,7 +80,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: AKCore Delegate Setup */
 
         alertKitConfig.registerReportDelegate(ErrorReportingService())
-        alertKitConfig.registerTranslationDelegate(networking.services.translation)
+        alertKitConfig.registerTranslationDelegate(networking.translationService)
 
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
@@ -127,7 +128,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: HostedTranslationArchiver Setup */
 
         if currentUserID == nil {
-            if let exception = await networking.services.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.translationService.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             } else {
                 initializationProgress += 0.01
@@ -215,7 +216,7 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            if let exception = await networking.services.translation.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.translationService.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             }
 
@@ -237,7 +238,7 @@ public final class SplashPageViewService: ObservableObject {
         func attemptDatabaseRepair() async -> Exception? {
             didAttemptDatabaseRepair = true
             loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
-            return await networking.services.integrity.repairDatabase()
+            return await networking.integrityService.repairDatabase()
         }
 
         @Persistent(.currentUserID) var currentUserID: String?
@@ -245,9 +246,9 @@ public final class SplashPageViewService: ObservableObject {
         if let currentUserID,
            !didAttemptUserConversion {
             didAttemptUserConversion = true
-            if let exception = await networking.services.user.legacy.convertUser(id: currentUserID) {
-                guard !exception.isEqual(to: .userDoesNotNeedConversion) else { return await attemptDatabaseRepair() }
-                return exception
+            if let exception = await networking.userService.legacy.convertUser(id: currentUserID) {
+                Logger.log(exception)
+                return await attemptDatabaseRepair()
             }
         } else if !didAttemptDatabaseRepair {
             return await attemptDatabaseRepair()

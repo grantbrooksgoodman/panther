@@ -11,12 +11,13 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public struct AudioMessageService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Get Audio Component
 
@@ -42,9 +43,9 @@ public struct AudioMessageService {
 
     public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
         if let exception = await networking.storage.deleteItem(
-            at: "\(networking.config.paths.audioMessageInputs)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
+            at: "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
         ) {
-            guard !exception.isEqual(to: .storageItemDoesNotExist) else { return nil }
+            guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { return nil }
             return exception
         }
 
@@ -81,7 +82,7 @@ public struct AudioMessageService {
                     return nil
                 }
 
-                if let exception = await upload(audioFile: audioFile, to: networking.config.paths.audioMessageInputs) {
+                if let exception = await upload(audioFile: audioFile, to: NetworkPath.audioMessageInputs.rawValue) {
                     return exception
                 }
 
@@ -224,11 +225,11 @@ public struct AudioMessageService {
     }
 
     private func preRecordedInputExists(for audioFile: AudioFile) async -> Callback<Bool, Exception> {
-        await networking.storage.itemExists(at: "\(networking.config.paths.audioMessageInputs)/\(audioFile.name).\(audioFile.fileExtension.rawValue)")
+        await networking.storage.itemExists(at: "\(NetworkPath.audioMessageInputs.rawValue)/\(audioFile.name).\(audioFile.fileExtension.rawValue)")
     }
 
     private func preRecordedOutputExists(for translation: Translation) async -> Callback<Bool, Exception> {
-        let outputDirectoryPath = "\(networking.config.paths.audioTranslations)/\(translation.reference.hostingKey)"
+        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
         let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         return await networking.storage.itemExists(at: "\(outputDirectoryPath)/\(outputFileName)")
     }

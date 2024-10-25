@@ -12,18 +12,12 @@ import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public enum Application {
-    // MARK: - Properties
-
-    public static var networkEnvironment: NetworkEnvironment {
-        @Persistent(.networkEnvironment) var networkEnvironment: NetworkEnvironment?
-        networkEnvironment = networkEnvironment ?? .production
-        return networkEnvironment ?? .production
-    }
-
     // MARK: - Initialize
 
+    @MainActor
     public static func initialize() {
         // MARK: - App Subsystem Setup
 
@@ -63,6 +57,10 @@ public enum Application {
 
         NavigationCoordinatorResolver.shared.store(navigationCoordinator)
 
+        // MARK: - Networking Setup
+
+        Networking.initialize()
+
         // MARK: - Theme Setup
 
         Task.delayed(by: .seconds(1)) {
@@ -75,8 +73,7 @@ public enum Application {
 private extension BuildInfoOverlay {
     struct DotIndicatorColorDelegate: AppSubsystem.Delegates.BuildInfoOverlayDotIndicatorColorDelegate {
         public var developerModeIndicatorDotColor: Color {
-            @Dependency(\.networking.config.environment) var networkEnvironment: NetworkEnvironment
-            switch networkEnvironment {
+            switch Networking.config.environment {
             case .development: return .green
             case .production: return .red
             case .staging: return .orange

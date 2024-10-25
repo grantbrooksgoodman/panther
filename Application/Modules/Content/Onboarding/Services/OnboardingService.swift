@@ -17,7 +17,7 @@ public final class OnboardingService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.networking.services.user) private var userService: UserService
+    @Dependency(\.networking.userService) private var userService: UserService
 
     // MARK: - Properties
 

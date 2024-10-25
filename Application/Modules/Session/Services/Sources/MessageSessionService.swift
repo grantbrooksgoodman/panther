@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public struct MessageSessionService {
@@ -22,7 +23,7 @@ public struct MessageSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Send Audio Message
@@ -64,7 +65,7 @@ public struct MessageSessionService {
             var audioComponents = [AudioMessageReference]()
 
             for languageCode in users.map(\.languageCode).unique {
-                let translateResult = await networking.services.translation.translate(
+                let translateResult = await networking.translationService.translate(
                     .init(transcription),
                     with: .init(from: currentUser.languageCode, to: languageCode)
                 )
@@ -95,7 +96,7 @@ public struct MessageSessionService {
                             translation: translation,
                             original: inputFile,
                             translated: outputFile,
-                            translatedDirectoryPath: "\(networking.config.paths.audioTranslations)/\(translation.reference.hostingKey)"
+                            translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
                         ))
 
                     case let .failure(exception):
@@ -169,7 +170,7 @@ public struct MessageSessionService {
         var translations = [Translation]()
 
         for languageCode in users.map(\.languageCode).unique {
-            let translateResult = await networking.services.translation.translate(
+            let translateResult = await networking.translationService.translate(
                 .init(text),
                 with: .init(from: currentUser.languageCode, to: languageCode)
             )
@@ -241,7 +242,7 @@ public struct MessageSessionService {
 
         clientSession.user.stopObservingCurrentUserChanges()
 
-        let createMessageResult = await networking.services.message.createMessage(
+        let createMessageResult = await networking.messageService.createMessage(
             fromAccountID: initiatingUser.id,
             richContent: richContent,
             translations: translations
@@ -275,7 +276,7 @@ public struct MessageSessionService {
                 var participantUsers = [initiatingUser]
                 participantUsers.append(contentsOf: otherUsers)
 
-                let createConversationResult = await networking.services.conversation.createConversation(
+                let createConversationResult = await networking.conversationService.createConversation(
                     firstMessage: message,
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )

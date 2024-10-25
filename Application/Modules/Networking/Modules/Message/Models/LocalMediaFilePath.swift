@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct LocalMediaFilePath: Codable, Equatable {
     // MARK: - Properties
@@ -39,13 +40,11 @@ public struct LocalMediaFilePath: Codable, Equatable {
 
     public init?(_ message: Message) async {
         @Dependency(\.fileManager) var fileManager: FileManager
-        @Dependency(\.networking.config.paths.media) var mediaPath: String
-
         let resolveMediaFileExtensionResult = await message.resolveMediaFileExtension(message.id)
 
         switch resolveMediaFileExtensionResult {
         case let .success(fileExtension):
-            let pathPrefix = "\(mediaPath)/\(message.id)"
+            let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
             let networkPathString = "\(pathPrefix).\(fileExtension)"
             let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 

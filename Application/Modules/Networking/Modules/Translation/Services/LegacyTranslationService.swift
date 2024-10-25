@@ -11,17 +11,18 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct LegacyTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Methods
 
     /// - Returns: On success, the new hash for the translation.
     public func regenerateHash(translationReferenceString: String) async -> Callback<String, Exception> {
-        let path = networking.config.paths.translations
+        let path = NetworkPath.translations.rawValue
         let getValuesResult = await networking.database.getValues(at: "\(path)/\(translationReferenceString)")
 
         switch getValuesResult {

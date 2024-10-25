@@ -157,6 +157,9 @@ public final class RecipientBarLayoutService {
               recipientBarView.subviews(for: Strings.textFieldSemanticTag).isEmpty,
               let textField = buildTextField() else { return }
         textField.tag = core.ui.semTag(for: Strings.textFieldSemanticTag)
+        if let selectContactButton {
+            while textField.frame.maxX >= (selectContactButton.frame.minX - Floats.selectContactButtonMinXDecrement) { textField.frame.size.width -= 1 }
+        }
         recipientBarView.addSubview(textField)
     }
 

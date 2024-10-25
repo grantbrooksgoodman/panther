@@ -11,16 +11,17 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct RemoteCacheService {
     // MARK: - Dependencies
 
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Remote Cache Status Configuration
 
     public func cacheStatus(userID: String) async -> Callback<RemoteCacheStatus, Exception> {
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.invalidatedCaches)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -36,7 +37,7 @@ public struct RemoteCacheService {
     }
 
     public func setCacheStatus(_ cacheStatus: RemoteCacheStatus, userID: String) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(at: networking.config.paths.invalidatedCaches)
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
 
         switch getValuesResult {
         case let .success(values):
@@ -51,12 +52,12 @@ public struct RemoteCacheService {
             }
 
             array = array.unique
-            return await networking.database.setValue(array, forKey: networking.config.paths.invalidatedCaches)
+            return await networking.database.setValue(array, forKey: NetworkPath.invalidatedCaches.rawValue)
 
         case let .failure(exception):
             var exceptions = [exception]
 
-            if let exception = await networking.database.setValue([userID], forKey: networking.config.paths.invalidatedCaches) {
+            if let exception = await networking.database.setValue([userID], forKey: NetworkPath.invalidatedCaches.rawValue) {
                 exceptions.append(exception)
             }
 

@@ -47,7 +47,7 @@ public extension UserDefaultsKey {
     // MARK: - Properties
 
     static var permanentKeys: [UserDefaultsKey] {
-        var keys: [UserDefaultsKey] = [.coreNetworking(.networkEnvironment), .devModeService(.indicatesNetworkActivity)]
+        var keys: [UserDefaultsKey] = [.devModeService(.indicatesNetworkActivity), .init("networkEnvironment")]
         keys.append(contentsOf: UserDefaultsKey.coreKeys)
         return keys
     }

@@ -225,6 +225,8 @@ public final class SettingsPageViewService {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task {
+                    self.userSession.stopObservingCurrentUserChanges()
+
                     self.core.utils.clearCaches()
                     self.core.utils.eraseDocumentsDirectory()
                     self.core.utils.eraseTemporaryDirectory()

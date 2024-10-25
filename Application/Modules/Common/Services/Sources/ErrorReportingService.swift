@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
@@ -22,7 +23,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
@@ -111,7 +112,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 guard self.build.developerModeEnabled,
                       let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString, // swiftlint:disable:next line_length
                       let encodedRevisionString = "\(build.bundleRevision) | \(buildNumberString)".addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
-                let environmentShortString = self.networking.config.environment.shortString
+                let environmentShortString = Networking.config.environment.shortString
                 let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(encodedRevisionString)"
                 guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return nil }
                 return {

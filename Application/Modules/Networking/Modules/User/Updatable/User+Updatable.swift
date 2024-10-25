@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension User: Updatable {
     // MARK: - Type Aliases
@@ -76,7 +77,7 @@ extension User: Updatable {
     // MARK: - Upate Value
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<User, Exception> {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {
             return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
@@ -86,7 +87,7 @@ extension User: Updatable {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
-        let userKeyPath = "\(networking.config.paths.users)/\(id)/"
+        let userKeyPath = "\(NetworkPath.users.rawValue)/\(id)/"
         let valueKeyPath = userKeyPath + key.rawValue
 
         if let serializable = value as? any Serializable {

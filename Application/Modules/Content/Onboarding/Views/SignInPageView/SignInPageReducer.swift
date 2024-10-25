@@ -12,15 +12,16 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -244,7 +245,7 @@ public struct SignInPageReducer: Reducer {
             case .phoneNumber:
                 let phoneNumber = state.phoneNumber
                 return .task {
-                    let result = await networking.services.user.accountExists(for: phoneNumber)
+                    let result = await networking.userService.accountExists(for: phoneNumber)
                     return .accountExistsReturned(result)
                 }
 

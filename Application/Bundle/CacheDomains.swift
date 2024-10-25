@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 import Translator
 
 public extension CacheDomain {
@@ -47,7 +48,7 @@ public extension CacheDomain {
     static let contactPairArchive: CacheDomain = .init("contactPairArchive")
     static let contactService: CacheDomain = .init("contactService")
     static let conversationArchive: CacheDomain = .init("conversationArchive")
-    static let database: CacheDomain = .init("database")
+    static let database: CacheDomain = .init("database") // TODO: NEEDS TO BE IN NETWORKING
     static let localization: CacheDomain = .init("localization")
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
@@ -62,7 +63,7 @@ public extension CoreKit.Utilities {
         @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
         @Dependency(\.commonServices) var commonServices: CommonServices
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
 
         let appDomains = clearCaches(domains: domains)
@@ -72,14 +73,14 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.contactImage) { ContactImageCache.clearCache() }
         if appDomains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
         if appDomains.contains(.contactService) { commonServices.contact.clearCache() }
-        if appDomains.contains(.conversationArchive) { networking.services.conversation.archive.clearArchive() }
-        if appDomains.contains(.database) { networking.database.clearCache() }
+        if appDomains.contains(.conversationArchive) { networking.conversationService.archive.clearArchive() }
+        if appDomains.contains(.database) { CoreDatabaseCache.clear() }
         if appDomains.contains(.localization) { Localization.clearCache() }
         if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
         if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
         if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
         if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
         if appDomains.contains(.storage) { networking.storage.clearCache() }
-        if appDomains.contains(.userService) { networking.services.user.clearCache() }
+        if appDomains.contains(.userService) { networking.userService.clearCache() }
     }
 }

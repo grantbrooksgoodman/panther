@@ -19,7 +19,7 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions

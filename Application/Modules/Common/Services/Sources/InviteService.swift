@@ -21,7 +21,7 @@ public struct InviteService {
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.uiApplication.mainWindow?.rootViewController) private var keyViewController: UIViewController?
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
 
     // MARK: - Present Invitation Prompt
 

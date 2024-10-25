@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class IntegrityServiceSession {
     // MARK: - Properties
@@ -51,8 +52,9 @@ public final class IntegrityServiceSession {
 
     // MARK: - Resolve
 
-    public static func resolve() async -> Callback<IntegrityServiceSession, Exception> {
-        @Dependency(\.networking) var networking: Networking
+    // swiftlint:disable:next function_body_length
+    public static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
+        @Dependency(\.networking) var networking: NetworkServices
 
         var conversationData: [String: Any]?
         var messageData: [String: Any]?
@@ -60,84 +62,136 @@ public final class IntegrityServiceSession {
         var userData: [String: Any]?
         var userNumberHashData: [String: Any]?
 
+        let typecastFailedException = Exception.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+
         // Get Conversation Values
 
-        let getConversationValuesResult = await networking.database.getValues(at: networking.config.paths.conversations)
+        let getConversationValuesResult = await networking.database.getValues(at: NetworkPath.conversations.rawValue)
 
         switch getConversationValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            if let dictionary = values as? [String: Any] {
+                conversationData = dictionary
+            } else {
+                guard failureStrategy == .continueOnFailure else {
+                    return .failure(typecastFailedException)
+                }
+
+                Logger.log(typecastFailedException)
+                conversationData = .init()
             }
 
-            conversationData = dictionary
-
         case let .failure(exception):
-            return .failure(exception)
+            guard failureStrategy == .continueOnFailure else {
+                return .failure(exception)
+            }
+
+            Logger.log(exception)
+            conversationData = .init()
         }
 
         // Get Message Values
 
-        let getMessageValuesResult = await networking.database.getValues(at: networking.config.paths.messages)
+        let getMessageValuesResult = await networking.database.getValues(at: NetworkPath.messages.rawValue)
 
         switch getMessageValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            if let dictionary = values as? [String: Any] {
+                messageData = dictionary
+            } else {
+                guard failureStrategy == .continueOnFailure else {
+                    return .failure(typecastFailedException)
+                }
+
+                Logger.log(typecastFailedException)
+                messageData = .init()
             }
 
-            messageData = dictionary
-
         case let .failure(exception):
-            return .failure(exception)
+            guard failureStrategy == .continueOnFailure else {
+                return .failure(exception)
+            }
+
+            Logger.log(exception)
+            messageData = .init()
         }
 
         // Get Translation Values
 
-        let getTranslationValuesResult = await networking.database.getValues(at: networking.config.paths.translations)
+        let getTranslationValuesResult = await networking.database.getValues(at: NetworkPath.translations.rawValue)
 
         switch getTranslationValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: [String: Any]] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            if let dictionary = values as? [String: [String: Any]] {
+                translationData = dictionary
+            } else {
+                guard failureStrategy == .continueOnFailure else {
+                    return .failure(typecastFailedException)
+                }
+
+                Logger.log(typecastFailedException)
+                translationData = .init()
             }
 
-            translationData = dictionary
-
         case let .failure(exception):
-            return .failure(exception)
+            guard failureStrategy == .continueOnFailure else {
+                return .failure(exception)
+            }
+
+            Logger.log(exception)
+            translationData = .init()
         }
 
         // Get User Values
 
-        let getUserValuesResult = await networking.database.getValues(at: networking.config.paths.users)
+        let getUserValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
         switch getUserValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            if let dictionary = values as? [String: Any] {
+                userData = dictionary
+            } else {
+                guard failureStrategy == .continueOnFailure else {
+                    return .failure(typecastFailedException)
+                }
+
+                Logger.log(typecastFailedException)
+                userData = .init()
             }
 
-            userData = dictionary
-
         case let .failure(exception):
-            return .failure(exception)
+            guard failureStrategy == .continueOnFailure else {
+                return .failure(exception)
+            }
+
+            Logger.log(exception)
+            userData = .init()
         }
 
         // Get User Number Hashes
 
-        let getUserNumberHashValuesResult = await networking.database.getValues(at: networking.config.paths.userNumberHashes)
+        let getUserNumberHashValuesResult = await networking.database.getValues(at: NetworkPath.userNumberHashes.rawValue)
 
         switch getUserNumberHashValuesResult {
         case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            if let dictionary = values as? [String: Any] {
+                userNumberHashData = dictionary
+            } else {
+                guard failureStrategy == .continueOnFailure else {
+                    return .failure(typecastFailedException)
+                }
+
+                Logger.log(typecastFailedException)
+                userNumberHashData = .init()
             }
 
-            userNumberHashData = dictionary
-
         case let .failure(exception):
-            return .failure(exception)
+            guard failureStrategy == .continueOnFailure else {
+                return .failure(exception)
+            }
+
+            Logger.log(exception)
+            userNumberHashData = .init()
         }
 
         guard let conversationData,

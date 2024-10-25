@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class MetadataService {
     // MARK: - Types
@@ -27,14 +28,13 @@ public final class MetadataService {
         /* MARK: Properties */
 
         public var path: String {
-            @Dependency(\.networking.config.paths.shared) var sharedPath: String
-            return "\(sharedPath)/\(rawValue)"
+            "\(NetworkPath.shared.rawValue)/\(rawValue)"
         }
     }
 
     // MARK: - Dependencies
 
-    @Dependency(\.networking.database) private var database: Database
+    @Dependency(\.networking.database) private var database: DatabaseDelegate
 
     // MARK: - Properties
 

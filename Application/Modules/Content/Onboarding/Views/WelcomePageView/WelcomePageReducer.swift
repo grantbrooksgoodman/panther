@@ -11,13 +11,14 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.networking.services.translation) private var translator: HostedTranslationService
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
 
     // MARK: - Properties
 

@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension Conversation: Updatable {
     // MARK: - Type Aliases
@@ -76,7 +77,7 @@ extension Conversation: Updatable {
     // MARK: - Update Value
 
     public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard updatableKeys.contains(key) else {
@@ -98,7 +99,7 @@ extension Conversation: Updatable {
             return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
-        let conversationKeyPath = "\(networking.config.paths.conversations)/\(id.key)/"
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/"
         let valueKeyPath = conversationKeyPath + key.rawValue
 
         if key == .messages,
@@ -177,7 +178,7 @@ extension Conversation: Updatable {
 
     /// It's optimal to set `isTyping` to `false` in the same call as appending messages during a send operation so the conversation hash doesn't need to be recomputed twice.
     private func updateIsTyping(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        @Dependency(\.networking) var networking: Networking
+        @Dependency(\.networking) var networking: NetworkServices
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {
             return .failure(.init(
@@ -206,7 +207,7 @@ extension Conversation: Updatable {
 
         if let exception = await networking.database.setValue(
             updatedConversation.participants.map(\.encoded),
-            forKey: "\(networking.config.paths.conversations)/\(updatedConversation.id.key)/\(SerializationKeys.participants.rawValue)"
+            forKey: "\(NetworkPath.conversations.rawValue)/\(updatedConversation.id.key)/\(SerializationKeys.participants.rawValue)"
         ) {
             return .failure(exception)
         }

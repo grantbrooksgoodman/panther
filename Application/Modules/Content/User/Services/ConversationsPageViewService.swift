@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class ConversationsPageViewService {
     // MARK: - Types
@@ -43,7 +44,7 @@ public final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.networking) private var networking: Networking
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
@@ -195,6 +196,6 @@ public final class ConversationsPageViewService {
             users: conversation.users
         )
 
-        networking.services.conversation.archive.addValue(newConversation)
+        networking.conversationService.archive.addValue(newConversation)
     }
 }
