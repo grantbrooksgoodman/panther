@@ -36,6 +36,8 @@ public final class MediaActionHandlerService {
 
     private let viewController: ChatPageViewController
 
+    public private(set) var isPresentingPickerController = false
+
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
@@ -316,10 +318,12 @@ public final class MediaActionHandlerService {
 
     private func presentCameraPicker() {
         StatusBarStyle.override(.lightContent)
+        isPresentingPickerController = true
         services.contentPicker.camera.present()
 
         services.contentPicker.camera.onDismiss { result in
             Task {
+                self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
                     Logger.log(exception, with: .toast())
                 }
@@ -330,9 +334,11 @@ public final class MediaActionHandlerService {
     private func presentDocumentPicker() {
         StatusBarStyle.override(.lightContent)
         services.contentPicker.document.present()
+        isPresentingPickerController = true
 
         services.contentPicker.document.onDismiss { result in
             Task {
+                self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
                     Logger.log(exception, with: .toast())
                 }
@@ -343,9 +349,11 @@ public final class MediaActionHandlerService {
     private func presentMediaPicker() {
         StatusBarStyle.override(.lightContent)
         services.contentPicker.media.present()
+        isPresentingPickerController = true
 
         services.contentPicker.media.onDismiss { result in
             Task {
+                self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
                     Logger.log(exception, with: .toast())
                 }

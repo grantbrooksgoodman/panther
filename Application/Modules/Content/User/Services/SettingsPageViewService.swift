@@ -98,6 +98,7 @@ public final class SettingsPageViewService {
             var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]
             if build.developerModeEnabled {
                 let reloadAction = AKAction("Reload") {
+                    self.navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
                     self.navigationCoordinator.navigate(to: .root(.modal(.splash)))
                 }
 

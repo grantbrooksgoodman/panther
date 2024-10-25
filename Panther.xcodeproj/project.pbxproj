@@ -121,7 +121,6 @@
 		B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */; };
 		B937D07D2B2237470058F00E /* SerializableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B937D07C2B2237470058F00E /* SerializableProtocol.swift */; };
 		B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93BCDE42AAD9A1A00AA16FE /* SamplePageViewStrings.swift */; };
-		B93BD4F42C902DC800E8D242 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B93BD4F32C902DC800E8D242 /* AppSubsystem */; };
 		B93BD4F62C90399F00E8D242 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93BD4F52C90399F00E8D242 /* Application.swift */; };
 		B94262502C4622AA0026CDE8 /* InviteQRCodePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942624F2C4622AA0026CDE8 /* InviteQRCodePageReducer.swift */; };
 		B94262522C4622D50026CDE8 /* InviteQRCodeContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262512C4622D50026CDE8 /* InviteQRCodeContentPageView.swift */; };
@@ -130,7 +129,6 @@
 		B94262592C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */; };
 		B942625B2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */; };
 		B942625D2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B942625C2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift */; };
-		B9428A202C3DC18E0024E1B5 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9428A1F2C3DC18E0024E1B5 /* AlertKit */; };
 		B943885F2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943885E2B316739002D94FF /* NetworkActivityIndicatorProtocol.swift */; };
 		B94388642B3210A7002D94FF /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388632B3210A7002D94FF /* NetworkActivityIndicatorService.swift */; };
 		B94388672B3214D0002D94FF /* AppConstants+NetworkActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388662B3214D0002D94FF /* AppConstants+NetworkActivityView.swift */; };
@@ -157,7 +155,6 @@
 		B94D76842BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76832BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift */; };
 		B94F26542BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */; };
 		B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */; };
-		B95013E32C34894200932E23 /* Translator in Frameworks */ = {isa = PBXBuildFile; productRef = B95013E22C34894200932E23 /* Translator */; };
 		B952B8EF2B1521660043181F /* HostedTranslationArchiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */; };
 		B952B8F12B1527210043181F /* HostedTranslationServiceExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */; };
 		B952B8F32B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8F22B152DD80043181F /* TranslationInput+CoreNetworkingExtensions.swift */; };
@@ -293,9 +290,9 @@
 		B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C62B1A42980016948C /* TranscriptionService.swift */; };
 		B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C82B1A42A20016948C /* PlaybackService.swift */; };
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
+		B9B26F602CB0D96A00326FD5 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
-		B9BBDD9B2C24ADDA00ACD201 /* ComponentKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */; };
@@ -1480,12 +1477,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B95013E32C34894200932E23 /* Translator in Frameworks */,
-				B9428A202C3DC18E0024E1B5 /* AlertKit in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
-				B9BBDD9B2C24ADDA00ACD201 /* ComponentKit in Frameworks */,
-				B93BD4F42C902DC800E8D242 /* AppSubsystem in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
+				B9B26F602CB0D96A00326FD5 /* AppSubsystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3359,11 +3353,8 @@
 			);
 			name = Hello;
 			packageProductDependencies = (
-				B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */,
-				B95013E22C34894200932E23 /* Translator */,
-				B9428A1F2C3DC18E0024E1B5 /* AlertKit */,
 				B9E2E6132C72E7AF004022FE /* MessageKit */,
-				B93BD4F32C902DC800E8D242 /* AppSubsystem */,
+				B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3488,11 +3479,8 @@
 			);
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
-				B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */,
-				B95013E12C34894200932E23 /* XCRemoteSwiftPackageReference "translator" */,
-				B9428A1E2C3DC18E0024E1B5 /* XCRemoteSwiftPackageReference "alert-kit" */,
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B93BD4F22C902DC800E8D242 /* XCRemoteSwiftPackageReference "app-subsystem" */,
+				B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3830,7 +3818,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\ncurrent_app_store_build_number=22744\n\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nBUILD_NUMBER=$(($BUILD_NUMBER + 1))\n\nrevision_build_number=$((($BUILD_NUMBER) - current_app_store_build_number))\nbuild_date=`date +%s`\n\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $build_date\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleRevision $revision_build_number\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST_FILE\"\n";
+			shellScript = "#!/bin/bash\ncurrent_app_store_build_number=23033\n\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nBUILD_NUMBER=$(($BUILD_NUMBER + 1))\n\nrevision_build_number=$((($BUILD_NUMBER) - current_app_store_build_number))\nbuild_date=`date +%s`\n\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $build_date\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleRevision $revision_build_number\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST_FILE\"\n";
 		};
 		B98145F22AB4F34100937D37 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4676,36 +4664,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B93BD4F22C902DC800E8D242 /* XCRemoteSwiftPackageReference "app-subsystem" */ = {
+		B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/app-subsystem";
 			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B9428A1E2C3DC18E0024E1B5 /* XCRemoteSwiftPackageReference "alert-kit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/alert-kit";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B95013E12C34894200932E23 /* XCRemoteSwiftPackageReference "translator" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/translator.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/component-kit.git";
-			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 1.0.0;
 			};
 		};
 		B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */ = {
@@ -4719,25 +4683,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		B93BD4F32C902DC800E8D242 /* AppSubsystem */ = {
+		B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B93BD4F22C902DC800E8D242 /* XCRemoteSwiftPackageReference "app-subsystem" */;
+			package = B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */;
 			productName = AppSubsystem;
-		};
-		B9428A1F2C3DC18E0024E1B5 /* AlertKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B9428A1E2C3DC18E0024E1B5 /* XCRemoteSwiftPackageReference "alert-kit" */;
-			productName = AlertKit;
-		};
-		B95013E22C34894200932E23 /* Translator */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B95013E12C34894200932E23 /* XCRemoteSwiftPackageReference "translator" */;
-			productName = Translator;
-		};
-		B9BBDD9A2C24ADDA00ACD201 /* ComponentKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B9BBDD992C24ADDA00ACD201 /* XCRemoteSwiftPackageReference "component-kit" */;
-			productName = ComponentKit;
 		};
 		B9E2E6132C72E7AF004022FE /* MessageKit */ = {
 			isa = XCSwiftPackageProductDependency;

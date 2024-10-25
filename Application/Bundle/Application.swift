@@ -38,13 +38,13 @@ public enum Application {
 
         AppSubsystem.initialize(
             appStoreReleaseVersion: 3,
-            buildMilestone: .generalRelease,
+            buildMilestone: .beta,
             codeName: "Panther",
             dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
             languageCode: Locale.systemLanguageCode,
-            loggingEnabled: false,
-            timebombActive: false
+            loggingEnabled: true,
+            timebombActive: true
         )
 
         // MARK: - Localization & Logging Setup

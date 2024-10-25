@@ -90,7 +90,8 @@ public final class ChatPageViewService {
     // MARK: - View Controller Lifecycle Handlers
 
     public func onViewWillAppear() {
-        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
+              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
@@ -103,7 +104,8 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidAppear() {
-        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
+              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
@@ -153,14 +155,17 @@ public final class ChatPageViewService {
     }
 
     public func onViewWillDisappear() {
-        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
+              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+
         NavigationBar.setAppearance(.appDefault)
         toggleBuildInfoOverlay(on: true)
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
     public func onViewDidDisappear() {
-        guard !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
+              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
         chatPageState.setIsPresented(false)
 
         Task.background {
