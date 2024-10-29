@@ -60,6 +60,7 @@ public enum Application {
         // MARK: - Networking Setup
 
         Networking.initialize()
+        Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
 
         // MARK: - Theme Setup
 

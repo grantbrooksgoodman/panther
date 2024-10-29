@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length  type_body_length
 
 /* Native */
 import Foundation
@@ -32,14 +32,19 @@ public final class UserService {
     // MARK: - Properties
 
     public let legacy: LegacyUserService
+    public let testing: UserTestingService
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
     @Cached(CacheKey.userNumberHashSnapshot) private var cachedUserNumberHashSnapshot: UserNumberHashSnapshot?
 
     // MARK: - Init
 
-    public init(legacy: LegacyUserService) {
+    public init(
+        legacy: LegacyUserService,
+        testing: UserTestingService
+    ) {
         self.legacy = legacy
+        self.testing = testing
     }
 
     // MARK: - User Creation
@@ -396,4 +401,4 @@ public final class UserService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

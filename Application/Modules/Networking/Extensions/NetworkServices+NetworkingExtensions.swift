@@ -26,7 +26,10 @@ public extension NetworkServices {
             languageRecognition: .init(),
             legacy: .init()
         )
-        public static let userService = UserService(legacy: .init())
+        public static let userService = UserService(
+            legacy: .init(),
+            testing: .init()
+        )
     }
 
     var conversationService: ConversationService { NetworkServiceStore.conversationService }

@@ -22,17 +22,22 @@ public extension DevModeAction {
     struct AppActions: AppSubsystem.Delegates.DevModeAppActionDelegate {
         // MARK: - Properties
 
-        public var appActions: [DevModeAction] = [
-            clearCachesAction,
-            eraseDocumentsDirectoryAction,
-            eraseTemporaryDirectoryAction,
-            resetUserDefaultsAction,
-            setCurrentUserIDAction,
-            switchEnvironmentAction,
-            toggleNetworkActivityIndicatorAction,
-            destroyConversationDatabaseAction,
-            resetPushTokensAction,
-        ]
+        public var appActions: [DevModeAction] {
+            var actions = [
+                DevModeAction.AppActions.clearCachesAction,
+                DevModeAction.AppActions.eraseDocumentsDirectoryAction,
+                DevModeAction.AppActions.eraseTemporaryDirectoryAction,
+                DevModeAction.AppActions.resetUserDefaultsAction,
+                DevModeAction.AppActions.setCurrentUserIDAction,
+                DevModeAction.AppActions.switchEnvironmentAction,
+                DevModeAction.AppActions.destroyConversationDatabaseAction,
+                DevModeAction.AppActions.resetPushTokensAction,
+            ]
+
+            guard Networking.config.environment != .production else { return actions }
+            actions.insert(DevModeAction.AppActions.createNewMessagesAction, at: 1)
+            return actions
+        }
 
         // MARK: - Computed Properties
 
@@ -44,6 +49,29 @@ public extension DevModeAction {
             }
 
             return .init(title: "Clear Caches", perform: clearCaches)
+        }
+
+        private static var createNewMessagesAction: DevModeAction {
+            func createNewMessages() {
+                Task { @MainActor in
+                    @Dependency(\.networking.userService.testing) var userTestingService: UserTestingService
+
+                    let messageCount = await AKTextInputAlert(
+                        title: "Create Random Messages",
+                        message: "Enter the amount of messages to be created.",
+                        attributes: .init(keyboardType: .numberPad)
+                    ).present(translating: [])
+
+                    guard let messageCount,
+                          let integer = Int(messageCount) else { return }
+
+                    if let exception = await userTestingService.createRandomMessages(count: integer) {
+                        Logger.log(exception, with: .toast())
+                    }
+                }
+            }
+
+            return .init(title: "Create New Random Messages", perform: createNewMessages)
         }
 
         private static var destroyConversationDatabaseAction: DevModeAction {
@@ -255,38 +283,5 @@ public extension DevModeAction {
 
             return .init(title: "Switch Environment", perform: switchEnvironment)
         }
-
-        private static var toggleNetworkActivityIndicatorAction: DevModeAction {
-            func toggleNetworkActivityIndicator() {
-                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                @Persistent(.indicatesNetworkActivity) var defaultsValue: Bool?
-
-                guard let value = defaultsValue else {
-                    defaultsValue = true
-                    coreHUD.showSuccess(text: "ON")
-                    return
-                }
-
-                defaultsValue = !value
-                coreHUD.showSuccess(text: !value == true ? "ON" : "OFF")
-            }
-
-            return .init(
-                title: "Toggle Network Activity Indicator",
-                perform: toggleNetworkActivityIndicator
-            )
-        }
-    }
-}
-
-public extension Persistent {
-    convenience init(_ devModeServiceKey: UserDefaultsKey.DevModeServiceDefaultsKey) {
-        self.init(.devModeService(devModeServiceKey))
-    }
-}
-
-public extension UserDefaultsKey {
-    enum DevModeServiceDefaultsKey: String {
-        case indicatesNetworkActivity
     }
 }

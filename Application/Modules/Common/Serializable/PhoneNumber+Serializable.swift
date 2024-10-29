@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension PhoneNumber: Serializable {
     // MARK: - Type Aliases

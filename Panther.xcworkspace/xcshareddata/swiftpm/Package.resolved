@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grantbrooksgoodman/alert-kit",
       "state" : {
-        "revision" : "4d477725deec2d3bdcd1deff1cd57c958413dcd8",
-        "version" : "1.0.0"
+        "branch" : "main",
+        "revision" : "7d13f6226d3d6c3b8d9014bdfcf73f7a1e72ac4d"
       }
     },
     {
@@ -33,17 +33,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/grantbrooksgoodman/app-subsystem",
       "state" : {
-        "revision" : "6a71b8d64c2e7540046a07c135f6d4664cdb4365",
-        "version" : "1.0.0"
+        "branch" : "main",
+        "revision" : "c3fe89199ffde57d4caf0b96d4658c93129cd80c"
       }
     },
     {
       "identity" : "component-kit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/grantbrooksgoodman/component-kit.git",
+      "location" : "https://github.com/grantbrooksgoodman/component-kit",
       "state" : {
-        "revision" : "bb8e0d3d21adeb1e2bf559e3eef999cc079b7f77",
-        "version" : "1.0.0"
+        "branch" : "main",
+        "revision" : "cf5acb1b1dc9b9ad00ba007c6afd9798cce1ec62"
       }
     },
     {
@@ -151,7 +151,7 @@
       "location" : "https://github.com/grantbrooksgoodman/networking",
       "state" : {
         "branch" : "main",
-        "revision" : "f7445223e0a0a21ac9a93d2f210dcb544a140b68"
+        "revision" : "cbd1562313965db86d440b2de94549cd7574bf79"
       }
     },
     {
@@ -175,10 +175,10 @@
     {
       "identity" : "translator",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/grantbrooksgoodman/translator.git",
+      "location" : "https://github.com/grantbrooksgoodman/translator",
       "state" : {
-        "revision" : "8bc631ec5f73ff3cef0ba04871d78f57564e6906",
-        "version" : "1.0.0"
+        "branch" : "main",
+        "revision" : "6b1a81d5924f4a03043ebc7c43257133b0aa42d4"
       }
     }
   ],

@@ -1,5 +1,5 @@
 //
-//  Exception+CoreNetworkingExtensions.swift
+//  Exception+NetworkingExtensions.swift
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.

@@ -21,12 +21,15 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
 
     // MARK: - Properties
 
     private let viewController: ChatPageViewController
 
+    private var appearanceTimer: Timer?
     private var deliveryProgressTimer: Timer?
 
     // MARK: - Computed Properties
@@ -54,18 +57,8 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     public func startAnimatingDeliveryProgress() {
         mainQueue.async {
-            guard let progressView = self.progressView else { return }
-            UIView.animate(withDuration: Floats.animationDuration) {
-                progressView.alpha = 1
-            } completion: { _ in
-                self.deliveryProgressTimer = .scheduledTimer(
-                    timeInterval: Floats.timerTimeInterval,
-                    target: self,
-                    selector: #selector(self._incrementDeliveryProgress),
-                    userInfo: nil,
-                    repeats: true
-                )
-            }
+            self.instantiateDeliveryProgressTimer(Floats.hiddenTimerTimeInterval)
+            self.instantiateAppearanceTimer()
         }
     }
 
@@ -88,6 +81,30 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Auxiliary
 
+    private func instantiateAppearanceTimer() {
+        appearanceTimer?.invalidate()
+        appearanceTimer = nil
+        appearanceTimer = .scheduledTimer(
+            timeInterval: 5,
+            target: self,
+            selector: #selector(_startAnimatingDeliveryProgress),
+            userInfo: nil,
+            repeats: false
+        )
+    }
+
+    private func instantiateDeliveryProgressTimer(_ timeInterval: CGFloat) {
+        deliveryProgressTimer?.invalidate()
+        deliveryProgressTimer = nil
+        deliveryProgressTimer = .scheduledTimer(
+            timeInterval: timeInterval,
+            target: self,
+            selector: #selector(_incrementDeliveryProgress),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+
     @objc
     private func _incrementDeliveryProgress() {
         guard let progressView,
@@ -99,5 +116,15 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
         guard progressView.progress + .init(incrementValue) < .init(threshold) else { return }
         incrementDeliveryProgress(by: .init(incrementValue))
+    }
+
+    @objc
+    private func _startAnimatingDeliveryProgress() {
+        guard isSendingMessage else { return }
+        UIView.animate(withDuration: Floats.animationDuration) {
+            self.progressView?.alpha = 1
+        } completion: { _ in
+            self.instantiateDeliveryProgressTimer(Floats.visibleTimerTimeInterval)
+        }
     }
 }

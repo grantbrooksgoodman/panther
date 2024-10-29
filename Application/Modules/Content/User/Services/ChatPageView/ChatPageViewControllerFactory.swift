@@ -104,6 +104,7 @@ public struct ChatPageViewControllerFactory {
             )
         )
 
+        deliveryProgressView.alpha = 0
         deliveryProgressView.progress = 0
         deliveryProgressView.progressTintColor = .accent
         deliveryProgressView.progressViewStyle = .bar

@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension Participant: Serializable {
     // MARK: - Type Aliases

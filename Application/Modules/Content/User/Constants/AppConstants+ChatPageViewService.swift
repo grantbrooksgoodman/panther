@@ -30,10 +30,12 @@ public extension AppConstants.CGFloats {
             public static let animationDelay: CGFloat = 1
             public static let animationDuration: CGFloat = 0.2
 
+            public static let hiddenTimerTimeInterval: CGFloat = 0.05
+            public static let visibleTimerTimeInterval: CGFloat = 0.01
+
             public static let timerProgressIncrement: CGFloat = 0.001
             public static let timerProgressIncrementThreshold: CGFloat = 0.9
 
-            public static let timerTimeInterval: CGFloat = 0.01
             public static let viewFrameHeight: CGFloat = 2
         }
 

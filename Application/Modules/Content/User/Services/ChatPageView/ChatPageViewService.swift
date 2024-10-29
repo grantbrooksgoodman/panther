@@ -227,7 +227,8 @@ public final class ChatPageViewService {
     public func reloadCollectionView() {
         Task { @MainActor in
             menu?.dismissMenu()
-            viewController?.messagesCollectionView.reloadDataAndKeepOffset()
+            guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
+            viewController?.messagesCollectionView.reloadData()
         }
     }
 

@@ -23,7 +23,6 @@ public final class IntegrityService {
     @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.remoteCache) private var remoteCacheService: RemoteCacheService
-    @Dependency(\.uiApplication.keyViewController) private var keyViewController: UIViewController?
 
     // MARK: - Properties
 
@@ -43,16 +42,16 @@ public final class IntegrityService {
 
     // MARK: - Resolve Session
 
-    public func resolveSession(_ failureStrategy: BatchFailureStrategy = .returnOnFailure) async -> Exception? {
+    public func resolveSession() async -> Exception? {
         await withCheckedContinuation { continuation in
-            resolveSession(failureStrategy) { exception in
+            resolveSession { exception in
                 continuation.resume(returning: exception)
             }
         }
     }
 
     private func resolveSession(
-        _ failureStrategy: BatchFailureStrategy,
+        _ failureStrategy: BatchFailureStrategy = .returnOnFailure,
         completion: @escaping (Exception?) -> Void
     ) {
         Task { @MainActor in
@@ -123,11 +122,12 @@ public final class IntegrityService {
                     completion(exception)
                 }
 
-                Task.delayed(by: .seconds(2)) { @MainActor in
-                    (keyViewController as? UIAlertController)?.actions.first?.isEnabled = true
+                let actionSheet = AKActionSheet(actions: [proceedAction, cancelAction])
+                Task.delayed(by: .seconds(5)) { @MainActor in
+                    actionSheet.enableAction(at: 0)
                 }
 
-                await AKActionSheet(actions: [proceedAction, cancelAction]).present()
+                await actionSheet.present()
             }
         }
     }

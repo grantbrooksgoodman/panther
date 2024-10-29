@@ -23,7 +23,7 @@ public final class RecipientBarActionHandlerService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.userService) private var userService: UserService
 
@@ -76,13 +76,14 @@ public final class RecipientBarActionHandlerService {
     public func selectContactButtonTapped() {
         Task { @MainActor in
             func presentCTA() {
-                coreGCD.after(.milliseconds(500)) {
+                core.gcd.after(.milliseconds(500)) {
                     Task { await self.services.permission.presentCTA(for: .contacts) }
                 }
             }
 
             let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
             selectContactButton?.isEnabled = true
+            defer { core.hud.hide(after: .seconds(1)) }
 
             guard services.permission.contactPermissionStatus == .granted else {
                 let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
@@ -113,6 +114,7 @@ public final class RecipientBarActionHandlerService {
 
             guard !(contactPairArchive ?? []).isEmpty else {
                 selectContactButton?.isEnabled = false
+                core.hud.showProgress(isModal: true)
 
                 if let exception = await services.contact.sync.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
@@ -167,7 +169,7 @@ public final class RecipientBarActionHandlerService {
 
                 contactSelectionUIService.unhighlightAllViews()
                 contactSelectionUIService.deselectMockContactPairs()
-                coreGCD.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
+                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
                 return

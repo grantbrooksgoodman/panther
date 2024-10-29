@@ -11,14 +11,21 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
-public struct NetworkActivityIndicatorService: NetworkActivityIndicator {
+public struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
+    // MARK: - Properties
+
+    private let defaultNetworkActivityIndicatorDelegate = DefaultNetworkActivityIndicatorDelegate()
+
+    // MARK: - Methods
+
     public func hide() {
-        Observables.isNetworkActivityOccurring.value = false
+        defaultNetworkActivityIndicatorDelegate.hide()
     }
 
     public func show() {
-        Observables.isNetworkActivityOccurring.value = true
+        defaultNetworkActivityIndicatorDelegate.show()
         Observables.networkActivityOccurred.trigger()
     }
 }

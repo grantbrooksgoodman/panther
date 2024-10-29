@@ -109,6 +109,7 @@ public struct ContactSelectorPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             NavigationBar.setAppearance(.themed(showsDivider: false))
+            core.gcd.after(.seconds(1)) { core.ui.resignFirstResponder() }
 
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false

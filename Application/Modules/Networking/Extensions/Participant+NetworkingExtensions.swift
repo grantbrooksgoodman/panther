@@ -1,5 +1,5 @@
 //
-//  Participant+CommonNetworkingExtensions.swift
+//  Participant+NetworkingExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -8,6 +8,9 @@
 
 /* Native */
 import Foundation
+
+/* Proprietary */
+import Networking
 
 extension Participant: Validatable {
     public var isWellFormed: Bool {

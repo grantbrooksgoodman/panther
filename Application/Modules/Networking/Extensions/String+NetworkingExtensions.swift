@@ -1,5 +1,5 @@
 //
-//  String+CoreNetworkingExtensions.swift
+//  String+NetworkingExtensions.swift
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.

@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension Conversation: Serializable {
     // MARK: - Type Aliases

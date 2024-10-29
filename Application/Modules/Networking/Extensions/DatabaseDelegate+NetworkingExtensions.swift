@@ -29,7 +29,7 @@ public extension DatabaseDelegate {
                         data: value,
                         expiresAfter: .seconds(60)
                     ),
-                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.conversations)/\(key)"
+                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.conversations.rawValue)/\(key)"
                 )
             }
 
@@ -40,7 +40,7 @@ public extension DatabaseDelegate {
                         data: value,
                         expiresAfter: .seconds(60)
                     ),
-                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.messages)/\(key)"
+                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.messages.rawValue)/\(key)"
                 )
             }
 
@@ -52,7 +52,7 @@ public extension DatabaseDelegate {
                             data: translationValue,
                             expiresAfter: .seconds(600)
                         ),
-                        forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.translations)/\(key)/\(translationKey)"
+                        forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.translations.rawValue)/\(key)/\(translationKey)"
                     )
                 }
             }
@@ -64,7 +64,7 @@ public extension DatabaseDelegate {
                         data: value,
                         expiresAfter: .seconds(60)
                     ),
-                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.users)/\(key)"
+                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(key)"
                 )
             }
 
@@ -75,7 +75,7 @@ public extension DatabaseDelegate {
                         data: value,
                         expiresAfter: .seconds(60)
                     ),
-                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.userNumberHashes)/\(key)"
+                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.userNumberHashes.rawValue)/\(key)"
                 )
             }
 

@@ -1,5 +1,5 @@
 //
-//  Array+CommonNetworkingExtensions.swift
+//  Array+NetworkingExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Translator
 
 public extension Array where Element == Conversation {
     // MARK: - Properties
@@ -85,5 +86,23 @@ public extension Array where Element == Message {
         }
 
         return messages
+    }
+}
+
+public extension Array where Element == String {
+    /// An empty array qualified by a single value of "!".
+    static var bangQualifiedEmpty: [String] { ["!"] }
+    var isBangQualifiedEmpty: Bool { isEmpty || allSatisfy(\.isBangQualifiedEmpty) }
+}
+
+public extension Array where Element == Translation {
+    var isWellFormed: Bool {
+        !isEmpty && allSatisfy(\.isWellFormed)
+    }
+}
+
+public extension Array where Element == TranslationInput {
+    var isWellFormed: Bool {
+        !isEmpty && allSatisfy(\.isWellFormed)
     }
 }
