@@ -155,6 +155,16 @@ public final class NotificationService {
             ))
         }
 
+        // TODO: Remove backwards compatibility after a few updates.
+        if let recipientUserID = notification.request.content.userInfo["recipientUserID"] as? String {
+            guard recipientUserID == currentUser.id else {
+                return .failure(.init(
+                    "Notification not intended for current user – ignoring.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+        }
+
         if uiApplication.applicationState != .active,
            let exception = await modifyBadgeNumber(.increment()) {
             return .failure(exception)
@@ -169,6 +179,7 @@ public final class NotificationService {
                 perpetuation: .ephemeral(.seconds(5))
             )
 
+            // TODO: Remove backwards compatibility after a few updates.
             guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String else {
                 Toast.show(toast)
                 return .success([])

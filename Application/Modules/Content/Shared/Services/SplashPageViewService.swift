@@ -171,9 +171,10 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.setLanguageCode(currentUser.languageCode)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-            if ((currentUser.conversationIDs ?? []).count > 3 && (conversationArchive ?? []).isEmpty) || (translationArchive ?? []).isEmpty,
-               let exception = await networking.database.populateTemporaryCaches() {
-                Logger.log(exception)
+            if ((currentUser.conversationIDs ?? []).count > 3 && (conversationArchive ?? []).isEmpty) || (translationArchive ?? []).isEmpty {
+                if let exception = await networking.database.populateTemporaryCaches() {
+                    Logger.log(exception)
+                }
             }
 
             if let exception = await currentUser.setConversations() {

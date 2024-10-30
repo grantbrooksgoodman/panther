@@ -14,7 +14,7 @@ import AppSubsystem
 
 public enum ChatPageStateServiceDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> ChatPageStateService {
-        .init(isPresented: false, isWaitingToUpdateConversations: true)
+        .init(isPresented: false, isWaitingToUpdateConversations: false)
     }
 }
 
