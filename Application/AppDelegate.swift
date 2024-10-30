@@ -90,9 +90,9 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        let respondToNotificationResult = await services.notification.respondToNotification(notification)
+        let respondToInAppNotificationResult = await services.notification.respondToInAppNotification(notification)
 
-        switch respondToNotificationResult {
+        switch respondToInAppNotificationResult {
         case let .success(presentationOptions):
             return presentationOptions
 

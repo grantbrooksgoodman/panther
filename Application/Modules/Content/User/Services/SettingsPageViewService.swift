@@ -127,7 +127,7 @@ public final class SettingsPageViewService {
         Task {
             @Sendable
             func clearCachesAndExit() async {
-                if let exception = await services.notification.modifyBadgeNumber(.set(to: 0)) {
+                if let exception = await services.notification.setBadgeNumber(0) {
                     Logger.log(exception)
                 }
 
@@ -231,7 +231,7 @@ public final class SettingsPageViewService {
                     self.core.utils.eraseDocumentsDirectory()
                     self.core.utils.eraseTemporaryDirectory()
 
-                    if let exception = await self.services.notification.modifyBadgeNumber(.set(to: 0)) {
+                    if let exception = await self.services.notification.setBadgeNumber(0) {
                         Logger.log(exception)
                     }
 

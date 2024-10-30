@@ -170,15 +170,15 @@ public final class ChatPageViewService {
 
         Task.background {
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception)
             }
+
+            clientSession.conversation.setCurrentConversation(nil)
+            clientSession.conversation.resetMessageOffset()
         }
 
         alternateMessage?.restoreAllAlternateTextMessageIDs()
         alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
-
-        clientSession.conversation.setCurrentConversation(nil)
-        clientSession.conversation.resetMessageOffset()
 
         services.connectionStatus.removeEffect(.configureInputBar)
 

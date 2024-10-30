@@ -16,21 +16,12 @@ import AppSubsystem
 import Networking
 
 public final class NotificationService {
-    // MARK: - Types
-
-    public enum BadgeNumberMutation {
-        case decrement(by: Int = 1)
-        case increment(by: Int = 1)
-        case set(to: Int)
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
 
@@ -38,29 +29,16 @@ public final class NotificationService {
 
     public private(set) var pushToken: String?
 
-    // MARK: - Modify Badge Number
+    // MARK: - Set Badge Number
 
-    public func modifyBadgeNumber(_ mutation: BadgeNumberMutation) async -> Exception? {
-        func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
-            do {
-                try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
-            } catch {
-                return .init(error, metadata: [self, #file, #function, #line])
-            }
-
-            return nil
+    public func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
+        do {
+            try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
+        } catch {
+            return .init(error, metadata: [self, #file, #function, #line])
         }
 
-        switch mutation {
-        case let .decrement(by: value):
-            return await setBadgeNumber(await uiApplication.applicationIconBadgeNumber - value)
-
-        case let .increment(by: value):
-            return await setBadgeNumber(await uiApplication.applicationIconBadgeNumber + value)
-
-        case let .set(to: value):
-            return await setBadgeNumber(value)
-        }
+        return nil
     }
 
     // MARK: - Notify Users of Message
@@ -110,13 +88,20 @@ public final class NotificationService {
                 }
             }
 
+            let newBadgeNumber = await user.hostedBadgeNumber + 1
+            if let exception = await user.updateHostedBadgeNumber(newBadgeNumber) {
+                return exception
+            }
+
             for pushToken in pushTokens {
                 if let exception = await sendNotification(
                     title: currentUser.phoneNumber.formattedString(),
                     body: body ?? .bangQualifiedEmpty,
+                    badgeNumber: newBadgeNumber,
                     pushToken: pushToken,
                     extraParams: [
                         "conversationIDKey": conversationIDKey,
+                        "recipientUserID": user.id,
                         "userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash,
                     ]
                 ) {
@@ -138,10 +123,10 @@ public final class NotificationService {
         return exceptions.compiledException
     }
 
-    // MARK: - Respond to Notification
+    // MARK: - Respond to In-app Notification
 
     @MainActor
-    public func respondToNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
+    public func respondToInAppNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
         Logger.log(
             "Received notification.\n\"\(notification.request.content.body)\"",
             domain: .notifications,
@@ -165,63 +150,47 @@ public final class NotificationService {
             }
         }
 
-        if uiApplication.applicationState != .active,
-           let exception = await modifyBadgeNumber(.increment()) {
-            return .failure(exception)
+        let toast: Toast = .init(
+            .capsule(),
+            title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
+            message: notification.request.content.body,
+            perpetuation: .ephemeral(.seconds(5))
+        )
+
+        // TODO: Remove backwards compatibility after a few updates.
+        guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String else {
+            Toast.show(toast)
+            return .success([.sound])
         }
 
-        switch uiApplication.applicationState {
-        case .active:
-            let toast: Toast = .init(
-                .capsule(),
-                title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
-                message: notification.request.content.body,
-                perpetuation: .ephemeral(.seconds(5))
-            )
-
-            // TODO: Remove backwards compatibility after a few updates.
-            guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String else {
-                Toast.show(toast)
-                return .success([])
-            }
-
-            guard let conversationIDKeys = currentUser.conversations?.visibleForCurrentUser.map({ $0.id.key }),
-                  conversationIDKeys.contains(conversationIDKey) else {
-                return .failure(.init(
-                    "Current user is not participating in the conversation associated with this notification.",
-                    metadata: [self, #file, #function, #line]
-                ))
-            }
-
-            if clientSession.conversation.currentConversation?.id.key != conversationIDKey {
-                guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
-                    Toast.show(toast)
-                    return .success([])
-                }
-
-                Toast.show(toast) {
-                    @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-
-                    guard self.chatPageState.isPresented else {
-                        return navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
-                    }
-
-                    navigationCoordinator.navigate(to: .userContent(.stack([])))
-                    self.chatPageState.addEffectUponIsPresented(changedTo: false, id: .deeplinkToOtherChat) {
-                        navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
-                    }
-                }
-            }
-
-            return .success([])
-
-        case .background,
-             .inactive:
-            return .success([.badge, .banner, .list, .sound])
-
-        @unknown default:
-            return .success([.badge, .banner, .list, .sound])
+        guard let conversationIDKeys = currentUser.conversations?.visibleForCurrentUser.map({ $0.id.key }),
+              conversationIDKeys.contains(conversationIDKey) else {
+            return .failure(.init(
+                "Current user is not participating in the conversation associated with this notification.",
+                metadata: [self, #file, #function, #line]
+            ))
         }
+
+        guard clientSession.conversation.currentConversation?.id.key != conversationIDKey else { return .success([.sound]) }
+
+        guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
+            Toast.show(toast)
+            return .success([.sound])
+        }
+
+        Toast.show(toast) {
+            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+            guard self.chatPageState.isPresented else {
+                return navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+            }
+
+            navigationCoordinator.navigate(to: .userContent(.stack([])))
+            self.chatPageState.addEffectUponIsPresented(changedTo: false, id: .deeplinkToOtherChat) {
+                navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+            }
+        }
+
+        return .success([.sound])
     }
 
     // MARK: - Set Push Token
@@ -261,6 +230,7 @@ public final class NotificationService {
     private func sendNotification(
         title: String,
         body: String,
+        badgeNumber: Int,
         pushToken: String,
         extraParams: [String: String]
     ) async -> Exception? {
@@ -283,7 +253,10 @@ public final class NotificationService {
 
             let payload: [String: Any] = [
                 "message": [
-                    "apns": ["payload": ["aps": ["mutable-content": 1]]],
+                    "apns": ["payload": ["aps": [
+                        "badge": badgeNumber,
+                        "mutable-content": 1,
+                    ]]],
                     "data": extraParams,
                     "notification": ["body": body, "title": title],
                     "token": pushToken,

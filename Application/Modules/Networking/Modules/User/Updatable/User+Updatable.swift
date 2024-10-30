@@ -33,7 +33,8 @@ extension User: Updatable {
 
     public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
         switch key {
-        case .id,
+        case .badgeNumber,
+             .id,
              .languageCode,
              .phoneNumber:
             return nil

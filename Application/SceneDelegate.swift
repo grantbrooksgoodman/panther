@@ -17,6 +17,7 @@ import AppSubsystem
 public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -63,6 +64,12 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     public func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        Task.background { @MainActor in
+            if let currentUser,
+               let exception = await services.notification.setBadgeNumber(currentUser.calculateBadgeNumber()) {
+                Logger.log(exception)
+            }
+        }
     }
 
     // MARK: - UIWindowScene

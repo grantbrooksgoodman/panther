@@ -50,7 +50,8 @@ public final class ReadDateService {
                 metadata: [self, #file, #function, #line]
             )
 
-            if let exception = await notificationService.modifyBadgeNumber(.decrement(by: unreadMessages.count)) {
+            if let currentUser = clientSession.user.currentUser,
+               let exception = await notificationService.setBadgeNumber(currentUser.calculateBadgeNumber() - unreadMessages.count) {
                 return exception
             }
 

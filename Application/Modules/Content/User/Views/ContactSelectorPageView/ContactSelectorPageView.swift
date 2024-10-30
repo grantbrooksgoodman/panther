@@ -58,8 +58,12 @@ public struct ContactSelectorPageView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(viewModel.navigationTitle)
+            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
         .redrawsOnTraitCollectionChange()
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

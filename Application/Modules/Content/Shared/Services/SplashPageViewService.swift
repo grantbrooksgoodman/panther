@@ -162,7 +162,7 @@ public final class SplashPageViewService: ObservableObject {
 
         switch setCurrentUserResult {
         case .success:
-            initializationProgress += 0.2
+            initializationProgress += 0.1
 
             guard let currentUser = userSession.currentUser else {
                 return .init("Failed to set current user.", metadata: [self, #file, #function, #line])
@@ -193,11 +193,16 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            initializationProgress += 0.2
-
-            if let exception = await services.notification.modifyBadgeNumber(.set(to: currentUser.badgeNumber)) {
+            let badgeNumber = await currentUser.calculateBadgeNumber()
+            if let exception = await services.notification.setBadgeNumber(badgeNumber) {
                 return exception
             }
+
+            if let exception = await currentUser.updateHostedBadgeNumber(badgeNumber) {
+                return exception
+            }
+
+            initializationProgress += 0.2
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
             let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)

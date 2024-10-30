@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class User: Codable, Equatable {
     // MARK: - Properties
@@ -31,31 +32,30 @@ public final class User: Codable, Equatable {
 
     // MARK: - Computed Properties
 
-    /// - Note: Will return `0` for users other than the current user.
-    public var badgeNumber: Int {
-        get async {
-            func calculateBadgeNumber() async -> Int {
-                @Persistent(.currentUserID) var currentUserID: String?
-                guard id == currentUserID,
-                      let conversationIDs,
-                      !conversationIDs.isEmpty else { return 0 }
-
-                guard let conversations = conversations?.visibleForCurrentUser,
-                      conversations.allSatisfy({ $0.messages != nil }) else {
-                    _ = await conversations?.visibleForCurrentUser.setMessages()
-                    return await calculateBadgeNumber()
-                }
-
-                return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.readDate == nil }.count
-            }
-
-            return await calculateBadgeNumber()
-        }
-    }
-
     public var canSendAudioMessages: Bool {
         @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
         return transcriptionService.isTranscriptionSupported(for: languageCode)
+    }
+
+    public var hostedBadgeNumber: Int {
+        get async {
+            @Dependency(\.networking.database) var database: DatabaseDelegate
+            let getValuesResult = await database.getValues(at: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)")
+
+            switch getValuesResult {
+            case let .success(values):
+                guard let integer = values as? Int else {
+                    Logger.log(.typecastFailed("integer", metadata: [self, #file, #function, #line]))
+                    return 0
+                }
+
+                return integer
+
+            case let .failure(exception):
+                Logger.log(exception)
+                return 0
+            }
+        }
     }
 
     // MARK: - Init
@@ -76,12 +76,32 @@ public final class User: Codable, Equatable {
         self.pushTokens = pushTokens
     }
 
-    // MARK: - Methods
+    // MARK: - Badge Number Calculation
+
+    /// - Note: Will return `0` for users other than the current user.
+    public func calculateBadgeNumber() async -> Int {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard id == currentUserID,
+              let conversationIDs,
+              !conversationIDs.isEmpty else { return 0 }
+
+        guard let conversations = conversations?.visibleForCurrentUser,
+              conversations.allSatisfy({ $0.messages != nil }) else {
+            _ = await conversations?.visibleForCurrentUser.setMessages()
+            return await calculateBadgeNumber()
+        }
+
+        return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.readDate == nil }.count
+    }
+
+    // MARK: - Capability Testing
 
     public func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
     }
+
+    // MARK: - Set Conversations
 
     public func setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
@@ -169,6 +189,47 @@ public final class User: Codable, Equatable {
 
         case let .failure(exception):
             return exception
+        }
+    }
+
+    // MARK: - Update Hosted Badge Number
+
+    public func updateHostedBadgeNumber(_ badgeNumber: Int? = nil) async -> Exception? {
+        @Dependency(\.clientSession) var clientSession: ClientSession
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+
+        @Persistent(.currentUserID) var currentUserID: String?
+        switch id == currentUserID {
+        case true:
+            var newBadgeNumber = badgeNumber
+            if newBadgeNumber == nil {
+                newBadgeNumber = await calculateBadgeNumber()
+            }
+
+            guard let newBadgeNumber else {
+                return .init(
+                    "Failed to resolve badge number.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            return await database.setValue(
+                newBadgeNumber,
+                forKey: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+            )
+
+        case false:
+            guard let badgeNumber else {
+                return .init(
+                    "Must supply badge number for users other than current user.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            return await database.setValue(
+                badgeNumber,
+                forKey: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+            )
         }
     }
 

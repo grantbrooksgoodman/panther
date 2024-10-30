@@ -144,12 +144,16 @@ public struct ConversationsPageObserver: Observer {
 
                 switch updateReadDateResult {
                 case let .success(conversation):
+                    if let exception = await clientSession.user.currentUser?.updateHostedBadgeNumber() {
+                        Logger.log(exception)
+                    }
+
                     guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
                     clientSession.conversation.setCurrentConversation(conversation)
                     chatPageViewService.reloadCollectionView()
 
                 case let .failure(exception):
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception)
                 }
             }
 

@@ -31,6 +31,7 @@ public struct ContactSelectorPageReducer: Reducer {
         case isPresentedChanged(Bool)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
+        case traitCollectionChanged
     }
 
     // MARK: - Feedback
@@ -134,6 +135,9 @@ public struct ContactSelectorPageReducer: Reducer {
             core.gcd.after(.milliseconds(100)) {
                 chatPageViewService.recipientBar?.contactSelectionUI.selectContactPair(selectedContactPair, performInputBarFix: true)
             }
+
+        case .action(.traitCollectionChanged):
+            core.gcd.after(.milliseconds(500)) { core.ui.resignFirstResponder() }
 
         case let .feedback(.presentInvitationPromptReturned(exception)):
             guard let exception else { return .none }

@@ -23,6 +23,7 @@ extension User: Serializable {
 
     public enum SerializationKeys: String {
         case id
+        case badgeNumber
         case blockedUserIDs
         case conversationIDs = "openConversations"
         case languageCode

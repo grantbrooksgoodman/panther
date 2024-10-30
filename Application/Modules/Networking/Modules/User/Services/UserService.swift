@@ -93,7 +93,8 @@ public final class UserService {
             pushTokens: pushTokens
         )
 
-        let data = mockUser.encoded.filter { $0.key != User.SerializationKeys.id.rawValue }
+        var data = mockUser.encoded.filter { $0.key != User.SerializationKeys.id.rawValue }
+        data[User.SerializationKeys.badgeNumber.rawValue] = 0
 
         if let exception = await networking.database.setValue(
             data,
