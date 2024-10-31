@@ -211,6 +211,10 @@
 		B986C46C2CD2F8A500414E57 /* ContextMenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */; };
 		B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */; };
 		B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46F2CD3235500414E57 /* ReactionsView.swift */; };
+		B986C4AC2CD42C6C00414E57 /* ReactionMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */; };
+		B986C4AF2CD42DB700414E57 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4AE2CD42DB700414E57 /* Reaction.swift */; };
+		B986C4B12CD42E6E00414E57 /* Reaction+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */; };
+		B986C4B32CD42E7800414E57 /* ReactionMetadata+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4B22CD42E7800414E57 /* ReactionMetadata+Serializable.swift */; };
 		B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */; };
 		B9870AA82C4580D4002B1093 /* Data+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */; };
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
@@ -968,6 +972,10 @@
 		B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuService.swift; sourceTree = "<group>"; };
 		B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageContentCell+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B986C46F2CD3235500414E57 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
+		B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionMetadata.swift; sourceTree = "<group>"; };
+		B986C4AE2CD42DB700414E57 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reaction+Serializable.swift"; sourceTree = "<group>"; };
+		B986C4B22CD42E7800414E57 /* ReactionMetadata+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReactionMetadata+Serializable.swift"; sourceTree = "<group>"; };
 		B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -1980,6 +1988,8 @@
 				B9E6D7AC2B125E17000BC88D /* ConversationID.swift */,
 				B969165C2BAE1D1A00441472 /* ConversationMetadata.swift */,
 				B963F1C72B23D7110087DB83 /* Participant.swift */,
+				B986C4AE2CD42DB700414E57 /* Reaction.swift */,
+				B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2000,6 +2010,8 @@
 				B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */,
 				B969165E2BAE1DB400441472 /* ConversationMetadata+Serializable.swift */,
 				B963F1C92B23D7250087DB83 /* Participant+Serializable.swift */,
+				B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */,
+				B986C4B22CD42E7800414E57 /* ReactionMetadata+Serializable.swift */,
 			);
 			path = Serializable;
 			sourceTree = "<group>";
@@ -3749,6 +3761,7 @@
 				B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */,
 				B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
+				B986C4AC2CD42C6C00414E57 /* ReactionMetadata.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
 				B9AD84742C404CD9009C7468 /* ContentType.swift in Sources */,
 				B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */,
@@ -3934,6 +3947,7 @@
 				B979AA3F2C4474B90082203C /* MediaFile.swift in Sources */,
 				B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
+				B986C4B12CD42E6E00414E57 /* Reaction+Serializable.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+NetworkingExtensions.swift in Sources */,
 				B990F5A82B81C60B00C7BE00 /* ContactSelectorPageReducer.swift in Sources */,
 				B9CF639E2C6F244E00A6208F /* ContactNameServiceDependency.swift in Sources */,
@@ -4042,6 +4056,7 @@
 				B983872C2BBFCB0B008614AE /* CommonConstants.swift in Sources */,
 				B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */,
 				B9E6D7D32B12850D000BC88D /* AVAudioSessionDependency.swift in Sources */,
+				B986C4B32CD42E7800414E57 /* ReactionMetadata+Serializable.swift in Sources */,
 				B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */,
 				B952B8F32B152DD80043181F /* TranslationInput+NetworkingExtensions.swift in Sources */,
 				B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */,
@@ -4101,6 +4116,7 @@
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
 				B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */,
 				B9AA08832BA2262600D778DA /* UITextCheckerDependency.swift in Sources */,
+				B986C4AF2CD42DB700414E57 /* Reaction.swift in Sources */,
 				B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,
 				B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */,
