@@ -150,7 +150,7 @@
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
 		B94D76822BBB5A3F002B4BC6 /* SignInPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76812BBB5A3F002B4BC6 /* SignInPageViewStrings.swift */; };
 		B94D76842BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76832BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift */; };
-		B94F26542BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */; };
+		B94F26542BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26532BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift */; };
 		B94F26562BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */; };
 		B952B8EF2B1521660043181F /* HostedTranslationArchiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */; };
 		B952B8F12B1527210043181F /* HostedTranslationServiceExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */; };
@@ -207,6 +207,10 @@
 		B98589B22B60512C00E549C0 /* ConversationCellViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */; };
 		B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */; };
 		B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */; };
+		B986C4682CD2D9BC00414E57 /* ContextualMenu in Frameworks */ = {isa = PBXBuildFile; productRef = B986C4672CD2D9BC00414E57 /* ContextualMenu */; };
+		B986C46C2CD2F8A500414E57 /* ContextMenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */; };
+		B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */; };
+		B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46F2CD3235500414E57 /* ReactionsView.swift */; };
 		B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */; };
 		B9870AA82C4580D4002B1093 /* Data+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */; };
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
@@ -904,7 +908,7 @@
 		B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageReducer.swift; sourceTree = "<group>"; };
 		B94D76812BBB5A3F002B4BC6 /* SignInPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageViewStrings.swift; sourceTree = "<group>"; };
 		B94D76832BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SignInPageView.swift"; sourceTree = "<group>"; };
-		B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B94F26532BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKey+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B952B8EE2B1521660043181F /* HostedTranslationArchiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostedTranslationArchiver.swift; sourceTree = "<group>"; };
 		B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostedTranslationServiceExceptions.swift; sourceTree = "<group>"; };
@@ -961,6 +965,9 @@
 		B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewService.swift; sourceTree = "<group>"; };
 		B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewData.swift; sourceTree = "<group>"; };
 		B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewServiceDependency.swift; sourceTree = "<group>"; };
+		B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuService.swift; sourceTree = "<group>"; };
+		B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageContentCell+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B986C46F2CD3235500414E57 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
 		B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9870AA72C4580D4002B1093 /* Data+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
@@ -1418,6 +1425,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B986C4682CD2D9BC00414E57 /* ContextualMenu in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -2240,6 +2248,7 @@
 				B90071CE2B7B33DF00BE8654 /* RecipientBar */,
 				B923CAA42B758BAD0042D3E4 /* AlternateMessageService.swift */,
 				B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */,
+				B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */,
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
 				B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */,
 				B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */,
@@ -3055,6 +3064,7 @@
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
+				B986C46F2CD3235500414E57 /* ReactionsView.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
 				B96EDD9A2B63825C00CB925B /* StaticListView.swift */,
 				B9F47AF72B58609300D86C67 /* UserInfoBadgeView.swift */,
@@ -3111,6 +3121,7 @@
 				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
 				B92277602C2BA3A100C18B13 /* MediaFile+UserContentExtensions.swift */,
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
+				B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */,
 				B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */,
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
 				B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */,
@@ -3121,7 +3132,7 @@
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
 				B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */,
-				B94F26532BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift */,
+				B94F26532BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3199,6 +3210,7 @@
 				B921F3FE2CCB53AC006BB149 /* Networking */,
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
+				B986C4672CD2D9BC00414E57 /* ContextualMenu */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3327,6 +3339,7 @@
 				B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */,
 				B921F3FD2CCB53AC006BB149 /* XCRemoteSwiftPackageReference "networking" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B986C4662CD2D9BC00414E57 /* XCRemoteSwiftPackageReference "ContextualMenu" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3770,6 +3783,7 @@
 				B93BD4F62C90399F00E8D242 /* Application.swift in Sources */,
 				B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
+				B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */,
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
@@ -3939,6 +3953,7 @@
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
 				B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */,
 				B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */,
+				B986C46C2CD2F8A500414E57 /* ContextMenuService.swift in Sources */,
 				B900B5402B1AC96000BA2F1D /* Array+CommonExtensions.swift in Sources */,
 				B966E9AB2B5E556200874F44 /* UserDataSnapshot.swift in Sources */,
 				B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */,
@@ -3988,7 +4003,7 @@
 				B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */,
 				B9C6CAD42C2A09CE0095B42C /* IntegrityServiceSession.swift in Sources */,
 				B9E6D7F12B12B553000BC88D /* HostedTranslationService+AKTranslationDelegate.swift in Sources */,
-				B94F26542BC0CCE600AE8AE4 /* UserDefaultsKeyDomain+UserContentExtensions.swift in Sources */,
+				B94F26542BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift in Sources */,
 				B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */,
 				B9E6D7DC2B1288B2000BC88D /* WelcomeContentPageView.swift in Sources */,
 				B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */,
@@ -4001,6 +4016,7 @@
 				B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */,
 				B99CC5512C19274000319F02 /* RootNavigationService.swift in Sources */,
 				B94D767A2BBB5A11002B4BC6 /* SignInPageView.swift in Sources */,
+				B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
 				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
@@ -4495,6 +4511,14 @@
 				minimumVersion = 11.4.0;
 			};
 		};
+		B986C4662CD2D9BC00414E57 /* XCRemoteSwiftPackageReference "ContextualMenu" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Roze-im/ContextualMenu.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/app-subsystem";
@@ -4528,6 +4552,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		B986C4672CD2D9BC00414E57 /* ContextualMenu */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B986C4662CD2D9BC00414E57 /* XCRemoteSwiftPackageReference "ContextualMenu" */;
+			productName = ContextualMenu;
 		};
 		B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */ = {
 			isa = XCSwiftPackageProductDependency;

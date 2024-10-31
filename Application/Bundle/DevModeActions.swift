@@ -6,6 +6,8 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -25,13 +27,11 @@ public extension DevModeAction {
         public var appActions: [DevModeAction] {
             var actions = [
                 DevModeAction.AppActions.clearCachesAction,
-                DevModeAction.AppActions.eraseDocumentsDirectoryAction,
-                DevModeAction.AppActions.eraseTemporaryDirectoryAction,
+                DevModeAction.AppActions.featureFlagsAction,
                 DevModeAction.AppActions.resetUserDefaultsAction,
                 DevModeAction.AppActions.setCurrentUserIDAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
-                DevModeAction.AppActions.destroyConversationDatabaseAction,
-                DevModeAction.AppActions.resetPushTokensAction,
+                DevModeAction.AppActions.dangerZoneAction,
             ]
 
             guard Networking.config.environment != .production else { return actions }
@@ -39,7 +39,7 @@ public extension DevModeAction {
             return actions
         }
 
-        // MARK: - Computed Properties
+        // MARK: - Top-level Actions
 
         private static var clearCachesAction: DevModeAction {
             func clearCaches() {
@@ -74,102 +74,62 @@ public extension DevModeAction {
             return .init(title: "Create New Random Messages", perform: createNewMessages)
         }
 
-        private static var destroyConversationDatabaseAction: DevModeAction {
-            func destroyConversationDatabase() {
+        private static var dangerZoneAction: DevModeAction {
+            func dangerZone() {
                 Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-
-                    let confirmed = await AKConfirmationAlert(
-                        title: "Destroy Database", // swiftlint:disable:next line_length
-                        message: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
-
-                    guard confirmed else { return }
-                    let doubleConfirmed = await AKConfirmationAlert(
-                        title: "Are you sure?",
-                        message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
-
-                    guard doubleConfirmed else { return }
-                    if let exception = await core.utils.destroyConversationDatabase() {
-                        Logger.log(exception, with: .toast())
-                    } else {
-                        core.hud.flash(image: .success)
-                    }
-                }
-            }
-
-            return .init(title: "Destroy Conversation Database", isDestructive: true, perform: destroyConversationDatabase)
-        }
-
-        private static var eraseDocumentsDirectoryAction: DevModeAction {
-            func eraseDocumentsDirectory() {
-                Task {
-                    @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-
-                    let confirmed = await AKConfirmationAlert(
-                        title: "Erase Documents Directory",
-                        message: "This will remove all files in the userland Documents directory. An app restart is required.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
-
-                    guard confirmed else { return }
-                    guard let exception = coreUtilities.eraseDocumentsDirectory() else {
-                        await AKAlert(
-                            message: "The Documents directory has been erased. You must now restart the app.",
-                            actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
-                        ).present(translating: [])
-                        return
+                    let actions: [AKAction] = [
+                        DevModeAction.AppActions.eraseDocumentsDirectoryAction,
+                        DevModeAction.AppActions.eraseTemporaryDirectoryAction,
+                        DevModeAction.AppActions.destroyConversationDatabaseAction,
+                        DevModeAction.AppActions.resetPushTokensAction,
+                    ].map {
+                        AKAction(
+                            $0.title,
+                            style: $0.isDestructive ? .destructive : .default,
+                            effect: $0.perform
+                        )
                     }
 
-                    Logger.log(exception, with: .errorAlert)
-                }
-            }
-
-            return .init(title: "Erase Documents Directory", perform: eraseDocumentsDirectory)
-        }
-
-        private static var eraseTemporaryDirectoryAction: DevModeAction {
-            func eraseTemporaryDirectory() {
-                @Dependency(\.coreKit) var core: CoreKit
-                if let exception = core.utils.eraseTemporaryDirectory() {
-                    Logger.log(exception, with: .toast())
-                } else {
-                    core.hud.flash(image: .success)
-                }
-            }
-
-            return .init(title: "Erase Temporary Directory", perform: eraseTemporaryDirectory)
-        }
-
-        private static var resetPushTokensAction: DevModeAction {
-            func resetPushTokens() {
-                Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-
-                    let confirmed = await AKConfirmationAlert(
-                        title: "Reset Push Tokens", // swiftlint:disable:next line_length
-                        message: "This will remove all push tokens for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
+                    await AKActionSheet(
+                        title: "Danger Zone",
+                        message: "Exercise caution when using these options.",
+                        actions: actions
                     ).present(translating: [])
-
-                    guard confirmed else { return }
-
-                    if let exception = await core.utils.resetPushTokens() {
-                        Logger.log(exception, with: .toast())
-                    } else {
-                        core.hud.flash("Reset Push Tokens", image: .success)
-                    }
                 }
             }
 
-            return .init(
-                title: "Reset Push Tokens",
-                isDestructive: true,
-                perform: resetPushTokens
-            )
+            return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
+        }
+
+        private static var featureFlagsAction: DevModeAction {
+            func featureFlags() {
+                Task {
+                    @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
+                    let reactionsEnabled = isReactionsEnabled ?? false
+
+                    func toggleReactions() {
+                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                        isReactionsEnabled = !reactionsEnabled
+                        Observables.traitCollectionChanged.trigger()
+                        coreHUD.showSuccess(text: "Reactions \(reactionsEnabled ? "Disabled" : "Enabled")")
+                    }
+
+                    let actions: [AKAction] = [
+                        .init(
+                            "\(reactionsEnabled ? "Disable" : "Enable") Reactions",
+                            style: reactionsEnabled ? .destructive : .default,
+                            effect: toggleReactions
+                        ),
+                    ]
+
+                    await AKActionSheet(
+                        title: "Feature Flags",
+                        actions: actions
+                    ).present(translating: [])
+                }
+            }
+
+            return .init(title: "Feature Flags", perform: featureFlags)
         }
 
         private static var resetUserDefaultsAction: DevModeAction {
@@ -283,5 +243,107 @@ public extension DevModeAction {
 
             return .init(title: "Switch Environment", perform: switchEnvironment)
         }
+
+        // MARK: - Danger Zone Actions
+
+        private static var destroyConversationDatabaseAction: DevModeAction {
+            func destroyConversationDatabase() {
+                Task {
+                    @Dependency(\.coreKit) var core: CoreKit
+
+                    let confirmed = await AKConfirmationAlert(
+                        title: "Destroy Database", // swiftlint:disable:next line_length
+                        message: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: [])
+
+                    guard confirmed else { return }
+                    let doubleConfirmed = await AKConfirmationAlert(
+                        title: "Are you sure?",
+                        message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: [])
+
+                    guard doubleConfirmed else { return }
+                    if let exception = await core.utils.destroyConversationDatabase() {
+                        Logger.log(exception, with: .toast())
+                    } else {
+                        core.hud.flash(image: .success)
+                    }
+                }
+            }
+
+            return .init(title: "Destroy Conversation Database", isDestructive: true, perform: destroyConversationDatabase)
+        }
+
+        private static var eraseDocumentsDirectoryAction: DevModeAction {
+            func eraseDocumentsDirectory() {
+                Task {
+                    @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+
+                    let confirmed = await AKConfirmationAlert(
+                        title: "Erase Documents Directory",
+                        message: "This will remove all files in the userland Documents directory. An app restart is required.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: [])
+
+                    guard confirmed else { return }
+                    guard let exception = coreUtilities.eraseDocumentsDirectory() else {
+                        await AKAlert(
+                            message: "The Documents directory has been erased. You must now restart the app.",
+                            actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
+                        ).present(translating: [])
+                        return
+                    }
+
+                    Logger.log(exception, with: .errorAlert)
+                }
+            }
+
+            return .init(title: "Erase Documents Directory", perform: eraseDocumentsDirectory)
+        }
+
+        private static var eraseTemporaryDirectoryAction: DevModeAction {
+            func eraseTemporaryDirectory() {
+                @Dependency(\.coreKit) var core: CoreKit
+                if let exception = core.utils.eraseTemporaryDirectory() {
+                    Logger.log(exception, with: .toast())
+                } else {
+                    core.hud.flash(image: .success)
+                }
+            }
+
+            return .init(title: "Erase Temporary Directory", perform: eraseTemporaryDirectory)
+        }
+
+        private static var resetPushTokensAction: DevModeAction {
+            func resetPushTokens() {
+                Task {
+                    @Dependency(\.coreKit) var core: CoreKit
+
+                    let confirmed = await AKConfirmationAlert(
+                        title: "Reset Push Tokens", // swiftlint:disable:next line_length
+                        message: "This will remove all push tokens for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: [])
+
+                    guard confirmed else { return }
+
+                    if let exception = await core.utils.resetPushTokens() {
+                        Logger.log(exception, with: .toast())
+                    } else {
+                        core.hud.flash("Reset Push Tokens", image: .success)
+                    }
+                }
+            }
+
+            return .init(
+                title: "Reset Push Tokens",
+                isDestructive: true,
+                perform: resetPushTokens
+            )
+        }
     }
 }
+
+// swiftlint:enable type_body_length

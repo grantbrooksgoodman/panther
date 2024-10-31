@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKeyDomain+UserContentExtensions.swift
+//  UserDefaultsKey+UserContentExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 05/04/2024.
@@ -13,6 +13,11 @@ import Foundation
 import AppSubsystem
 
 public extension UserDefaultsKey {
+    // TODO: Expand this idea into a full-fledged service. Important for IAP down the line.
+    enum FeatureFlagDefaultsKey: String {
+        case isReactionsEnabled
+    }
+
     enum SettingsPageViewServiceDefaultsKey: String {
         case didClearCaches
     }

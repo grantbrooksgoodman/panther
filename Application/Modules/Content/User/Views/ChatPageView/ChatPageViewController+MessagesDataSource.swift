@@ -50,12 +50,48 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
+        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
+        let reactionsEnabled = isReactionsEnabled ?? false
+        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
+
+        guard reactionsEnabled,
+              randomBool, randomBool else {
+            guard let currentConversation,
+                  currentConversation.participants.count == 2,
+                  let messages = currentConversation.messages,
+                  let message = message as? Message,
+                  indexPath.section == messages.count - 1,
+                  message.isFromCurrentUser,
+                  !message.isMock else { return nil }
+
+            let boldAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: Floats.cellBottomLabelAttributedTextBoldAttributesSystemFontSize),
+                .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextBoldAttributesForeground),
+            ]
+
+            guard let readDate = message.readDate else {
+                return .init(
+                    string: Localized(.delivered).wrappedValue,
+                    attributes: boldAttributes
+                )
+            }
+
+            let readString = "\(Localized(.read).wrappedValue) \(readDate.formattedShortString)"
+            return readString.attributed(
+                mainAttributes: [
+                    .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextStandardAttributesSystemFontSize),
+                    .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextStandardAttributesForeground),
+                ],
+                alternateAttributes: boldAttributes,
+                alternateAttributeRange: [Localized(.read).wrappedValue]
+            )
+        }
+
+        // FIXME: Test/scaffolding code.
+
         guard let currentConversation,
-              currentConversation.participants.count == 2,
               let messages = currentConversation.messages,
               let message = message as? Message,
-              indexPath.section == messages.count - 1,
-              message.isFromCurrentUser,
               !message.isMock else { return nil }
 
         let boldAttributes: [NSAttributedString.Key: Any] = [
@@ -63,21 +99,59 @@ extension ChatPageViewController: MessagesDataSource {
             .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextBoldAttributesForeground),
         ]
 
-        guard let readDate = message.readDate else {
-            return .init(
-                string: Localized(.delivered).wrappedValue,
-                attributes: boldAttributes
-            )
+        var reactions = [
+            "👍",
+            "❤️",
+            "😂",
+            "😮",
+            "😢",
+            "👎",
+        ]
+
+        if currentConversation.participants.count > 2 {
+            reactions.append(contentsOf: [
+                "👍❤️",
+                "❤️😂",
+                "❤️😂😂",
+                "👍❤️😂😮😢👎",
+                "👍👍👍👍❤️❤️😂😮😢👎",
+                .init(repeating: "👍", count: Int.random(in: 1 ... currentConversation.participants.count)),
+                .init(repeating: "❤️", count: Int.random(in: 1 ... currentConversation.participants.count)),
+            ])
         }
 
-        let readString = "\(Localized(.read).wrappedValue) \(readDate.formattedShortString)"
-        return readString.attributed(
+        if currentConversation.participants.count == 2,
+           indexPath.section == messages.count - 1,
+           message.isFromCurrentUser {
+            var lastMessageFromCurrentUserReactions = [
+                Localized(.delivered).wrappedValue,
+                "👍 | \(Localized(.delivered).wrappedValue)",
+                "❤️ | \(Localized(.delivered).wrappedValue)",
+                "😂 | \(Localized(.delivered).wrappedValue)",
+                "😮 | \(Localized(.delivered).wrappedValue)",
+            ]
+
+            if let readDate = message.readDate {
+                lastMessageFromCurrentUserReactions = [
+                    "\(Localized(.read).wrappedValue) \(readDate.formattedShortString)",
+                    "👍 | \(Localized(.read).wrappedValue) \(readDate.formattedShortString)",
+                    "❤️ | \(Localized(.read).wrappedValue) \(readDate.formattedShortString)",
+                    "😂 | \(Localized(.read).wrappedValue) \(readDate.formattedShortString)",
+                    "😮 | \(Localized(.read).wrappedValue) \(readDate.formattedShortString)",
+                ]
+            }
+
+            reactions = lastMessageFromCurrentUserReactions
+        }
+
+        guard let randomReaction = reactions.randomElement() else { return nil }
+        return randomReaction.attributed(
             mainAttributes: [
                 .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextStandardAttributesSystemFontSize),
                 .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextStandardAttributesForeground),
             ],
             alternateAttributes: boldAttributes,
-            alternateAttributeRange: [Localized(.read).wrappedValue]
+            alternateAttributeRange: [Localized(.delivered).wrappedValue, Localized(.read).wrappedValue]
         )
     }
 

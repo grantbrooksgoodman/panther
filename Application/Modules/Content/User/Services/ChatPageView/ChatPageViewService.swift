@@ -39,6 +39,7 @@ public final class ChatPageViewService {
 
     public private(set) var alternateMessage: AlternateMessageService?
     public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
+    public private(set) var contextMenu: ContextMenuService?
     public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
     public private(set) var inputBar: InputBarService?
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
@@ -52,6 +53,13 @@ public final class ChatPageViewService {
 
     private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
+
+    // MARK: - Computed Properties
+
+    private var isReactionsEnabled: Bool {
+        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
+        return isReactionsEnabled ?? false
+    }
 
     // MARK: - Instantiate View Controller
 
@@ -69,6 +77,7 @@ public final class ChatPageViewService {
 
         alternateMessage = .init(viewController)
         audioMessagePlayback = .init(viewController)
+        contextMenu = .init(viewController)
         inputBar = .init(viewController)
         inputBarGestureRecognizer = .init(viewController)
         mediaActionHandler = .init(viewController)
@@ -107,6 +116,7 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
+        if isReactionsEnabled { contextMenu?.startAddingContextMenuInteractionToVisibleCells() }
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
@@ -122,7 +132,7 @@ public final class ChatPageViewService {
         inputBarGestureRecognizer?.configureGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
-        menu?.configureMenuGestureRecognizer()
+        if !isReactionsEnabled { menu?.configureMenuGestureRecognizer() }
 
         if configuration == .default {
             services.analytics.logEvent(.accessChat)
@@ -160,6 +170,8 @@ public final class ChatPageViewService {
 
         NavigationBar.setAppearance(.appDefault)
         toggleBuildInfoOverlay(on: true)
+
+        if isReactionsEnabled { contextMenu?.stopAddingContextMenuInteractionToVisibleCells() }
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
