@@ -20,7 +20,7 @@ import MessageKit
 public final class ReactionsViewController: UIViewController {
     // MARK: - Properties
 
-    private let reactions: [String] = ["👍", "❤️", "😂", "😮", "😢", "👎"]
+    private let reactions: [String] = Reaction.Style.allCases.map(\.emojiValue)
 
     // MARK: - Computed Properties
 

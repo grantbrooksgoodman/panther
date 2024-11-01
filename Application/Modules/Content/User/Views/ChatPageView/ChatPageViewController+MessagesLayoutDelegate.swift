@@ -27,20 +27,25 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
-        let reactionsEnabled = isReactionsEnabled ?? false
+//        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
+//        let reactionsEnabled = isReactionsEnabled ?? false
 
-        guard reactionsEnabled else {
-            guard let currentConversation,
-                  currentConversation.participants.count == 2,
-                  let messages = currentConversation.messages,
-                  let message = message as? Message,
-                  indexPath.section == messages.count - 1,
-                  message.isFromCurrentUser else { return 0 }
+        guard let currentConversation,
+              let messages = currentConversation.messages,
+              let message = message as? Message,
+              !message.isMock else { return 0 }
+
+        if currentConversation.participants.count == 2,
+           indexPath.section == messages.count - 1,
+           message.isFromCurrentUser {
             return Floats.cellBottomLabelHeight
         }
 
-        return Floats.cellBottomLabelHeight
+        if message.reactions != nil {
+            return Floats.cellBottomLabelHeight
+        }
+
+        return 0
     }
 
     // MARK: - Cell Top Label Height

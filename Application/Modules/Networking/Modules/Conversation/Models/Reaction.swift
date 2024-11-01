@@ -27,6 +27,17 @@ public struct Reaction: Codable, Hashable {
 
         // MARK: - Properties
 
+        public var emojiValue: String {
+            switch self {
+            case .dislike: "👎"
+            case .laugh: "😂"
+            case .like: "👍"
+            case .love: "❤️"
+            case .sad: "😢"
+            case .surprise: "😮"
+            }
+        }
+
         public var encodedValue: String { rawValue.uppercased() }
 
         // MARK: - Init
