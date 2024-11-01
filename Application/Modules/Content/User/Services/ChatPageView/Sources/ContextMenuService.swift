@@ -61,7 +61,7 @@ public final class ContextMenuService {
     // MARK: - Auxiliary
 
     @objc
-    private func addContextMenuInteractionToVisibleCells() {
+    private func addContextMenuInteractionToVisibleCells() { // FIXME: Test/scaffolding code.
         let visibleCells = viewController.messagesCollectionView.visibleCells.compactMap { $0 as? MessageContentCell }
         let contextMenuStyle: ContextMenuStyle = .init(preview: .init(
             transform: .init(scaleX: 1.08, y: 1.08),

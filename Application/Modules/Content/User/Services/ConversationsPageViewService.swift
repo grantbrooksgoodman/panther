@@ -193,6 +193,7 @@ public final class ConversationsPageViewService {
             messages: newConversationMessages,
             metadata: conversation.metadata,
             participants: conversation.participants,
+            reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
 

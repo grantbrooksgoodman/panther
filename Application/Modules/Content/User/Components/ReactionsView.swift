@@ -12,6 +12,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 /* 3rd-party */
 import MessageKit
@@ -59,6 +60,12 @@ public final class ReactionsViewController: UIViewController {
             reactionButton.heightAnchor.constraint(equalToConstant: 35),
         ])
 
+        reactionButton.addTarget(
+            self,
+            action: #selector(testReactions),
+            for: .touchUpInside
+        )
+
         return reactionButton
     }
 
@@ -91,6 +98,47 @@ public final class ReactionsViewController: UIViewController {
             stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: 0),
             stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
         ])
+    }
+
+    @objc
+    private func testReactions() { // FIXME: Test/scaffolding code.
+        Task {
+            @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
+            @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
+            @Dependency(\.networking) var networking: NetworkServices
+
+            @Persistent(.currentUserID) var currentUserID: String?
+
+            guard let conversation = conversationSession.fullConversation,
+                  let currentUserID,
+                  let lastMessageID = conversation.messages?.sortedByAscendingSentDate.last?.id,
+                  !lastMessageID.isBangQualifiedEmpty else { return }
+
+            let updateValueResult = await conversation.updateValue(
+                [
+                    ReactionMetadata(
+                        messageID: lastMessageID,
+                        reactions: [
+                            .init(.love, userID: currentUserID),
+                        ]
+                    ),
+                ],
+                forKey: .reactionMetadata
+            )
+
+            switch updateValueResult {
+            case let .success(updatedConversation):
+                conversationSession.setCurrentConversation(updatedConversation)
+                Logger.log(
+                    "SUCCESS!",
+                    with: .toast(style: .success, isPersistent: false),
+                    metadata: [self, #file, #function, #line]
+                )
+
+            case let .failure(exception):
+                Logger.log(exception, with: .toast())
+            }
+        }
     }
 
     private func updatePreferredContentSize() {

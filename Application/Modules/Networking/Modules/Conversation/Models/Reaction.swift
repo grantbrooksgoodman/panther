@@ -12,10 +12,10 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct Reaction {
+public struct Reaction: Codable, Hashable {
     // MARK: - Types
 
-    public enum Style: String, CaseIterable, Hashable {
+    public enum Style: String, CaseIterable, Codable, Hashable {
         // MARK: - Cases
 
         case dislike

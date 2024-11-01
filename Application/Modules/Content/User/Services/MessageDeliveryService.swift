@@ -270,6 +270,7 @@ public final class MessageDeliveryService {
             messages: messages,
             metadata: conversation.metadata,
             participants: conversation.participants,
+            reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
 

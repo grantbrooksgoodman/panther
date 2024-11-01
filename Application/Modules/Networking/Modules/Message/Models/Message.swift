@@ -45,6 +45,8 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
     public var localMediaFilePath: LocalMediaFilePath? { get async { await .init(self) } }
+    /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
+    public var reactions: [Reaction]? { getReactions() }
     /// The translation for this message in the current user's language code.
     public var translation: Translation? { translations?.first }
 
@@ -124,5 +126,14 @@ public struct Message: Codable, EncodedHashable, Equatable {
         }
 
         return factors
+    }
+
+    private func getReactions() -> [Reaction]? {
+        @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+        guard let messages = conversation?.messages,
+              messages.contains(self),
+              let reactionMetadata = conversation?.reactionMetadata,
+              let reactions = reactionMetadata.first(where: { $0.messageID == id })?.reactions else { return nil }
+        return reactions
     }
 }

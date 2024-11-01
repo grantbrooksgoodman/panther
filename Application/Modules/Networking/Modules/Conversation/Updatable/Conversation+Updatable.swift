@@ -26,6 +26,7 @@ extension Conversation: Updatable {
             .messages,
             .metadata,
             .participants,
+            .reactionMetadata,
         ]
     }
 
@@ -47,6 +48,7 @@ extension Conversation: Updatable {
                 messages: value.uniquedByID,
                 metadata: metadata,
                 participants: participants,
+                reactionMetadata: reactionMetadata,
                 users: users
             ))
 
@@ -58,6 +60,7 @@ extension Conversation: Updatable {
                 messages: messages,
                 metadata: value,
                 participants: participants,
+                reactionMetadata: reactionMetadata,
                 users: users
             ))
 
@@ -69,6 +72,19 @@ extension Conversation: Updatable {
                 messages: messages,
                 metadata: metadata,
                 participants: value,
+                reactionMetadata: reactionMetadata,
+                users: users
+            ))
+
+        case .reactionMetadata:
+            guard let value = value as? [ReactionMetadata] else { return nil }
+            return updateIDHash(.init(
+                id,
+                messageIDs: messageIDs,
+                messages: messages,
+                metadata: metadata,
+                participants: participants,
+                reactionMetadata: value.allSatisfy { $0 == .empty } ? nil : value,
                 users: users
             ))
         }
@@ -172,6 +188,7 @@ extension Conversation: Updatable {
             messages: conversation.messages,
             metadata: conversation.metadata,
             participants: conversation.participants,
+            reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
     }
@@ -202,6 +219,7 @@ extension Conversation: Updatable {
             messages: conversation.messages,
             metadata: conversation.metadata,
             participants: newParticipants,
+            reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         ))
 

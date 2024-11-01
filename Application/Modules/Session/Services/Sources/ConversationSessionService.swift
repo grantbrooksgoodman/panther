@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -43,6 +43,7 @@ public final class ConversationSessionService {
             messages: completeMessageArray,
             metadata: currentConversation.metadata,
             participants: currentConversation.participants,
+            reactionMetadata: currentConversation.reactionMetadata,
             users: currentConversation.users
         )
     }
@@ -164,73 +165,47 @@ public final class ConversationSessionService {
     }
 
     private func updateData(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let updateParticipantsResult = await updateParticipants(conversation)
+        var newData: [String: Any]?
 
-        switch updateParticipantsResult {
-        case let .success(conversation):
-            let updateMetadataResult = await updateMetadata(conversation)
-
-            switch updateMetadataResult {
-            case let .success(conversation):
-                return await updateHash(conversation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-        let hashKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.encodedHash.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: hashKeyPath, cacheStrategy: .disregardCache)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let string = values as? String else {
-                return .failure(.typecastFailed("string", metadata: [self, #file, #function, #line]))
-            }
-
-            return .success(.init(
-                .init(key: conversation.id.key, hash: string),
-                messageIDs: conversation.messageIDs,
-                messages: conversation.messages,
-                metadata: conversation.metadata,
-                participants: conversation.participants,
-                users: conversation.users
-            ))
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func updateMetadata(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-        let metadataKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.metadata.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: metadataKeyPath)
+        let getValuesResult = await networking.database.getValues(at: conversationKeyPath, cacheStrategy: .disregardCache)
 
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+                return .failure(.typecastFailed("string", metadata: [self, #file, #function, #line]))
             }
 
-            let decodeResult = await ConversationMetadata.decode(from: dictionary)
+            newData = dictionary
 
-            switch decodeResult {
-            case let .success(metadata):
-                guard let conversation = conversation.modifyKey(.metadata, withValue: metadata) else {
-                    return .failure(.typeMismatch(
-                        key: Conversation.SerializationKeys.metadata.rawValue,
-                        [self, #file, #function, #line]
-                    ))
+        case let .failure(exception):
+            return .failure(exception)
+        }
+
+        guard let newData else {
+            return .failure(.init(
+                "Failed to resolve new conversation data.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let updateParticipantsResult = await updateParticipants(conversation, newData: newData)
+
+        switch updateParticipantsResult {
+        case let .success(participantsTuple):
+            let updateMetadataResult = await updateMetadata(participantsTuple.conversation, newData: participantsTuple.newData)
+
+            switch updateMetadataResult {
+            case let .success(metadataTuple):
+                let updateReactionMetadataResult = await updateReactionMetadata(metadataTuple.conversation, newData: metadataTuple.newData)
+
+                switch updateReactionMetadataResult {
+                case let .success(reactionMetadataTuple):
+                    return updateHash(reactionMetadataTuple.conversation, newData: reactionMetadataTuple.newData)
+
+                case let .failure(exception):
+                    return .failure(exception)
                 }
-
-                return .success(conversation)
 
             case let .failure(exception):
                 return .failure(exception)
@@ -241,50 +216,129 @@ public final class ConversationSessionService {
         }
     }
 
-    private func updateParticipants(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-        let participantsKeyPath = conversationKeyPath + "/\(Conversation.SerializationKeys.participants.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: participantsKeyPath)
+    private func updateHash(
+        _ conversation: Conversation,
+        newData: [String: Any]
+    ) -> Callback<Conversation, Exception> {
+        guard let newHash = newData[Conversation.SerializationKeys.encodedHash.rawValue] as? String else {
+            return .failure(.decodingFailed(data: newData, [self, #file, #function, #line]))
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.typecastFailed("array", metadata: [self, #file, #function, #line]))
-            }
+        return .success(.init(
+            .init(key: conversation.id.key, hash: newHash),
+            messageIDs: conversation.messageIDs,
+            messages: conversation.messages,
+            metadata: conversation.metadata,
+            participants: conversation.participants,
+            reactionMetadata: conversation.reactionMetadata,
+            users: conversation.users
+        ))
+    }
 
-            var participants = [Participant]()
+    private func updateMetadata(
+        _ conversation: Conversation,
+        newData: [String: Any]
+    ) async -> Callback<(conversation: Conversation, newData: [String: Any]), Exception> {
+        guard let newMetadata = newData[Conversation.SerializationKeys.metadata.rawValue] as? [String: Any] else {
+            return .failure(.decodingFailed(data: newData, [self, #file, #function, #line]))
+        }
 
-            for value in array {
-                let decodeResult = await Participant.decode(from: value)
+        let decodeResult = await ConversationMetadata.decode(from: newMetadata)
 
-                switch decodeResult {
-                case let .success(participant):
-                    participants.append(participant)
-
-                case let .failure(exception):
-                    return .failure(exception)
-                }
-            }
-
-            guard participants.count == array.count else {
-                return .failure(.init(
-                    "Mismatched ratio returned.",
-                    metadata: [self, #file, #function, #line]
-                ))
-            }
-
-            guard let conversation = conversation.modifyKey(.participants, withValue: participants) else {
+        switch decodeResult {
+        case let .success(decodedMetadata):
+            guard let conversation = conversation.modifyKey(.metadata, withValue: decodedMetadata) else {
                 return .failure(.typeMismatch(
-                    key: Conversation.SerializationKeys.participants.rawValue,
+                    key: Conversation.SerializationKeys.metadata.rawValue,
                     [self, #file, #function, #line]
                 ))
             }
 
-            return .success(conversation)
+            return .success((conversation, newData))
 
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    private func updateParticipants(
+        _ conversation: Conversation,
+        newData: [String: Any]
+    ) async -> Callback<(conversation: Conversation, newData: [String: Any]), Exception> {
+        guard let newParticipants = newData[Conversation.SerializationKeys.participants.rawValue] as? [String] else {
+            return .failure(.decodingFailed(data: newData, [self, #file, #function, #line]))
+        }
+
+        var updatedParticipants = [Participant]()
+
+        for participant in newParticipants {
+            let decodeResult = await Participant.decode(from: participant)
+
+            switch decodeResult {
+            case let .success(decodedParticipant):
+                updatedParticipants.append(decodedParticipant)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard !updatedParticipants.isEmpty,
+              updatedParticipants.count == newParticipants.count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        guard let conversation = conversation.modifyKey(.participants, withValue: updatedParticipants) else {
+            return .failure(.typeMismatch(
+                key: Conversation.SerializationKeys.participants.rawValue,
+                [self, #file, #function, #line]
+            ))
+        }
+
+        return .success((conversation, newData))
+    }
+
+    private func updateReactionMetadata(
+        _ conversation: Conversation,
+        newData: [String: Any]
+    ) async -> Callback<(conversation: Conversation, newData: [String: Any]), Exception> {
+        guard let newReactionMetadata = newData[Conversation.SerializationKeys.reactionMetadata.rawValue] as? [[String: Any]] else {
+            return .failure(.decodingFailed(data: newData, [self, #file, #function, #line]))
+        }
+
+        var updatedReactionMetadata = [ReactionMetadata]()
+
+        for reactionMetadata in newReactionMetadata {
+            let decodeResult = await ReactionMetadata.decode(from: reactionMetadata)
+
+            switch decodeResult {
+            case let .success(decodedReactionMetadata):
+                updatedReactionMetadata.append(decodedReactionMetadata)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard !updatedReactionMetadata.isEmpty,
+              updatedReactionMetadata.count == newReactionMetadata.count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        guard let conversation = conversation.modifyKey(.reactionMetadata, withValue: updatedReactionMetadata) else {
+            return .failure(.typeMismatch(
+                key: Conversation.SerializationKeys.reactionMetadata.rawValue,
+                [self, #file, #function, #line]
+            ))
+        }
+
+        return .success((conversation, newData))
     }
 
     // MARK: - Deletion
@@ -385,9 +439,10 @@ public final class ConversationSessionService {
             messages: messages.reversed()[0 ... amountToGet].reversed(),
             metadata: conversation.metadata,
             participants: conversation.participants,
+            reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

@@ -56,6 +56,7 @@ public struct ConversationService {
             messages: [firstMessage],
             metadata: .empty,
             participants: participants,
+            reactionMetadata: nil,
             users: nil
         )
 
@@ -82,6 +83,7 @@ public struct ConversationService {
             messages: mockConversation.messages,
             metadata: mockConversation.metadata,
             participants: mockConversation.participants,
+            reactionMetadata: nil,
             users: mockConversation.users
         )
 

@@ -16,8 +16,9 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Properties
 
     // Array
-    public let participants: [Participant]
     public let messageIDs: [String]
+    public let participants: [Participant]
+    public let reactionMetadata: [ReactionMetadata]?
 
     /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
     public private(set) var messages: [Message]?
@@ -37,9 +38,10 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messageIDs)
-        factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
-        factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
+        factors.append(contentsOf: messages?.map(\.id).sorted() ?? messageIDs)
+        factors.append(contentsOf: messages?.map(\.encodedHash).sorted() ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
+        factors.append(contentsOf: reactionMetadata?.map(\.encodedHash).sorted() ?? [])
         return factors
     }
 
@@ -51,6 +53,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         messages: [Message]?,
         metadata: ConversationMetadata,
         participants: [Participant],
+        reactionMetadata: [ReactionMetadata]?,
         users: [User]?
     ) {
         self.id = id
@@ -58,6 +61,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         self.messages = messages
         self.metadata = metadata
         self.participants = participants
+        self.reactionMetadata = reactionMetadata
         self.users = users
     }
 
@@ -174,6 +178,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         let sameMessages = left.messages == right.messages
         let sameMetadata = left.metadata == right.metadata
         let sameParticipants = left.participants == right.participants
+        let sameReactionMetadata = left.reactionMetadata == right.reactionMetadata
         let sameUsers = left.users == right.users
 
         guard sameID,
@@ -181,6 +186,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
               sameMessages,
               sameMetadata,
               sameParticipants,
+              sameReactionMetadata,
               sameUsers else { return false }
 
         return true

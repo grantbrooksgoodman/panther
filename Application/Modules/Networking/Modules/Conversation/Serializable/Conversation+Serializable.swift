@@ -27,18 +27,21 @@ extension Conversation: Serializable {
         case messages
         case metadata
         case participants
+        case reactionMetadata
     }
 
     // MARK: - Properties
 
     public var encoded: [String: Any] {
         let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
+        let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
         return [
             Keys.id.rawValue: id.encoded,
             Keys.encodedHash.rawValue: encodedHash,
             Keys.messages.rawValue: messageIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : messageIDs,
             Keys.metadata.rawValue: metadata.encoded,
             Keys.participants.rawValue: participants.map(\.encoded),
+            Keys.reactionMetadata.rawValue: reactionMetadata,
         ]
     }
 
@@ -50,11 +53,14 @@ extension Conversation: Serializable {
               ConversationMetadata.canDecode(from: encodedMetadata),
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
+              let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
+              encodedReactionMetadata.allSatisfy({ ReactionMetadata.canDecode(from: $0) }),
               data[Keys.messages.rawValue] as? [String] != nil else { return false }
 
         return true
     }
 
+    // swiftlint:disable:next function_body_length
     public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
@@ -62,6 +68,7 @@ extension Conversation: Serializable {
         guard let id = data[Keys.id.rawValue] as? String,
               let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
+              let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               let messageIDs = data[Keys.messages.rawValue] as? [String] else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
@@ -115,6 +122,25 @@ extension Conversation: Serializable {
             return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
         }
 
+        var reactionMetadata = [ReactionMetadata]()
+
+        for metadata in encodedReactionMetadata {
+            let decodeReactionMetadataResult = await ReactionMetadata.decode(from: metadata)
+
+            switch decodeReactionMetadataResult {
+            case let .success(decodedReactionMetadata):
+                reactionMetadata.append(decodedReactionMetadata)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard !reactionMetadata.isEmpty,
+              reactionMetadata.count == encodedReactionMetadata.count else {
+            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+        }
+
         guard let currentUserParticipant = participants.firstWithCurrentUserID,
               !currentUserParticipant.hasDeletedConversation else {
             let decoded: Conversation = .init(
@@ -123,6 +149,7 @@ extension Conversation: Serializable {
                 messages: nil,
                 metadata: metadata,
                 participants: participants,
+                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
                 users: nil
             )
 
@@ -146,6 +173,7 @@ extension Conversation: Serializable {
                 messages: .init(),
                 metadata: metadata,
                 participants: participants,
+                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
                 users: nil
             )
 
@@ -167,6 +195,7 @@ extension Conversation: Serializable {
                 messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
                 metadata: metadata,
                 participants: participants,
+                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
                 users: nil
             )
 

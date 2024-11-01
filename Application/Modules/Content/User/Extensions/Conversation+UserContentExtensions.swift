@@ -24,6 +24,7 @@ public extension Conversation {
             messages: nil,
             metadata: .empty,
             participants: [],
+            reactionMetadata: nil,
             users: nil
         )
     }
@@ -38,6 +39,7 @@ public extension Conversation {
             messages: messages?.sortedByAscendingSentDate,
             metadata: metadata,
             participants: participants,
+            reactionMetadata: reactionMetadata,
             users: users
         )
     }
@@ -51,6 +53,7 @@ public extension Conversation {
             messages: nil,
             metadata: .empty,
             participants: [],
+            reactionMetadata: nil,
             users: users
         )
     }
@@ -62,6 +65,7 @@ public extension Conversation {
             messages: nil,
             metadata: .empty,
             participants: [],
+            reactionMetadata: nil,
             users: users
         )
     }
