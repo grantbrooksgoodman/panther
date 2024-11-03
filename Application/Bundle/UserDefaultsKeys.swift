@@ -20,7 +20,6 @@ public extension UserDefaultsKey {
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactSyncService(_ key: ContactSyncServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
-    static func featureFlag(_ key: FeatureFlagDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func reviewService(_ key: ReviewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func settingsPageViewService(_ key: SettingsPageViewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func updateService(_ key: UpdateServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

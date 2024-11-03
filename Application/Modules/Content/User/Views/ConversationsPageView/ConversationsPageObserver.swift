@@ -24,6 +24,7 @@ public struct ConversationsPageObserver: Observer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
 
@@ -144,7 +145,8 @@ public struct ConversationsPageObserver: Observer {
 
                 switch updateReadDateResult {
                 case let .success(conversation):
-                    if let exception = await clientSession.user.currentUser?.updateHostedBadgeNumber() {
+                    if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
+                       let exception = await notificationService.setBadgeNumber(badgeNumber) {
                         Logger.log(exception)
                     }
 

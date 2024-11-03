@@ -1,0 +1,14 @@
+//
+//  MenuElementViewDelegate.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+protocol MenuElementViewDelegate: AnyObject {
+    func menuElementViewTapped(menuElementView: MenuElementView)
+}

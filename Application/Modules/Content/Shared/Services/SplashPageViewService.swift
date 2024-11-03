@@ -193,12 +193,7 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            let badgeNumber = await currentUser.calculateBadgeNumber()
-            if let exception = await services.notification.setBadgeNumber(badgeNumber) {
-                return exception
-            }
-
-            if let exception = await currentUser.updateHostedBadgeNumber(badgeNumber) {
+            if let exception = await services.notification.setBadgeNumber(currentUser.calculateBadgeNumber()) {
                 return exception
             }
 

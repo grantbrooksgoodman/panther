@@ -20,11 +20,13 @@ import MessageKit
 public final class ContextMenuService {
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageViewService.alternateMessage) private var alternateMessageService: AlternateMessageService?
-    @Dependency(\.clientSession.conversation.fullConversation) private var fullConversation: Conversation?
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
     // MARK: - Properties
+
+    public private(set) var selectedMessageID: String?
 
     private let viewController: ChatPageViewController
 
@@ -43,9 +45,15 @@ public final class ContextMenuService {
 
     // MARK: - Context Menu Interaction Timer
 
+    public func addContextMenuInteractionToVisibleCellsOnce() {
+        Task { @MainActor in
+            addContextMenuInteractionToVisibleCells()
+        }
+    }
+
     public func startAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer = .scheduledTimer(
-            timeInterval: 0.5,
+            timeInterval: 0.1,
             target: self,
             selector: #selector(addContextMenuInteractionToVisibleCells),
             userInfo: nil,
@@ -56,6 +64,28 @@ public final class ContextMenuService {
     public func stopAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer?.invalidate()
         contextMenuInteractionTimer = nil
+    }
+
+    // MARK: - React to Selected Message
+
+    @objc
+    public func reactToSelectedMessage(_ sender: UIButton) {
+        Task { @MainActor in
+            guard let conversation = clientSession.conversation.currentConversation,
+                  let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
+                  let buttonText = sender.titleLabel?.text,
+                  !buttonText.isBangQualifiedEmpty,
+                  buttonText.components.count == 1,
+                  let reactionStyle = Reaction.Style(emojiValue: buttonText),
+                  let reaction = Reaction(reactionStyle) else { return }
+
+            if let exception = await clientSession.reaction.react(reaction, to: message) {
+                Logger.log(exception, with: .toast())
+            }
+
+            guard conversation.messages?.last?.id == message.id else { return }
+            viewController.messagesCollectionView.scrollToLastItem()
+        }
     }
 
     // MARK: - Auxiliary
@@ -70,32 +100,58 @@ public final class ContextMenuService {
             shadow: .init()
         ))
 
-        let reactionsViewController = ReactionsViewController()
-        for cell in visibleCells where !cell.hasContextMenuInteraction {
+        for cell in visibleCells {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-                  let message = fullConversation?.messages?.itemAt(indexPath.section),
+                  let message = clientSession.conversation.currentConversation?.messages?.itemAt(indexPath.section),
+                  cell.contextMenuMessageID != message.id,
                   !message.isMock,
                   !messageDeliveryService.isSendingMessage else { continue }
 
-            let menu: Menu = .init(children: [.init(
+            cell.contextMenuMessageID = message.id
+            var menuElements = [MenuElement]()
+
+            let viewAlternateAction: MenuElement = .init(
                 title: "View Alternate",
                 image: .init(systemName: "arrow.left.arrow.right.square"),
                 attributes: .default,
                 handler: { _ in
-                    self.alternateMessageService?.toggle(.alternateText, for: cell)
+                    self.chatPageViewService.alternateMessage?.toggle(.alternateText, for: cell)
                 }
-            )])
+            )
 
+            menuElements.append(viewAlternateAction)
+
+            let reactionsViewController = ReactionsViewController()
+            let menu: Menu = .init(children: menuElements)
+
+            // NIT: I wonder if not removing the interaction is affecting performance.
+            // The cell SHOULD be deallocated by the system eventually anyway, but...?
             cell.messageContainerView.addInteraction(
                 targetedPreviewProvider: { _ in nil },
                 menuConfigurationProvider: { _ in
-                    ContextMenuConfiguration(
+                    reactionsViewController.deselectAllReactions()
+                    Task.delayed(by: .milliseconds(10)) { @MainActor in
+                        self.triggerExistingSelection(reactionsViewController)
+                    }
+
+                    return ContextMenuConfiguration(
                         accessoryView: reactionsViewController.view,
                         menu: menu
                     )
                 },
-                style: contextMenuStyle
+                style: contextMenuStyle,
+                onInteractionBegan: { self.selectedMessageID = message.id },
+                onInteractionEnded: { self.selectedMessageID = nil }
             )
         }
+    }
+
+    @MainActor
+    private func triggerExistingSelection(_ viewController: ReactionsViewController) {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let messages = clientSession.conversation.currentConversation?.messages,
+              let reactions = messages.first(where: { $0.id == selectedMessageID })?.reactions,
+              let reactionEmojiValue = reactions.first(where: { $0.userID == currentUserID })?.style.emojiValue else { return }
+        viewController.markSelected(reactionEmojiValue)
     }
 }

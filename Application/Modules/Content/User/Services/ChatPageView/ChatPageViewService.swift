@@ -54,13 +54,6 @@ public final class ChatPageViewService {
     private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
 
-    // MARK: - Computed Properties
-
-    private var isReactionsEnabled: Bool {
-        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
-        return isReactionsEnabled ?? false
-    }
-
     // MARK: - Instantiate View Controller
 
     public func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
@@ -116,7 +109,7 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
-        if isReactionsEnabled { contextMenu?.startAddingContextMenuInteractionToVisibleCells() }
+        contextMenu?.startAddingContextMenuInteractionToVisibleCells()
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
@@ -132,7 +125,7 @@ public final class ChatPageViewService {
         inputBarGestureRecognizer?.configureGestureRecognizers()
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
-        if !isReactionsEnabled { menu?.configureMenuGestureRecognizer() }
+        // menu?.configureMenuGestureRecognizer()
 
         if configuration == .default {
             services.analytics.logEvent(.accessChat)
@@ -171,7 +164,7 @@ public final class ChatPageViewService {
         NavigationBar.setAppearance(.appDefault)
         toggleBuildInfoOverlay(on: true)
 
-        if isReactionsEnabled { contextMenu?.stopAddingContextMenuInteractionToVisibleCells() }
+        contextMenu?.stopAddingContextMenuInteractionToVisibleCells()
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
@@ -230,6 +223,7 @@ public final class ChatPageViewService {
             recipientBar?.contactSelectionUI.unhighlightAllViews()
             NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
             StatusBarStyle.restore()
+            UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true
             viewController?.navigationController?.isNavigationBarHidden = false
             reloadCollectionView()

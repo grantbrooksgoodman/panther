@@ -11,6 +11,7 @@ import Foundation
 
 public enum NotificationExtensionConstants {
     public static let appGroupDefaultsSuiteName = "group.us.neotechnica.notifications"
-    public static let bestAttemptContentUserInfoKey = "userNumberHash"
     public static let defaultsKeyName = "notificationExtensionArchive"
+    public static let isReactionUserInfoKey = "isReaction"
+    public static let userNumberHashUserInfoKey = "userNumberHash"
 }

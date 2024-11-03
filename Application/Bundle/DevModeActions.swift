@@ -6,8 +6,6 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -27,7 +25,6 @@ public extension DevModeAction {
         public var appActions: [DevModeAction] {
             var actions = [
                 DevModeAction.AppActions.clearCachesAction,
-                DevModeAction.AppActions.featureFlagsAction,
                 DevModeAction.AppActions.resetUserDefaultsAction,
                 DevModeAction.AppActions.setCurrentUserIDAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
@@ -99,37 +96,6 @@ public extension DevModeAction {
             }
 
             return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
-        }
-
-        private static var featureFlagsAction: DevModeAction {
-            func featureFlags() {
-                Task {
-                    @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
-                    let reactionsEnabled = isReactionsEnabled ?? false
-
-                    func toggleReactions() {
-                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                        isReactionsEnabled = !reactionsEnabled
-                        Observables.traitCollectionChanged.trigger()
-                        coreHUD.showSuccess(text: "Reactions \(reactionsEnabled ? "Disabled" : "Enabled")")
-                    }
-
-                    let actions: [AKAction] = [
-                        .init(
-                            "\(reactionsEnabled ? "Disable" : "Enable") Reactions",
-                            style: reactionsEnabled ? .destructive : .default,
-                            effect: toggleReactions
-                        ),
-                    ]
-
-                    await AKActionSheet(
-                        title: "Feature Flags",
-                        actions: actions
-                    ).present(translating: [])
-                }
-            }
-
-            return .init(title: "Feature Flags", perform: featureFlags)
         }
 
         private static var resetUserDefaultsAction: DevModeAction {
@@ -345,5 +311,3 @@ public extension DevModeAction {
         }
     }
 }
-
-// swiftlint:enable type_body_length

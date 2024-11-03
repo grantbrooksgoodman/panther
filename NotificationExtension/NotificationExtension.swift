@@ -29,14 +29,23 @@ public final class NotificationExtension: UNNotificationServiceExtension {
         guard let appGroupDefaults,
               let encodedData = appGroupDefaults.value(forKey: NotificationExtensionConstants.defaultsKeyName) as? Data,
               let dictionary = try? jsonDecoder.decode([[String]: String].self, from: encodedData),
-              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.bestAttemptContentUserInfoKey] as? String,
+              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.userNumberHashUserInfoKey] as? String,
+              let isReactionString = bestAttemptContent.userInfo[NotificationExtensionConstants.isReactionUserInfoKey] as? String,
+              isReactionString == "true" || isReactionString == "false",
               let matchingKey = dictionary.keys.first(where: { $0.contains(userNumberHash) }),
-              let fullName = dictionary[matchingKey] else {
-            contentHandler(bestAttemptContent)
-            return
+              let fullName = dictionary[matchingKey] else { return contentHandler(bestAttemptContent) }
+
+        if isReactionString == "true" {
+            guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
+                  let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else {
+                return contentHandler(bestAttemptContent)
+            }
+
+            bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
+        } else {
+            bestAttemptContent.title = fullName
         }
 
-        bestAttemptContent.title = fullName
         contentHandler(bestAttemptContent)
     }
 

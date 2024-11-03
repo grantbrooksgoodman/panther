@@ -230,7 +230,7 @@ public struct MessageSessionService {
             Task.background {
                 if let exception = await services.notification.notify(
                     otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
-                    of: message,
+                    message: message,
                     conversationIDKey: conversationIDKey
                 ) {
                     Logger.log(exception)

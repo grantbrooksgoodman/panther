@@ -13,10 +13,6 @@ import Foundation
 import AppSubsystem
 
 public extension Persistent {
-    convenience init(_ featureFlagKey: UserDefaultsKey.FeatureFlagDefaultsKey) {
-        self.init(.featureFlag(featureFlagKey))
-    }
-
     convenience init(_ settingsPageViewServiceKey: UserDefaultsKey.SettingsPageViewServiceDefaultsKey) {
         self.init(.settingsPageViewService(settingsPageViewServiceKey))
     }

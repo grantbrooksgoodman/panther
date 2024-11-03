@@ -15,6 +15,7 @@ import UserNotifications
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 public final class NotificationService {
     // MARK: - Dependencies
 
@@ -31,96 +32,69 @@ public final class NotificationService {
 
     // MARK: - Set Badge Number
 
-    public func setBadgeNumber(_ badgeNumber: Int) async -> Exception? {
+    public func setBadgeNumber(_ badgeNumber: Int, updateHostedValue: Bool = true) async -> Exception? {
         do {
             try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
         } catch {
             return .init(error, metadata: [self, #file, #function, #line])
         }
 
-        return nil
+        guard updateHostedValue,
+              let currentUser = clientSession.user.currentUser else { return nil }
+        return await updateHostedBadgeNumber(badgeNumber, user: currentUser)
     }
 
     // MARK: - Notify Users of Message
 
     public func notify(
         _ users: [User],
-        of message: Message,
+        ofReaction reaction: Reaction? = nil,
+        message: Message,
         conversationIDKey: String
     ) async -> Exception? {
-        func notify(_ user: User, of message: Message) async -> Exception? {
-            let commonParams = ["UserID": user.id]
+        guard let currentUser = clientSession.user.currentUser else {
+            return .init(
+                "Current user has not been set.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
 
-            guard let currentUser = clientSession.user.currentUser else {
-                return .init(
-                    "Current user has not been set.",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams)
-            }
-
-            guard let pushTokens = user.pushTokens else {
-                return .init(
-                    "The specified user has not registered for push notifications.",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams)
-            }
-
-            var body: String?
-            switch message.contentType {
-            case .audio:
-                body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
-
-            case .media:
-                if message.imageComponent != nil {
-                    body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
-                } else if message.videoComponent != nil {
-                    body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
-                } else {
-                    body = "📎 \(Localized(.attachment, languageCode: user.languageCode).wrappedValue)"
-                }
-
-            case .text:
-                if let translations = message.translations {
-                    body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
-                    if body == nil {
-                        body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
-                    }
-                }
-            }
-
-            let newBadgeNumber = await user.hostedBadgeNumber + 1
-            if let exception = await user.updateHostedBadgeNumber(newBadgeNumber) {
-                return exception
-            }
-
-            for pushToken in pushTokens {
-                if let exception = await sendNotification(
-                    title: currentUser.phoneNumber.formattedString(),
-                    body: body ?? .bangQualifiedEmpty,
-                    badgeNumber: newBadgeNumber,
-                    pushToken: pushToken,
-                    extraParams: [
-                        "conversationIDKey": conversationIDKey,
-                        "recipientUserID": user.id,
-                        "userNumberHash": currentUser.phoneNumber.nationalNumberString.digits.encodedHash,
-                    ]
+        guard let reaction else {
+            let title = currentUser.phoneNumber.formattedString()
+            for user in users {
+                let body = notificationBody(for: message, user: user)
+                if let exception = await notify(
+                    user,
+                    title: title,
+                    body: body,
+                    conversationIDKey: conversationIDKey,
+                    isReaction: false
                 ) {
-                    return exception.appending(extraParams: commonParams)
+                    guard !exception.isEqual(to: .notRegisteredForPushNotifications) else { continue }
+                    return exception
                 }
             }
 
             return nil
         }
 
-        var exceptions = [Exception]()
+        let title = "\(currentUser.phoneNumber.formattedString()) reacted \(reaction.style.emojiValue)"
         for user in users {
-            if let exception = await notify(user, of: message),
-               !exception.isEqual(to: .notRegisteredForPushNotifications) {
-                exceptions.append(exception)
+            var body = notificationBody(for: message, user: user)
+            if body != nil { body = "“\(body!)”" }
+            if let exception = await notify(
+                user,
+                title: title,
+                body: body,
+                conversationIDKey: conversationIDKey,
+                isReaction: true
+            ) {
+                guard !exception.isEqual(to: .notRegisteredForPushNotifications) else { continue }
+                return exception
             }
         }
 
-        return exceptions.compiledException
+        return nil
     }
 
     // MARK: - Respond to In-app Notification
@@ -227,6 +201,83 @@ public final class NotificationService {
         }
     }
 
+    private func notificationBody(for message: Message, user: User) -> String? {
+        var body: String?
+
+        switch message.contentType {
+        case .audio:
+            body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
+
+        case .media:
+            if message.imageComponent != nil {
+                body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
+            } else if message.videoComponent != nil {
+                body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"
+            } else {
+                body = "📎 \(Localized(.attachment, languageCode: user.languageCode).wrappedValue)"
+            }
+
+        case .text:
+            if let translations = message.translations {
+                body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
+                if body == nil {
+                    body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
+                }
+            }
+        }
+
+        return body
+    }
+
+    private func notify(
+        _ user: User,
+        title: String,
+        body: String?,
+        conversationIDKey: String,
+        isReaction: Bool
+    ) async -> Exception? {
+        let commonParams = ["UserID": user.id]
+
+        guard let currentUser = clientSession.user.currentUser else {
+            return .init(
+                "Current user has not been set.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams)
+        }
+
+        guard let pushTokens = user.pushTokens else {
+            return .init(
+                "The specified user has not registered for push notifications.",
+                metadata: [self, #file, #function, #line]
+            ).appending(extraParams: commonParams)
+        }
+
+        let newBadgeNumber = await user.hostedBadgeNumber + 1
+        if let exception = await updateHostedBadgeNumber(newBadgeNumber, user: user) {
+            return exception
+        }
+
+        let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
+        for pushToken in pushTokens {
+            if let exception = await sendNotification(
+                title: title,
+                body: body ?? .bangQualifiedEmpty,
+                badgeNumber: newBadgeNumber,
+                pushToken: pushToken,
+                extraParams: [
+                    "conversationIDKey": conversationIDKey,
+                    "isReaction": isReaction ? "true" : "false",
+                    "recipientUserID": user.id,
+                    "userNumberHash": userNumberHash,
+                ]
+            ) {
+                return exception.appending(extraParams: commonParams)
+            }
+        }
+
+        return nil
+    }
+
     private func sendNotification(
         title: String,
         body: String,
@@ -251,6 +302,9 @@ public final class NotificationService {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
+            var notificationParameters = ["title": title]
+            if !body.isBangQualifiedEmpty { notificationParameters["body"] = body }
+
             let payload: [String: Any] = [
                 "message": [
                     "apns": ["payload": ["aps": [
@@ -258,7 +312,7 @@ public final class NotificationService {
                         "mutable-content": 1,
                     ]]],
                     "data": extraParams,
-                    "notification": ["body": body, "title": title],
+                    "notification": notificationParameters,
                     "token": pushToken,
                 ],
             ]
@@ -282,6 +336,42 @@ public final class NotificationService {
 
         case let .failure(exception):
             return exception
+        }
+    }
+
+    private func updateHostedBadgeNumber(_ badgeNumber: Int? = nil, user: User) async -> Exception? {
+        @Persistent(.currentUserID) var currentUserID: String?
+        switch user.id == currentUserID {
+        case true:
+            var newBadgeNumber = badgeNumber
+            if newBadgeNumber == nil {
+                newBadgeNumber = await user.calculateBadgeNumber()
+            }
+
+            guard let newBadgeNumber else {
+                return .init(
+                    "Failed to resolve badge number.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            return await networking.database.setValue(
+                newBadgeNumber,
+                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+            )
+
+        case false:
+            guard let badgeNumber else {
+                return .init(
+                    "Must supply badge number for users other than current user.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            return await networking.database.setValue(
+                badgeNumber,
+                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+            )
         }
     }
 }

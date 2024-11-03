@@ -8,15 +8,20 @@
 
 /* Native */
 import Foundation
+import ObjectiveC
 import UIKit
-
-/* Proprietary */
-import AppSubsystem
 
 /* 3rd-party */
 import MessageKit
 
+private var contextMenuMessageIDKey: UInt8 = 0
+
 public extension MessageContentCell {
+    var contextMenuMessageID: String? {
+        get { objc_getAssociatedObject(self, &contextMenuMessageIDKey) as? String }
+        set { objc_setAssociatedObject(self, &contextMenuMessageIDKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+
     var hasContextMenuInteraction: Bool {
         guard let gestureRecognizers = messageContainerView.gestureRecognizers else { return false }
         return gestureRecognizers

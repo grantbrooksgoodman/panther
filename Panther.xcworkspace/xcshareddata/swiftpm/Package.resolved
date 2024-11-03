@@ -1,5 +1,5 @@
 {
-  "originHash" : "2592761a9ce8cfbb6b5446daf9482e0805586941d26888ee4a82f0c2a3d1bdcf",
+  "originHash" : "faa239ede4ab6493f5a3787145bededd355a3b129cc31c37dd8d6fb1f6fbc929",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -44,15 +44,6 @@
       "state" : {
         "branch" : "main",
         "revision" : "cf5acb1b1dc9b9ad00ba007c6afd9798cce1ec62"
-      }
-    },
-    {
-      "identity" : "contextualmenu",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Roze-im/ContextualMenu.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "d4eba374305ba911376b6fdd12d098654aace44b"
       }
     },
     {

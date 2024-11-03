@@ -18,9 +18,15 @@ import Networking
 import MessageKit
 
 public final class ReactionsViewController: UIViewController {
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageViewService.contextMenu) private var contextMenuService: ContextMenuService?
+
     // MARK: - Properties
 
-    private let reactions: [String] = Reaction.Style.allCases.map(\.emojiValue)
+    public var selectedReaction: String?
+
+    private let reactions: [String] = Reaction.Style.orderedCases.map(\.emojiValue)
 
     // MARK: - Computed Properties
 
@@ -42,6 +48,20 @@ public final class ReactionsViewController: UIViewController {
         updatePreferredContentSize()
     }
 
+    // MARK: - Reaction Selection
+
+    public func deselectAllReactions() {
+        stackView.subviews.forEach { $0.backgroundColor = .disabled }
+    }
+
+    public func markSelected(_ emoji: String) {
+        stackView
+            .subviews
+            .compactMap { $0 as? UIButton }
+            .first(where: { $0.titleLabel?.text == emoji })?
+            .backgroundColor = .systemBlue
+    }
+
     // MARK: - Auxiliary
 
     private func buildReactionButton(with emoji: String) -> UIButton {
@@ -60,11 +80,13 @@ public final class ReactionsViewController: UIViewController {
             reactionButton.heightAnchor.constraint(equalToConstant: 35),
         ])
 
-        reactionButton.addTarget(
-            self,
-            action: #selector(testReactions),
-            for: .touchUpInside
-        )
+        if let contextMenuService {
+            reactionButton.addTarget(
+                contextMenuService,
+                action: #selector(contextMenuService.reactToSelectedMessage(_:)),
+                for: .touchUpInside
+            )
+        }
 
         return reactionButton
     }
@@ -98,47 +120,6 @@ public final class ReactionsViewController: UIViewController {
             stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: 0),
             stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
         ])
-    }
-
-    @objc
-    private func testReactions() { // FIXME: Test/scaffolding code.
-        Task {
-            @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
-            @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
-            @Dependency(\.networking) var networking: NetworkServices
-
-            @Persistent(.currentUserID) var currentUserID: String?
-
-            guard let conversation = conversationSession.fullConversation,
-                  let currentUserID,
-                  let lastMessageID = conversation.messages?.sortedByAscendingSentDate.last?.id,
-                  !lastMessageID.isBangQualifiedEmpty else { return }
-
-            let updateValueResult = await conversation.updateValue(
-                [
-                    ReactionMetadata(
-                        messageID: lastMessageID,
-                        reactions: [
-                            .init(.love, userID: currentUserID),
-                        ]
-                    ),
-                ],
-                forKey: .reactionMetadata
-            )
-
-            switch updateValueResult {
-            case let .success(updatedConversation):
-                conversationSession.setCurrentConversation(updatedConversation)
-                Logger.log(
-                    "SUCCESS!",
-                    with: .toast(style: .success, isPersistent: false),
-                    metadata: [self, #file, #function, #line]
-                )
-
-            case let .failure(exception):
-                Logger.log(exception, with: .toast())
-            }
-        }
     }
 
     private func updatePreferredContentSize() {

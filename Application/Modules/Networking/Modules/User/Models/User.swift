@@ -40,7 +40,10 @@ public final class User: Codable, Equatable {
     public var hostedBadgeNumber: Int {
         get async {
             @Dependency(\.networking.database) var database: DatabaseDelegate
-            let getValuesResult = await database.getValues(at: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)")
+            let getValuesResult = await database.getValues(
+                at: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)",
+                cacheStrategy: .disregardCache
+            )
 
             switch getValuesResult {
             case let .success(values):
@@ -189,47 +192,6 @@ public final class User: Codable, Equatable {
 
         case let .failure(exception):
             return exception
-        }
-    }
-
-    // MARK: - Update Hosted Badge Number
-
-    public func updateHostedBadgeNumber(_ badgeNumber: Int? = nil) async -> Exception? {
-        @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.networking.database) var database: DatabaseDelegate
-
-        @Persistent(.currentUserID) var currentUserID: String?
-        switch id == currentUserID {
-        case true:
-            var newBadgeNumber = badgeNumber
-            if newBadgeNumber == nil {
-                newBadgeNumber = await calculateBadgeNumber()
-            }
-
-            guard let newBadgeNumber else {
-                return .init(
-                    "Failed to resolve badge number.",
-                    metadata: [self, #file, #function, #line]
-                )
-            }
-
-            return await database.setValue(
-                newBadgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)"
-            )
-
-        case false:
-            guard let badgeNumber else {
-                return .init(
-                    "Must supply badge number for users other than current user.",
-                    metadata: [self, #file, #function, #line]
-                )
-            }
-
-            return await database.setValue(
-                badgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)"
-            )
         }
     }
 

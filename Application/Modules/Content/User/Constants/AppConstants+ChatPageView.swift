@@ -31,6 +31,7 @@ public extension AppConstants.CGFloats {
 
         enum MessagesDataSource {
             public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
+            public static let cellBottomLabelAttributedTextEmojiAttributesSystemFontSize: CGFloat = 14
             public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
 
             public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 12

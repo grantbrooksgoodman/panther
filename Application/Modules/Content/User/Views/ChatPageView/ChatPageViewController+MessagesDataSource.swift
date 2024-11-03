@@ -50,8 +50,6 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-//        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
-//        let reactionsEnabled = isReactionsEnabled ?? false
         guard let currentConversation,
               let messages = currentConversation.messages,
               let message = message as? Message,
@@ -62,14 +60,18 @@ extension ChatPageViewController: MessagesDataSource {
             .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextBoldAttributesForeground),
         ]
 
-        let mainAttributes: [NSAttributedString.Key: Any] = [
+        let emojiAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextEmojiAttributesSystemFontSize),
+        ]
+
+        let standardAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextStandardAttributesSystemFontSize),
             .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextStandardAttributesForeground),
         ]
 
         var reactionsString = ""
         if let reactions = message.reactions {
-            reactionsString += reactions.map(\.style.emojiValue).sorted().joined()
+            reactionsString += reactions.map(\.style).sorted(by: { $0.orderValue < $1.orderValue }).map(\.emojiValue).joined()
         }
 
         if currentConversation.participants.count == 2,
@@ -78,22 +80,22 @@ extension ChatPageViewController: MessagesDataSource {
             let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
             guard let readDate = message.readDate else {
                 return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(
-                    mainAttributes: mainAttributes,
+                    mainAttributes: standardAttributes,
                     alternateAttributes: boldAttributes,
                     alternateAttributeRange: [Localized(.delivered).wrappedValue]
                 )
             }
 
             return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(
-                mainAttributes: mainAttributes,
+                mainAttributes: standardAttributes,
                 alternateAttributes: boldAttributes,
                 alternateAttributeRange: [Localized(.read).wrappedValue]
             )
         }
 
         return reactionsString.attributed(
-            mainAttributes: mainAttributes,
-            alternateAttributes: mainAttributes,
+            mainAttributes: emojiAttributes,
+            alternateAttributes: emojiAttributes,
             alternateAttributeRange: []
         )
     }

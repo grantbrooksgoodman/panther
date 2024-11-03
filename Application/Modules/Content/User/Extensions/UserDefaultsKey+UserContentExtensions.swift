@@ -13,11 +13,6 @@ import Foundation
 import AppSubsystem
 
 public extension UserDefaultsKey {
-    // TODO: Expand this idea into a full-fledged service. Important for IAP down the line.
-    enum FeatureFlagDefaultsKey: String {
-        case isReactionsEnabled
-    }
-
     enum SettingsPageViewServiceDefaultsKey: String {
         case didClearCaches
     }

@@ -65,8 +65,8 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
         Task.background { @MainActor in
-            if let currentUser,
-               let exception = await services.notification.setBadgeNumber(currentUser.calculateBadgeNumber()) {
+            if let badgeNumber = await currentUser?.calculateBadgeNumber(),
+               let exception = await services.notification.setBadgeNumber(badgeNumber) {
                 Logger.log(exception)
             }
         }

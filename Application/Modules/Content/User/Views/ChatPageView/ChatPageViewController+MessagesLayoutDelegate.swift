@@ -27,9 +27,6 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
-//        @Persistent(.isReactionsEnabled) var isReactionsEnabled: Bool?
-//        let reactionsEnabled = isReactionsEnabled ?? false
-
         guard let currentConversation,
               let messages = currentConversation.messages,
               let message = message as? Message,
