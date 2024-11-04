@@ -82,6 +82,29 @@ public struct ModerationSessionService {
         return (actions, [.actions([allUsersAction]), .message, .title])
     }
 
+    private func blockUsers(ids userIDs: [String]) async -> Exception? {
+        guard let currentUser = userSession.currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
+        blockedUserIDs.append(contentsOf: userIDs)
+        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
+
+        let updateValueResult = await currentUser.updateValue(
+            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
+            forKey: .blockedUserIDs
+        )
+
+        switch updateValueResult {
+        case let .success(user):
+            return userSession.setCurrentUser(user)
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     private func confirmModeration(
         _ type: ModerationType,
         title: String
@@ -166,7 +189,7 @@ public struct ModerationSessionService {
 
         switch type {
         case .block:
-            guard let exception = await userSession.blockUsers(ids: userIDs) else { return nil }
+            guard let exception = await blockUsers(ids: userIDs) else { return nil }
             return exception
 
         case .report:
@@ -174,7 +197,7 @@ public struct ModerationSessionService {
             return exception
 
         case .unblock:
-            guard let exception = await userSession.unblockUsers(ids: userIDs) else { return nil }
+            guard let exception = await unblockUsers(ids: userIDs) else { return nil }
             return exception
         }
     }
@@ -220,5 +243,28 @@ public struct ModerationSessionService {
         coreHUD.showSuccess()
         guard type == .block || type == .unblock else { return }
         Observables.updatedCurrentUser.trigger()
+    }
+
+    private func unblockUsers(ids userIDs: [String]) async -> Exception? {
+        guard let currentUser = userSession.currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
+        blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
+        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
+
+        let updateValueResult = await currentUser.updateValue(
+            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
+            forKey: .blockedUserIDs
+        )
+
+        switch updateValueResult {
+        case let .success(user):
+            return userSession.setCurrentUser(user)
+
+        case let .failure(exception):
+            return exception
+        }
     }
 }

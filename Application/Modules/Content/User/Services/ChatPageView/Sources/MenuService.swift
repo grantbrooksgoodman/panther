@@ -297,7 +297,7 @@ public final class MenuService {
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
               let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              message.id != CommonConstants.newMessageID,
+              !message.isMock,
               message.contentType != .media else { return }
 
         let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)

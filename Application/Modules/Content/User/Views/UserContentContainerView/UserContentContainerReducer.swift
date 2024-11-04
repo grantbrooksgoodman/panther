@@ -21,7 +21,7 @@ public struct UserContentContainerReducer: Reducer {
 
     // MARK: - Feedback
 
-    public enum Feedback {}
+    public typealias Feedback = Never
 
     // MARK: - State
 
@@ -42,7 +42,5 @@ public struct UserContentContainerReducer: Reducer {
                 }
             }
         }
-
-        return .none
     }
 }

@@ -55,6 +55,7 @@ public enum LocalizedStringKey: String {
 
     case offlineMode
 
+    case reacted
     case read
     case region
     case repairingData

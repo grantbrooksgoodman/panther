@@ -24,29 +24,37 @@ public final class NotificationExtension: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
-        guard let bestAttemptContent else { return }
+        guard let bestAttemptContent,
+              let appGroupDefaults else { return contentHandler(request.content) }
 
-        guard let appGroupDefaults,
-              let encodedData = appGroupDefaults.value(forKey: NotificationExtensionConstants.defaultsKeyName) as? Data,
-              let dictionary = try? jsonDecoder.decode([[String]: String].self, from: encodedData),
-              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.userNumberHashUserInfoKey] as? String,
-              let isReactionString = bestAttemptContent.userInfo[NotificationExtensionConstants.isReactionUserInfoKey] as? String,
-              isReactionString == "true" || isReactionString == "false",
-              let matchingKey = dictionary.keys.first(where: { $0.contains(userNumberHash) }),
-              let fullName = dictionary[matchingKey] else { return contentHandler(bestAttemptContent) }
-
-        if isReactionString == "true" {
-            guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
-                  let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else {
+        func setSubtitleAndComplete() { // swiftlint:disable:next line_length
+            guard let encodedConversationNameMapData = appGroupDefaults.value(forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName) as? Data,
+                  let conversationNameMapDictionary = try? jsonDecoder.decode([String: String].self, from: encodedConversationNameMapData),
+                  let conversationIDKey = bestAttemptContent.userInfo[NotificationExtensionConstants.conversationIDKeyUserInfoKey] as? String,
+                  let conversationName = conversationNameMapDictionary[conversationIDKey] else {
                 return contentHandler(bestAttemptContent)
             }
 
-            bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
-        } else {
-            bestAttemptContent.title = fullName
+            bestAttemptContent.subtitle = conversationName
+            contentHandler(bestAttemptContent)
         }
 
-        contentHandler(bestAttemptContent)
+        guard let encodedContactArchiveData = appGroupDefaults.value(forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName) as? Data,
+              let contactArchiveDictionary = try? jsonDecoder.decode([[String]: String].self, from: encodedContactArchiveData),
+              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.userNumberHashUserInfoKey] as? String,
+              let matchingContactKey = contactArchiveDictionary.keys.first(where: { $0.contains(userNumberHash) }),
+              let fullName = contactArchiveDictionary[matchingContactKey] else { return setSubtitleAndComplete() }
+
+        if let isReaction = bestAttemptContent.userInfo[NotificationExtensionConstants.isReactionUserInfoKey] as? String,
+           isReaction == "true" {
+            guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
+                  let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else { return setSubtitleAndComplete() }
+            bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
+            setSubtitleAndComplete()
+        } else {
+            bestAttemptContent.title = fullName
+            setSubtitleAndComplete()
+        }
     }
 
     override public func serviceExtensionTimeWillExpire() {

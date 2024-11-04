@@ -124,9 +124,9 @@ public struct UserTestingService {
         @Persistent(.currentUserID) var currentUserID: String?
         currentUserID = await randomUserID
 
-        let setCurrentUserResult = await clientSession.user.setCurrentUser()
+        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
-        switch setCurrentUserResult {
+        switch resolveCurrentUserResult {
         case let .success(currentUser):
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
             guard randomBool, randomBool, randomBool else {

@@ -186,7 +186,7 @@ public final class ContactPairArchiveService {
             }
 
             guard let encoded = try? jsonEncoder.encode(notificationExtensionArchive) else { return }
-            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.defaultsKeyName)
+            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName)
         }
     }
 }

@@ -6,8 +6,6 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
-
 /* Native */
 import Foundation
 
@@ -26,7 +24,6 @@ public final class UserSessionService {
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Properties
 
@@ -75,9 +72,9 @@ public final class UserSessionService {
         }
     }
 
-    // MARK: - Set Current User
+    // MARK: - Resolve Current User
 
-    public func setCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
+    public func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
         guard let currentUserID else {
             return .failure(.init("Current user ID has not been set.", metadata: [self, #file, #function, #line]))
         }
@@ -113,6 +110,21 @@ public final class UserSessionService {
 
             return .failure(exception)
         }
+    }
+
+    // MARK: - Set Current User
+
+    public func setCurrentUser(_ user: User) -> Exception? {
+        guard let currentUserID,
+              user.id == currentUserID else {
+            return .init(
+                "Either current user ID has not been set, or provided user's ID does not match its value.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        mainQueue.sync { currentUser = user }
+        return nil
     }
 
     // MARK: - Offline Current User
@@ -253,181 +265,6 @@ public final class UserSessionService {
         return await networking.integrityService.repairMalformedUsers([currentUserID]).exception
     }
 
-    // MARK: - Get Users for Conversation
-
-    public func getUsers(conversation: Conversation) async -> Callback<[User], Exception> {
-        let commonParams = ["ConversationID": conversation.id.encoded]
-
-        let userIDs = conversation.participants.map(\.userID).filter { $0 != currentUserID }
-        guard !userIDs.isBangQualifiedEmpty else {
-            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
-        }
-
-        let getUsersResult = await networking.userService.getUsers(ids: userIDs)
-
-        switch getUsersResult {
-        case let .success(users):
-            guard !users.isEmpty,
-                  users.count == userIDs.count else {
-                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-
-            return .success(users)
-
-        case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
-        }
-    }
-
-    // MARK: - Block/Unblock Users
-
-    public func blockUsers(ids userIDs: [String]) async -> Exception? {
-        guard let currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
-        }
-
-        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
-        blockedUserIDs.append(contentsOf: userIDs)
-        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
-
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            mainQueue.sync {
-                self.currentUser = user
-                self.currentUserID = user.id
-            }
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
-    }
-
-    public func unblockUsers(ids userIDs: [String]) async -> Exception? {
-        guard let currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
-        }
-
-        var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
-        blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
-        blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
-
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            mainQueue.sync {
-                self.currentUser = user
-                self.currentUserID = user.id
-            }
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
-    }
-
-    // MARK: - Push Tokens
-
-    // NIT: Unused.
-    @discardableResult
-    public func resetPushTokens() async -> Exception? {
-        notificationService.setPushToken(nil)
-
-        guard currentUser?.pushTokens != nil else {
-            return .init("Push token has not been set.", metadata: [self, #file, #function, #line])
-        }
-
-        let updateValueResult = await currentUser?.updateValue(Array.bangQualifiedEmpty, forKey: .pushTokens)
-
-        switch updateValueResult {
-        case let .success(user):
-            mainQueue.sync {
-                currentUser = user
-                self.currentUserID = user.id
-            }
-            return nil
-
-        case let .failure(exception):
-            return exception
-
-        case .none:
-            return nil
-        }
-    }
-
-    @discardableResult
-    public func updatePushTokens() async -> Exception? {
-        guard let currentUser,
-              let pushToken = notificationService.pushToken else {
-            return .init("Either current user or push token has not been set.", metadata: [self, #file, #function, #line])
-        }
-
-        var pushTokens = currentUser.pushTokens ?? []
-        guard !pushTokens.contains(pushToken) else {
-            return .init("Push tokens already up to date.", metadata: [self, #file, #function, #line])
-        }
-
-        pushTokens.append(pushToken)
-        let updateValueResult = await currentUser.updateValue(pushTokens.unique, forKey: .pushTokens)
-
-        switch updateValueResult {
-        case let .success(user):
-            mainQueue.sync {
-                self.currentUser = user
-                self.currentUserID = user.id
-            }
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
-    }
-
-    // MARK: - Reset Typing Indicator Status
-
-    public func resetTypingIndicatorStatus() async -> Exception? {
-        guard let currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
-        }
-
-        guard let conversations = currentUser
-            .conversations?
-            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return nil }
-
-        for conversation in conversations {
-            guard let currentUserParticipant = conversation.currentUserParticipant else { continue }
-
-            var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
-            newParticipants.append(.init(
-                userID: currentUserParticipant.userID,
-                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                isTyping: false
-            ))
-
-            let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-
-            switch updateValueResult {
-            case let .failure(exception):
-                Logger.log(exception)
-
-            default: ()
-            }
-        }
-
-        return nil
-    }
-
     // MARK: - Auxiliary
 
     private func updateCurrentUser() async -> Exception? {
@@ -441,9 +278,9 @@ public final class UserSessionService {
         }
 
         isUpdatingCurrentUser = true
-        let setCurrentUserResult = await setCurrentUser()
+        let resolveCurrentUserResult = await resolveCurrentUser()
 
-        switch setCurrentUserResult {
+        switch resolveCurrentUserResult {
         case .success:
             Logger.log(
                 "Updated current user.",
@@ -463,5 +300,3 @@ public final class UserSessionService {
         }
     }
 }
-
-// swiftlint:enable file_length type_body_length

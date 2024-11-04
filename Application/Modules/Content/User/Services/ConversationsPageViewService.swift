@@ -59,7 +59,7 @@ public final class ConversationsPageViewService {
         userSession.startObservingCurrentUserChanges()
 
         Task {
-            if let exception = await userSession.updatePushTokens() {
+            if let exception = await services.pushToken.updatePushTokensForCurrentUser() {
                 Logger.log(exception)
             }
         }
@@ -129,10 +129,10 @@ public final class ConversationsPageViewService {
                 array.forEach { markStale(conversation: $0) }
             }
 
-            let setCurrentUserResult = await userSession.setCurrentUser()
+            let resolveCurrentUserResult = await userSession.resolveCurrentUser()
             currentReloadType = currentReloadType.next
 
-            switch setCurrentUserResult {
+            switch resolveCurrentUserResult {
             case let .success(user):
                 if let exception = await user.setConversations() {
                     return .failure(exception)

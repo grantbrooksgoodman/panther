@@ -158,9 +158,9 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: UserSessionService Setup */
 
-        let setCurrentUserResult = await userSession.setCurrentUser()
+        let resolveCurrentUserResult = await userSession.resolveCurrentUser()
 
-        switch setCurrentUserResult {
+        switch resolveCurrentUserResult {
         case .success:
             initializationProgress += 0.1
 
@@ -173,6 +173,10 @@ public final class SplashPageViewService: ObservableObject {
 
             if ((currentUser.conversationIDs ?? []).count > 3 && (conversationArchive ?? []).isEmpty) || (translationArchive ?? []).isEmpty {
                 if let exception = await networking.database.populateTemporaryCaches() {
+                    Logger.log(exception)
+                }
+
+                if let exception = await services.pushToken.prunePushTokensForCurrentUser() {
                     Logger.log(exception)
                 }
             }
@@ -189,7 +193,7 @@ public final class SplashPageViewService: ObservableObject {
 
             initializationProgress += 0.2
 
-            if let exception = await userSession.resetTypingIndicatorStatus() {
+            if let exception = await TypingIndicatorService.resetTypingIndicatorStatusForCurrentUser() {
                 return exception
             }
 

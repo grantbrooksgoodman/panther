@@ -45,6 +45,42 @@ public final class TypingIndicatorService {
         stopCheckingForTypingIndicatorChanges()
     }
 
+    // MARK: - Reset Typing Indicator Status for Current User
+
+    public static func resetTypingIndicatorStatusForCurrentUser() async -> Exception? {
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        guard let currentUser else {
+            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+        }
+
+        guard let conversations = currentUser
+            .conversations?
+            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return nil }
+
+        var exceptions = [Exception]()
+        for conversation in conversations {
+            guard let currentUserParticipant = conversation.currentUserParticipant else { continue }
+
+            var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
+            newParticipants.append(.init(
+                userID: currentUserParticipant.userID,
+                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+                isTyping: false
+            ))
+
+            let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
+
+            switch updateValueResult {
+            case let .failure(exception):
+                exceptions.append(exception)
+
+            default: ()
+            }
+        }
+
+        return exceptions.compiledException
+    }
+
     // MARK: - Text View Did Change
 
     @MainActor

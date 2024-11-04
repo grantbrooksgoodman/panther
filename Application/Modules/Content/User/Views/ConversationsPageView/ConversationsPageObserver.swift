@@ -86,9 +86,9 @@ public struct ConversationsPageObserver: Observer {
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
-            let setCurrentUserResult = await clientSession.user.setCurrentUser()
+            let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
-            switch setCurrentUserResult {
+            switch resolveCurrentUserResult {
             case let .failure(exception):
                 Logger.log(exception, with: .toast())
 

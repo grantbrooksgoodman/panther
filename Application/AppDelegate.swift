@@ -81,7 +81,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         notificationCenter.post(name: Notification.Name("FCMToken"), object: nil, userInfo: ["token": fcmToken ?? ""])
-        services.notification.setPushToken(fcmToken)
+        services.pushToken.setCurrentToken(fcmToken)
     }
 
     // MARK: - UNUserNotificationCenterDelegate Conformance

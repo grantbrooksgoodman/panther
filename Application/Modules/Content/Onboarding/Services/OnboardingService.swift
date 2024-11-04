@@ -68,7 +68,7 @@ public final class OnboardingService {
             id: userID,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
-            pushTokens: services.notification.pushToken == nil ? nil : [services.notification.pushToken!]
+            pushTokens: services.pushToken.currentToken == nil ? nil : [services.pushToken.currentToken!]
         )
 
         switch createUserResult {

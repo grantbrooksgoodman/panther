@@ -18,19 +18,23 @@ import ContextualMenu
 import MessageKit
 
 public final class ContextMenuService {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.ContextMenu
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
 
     // MARK: - Properties
 
-    public private(set) var selectedMessageID: String?
-
     private let viewController: ChatPageViewController
 
     private var contextMenuInteractionTimer: Timer?
+    private var selectedMessageID: String?
 
     // MARK: - Object Lifecycle
 
@@ -43,6 +47,15 @@ public final class ContextMenuService {
         contextMenuInteractionTimer = nil
     }
 
+    // MARK: - Configure Double Tap Gesture Recognizer
+
+    public func configureDoubleTapGestureRecognizer() {
+        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(reactToSelectedMessage(_:)))
+        doubleTapGesture.delaysTouchesBegan = true
+        doubleTapGesture.numberOfTapsRequired = 2
+        viewController.messagesCollectionView.addOrEnable(doubleTapGesture)
+    }
+
     // MARK: - Context Menu Interaction Timer
 
     public func addContextMenuInteractionToVisibleCellsOnce() {
@@ -53,7 +66,7 @@ public final class ContextMenuService {
 
     public func startAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer = .scheduledTimer(
-            timeInterval: 0.1,
+            timeInterval: Floats.interactionTimerTimeInterval,
             target: self,
             selector: #selector(addContextMenuInteractionToVisibleCells),
             userInfo: nil,
@@ -69,40 +82,66 @@ public final class ContextMenuService {
     // MARK: - React to Selected Message
 
     @objc
-    public func reactToSelectedMessage(_ sender: UIButton) {
-        Task { @MainActor in
-            guard let conversation = clientSession.conversation.currentConversation,
-                  let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
-                  let buttonText = sender.titleLabel?.text,
-                  !buttonText.isBangQualifiedEmpty,
-                  buttonText.components.count == 1,
-                  let reactionStyle = Reaction.Style(emojiValue: buttonText),
-                  let reaction = Reaction(reactionStyle) else { return }
-
-            if let exception = await clientSession.reaction.react(reaction, to: message) {
-                Logger.log(exception, with: .toast())
-            }
-
+    public func reactToSelectedMessage(_ sender: Any) {
+        guard let conversation = viewController.currentConversation else { return }
+        func scrollToLastItemIfNeeded(_ message: Message) {
             guard conversation.messages?.last?.id == message.id else { return }
             viewController.messagesCollectionView.scrollToLastItem()
+        }
+
+        if let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
+           let buttonText = (sender as? UIButton)?.titleLabel?.text,
+           !buttonText.isBangQualifiedEmpty,
+           buttonText.components.count == 1,
+           let reactionStyle = Reaction.Style(emojiValue: buttonText),
+           let reaction = Reaction(reactionStyle) {
+            Task {
+                if let exception = await clientSession.reaction.react(reaction, to: message) {
+                    Logger.log(exception, with: .toast())
+                }
+
+                scrollToLastItemIfNeeded(message)
+            }
+        } else if let gestureRecognizer = sender as? UITapGestureRecognizer {
+            let touchPoint = gestureRecognizer.location(in: viewController.messagesCollectionView)
+
+            guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
+                  let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
+                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section) else { return }
+
+            let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
+            guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
+            hapticsService.generateFeedback(.heavy)
+
+            Task {
+                if let reaction = Reaction(.love),
+                   let exception = await self.clientSession.reaction.react(reaction, to: message) {
+                    Logger.log(exception, with: .toast())
+                }
+
+                scrollToLastItemIfNeeded(message)
+            }
         }
     }
 
     // MARK: - Auxiliary
 
     @objc
-    private func addContextMenuInteractionToVisibleCells() { // FIXME: Test/scaffolding code.
+    private func addContextMenuInteractionToVisibleCells() {
         let visibleCells = viewController.messagesCollectionView.visibleCells.compactMap { $0 as? MessageContentCell }
         let contextMenuStyle: ContextMenuStyle = .init(preview: .init(
-            transform: .init(scaleX: 1.08, y: 1.08),
-            topMargin: 8,
-            bottomMargin: 8,
+            transform: .init(
+                scaleX: Floats.menuStyleTransformScaleX,
+                y: Floats.menuStyleTransformScaleY
+            ),
+            topMargin: Floats.menuStyleTopMargin,
+            bottomMargin: Floats.menuStyleBottomMargin,
             shadow: .init()
         ))
 
         for cell in visibleCells {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
-                  let message = clientSession.conversation.currentConversation?.messages?.itemAt(indexPath.section),
+                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
                   cell.contextMenuMessageID != message.id,
                   !message.isMock,
                   !messageDeliveryService.isSendingMessage else { continue }
@@ -110,6 +149,7 @@ public final class ContextMenuService {
             cell.contextMenuMessageID = message.id
             var menuElements = [MenuElement]()
 
+            // FIXME: Test/scaffolding code.
             let viewAlternateAction: MenuElement = .init(
                 title: "View Alternate",
                 image: .init(systemName: "arrow.left.arrow.right.square"),
@@ -130,7 +170,7 @@ public final class ContextMenuService {
                 targetedPreviewProvider: { _ in nil },
                 menuConfigurationProvider: { _ in
                     reactionsViewController.deselectAllReactions()
-                    Task.delayed(by: .milliseconds(10)) { @MainActor in
+                    Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
                     }
 
@@ -149,7 +189,7 @@ public final class ContextMenuService {
     @MainActor
     private func triggerExistingSelection(_ viewController: ReactionsViewController) {
         @Persistent(.currentUserID) var currentUserID: String?
-        guard let messages = clientSession.conversation.currentConversation?.messages,
+        guard let messages = self.viewController.currentConversation?.messages,
               let reactions = messages.first(where: { $0.id == selectedMessageID })?.reactions,
               let reactionEmojiValue = reactions.first(where: { $0.userID == currentUserID })?.style.emojiValue else { return }
         viewController.markSelected(reactionEmojiValue)

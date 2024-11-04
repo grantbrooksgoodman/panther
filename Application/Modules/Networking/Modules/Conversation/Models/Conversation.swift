@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Properties
@@ -102,20 +103,33 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
 
     public func setUsers(forceUpdate: Bool = false) async -> Exception? {
         @Dependency(\.mainQueue) var mainQueue: DispatchQueue
+        @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
+        let commonParams = ["ConversationID": id.encoded]
         if !forceUpdate {
             guard users == nil else { return nil }
         }
 
-        let getUsersResult = await userSession.getUsers(conversation: self)
+        @Persistent(.currentUserID) var currentUserID: String?
+        let userIDs = participants.map(\.userID).filter { $0 != currentUserID }
+        guard !userIDs.isBangQualifiedEmpty else {
+            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
+            return exception.appending(extraParams: commonParams)
+        }
+
+        let getUsersResult = await networking.userService.getUsers(ids: userIDs)
 
         switch getUsersResult {
         case let .success(users):
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            mainQueue.sync {
-                self.users = users
+            guard !users.isEmpty,
+                  users.count == userIDs.count else {
+                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return exception.appending(extraParams: commonParams)
             }
+
+            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
+            mainQueue.sync { self.users = users }
 
             Logger.log(
                 .init(
@@ -129,7 +143,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
             return nil
 
         case let .failure(exception):
-            return exception
+            return exception.appending(extraParams: commonParams)
         }
     }
 

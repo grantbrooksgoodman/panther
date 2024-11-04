@@ -26,6 +26,19 @@ public extension AppConstants.CGFloats {
             public static let playNextMessageDelayMilliseconds: CGFloat = 100
         }
 
+        enum ContextMenu {
+            public static let interactionTimerTimeInterval: CGFloat = 0.1
+
+            public static let menuStyleBottomMargin: CGFloat = 8
+            public static let menuStyleTopMargin: CGFloat = 8
+
+            public static let menuStyleTransformScaleX: CGFloat = 1.08
+            public static let menuStyleTransformScaleY: CGFloat = 1.08
+
+            // swiftlint:disable:next identifier_name
+            public static let triggerExistingSelectionDelayMilliseconds: CGFloat = 10
+        }
+
         enum DeliveryProgressIndicator {
             public static let animationDelay: CGFloat = 1
             public static let animationDuration: CGFloat = 0.2

@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -15,20 +17,14 @@ import UserNotifications
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
-public final class NotificationService {
+public struct NotificationService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
-
-    // MARK: - Properties
-
-    public private(set) var pushToken: String?
 
     // MARK: - Set Badge Number
 
@@ -78,7 +74,7 @@ public final class NotificationService {
             return nil
         }
 
-        let title = "\(currentUser.phoneNumber.formattedString()) reacted \(reaction.style.emojiValue)"
+        let title = "\(currentUser.phoneNumber.formattedString()) \(Localized(.reacted).wrappedValue) \(reaction.style.emojiValue)"
         for user in users {
             var body = notificationBody(for: message, user: user)
             if body != nil { body = "“\(body!)”" }
@@ -117,10 +113,12 @@ public final class NotificationService {
         // TODO: Remove backwards compatibility after a few updates.
         if let recipientUserID = notification.request.content.userInfo["recipientUserID"] as? String {
             guard recipientUserID == currentUser.id else {
-                return .failure(.init(
+                let exception: Exception = .init(
                     "Notification not intended for current user – ignoring.",
                     metadata: [self, #file, #function, #line]
-                ))
+                )
+
+                return .failure(exception)
             }
         }
 
@@ -165,12 +163,6 @@ public final class NotificationService {
         }
 
         return .success([.sound])
-    }
-
-    // MARK: - Set Push Token
-
-    public func setPushToken(_ pushToken: String?) {
-        self.pushToken = pushToken
     }
 
     // MARK: - Auxiliary
@@ -375,3 +367,5 @@ public final class NotificationService {
         }
     }
 }
+
+// swiftlint:enable type_body_length

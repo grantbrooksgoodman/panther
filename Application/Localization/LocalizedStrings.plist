@@ -4942,6 +4942,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>离线模式</string>
 	</dict>
+	<key>reacted</key>
+	<dict>
+		<key>af</key>
+		<string>gereageer het</string>
+		<key>ar</key>
+		<string>كان رد فعل</string>
+		<key>az</key>
+		<string>reaksiya verib</string>
+		<key>be</key>
+		<string>адрэагаваў</string>
+		<key>bg</key>
+		<string>е реагирал</string>
+		<key>bn</key>
+		<string>প্রতিক্রিয়া জানিয়েছে</string>
+		<key>bs</key>
+		<string>je reagovao</string>
+		<key>ca</key>
+		<string>ha reaccionat</string>
+		<key>cs</key>
+		<string>reagoval</string>
+		<key>cy</key>
+		<string>wedi ymateb</string>
+		<key>da</key>
+		<string>har reageret</string>
+		<key>de</key>
+		<string>hat reagiert</string>
+		<key>el</key>
+		<string>αντέδρασε</string>
+		<key>en</key>
+		<string>reacted</string>
+		<key>eo</key>
+		<string>reagis</string>
+		<key>es</key>
+		<string>ha reaccionado</string>
+		<key>et</key>
+		<string>on reageerinud</string>
+		<key>eu</key>
+		<string>erreakzionatu du</string>
+		<key>fa</key>
+		<string>واکنش نشان داد</string>
+		<key>fi</key>
+		<string>on reagoinut</string>
+		<key>fr</key>
+		<string>a réagi</string>
+		<key>ga</key>
+		<string>tar éis freagairt</string>
+		<key>gd</key>
+		<string>air gabhail ri</string>
+		<key>gl</key>
+		<string>reaccionou</string>
+		<key>gu</key>
+		<string>પ્રતિક્રિયા આપી છે</string>
+		<key>he</key>
+		<string>הגיב</string>
+		<key>hi</key>
+		<string>प्रतिक्रिया दी है</string>
+		<key>hr</key>
+		<string>reagirao je</string>
+		<key>ht</key>
+		<string>te reyaji</string>
+		<key>hu</key>
+		<string>reagált</string>
+		<key>hy</key>
+		<string>արձագանքել է</string>
+		<key>id</key>
+		<string>telah bereaksi</string>
+		<key>is</key>
+		<string>has reacted</string>
+		<key>it</key>
+		<string>ha reagito</string>
+		<key>ja</key>
+		<string>反応しました</string>
+		<key>ka</key>
+		<string>რეაგირებს</string>
+		<key>kk</key>
+		<string>реакция жасады</string>
+		<key>kn</key>
+		<string>ಪ್ರತಿಕ್ರಿಯಿಸಿದ್ದಾರೆ</string>
+		<key>ko</key>
+		<string>반응했다</string>
+		<key>ky</key>
+		<string>has reacted</string>
+		<key>lt</key>
+		<string>sureagavo</string>
+		<key>mg</key>
+		<string>nihetsika</string>
+		<key>mi</key>
+		<string>kua hoki</string>
+		<key>mk</key>
+		<string>has reacted</string>
+		<key>ml</key>
+		<string>പ്രതികരിച്ചു</string>
+		<key>mn</key>
+		<string>хариу үйлдэл үзүүлсэн</string>
+		<key>mt</key>
+		<string>irreaġixxa</string>
+		<key>ne</key>
+		<string>प्रतिक्रिया गरिएको छ</string>
+		<key>nl</key>
+		<string>heeft gereageerd</string>
+		<key>no</key>
+		<string>har reagert</string>
+		<key>pa</key>
+		<string>ਨੇ ਪ੍ਰਤੀਕ੍ਰਿਆ ਦਿੱਤੀ ਹੈ</string>
+		<key>pl</key>
+		<string>has reacted</string>
+		<key>pt</key>
+		<string>reagiu</string>
+		<key>ro</key>
+		<string>a reacționat</string>
+		<key>ru</key>
+		<string>отреагировал</string>
+		<key>si</key>
+		<string>has reacted</string>
+		<key>sk</key>
+		<string>reagoval</string>
+		<key>sl</key>
+		<string>je reagiral</string>
+		<key>sq</key>
+		<string>ka reaguar</string>
+		<key>sr</key>
+		<string>је реаговао</string>
+		<key>su</key>
+		<string>has reacted</string>
+		<key>sv</key>
+		<string>har reagerat</string>
+		<key>sw</key>
+		<string>imejibu</string>
+		<key>ta</key>
+		<string>எதிர்வினையாற்றியுள்ளது</string>
+		<key>te</key>
+		<string>స్పందించింది</string>
+		<key>tg</key>
+		<string>вокуниш нишон дод</string>
+		<key>th</key>
+		<string>ได้มีปฏิกิริยาตอบโต้</string>
+		<key>tl</key>
+		<string>nag -reaksyon</string>
+		<key>tr</key>
+		<string>tepki verdi</string>
+		<key>tt</key>
+		<string>реакция ясады</string>
+		<key>uk</key>
+		<string>реагував</string>
+		<key>ur</key>
+		<string>نے ردعمل ظاہر کیا ہے</string>
+		<key>uz</key>
+		<string>has reacted</string>
+		<key>vi</key>
+		<string>đã phản ứng</string>
+		<key>yi</key>
+		<string>ריאַקטיד</string>
+		<key>zh</key>
+		<string>反应</string>
+	</dict>
 	<key>read</key>
 	<dict>
 		<key>af</key>

@@ -47,6 +47,7 @@ public enum CommonServicesDependency: DependencyKey {
             permission: .init(),
             phoneNumber: .init(),
             propertyLists: .shared,
+            pushToken: .init(),
             regionDetail: .init(),
             remoteCache: .init(),
             review: .init(),

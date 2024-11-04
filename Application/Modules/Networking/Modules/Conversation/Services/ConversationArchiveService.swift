@@ -22,6 +22,11 @@ public final class ConversationArchiveService {
         case conversationsForConversationIDs
     }
 
+    // MARK: - Dependencies
+
+    @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
+    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+
     // MARK: - Properties
 
     // Array
@@ -44,6 +49,7 @@ public final class ConversationArchiveService {
             threadLock.lock()
             cachedArchive = newValue
             persistedArchive = newValue
+            persistValuesForNotificationExtension()
             threadLock.unlock()
         }
     }
@@ -126,5 +132,20 @@ public final class ConversationArchiveService {
         cachedConversationsForConversationIDKeys = newCacheValue
 
         return valueForConversationIDKey
+    }
+
+    // MARK: - Persist Values for Notification Extension
+
+    private func persistValuesForNotificationExtension() {
+        Task { @MainActor in
+            var conversationNameMap = [String: String]()
+
+            for conversation in archive where !conversation.metadata.name.isBangQualifiedEmpty {
+                conversationNameMap[conversation.id.key] = conversation.metadata.name
+            }
+
+            guard let encoded = try? jsonEncoder.encode(conversationNameMap) else { return }
+            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName)
+        }
     }
 }

@@ -28,6 +28,7 @@ public struct CommonServices {
     public let permission: PermissionService
     public let phoneNumber: PhoneNumberService
     public let propertyLists: CommonPropertyLists
+    public let pushToken: PushTokenService
     public let regionDetail: RegionDetailService
     public let remoteCache: RemoteCacheService
     public let review: ReviewService
@@ -50,6 +51,7 @@ public struct CommonServices {
         permission: PermissionService,
         phoneNumber: PhoneNumberService,
         propertyLists: CommonPropertyLists,
+        pushToken: PushTokenService,
         regionDetail: RegionDetailService,
         remoteCache: RemoteCacheService,
         review: ReviewService,
@@ -69,6 +71,7 @@ public struct CommonServices {
         self.permission = permission
         self.phoneNumber = phoneNumber
         self.propertyLists = propertyLists
+        self.pushToken = pushToken
         self.regionDetail = regionDetail
         self.remoteCache = remoteCache
         self.review = review

@@ -236,7 +236,7 @@ public final class SettingsPageViewService {
                     }
 
                     if let currentUser = self.userSession.currentUser,
-                       let pushToken = self.services.notification.pushToken {
+                       let pushToken = self.services.pushToken.currentToken {
                         let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
                         let updateValueResult = await currentUser.updateValue(
                             filteredPushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredPushTokens,

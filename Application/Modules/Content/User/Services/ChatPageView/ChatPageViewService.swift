@@ -110,6 +110,8 @@ public final class ChatPageViewService {
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         contextMenu?.startAddingContextMenuInteractionToVisibleCells()
+        contextMenu?.configureDoubleTapGestureRecognizer()
+
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
@@ -248,12 +250,13 @@ public final class ChatPageViewService {
             }
         }
 
-        guard messageDeliveryService.isSendingMessage else {
+        if clientSession.reaction.isReactingToMessage {
+            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .init("reloadCollectionView")) { reloadItems() }
+        } else if messageDeliveryService.isSendingMessage {
+            messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
+        } else {
             reloadItems()
-            return
         }
-
-        messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
     }
 
     public func setNavigationTitle(_ navigationTitle: String) {

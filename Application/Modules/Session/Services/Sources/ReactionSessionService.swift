@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct ReactionSessionService {
+public final class ReactionSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -25,10 +25,36 @@ public struct ReactionSessionService {
 
     // MARK: - Properties
 
+    // Dictionary
+    private var uponIsReactingToMessageChangedToFalse = [ReactionSessionServiceEffectID: () -> Void]()
+    private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
+
+    // Other
+    public private(set) var isReactingToMessage = false {
+        didSet { didSetIsReactingToMessage() }
+    }
+
     @Persistent(.currentUserID) private var currentUserID: String?
+
+    // MARK: - Add Effect
+
+    /// Adds an effect to be run once, upon a change in value of `isReactingToMessage`.
+    public func addEffectUponIsReactingToMessage(
+        changedTo state: Bool,
+        id: ReactionSessionServiceEffectID,
+        _ effect: @escaping () -> Void
+    ) {
+        guard state else {
+            uponIsReactingToMessageChangedToFalse[id] = effect
+            return
+        }
+
+        uponIsReactingToMessageChangedToTrue[id] = effect
+    }
 
     // MARK: - React to Message
 
+    @MainActor
     public func react(_ reaction: Reaction, to message: Message) async -> Exception? {
         guard let conversation = conversationSession.currentConversation,
               let currentUserID,
@@ -54,6 +80,7 @@ public struct ReactionSessionService {
 
         // Filter metadata to remove previous reactions to current message
 
+        isReactingToMessage = true
         reactionMetadata = reactionMetadata.filteringCurrentUserReactions(to: message)
 
         // Add new reaction to metadata
@@ -90,6 +117,7 @@ public struct ReactionSessionService {
         dismissMenu()
         reactionMetadata = reactionMetadata.filter { !$0.reactions.isEmpty }
         let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
+        isReactingToMessage = false
 
         switch updateValueResult {
         case let .success(updatedConversation): // TODO: Audit the efficacy of the below code.
@@ -104,6 +132,34 @@ public struct ReactionSessionService {
     }
 
     // MARK: - Auxiliary
+
+    private func didSetIsReactingToMessage() {
+        switch isReactingToMessage {
+        case true:
+            guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
+
+            Logger.log(.init(
+                "Running effects for change of \"isReactingToMessage\" to TRUE.",
+                extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToTrue.keys.map(\.rawValue)],
+                metadata: [self, #file, #function, #line]
+            ))
+
+            uponIsReactingToMessageChangedToTrue.values.forEach { $0() }
+            uponIsReactingToMessageChangedToTrue = .init()
+
+        case false:
+            guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
+
+            Logger.log(.init(
+                "Running effects for change of \"isReactingToMessage\" to FALSE.",
+                extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToFalse.keys.map(\.rawValue)],
+                metadata: [self, #file, #function, #line]
+            ))
+
+            uponIsReactingToMessageChangedToFalse.values.forEach { $0() }
+            uponIsReactingToMessageChangedToFalse = .init()
+        }
+    }
 
     private func dismissMenu() {
         Task { @MainActor in
@@ -146,7 +202,9 @@ public struct ReactionSessionService {
             )
         }
 
+        isReactingToMessage = true
         let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
+        isReactingToMessage = false
 
         switch updateValueResult {
         case let .success(conversation): // TODO: Audit the efficacy of the below code.
