@@ -114,7 +114,7 @@ public extension Message {
     }
 
     var isSpeakingMessage: Bool {
-        @Dependency(\.chatPageViewService.menu?.speakingMessage) var speakingMessage: Message?
+        @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) var speakingMessage: Message?
         guard let speakingMessage else { return false }
         return speakingMessage.id == id
     }

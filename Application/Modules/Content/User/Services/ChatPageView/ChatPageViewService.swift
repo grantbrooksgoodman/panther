@@ -45,10 +45,10 @@ public final class ChatPageViewService {
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
     public private(set) var mediaActionHandler: MediaActionHandlerService?
     public private(set) var mediaMessagePreview: MediaMessagePreviewService?
-    public private(set) var menu: MenuService?
     public private(set) var readDate: ReadDateService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
+    public private(set) var tapGestureRecognizer: TapGestureRecognizerService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
@@ -75,9 +75,9 @@ public final class ChatPageViewService {
         inputBarGestureRecognizer = .init(viewController)
         mediaActionHandler = .init(viewController)
         mediaMessagePreview = .init(viewController)
-        menu = .init(viewController)
         readDate = .init(viewController)
         recordingUI = .init(viewController)
+        tapGestureRecognizer = .init(viewController)
         typingIndicator = .init(viewController)
 
         guard configuration == .newChat else { return viewController }
@@ -109,9 +109,6 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
-        contextMenu?.startAddingContextMenuInteractionToVisibleCells()
-        contextMenu?.configureDoubleTapGestureRecognizer()
-
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
@@ -123,11 +120,14 @@ public final class ChatPageViewService {
             return
         }
 
-        mediaMessagePreview?.configureGestureRecognizer()
+        contextMenu?.interaction.startAddingContextMenuInteractionToVisibleCells()
+        contextMenu?.interaction.configureDoubleTapGestureRecognizer()
+        mediaMessagePreview?.configureGestureRecognizers()
         inputBarGestureRecognizer?.configureGestureRecognizers()
+        tapGestureRecognizer?.configureGestureRecognizer()
+
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.toggleSendingUI(on: messageDeliveryService.isSendingMessage)
-        // menu?.configureMenuGestureRecognizer()
 
         if configuration == .default {
             services.analytics.logEvent(.accessChat)
@@ -166,7 +166,7 @@ public final class ChatPageViewService {
         NavigationBar.setAppearance(.appDefault)
         toggleBuildInfoOverlay(on: true)
 
-        contextMenu?.stopAddingContextMenuInteractionToVisibleCells()
+        contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
@@ -180,7 +180,8 @@ public final class ChatPageViewService {
                 Logger.log(exception)
             }
 
-            clientSession.conversation.setCurrentConversation(nil)
+            // TODO: Audit this.
+            // clientSession.conversation.setCurrentConversation(nil)
             clientSession.conversation.resetMessageOffset()
         }
 
@@ -234,7 +235,7 @@ public final class ChatPageViewService {
 
     public func reloadCollectionView() {
         Task { @MainActor in
-            menu?.dismissMenu()
+            contextMenu?.dismissMenu()
             guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
             viewController?.messagesCollectionView.reloadData()
         }
@@ -251,9 +252,9 @@ public final class ChatPageViewService {
         }
 
         if clientSession.reaction.isReactingToMessage {
-            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .init("reloadCollectionView")) { reloadItems() }
+            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .reloadCollectionView) { self.reloadItemsWhenSafe(at: indexPaths) }
         } else if messageDeliveryService.isSendingMessage {
-            messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { reloadItems() }
+            messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { self.reloadItemsWhenSafe(at: indexPaths) }
         } else {
             reloadItems()
         }

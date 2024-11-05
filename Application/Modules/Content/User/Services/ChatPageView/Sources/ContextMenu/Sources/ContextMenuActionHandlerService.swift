@@ -1,8 +1,8 @@
 //
-//  MenuService.swift
+//  ContextMenuActionHandlerService.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 07/02/2024.
+//  Created by Grant Brooks Goodman on 04/11/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -17,11 +17,11 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class MenuService {
+public final class ContextMenuActionHandlerService {
     // MARK: - Constants Accessors
 
-    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.Menu
-    private typealias Strings = AppConstants.Strings.ChatPageViewService.Menu
+    private typealias Floats = AppConstants.CGFloats.ChatPageViewService.ContextMenu
+    private typealias Strings = AppConstants.Strings.ChatPageViewService.ContextMenu
 
     // MARK: - Dependencies
 
@@ -29,7 +29,6 @@ public final class MenuService {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.networking.translationService.languageRecognition) private var languageRecognitionService: LanguageRecognitionService
-    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
@@ -37,11 +36,7 @@ public final class MenuService {
 
     public private(set) var speakingMessage: Message?
 
-    private let menuInteraction: UIEditMenuInteraction
     private let viewController: ChatPageViewController
-
-    private var isShowingMenu = false
-    private var selectedCell: MessageContentCell?
 
     // MARK: - Computed Properties
 
@@ -54,56 +49,28 @@ public final class MenuService {
         }) as? MessageContentCell
     }
 
+    private var selectedCell: UICollectionViewCell? {
+        guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID,
+              let messageIndex = viewController.currentConversation?.messages?.firstIndex(where: { $0.id == selectedMessageID }) else { return nil }
+        return viewController.messagesCollectionView.cellForItem(at: .init(item: 0, section: messageIndex))
+    }
+
     private var selectedMessage: Message? {
-        guard let selectedCell,
-              let indexPath = viewController.messagesCollectionView.indexPath(for: selectedCell) else { return nil }
-        return viewController.currentConversation?.messages?.itemAt(indexPath.section)
+        guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID else { return nil }
+        return viewController.currentConversation?.messages?.first(where: { $0.id == selectedMessageID })
     }
 
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
-        menuInteraction = .init(delegate: viewController)
-    }
-
-    // MARK: - Reset Speaking Message
-
-    public func resetSpeakingMessage() {
-        speakingMessage = nil
-    }
-
-    // MARK: - Set Is Showing Menu
-
-    public func setIsShowingMenu(_ isShowingMenu: Bool, at index: Int) {
-        self.isShowingMenu = isShowingMenu
-
-        guard !isShowingMenu else { return }
-        animateDeselection(forCellAt: index)
-    }
-
-    // MARK: - Configure Menu Gesture Recognizer
-
-    public func configureMenuGestureRecognizer() {
-        let longPressGesture: UILongPressGestureRecognizer = .init(target: self, action: #selector(longPressGestureRecognized))
-        longPressGesture.delaysTouchesBegan = true
-        longPressGesture.minimumPressDuration = Floats.longPressGestureMinimumPressDuration
-        viewController.messagesCollectionView.addOrEnable(longPressGesture)
-    }
-
-    // MARK: - Dismiss Menu
-
-    public func dismissMenu() {
-        guard isShowingMenu else { return }
-        menuInteraction.dismissMenu()
     }
 
     // MARK: - Menu for Message
 
-    public func menuForMessage(at index: Int) -> UIMenu? {
-        guard let message = viewController.currentConversation?.messages?.itemAt(index) else { return nil }
-
-        var actions = [UIAction]()
+    public func menuForMessage(_ message: Message) -> Menu? {
+        var actions = [MenuElement]()
+        guard message.contentType != .media else { return nil }
         guard message.contentType != .audio else {
             let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
             let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
@@ -112,6 +79,7 @@ public final class MenuService {
                 actions.append(
                     .init(
                         title: Localized(.copy).wrappedValue,
+                        image: .init(systemName: Strings.copyActionImageSystemName),
                         identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
                         handler: handleAction(_:)
                     )
@@ -122,15 +90,20 @@ public final class MenuService {
                 actions.append(
                     .init(
                         title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                        image: .init(systemName: Strings.speakActionImageSystemName),
                         identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
                         handler: handleAction(_:)
                     )
                 )
             }
 
+            let audioMessageActionImage = UIImage(
+                systemName: isDisplayingAudioTranscription ? Strings.audioMessageActionImageSystemName : Strings.audioMessageActionAlternateImageSystemName
+            )
             actions.append(
                 .init(
                     title: actionTitle,
+                    image: audioMessageActionImage,
                     identifier: .init(rawValue: Strings.audioMessageActionIdentifierRawValue),
                     handler: handleAction(_:)
                 )
@@ -139,14 +112,19 @@ public final class MenuService {
             return .init(children: actions)
         }
 
+        let speakActionImage = UIImage(
+            systemName: avSpeechSynthesizer.isSpeaking ? Strings.speakActionAlternateImageSystemName : Strings.speakActionImageSystemName
+        )
         actions = [
             .init(
                 title: Localized(.copy).wrappedValue,
+                image: .init(systemName: Strings.copyActionImageSystemName),
                 identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
                 handler: handleAction(_:)
             ),
             .init(
                 title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                image: speakActionImage,
                 identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
                 handler: handleAction(_:)
             ),
@@ -166,6 +144,7 @@ public final class MenuService {
         actions.append(
             .init(
                 title: actionTitle,
+                image: .init(resource: .viewAlternate),
                 identifier: .init(rawValue: Strings.viewAlterateActionIdentifierRawValue),
                 handler: handleAction(_:)
             )
@@ -174,19 +153,29 @@ public final class MenuService {
         return .init(children: actions)
     }
 
+    // MARK: - Reset Speaking Message
+
+    public func resetSpeakingMessage() {
+        speakingMessage = nil
+    }
+
     // MARK: - Action Handlers
 
     private func handleAudioMessageAction() {
-        guard let selectedCell else { return }
+        chatPageViewService.contextMenu?.dismissMenu()
+        guard let selectedCell = selectedCell as? MessageContentCell else { return }
         chatPageViewService.alternateMessage?.toggle(.audioTranscription, for: selectedCell)
     }
 
     private func handleCopyAction() {
+        chatPageViewService.contextMenu?.dismissMenu()
         guard let selectedCell = selectedCell as? TextMessageCell else { return }
         uiPasteboard.string = selectedCell.messageLabel.text
     }
 
     private func handleSpeakAction() {
+        services.audio.activateAudioSession()
+        chatPageViewService.contextMenu?.dismissMenu()
         Task { @MainActor in
             func processed(_ string: String?) -> String { string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? "" }
 
@@ -223,99 +212,27 @@ public final class MenuService {
             let utterance: AVSpeechUtterance = .init(string: messageLabelText)
             utterance.voice = services.audio.textToSpeech.highestQualityVoice(utteranceLanguageCode, mustIncludeAudioFileSettings: true)
 
-            services.audio.activateAudioSession()
             speakingMessage = selectedMessage
             avSpeechSynthesizer.speak(utterance)
         }
     }
 
     private func handleViewAlternateAction() {
-        guard let selectedCell else { return }
+        chatPageViewService.contextMenu?.dismissMenu()
+        guard let selectedCell = selectedCell as? MessageContentCell else { return }
         chatPageViewService.alternateMessage?.toggle(.alternateText, for: selectedCell)
     }
 
     // MARK: - Auxiliary
 
-    private func animateDeselection(forCellAt index: Int) {
-        let collectionView = viewController.messagesCollectionView
-        guard let cell = collectionView.visibleCells.first(where: { collectionView.indexPath(for: $0)?.section == index }) as? MessageContentCell,
-              let message = viewController.currentConversation?.messages?.itemAt(index) else { return }
-
-        UIView.animate(withDuration: Floats.selectionAnimationDuration) {
-            cell.messageContainerView.backgroundColor = message.backgroundColor
-        }
-    }
-
-    private func animateSelectionForSelectedCell() {
-        guard let selectedCell else { return }
-
-        let backgroundColor = selectedCell.messageContainerView.backgroundColor
-        guard backgroundColor?.resolvedColor(with: .current) == .senderBubble.resolvedColor(with: .current) ||
-            backgroundColor == .receiverBubble else { return }
-
-        UIView.animate(withDuration: Floats.selectionAnimationDuration) {
-            guard backgroundColor == .receiverBubble,
-                  ThemeService.isDarkModeActive else {
-                selectedCell.messageContainerView.backgroundColor = backgroundColor?.darker(by: Floats.messageContainerViewBackgroundColorDarkeningPercentage)
-                return
-            }
-
-            selectedCell.messageContainerView.backgroundColor = backgroundColor?.lighter(by: Floats.messageContainerViewBackgroundColorLighteningPercentage)
-        }
-
-        services.haptics.generateFeedback(.selection)
-    }
-
-    private func handleAction(_ action: UIAction) {
-        dismissMenu()
-
-        switch action.identifier.rawValue {
-        case Strings.audioMessageActionIdentifierRawValue:
-            handleAudioMessageAction()
-
-        case Strings.copyActionIdentifierRawValue:
-            handleCopyAction()
-
-        case Strings.speakActionIdentifierRawValue:
-            handleSpeakAction()
-
-        case Strings.viewAlterateActionIdentifierRawValue:
-            handleViewAlternateAction()
-
+    private func handleAction(_ action: MenuElement) {
+        guard let identifier = action.identifier else { return }
+        switch identifier.rawValue {
+        case Strings.audioMessageActionIdentifierRawValue: handleAudioMessageAction()
+        case Strings.copyActionIdentifierRawValue: handleCopyAction()
+        case Strings.speakActionIdentifierRawValue: handleSpeakAction()
+        case Strings.viewAlterateActionIdentifierRawValue: handleViewAlternateAction()
         default: ()
         }
-    }
-
-    @objc
-    private func longPressGestureRecognized(recognizer: UILongPressGestureRecognizer) {
-        guard !isShowingMenu,
-              !messageDeliveryService.isSendingMessage,
-              !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
-
-        let touchPoint = recognizer.location(in: viewController.messagesCollectionView)
-
-        guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
-              let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
-              let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              !message.isMock,
-              message.contentType != .media else { return }
-
-        let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
-        guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint),
-              let containerSuperview = selectedCell.messageContainerView.superview else { return }
-
-        self.selectedCell = selectedCell
-        selectedCell.messageContainerView.addInteraction(menuInteraction)
-
-        let configuration: UIEditMenuConfiguration = .init(
-            identifier: indexPath.section,
-            sourcePoint: .init(
-                x: convertedTouchPoint.x,
-                y: containerSuperview.frame.minY
-            )
-        )
-
-        animateSelectionForSelectedCell()
-        menuInteraction.presentEditMenu(with: configuration)
     }
 }

@@ -68,12 +68,14 @@ public final class PushTokenService {
                 return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
             }
 
+            var tookAction = false
             for (key, value) in dictionary where key != currentUser.id {
                 guard let userData = value as? [String: Any],
                       var pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
                       !pushTokens.isBangQualifiedEmpty,
                       pushTokens.containsAnyString(in: currentUserPushTokens) else { continue }
 
+                tookAction = true
                 pushTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
                 if let exception = await networking.database.setValue(
                     pushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : pushTokens,
@@ -83,6 +85,11 @@ public final class PushTokenService {
                 }
             }
 
+            guard tookAction else { return nil }
+            Logger.log(
+                "Pruned push tokens for current user.",
+                metadata: [self, #file, #function, #line]
+            )
             return nil
 
         case let .failure(exception):

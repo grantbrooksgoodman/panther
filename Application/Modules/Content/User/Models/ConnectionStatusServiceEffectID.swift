@@ -9,7 +9,19 @@
 /* Native */
 import Foundation
 
-public enum ConnectionStatusServiceEffectID: String {
-    case configureInputBar
-    case showOfflineModeToast
+public struct ConnectionStatusServiceEffectID: Hashable {
+    // MARK: - Properties
+
+    public let rawValue: String
+
+    // MARK: - Init
+
+    public init(_ rawValue: String) {
+        self.rawValue = rawValue
+    }
+}
+
+public extension ConnectionStatusServiceEffectID {
+    static let configureInputBar: ConnectionStatusServiceEffectID = .init("configureInputBar")
+    static let showOfflineModeToast: ConnectionStatusServiceEffectID = .init("showOfflineModeToast")
 }

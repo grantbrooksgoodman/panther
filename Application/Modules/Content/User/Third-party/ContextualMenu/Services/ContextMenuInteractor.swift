@@ -10,7 +10,15 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 final class ContextMenuInteractor {
+    // MARK: - Dependencies
+
+    @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
+    @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) private var speakingMessage: Message?
+
     // MARK: - Properties
 
     // Other
@@ -70,14 +78,57 @@ final class ContextMenuInteractor {
 
     @objc
     func beginInteraction(_ sender: UIGestureRecognizer) {
-        guard sender.state == .began,
+        guard ContextMenuInteraction.canBegin,
+              sender.state == .began,
               let view = sender.view,
-              let interaction = interactions.object(forKey: view) else {
+              let interaction = interactions.object(forKey: view) else { return }
+
+        contextMenuInteractionService?.setIsPresentingContextMenu(true)
+        guard speakingMessage == nil else {
+            Task.delayed(by: .milliseconds(10)) { @MainActor in
+                showContextMenu(on: view, interaction: interaction)
+            }
             return
         }
 
-        interaction.gesture.isEnabled = false
+        showContextMenu(on: view, interaction: interaction)
+    }
 
+    func removeInteraction(from view: UIView) {
+        guard let interaction = interactions.object(forKey: view) else { return }
+        view.removeGestureRecognizer(interaction.gesture)
+        interactions.removeObject(forKey: view)
+    }
+
+    // MARK: - Context Menu Handlers
+
+    func dismissContextMenu(interaction: Interaction?, completion: (() -> Void)?) {
+        contextMenuViewController?.disappearAnimation { [weak self] in
+            interaction?.gesture.isEnabled = true
+            self?.contextMenuInteractionService?.setIsPresentingContextMenu(false)
+            self?.restoreWindow()
+            interaction?.onInteractionEndedEffect?()
+            completion?()
+        }
+    }
+
+    func dismissCurrentContextMenu(completion: (() -> Void)? = nil) {
+        if let contextMenuInteractionService { guard contextMenuInteractionService.isPresentingContextMenu else { return } }
+        defer { completion?() }
+        guard let contextMenuViewController else { return }
+        dismissContextMenu(interaction: contextMenuViewController.interaction, completion: completion)
+    }
+
+    // MARK: - Auxiliary
+
+    private func restoreWindow() {
+        window.rootViewController = nil
+        window.isHidden = true
+        window.windowScene = nil
+    }
+
+    private func showContextMenu(on view: UIView, interaction: Interaction) {
+        interaction.gesture.isEnabled = false
         viewOriginalWindow = view.window
 
         let targetedPreview = interaction.targetedPreviewProvider(view) ?? .init(view: view)
@@ -100,39 +151,5 @@ final class ContextMenuInteractor {
         window.makeKeyAndVisible()
         contextMenuController.appearAnimation()
         interaction.onInteractionBeganEffect?()
-    }
-
-    func removeInteraction(from view: UIView) {
-        guard let interaction = interactions.object(forKey: view) else { return }
-        view.removeGestureRecognizer(interaction.gesture)
-        interactions.removeObject(forKey: view)
-    }
-
-    // MARK: - Context Menu Handlers
-
-    func dismissContextMenu(interaction: Interaction?, completion: (() -> Void)?) {
-        contextMenuViewController?.disappearAnimation { [weak self] in
-            interaction?.gesture.isEnabled = true
-            self?.restoreWindow()
-            interaction?.onInteractionBeganEffect?()
-            completion?()
-        }
-    }
-
-    func dismissCurrentContextMenu(completion: (() -> Void)? = nil) {
-        guard let contextMenuViewController else {
-            print("[ContextMenuInteractor] dismissCurrentContextMenu error: No interaction in progress")
-            completion?()
-            return
-        }
-        dismissContextMenu(interaction: contextMenuViewController.interaction, completion: completion)
-    }
-
-    // MARK: - Auxiliary
-
-    private func restoreWindow() {
-        window.rootViewController = nil
-        window.isHidden = true
-        window.windowScene = nil
     }
 }

@@ -14,6 +14,7 @@ public final class MenuElementView: UIView {
     // MARK: - Properties
 
     let element: MenuElement
+    let showsDivider: Bool
     let style: Style
 
     weak var delegate: MenuElementViewDelegate?
@@ -24,12 +25,14 @@ public final class MenuElementView: UIView {
         let button = UIButton()
         button.addTarget(self, action: #selector(onButtonTouchedUpInside), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        guard let highlightColor = UIColor.systemGray2.withAlphaComponent(0.5).darker(by: 6) else { return button }
+        button.setBackgroundImage(highlightColor.asImage, for: .highlighted)
         return button
     }()
 
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.image = element.image?.withRenderingMode(.alwaysTemplate)
         imageView.tintColor = MenuElementView.iconTint(attributes: element.attributes, style: style)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -61,18 +64,23 @@ public final class MenuElementView: UIView {
     init(
         element: MenuElement,
         style: Style,
-        delegate: MenuElementViewDelegate?
+        delegate: MenuElementViewDelegate?,
+        showsDivider: Bool
     ) {
         self.element = element
         self.style = style
         self.delegate = delegate
+        self.showsDivider = showsDivider
 
         super.init(frame: .zero)
 
         addSubview(button)
         addSubview(label)
         addSubview(imageView)
-        addSubview(dividerView)
+
+        if showsDivider {
+            addSubview(dividerView)
+        }
 
         NSLayoutConstraint.activate([
             button.topAnchor.constraint(equalTo: topAnchor),
@@ -86,11 +94,16 @@ public final class MenuElementView: UIView {
             imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             imageView.widthAnchor.constraint(equalToConstant: element.image == nil ? 0 : style.iconSize.width),
             imageView.heightAnchor.constraint(equalToConstant: style.iconSize.height),
-            dividerView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            dividerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            dividerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            dividerView.heightAnchor.constraint(equalToConstant: 0.6),
         ])
+
+        if showsDivider {
+            NSLayoutConstraint.activate([
+                dividerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                dividerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                dividerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                dividerView.heightAnchor.constraint(equalToConstant: 0.6),
+            ])
+        }
     }
 
     @available(*, unavailable)

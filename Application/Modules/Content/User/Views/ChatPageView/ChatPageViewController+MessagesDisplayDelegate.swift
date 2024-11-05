@@ -92,7 +92,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard let image = contactPair.contact.image else {
-            avatarView.set(avatar: .init(initials: contactPair.contact.initials))
+            avatarView.image = .fromInitials(contactPair.contact.initials)
+            if let initialsImage = avatarView.image { ContactImageCache.set(initialsImage, forKey: contactPair.contact.id) }
             return
         }
 

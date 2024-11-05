@@ -41,6 +41,7 @@ public struct MenuElement {
     // MARK: - Properties
 
     let attributes: Attributes
+    let identifier: UIAction.Identifier?
     let image: UIImage?
     let title: String
 
@@ -52,6 +53,7 @@ public struct MenuElement {
         return .init(
             title: title,
             image: image,
+            identifier: identifier,
             attributes: attributes.uiAttributes,
             handler: { _ in
                 handler?(self)
@@ -64,11 +66,13 @@ public struct MenuElement {
     public init(
         title: String,
         image: UIImage? = nil,
+        identifier: UIAction.Identifier? = nil,
         attributes: Attributes = .default,
         handler: ((MenuElement) -> Void)? = nil
     ) {
         self.title = title
         self.image = image
+        self.identifier = identifier
         self.attributes = attributes
         self.handler = handler
     }

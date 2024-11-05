@@ -74,10 +74,16 @@ public struct NotificationService {
             return nil
         }
 
-        let title = "\(currentUser.phoneNumber.formattedString()) \(Localized(.reacted).wrappedValue) \(reaction.style.emojiValue)"
         for user in users {
+            let reactedString = Localized(.reacted, languageCode: user.languageCode).wrappedValue
+            let title = "\(currentUser.phoneNumber.formattedString()) \(reactedString) \(reaction.style.emojiValue)"
+
             var body = notificationBody(for: message, user: user)
-            if body != nil { body = "“\(body!)”" }
+            if let resolvedBody = body,
+               message.contentType == .text {
+                body = "“\(resolvedBody)”"
+            }
+
             if let exception = await notify(
                 user,
                 title: title,

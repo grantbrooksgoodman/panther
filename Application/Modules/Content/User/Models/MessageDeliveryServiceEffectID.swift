@@ -9,7 +9,19 @@
 /* Native */
 import Foundation
 
-public enum MessageDeliveryServiceEffectID: String {
-    case reloadCollectionView
-    case updateIsTypingForCurrentUser
+public struct MessageDeliveryServiceEffectID: Hashable {
+    // MARK: - Properties
+
+    public let rawValue: String
+
+    // MARK: - Init
+
+    public init(_ rawValue: String) {
+        self.rawValue = rawValue
+    }
+}
+
+public extension MessageDeliveryServiceEffectID {
+    static let reloadCollectionView: MessageDeliveryServiceEffectID = .init("reloadCollectionView")
+    static let updateIsTypingForCurrentUser: MessageDeliveryServiceEffectID = .init("updateIsTypingForCurrentUser")
 }

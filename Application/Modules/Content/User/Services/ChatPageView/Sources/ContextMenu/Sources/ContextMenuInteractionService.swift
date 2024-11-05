@@ -1,8 +1,8 @@
 //
-//  ContextMenuService.swift
+//  ContextMenuInteractionService.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 30/10/2024.
+//  Created by Grant Brooks Goodman on 04/11/2024.
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
@@ -14,10 +14,9 @@ import UIKit
 import AppSubsystem
 
 /* 3rd-party */
-import ContextualMenu
 import MessageKit
 
-public final class ContextMenuService {
+public final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.ContextMenu
@@ -31,10 +30,15 @@ public final class ContextMenuService {
 
     // MARK: - Properties
 
+    public private(set) var isPresentingContextMenu = false {
+        didSet { restoreSpeakingCellAttributes() }
+    }
+
+    public private(set) var selectedMessageID: String?
+
     private let viewController: ChatPageViewController
 
     private var contextMenuInteractionTimer: Timer?
-    private var selectedMessageID: String?
 
     // MARK: - Object Lifecycle
 
@@ -51,8 +55,7 @@ public final class ContextMenuService {
 
     public func configureDoubleTapGestureRecognizer() {
         let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(reactToSelectedMessage(_:)))
-        doubleTapGesture.delaysTouchesBegan = true
-        doubleTapGesture.numberOfTapsRequired = 2
+        doubleTapGesture.numberOfTapsRequired = Int(Floats.doubleTapGestureNumberOfTapsRequired)
         viewController.messagesCollectionView.addOrEnable(doubleTapGesture)
     }
 
@@ -79,14 +82,45 @@ public final class ContextMenuService {
         contextMenuInteractionTimer = nil
     }
 
+    // MARK: - Remove UIMenu Long Press Gesture for Visible Cells
+
+    public func removeUIMenuLongPressGestureForVisibleCells() {
+        Task { @MainActor in
+            let visibleCells = viewController.messagesCollectionView.visibleCells.compactMap { $0 as? MessageContentCell }
+            for cell in visibleCells {
+                // Remove default UIMenu long press gesture recognizer
+                cell.contentView
+                    .gestureRecognizers?
+                    .removeAll(where: {
+                        ($0 as? UILongPressGestureRecognizer)?.minimumPressDuration == Floats.longPressGestureMinimumPressDuration
+                    })
+            }
+        }
+    }
+
     // MARK: - React to Selected Message
 
     @objc
     public func reactToSelectedMessage(_ sender: Any) {
+        guard !clientSession.reaction.isReactingToMessage else {
+            clientSession.reaction.addEffectUponIsReactingToMessage(
+                changedTo: false,
+                id: .init("\(Int.random(in: 1 ... 1_000_000))")
+            ) { self.reactToSelectedMessage(sender) }
+            return
+        }
+
         guard let conversation = viewController.currentConversation else { return }
         func scrollToLastItemIfNeeded(_ message: Message) {
+            func scrollToLastItem() {
+                Task.delayed(by: .milliseconds(Floats.scrollToLastItemDelayMilliseconds)) { @MainActor in
+                    self.viewController.messagesCollectionView.scrollToLastItem()
+                }
+            }
+
             guard conversation.messages?.last?.id == message.id else { return }
-            viewController.messagesCollectionView.scrollToLastItem()
+            guard clientSession.reaction.isReactingToMessage else { return scrollToLastItem() }
+            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .scrollToLastItem) { scrollToLastItem() }
         }
 
         if let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
@@ -124,6 +158,12 @@ public final class ContextMenuService {
         }
     }
 
+    // MARK: - Set Is Presenting Context Menu
+
+    public func setIsPresentingContextMenu(_ isPresentingContextMenu: Bool) {
+        self.isPresentingContextMenu = isPresentingContextMenu
+    }
+
     // MARK: - Auxiliary
 
     @objc
@@ -140,35 +180,29 @@ public final class ContextMenuService {
         ))
 
         for cell in visibleCells {
-            guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
+            guard ContextMenuInteraction.canBegin,
+                  let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
                   let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
                   cell.contextMenuMessageID != message.id,
                   !message.isMock,
                   !messageDeliveryService.isSendingMessage else { continue }
 
+            // Remove default UIMenu long press gesture recognizer
+            cell.contentView
+                .gestureRecognizers?
+                .removeAll(where: {
+                    ($0 as? UILongPressGestureRecognizer)?.minimumPressDuration == Floats.longPressGestureMinimumPressDuration
+                })
+
             cell.contextMenuMessageID = message.id
-            var menuElements = [MenuElement]()
-
-            // FIXME: Test/scaffolding code.
-            let viewAlternateAction: MenuElement = .init(
-                title: "View Alternate",
-                image: .init(systemName: "arrow.left.arrow.right.square"),
-                attributes: .default,
-                handler: { _ in
-                    self.chatPageViewService.alternateMessage?.toggle(.alternateText, for: cell)
-                }
-            )
-
-            menuElements.append(viewAlternateAction)
-
             let reactionsViewController = ReactionsViewController()
-            let menu: Menu = .init(children: menuElements)
 
             // NIT: I wonder if not removing the interaction is affecting performance.
             // The cell SHOULD be deallocated by the system eventually anyway, but...?
             cell.messageContainerView.addInteraction(
                 targetedPreviewProvider: { _ in nil },
                 menuConfigurationProvider: { _ in
+                    let menu = self.chatPageViewService.contextMenu?.actionHandler.menuForMessage(message) ?? .init(children: [])
                     reactionsViewController.deselectAllReactions()
                     Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
@@ -180,8 +214,47 @@ public final class ContextMenuService {
                     )
                 },
                 style: contextMenuStyle,
-                onInteractionBegan: { self.selectedMessageID = message.id },
-                onInteractionEnded: { self.selectedMessageID = nil }
+                onInteractionBegan: {
+                    self.viewController.messagesCollectionView.isScrollEnabled = false
+                    self.selectedMessageID = message.id
+                },
+                onInteractionEnded: { self.viewController.messagesCollectionView.isScrollEnabled = true }
+            )
+
+            // TODO: May not persist for new cell dequeues – audit this.
+            if let audioMessagePlaybackService = chatPageViewService.audioMessagePlayback,
+               let audioCell = cell as? AudioMessageCell {
+                let singleTapGesture = UITapGestureRecognizer(
+                    target: audioMessagePlaybackService,
+                    action: #selector(audioMessagePlaybackService.didTapPlayButton(_:))
+                )
+                audioCell.playButton.addOrEnable(singleTapGesture)
+            }
+        }
+    }
+
+    private func restoreSpeakingCellAttributes() {
+        guard let speakingCell = chatPageViewService.contextMenu?.actionHandler.speakingCell as? TextMessageCell,
+              let speakingMessage = chatPageViewService.contextMenu?.actionHandler.speakingMessage,
+              let labelText = speakingCell.messageLabel.text,
+              let alternateMessageService = chatPageViewService.alternateMessage else { return }
+
+        typealias Colors = AppConstants.Colors.UserContentExtensions.Message
+        let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
+        let attributedStringForegroundColor = UIColor(
+            speakingMessage.isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor
+        )
+
+        if alternateMessageService.isDisplayingAlternateText(for: speakingMessage) ||
+            alternateMessageService.isDisplayingAudioTranscription(for: speakingMessage) {
+            speakingCell.messageLabel.attributedText = .messageCellString(labelText, foregroundColor: attributedStringForegroundColor)
+        } else {
+            speakingCell.messageLabel.attributedText = .init(
+                string: labelText,
+                attributes: [
+                    .foregroundColor: attributedStringForegroundColor,
+                    .font: alternateMessageService.textCellLabelFont,
+                ] as [NSAttributedString.Key: Any]
             )
         }
     }

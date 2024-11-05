@@ -20,7 +20,7 @@ import MessageKit
 public final class ReactionsViewController: UIViewController {
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageViewService.contextMenu) private var contextMenuService: ContextMenuService?
+    @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
 
     // MARK: - Properties
 
@@ -80,10 +80,10 @@ public final class ReactionsViewController: UIViewController {
             reactionButton.heightAnchor.constraint(equalToConstant: 35),
         ])
 
-        if let contextMenuService {
+        if let contextMenuInteractionService {
             reactionButton.addTarget(
-                contextMenuService,
-                action: #selector(contextMenuService.reactToSelectedMessage(_:)),
+                contextMenuInteractionService,
+                action: #selector(contextMenuInteractionService.reactToSelectedMessage(_:)),
                 for: .touchUpInside
             )
         }

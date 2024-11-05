@@ -56,10 +56,10 @@ public final class ReactionSessionService {
 
     @MainActor
     public func react(_ reaction: Reaction, to message: Message) async -> Exception? {
+        guard !message.isMock else { return nil }
         guard let conversation = conversationSession.currentConversation,
               let currentUserID,
-              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }),
-              !message.isMock else {
+              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }) else {
             return .init(
                 "Failed to resolve required values.",
                 metadata: [self, #file, #function, #line]
@@ -74,7 +74,7 @@ public final class ReactionSessionService {
             .filter({ $0.messageID == message.id })
             .filter({ $0.reactions.contains(where: { $0.userID == currentUserID }) })
             .contains(where: { $0.reactions.contains(where: { $0.style == reaction.style }) }) else {
-            dismissMenu()
+            chatPageViewService.contextMenu?.dismissMenu()
             return await removeReaction(from: message)
         }
 
@@ -114,7 +114,7 @@ public final class ReactionSessionService {
 
         // Update conversation with new metadata
 
-        dismissMenu()
+        chatPageViewService.contextMenu?.dismissMenu()
         reactionMetadata = reactionMetadata.filter { !$0.reactions.isEmpty }
         let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
         isReactingToMessage = false
@@ -123,7 +123,7 @@ public final class ReactionSessionService {
         case let .success(updatedConversation): // TODO: Audit the efficacy of the below code.
             conversationSession.setCurrentConversation(updatedConversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
-            chatPageViewService.contextMenu?.addContextMenuInteractionToVisibleCellsOnce()
+            chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
             return nil
 
         case let .failure(exception):
@@ -136,6 +136,7 @@ public final class ReactionSessionService {
     private func didSetIsReactingToMessage() {
         switch isReactingToMessage {
         case true:
+            ContextMenuInteraction.setCanBegin(false)
             guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
 
             Logger.log(.init(
@@ -148,6 +149,7 @@ public final class ReactionSessionService {
             uponIsReactingToMessageChangedToTrue = .init()
 
         case false:
+            ContextMenuInteraction.setCanBegin(true)
             guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
 
             Logger.log(.init(
@@ -161,16 +163,13 @@ public final class ReactionSessionService {
         }
     }
 
-    private func dismissMenu() {
-        Task { @MainActor in
-            UIView.dismissCurrentContextMenu()
-        }
-    }
-
     private func notifyUsers(ofReaction reaction: Reaction, to message: Message) async -> Exception? {
         guard let conversation = conversationSession.currentConversation,
               let currentUserID,
-              let users = conversation.users?.filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) }),
+              let user = conversation
+              .users?
+              .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })
+              .first(where: { message.fromAccountID == $0.id }),
               !message.isMock else {
             return .init(
                 "Failed to resolve required values.",
@@ -179,7 +178,7 @@ public final class ReactionSessionService {
         }
 
         if let exception = await notificationService.notify(
-            users,
+            [user],
             ofReaction: reaction,
             message: message,
             conversationIDKey: conversation.id.key
@@ -210,7 +209,7 @@ public final class ReactionSessionService {
         case let .success(conversation): // TODO: Audit the efficacy of the below code.
             conversationSession.setCurrentConversation(conversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
-            chatPageViewService.contextMenu?.addContextMenuInteractionToVisibleCellsOnce()
+            chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
             return nil
 
         case let .failure(exception):

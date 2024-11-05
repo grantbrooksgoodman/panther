@@ -20,3 +20,8 @@ public struct ReactionSessionServiceEffectID: Hashable {
         self.rawValue = rawValue
     }
 }
+
+public extension ReactionSessionServiceEffectID {
+    static let reloadCollectionView: ReactionSessionServiceEffectID = .init("reloadCollectionView")
+    static let scrollToLastItem: ReactionSessionServiceEffectID = .init("scrollToLastItem")
+}

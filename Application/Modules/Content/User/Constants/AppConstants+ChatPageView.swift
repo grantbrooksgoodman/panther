@@ -97,11 +97,6 @@ public extension AppConstants.Strings {
             public static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
         }
 
-        enum MessageCellDelegate {
-            public static let dateSelectionURLString = "calshow:"
-            public static let phoneNumberSelectionURLString = "tel://"
-        }
-
         enum MessagesDisplayDelegate {
             public static let avatarViewImageSystemName = "person.crop.circle.fill"
         }

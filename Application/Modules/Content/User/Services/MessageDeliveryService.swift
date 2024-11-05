@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
+// wiftlint:disable:next type_body_length
 public final class MessageDeliveryService {
     // MARK: - Dependencies
 
@@ -288,6 +289,7 @@ public final class MessageDeliveryService {
     private func didSetIsSendingMessage() {
         switch isSendingMessage {
         case true:
+            ContextMenuInteraction.setCanBegin(false)
             guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
 
             Logger.log(.init(
@@ -300,6 +302,7 @@ public final class MessageDeliveryService {
             uponIsSendingMessageChangedToTrue = .init()
 
         case false:
+            ContextMenuInteraction.setCanBegin(true)
             guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
 
             Logger.log(.init(

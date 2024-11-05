@@ -16,6 +16,7 @@ public struct CommonServices {
     // MARK: - Properties
 
     public let analytics: AnalyticsService
+    public let attributeDetection: AttributeDetectionService
     public let audio: AudioService
     public let connectionStatus: ConnectionStatusService
     public let contact: ContactService
@@ -39,6 +40,7 @@ public struct CommonServices {
 
     public init(
         analytics: AnalyticsService,
+        attributeDetection: AttributeDetectionService,
         audio: AudioService,
         connectionStatus: ConnectionStatusService,
         contact: ContactService,
@@ -59,6 +61,7 @@ public struct CommonServices {
         update: UpdateService
     ) {
         self.analytics = analytics
+        self.attributeDetection = attributeDetection
         self.audio = audio
         self.connectionStatus = connectionStatus
         self.contact = contact

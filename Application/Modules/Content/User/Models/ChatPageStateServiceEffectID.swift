@@ -9,9 +9,21 @@
 /* Native */
 import Foundation
 
-public enum ChatPageStateServiceEffectID: String {
-    case deeplinkToOtherChat
-    case updateAppearance
-    case updateConversations
-    case updateCurrentUser
+public struct ChatPageStateServiceEffectID: Hashable {
+    // MARK: - Properties
+
+    public let rawValue: String
+
+    // MARK: - Init
+
+    public init(_ rawValue: String) {
+        self.rawValue = rawValue
+    }
+}
+
+public extension ChatPageStateServiceEffectID {
+    static let deeplinkToOtherChat: ChatPageStateServiceEffectID = .init("deeplinkToOtherChat")
+    static let updateAppearance: ChatPageStateServiceEffectID = .init("updateAppearance")
+    static let updateConversations: ChatPageStateServiceEffectID = .init("updateConversations")
+    static let updateCurrentUser: ChatPageStateServiceEffectID = .init("updateCurrentUser")
 }

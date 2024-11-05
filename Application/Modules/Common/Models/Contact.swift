@@ -103,6 +103,12 @@ public enum ContactImageCache {
     public static func clearCache() {
         _ContactImageCache.clearCache()
     }
+
+    public static func set(_ value: UIImage, forKey key: String) {
+        var cacheValue = _ContactImageCache.cachedImagesForContactIDs ?? [:]
+        cacheValue[key] = value
+        _ContactImageCache.cachedImagesForContactIDs = cacheValue
+    }
 }
 
 private enum _ContactImageCache {
@@ -114,11 +120,11 @@ private enum _ContactImageCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.imagesForContactIDs) public static var cachedImagesForContactIDs: [String: UIImage]?
+    @Cached(CacheKey.imagesForContactIDs) fileprivate static var cachedImagesForContactIDs: [String: UIImage]?
 
     // MARK: - Clear Cache
 
-    public static func clearCache() {
+    fileprivate static func clearCache() {
         cachedImagesForContactIDs = nil
     }
 }

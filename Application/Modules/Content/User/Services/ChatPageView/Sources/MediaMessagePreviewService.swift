@@ -55,14 +55,13 @@ public final class MediaMessagePreviewService {
         self.viewController = viewController
     }
 
-    // MARK: - Configure Gesture Recognizer
+    // MARK: - Configure Gesture Recognizers
 
-    public func configureGestureRecognizer() {
+    public func configureGestureRecognizers() {
         let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
             target: self,
             action: #selector(pinchGestureRecognized)
         )
-
         viewController.messagesCollectionView.addOrEnable(pinchGestureRecognizer)
     }
 
@@ -74,7 +73,9 @@ public final class MediaMessagePreviewService {
               message.contentType == .media,
               let filePath = message.richContent?.mediaComponent?.urlPath.path(),
               fileManager.fileExists(atPath: filePath),
-              !isPreviewingMedia else { return }
+              !isPreviewingMedia,
+              let contextMenuService = chatPageViewService.contextMenu,
+              !contextMenuService.interaction.isPresentingContextMenu else { return }
 
         let inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
         let recipientBarWasFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false

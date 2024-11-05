@@ -57,7 +57,22 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Did Tap Play Button
 
-    public func didTapPlayButton(in cell: AudioMessageCell) -> Exception? {
+    @objc
+    public func didTapPlayButton(_ sender: UITapGestureRecognizer) {
+        guard let cell = sender.view?.allSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
+            Logger.log(.init(
+                "Failed to locate audio message cell in view hierarchy.",
+                metadata: [self, #file, #function, #line]
+            ))
+            return
+        }
+
+        if let exception = didTapPlayButton(in: cell) {
+            Logger.log(exception, with: .toast())
+        }
+    }
+
+    private func didTapPlayButton(in cell: AudioMessageCell) -> Exception? {
         guard let message = message(for: cell) else { return nil }
         let fallbackAudioFile = message.isFromCurrentUser ? message.audioComponent?.original : message.audioComponent?.translated
         guard let audioFile = audioFile(for: message) ?? fallbackAudioFile,

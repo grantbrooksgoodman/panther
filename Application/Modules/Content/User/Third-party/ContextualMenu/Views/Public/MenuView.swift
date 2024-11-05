@@ -32,7 +32,7 @@ public final class MenuView: UIView {
         /* MARK: Init */
 
         public init(
-            backgroundColor: UIColor = .white.withAlphaComponent(0.39),
+            backgroundColor: UIColor = .white.withAlphaComponent(0.5),
             cornerRadius: CGFloat = 12,
             element: MenuElementView.Style = MenuElementView.Style(),
             width: CGFloat = 250,
@@ -87,8 +87,13 @@ public final class MenuView: UIView {
         layer.cornerRadius = style.cornerRadius
         backgroundColor = style.backgroundColor
 
-        for child in menu.children {
-            let elementView = MenuElementView(element: child, style: style.element, delegate: self)
+        for (index, child) in menu.children.enumerated() {
+            let elementView = MenuElementView(
+                element: child,
+                style: style.element,
+                delegate: self,
+                showsDivider: index != menu.children.count - 1
+            )
             stackView.addArrangedSubview(elementView)
         }
 

@@ -116,12 +116,22 @@ public final class AlternateMessageService {
     private func getTextCellLabelFont() -> UIFont {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.NSAttributedString
 
-        guard let textMessageCell = viewController
+        let visibleTextMessageCells = viewController
             .messagesCollectionView
             .visibleCells
-            .compactMap({ $0 as? TextMessageCell })
-            .first else { return .systemFont(ofSize: Floats.messageCellStringSystemFontSize) }
+            .compactMap { $0 as? TextMessageCell }
 
-        return textMessageCell.messageLabel.font
+        var modelCell: TextMessageCell?
+        for textMessageCell in visibleTextMessageCells {
+            guard let indexPath = viewController.messagesCollectionView.indexPath(for: textMessageCell),
+                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
+                  message.contentType == .text,
+                  !isDisplayingAlternateText(for: message),
+                  !isDisplayingAudioTranscription(for: message) else { continue }
+            modelCell = textMessageCell
+        }
+
+        guard let modelCell else { return .systemFont(ofSize: Floats.messageCellStringSystemFontSize) }
+        return modelCell.messageLabel.font
     }
 }

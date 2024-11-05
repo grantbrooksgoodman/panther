@@ -25,13 +25,13 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
         didCancel utterance: AVSpeechUtterance
     ) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        chatPageViewService.menu?.dismissMenu()
+        chatPageViewService.contextMenu?.dismissMenu()
 
-        guard let speakingCell = chatPageViewService.menu?.speakingCell,
+        guard let speakingCell = chatPageViewService.contextMenu?.actionHandler.speakingCell,
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
         chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
-        chatPageViewService.menu?.resetSpeakingMessage()
+        chatPageViewService.contextMenu?.actionHandler.resetSpeakingMessage()
     }
 
     // MARK: - Did Finish Utterance
@@ -41,13 +41,13 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
         didFinish utterance: AVSpeechUtterance
     ) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        chatPageViewService.menu?.dismissMenu()
+        chatPageViewService.contextMenu?.dismissMenu()
 
-        guard let speakingCell = chatPageViewService.menu?.speakingCell,
+        guard let speakingCell = chatPageViewService.contextMenu?.actionHandler.speakingCell,
               let indexPath = messagesCollectionView.indexPath(for: speakingCell) else { return }
 
         chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
-        chatPageViewService.menu?.resetSpeakingMessage()
+        chatPageViewService.contextMenu?.actionHandler.resetSpeakingMessage()
     }
 
     // MARK: - Will Speak Range of Speech String
@@ -57,10 +57,12 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
         willSpeakRangeOfSpeechString characterRange: NSRange,
         utterance: AVSpeechUtterance
     ) {
-        @Dependency(\.chatPageViewService.menu) var menuService: MenuService?
+        @Dependency(\.chatPageViewService.contextMenu) var contextMenuService: ContextMenuService?
 
-        guard let speakingCell = menuService?.speakingCell as? TextMessageCell,
-              let speakingMessage = menuService?.speakingMessage,
+        guard let contextMenuService,
+              !contextMenuService.interaction.isPresentingContextMenu,
+              let speakingCell = contextMenuService.actionHandler.speakingCell as? TextMessageCell,
+              let speakingMessage = contextMenuService.actionHandler.speakingMessage,
               messagesCollectionView.visibleCells.contains(speakingCell),
               let labelFont = speakingCell.messageLabel.font,
               let labelText = speakingCell.messageLabel.text else { return }

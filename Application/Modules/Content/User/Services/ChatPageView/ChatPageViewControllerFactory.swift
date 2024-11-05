@@ -30,7 +30,6 @@ public struct ChatPageViewControllerFactory {
     public func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
 
-        viewController.messagesCollectionView.messageCellDelegate = viewController
         viewController.messagesCollectionView.messagesDataSource = viewController
         viewController.messagesCollectionView.messagesDisplayDelegate = viewController
         viewController.messagesCollectionView.messagesLayoutDelegate = viewController

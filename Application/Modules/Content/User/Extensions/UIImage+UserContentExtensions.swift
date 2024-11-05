@@ -67,6 +67,41 @@ public extension UIImage {
         }
     }
 
+    static func fromInitials(
+        _ initials: String,
+        backgroundColor: UIColor = .systemGray,
+        font: UIFont = .systemFont(ofSize: 20),
+        textColor: UIColor = .white,
+        size: CGSize = .init(width: 50, height: 50)
+    ) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        defer { UIGraphicsEndImageContext() }
+
+        let graphicsContext = UIGraphicsGetCurrentContext()
+        graphicsContext?.setFillColor(backgroundColor.cgColor)
+        graphicsContext?.fill(.init(origin: .zero, size: size))
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+
+        let textAttributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: textColor,
+            .paragraphStyle: paragraphStyle,
+        ]
+
+        let textSize = initials.size(withAttributes: textAttributes)
+        let textFrame = CGRect(
+            x: (size.width - textSize.width) / 2,
+            y: (size.height - textSize.height) / 2,
+            width: textSize.width,
+            height: textSize.height
+        )
+
+        initials.draw(in: textFrame, withAttributes: textAttributes)
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+
     private func _dataCompressed(toKB kilobytes: Int, toleratedMarginOfError: CGFloat) -> Data? {
         let bytes = kilobytes * 1024
         let step: CGFloat = 0.05

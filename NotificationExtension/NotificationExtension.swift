@@ -47,9 +47,18 @@ public final class NotificationExtension: UNNotificationServiceExtension {
 
         if let isReaction = bestAttemptContent.userInfo[NotificationExtensionConstants.isReactionUserInfoKey] as? String,
            isReaction == "true" {
-            guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
-                  let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else { return setSubtitleAndComplete() }
-            bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
+            guard let lastNumber = bestAttemptContent.title.last(where: { $0.isNumber }),
+                  let suffix = bestAttemptContent
+                  .title
+                  .components(separatedBy: "\(lastNumber)")
+                  .last else {
+                guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
+                      let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else { return setSubtitleAndComplete() }
+                bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
+                return setSubtitleAndComplete()
+            }
+
+            bestAttemptContent.title = "\(fullName)\(suffix)"
             setSubtitleAndComplete()
         } else {
             bestAttemptContent.title = fullName

@@ -16,6 +16,26 @@ import AppSubsystem
 public extension UIView {
     // MARK: - Properties
 
+    var allSubviews: [UIView] {
+        var subviews = [UIView]()
+        func getSubviews(for view: UIView) {
+            subviews.append(contentsOf: view.subviews)
+            view.subviews.forEach { getSubviews(for: $0) }
+        }
+        getSubviews(for: self)
+        return subviews
+    }
+
+    var allSuperviews: [UIView] {
+        var superviews = [UIView]()
+        var currentView = self
+        while let superview = currentView.superview {
+            superviews.append(superview)
+            currentView = superview
+        }
+        return superviews
+    }
+
     /// Leverages the `focusGroupIdentifier` property for use as a secondary identifier, separate from the view's `tag`.
     var identifier: String { focusGroupIdentifier ?? .init() }
 

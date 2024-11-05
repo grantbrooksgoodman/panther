@@ -16,6 +16,7 @@ public enum CommonServicesDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> CommonServices {
         .init(
             analytics: .init(),
+            attributeDetection: .shared,
             audio: .init(
                 playback: .init(),
                 recording: .init(),

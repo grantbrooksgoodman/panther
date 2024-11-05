@@ -27,7 +27,10 @@ public extension AppConstants.CGFloats {
         }
 
         enum ContextMenu {
-            public static let interactionTimerTimeInterval: CGFloat = 0.1
+            public static let doubleTapGestureNumberOfTapsRequired: CGFloat = 2
+            public static let interactionTimerTimeInterval: CGFloat = 0.1 // swiftlint:disable:next identifier_name
+            public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
+            public static let longPressGestureMinimumPressDuration: CGFloat = 0.5
 
             public static let menuStyleBottomMargin: CGFloat = 8
             public static let menuStyleTopMargin: CGFloat = 8
@@ -35,7 +38,7 @@ public extension AppConstants.CGFloats {
             public static let menuStyleTransformScaleX: CGFloat = 1.08
             public static let menuStyleTransformScaleY: CGFloat = 1.08
 
-            // swiftlint:disable:next identifier_name
+            public static let scrollToLastItemDelayMilliseconds: CGFloat = 200 // swiftlint:disable:next identifier_name
             public static let triggerExistingSelectionDelayMilliseconds: CGFloat = 10
         }
 
@@ -90,17 +93,6 @@ public extension AppConstants.CGFloats {
             public static let thumbnailImageScale: CGFloat = 2
             public static let thumbnailImageSizeHeight: CGFloat = 500
             public static let thumbnailImageSizeWidth: CGFloat = 500
-        }
-
-        enum Menu { // swiftlint:disable:next identifier_name
-            public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
-            public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
-
-            // swiftlint:disable:next identifier_name
-            public static let messageContainerViewBackgroundColorDarkeningPercentage: CGFloat = 20 // swiftlint:disable:next identifier_name
-            public static let messageContainerViewBackgroundColorLighteningPercentage: CGFloat = 10
-
-            public static let selectionAnimationDuration: CGFloat = 0.2
         }
 
         enum RecordingUI {
@@ -163,6 +155,21 @@ public extension AppConstants.Strings {
             public static let cellDefaultDurationLabelText = "0:00"
         }
 
+        enum ContextMenu { // swiftlint:disable:next identifier_name
+            public static let audioMessageActionAlternateImageSystemName = "text.bubble"
+            public static let audioMessageActionIdentifierRawValue = "audio_message"
+            public static let audioMessageActionImageSystemName = "speaker.wave.2.bubble"
+
+            public static let copyActionIdentifierRawValue = "copy"
+            public static let copyActionImageSystemName = "doc.on.doc"
+
+            public static let speakActionAlternateImageSystemName = "speaker.slash.circle"
+            public static let speakActionIdentifierRawValue = "speak"
+            public static let speakActionImageSystemName = "speaker.wave.2.circle" // "speaker.wave.3"
+
+            public static let viewAlterateActionIdentifierRawValue = "view_alternate"
+        }
+
         enum DeliveryProgressIndicator {
             public static let viewSemanticTag = "DELIVERY_PROGRESS_VIEW"
         }
@@ -184,13 +191,6 @@ public extension AppConstants.Strings {
             public static let defaultDocumentName = "document"
             public static let defaultImageName = "image"
             public static let defaultVideoName = "video"
-        }
-
-        enum Menu {
-            public static let audioMessageActionIdentifierRawValue = "audio_message"
-            public static let copyActionIdentifierRawValue = "copy"
-            public static let speakActionIdentifierRawValue = "speak"
-            public static let viewAlterateActionIdentifierRawValue = "view_alternate"
         }
 
         enum RecordingUI {
