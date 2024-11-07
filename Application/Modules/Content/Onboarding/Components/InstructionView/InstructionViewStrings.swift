@@ -12,14 +12,10 @@ import Foundation
 public struct InstructionViewStrings: Equatable {
     // MARK: - Properties
 
+    public static let empty: InstructionViewStrings = .init(titleLabelText: "", subtitleLabelText: "")
+
     public let subtitleLabelText: String
     public let titleLabelText: String
-
-    // MARK: - Computed Properties
-
-    public static var empty: InstructionViewStrings {
-        .init(titleLabelText: "", subtitleLabelText: "")
-    }
 
     // MARK: - Init
 

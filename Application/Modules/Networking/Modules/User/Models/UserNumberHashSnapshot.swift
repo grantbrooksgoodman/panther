@@ -12,19 +12,17 @@ import Foundation
 public struct UserNumberHashSnapshot {
     // MARK: - Properties
 
+    public static let empty: UserNumberHashSnapshot = .init(
+        date: .init(timeIntervalSince1970: 0),
+        hashes: .init(),
+        expiryThreshold: .zero
+    )
+
     public let date: Date
     public let expiryThreshold: Duration
     public let hashes: [String: [String]]
 
     // MARK: - Computed Properties
-
-    public static var empty: UserNumberHashSnapshot {
-        .init(
-            date: .init(timeIntervalSince1970: 0),
-            hashes: .init(),
-            expiryThreshold: .zero
-        )
-    }
 
     public var isExpired: Bool {
         Double(abs(date.seconds(from: Date()) * 1000)) > expiryThreshold.milliseconds

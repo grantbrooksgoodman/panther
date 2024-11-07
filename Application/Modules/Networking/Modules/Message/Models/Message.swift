@@ -26,6 +26,16 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public let id: String
 
     // Other
+    public static let empty: Message = .init(
+        "",
+        fromAccountID: "",
+        contentType: .text,
+        richContent: nil,
+        translations: nil,
+        readDate: nil,
+        sentDate: .init(timeIntervalSince1970: 0)
+    )
+
     public let contentType: ContentType
     public let richContent: RichMessageContent?
     public let translations: [Translation]?

@@ -35,6 +35,8 @@ public extension CacheDomain {
                 .queriedContactPairs,
                 .regionDetailService,
                 .settingsPageViewService,
+                .textToSpeechService,
+                .transcriptionService,
                 .userService,
             ]
         }
@@ -53,6 +55,8 @@ public extension CacheDomain {
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
     static let regionDetailService: CacheDomain = .init("regionDetailService")
     static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
+    static let textToSpeechService: CacheDomain = .init("textToSpeechService")
+    static let transcriptionService: CacheDomain = .init("transcriptionService")
     static let userService: CacheDomain = .init("userService")
 }
 
@@ -78,6 +82,8 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
         if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
         if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
+        if appDomains.contains(.textToSpeechService) { TextToSpeechServiceCache.clearCache() }
+        if appDomains.contains(.transcriptionService) { TranscriptionServiceCache.clearCache() }
         if appDomains.contains(.Networking.storage) { networking.storage.clearCache() }
         if appDomains.contains(.userService) { networking.userService.clearCache() }
     }

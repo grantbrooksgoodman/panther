@@ -22,22 +22,18 @@ public struct ConversationCellViewData: Equatable {
     public let titleLabelText: String
 
     // Other
+    public static let empty: ConversationCellViewData = .init(
+        titleLabelText: "",
+        subtitleLabelText: "",
+        dateLabelText: "",
+        isShowingUnreadIndicator: false,
+        otherUser: nil,
+        thumbnailImage: nil
+    )
+
     public let isShowingUnreadIndicator: Bool
     public let otherUser: User?
     public let thumbnailImage: UIImage?
-
-    // MARK: - Computed Properties
-
-    public static var empty: ConversationCellViewData {
-        .init(
-            titleLabelText: "",
-            subtitleLabelText: "",
-            dateLabelText: "",
-            isShowingUnreadIndicator: false,
-            otherUser: nil,
-            thumbnailImage: nil
-        )
-    }
 
     // MARK: - Init
 

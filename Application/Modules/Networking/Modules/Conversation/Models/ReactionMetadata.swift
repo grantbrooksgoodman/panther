@@ -15,6 +15,13 @@ import AppSubsystem
 public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
+    public static let empty: ReactionMetadata = .init(
+        messageID: .bangQualifiedEmpty,
+        reactions: [
+            .init(.like, userID: .bangQualifiedEmpty),
+        ]
+    )
+
     public let messageID: String
     public let reactions: [Reaction]
 
@@ -26,15 +33,6 @@ public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
         factors.append(contentsOf: reactions.map(\.style.encodedValue))
         return factors
     }
-
-    // MARK: - Computed Properties
-
-    public static let empty: ReactionMetadata = .init(
-        messageID: .bangQualifiedEmpty,
-        reactions: [
-            .init(.like, userID: .bangQualifiedEmpty),
-        ]
-    )
 
     // MARK: - Init
 

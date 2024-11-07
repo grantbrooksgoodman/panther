@@ -16,23 +16,19 @@ import Networking
 public final class IntegrityServiceSession {
     // MARK: - Properties
 
+    public static let empty: IntegrityServiceSession = .init(
+        conversationData: [:],
+        messageData: [:],
+        translationData: [:],
+        userData: [:],
+        userNumberHashData: [:]
+    )
+
     public let conversationData: [String: Any]
     public let messageData: [String: Any]
     public let translationData: [String: [String: Any]]
     public let userData: [String: Any]
     public let userNumberHashData: [String: Any]
-
-    // MARK: - Computed Properties
-
-    public static var empty: IntegrityServiceSession {
-        .init(
-            conversationData: [:],
-            messageData: [:],
-            translationData: [:],
-            userData: [:],
-            userNumberHashData: [:]
-        )
-    }
 
     // MARK: - Init
 

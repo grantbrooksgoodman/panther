@@ -86,18 +86,6 @@ extension Message: MessageType {
 public extension Message {
     var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
 
-    static var empty: Message {
-        .init(
-            "",
-            fromAccountID: "",
-            contentType: .text,
-            richContent: nil,
-            translations: nil,
-            readDate: nil,
-            sentDate: .init(timeIntervalSince1970: 0)
-        )
-    }
-
     var isFromCurrentUser: Bool {
         @Persistent(.currentUserID) var currentUserID: String?
         return fromAccountID == currentUserID

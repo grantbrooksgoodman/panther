@@ -95,6 +95,7 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
+        modifyConfigurationIfNeeded()
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
 
@@ -288,6 +289,24 @@ public final class ChatPageViewService {
                 animated: true
             )
         }
+    }
+
+    /// - NOTE: Fixes a bug in which a recent dismissal of the chat page would cause the next preview to incorrectly use the `.default` configuration.
+    private func modifyConfigurationIfNeeded() {
+        let presentedViewControllerIDs = uiApplication.presentedViewControllers.map { String(type(of: $0.self)) }
+        guard presentedViewControllerIDs.contains(Strings.chatPageViewPreviewViewControllerID),
+              presentedViewControllerIDs.contains(Strings.editingOverlayViewControllerID),
+              presentedViewControllerIDs.contains(Strings.inputWindowControllerID),
+              presentedViewControllerIDs.count(of: Strings.navigationStackHostingControllerID) != 2,
+              configuration != .preview else { return }
+
+        Logger.log(
+            "Intercepted misconfigured preview bug.",
+            domain: .bugPrevention,
+            metadata: [self, #file, #function, #line]
+        )
+
+        configuration = .preview
     }
 
     private func toggleBuildInfoOverlay(on: Bool) {

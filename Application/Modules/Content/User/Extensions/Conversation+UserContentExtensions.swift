@@ -16,19 +16,6 @@ public extension Conversation {
     // MARK: - Properties
 
     var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
-
-    static var empty: Conversation {
-        .init(
-            .init(key: "", hash: ""),
-            messageIDs: [],
-            messages: nil,
-            metadata: .empty,
-            participants: [],
-            reactionMetadata: nil,
-            users: nil
-        )
-    }
-
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
     var isMock: Bool { id.key == CommonConstants.newConversationID }
 

@@ -27,6 +27,16 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     public private(set) var users: [User]?
 
     // Other
+    public static let empty: Conversation = .init(
+        .init(key: "", hash: ""),
+        messageIDs: [],
+        messages: nil,
+        metadata: .empty,
+        participants: [],
+        reactionMetadata: nil,
+        users: nil
+    )
+
     public let id: ConversationID
     public let metadata: ConversationMetadata
 

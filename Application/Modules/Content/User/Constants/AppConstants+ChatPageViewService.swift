@@ -159,6 +159,11 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatPageViewService {
+        public static let chatPageViewPreviewViewControllerID = "UIHostingController<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>>"
+        public static let editingOverlayViewControllerID = "UIEditingOverlayViewController"
+        public static let inputWindowControllerID = "UIInputWindowController"
+        public static let navigationStackHostingControllerID = "NavigationStackHostingController<AnyView>"
+
         enum AudioMessagePlayback {
             public static let cellDefaultDurationLabelText = "0:00"
         }

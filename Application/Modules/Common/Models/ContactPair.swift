@@ -12,6 +12,8 @@ import Foundation
 public struct ContactPair: Codable, Hashable {
     // MARK: - Properties
 
+    public static let empty: ContactPair = .mock(withName: "")
+
     public let contact: Contact
     public let numberPairs: [NumberPair]
 

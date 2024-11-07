@@ -27,8 +27,6 @@ public extension ContactPair {
         return users.map(\.id).allSatisfy { $0 == currentUserID }
     }
 
-    static var empty: ContactPair { mock(withName: "") }
-
     var isMock: Bool {
         guard contact.id.isBlank,
               contact.lastName.isBlank,

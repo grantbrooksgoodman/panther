@@ -73,9 +73,44 @@ public struct TranscriptionService {
     // MARK: - Capabilities
 
     public func isTranscriptionSupported(for languageCode: String) -> Bool {
-        SFSpeechRecognizer
+        if let cachedValue = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes?[languageCode] {
+            return cachedValue
+        }
+
+        let isTranscriptionSupported = SFSpeechRecognizer
             .supportedLocales()
             .compactMap(\.language.languageCode?.identifier)
             .contains(where: { $0.hasPrefix(languageCode.lowercased()) })
+
+        // swiftlint:disable:next identifier_name
+        var cachedTranscriptionSupportForLanguageCodes = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes ?? [:]
+        cachedTranscriptionSupportForLanguageCodes[languageCode] = isTranscriptionSupported
+        _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes = cachedTranscriptionSupportForLanguageCodes
+        return isTranscriptionSupported
+    }
+}
+
+public enum TranscriptionServiceCache {
+    public static func clearCache() {
+        _TranscriptionServiceCache.clearCache()
+    }
+}
+
+private enum _TranscriptionServiceCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case transcriptionSupportForLanguageCodes
+    }
+
+    // MARK: - Properties
+
+    // swiftlint:disable:next identifier_name
+    @Cached(CacheKey.transcriptionSupportForLanguageCodes) fileprivate static var cachedTranscriptionSupportForLanguageCodes: [String: Bool]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedTranscriptionSupportForLanguageCodes = nil
     }
 }

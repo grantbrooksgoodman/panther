@@ -79,9 +79,19 @@ public struct TextToSpeechService {
     // MARK: - Capabilities
 
     public func isTextToSpeechSupported(for languageCode: String) -> Bool {
-        AVSpeechSynthesisVoice
+        if let cachedValue = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes?[languageCode] {
+            return cachedValue
+        }
+
+        let isTextToSpeechSupported = AVSpeechSynthesisVoice
             .speechVoices()
             .contains(where: { $0.language.lowercased().hasPrefix(languageCode.lowercased()) })
+
+        // swiftlint:disable:next identifier_name
+        var cachedTextToSpeechSupportForLanguageCodes = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes ?? [:]
+        cachedTextToSpeechSupportForLanguageCodes[languageCode] = isTextToSpeechSupported
+        _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes = cachedTextToSpeechSupportForLanguageCodes
+        return isTextToSpeechSupported
     }
 
     // MARK: - Auxiliary
@@ -201,5 +211,30 @@ public struct TextToSpeechService {
                 }
             }
         }
+    }
+}
+
+public enum TextToSpeechServiceCache {
+    public static func clearCache() {
+        _TextToSpeechServiceCache.clearCache()
+    }
+}
+
+private enum _TextToSpeechServiceCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case textToSpeechSupportForLanguageCodes
+    }
+
+    // MARK: - Properties
+
+    // swiftlint:disable:next identifier_name
+    @Cached(CacheKey.textToSpeechSupportForLanguageCodes) fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedTextToSpeechSupportForLanguageCodes = nil
     }
 }

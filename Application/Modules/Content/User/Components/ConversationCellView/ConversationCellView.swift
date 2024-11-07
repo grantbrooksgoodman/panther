@@ -41,7 +41,7 @@ public struct ConversationCellView: View {
         }
         .contextMenu {
             contextMenuButtons
-        } preview: {
+        } preview: { // Modify with caution – ChatPageViewService relies on this specific stack to detect misconfigured previews.
             ChatPageView(
                 viewModel.conversation,
                 configuration: .preview

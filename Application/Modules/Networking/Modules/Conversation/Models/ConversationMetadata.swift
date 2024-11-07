@@ -13,15 +13,17 @@ import UIKit
 public struct ConversationMetadata: Codable, Equatable {
     // MARK: - Properties
 
+    public static let empty: ConversationMetadata = .init(
+        name: .bangQualifiedEmpty,
+        imageData: nil,
+        lastModifiedDate: .init(timeIntervalSince1970: 0)
+    )
+
     public let name: String
     public let imageData: Data?
     public let lastModifiedDate: Date
 
     // MARK: - Computed Properties
-
-    public static var empty: ConversationMetadata {
-        .init(name: .bangQualifiedEmpty, imageData: nil, lastModifiedDate: .init(timeIntervalSince1970: 0))
-    }
 
     public var image: UIImage? {
         guard let imageData else { return nil }
