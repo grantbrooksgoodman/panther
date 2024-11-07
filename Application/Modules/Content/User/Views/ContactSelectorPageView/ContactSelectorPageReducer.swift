@@ -19,6 +19,7 @@ public struct ContactSelectorPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
 
@@ -110,11 +111,11 @@ public struct ContactSelectorPageReducer: Reducer {
         switch event {
         case .action(.viewAppeared):
             NavigationBar.setAppearance(.themed(showsDivider: false))
-            core.gcd.after(.seconds(1)) { core.ui.resignFirstResponder() }
+            core.gcd.after(.seconds(1)) { uiApplication.resignFirstResponders() }
 
         case .action(.cancelToolbarButtonTapped):
             state.isPresented.wrappedValue = false
-            core.ui.resignFirstResponder()
+            uiApplication.resignFirstResponders()
             core.gcd.after(.milliseconds(250)) { chatPageViewService.inputBar?.forceAppearance() }
 
         case .action(.inviteToolbarButtonTapped):
@@ -137,7 +138,7 @@ public struct ContactSelectorPageReducer: Reducer {
             }
 
         case .action(.traitCollectionChanged):
-            core.gcd.after(.milliseconds(500)) { core.ui.resignFirstResponder() }
+            core.gcd.after(.milliseconds(500)) { uiApplication.resignFirstResponders() }
 
         case let .feedback(.presentInvitationPromptReturned(exception)):
             guard let exception else { return .none }

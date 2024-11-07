@@ -85,17 +85,17 @@ public final class InputBarService {
 
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
     private var shouldConfigureInputBarForRecording: Bool {
-        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
-        if !isTextViewTextBlank,
+        let isTextViewTextEmpty = inputBar.inputTextView.text.sanitized.isEmpty
+        if !isTextViewTextEmpty,
            let cachedValue = cachedShouldConfigureInputBarForRecording,
            cachedValue.encodedConversationID == viewController.currentConversation?.id.encoded {
             return cachedValue.shouldConfigureForRecording
         }
 
         let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
-        let shouldConfigureForRecording = canConfigureInputBarForRecording && isTextViewTextBlank
+        let shouldConfigureForRecording = canConfigureInputBarForRecording && isTextViewTextEmpty
 
-        guard !isTextViewTextBlank else { return shouldConfigureForRecording }
+        guard !isTextViewTextEmpty else { return shouldConfigureForRecording }
         cachedShouldConfigureInputBarForRecording = (
             viewController.currentConversation?.id.encoded ?? .bangQualifiedEmpty,
             shouldConfigureForRecording

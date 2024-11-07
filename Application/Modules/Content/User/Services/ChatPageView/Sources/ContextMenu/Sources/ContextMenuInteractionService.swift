@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+// swiftlint:disable:next type_body_length
 public final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
 
@@ -25,20 +26,56 @@ public final class ContextMenuInteractionService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
+    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
+    // Bool
     public private(set) var isPresentingContextMenu = false {
         didSet { restoreSpeakingCellAttributes() }
     }
 
+    private var hadFirstResponderBeforeInteraction = false
+    private var lastMessageWasVisibleBeforeInteraction = false
+
+    // Other
     public private(set) var selectedMessageID: String?
 
     private let viewController: ChatPageViewController
 
     private var contextMenuInteractionTimer: Timer?
+    private var scrollViewMaxContentOffsetY: CGFloat = 0
+
+    // MARK: - Computed Properties
+
+    @MainActor
+    public var isLastMessageVisible: Bool {
+        let lastVisibleMessageID = viewController
+            .messagesCollectionView
+            .visibleCells
+            .filter { $0.indexPath != nil }
+            .sorted(by: { $0.indexPath! < $1.indexPath! })
+            .compactMap { ($0 as? MessageContentCell)?.contextMenuMessageID }
+            .last
+
+        // Leeway/margin of error for scroll position
+        // swiftlint:disable:next line_length
+        let lowerOffsetRange = (scrollViewMaxContentOffsetY - Floats.isLastMessageVisibleScrollViewOffsetLowerBoundDecrement) ... (scrollViewMaxContentOffsetY - 1) // swiftlint:disable:next line_length
+        let upperOffsetRange = (scrollViewMaxContentOffsetY + 1) ... (scrollViewMaxContentOffsetY + Floats.isLastMessageVisibleScrollViewOffsetUpperBoundIncrement)
+
+        guard let lastVisibleMessageID,
+              let lastMessageID = viewController.currentConversation?.messages?.last?.id,
+              lastVisibleMessageID == lastMessageID,
+              lowerOffsetRange.contains(viewController.messagesCollectionView.contentOffset.y) ||
+              upperOffsetRange.contains(viewController.messagesCollectionView.contentOffset.y) ||
+              viewController.messagesCollectionView.contentOffset.y == scrollViewMaxContentOffsetY else { return false }
+
+        return true
+    }
 
     // MARK: - Object Lifecycle
 
@@ -49,12 +86,14 @@ public final class ContextMenuInteractionService {
     deinit {
         contextMenuInteractionTimer?.invalidate()
         contextMenuInteractionTimer = nil
+        removeKeyboardWillShowObserver()
     }
 
     // MARK: - Configure Double Tap Gesture Recognizer
 
     public func configureDoubleTapGestureRecognizer() {
         let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(reactToSelectedMessage(_:)))
+        doubleTapGesture.delaysTouchesBegan = true
         doubleTapGesture.numberOfTapsRequired = Int(Floats.doubleTapGestureNumberOfTapsRequired)
         viewController.messagesCollectionView.addOrEnable(doubleTapGesture)
     }
@@ -113,7 +152,7 @@ public final class ContextMenuInteractionService {
         guard let conversation = viewController.currentConversation else { return }
         func scrollToLastItemIfNeeded(_ message: Message) {
             func scrollToLastItem() {
-                Task.delayed(by: .milliseconds(Floats.scrollToLastItemDelayMilliseconds)) { @MainActor in
+                Task.delayed(by: .milliseconds(Floats.reactionScrollToLastItemDelayMilliseconds)) { @MainActor in
                     self.viewController.messagesCollectionView.scrollToLastItem()
                 }
             }
@@ -156,6 +195,25 @@ public final class ContextMenuInteractionService {
                 scrollToLastItemIfNeeded(message)
             }
         }
+    }
+
+    // MARK: - Keyboard Will Show Observer
+
+    public func addKeyboardWillShowObserver() {
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+    }
+
+    public func removeKeyboardWillShowObserver() {
+        notificationCenter.removeObserver(
+            self,
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
     }
 
     // MARK: - Set Is Presenting Context Menu
@@ -215,10 +273,43 @@ public final class ContextMenuInteractionService {
                 },
                 style: contextMenuStyle,
                 onInteractionBegan: {
-                    self.viewController.messagesCollectionView.isScrollEnabled = false
-                    self.selectedMessageID = message.id
+                    Task { @MainActor in
+                        self.viewController.messagesCollectionView.isScrollEnabled = false
+                        self.selectedMessageID = message.id
+
+                        self.hadFirstResponderBeforeInteraction = self.uiApplication.firstResponder != nil
+                        self.lastMessageWasVisibleBeforeInteraction = self.isLastMessageVisible
+                    }
                 },
-                onInteractionEnded: { self.viewController.messagesCollectionView.isScrollEnabled = true }
+                onInteractionEnded: {
+                    Task { @MainActor in
+                        self.viewController.messagesCollectionView.isScrollEnabled = true
+
+                        /// - NOTE: Fixes a bug in which a dismissal of the context menu under the below conditions would cause the scroll view content offset to be set incorrectly.
+                        @MainActor
+                        func scrollToLastItemIfNeeded() {
+                            defer {
+                                self.hadFirstResponderBeforeInteraction = false
+                                self.lastMessageWasVisibleBeforeInteraction = false
+                            }
+
+                            guard self.hadFirstResponderBeforeInteraction,
+                                  self.lastMessageWasVisibleBeforeInteraction else { return }
+
+                            Logger.log(
+                                "Intercepted scroll view content offset bug.",
+                                domain: .bugPrevention,
+                                metadata: [self, #file, #function, #line]
+                            )
+
+                            self.coreGCD.after(.milliseconds(Floats.interactionScrollToLastItemDelayMilliseconds)) {
+                                self.viewController.messagesCollectionView.scrollToLastItem(animated: false)
+                            }
+                        }
+
+                        scrollToLastItemIfNeeded()
+                    }
+                }
             )
 
             // TODO: May not persist for new cell dequeues – audit this.
@@ -231,6 +322,16 @@ public final class ContextMenuInteractionService {
                 audioCell.playButton.addOrEnable(singleTapGesture)
             }
         }
+    }
+
+    fileprivate func indexPath(for cell: UICollectionViewCell) -> IndexPath? {
+        viewController.messagesCollectionView.indexPath(for: cell)
+    }
+
+    @objc
+    private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        scrollViewMaxContentOffsetY = viewController.messagesCollectionView.maxContentOffsetY + keyboardFrame.cgRectValue.height
     }
 
     private func restoreSpeakingCellAttributes() {
@@ -267,4 +368,15 @@ public final class ContextMenuInteractionService {
               let reactionEmojiValue = reactions.first(where: { $0.userID == currentUserID })?.style.emojiValue else { return }
         viewController.markSelected(reactionEmojiValue)
     }
+}
+
+private extension UICollectionViewCell {
+    var indexPath: IndexPath? {
+        @Dependency(\.chatPageViewService.contextMenu?.interaction) var contextMenuInteractionService: ContextMenuInteractionService?
+        return contextMenuInteractionService?.indexPath(for: self)
+    }
+}
+
+private extension UIScrollView {
+    var maxContentOffsetY: CGFloat { contentSize.height - bounds.height + contentInset.bottom }
 }

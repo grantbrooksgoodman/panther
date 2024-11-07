@@ -17,7 +17,6 @@ import Networking
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
@@ -159,13 +158,13 @@ public struct SignInPageReducer: Reducer {
             }
 
         case .continueButtonTapped:
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
             return .task(delay: .milliseconds(100)) {
                 .continueButtonTapped
             }
 
         case .didSwipeDown:
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
 
         case let .phoneNumberStringChanged(phoneNumberString):
             state.phoneNumberString = phoneNumberString

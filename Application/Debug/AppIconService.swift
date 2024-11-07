@@ -22,7 +22,6 @@ public final class AppIconService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
@@ -68,7 +67,7 @@ public final class AppIconService {
             return
         }
 
-        core.ui.dismissAlertController()
+        uiApplication.dismissAlertControllers()
     }
 
     // MARK: - Randomize App Icon

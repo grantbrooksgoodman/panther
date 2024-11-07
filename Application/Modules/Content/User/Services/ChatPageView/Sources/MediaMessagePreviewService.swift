@@ -27,9 +27,9 @@ public final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
@@ -79,7 +79,7 @@ public final class MediaMessagePreviewService {
 
         let inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
         let recipientBarWasFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
-        coreUI.resignFirstResponder()
+        uiApplication.resignFirstResponders()
 
         if let exception = quickViewer.preview(
             filesAtPaths: mediaPaths,

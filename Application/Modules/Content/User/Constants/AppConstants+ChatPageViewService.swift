@@ -27,8 +27,15 @@ public extension AppConstants.CGFloats {
         }
 
         enum ContextMenu {
+            // swiftlint:disable identifier_name
             public static let doubleTapGestureNumberOfTapsRequired: CGFloat = 2
-            public static let interactionTimerTimeInterval: CGFloat = 0.1 // swiftlint:disable:next identifier_name
+
+            public static let interactionTimerTimeInterval: CGFloat = 0.1
+            public static let interactionScrollToLastItemDelayMilliseconds: CGFloat = 60
+
+            public static let isLastMessageVisibleScrollViewOffsetLowerBoundDecrement: CGFloat = 150
+            public static let isLastMessageVisibleScrollViewOffsetUpperBoundIncrement: CGFloat = 150
+
             public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
             public static let longPressGestureMinimumPressDuration: CGFloat = 0.5
 
@@ -38,8 +45,9 @@ public extension AppConstants.CGFloats {
             public static let menuStyleTransformScaleX: CGFloat = 1.08
             public static let menuStyleTransformScaleY: CGFloat = 1.08
 
-            public static let scrollToLastItemDelayMilliseconds: CGFloat = 200 // swiftlint:disable:next identifier_name
+            public static let reactionScrollToLastItemDelayMilliseconds: CGFloat = 200
             public static let triggerExistingSelectionDelayMilliseconds: CGFloat = 10
+            // swiftlint:enable identifier_name
         }
 
         enum DeliveryProgressIndicator {
@@ -165,7 +173,7 @@ public extension AppConstants.Strings {
 
             public static let speakActionAlternateImageSystemName = "speaker.slash.circle"
             public static let speakActionIdentifierRawValue = "speak"
-            public static let speakActionImageSystemName = "speaker.wave.2.circle" // "speaker.wave.3"
+            public static let speakActionImageSystemName = "speaker.wave.2.circle"
 
             public static let viewAlterateActionIdentifierRawValue = "view_alternate"
         }

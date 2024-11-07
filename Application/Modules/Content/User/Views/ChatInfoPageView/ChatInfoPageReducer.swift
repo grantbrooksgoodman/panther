@@ -18,8 +18,8 @@ public struct ChatInfoPageReducer: Reducer {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
@@ -139,7 +139,7 @@ public struct ChatInfoPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
 
             let getChatParticipantsTask: Effect<Feedback> = .task {
                 let result = await viewService.getChatParticipants()

@@ -17,7 +17,6 @@ import Networking
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -91,13 +90,13 @@ public struct AuthCodePageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
             return .task(delay: .milliseconds(100)) {
                 .continueButtonTapped
             }
 
         case .action(.didSwipeDown):
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
 
         case let .action(.verificationCodeChanged(verificationCode)):
             state.verificationCode = verificationCode

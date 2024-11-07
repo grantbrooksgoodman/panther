@@ -59,7 +59,7 @@ public final class AudioMessagePlaybackService {
 
     @objc
     public func didTapPlayButton(_ sender: UITapGestureRecognizer) {
-        guard let cell = sender.view?.allSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
+        guard let cell = sender.view?.traversedSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
             Logger.log(.init(
                 "Failed to locate audio message cell in view hierarchy.",
                 metadata: [self, #file, #function, #line]

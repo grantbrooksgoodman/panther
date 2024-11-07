@@ -16,8 +16,7 @@ import AppSubsystem
 final class ContextMenuInteractor {
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
-    @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) private var speakingMessage: Message?
+    @Dependency(\.chatPageViewService.contextMenu) private var contextMenuService: ContextMenuService?
 
     // MARK: - Properties
 
@@ -83,8 +82,10 @@ final class ContextMenuInteractor {
               let view = sender.view,
               let interaction = interactions.object(forKey: view) else { return }
 
-        contextMenuInteractionService?.setIsPresentingContextMenu(true)
-        guard speakingMessage == nil else {
+        contextMenuService?.interaction.setIsPresentingContextMenu(true)
+        interaction.onInteractionBeganEffect?()
+
+        guard contextMenuService?.actionHandler.speakingMessage == nil else {
             Task.delayed(by: .milliseconds(10)) { @MainActor in
                 showContextMenu(on: view, interaction: interaction)
             }
@@ -105,15 +106,18 @@ final class ContextMenuInteractor {
     func dismissContextMenu(interaction: Interaction?, completion: (() -> Void)?) {
         contextMenuViewController?.disappearAnimation { [weak self] in
             interaction?.gesture.isEnabled = true
-            self?.contextMenuInteractionService?.setIsPresentingContextMenu(false)
             self?.restoreWindow()
+            self?.contextMenuService?.interaction.setIsPresentingContextMenu(false)
             interaction?.onInteractionEndedEffect?()
             completion?()
         }
     }
 
     func dismissCurrentContextMenu(completion: (() -> Void)? = nil) {
-        if let contextMenuInteractionService { guard contextMenuInteractionService.isPresentingContextMenu else { return } }
+        if let contextMenuInteractionService = contextMenuService?.interaction {
+            guard contextMenuInteractionService.isPresentingContextMenu else { return }
+        }
+
         defer { completion?() }
         guard let contextMenuViewController else { return }
         dismissContextMenu(interaction: contextMenuViewController.interaction, completion: completion)
@@ -150,6 +154,5 @@ final class ContextMenuInteractor {
 
         window.makeKeyAndVisible()
         contextMenuController.appearAnimation()
-        interaction.onInteractionBeganEffect?()
     }
 }

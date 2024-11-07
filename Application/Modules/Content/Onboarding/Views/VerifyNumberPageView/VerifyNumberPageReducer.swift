@@ -17,7 +17,6 @@ import Networking
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
@@ -121,13 +120,13 @@ public struct VerifyNumberPageReducer: Reducer {
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
         case .action(.continueButtonTapped):
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
             return .task(delay: .milliseconds(100)) {
                 .continueButtonTapped
             }
 
         case .action(.didSwipeDown):
-            coreUI.resignFirstResponder()
+            uiApplication.resignFirstResponders()
 
         case let .action(.phoneNumberStringChanged(phoneNumberString)):
             state.phoneNumberString = phoneNumberString

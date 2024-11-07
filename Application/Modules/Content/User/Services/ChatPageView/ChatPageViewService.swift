@@ -120,7 +120,9 @@ public final class ChatPageViewService {
             return
         }
 
+        contextMenu?.interaction.addKeyboardWillShowObserver()
         contextMenu?.interaction.startAddingContextMenuInteractionToVisibleCells()
+
         contextMenu?.interaction.configureDoubleTapGestureRecognizer()
         mediaMessagePreview?.configureGestureRecognizers()
         inputBarGestureRecognizer?.configureGestureRecognizers()
@@ -132,7 +134,7 @@ public final class ChatPageViewService {
         if configuration == .default {
             services.analytics.logEvent(.accessChat)
             inputBar?.becomeFirstResponder()
-            core.ui.resignFirstResponder()
+            uiApplication.resignFirstResponders()
 
             UIView.animate(
                 withDuration: Floats.inputBarAppearanceAnimationDuration,
@@ -173,7 +175,9 @@ public final class ChatPageViewService {
     public func onViewDidDisappear() {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+
         chatPageState.setIsPresented(false)
+        contextMenu?.interaction.removeKeyboardWillShowObserver()
 
         Task.background {
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
@@ -235,7 +239,6 @@ public final class ChatPageViewService {
 
     public func reloadCollectionView() {
         Task { @MainActor in
-            contextMenu?.dismissMenu()
             guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
             viewController?.messagesCollectionView.reloadData()
         }
