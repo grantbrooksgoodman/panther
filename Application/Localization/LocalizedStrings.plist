@@ -4942,6 +4942,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>离线模式</string>
 	</dict>
+	<key>original_in_language</key>
+	<dict>
+		<key>af</key>
+		<string>Oorspronklik in ⌘</string>
+		<key>ar</key>
+		<string>الأصل في ⌘</string>
+		<key>az</key>
+		<string>Orijinal ⌘</string>
+		<key>be</key>
+		<string>Арыгінал у ⌘</string>
+		<key>bg</key>
+		<string>Оригинал в ⌘</string>
+		<key>bn</key>
+		<string>Original in ⌘</string>
+		<key>bs</key>
+		<string>Original u ⌘</string>
+		<key>ca</key>
+		<string>Original en ⌘</string>
+		<key>cs</key>
+		<string>Originál v ⌘</string>
+		<key>cy</key>
+		<string>Gwreiddiol yn ⌘</string>
+		<key>da</key>
+		<string>Original i ⌘</string>
+		<key>de</key>
+		<string>Original in ⌘</string>
+		<key>el</key>
+		<string>Πρωτότυπο στο ⌘</string>
+		<key>en</key>
+		<string>⌘ original</string>
+		<key>eo</key>
+		<string>Originalo en ⌘</string>
+		<key>es</key>
+		<string>Original en ⌘</string>
+		<key>et</key>
+		<string>Originaal ⌘</string>
+		<key>eu</key>
+		<string>Originala ⌘</string>
+		<key>fa</key>
+		<string>Original in ⌘</string>
+		<key>fi</key>
+		<string>Alkuperäinen ⌘</string>
+		<key>fr</key>
+		<string>Original dans ⌘</string>
+		<key>ga</key>
+		<string>Bunaidh i ⌘</string>
+		<key>gd</key>
+		<string>Tùsail ann an ⌘</string>
+		<key>gl</key>
+		<string>Orixinal en ⌘</string>
+		<key>gu</key>
+		<string>Original in ⌘</string>
+		<key>he</key>
+		<string>מקורי ב- ⌘</string>
+		<key>hi</key>
+		<string>मूल में ⌘</string>
+		<key>hr</key>
+		<string>Original u ⌘</string>
+		<key>ht</key>
+		<string>Orijinal nan ⌘</string>
+		<key>hu</key>
+		<string>Eredeti ⌘</string>
+		<key>hy</key>
+		<string>Բնօրինակը ⌘</string>
+		<key>id</key>
+		<string>Asli di ⌘</string>
+		<key>is</key>
+		<string>Original in ⌘</string>
+		<key>it</key>
+		<string>Originale in ⌘</string>
+		<key>ja</key>
+		<string>オリジナル ^ ⌘</string>
+		<key>ka</key>
+		<string>Ორიგინალი ⌘</string>
+		<key>kk</key>
+		<string>Түпнұсқа ⌘</string>
+		<key>kn</key>
+		<string>Original in ⌘</string>
+		<key>ko</key>
+		<string>원본 ⌘</string>
+		<key>ky</key>
+		<string>Оригинал in ⌘</string>
+		<key>lt</key>
+		<string>Originalus ⌘</string>
+		<key>mg</key>
+		<string>Tany am-boalohany ao ⌘</string>
+		<key>mi</key>
+		<string>Taketake i ⌘</string>
+		<key>mk</key>
+		<string>Оригинал во ⌘</string>
+		<key>ml</key>
+		<string>യഥാർത്ഥത്തിൽ ⌘</string>
+		<key>mn</key>
+		<string>In in анхны ⌘</string>
+		<key>mt</key>
+		<string>Oriġinali f &apos;⌘</string>
+		<key>ne</key>
+		<string>मूल ⌘ मा</string>
+		<key>nl</key>
+		<string>Origineel in ⌘</string>
+		<key>no</key>
+		<string>Original i ⌘</string>
+		<key>pa</key>
+		<string>Original in ⌘</string>
+		<key>pl</key>
+		<string>Oryginał w ⌘</string>
+		<key>pt</key>
+		<string>Original em ⌘</string>
+		<key>ro</key>
+		<string>Original în ⌘</string>
+		<key>ru</key>
+		<string>Оригинал в ⌘</string>
+		<key>si</key>
+		<string>Original in ⌘</string>
+		<key>sk</key>
+		<string>Originál v ⌘</string>
+		<key>sl</key>
+		<string>Original v ⌘</string>
+		<key>sq</key>
+		<string>Origjinale në ⌘</string>
+		<key>sr</key>
+		<string>Оригинал у ⌘</string>
+		<key>su</key>
+		<string>Original in ⌘</string>
+		<key>sv</key>
+		<string>Original i ⌘</string>
+		<key>sw</key>
+		<string>Asili katika ⌘</string>
+		<key>ta</key>
+		<string>Original in ⌘</string>
+		<key>te</key>
+		<string>అసలు ⌘</string>
+		<key>tg</key>
+		<string>Асли дар ⌘</string>
+		<key>th</key>
+		<string>ต้นฉบับใน⌘</string>
+		<key>tl</key>
+		<string>Orihinal sa ⌘</string>
+		<key>tr</key>
+		<string>⌘ orijinal</string>
+		<key>tt</key>
+		<string>Оригиналь ⌘</string>
+		<key>uk</key>
+		<string>Оригінал у ⌘</string>
+		<key>ur</key>
+		<string>اصل میں ⌘</string>
+		<key>uz</key>
+		<string>Original in ⌘</string>
+		<key>vi</key>
+		<string>Bản gốc trong ⌘</string>
+		<key>yi</key>
+		<string>אָריגינעל אין ⌘</string>
+		<key>zh</key>
+		<string>原文为 ⌘</string>
+	</dict>
 	<key>reacted</key>
 	<dict>
 		<key>af</key>
@@ -8506,6 +8661,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>היינט</string>
 		<key>zh</key>
 		<string>今天</string>
+	</dict>
+	<key>translation_in_language</key>
+	<dict>
+		<key>af</key>
+		<string>Vertaling in ⌘</string>
+		<key>ar</key>
+		<string>الترجمة في ⌘</string>
+		<key>az</key>
+		<string>⌘ tərcümə</string>
+		<key>be</key>
+		<string>Пераклад у ⌘</string>
+		<key>bg</key>
+		<string>Превод в ⌘</string>
+		<key>bn</key>
+		<string>অনুবাদ ⌘</string>
+		<key>bs</key>
+		<string>Prevod u ⌘</string>
+		<key>ca</key>
+		<string>Traducció a ⌘</string>
+		<key>cs</key>
+		<string>Překlad v ⌘</string>
+		<key>cy</key>
+		<string>Cyfieithu yn ⌘</string>
+		<key>da</key>
+		<string>Oversættelse i ⌘</string>
+		<key>de</key>
+		<string>Übersetzung in ⌘</string>
+		<key>el</key>
+		<string>Μετάφραση στο ⌘</string>
+		<key>en</key>
+		<string>⌘ translation</string>
+		<key>eo</key>
+		<string>Traduko en ⌘</string>
+		<key>es</key>
+		<string>Traducción en ⌘</string>
+		<key>et</key>
+		<string>Tõlge ⌘</string>
+		<key>eu</key>
+		<string>Itzulpena ⌘</string>
+		<key>fa</key>
+		<string>ترجمه در ^ ⌘</string>
+		<key>fi</key>
+		<string>Käännös ⌘</string>
+		<key>fr</key>
+		<string>Traduction en ⌘</string>
+		<key>ga</key>
+		<string>Aistriúchán i ⌘</string>
+		<key>gd</key>
+		<string>Eadar-theangachadh ann an ⌘</string>
+		<key>gl</key>
+		<string>Tradución en ⌘</string>
+		<key>gu</key>
+		<string>⌘ માં અનુવાદ</string>
+		<key>he</key>
+		<string>תרגום ב- ⌘</string>
+		<key>hi</key>
+		<string>⌘ में अनुवाद</string>
+		<key>hr</key>
+		<string>Translation in ⌘</string>
+		<key>ht</key>
+		<string>Tradiksyon nan ⌘</string>
+		<key>hu</key>
+		<string>Fordítás ⌘</string>
+		<key>hy</key>
+		<string>Թարգմանություն ⌘</string>
+		<key>id</key>
+		<string>Terjemahan dalam ⌘</string>
+		<key>is</key>
+		<string>Translation in ⌘</string>
+		<key>it</key>
+		<string>Traduzione in ⌘</string>
+		<key>ja</key>
+		<string>⌘の翻訳</string>
+		<key>ka</key>
+		<string>Თარგმანი ⌘-ში</string>
+		<key>kk</key>
+		<string>⌘ аударма</string>
+		<key>kn</key>
+		<string>Translation in ⌘</string>
+		<key>ko</key>
+		<string>⌘의 번역</string>
+		<key>ky</key>
+		<string>⌘ котормо</string>
+		<key>lt</key>
+		<string>Vertimas ⌘</string>
+		<key>mg</key>
+		<string>Fandikana in ⌘</string>
+		<key>mi</key>
+		<string>Translation in ⌘</string>
+		<key>mk</key>
+		<string>Translation in ⌘</string>
+		<key>ml</key>
+		<string>⌘- ൽ വിവർത്തനം</string>
+		<key>mn</key>
+		<string>Translation in ⌘</string>
+		<key>mt</key>
+		<string>Traduzzjoni f &apos;⌘</string>
+		<key>ne</key>
+		<string>⌘ मा अनुवाद</string>
+		<key>nl</key>
+		<string>Vertaling in ⌘</string>
+		<key>no</key>
+		<string>Oversettelse på ⌘</string>
+		<key>pa</key>
+		<string>⌘ ਵਿੱਚ ਅਨੁਵਾਦ</string>
+		<key>pl</key>
+		<string>Tłumaczenie w ⌘</string>
+		<key>pt</key>
+		<string>Tradução em ⌘</string>
+		<key>ro</key>
+		<string>Traducere în ⌘</string>
+		<key>ru</key>
+		<string>Перевод в ⌘</string>
+		<key>si</key>
+		<string>⌘ හි පරිවර්තනය</string>
+		<key>sk</key>
+		<string>Preklad v ⌘</string>
+		<key>sl</key>
+		<string>Prevod v ⌘</string>
+		<key>sq</key>
+		<string>Përkthim në ⌘</string>
+		<key>sr</key>
+		<string>Превод на ⌘</string>
+		<key>su</key>
+		<string>Tarjamahan dina ⌘</string>
+		<key>sv</key>
+		<string>Översättning i ⌘</string>
+		<key>sw</key>
+		<string>Tafsiri katika ⌘</string>
+		<key>ta</key>
+		<string>Translation in ⌘</string>
+		<key>te</key>
+		<string>Translation in ⌘</string>
+		<key>tg</key>
+		<string>Тарҷума дар ⌘</string>
+		<key>th</key>
+		<string>การแปลใน⌘</string>
+		<key>tl</key>
+		<string>Pagsasalin sa ⌘</string>
+		<key>tr</key>
+		<string>Çeviri ⌘</string>
+		<key>tt</key>
+		<string>⌘ тәрҗемәсе</string>
+		<key>uk</key>
+		<string>Переклад в ⌘</string>
+		<key>ur</key>
+		<string>⌘ میں ترجمہ</string>
+		<key>uz</key>
+		<string>⌘ tilidagi tarjima</string>
+		<key>vi</key>
+		<string>Dịch trong ⌘</string>
+		<key>yi</key>
+		<string>איבערזעצונג אין ⌘</string>
+		<key>zh</key>
+		<string>翻译⌘</string>
 	</dict>
 	<key>try_again</key>
 	<dict>

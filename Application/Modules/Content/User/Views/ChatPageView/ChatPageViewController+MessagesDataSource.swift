@@ -50,6 +50,7 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
+        @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
               let messages = currentConversation.messages,
               let message = message as? Message,
@@ -74,29 +75,50 @@ extension ChatPageViewController: MessagesDataSource {
             reactionsString += reactions.map(\.style).sorted(by: { $0.orderValue < $1.orderValue }).map(\.emojiValue).joined()
         }
 
-        if currentConversation.participants.count == 2,
-           indexPath.section == messages.count - 1,
-           message.isFromCurrentUser {
-            let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
-            guard let readDate = message.readDate else {
-                return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(
-                    mainAttributes: standardAttributes,
-                    alternateAttributes: boldAttributes,
-                    alternateAttributeRange: [Localized(.delivered).wrappedValue]
-                )
-            }
+        let fromLanguageExonym = message.translation?.languagePair.from.languageExonym ?? .bangQualifiedEmpty
+        let toLanguageExonym = message.translation?.languagePair.to.languageExonym ?? .bangQualifiedEmpty
+        let attributedStringSecondaryAttributes: [AttributedStringConfig] = [
+            .init(boldAttributes, stringRanges: [
+                fromLanguageExonym,
+                toLanguageExonym,
+                Localized(.delivered).wrappedValue,
+                Localized(.read).wrappedValue,
+            ]),
+            .init(emojiAttributes, stringRanges: [reactionsString]),
+        ]
 
-            return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(
-                mainAttributes: standardAttributes,
-                alternateAttributes: boldAttributes,
-                alternateAttributeRange: [Localized(.read).wrappedValue]
+        if let alternateMessageService,
+           alternateMessageService.isDisplayingAlternateText(for: message),
+           !fromLanguageExonym.isBangQualifiedEmpty,
+           !toLanguageExonym.isBangQualifiedEmpty {
+            let originalString = Localized(.originalInLanguage).wrappedValue.replacingOccurrences(of: "⌘", with: fromLanguageExonym)
+            let translationString = Localized(.translationInLanguage).wrappedValue.replacingOccurrences(of: "⌘", with: toLanguageExonym)
+            let alternateMessageString = message.isFromCurrentUser ? translationString : originalString
+            reactionsString = "\(reactionsString.isBlank ? "" : "\(reactionsString) | ")\(alternateMessageString)"
+        }
+
+        guard currentConversation.participants.count == 2,
+              indexPath.section == messages.count - 1,
+              message.isFromCurrentUser,
+              !reactionsString.contains("|") else {
+            guard reactionsString.contains(where: { $0.isLetter }) else { return reactionsString.attributed(emojiAttributes) }
+            return reactionsString.attributed(
+                standardAttributes,
+                secondaryAttributes: attributedStringSecondaryAttributes
             )
         }
 
-        return reactionsString.attributed(
-            mainAttributes: emojiAttributes,
-            alternateAttributes: emojiAttributes,
-            alternateAttributeRange: []
+        let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
+        guard let readDate = message.readDate else {
+            return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(
+                standardAttributes,
+                secondaryAttributes: attributedStringSecondaryAttributes
+            )
+        }
+
+        return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(
+            standardAttributes,
+            secondaryAttributes: attributedStringSecondaryAttributes
         )
     }
 

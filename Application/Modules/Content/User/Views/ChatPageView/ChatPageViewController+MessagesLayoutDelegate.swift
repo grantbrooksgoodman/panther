@@ -27,18 +27,20 @@ extension ChatPageViewController: MessagesLayoutDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) -> CGFloat {
+        @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
               let messages = currentConversation.messages,
               let message = message as? Message,
               !message.isMock else { return 0 }
 
-        if currentConversation.participants.count == 2,
-           indexPath.section == messages.count - 1,
-           message.isFromCurrentUser {
+        if let alternateMessageService,
+           alternateMessageService.isDisplayingAlternateText(for: message) {
             return Floats.cellBottomLabelHeight
-        }
-
-        if message.reactions != nil {
+        } else if currentConversation.participants.count == 2,
+                  indexPath.section == messages.count - 1,
+                  message.isFromCurrentUser {
+            return Floats.cellBottomLabelHeight
+        } else if message.reactions != nil {
             return Floats.cellBottomLabelHeight
         }
 

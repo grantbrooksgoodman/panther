@@ -18,7 +18,7 @@ public extension FileManager {
         data: Data
     ) -> Exception? {
         func createDirectoryIfNeeded(_ name: String) -> Exception? {
-            let directory = documentsDirectoryURL.appending(path: "\(name)/")
+            let directory = documentsDirectoryURL.appending(path: "\(name.removingPercentEncoding ?? name)/")
             do {
                 try createDirectory(at: directory, withIntermediateDirectories: true)
             } catch {
@@ -36,9 +36,17 @@ public extension FileManager {
             )
         }
 
-        if pathComponents.count > 1 {
+        if path.absoluteString.contains(documentsDirectoryURL.absoluteString),
+           let documentsIndex = pathComponents.firstIndex(of: "Documents"),
+           documentsIndex != pathComponents.count - 1 {
+            let directoryComponents = pathComponents[documentsIndex + 1 ... pathComponents.count - 2]
+            let newDirectories = directoryComponents.joined(separator: "/")
+            if let exception = createDirectoryIfNeeded(newDirectories.removingPercentEncoding ?? newDirectories) {
+                Logger.log(exception)
+            }
+        } else if pathComponents.count > 1 {
             let parentDirectory = pathComponents[pathComponents.count - 2]
-            if let exception = createDirectoryIfNeeded(parentDirectory) {
+            if let exception = createDirectoryIfNeeded(parentDirectory.removingPercentEncoding ?? parentDirectory) {
                 Logger.log(exception)
             }
         }

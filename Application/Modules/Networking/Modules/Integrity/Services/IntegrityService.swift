@@ -94,9 +94,10 @@ public final class IntegrityService {
                 )
 
                 confirmationAlert.setAttributedTitle(confirmationAlertTitle.attributed(
-                    mainAttributes: confirmationAlertTitleAttributes,
-                    alternateAttributes: confirmationAlertTitleAttributes,
-                    alternateAttributeRange: [confirmationAlertTitle]
+                    confirmationAlertTitleAttributes,
+                    secondaryAttributes: [
+                        .init(confirmationAlertTitleAttributes, stringRanges: [confirmationAlertTitle]),
+                    ]
                 ))
 
                 let confirmed = await confirmationAlert.present()

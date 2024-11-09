@@ -54,6 +54,7 @@ public enum LocalizedStringKey: String {
     case noSpeechDetected
 
     case offlineMode
+    case originalInLanguage
 
     case reacted
     case read
@@ -80,6 +81,7 @@ public enum LocalizedStringKey: String {
     case timedOut
     case to
     case today
+    case translationInLanguage
     case tryAgain
     case tuesday
 

@@ -17,6 +17,7 @@ import Translator
 public struct AudioMessageService {
     // MARK: - Dependencies
 
+    @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Get Audio Component
@@ -187,31 +188,36 @@ public struct AudioMessageService {
             ).appending(extraParams: commonParams))
         }
 
+        let sourceFileURL = message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
+        let destinationFileURL = message.isFromCurrentUser ? localAudioFilePath.outputFilePathURL : localAudioFilePath.inputFilePathURL
+
         if let exception = await networking.storage.downloadItem(
-            at: localAudioFilePath.inputFilePathString,
-            to: localAudioFilePath.inputFilePathURL
+            at: message.isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
+            to: sourceFileURL
         ) {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        if let exception = await networking.storage.downloadItem(
-            at: localAudioFilePath.outputFilePathString,
-            to: localAudioFilePath.outputFilePathURL
-        ) {
+        let dataFromURLResult = Data.fromURL(sourceFileURL)
+
+        switch dataFromURLResult {
+        case let .success(data):
+            if let exception = fileManager.createFile(
+                atPath: destinationFileURL,
+                data: data
+            ) {
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
+        case let .failure(exception):
             return .failure(exception.appending(extraParams: commonParams))
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
-              let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
+              let outputFile = AudioFile(localAudioFilePath.outputFilePathURL),
+              let translation = message.translation else {
             return .failure(.init(
-                "Failed to generate audio files.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
-        }
-
-        guard let translation = message.translation else {
-            return .failure(.init(
-                "Message has no translation.",
+                "Failed to generate audio files or message has no translation.",
                 metadata: [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
         }
