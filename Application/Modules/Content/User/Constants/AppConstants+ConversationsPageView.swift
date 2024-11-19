@@ -27,7 +27,8 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Strings {
     enum ConversationsPageView {
-        public static let composeToolbarButtonLabelImageSystemName = "square.and.pencil" // swiftlint:disable:next identifier_name
-        public static let settingsToolbarButtonLabelImageSystemName = "gearshape"
+        public static let composeToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "plus.circle.fill" : "square.and.pencil"
+        // swiftlint:disable:next identifier_name
+        public static let settingsToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "gearshape.circle.fill" : "gearshape"
     }
 }

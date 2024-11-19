@@ -50,7 +50,8 @@ public struct ConversationsContentPageView: View {
                     .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                     .listStyle(.plain)
                     .navigationBarAppearance(.appDefault)
-                    .navigationTitle(viewModel.strings.value(for: .navigationTitle))
+                    .navigationBarTitleDisplayMode(Application.isInPrevaricationMode ? .inline : .automatic)
+                    .navigationTitle(viewModel.strings.value(for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle))
                     .refreshable {
                         await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
                     }

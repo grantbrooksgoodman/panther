@@ -36,6 +36,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         Application.initialize()
         setUpFirebaseAnalytics()
         setUpPushNotifications()
+        services.analytics.logEvent(.openApp)
         return true
     }
 

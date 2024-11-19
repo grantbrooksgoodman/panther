@@ -17,6 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+// swiftlint:disable:next type_body_length
 public final class ChatPageViewService {
     // MARK: - Constants Accessors
 
@@ -106,6 +107,8 @@ public final class ChatPageViewService {
         }
 
         viewController?.messageInputBar.alpha = configuration == .default ? 0 : 1
+        guard configuration == .default else { return }
+        startSettingNavigationBarButtonItemAppearance()
     }
 
     public func onViewDidAppear() {
@@ -310,6 +313,28 @@ public final class ChatPageViewService {
         )
 
         configuration = .preview
+    }
+
+    private func startSettingNavigationBarButtonItemAppearance() {
+        Task { @MainActor in
+            guard chatPageState.isPresented else { return }
+            guard let frontmostViewController = uiApplication.keyViewController?.frontmostViewController,
+                  String(type(of: frontmostViewController)) == Strings.frontmostViewControllerID else {
+                Task.delayed(by: .seconds(1)) { startSettingNavigationBarButtonItemAppearance() }
+                return
+            }
+
+            let misconfiguredBarButtonItemViews: [UIButton] = uiApplication
+                .presentedViews
+                .compactMap { $0 as? UIButton }
+                .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
+                .filter { $0.tintColor != .accent }
+
+            misconfiguredBarButtonItemViews.forEach { $0.tintColor = .accent }
+            Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) {
+                startSettingNavigationBarButtonItemAppearance()
+            }
+        }
     }
 
     private func toggleBuildInfoOverlay(on: Bool) {

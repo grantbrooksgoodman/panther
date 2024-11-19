@@ -193,6 +193,13 @@ public final class RecipientBarLayoutService {
             for: .touchUpInside
         )
 
+        if Application.isInPrevaricationMode {
+            selectContactButton.setImage(
+                .init(systemName: Strings.prevaricationModeSelectContactButtonImageSystemName),
+                for: .normal
+            )
+        }
+
         selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
         selectContactButton.frame.size.width = selectContactButton.intrinsicContentSize.width
 
@@ -255,7 +262,7 @@ public final class RecipientBarLayoutService {
         ))
 
         toLabel.font = UIFont(name: Strings.toLabelFontName, size: Floats.toLabelFontSize)
-        toLabel.text = Localized(.to).wrappedValue
+        toLabel.text = Application.isInPrevaricationMode ? "" : Localized(.to).wrappedValue
         toLabel.textColor = .init(Colors.toLabelText)
 
         toLabel.frame.size.width = toLabel.intrinsicContentSize.width

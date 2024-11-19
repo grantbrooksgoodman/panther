@@ -38,24 +38,17 @@ public struct InputBarConfigService {
     // MARK: - Public
 
     public func attachMediaButtonImage(isHighlighted: Bool) -> UIImage? {
-        guard ThemeService.isDarkModeActive else {
-            return .init(resource: isHighlighted ? .plusLightHighlighted : .plusLight)
-        }
-
+        guard ThemeService.isDarkModeActive else { return .init(resource: isHighlighted ? .plusLightHighlighted : .plusLight) }
         return .init(resource: isHighlighted ? .plusDarkHighlighted : .plusDark)
     }
 
     public func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
         guard build.isOnline else { return .init(systemName: Strings.sendButtonOfflineImageSystemName) }
-
         guard forRecording else {
-            guard ThemeService.isAppDefaultThemeApplied else {
-                return isHighlighted ? .sendAlternateHighlighted : .sendAlternate
-            }
-
+            guard !Application.isInPrevaricationMode,
+                  ThemeService.isAppDefaultThemeApplied else { return isHighlighted ? .sendAlternateHighlighted : .sendAlternate }
             return isHighlighted ? .sendHighlighted : .send
         }
-
         return isHighlighted ? .recordHighlighted : .record
     }
 }

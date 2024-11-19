@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1731885421</string>
+	<string>1732055756</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleRevision</key>
-	<string>1004</string>
+	<string>1115</string>
 	<key>CFBundleShortVersionString</key>
 	<string>4.0.0</string>
 	<key>CFBundleURLTypes</key>
@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>24255</string>
+	<string>24363</string>
 	<key>CFTargetName</key>
 	<string>$(TARGET_NAME)</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -40,7 +40,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Hello needs access to your camera to select media to send. Your image data is never shared with anyone but the chat participants.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Hello needs access to your contacts to find friends with accounts. Your contacts&apos; information never leaves your device.</string>
+	<string>Hello needs access to your contacts to find friends with accounts. Your contacts' information never leaves your device.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hello needs access to your microphone for audio messages. Your audio data is never shared with anyone but the message recipients.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

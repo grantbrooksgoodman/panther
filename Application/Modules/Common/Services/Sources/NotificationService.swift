@@ -6,7 +6,7 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -97,6 +97,48 @@ public struct NotificationService {
         }
 
         return nil
+    }
+
+    // MARK: - Notify of Prevarication Mode Analytics Event
+
+    public func notifyOfPrevaricationModeAnalyticsEvent(_ title: String, body: String) async -> Exception? {
+        let getValuesResult = await networking.database.getValues(
+            at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)",
+            prependingEnvironment: false
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+            }
+
+            let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in
+                if let userData = keyPair.value as? [String: Any],
+                   let pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
+                   !pushTokens.isBangQualifiedEmpty {
+                    partialResult.append(contentsOf: pushTokens)
+                    partialResult = partialResult.unique
+                }
+            }
+
+            var exceptions = [Exception]()
+            for pushToken in pushTokens {
+                if let exception = await sendNotification(
+                    title: title,
+                    body: body,
+                    badgeNumber: 0,
+                    pushToken: pushToken,
+                    extraParams: [:]
+                ) {
+                    exceptions.append(exception)
+                }
+            }
+            return exceptions.compiledException
+
+        case let .failure(exception):
+            return exception
+        }
     }
 
     // MARK: - Respond to In-app Notification
@@ -374,4 +416,4 @@ public struct NotificationService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

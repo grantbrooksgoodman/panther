@@ -69,7 +69,7 @@ public struct NewChatPageReducer: Reducer {
             analyticsService.logEvent(.accessNewChatPage)
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
-            state.navigationTitle = Localized(.newMessage).wrappedValue
+            state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
             NavigationBar.setAppearance(.themed(showsDivider: false))
 
         case .action(.doneToolbarButtonTapped):

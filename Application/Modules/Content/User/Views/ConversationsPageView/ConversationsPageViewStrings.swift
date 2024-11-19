@@ -16,6 +16,7 @@ public extension TranslatedLabelStringCollection {
     enum ConversationsPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
+        case prevaricationModeNavigationTitle = "Conversations"
         case navigationTitle = "Messages"
 
         // MARK: - Properties

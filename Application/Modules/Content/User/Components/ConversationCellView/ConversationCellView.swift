@@ -160,18 +160,20 @@ public struct ConversationCellView: View {
                                     font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
                                     foregroundColor: .subtitleText
                                 )
-                                .padding(.trailing, Floats.dateLabelPaddingTrailing)
+                                .padding(.trailing, Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing)
 
-                                Components.symbol(
-                                    Strings.chevronImageSystemName,
-                                    foregroundColor: viewModel.chevronImageForegroundColor,
-                                    weight: .semibold,
-                                    usesIntrinsicSize: false
-                                )
-                                .frame(
-                                    maxWidth: Floats.chevronImageFrameMaxWidth,
-                                    maxHeight: Floats.chevronImageFrameMaxHeight
-                                )
+                                if !Application.isInPrevaricationMode {
+                                    Components.symbol(
+                                        Strings.chevronImageSystemName,
+                                        foregroundColor: viewModel.chevronImageForegroundColor,
+                                        weight: .semibold,
+                                        usesIntrinsicSize: false
+                                    )
+                                    .frame(
+                                        maxWidth: Floats.chevronImageFrameMaxWidth,
+                                        maxHeight: Floats.chevronImageFrameMaxHeight
+                                    )
+                                }
                             }
                         }
 

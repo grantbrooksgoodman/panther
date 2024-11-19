@@ -69,7 +69,8 @@ public struct ChatPageViewControllerFactory {
     private func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
         typealias Floats = AppConstants.CGFloats.ChatPageView
 
-        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
+        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout,
+              !Application.isInPrevaricationMode else { return }
 
         layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero

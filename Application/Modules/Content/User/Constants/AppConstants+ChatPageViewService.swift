@@ -19,7 +19,8 @@ public extension AppConstants.CGFloats {
     enum ChatPageViewService {
         public static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
         public static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
-        public static let scrollToLastItemDelayMilliseconds: CGFloat = 10
+        public static let scrollToLastItemDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
+        public static let setNavigationBarButtonItemAppearanceDelayMilliseconds: CGFloat = 10
 
         enum AudioMessagePlayback {
             public static let playbackTimerTimeInterval: CGFloat = 0.1
@@ -159,8 +160,10 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatPageViewService {
+        public static let barButtonItemViewID = "_UIModernBarButton"
         public static let chatPageViewPreviewViewControllerID = "UIHostingController<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>>"
         public static let editingOverlayViewControllerID = "UIEditingOverlayViewController"
+        public static let frontmostViewControllerID = "ChatPageViewController"
         public static let inputWindowControllerID = "UIInputWindowController"
         public static let navigationStackHostingControllerID = "NavigationStackHostingController<AnyView>"
 

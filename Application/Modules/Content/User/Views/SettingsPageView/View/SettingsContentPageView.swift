@@ -160,15 +160,26 @@ public struct SettingsContentPageView: View {
         .padding(.bottom, Floats.staticListViewBottomPadding)
         .padding(.horizontal, Floats.staticListViewHorizontalPadding)
 
-        StaticListView(
-            [
-                changeThemeListItem,
-                sendFeedbackListItem,
-                clearCachesListItem,
-            ]
-        )
-        .padding(.bottom, Floats.staticListViewBottomPadding)
-        .padding(.horizontal, Floats.staticListViewHorizontalPadding)
+        if Application.isInPrevaricationMode {
+            StaticListView(
+                [
+                    sendFeedbackListItem,
+                    clearCachesListItem,
+                ]
+            )
+            .padding(.bottom, Floats.staticListViewBottomPadding)
+            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
+        } else {
+            StaticListView(
+                [
+                    changeThemeListItem,
+                    sendFeedbackListItem,
+                    clearCachesListItem,
+                ]
+            )
+            .padding(.bottom, Floats.staticListViewBottomPadding)
+            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
+        }
 
         StaticListView(
             [

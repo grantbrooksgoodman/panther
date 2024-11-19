@@ -168,6 +168,7 @@ public final class SplashPageViewService: ObservableObject {
                 return .init("Failed to set current user.", metadata: [self, #file, #function, #line])
             }
 
+            checkPrevaricationMode(currentUser.phoneNumber)
             core.utils.setLanguageCode(currentUser.languageCode)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
@@ -289,6 +290,20 @@ public final class SplashPageViewService: ObservableObject {
             exception,
             dismissButtonTitle: Localized(.tryAgain).wrappedValue
         ).present(translating: translationOptionKeys)
+    }
+
+    private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
+        let isUsingTestAccount = [
+            "15555555555",
+            "18888888888",
+        ].contains(phoneNumber.compiledNumberString)
+        Application.isInPrevaricationMode = isUsingTestAccount && build.milestone == .generalRelease && Networking.config.environment == .production
+
+        let theme = ThemeService.currentTheme == AppTheme.prevaricationMode.theme ? AppTheme.appDefault.theme : ThemeService.currentTheme
+        ThemeService.setTheme(
+            Application.isInPrevaricationMode ? AppTheme.prevaricationMode.theme : theme,
+            checkStyle: false
+        )
     }
 }
 

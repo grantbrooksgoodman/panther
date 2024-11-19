@@ -119,10 +119,10 @@ public extension AppConstants.Strings.ChatPageViewService {
             public static let contactViewSemanticTag = "CONTACT_VIEW"
         }
 
-        enum Layout {
+        enum Layout { // swiftlint:disable:next identifier_name
+            public static let prevaricationModeSelectContactButtonImageSystemName = "person.crop.circle.fill.badge.plus"
             public static let recipientBarSemanticTag = "RECIPIENT_BAR"
             public static let selectContactButtonSemanticTag = "SELECT_CONTACT_BUTTON"
-            public static let selectContactButtonImageSystemName = "plus.circle"
 
             public static let tableViewCellReuseIdentifier = "contactCell"
             public static let tableViewSemanticTag = "TABLE_VIEW"

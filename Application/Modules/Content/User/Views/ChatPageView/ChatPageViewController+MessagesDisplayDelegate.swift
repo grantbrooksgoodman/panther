@@ -74,9 +74,10 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
         guard let message = message as? Message,
-              !message.isFromCurrentUser else { return }
+              Application.isInPrevaricationMode || !message.isFromCurrentUser else { return }
 
         func configureGenericAvatar() {
             avatarView.backgroundColor = UIColor(Colors.genericAvatarViewBackground)
@@ -85,7 +86,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard let users = currentConversation?.users,
-              let matchingUser = users.first(where: { $0.id == message.fromAccountID }),
+              let currentUser,
+              let matchingUser = (users + [currentUser]).first(where: { $0.id == message.fromAccountID }),
               let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
             configureGenericAvatar()
             return
@@ -150,11 +152,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) -> MessageStyle {
         guard let message = message as? Message else { return .none }
-
-        guard ThemeService.isAppDefaultThemeApplied else {
-            return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius }
-        }
-
+        guard !Application.isInPrevaricationMode else { return .bubble }
+        guard ThemeService.isAppDefaultThemeApplied else { return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius } }
         guard message.documentComponent == nil else { return .bubbleOutline(.gray) }
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)
     }

@@ -17,6 +17,8 @@ import Networking
 public enum Application {
     // MARK: - Properties
 
+    public static var isInPrevaricationMode = false
+
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
         var buildMilestone: Build.Milestone = .generalRelease
@@ -71,7 +73,7 @@ public enum Application {
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
-        // Networking.config.setEnvironment(.production) // TODO: Fix to make Production default.
+        if buildMilestone == .generalRelease { Networking.config.setEnvironment(.production) } // TODO: Fix to make Production default.
 
         // MARK: - Theme Setup
 

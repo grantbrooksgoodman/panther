@@ -88,6 +88,7 @@ public final class PushTokenService {
             guard tookAction else { return nil }
             Logger.log(
                 "Pruned push tokens for current user.",
+                with: .toastInPrerelease,
                 metadata: [self, #file, #function, #line]
             )
             return nil

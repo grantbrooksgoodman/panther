@@ -68,7 +68,7 @@ public struct NewChatPageView: View {
     }
 
     private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: Application.isInPrevaricationMode ? .topBarLeading : .topBarTrailing) {
             Components.button(
                 viewModel.doneToolbarButtonText,
                 font: viewModel.shouldUseBoldDoneToolbarButton ? .systemSemibold : .system,

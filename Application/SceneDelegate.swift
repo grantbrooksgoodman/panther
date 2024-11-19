@@ -14,7 +14,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
@@ -31,14 +31,16 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         window = RootWindowScene.instantiate(scene, rootView: RootView().indicatesNetworkActivity())
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: nil)
+        tapGesture.delegate = self
+        window?.addGestureRecognizer(tapGesture)
     }
 
     public func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         Observables.traitCollectionChanged.trigger()
-        services.analytics.logEvent(.openApp)
-
         guard services.update.isPersistingForcedUpdateCTA else { return }
         Task { await services.update.promptToUpdateIfNeeded() }
     }
@@ -83,5 +85,14 @@ public final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         RootWindowScene.traitCollectionChanged()
         Observables.traitCollectionChanged.trigger()
+    }
+
+    // MARK: - UIGestureRecognizer
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard Application.isInPrevaricationMode,
+              let view = touch.view else { return false }
+        services.analytics.logEvent(.touchUiElement, extraParams: ["ui_element": String(type(of: view))])
+        return false
     }
 }

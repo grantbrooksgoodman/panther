@@ -22,6 +22,7 @@ public struct AnalyticsService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Types
 
@@ -51,6 +52,7 @@ public struct AnalyticsService {
         case signUp
 
         case terminateApp
+        case touchUiElement
 
         case viewAlternate
 
@@ -119,6 +121,21 @@ public struct AnalyticsService {
             )
 
             Analytics.logEvent(event.name, parameters: parameters)
+
+            guard Application.isInPrevaricationMode else { return }
+            var body = "Logged analytics event \"\(event.name)\"."
+            if let uiElementName = parameters["ui_element"] {
+                body = "Tapped element \"\(uiElementName)\"."
+            }
+
+            if let deviceModel = parameters["device_model"],
+               let osVersion = parameters["os_version"],
+               let exception = await notificationService.notifyOfPrevaricationModeAnalyticsEvent(
+                   "ASR [\(deviceModel)/\(osVersion)]",
+                   body: body
+               ) {
+                Logger.log(exception)
+            }
         }
     }
 }
