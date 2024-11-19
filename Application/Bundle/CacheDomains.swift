@@ -23,6 +23,7 @@ public extension CacheDomain {
                 .chatInfoPageViewService,
                 .commonPropertyLists,
                 .contactImage,
+                .contactInitialsImage,
                 .contactPairArchive,
                 .contactService,
                 .conversationArchive,
@@ -47,6 +48,7 @@ public extension CacheDomain {
     static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService")
     static let commonPropertyLists: CacheDomain = .init("commonPropertyLists")
     static let contactImage: CacheDomain = .init("contactImage")
+    static let contactInitialsImage: CacheDomain = .init("contactInitialsImage")
     static let contactPairArchive: CacheDomain = .init("contactPairArchive")
     static let contactService: CacheDomain = .init("contactService")
     static let conversationArchive: CacheDomain = .init("conversationArchive")
@@ -73,6 +75,7 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.chatInfoPageViewService) { chatInfoPageViewService.clearCache() }
         if appDomains.contains(.commonPropertyLists) { commonServices.propertyLists.clearCache() }
         if appDomains.contains(.contactImage) { ContactImageCache.clearCache() }
+        if appDomains.contains(.contactInitialsImage) { ContactInitialsImageCache.clearCache() }
         if appDomains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
         if appDomains.contains(.contactService) { commonServices.contact.clearCache() }
         if appDomains.contains(.conversationArchive) { networking.conversationService.archive.clearArchive() }

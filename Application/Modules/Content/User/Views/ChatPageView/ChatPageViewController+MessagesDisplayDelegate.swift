@@ -92,8 +92,17 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard let image = contactPair.contact.image else {
-            avatarView.image = .fromInitials(contactPair.contact.initials)
-            if let initialsImage = avatarView.image { ContactImageCache.set(initialsImage, forKey: contactPair.contact.id) }
+            if let cachedInitialsImage = _ContactInitialsImageCache.cachedInitialsImagesForContactIDs?[contactPair.contact.id] {
+                avatarView.image = cachedInitialsImage
+            }
+
+            let initialsImage = UIImage.fromInitials(contactPair.contact.initials)
+            avatarView.image = initialsImage
+
+            guard let initialsImage else { return }
+            var cachedInitialsImagesForContactIDs = _ContactInitialsImageCache.cachedInitialsImagesForContactIDs ?? [:]
+            cachedInitialsImagesForContactIDs[contactPair.contact.id] = initialsImage
+            _ContactInitialsImageCache.cachedInitialsImagesForContactIDs = cachedInitialsImagesForContactIDs
             return
         }
 
@@ -148,5 +157,29 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         guard message.documentComponent == nil else { return .bubbleOutline(.gray) }
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)
+    }
+}
+
+public enum ContactInitialsImageCache {
+    public static func clearCache() {
+        _ContactInitialsImageCache.clearCache()
+    }
+}
+
+private enum _ContactInitialsImageCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case initialsImagesForContactIDs
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.initialsImagesForContactIDs) fileprivate static var cachedInitialsImagesForContactIDs: [String: UIImage]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedInitialsImagesForContactIDs = nil
     }
 }

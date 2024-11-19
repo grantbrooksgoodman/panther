@@ -17,6 +17,7 @@ import AppSubsystem
 public struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -93,6 +94,8 @@ public struct SettingsPageReducer: Reducer {
         public var viewID = UUID()
         public var viewState: ViewState = .loading
 
+        fileprivate var timesEncounteredCopyrightText = 0
+
         /* MARK: Computed Properties */
 
         // UIImage
@@ -150,6 +153,7 @@ public struct SettingsPageReducer: Reducer {
 
         case .buildInfoButtonTapped:
             state.buildInfoButtonStrings = state.buildInfoButtonStrings.next
+            state.timesEncounteredCopyrightText += state.buildInfoButtonStrings == .init(.copyright) ? 1 : 0
             state.viewID = UUID()
 
         case .changeThemeButtonTapped:
@@ -171,7 +175,12 @@ public struct SettingsPageReducer: Reducer {
             viewService.leaveReviewButtonTapped()
 
         case .longPressGestureRecognized:
-            viewService.setClipboardWithHapticFeedback(state.buildInfoButtonStrings.labelText)
+            if state.buildInfoButtonStrings == .init(.copyright),
+               state.timesEncounteredCopyrightText > 1 {
+                viewService.promptToEnterPrereleaseMode()
+            } else {
+                viewService.setClipboardWithHapticFeedback(state.buildInfoButtonStrings.labelText)
+            }
 
         case .sendFeedbackButtonTapped:
             viewService.sendFeedbackButtonTapped()

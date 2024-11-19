@@ -169,7 +169,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
             ))
         }
 
-        let readDateString = dateFormatter.string(from: Date())
+        let readDateString = dateFormatter.string(from: .now)
         let messages = messages.filter { $0.readDate == nil }
 
         var modifiedMessages = self.messages ?? []

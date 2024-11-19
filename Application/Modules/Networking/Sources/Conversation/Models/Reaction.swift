@@ -19,15 +19,15 @@ public struct Reaction: Codable, Hashable {
         // MARK: - Cases
 
         case dislike
+        case emphasis
         case laugh
         case like
         case love
-        case sad
-        case surprise
+        case question
 
         // MARK: - Properties
 
-        public static var orderedCases: [Style] = [.love, .like, .dislike, .laugh, .surprise, .sad]
+        public static var orderedCases: [Style] = allCases.sorted(by: { $0.orderValue < $1.orderValue })
 
         private static let emojiCaseMap: [String: Style] = Dictionary(uniqueKeysWithValues: Style.allCases.map { ($0.emojiValue, $0) })
 
@@ -36,11 +36,11 @@ public struct Reaction: Codable, Hashable {
         public var emojiValue: String {
             switch self {
             case .dislike: "👎"
+            case .emphasis: "‼️"
             case .laugh: "😂"
             case .like: "👍"
             case .love: "❤️"
-            case .sad: "😢"
-            case .surprise: "😮"
+            case .question: "❓"
             }
         }
 
@@ -49,11 +49,11 @@ public struct Reaction: Codable, Hashable {
         public var orderValue: Int {
             switch self {
             case .dislike: 2
+            case .emphasis: 4
             case .laugh: 3
             case .like: 1
             case .love: 0
-            case .sad: 5
-            case .surprise: 4
+            case .question: 5
             }
         }
 

@@ -82,16 +82,18 @@ public final class User: Codable, Equatable {
     // MARK: - Badge Number Calculation
 
     /// - Note: Will return `0` for users other than the current user.
-    public func calculateBadgeNumber() async -> Int {
+    public func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
         @Persistent(.currentUserID) var currentUserID: String?
         guard id == currentUserID,
               let conversationIDs,
-              !conversationIDs.isEmpty else { return 0 }
+              !conversationIDs.isEmpty,
+              let conversations,
+              !conversations.isEmpty else { return 0 }
 
-        guard let conversations = conversations?.visibleForCurrentUser,
-              conversations.allSatisfy({ $0.messages != nil }) else {
-            _ = await conversations?.visibleForCurrentUser.setMessages()
-            return await calculateBadgeNumber()
+        guard conversations.visibleForCurrentUser.allSatisfy({ $0.messages != nil }) else {
+            guard !returnZeroIfFailedOnce else { return 0 }
+            _ = await conversations.visibleForCurrentUser.setMessages()
+            return await calculateBadgeNumber(true)
         }
 
         return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.readDate == nil }.count
@@ -146,9 +148,9 @@ public final class User: Codable, Equatable {
         }
 
         for conversation in conversationsNeedingUpdate {
-            let updateConversationResult = await conversationSession.updateConversation(conversation)
+            let synchronizeConversationResult = await conversationSession.sync.synchronizeConversation(conversation)
 
-            switch updateConversationResult {
+            switch synchronizeConversationResult {
             case let .success(updatedConversation):
                 decodedConversations.removeAll(where: { $0.id.key == updatedConversation.id.key })
                 decodedConversations.append(updatedConversation)

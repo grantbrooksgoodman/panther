@@ -73,6 +73,7 @@ public struct UserContentContainerView: View {
         .ignoresSafeArea(.keyboard)
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(ConversationCellViewData(conversation)?.titleLabelText ?? "")
+        .toolbarRole(.editor)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Components.button(

@@ -18,7 +18,7 @@ public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
     public static let empty: ReactionMetadata = .init(
         messageID: .bangQualifiedEmpty,
         reactions: [
-            .init(.like, userID: .bangQualifiedEmpty),
+            .init(Reaction.Style.orderedCases.first ?? .love, userID: .bangQualifiedEmpty),
         ]
     )
 

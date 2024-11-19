@@ -283,8 +283,6 @@ public final class ContextMenuInteractionService {
                 },
                 onInteractionEnded: {
                     Task { @MainActor in
-                        self.viewController.messagesCollectionView.isScrollEnabled = true
-
                         /// - NOTE: Fixes a bug in which a dismissal of the context menu under the below conditions would cause the scroll view content offset to be set incorrectly.
                         @MainActor
                         func scrollToLastItemIfNeeded() {
@@ -307,6 +305,7 @@ public final class ContextMenuInteractionService {
                             }
                         }
 
+                        self.viewController.messagesCollectionView.isScrollEnabled = true
                         scrollToLastItemIfNeeded()
                     }
                 }

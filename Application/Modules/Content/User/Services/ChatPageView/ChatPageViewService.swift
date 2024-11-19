@@ -95,6 +95,8 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
+        viewController?.view.isUserInteractionEnabled = false
+
         modifyConfigurationIfNeeded()
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
@@ -151,15 +153,16 @@ public final class ChatPageViewService {
 
         Task {
             if let exception = await readDate?.updateReadDateForUnreadMessages() {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toastInPrerelease)
             }
 
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toastInPrerelease)
             }
         }
 
         viewController?.becomeFirstResponder()
+        viewController?.view.isUserInteractionEnabled = true
     }
 
     public func onViewWillDisappear() {
@@ -199,7 +202,7 @@ public final class ChatPageViewService {
         audioMessagePlayback?.stopPlayback()
         if let exception = services.audio.recording.cancelRecording() {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toastInPrerelease)
         }
     }
 

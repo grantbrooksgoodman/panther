@@ -15,6 +15,16 @@ import AppSubsystem
 import Networking
 
 public enum Application {
+    // MARK: - Properties
+
+    private static var buildMilestone: Build.Milestone {
+        @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
+        var buildMilestone: Build.Milestone = .generalRelease
+        if let persistedMilestoneString { buildMilestone = .init(rawValue: persistedMilestoneString) ?? buildMilestone }
+        persistedMilestoneString = buildMilestone.rawValue
+        return buildMilestone
+    }
+
     // MARK: - Initialize
 
     @MainActor
@@ -32,7 +42,7 @@ public enum Application {
 
         AppSubsystem.initialize(
             appStoreReleaseVersion: 4,
-            buildMilestone: .beta,
+            buildMilestone: buildMilestone,
             codeName: "Panther",
             dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
@@ -61,6 +71,7 @@ public enum Application {
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
+        // Networking.config.setEnvironment(.production) // TODO: Fix to make Production default.
 
         // MARK: - Theme Setup
 
@@ -80,5 +91,17 @@ private extension BuildInfoOverlay {
             case .staging: return .orange
             }
         }
+    }
+}
+
+public extension Persistent {
+    convenience init(_ applicationKey: UserDefaultsKey.ApplicationDefaultsKey) {
+        self.init(.application(applicationKey))
+    }
+}
+
+public extension UserDefaultsKey {
+    enum ApplicationDefaultsKey: String {
+        case buildMilestoneString
     }
 }

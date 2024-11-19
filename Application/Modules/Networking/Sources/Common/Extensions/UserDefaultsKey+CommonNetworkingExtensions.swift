@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKey+NetworkingExtensions.swift
+//  UserDefaultsKey+CommonNetworkingExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.

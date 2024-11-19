@@ -90,17 +90,17 @@ public struct ConversationsPageObserver: Observer {
 
             switch resolveCurrentUserResult {
             case let .failure(exception):
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toastInPrerelease)
 
             default: ()
             }
 
             if let exception = await clientSession.user.currentUser?.setConversations() {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toastInPrerelease)
             }
 
             if let exception = await clientSession.user.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toastInPrerelease)
             }
 
             defer {

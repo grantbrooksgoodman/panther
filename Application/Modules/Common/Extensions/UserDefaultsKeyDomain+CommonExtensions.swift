@@ -47,7 +47,11 @@ public extension UserDefaultsKey {
     // MARK: - Properties
 
     static var permanentKeys: [UserDefaultsKey] {
-        var keys: [UserDefaultsKey] = [.init("isNetworkActivityIndicatorEnabled"), .init("networkEnvironment")]
+        var keys: [UserDefaultsKey] = [
+            .application(.buildMilestoneString),
+            .init("isNetworkActivityIndicatorEnabled"),
+            .init("networkEnvironment"),
+        ]
         keys.append(contentsOf: UserDefaultsKey.coreKeys)
         return keys
     }

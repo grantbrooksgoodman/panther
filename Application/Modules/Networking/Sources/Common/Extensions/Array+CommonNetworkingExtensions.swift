@@ -1,5 +1,5 @@
 //
-//  Array+NetworkingExtensions.swift
+//  Array+CommonNetworkingExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.

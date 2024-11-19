@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Contacts
@@ -209,6 +209,56 @@ public final class SettingsPageViewService {
         }
     }
 
+    /// `.longPressGestureRecognized`
+    public func promptToEnterPrereleaseMode() {
+        Task {
+            @Persistent(.buildMilestoneString) var buildMilestoneString: String?
+            guard build.milestone == .generalRelease else {
+                let confirmed = await AKConfirmationAlert(
+                    title: "Exit Prerelease Mode",
+                    message: "Are you sure you'd like to exit Prerelease Mode? An app restart is required for this to take effect.",
+                    confirmButtonTitle: "Exit",
+                    confirmButtonStyle: .destructivePreferred
+                ).present(translating: [])
+
+                guard confirmed else { return }
+                buildMilestoneString = nil
+                exit(0)
+            }
+
+            let input = await AKTextInputAlert(
+                title: "Enter Prerelease Mode",
+                message: "Enter the correct passphrase to continue.",
+                attributes: .init(
+                    isSecureTextEntry: true,
+                    keyboardType: .numberPad,
+                    placeholderText: "••••••"
+                ),
+                confirmButtonTitle: "Done"
+            ).present(translating: [])
+
+            guard let input else { return }
+            guard input == build.expirationOverrideCode.components.reversed().joined() else {
+                return await AKAlert(
+                    title: "Enter Prerelease Mode",
+                    message: "The passphrase entered was incorrect. Please try again.",
+                    actions: [
+                        .init("Try Again", style: .preferred) { self.promptToEnterPrereleaseMode() },
+                        .cancelAction(title: "Cancel"),
+                    ]
+                ).present(translating: [])
+            }
+
+            buildMilestoneString = Build.Milestone.beta.rawValue
+
+            let exitAction: AKAction = .init("Exit", style: .destructivePreferred) { exit(0) }
+            await AKAlert(
+                message: "Successfully entered Prerelease Mode. You must now restart the app.",
+                actions: [exitAction]
+            ).present(translating: [])
+        }
+    }
+
     public func sendFeedbackButtonTapped() {
         Task {
             await AKActionSheet(
@@ -363,4 +413,4 @@ public final class SettingsPageViewService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

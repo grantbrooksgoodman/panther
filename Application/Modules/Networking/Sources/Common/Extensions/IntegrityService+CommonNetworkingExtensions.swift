@@ -1,5 +1,5 @@
 //
-//  IntegrityService+NetworkingExtensions.swift
+//  IntegrityService+CommonNetworkingExtensions.swift
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.

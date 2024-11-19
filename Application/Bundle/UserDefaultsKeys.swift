@@ -15,6 +15,7 @@ import AppSubsystem
 public extension UserDefaultsKey {
     /* Add values here for each new defaults key. */
 
+    static func application(_ key: ApplicationDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func general(_ key: GeneralAppDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func audioService(_ key: AudioServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

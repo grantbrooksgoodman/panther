@@ -61,7 +61,7 @@ public struct MessageService {
             ))
         }
 
-        let sentDate = Date()
+        let sentDate = Date.now
 
         var contentType: ContentType = .text
         if richContent?.audioComponents != nil {

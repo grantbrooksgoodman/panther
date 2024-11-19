@@ -1,5 +1,5 @@
 //
-//  Persistent+NetworkingExtensions.swift
+//  Persistent+CommonNetworkingExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
