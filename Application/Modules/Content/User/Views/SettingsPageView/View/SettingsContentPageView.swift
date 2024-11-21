@@ -75,7 +75,7 @@ public struct SettingsContentPageView: View {
             .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
         .id(viewModel.viewID)
-        .preferredStatusBarStyle(.lightContent)
+        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
     }
 
     private var buildInfoButton: some View {
@@ -129,7 +129,8 @@ public struct SettingsContentPageView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Components.button(
                 viewModel.doneToolbarButtonText,
-                font: .systemSemibold
+                font: .systemSemibold,
+                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
             ) {
                 viewModel.send(.doneToolbarButtonTapped)
             }

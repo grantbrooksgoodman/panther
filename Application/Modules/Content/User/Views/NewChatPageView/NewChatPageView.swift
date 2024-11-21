@@ -52,7 +52,7 @@ public struct NewChatPageView: View {
             .toolbar {
                 doneToolbarButton
             }
-            .preferredStatusBarStyle(.lightContent)
+            .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         }
         .sheet(isPresented: contactSelectorSheetBinding) {
             ContactSelectorPageView(
@@ -68,11 +68,11 @@ public struct NewChatPageView: View {
     }
 
     private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: Application.isInPrevaricationMode ? .topBarLeading : .topBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Components.button(
                 viewModel.doneToolbarButtonText,
                 font: viewModel.shouldUseBoldDoneToolbarButton ? .systemSemibold : .system,
-                foregroundColor: viewModel.isDoneToolbarButtonEnabled ? .accent : .disabled
+                foregroundColor: viewModel.isDoneToolbarButtonEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled
             ) {
                 viewModel.send(.doneToolbarButtonTapped)
             }

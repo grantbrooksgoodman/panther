@@ -17,6 +17,7 @@ import Networking
 /* 3rd-party */
 import MessageKit
 
+// TODO: Create constants for this.
 public final class ReactionsViewController: UIViewController {
     // MARK: - Dependencies
 
@@ -51,7 +52,7 @@ public final class ReactionsViewController: UIViewController {
     // MARK: - Reaction Selection
 
     public func deselectAllReactions() {
-        stackView.subviews.forEach { $0.backgroundColor = .disabled }
+        stackView.subviews.forEach { $0.backgroundColor = .systemGray3 }
     }
 
     public func markSelected(_ emoji: String) {
@@ -59,7 +60,7 @@ public final class ReactionsViewController: UIViewController {
             .subviews
             .compactMap { $0 as? UIButton }
             .first(where: { $0.titleLabel?.text == emoji })?
-            .backgroundColor = .systemBlue
+            .backgroundColor = .accent
     }
 
     // MARK: - Auxiliary
@@ -69,7 +70,7 @@ public final class ReactionsViewController: UIViewController {
 
         reactionButton.setTitle(emoji, for: .normal)
         reactionButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        reactionButton.backgroundColor = .disabled
+        reactionButton.backgroundColor = .systemGray3
 
         reactionButton.layer.cornerRadius = 17.5
         reactionButton.layer.masksToBounds = true
@@ -107,7 +108,7 @@ public final class ReactionsViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
 
         stackView.alpha = 0.8
-        stackView.backgroundColor = .disabled
+        stackView.backgroundColor = .systemGray3
         stackView.layer.cornerRadius = 17.5
 
         view.addSubview(stackView)

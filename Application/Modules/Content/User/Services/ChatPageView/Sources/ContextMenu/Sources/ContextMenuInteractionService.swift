@@ -340,14 +340,19 @@ public final class ContextMenuInteractionService {
               let alternateMessageService = chatPageViewService.alternateMessage else { return }
 
         typealias Colors = AppConstants.Colors.UserContentExtensions.Message
-        let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
-        let attributedStringForegroundColor = UIColor(
-            speakingMessage.isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor
-        )
+
+        // swiftlint:disable line_length
+        let nonCurrentUserForegroundColor = !Application.isInPrevaricationMode && ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
+        let attributedStringForegroundColor = UIColor(speakingMessage.isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
+        // swiftlint:enable line_length
 
         if alternateMessageService.isDisplayingAlternateText(for: speakingMessage) ||
             alternateMessageService.isDisplayingAudioTranscription(for: speakingMessage) {
-            speakingCell.messageLabel.attributedText = .messageCellString(labelText, foregroundColor: attributedStringForegroundColor)
+            speakingCell.messageLabel.attributedText = .messageCellString(
+                labelText,
+                foregroundColor: attributedStringForegroundColor,
+                italicized: true
+            )
         } else {
             speakingCell.messageLabel.attributedText = .init(
                 string: labelText,

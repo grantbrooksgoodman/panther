@@ -56,19 +56,25 @@ extension ChatPageViewController: MessagesDataSource {
               let message = message as? Message,
               !message.isMock else { return nil }
 
-        let boldAttributes: [NSAttributedString.Key: Any] = [
+        var boldAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: Floats.cellBottomLabelAttributedTextBoldAttributesSystemFontSize),
             .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextBoldAttributesForeground),
         ]
 
-        let emojiAttributes: [NSAttributedString.Key: Any] = [
+        var emojiAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextEmojiAttributesSystemFontSize),
         ]
 
-        let standardAttributes: [NSAttributedString.Key: Any] = [
+        var standardAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: Floats.cellBottomLabelAttributedTextStandardAttributesSystemFontSize),
             .foregroundColor: UIColor(Colors.cellBottomLabelAttributedTextStandardAttributesForeground),
         ]
+
+        if Application.isInPrevaricationMode {
+            boldAttributes[.baselineOffset] = -1
+            emojiAttributes[.baselineOffset] = -1
+            standardAttributes[.baselineOffset] = -1
+        }
 
         var reactionsString = ""
         if let reactions = message.reactions {
@@ -200,18 +206,21 @@ extension ChatPageViewController: MessagesDataSource {
             size: Floats.messageTopLabelAttributedTextAttributesFontSize
         ) ?? .systemFont(ofSize: Floats.messageTopLabelAttributedTextAttributesFontSize)
 
-        let attributes: [NSAttributedString.Key: Any] = [
+        var attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: UIColor(Colors.messageTopLabelAttributedTextAttributesForeground),
         ]
 
-        let isAppDefaultTheme = ThemeService.isAppDefaultThemeApplied
-
-        guard let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
-            return .init(string: "\(isAppDefaultTheme ? "   " : "")\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
+        if Application.isInPrevaricationMode {
+            attributes[.baselineOffset] = Floats.messageTopLabelAttributedTextAttributesBaselineOffset
         }
 
-        return .init(string: "\(isAppDefaultTheme ? "   " : "")\(contactPair.contact.fullName)", attributes: attributes)
+        let prefix = "\((!Application.isInPrevaricationMode && ThemeService.isAppDefaultThemeApplied) ? "   " : "")"
+        guard let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
+            return .init(string: "\(prefix)\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
+        }
+
+        return .init(string: "\(prefix)\(contactPair.contact.fullName)", attributes: attributes)
     }
 
     // MARK: - Number of Sections

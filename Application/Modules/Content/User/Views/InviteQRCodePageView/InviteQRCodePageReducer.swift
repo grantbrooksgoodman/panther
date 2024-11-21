@@ -76,7 +76,8 @@ public struct InviteQRCodePageReducer: Reducer {
 
         case .action(.doneButtonTapped):
             navigationCoordinator.navigate(to: .settings(.sheet(nil)))
-            if ThemeService.isAppDefaultThemeApplied,
+            if !Application.isInPrevaricationMode,
+               ThemeService.isAppDefaultThemeApplied,
                !ThemeService.isDarkModeActive {
                 StatusBarStyle.override(.darkContent)
             }

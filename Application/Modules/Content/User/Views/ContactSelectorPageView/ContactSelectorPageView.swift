@@ -42,24 +42,35 @@ public struct ContactSelectorPageView: View {
     // MARK: - View
 
     public var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                SearchBar(searchQueryBinding)
+        VStack(spacing: 0) {
+            SearchBar(searchQueryBinding)
 
-                if !viewModel.queriedContactPairs.isEmpty {
-                    listView
-                } else {
-                    noResultsView
-                }
+            if !viewModel.queriedContactPairs.isEmpty {
+                listView
+            } else {
+                noResultsView
             }
-            .toolbar {
-                cancelToolbarButton
-                inviteToolbarButton
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(viewModel.navigationTitle)
-            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
         }
+        .header(
+            leftItem: .text(.init(text: .init(
+                viewModel.inviteToolbarButtonText,
+                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+            )) {
+                viewModel.send(.inviteToolbarButtonTapped)
+            }),
+            .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
+            rightItem: .cancelButton(
+                font: .system(size: Floats.cancelToolbarButtonSystemFontSize),
+                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+            ) {
+                viewModel.send(.cancelToolbarButtonTapped)
+            },
+            attributes: .init(
+                appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
+                showsDivider: false,
+                sizeClass: .sheet
+            )
+        )
         .redrawsOnTraitCollectionChange()
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)

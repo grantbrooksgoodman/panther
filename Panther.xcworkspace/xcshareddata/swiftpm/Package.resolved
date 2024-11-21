@@ -1,5 +1,5 @@
 {
-  "originHash" : "faa239ede4ab6493f5a3787145bededd355a3b129cc31c37dd8d6fb1f6fbc929",
+  "originHash" : "004b6111c4ce2a6699d682e6ecb6aeffd8bc89103857a0cba9b8d496e7100677",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -34,7 +34,7 @@
       "location" : "https://github.com/grantbrooksgoodman/app-subsystem",
       "state" : {
         "branch" : "main",
-        "revision" : "a34b1fddf6f6a7a5b09190859c4199e69e2ca383"
+        "revision" : "1b9b6103b4e9c382569337b8bada0650991f1409"
       }
     },
     {

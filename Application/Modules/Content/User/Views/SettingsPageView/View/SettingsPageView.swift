@@ -39,7 +39,7 @@ public struct SettingsPageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
-        .navigationBarAppearance(.default())
+        .navigationBarAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

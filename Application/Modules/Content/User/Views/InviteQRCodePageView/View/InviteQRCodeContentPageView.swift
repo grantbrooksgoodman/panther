@@ -32,7 +32,7 @@ public struct InviteQRCodeContentPageView: View {
     // MARK: - View
 
     public var body: some View {
-        ThemedView(navigationBarAppearance: .default()) {
+        ThemedView(navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default()) {
             VStack {
                 Components.text(
                     viewModel.strings.value(for: .instructionLabelText),
@@ -50,7 +50,9 @@ public struct InviteQRCodeContentPageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .header(
-                rightItem: .doneButton { viewModel.send(.doneButtonTapped) },
+                rightItem: .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+                    viewModel.send(.doneButtonTapped)
+                },
                 attributes: .init(sizeClass: .sheet)
             )
         }

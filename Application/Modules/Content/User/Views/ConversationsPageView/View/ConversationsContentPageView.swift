@@ -50,7 +50,6 @@ public struct ConversationsContentPageView: View {
                     .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                     .listStyle(.plain)
                     .navigationBarAppearance(.appDefault)
-                    .navigationBarTitleDisplayMode(Application.isInPrevaricationMode ? .inline : .automatic)
                     .navigationTitle(viewModel.strings.value(for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle))
                     .refreshable {
                         await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
@@ -68,7 +67,10 @@ public struct ConversationsContentPageView: View {
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)
         }
-        .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+        .preferredStatusBarStyle(
+            Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent,
+            restoreOnDisappear: !Application.isInPrevaricationMode
+        )
     }
 
     private var composeToolbarButton: some ToolbarContent {
@@ -76,6 +78,8 @@ public struct ConversationsContentPageView: View {
             if viewModel.conversations.isEmpty {
                 Components.button(
                     symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                    foregroundColor: .accent,
+                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                     usesIntrinsicSize: false
                 ) {
                     viewModel.send(.composeToolbarButtonTapped)
@@ -93,6 +97,8 @@ public struct ConversationsContentPageView: View {
             } else {
                 Components.button(
                     symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                    foregroundColor: .accent,
+                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                     usesIntrinsicSize: false
                 ) {
                     viewModel.send(.composeToolbarButtonTapped)
@@ -105,6 +111,8 @@ public struct ConversationsContentPageView: View {
         ToolbarItem(placement: .topBarLeading) {
             Components.button(
                 symbolName: Strings.settingsToolbarButtonLabelImageSystemName,
+                foregroundColor: .accent,
+                secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false
             ) {
                 viewModel.send(.settingsToolbarButtonTapped)

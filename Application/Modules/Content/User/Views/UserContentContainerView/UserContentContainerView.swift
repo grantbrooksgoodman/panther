@@ -60,6 +60,7 @@ public struct UserContentContainerView: View {
             .navigationDestination(for: UserContentNavigatorState.SeguePaths.self) { destinationView(for: $0) }
             .sheet(item: sheetBinding) { sheetView(for: $0) }
         }
+        .interfaceStyle(Application.isInPrevaricationMode ? .light : ThemeService.currentTheme.style)
     }
 
     // MARK: - Auxiliary
@@ -78,6 +79,8 @@ public struct UserContentContainerView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Components.button(
                     symbolName: Strings.chatInfoButtonImageSystemName,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                     usesIntrinsicSize: false
                 ) {
                     viewModel.send(.chatInfoToolbarButtonTapped)

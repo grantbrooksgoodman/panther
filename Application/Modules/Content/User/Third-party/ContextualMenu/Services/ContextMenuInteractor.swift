@@ -146,6 +146,7 @@ final class ContextMenuInteractor {
         contextMenuViewController = contextMenuController
         contextMenuController.view.frame = window.bounds
 
+        window.overrideUserInterfaceStyle = Application.isInPrevaricationMode ? .light : ThemeService.currentTheme.style
         window.windowLevel = interaction.style.windowLevel
         window.windowScene = viewOriginalWindow?.windowScene
         window.rootViewController = contextMenuController

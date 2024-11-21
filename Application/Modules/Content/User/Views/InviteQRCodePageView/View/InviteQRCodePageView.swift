@@ -37,7 +37,7 @@ public struct InviteQRCodePageView: View {
                 FailurePageView(.init(initialState: .init(exception), reducer: FailurePageReducer()))
             }
         }
-        .preferredStatusBarStyle(.lightContent)
+        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

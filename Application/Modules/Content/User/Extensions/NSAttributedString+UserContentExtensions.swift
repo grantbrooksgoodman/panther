@@ -14,7 +14,11 @@ import UIKit
 import AppSubsystem
 
 public extension NSAttributedString {
-    static func messageCellString(_ text: String, foregroundColor: UIColor) -> NSAttributedString {
+    static func messageCellString(
+        _ text: String,
+        foregroundColor: UIColor,
+        italicized: Bool
+    ) -> NSAttributedString {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.NSAttributedString
 
@@ -22,14 +26,13 @@ public extension NSAttributedString {
         paragraphStyle.lineSpacing = Floats.messageCellStringParagraphLineSpacing
 
         var font: UIFont = .systemFont(ofSize: Floats.messageCellStringSystemFontSize)
-        if let alternateMessageService {
-            font = alternateMessageService.textCellLabelFont
-        }
+        if let alternateMessageService { font = alternateMessageService.textCellLabelFont }
+        if italicized { font = font.italicized }
 
         return .init(
             string: text,
             attributes: [
-                .font: font.italicized,
+                .font: font,
                 .foregroundColor: foregroundColor,
                 .paragraphStyle: paragraphStyle,
             ]

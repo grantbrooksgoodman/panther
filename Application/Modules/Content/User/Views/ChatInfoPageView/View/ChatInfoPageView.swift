@@ -42,7 +42,7 @@ public struct ChatInfoPageView: View {
             }
         }
         .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
-        .preferredStatusBarStyle(.lightContent)
+        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

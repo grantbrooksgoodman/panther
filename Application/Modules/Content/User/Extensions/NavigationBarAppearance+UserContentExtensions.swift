@@ -15,13 +15,20 @@ import AppSubsystem
 
 public extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
-        let scrollEdgeConfig: NavigationBarConfiguration = .init(
-            titleColor: .navigationBarTitle,
-            backgroundColor: (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98),
-            barButtonItemColor: .accent,
-            showsDivider: false
-        )
+        guard Application.isInPrevaricationMode else {
+            return .default(scrollEdgeConfig: .init(
+                titleColor: .navigationBarTitle,
+                backgroundColor: (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98),
+                barButtonItemColor: .accent,
+                showsDivider: false
+            ))
+        }
 
-        return .default(scrollEdgeConfig: scrollEdgeConfig)
+        return .custom(.init(
+            titleColor: .navigationBarTitle,
+            backgroundColor: .navigationBarBackground,
+            barButtonItemColor: .navigationBarTitle,
+            showsDivider: true
+        ))
     }
 }

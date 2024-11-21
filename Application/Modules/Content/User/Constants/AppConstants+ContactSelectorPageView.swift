@@ -17,6 +17,7 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum ContactSelectorPageView {
+        public static let cancelToolbarButtonSystemFontSize: CGFloat = 17
         public static let listViewDefaultMinListRowHeight: CGFloat = 44
     }
 }

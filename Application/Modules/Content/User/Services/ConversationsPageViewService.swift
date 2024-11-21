@@ -171,7 +171,7 @@ public final class ConversationsPageViewService {
 
         Task { @MainActor in
             NavigationBar.setAppearance(.appDefault)
-            StatusBarStyle.override(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+            StatusBarStyle.override(Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent)
         }
     }
 

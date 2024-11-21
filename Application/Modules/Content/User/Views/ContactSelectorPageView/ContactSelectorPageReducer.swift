@@ -48,7 +48,6 @@ public struct ContactSelectorPageReducer: Reducer {
 
         // String
         @Localized(.cancel) public var cancelToolbarButtonText: String
-        @Localized(.done) public var doneToolbarButtonText: String
         @Localized(.invite) public var inviteToolbarButtonText: String
         @Localized(.contacts) public var navigationTitle: String
         @Localized(.noResults) public var noResultsLabelText: String
@@ -79,7 +78,6 @@ public struct ContactSelectorPageReducer: Reducer {
         public static func == (left: State, right: State) -> Bool {
             let sameCancelToolbarButtonText = left.cancelToolbarButtonText == right.cancelToolbarButtonText
             let sameContactPairs = left.contactPairs == right.contactPairs
-            let sameDoneToolbarButtonText = left.doneToolbarButtonText == right.doneToolbarButtonText
             let sameInviteToolbarButtonText = left.inviteToolbarButtonText == right.inviteToolbarButtonText
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
             let sameNavigationTitle = left.navigationTitle == right.navigationTitle
@@ -91,7 +89,6 @@ public struct ContactSelectorPageReducer: Reducer {
 
             guard sameCancelToolbarButtonText,
                   sameContactPairs,
-                  sameDoneToolbarButtonText,
                   sameInviteToolbarButtonText,
                   sameIsPresented,
                   sameNavigationTitle,
@@ -110,7 +107,6 @@ public struct ContactSelectorPageReducer: Reducer {
     public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
         switch event {
         case .action(.viewAppeared):
-            NavigationBar.setAppearance(.themed(showsDivider: false))
             core.gcd.after(.seconds(1)) { uiApplication.resignFirstResponders() }
 
         case .action(.cancelToolbarButtonTapped):

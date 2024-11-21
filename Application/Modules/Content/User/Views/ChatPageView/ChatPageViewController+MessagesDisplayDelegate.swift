@@ -152,8 +152,22 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) -> MessageStyle {
         guard let message = message as? Message else { return .none }
-        guard !Application.isInPrevaricationMode else { return .bubble }
-        guard ThemeService.isAppDefaultThemeApplied else { return .custom { $0.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius } }
+        guard !Application.isInPrevaricationMode,
+              ThemeService.isAppDefaultThemeApplied else {
+            return message.contentType == .audio || message.contentType == .text ? .custom { view in
+                view.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius
+                view.layer.masksToBounds = false
+
+                view.layer.shadowColor = UIColor(Colors.messageStyleCustomLayerShadowColor).cgColor
+                view.layer.shadowOffset = .init(
+                    width: 0,
+                    height: Floats.messageStyleCustomLayerShadowOffsetHeight
+                )
+                view.layer.shadowOpacity = Float(Floats.messageStyleCustomLayerShadowOpacity)
+                view.layer.shadowRadius = Floats.messageStyleCustomLayerShadowRadius
+            } : .bubble
+        }
+
         guard message.documentComponent == nil else { return .bubbleOutline(.gray) }
         return message.isFromCurrentUser ? .bubbleTail(.bottomRight, .curved) : .bubbleTail(.bottomLeft, .curved)
     }

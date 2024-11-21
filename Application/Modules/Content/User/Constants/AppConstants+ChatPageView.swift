@@ -19,6 +19,8 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum ChatPageView {
+        public static let messageLabelInset: CGFloat = 4
+
         public static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
         public static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
 
@@ -35,6 +37,7 @@ public extension AppConstants.CGFloats {
             public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
 
             public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 12
+            public static let messageTopLabelAttributedTextAttributesBaselineOffset: CGFloat = 3
             public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
         }
 
@@ -43,6 +46,9 @@ public extension AppConstants.CGFloats {
             public static let audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
 
             public static let messageStyleCustomLayerCornerRadius: CGFloat = 10
+            public static let messageStyleCustomLayerShadowOffsetHeight: CGFloat = 2
+            public static let messageStyleCustomLayerShadowOpacity: CGFloat = 0.1
+            public static let messageStyleCustomLayerShadowRadius: CGFloat = 4
         }
 
         enum MessagesLayoutDelegate {
@@ -85,6 +91,8 @@ public extension AppConstants.Colors {
 
             public static let genericAvatarViewBackground: Color = .init(uiColor: .clear)
             public static let genericAvatarViewTint: Color = .init(uiColor: .gray)
+
+            public static let messageStyleCustomLayerShadowColor: Color = .init(uiColor: .black)
         }
     }
 }

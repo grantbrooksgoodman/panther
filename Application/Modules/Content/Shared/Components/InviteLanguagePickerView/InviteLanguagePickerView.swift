@@ -58,9 +58,15 @@ public struct InviteLanguagePickerView: View {
             .interactiveDismissDisabled(true)
         }
         .header(
-            leftItem: .cancelButton { viewModel.send(.cancelHeaderItemTapped) },
-            .text(.init(viewModel.navigationTitle)),
-            rightItem: .doneButton(foregroundColor: viewModel.isDoneHeaderItemEnabled ? .accent : .disabled) { viewModel.send(.doneHeaderItemTapped) },
+            leftItem: .cancelButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+                viewModel.send(.cancelHeaderItemTapped)
+            },
+            .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
+            rightItem: .doneButton(
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled
+            ) {
+                viewModel.send(.doneHeaderItemTapped)
+            },
             attributes: .init(showsDivider: false, sizeClass: .sheet)
         )
         .background(Color.navigationBarBackground)

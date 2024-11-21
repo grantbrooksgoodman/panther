@@ -122,7 +122,7 @@ public final class AlternateMessageService {
             .compactMap { $0 as? TextMessageCell }
 
         var modelCell: TextMessageCell?
-        for textMessageCell in visibleTextMessageCells {
+        for textMessageCell in visibleTextMessageCells where !textMessageCell.messageLabel.font.isItalicized {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: textMessageCell),
                   let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
                   message.contentType == .text,
@@ -134,4 +134,8 @@ public final class AlternateMessageService {
         guard let modelCell else { return .systemFont(ofSize: Floats.messageCellStringSystemFontSize) }
         return modelCell.messageLabel.font
     }
+}
+
+private extension UIFont {
+    var isItalicized: Bool { fontDescriptor.symbolicTraits.contains(.traitItalic) }
 }

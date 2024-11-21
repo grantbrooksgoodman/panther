@@ -68,7 +68,8 @@ public struct SplashPageView: View {
         .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .preferredStatusBarStyle(
-            ThemeService.isDarkModeActive ? .lightContent : (ThemeService.isAppDefaultThemeApplied ? .darkContent : .lightContent)
+            ThemeService.isDarkModeActive ? .lightContent : (ThemeService.isAppDefaultThemeApplied ? .darkContent : .lightContent),
+            restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .redrawsOnTraitCollectionChange()
         .onFirstAppear {

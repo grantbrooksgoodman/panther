@@ -176,7 +176,8 @@ public struct ChatInfoPageReducer: Reducer {
             }
             state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
 
-            if !isPresentingCameraPickerSheet,
+            if !Application.isInPrevaricationMode,
+               !isPresentingCameraPickerSheet,
                !ThemeService.isDarkModeActive {
                 StatusBarStyle.override(.darkContent)
             }
@@ -188,7 +189,8 @@ public struct ChatInfoPageReducer: Reducer {
             }
             state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
 
-            if !isPresentingImagePickerSheet,
+            if !Application.isInPrevaricationMode,
+               !isPresentingImagePickerSheet,
                !ThemeService.isDarkModeActive {
                 StatusBarStyle.override(.darkContent)
             }

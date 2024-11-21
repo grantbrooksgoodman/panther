@@ -51,7 +51,7 @@ public struct ChatInfoContentPageView: View {
 
     public var body: some View {
         ThemedView(
-            navigationBarAppearance: .default(),
+            navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
             restoresNavigationBarAppearanceOnDisappear: true
         ) {
             NavigationView {
@@ -94,8 +94,13 @@ public struct ChatInfoContentPageView: View {
             )
             .offset(y: Floats.singleCNContactViewYOffset)
             .header(
-                rightItem: .doneButton { viewModel.send(.doneHeaderItemTapped) },
-                attributes: .init(appearance: .themed, sizeClass: .sheet)
+                rightItem: .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+                    viewModel.send(.doneHeaderItemTapped)
+                },
+                attributes: .init(
+                    appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
+                    sizeClass: .sheet
+                )
             )
         } else {
             VStack {
@@ -209,7 +214,8 @@ public struct ChatInfoContentPageView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Components.button(
                 viewModel.doneButtonText,
-                font: .systemSemibold
+                font: .systemSemibold,
+                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
             ) {
                 viewModel.send(.doneToolbarButtonTapped)
             }

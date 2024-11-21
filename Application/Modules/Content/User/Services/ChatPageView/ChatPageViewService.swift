@@ -328,9 +328,9 @@ public final class ChatPageViewService {
                 .presentedViews
                 .compactMap { $0 as? UIButton }
                 .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
-                .filter { $0.tintColor != .accent }
+                .filter { $0.tintColor != (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) }
 
-            misconfiguredBarButtonItemViews.forEach { $0.tintColor = .accent }
+            misconfiguredBarButtonItemViews.forEach { $0.tintColor = Application.isInPrevaricationMode ? .navigationBarTitle : .accent }
             Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) {
                 startSettingNavigationBarButtonItemAppearance()
             }

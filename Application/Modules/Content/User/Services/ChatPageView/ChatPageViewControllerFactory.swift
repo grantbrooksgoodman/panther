@@ -39,8 +39,8 @@ public struct ChatPageViewControllerFactory {
         viewController.showMessageTimestampOnSwipeLeft = true
 
         configureCollectionViewLayout(viewController)
-        configureBackgroundColor(viewController)
         configureDeliveryProgressView(viewController)
+        configureBackgroundColor(viewController)
         configureInitialInputBar(viewController)
 
         return viewController
@@ -61,16 +61,15 @@ public struct ChatPageViewControllerFactory {
     }
 
     private func configureBackgroundColor(_ viewController: ChatPageViewController) {
-        viewController.messagesCollectionView.backgroundColor = .background
-        viewController.messagesCollectionView.backgroundView?.backgroundColor = .background
+        let backgroundColor: UIColor = Application.isInPrevaricationMode ? .init(hex: 0xF3EDE6) : .background
+        viewController.messagesCollectionView.backgroundColor = backgroundColor
+        viewController.messagesCollectionView.backgroundView?.backgroundColor = backgroundColor
         viewController.view.backgroundColor = viewController.messagesCollectionView.backgroundColor
     }
 
     private func configureCollectionViewLayout(_ viewController: ChatPageViewController) {
         typealias Floats = AppConstants.CGFloats.ChatPageView
-
-        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout,
-              !Application.isInPrevaricationMode else { return }
+        guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
 
         layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
@@ -87,9 +86,17 @@ public struct ChatPageViewControllerFactory {
                 right: Floats.messageOutgoingCellBottomLabelAlignmentRightTextInset
             )
         ))
+
+        guard Application.isInPrevaricationMode else { return }
+        layout.textMessageSizeCalculator.incomingMessageLabelInsets.left -= Floats.messageLabelInset
+        layout.attributedTextMessageSizeCalculator.incomingMessageLabelInsets.left -= Floats.messageLabelInset
+
+        layout.textMessageSizeCalculator.outgoingMessageLabelInsets.right -= Floats.messageLabelInset
+        layout.attributedTextMessageSizeCalculator.outgoingMessageLabelInsets.right -= Floats.messageLabelInset
     }
 
     private func configureDeliveryProgressView(_ viewController: ChatPageViewController) {
+        typealias Colors = AppConstants.Colors.ChatPageViewService.DeliveryProgressIndicator
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
         typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
@@ -106,7 +113,7 @@ public struct ChatPageViewControllerFactory {
 
         deliveryProgressView.alpha = 0
         deliveryProgressView.progress = 0
-        deliveryProgressView.progressTintColor = .accent
+        deliveryProgressView.progressTintColor = Application.isInPrevaricationMode ? UIColor(Colors.prevaricationModeProgressTint) : .accent
         deliveryProgressView.progressViewStyle = .bar
 
         deliveryProgressView.tag = coreUI.semTag(for: Strings.viewSemanticTag)
@@ -210,5 +217,9 @@ public struct ChatPageViewControllerFactory {
         inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         inputBar.inputTextView.textContainerInset.right = inputBar.sendButton.frame.width + Floats.textContainerInsetRightIncrement
         inputBar.inputTextView.tintColor = .accent
+
+        guard Application.isInPrevaricationMode else { return }
+        inputBar.backgroundView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
+        inputBar.contentView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
     }
 }

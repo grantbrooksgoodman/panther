@@ -140,9 +140,15 @@ public extension AppConstants.Colors {
             public static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
         }
 
+        enum DeliveryProgressIndicator {
+            public static let prevaricationModeProgressTint: Color = .init(uiColor: .init(hex: 0x4B6584))
+        }
+
         enum InputBar {
             public static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
             public static let inputTextViewTint: Color = .init(uiColor: .clear)
+
+            public static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
 
             public static let sendButtonRecordTint: Color = .init(uiColor: .red)
             public static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)

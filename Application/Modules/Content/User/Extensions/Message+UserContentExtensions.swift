@@ -33,7 +33,8 @@ extension Message: MessageType {
 
         typealias Colors = AppConstants.Colors.UserContentExtensions.Message
 
-        let nonCurrentUserForegroundColor = ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
+        // swiftlint:disable:next line_length
+        let nonCurrentUserForegroundColor = !Application.isInPrevaricationMode && ThemeService.isDarkModeActive ? Colors.kindAttributedTextDarkForeground : Colors.kindAttributedTextLightForeground
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
         switch contentType {
@@ -47,7 +48,8 @@ extension Message: MessageType {
                 return .attributedText(
                     .messageCellString(
                         isFromCurrentUser ? translation.input.value.sanitized : translation.output,
-                        foregroundColor: attributedStringForegroundColor
+                        foregroundColor: attributedStringForegroundColor,
+                        italicized: true
                     )
                 )
             }
@@ -65,14 +67,16 @@ extension Message: MessageType {
         }
 
         guard let translation else { return .text("�") }
-        guard alternateMessageService?.isDisplayingAlternateText(for: self) ?? false else {
-            return .text(isFromCurrentUser ? translation.input.value.sanitized : translation.output)
-        }
+
+        let isDisplayingAlternateText = alternateMessageService?.isDisplayingAlternateText(for: self) ?? false
+        let primaryText = isFromCurrentUser ? translation.input.value.sanitized : translation.output
+        let alternateText = isFromCurrentUser ? translation.output : translation.input.value.sanitized
 
         return .attributedText(
             .messageCellString(
-                isFromCurrentUser ? translation.output : translation.input.value.sanitized,
-                foregroundColor: attributedStringForegroundColor
+                isDisplayingAlternateText ? alternateText : primaryText,
+                foregroundColor: attributedStringForegroundColor,
+                italicized: isDisplayingAlternateText
             )
         )
     }

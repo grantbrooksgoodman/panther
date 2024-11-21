@@ -320,7 +320,6 @@
 		B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C62B1A42980016948C /* TranscriptionService.swift */; };
 		B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C82B1A42A20016948C /* PlaybackService.swift */; };
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
-		B9B26F602CB0D96A00326FD5 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
@@ -1505,7 +1504,6 @@
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
 				B921F3FF2CCB53AC006BB149 /* Networking in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
-				B9B26F602CB0D96A00326FD5 /* AppSubsystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3486,7 +3484,6 @@
 			name = Hello;
 			packageProductDependencies = (
 				B9E2E6132C72E7AF004022FE /* MessageKit */,
-				B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */,
 				B921F3FE2CCB53AC006BB149 /* Networking */,
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
@@ -3615,7 +3612,6 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */,
 				B921F3FD2CCB53AC006BB149 /* XCRemoteSwiftPackageReference "networking" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
@@ -4827,14 +4823,6 @@
 				minimumVersion = 11.4.0;
 			};
 		};
-		B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/app-subsystem";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MessageKit/MessageKit";
@@ -4860,11 +4848,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		B9B26F5F2CB0D96A00326FD5 /* AppSubsystem */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B9B26F5E2CB0D96A00326FD5 /* XCRemoteSwiftPackageReference "app-subsystem" */;
-			productName = AppSubsystem;
 		};
 		B9E2E6132C72E7AF004022FE /* MessageKit */ = {
 			isa = XCSwiftPackageProductDependency;
