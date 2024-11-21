@@ -63,7 +63,8 @@ public struct InviteLanguagePickerView: View {
             },
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
             rightItem: .doneButton(
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled,
+                isEnabled: viewModel.isDoneHeaderItemEnabled
             ) {
                 viewModel.send(.doneHeaderItemTapped)
             },

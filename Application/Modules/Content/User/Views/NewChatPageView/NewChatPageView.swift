@@ -17,8 +17,9 @@ import ComponentKit
 public struct NewChatPageView: View {
     // MARK: - Properties
 
+    @StateObject var viewModel: ViewModel<NewChatPageReducer>
+
     @StateObject private var observer: ViewObserver<NewChatPageObserver>
-    @StateObject private var viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Bindings
 
@@ -39,44 +40,38 @@ public struct NewChatPageView: View {
     // MARK: - View
 
     public var body: some View {
-        NavigationView {
+        ThemedView {
             VStack {
                 ChatPageView(viewModel.conversation, configuration: .newChat)
                     .ignoresSafeArea(.keyboard)
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationTitle(viewModel.navigationTitle)
+                    .background(Color.background)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .interactiveDismissDisabled()
-            .background(Color.background)
-            .toolbar {
-                doneToolbarButton
-            }
-            .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
-        }
-        .sheet(isPresented: contactSelectorSheetBinding) {
-            ContactSelectorPageView(
-                .init(
-                    initialState: .init(contactSelectorSheetBinding),
-                    reducer: ContactSelectorPageReducer()
+            .header(
+                headerCenterItem,
+                rightItem: headerRightItem,
+                attributes: .init(
+                    showsDivider: viewModel.shouldUseBoldDoneToolbarButton,
+                    sizeClass: .sheet
                 )
             )
-        }
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
-        }
-    }
-
-    private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Components.button(
-                viewModel.doneToolbarButtonText,
-                font: viewModel.shouldUseBoldDoneToolbarButton ? .systemSemibold : .system,
-                foregroundColor: viewModel.isDoneToolbarButtonEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled
-            ) {
-                viewModel.send(.doneToolbarButtonTapped)
+            .foregroundStyle(Color.background)
+            .interactiveDismissDisabled()
+            .background(Color.background)
+            .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+            .sheet(isPresented: contactSelectorSheetBinding) {
+                ContactSelectorPageView(
+                    .init(
+                        initialState: .init(contactSelectorSheetBinding),
+                        reducer: ContactSelectorPageReducer()
+                    )
+                )
             }
-            .disabled(!viewModel.isDoneToolbarButtonEnabled)
+            .onFirstAppear {
+                viewModel.send(.viewAppeared)
+            }
         }
     }
 }

@@ -113,6 +113,11 @@ public struct SettingsPageReducer: Reducer {
             return !(blockedUserIDs ?? []).isBangQualifiedEmpty
         }
 
+        public var navigationBarAppearance: NavigationBarAppearance {
+            guard !Application.isInPrevaricationMode else { return .appDefault }
+            return ThemeService.isAppDefaultThemeApplied ? .default() : .themed()
+        }
+
         /* MARK: Init */
 
         public init() {}

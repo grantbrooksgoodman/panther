@@ -135,7 +135,10 @@ public extension AppConstants.CGFloats {
 // MARK: - Color
 
 public extension AppConstants.Colors {
-    enum ChatPageViewService {
+    enum ChatPageViewService { // swiftlint:disable:next identifier_name
+        public static let messagesCollectionViewPrimaryDarkBackground: Color = .black // swiftlint:disable:next identifier_name
+        public static let messagesCollectionViewSecondaryDarkBackground: Color = .init(uiColor: .init(hex: 0x1C1C1E))
+
         enum AudioMessagePlayback {
             public static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
         }

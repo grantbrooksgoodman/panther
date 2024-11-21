@@ -21,6 +21,7 @@ import MessageKit
 public final class ChatPageViewService {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.ChatPageViewService
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService
     private typealias Strings = AppConstants.Strings.ChatPageViewService
 
@@ -101,6 +102,7 @@ public final class ChatPageViewService {
         modifyConfigurationIfNeeded()
         chatPageState.setIsPresented(true)
         toggleBuildInfoOverlay(on: false)
+        updateCollectionViewBackgroundColor()
 
         if configuration == .newChat {
             viewController?.messageInputBar.inputTextView.placeholder = ""
@@ -240,6 +242,7 @@ public final class ChatPageViewService {
             UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true
             viewController?.navigationController?.isNavigationBarHidden = false
+            updateCollectionViewBackgroundColor()
             reloadCollectionView()
         }
     }
@@ -275,6 +278,19 @@ public final class ChatPageViewService {
             guard let parent = viewController?.parent else { return }
             parent.navigationItem.title = navigationTitle
         }
+    }
+
+    public func updateCollectionViewBackgroundColor() {
+        guard !Application.isInPrevaricationMode else { return }
+        var backgroundColor = ThemeService.isAppDefaultThemeApplied ? UIColor.background : UIColor(Colors.messagesCollectionViewPrimaryDarkBackground)
+        if configuration != .default,
+           ThemeService.isDarkModeActive {
+            backgroundColor = UIColor(Colors.messagesCollectionViewSecondaryDarkBackground)
+        }
+
+        viewController?.messagesCollectionView.backgroundColor = backgroundColor
+        viewController?.messagesCollectionView.backgroundView?.backgroundColor = backgroundColor
+        viewController?.view.backgroundColor = backgroundColor
     }
 
     private func loadMoreMessages(fromScrollToTop: Bool) {

@@ -70,7 +70,6 @@ public struct NewChatPageReducer: Reducer {
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
-            NavigationBar.setAppearance(.themed(showsDivider: false))
 
         case .action(.doneToolbarButtonTapped):
             navigationCoordinator.navigate(to: .userContent(.sheet(.none)))

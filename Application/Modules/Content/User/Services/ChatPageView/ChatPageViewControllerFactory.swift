@@ -61,10 +61,15 @@ public struct ChatPageViewControllerFactory {
     }
 
     private func configureBackgroundColor(_ viewController: ChatPageViewController) {
-        let backgroundColor: UIColor = Application.isInPrevaricationMode ? .init(hex: 0xF3EDE6) : .background
-        viewController.messagesCollectionView.backgroundColor = backgroundColor
-        viewController.messagesCollectionView.backgroundView?.backgroundColor = backgroundColor
-        viewController.view.backgroundColor = viewController.messagesCollectionView.backgroundColor
+        func setBackgroundColor(_ color: UIColor) {
+            viewController.messagesCollectionView.backgroundColor = color
+            viewController.messagesCollectionView.backgroundView?.backgroundColor = color
+            viewController.view.backgroundColor = viewController.messagesCollectionView.backgroundColor
+        }
+
+        typealias Colors = AppConstants.Colors.ChatPageView
+        guard !Application.isInPrevaricationMode else { return setBackgroundColor(UIColor(Colors.messagesCollectionViewPrevaricationModeBackground)) }
+        setBackgroundColor(.background)
     }
 
     private func configureCollectionViewLayout(_ viewController: ChatPageViewController) {

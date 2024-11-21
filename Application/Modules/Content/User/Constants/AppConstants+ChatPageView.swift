@@ -69,6 +69,8 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatPageView {
+        public static let messagesCollectionViewPrevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
+
         enum AVSpeechSynthesizerDelegate {
             public static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
             public static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
