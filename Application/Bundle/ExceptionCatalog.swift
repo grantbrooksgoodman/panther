@@ -22,6 +22,7 @@ public extension AppException {
     struct ExceptionMetadataDelegate: AppSubsystem.Delegates.ExceptionMetadataDelegate {
         public func isReportable(_ hashlet: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
+            guard hashlet != AppException.cannotSendTextMessages.hashletValue else { return false }
             guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
             return !errorReportingService.reportedErrorCodes.contains(hashlet)
         }
@@ -52,6 +53,7 @@ public extension AppException {
 
     // MARK: - Properties
 
+    static let cannotSendTextMessages: AppException = .init("56F0")
     static let contactAccessDenied: AppException = .init("C8DC")
     static let currentUserIDNotSet: AppException = .init("EA90")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")

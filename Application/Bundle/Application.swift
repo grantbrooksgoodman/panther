@@ -43,7 +43,7 @@ public enum Application {
         )
 
         AppSubsystem.initialize(
-            appStoreReleaseVersion: 4,
+            appStoreBuildNumber: 24673,
             buildMilestone: buildMilestone,
             codeName: "Panther",
             dmyFirstCompileDateString: "11112023",

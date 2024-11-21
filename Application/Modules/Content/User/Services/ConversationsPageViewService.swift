@@ -89,7 +89,6 @@ public final class ConversationsPageViewService {
         }
 
         networking.database.clearTemporaryCaches()
-
         core.gcd.after(.seconds(1)) {
             Task { @MainActor in
                 guard await self.services.permission.notificationPermissionStatus == .unknown else {

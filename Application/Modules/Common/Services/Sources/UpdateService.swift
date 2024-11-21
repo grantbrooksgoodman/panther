@@ -187,7 +187,7 @@ public final class UpdateService {
             title: "Update Required",
             message: "This version of ⌘\(build.finalName)⌘ is no longer supported. To continue, please download and install the most recent update.",
             actions: actions
-        ).present(translating: [.actions([updateAction])])
+        ).present(translating: [.actions([updateAction]), .message, .title])
     }
 
     private func presentNormalUpdateCTA(_ url: URL) async {
@@ -215,6 +215,6 @@ public final class UpdateService {
             title: "Update Available",
             message: "A new version of ⌘\(build.finalName)⌘ is available in the ⌘App Store⌘. Would you like to update now?",
             actions: [updateAction, cancelAction]
-        ).present(translating: [.actions([updateAction])])
+        ).present(translating: [.actions([updateAction]), .message, .title])
     }
 }
