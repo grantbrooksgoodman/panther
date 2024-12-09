@@ -61,7 +61,7 @@ public enum PLISTGenerator {
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.translationService) var translator: TranslationService
 
-        coreUtilities.clearCaches(domains: [.localTranslationArchive])
+        coreUtilities.clearCaches([.localTranslationArchive])
         var resolvedTranslations = [String: String]()
 
         Logger.openStream(metadata: [self, #file, #function, #line])

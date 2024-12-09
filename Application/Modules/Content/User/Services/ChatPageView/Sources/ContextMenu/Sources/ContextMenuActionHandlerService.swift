@@ -132,8 +132,8 @@ public final class ContextMenuActionHandlerService {
 
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
               message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
-              let fromLanguageCode = message.translation?.languagePair.from,
-              !(fromLanguageCode == currentUser?.languageCode && !message.isFromCurrentUser),
+              let languageCode = message.isFromCurrentUser ? message.translation?.languagePair.to : message.translation?.languagePair.from,
+              languageCode != currentUser?.languageCode,
               !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }
 
         let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: message) ?? false

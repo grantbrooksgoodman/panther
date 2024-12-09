@@ -34,13 +34,11 @@ public extension ContactPair {
               contact.imageData == nil,
               numberPairs.count == 1,
               let firstNumberPair = numberPairs.first,
-              firstNumberPair.phoneNumber.compiledNumberString.isBlank,
               firstNumberPair.users.count == 1,
               let firstUser = firstNumberPair.users.first,
               firstUser.id.isBlank,
               firstUser.conversationIDs == nil,
               firstUser.languageCode.isBlank,
-              firstUser.phoneNumber.compiledNumberString.isBlank,
               firstUser.pushTokens == nil,
               firstUser.blockedUserIDs == nil else { return false }
         return true

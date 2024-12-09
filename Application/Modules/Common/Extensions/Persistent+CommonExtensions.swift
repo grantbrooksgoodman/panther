@@ -25,10 +25,6 @@ public extension Persistent {
         self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
 
-    convenience init(_ contactSyncServiceKey: UserDefaultsKey.ContactSyncServiceDefaultsKey) {
-        self.init(.contactSyncService(contactSyncServiceKey))
-    }
-
     convenience init(_ reviewServiceKey: UserDefaultsKey.ReviewServiceDefaultsKey) {
         self.init(.reviewService(reviewServiceKey))
     }

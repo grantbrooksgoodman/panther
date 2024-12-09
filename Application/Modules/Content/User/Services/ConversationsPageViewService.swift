@@ -145,7 +145,7 @@ public final class ConversationsPageViewService {
                 var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
                 guard (contactPairArchive ?? []).isEmpty || randomBool else { return .success(user.conversations ?? []) }
 
-                if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true),
+                if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
                     return .failure(exception)
                 }

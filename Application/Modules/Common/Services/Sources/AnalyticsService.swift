@@ -20,6 +20,7 @@ public struct AnalyticsService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
@@ -122,7 +123,11 @@ public struct AnalyticsService {
 
             Analytics.logEvent(event.name, parameters: parameters)
 
-            guard Application.isInPrevaricationMode else { return }
+            guard let currentUser,
+                  ["15555555555", "18888888888"].contains(currentUser.phoneNumber.compiledNumberString),
+                  build.milestone == .generalRelease,
+                  Networking.config.environment == .production else { return }
+
             var body = "Logged analytics event \"\(event.name)\"."
             if let uiElementName = parameters["ui_element"] {
                 body = "Tapped element \"\(uiElementName)\"."

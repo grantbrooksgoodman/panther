@@ -23,6 +23,5 @@ public extension NetworkPath {
     static let reportedUsers: NetworkPath = .init("reportedUsers")
     static let shared: NetworkPath = .init("shared")
     static let translations: NetworkPath = .init("translations")
-    static let userNumberHashes: NetworkPath = .init("userNumberHashes")
     static let users: NetworkPath = .init("users")
 }

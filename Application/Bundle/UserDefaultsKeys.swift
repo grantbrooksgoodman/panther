@@ -19,7 +19,6 @@ public extension UserDefaultsKey {
     static func general(_ key: GeneralAppDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func audioService(_ key: AudioServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
-    static func contactSyncService(_ key: ContactSyncServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func reviewService(_ key: ReviewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func settingsPageViewService(_ key: SettingsPageViewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

@@ -17,9 +17,7 @@ public final class ContactPairArchiveService {
 
     private enum CacheKey: String, CaseIterable {
         case archive
-        case contactPairsForContactHashes
         case contactPairsForPhoneNumbers
-        case contactPairsForUserNumberHashes
     }
 
     // MARK: - Dependencies
@@ -36,9 +34,7 @@ public final class ContactPairArchiveService {
     @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
 
     // Dictionary
-    @Cached(CacheKey.contactPairsForContactHashes) private var cachedContactPairsForContactHashes: [String: ContactPair]?
     @Cached(CacheKey.contactPairsForPhoneNumbers) private var cachedContactPairsForPhoneNumbers: [String: ContactPair]?
-    @Cached(CacheKey.contactPairsForUserNumberHashes) private var cachedContactPairsForUserNumberHashes: [String: ContactPair]?
 
     // MARK: - Computed Properties
 
@@ -70,8 +66,10 @@ public final class ContactPairArchiveService {
             Logger.log(
                 .init(
                     "Added contact pair to persisted archive.",
-                    extraParams: ["FullName": contactPair.contact.fullName,
-                                  "PhoneNumber": contactPair.numberPairs.first?.phoneNumber.formattedString() ?? ""],
+                    extraParams: [
+                        "FullName": contactPair.contact.fullName,
+                        "PhoneNumbers": contactPair.numberPairs.map { $0.phoneNumber.formattedString() }.description,
+                    ],
                     metadata: [self, #file, #function, #line]
                 ),
                 domain: .contacts
@@ -79,11 +77,9 @@ public final class ContactPairArchiveService {
         }
 
         archive = values
-        cachedContactPairsForContactHashes = cachedContactPairsForContactHashes?.filter { !contactPairs.contains($0.value) }
         cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !contactPairs.contains($0.value) }
-        cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !contactPairs.contains($0.value) }
 
-        coreUtilities.clearCaches(domains: [.contactImage])
+        coreUtilities.clearCaches([.contactImage])
         Observables.updatedContactPairArchive.trigger()
     }
 
@@ -91,53 +87,11 @@ public final class ContactPairArchiveService {
 
     public func clearArchive() {
         archive = []
-        cachedContactPairsForContactHashes = nil
         cachedContactPairsForPhoneNumbers = nil
-        cachedContactPairsForUserNumberHashes = nil
-        coreUtilities.clearCaches(domains: [.contactImage])
-    }
-
-    public func removeValue(userNumberHashes: [String]) {
-        func satisfiesConstraints(_ contactPair: ContactPair) -> Bool {
-            let possibleHashes = phoneNumberService.possibleHashes(for: contactPair.contact.phoneNumbers.compiledNumberStrings.unique) ?? []
-            return possibleHashes.containsAnyString(in: userNumberHashes)
-        }
-
-        guard archive.contains(where: { satisfiesConstraints($0) }) else { return }
-        archive.removeAll(where: { satisfiesConstraints($0) })
-        cachedContactPairsForContactHashes = cachedContactPairsForContactHashes?.filter { !satisfiesConstraints($0.value) }
-        cachedContactPairsForPhoneNumbers = cachedContactPairsForPhoneNumbers?.filter { !satisfiesConstraints($0.value) }
-        cachedContactPairsForUserNumberHashes = cachedContactPairsForUserNumberHashes?.filter { !satisfiesConstraints($0.value) }
-
-        coreUtilities.clearCaches(domains: [.contactImage])
-        Observables.updatedContactPairArchive.trigger()
-
-        Logger.log(
-            .init(
-                "Removed contact pair from persisted archive.",
-                extraParams: ["UserNumberHashes": userNumberHashes],
-                metadata: [self, #file, #function, #line]
-            ),
-            domain: .contacts
-        )
+        coreUtilities.clearCaches([.contactImage])
     }
 
     // MARK: - Retrieval
-
-    public func getValue(contactHash: String) -> ContactPair? {
-        if let cachedContactPairsForContactHashes,
-           let cachedValue = cachedContactPairsForContactHashes[contactHash] {
-            return cachedValue
-        }
-
-        guard let valueForContactHash = archive.first(where: { $0.contact.encodedHash == contactHash }) else { return nil }
-
-        var newCacheValue = cachedContactPairsForContactHashes ?? [:]
-        newCacheValue[contactHash] = valueForContactHash
-        cachedContactPairsForContactHashes = newCacheValue
-
-        return valueForContactHash
-    }
 
     public func getValue(phoneNumber: PhoneNumber) -> ContactPair? {
         if let cachedContactPairsForPhoneNumbers,
@@ -146,7 +100,7 @@ public final class ContactPairArchiveService {
         }
 
         guard let valueForPhoneNumber = archive
-            .first(where: { $0.contact.phoneNumbers.map(\.compiledNumberString).contains(phoneNumber.compiledNumberString)
+            .first(where: { $0.contact.phoneNumbers.compiledNumberStrings.contains(phoneNumber.compiledNumberString)
             }) else { return nil }
 
         var newCacheValue = cachedContactPairsForPhoneNumbers ?? [:]
@@ -154,24 +108,6 @@ public final class ContactPairArchiveService {
         cachedContactPairsForPhoneNumbers = newCacheValue
 
         return valueForPhoneNumber
-    }
-
-    public func getValue(userNumberHash: String) -> ContactPair? {
-        if let cachedContactPairsForUserNumberHashes,
-           let cachedValue = cachedContactPairsForUserNumberHashes[userNumberHash] {
-            return cachedValue
-        }
-
-        guard let valueForUserNumberHash = archive
-            .first(where: {
-                (phoneNumberService.possibleHashes(for: $0.contact.phoneNumbers.compiledNumberStrings.unique) ?? []).contains(userNumberHash)
-            }) else { return nil }
-
-        var newCacheValue = cachedContactPairsForUserNumberHashes ?? [:]
-        newCacheValue[userNumberHash] = valueForUserNumberHash
-        cachedContactPairsForUserNumberHashes = newCacheValue
-
-        return valueForUserNumberHash
     }
 
     // MARK: - Persist Values for Notification Extension

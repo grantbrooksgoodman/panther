@@ -68,21 +68,9 @@ public extension DatabaseDelegate {
                 )
             }
 
-            for (key, value) in session.userNumberHashData {
-                CoreDatabaseCache.addValue(
-                    .init(
-                        .now,
-                        data: value,
-                        expiresAfter: .seconds(60)
-                    ),
-                    forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.userNumberHashes.rawValue)/\(key)"
-                )
-            }
-
             Logger.log(
                 "Established database snapshot.",
                 domain: .database,
-                with: .toastInPrerelease,
                 metadata: [self, #file, #function, #line]
             )
 

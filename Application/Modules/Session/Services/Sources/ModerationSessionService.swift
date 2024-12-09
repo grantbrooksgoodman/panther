@@ -162,8 +162,9 @@ public struct ModerationSessionService {
         let contactPairs = users
             .map { contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
+            .unique
 
-        guard contactPairs.users.count > 1 || type == .unblock else {
+        guard contactPairs.count > 1 || type == .unblock else {
             guard let contactPair = contactPairs.first,
                   await confirmModeration(type, title: "⌘\(contactPair.contact.fullName)⌘") else { return nil }
 

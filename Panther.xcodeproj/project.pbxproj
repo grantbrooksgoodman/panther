@@ -44,14 +44,12 @@
 		B900B5442B1ACC6100BA2F1D /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5432B1ACC6100BA2F1D /* Contact.swift */; };
 		B900B5482B1ADB6100BA2F1D /* ContactPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5472B1ADB6100BA2F1D /* ContactPair.swift */; };
 		B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5492B1ADC3C00BA2F1D /* ContactService.swift */; };
-		B900B54C2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B54B2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift */; };
 		B900B54E2B1AE04600BA2F1D /* ContactNameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */; };
 		B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */; };
 		B900BB032C98DDE200EED8E4 /* SettingsNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900BB022C98DDE200EED8E4 /* SettingsNavigator.swift */; };
 		B9018A402CD9C15700B72B18 /* TapGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */; };
 		B9018A432CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */; };
 		B9018A452CD9CAE300B72B18 /* AttributeDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */; };
-		B90243ED2B2786BF00448809 /* UserNumberHashSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */; };
 		B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244042B27ABC200448809 /* LegacyTranslationService.swift */; };
 		B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244062B27C84E00448809 /* LegacyMessageService.swift */; };
 		B90249C02B573A4500D62855 /* AuthCodePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249BF2B573A4500D62855 /* AuthCodePageReducer.swift */; };
@@ -695,7 +693,6 @@
 		B9F5D1ED2B48989800059B44 /* AppConstants+GenericTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F5D1EC2B48989800059B44 /* AppConstants+GenericTextField.swift */; };
 		B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F5D1EE2B48994300059B44 /* PhoneNumberTextField.swift */; };
 		B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */; };
-		B9F8EC9A2B1E7AEF00D4F3A4 /* ContactSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F8EC992B1E7AEF00D4F3A4 /* ContactSyncService.swift */; };
 		B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */; };
 		CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49280089B6A43629733BA839 /* Pods_Hello.framework */; };
 /* End PBXBuildFile section */
@@ -770,14 +767,12 @@
 		B900B5432B1ACC6100BA2F1D /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		B900B5472B1ADB6100BA2F1D /* ContactPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPair.swift; sourceTree = "<group>"; };
 		B900B5492B1ADC3C00BA2F1D /* ContactService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactService.swift; sourceTree = "<group>"; };
-		B900B54B2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInteractiveQOSQueueDependency.swift; sourceTree = "<group>"; };
 		B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactNameService.swift; sourceTree = "<group>"; };
 		B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPairArchiveService.swift; sourceTree = "<group>"; };
 		B900BB022C98DDE200EED8E4 /* SettingsNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigator.swift; sourceTree = "<group>"; };
 		B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapGestureRecognizerService.swift; sourceTree = "<group>"; };
 		B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeDetectionServiceDelegate.swift; sourceTree = "<group>"; };
 		B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeDetectionService.swift; sourceTree = "<group>"; };
-		B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNumberHashSnapshot.swift; sourceTree = "<group>"; };
 		B90244042B27ABC200448809 /* LegacyTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTranslationService.swift; sourceTree = "<group>"; };
 		B90244062B27C84E00448809 /* LegacyMessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMessageService.swift; sourceTree = "<group>"; };
 		B90249BF2B573A4500D62855 /* AuthCodePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCodePageReducer.swift; sourceTree = "<group>"; };
@@ -1491,7 +1486,6 @@
 		B9F5D1EE2B48994300059B44 /* PhoneNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberTextField.swift; sourceTree = "<group>"; };
 		B9F5D1F22B48AC5700059B44 /* Panther.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Panther.entitlements; sourceTree = "<group>"; };
 		B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SplashPageView.swift"; sourceTree = "<group>"; };
-		B9F8EC992B1E7AEF00D4F3A4 /* ContactSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSyncService.swift; sourceTree = "<group>"; };
 		B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
 		CC5C02E339BDFD542447E596 /* Pods-Panther.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Panther.release.xcconfig"; path = "Target Support Files/Pods-Panther/Pods-Panther.release.xcconfig"; sourceTree = "<group>"; };
 		CD15A745B7F693493037EFD6 /* Pods-Hello.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hello.release.xcconfig"; path = "Target Support Files/Pods-Hello/Pods-Hello.release.xcconfig"; sourceTree = "<group>"; };
@@ -1661,7 +1655,6 @@
 				B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */,
 				B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */,
 				B900B5492B1ADC3C00BA2F1D /* ContactService.swift */,
-				B9F8EC992B1E7AEF00D4F3A4 /* ContactSyncService.swift */,
 			);
 			path = Contacts;
 			sourceTree = "<group>";
@@ -3045,7 +3038,6 @@
 			children = (
 				B9E6D7AE2B125FC0000BC88D /* User.swift */,
 				B966E9AA2B5E556200874F44 /* UserDataSnapshot.swift */,
-				B90243EC2B2786BF00448809 /* UserNumberHashSnapshot.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3085,7 +3077,6 @@
 				B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */,
 				B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */,
 				B925A0932B6480A400111413 /* UIPasteboardDependency.swift */,
-				B900B54B2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift */,
 				B9E6D7CE2B12850D000BC88D /* UserNotificationCenterDependency.swift */,
 			);
 			path = Dependencies;
@@ -4108,7 +4099,6 @@
 				B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */,
 				B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */,
 				B93457092AABFB3700944602 /* Localized.swift in Sources */,
-				B900B54C2B1ADEAD00BA2F1D /* UserInteractiveQOSQueueDependency.swift in Sources */,
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
 				B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */,
@@ -4208,7 +4198,6 @@
 				B900B5302B1AB10F00BA2F1D /* TextMessageService.swift in Sources */,
 				B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */,
 				B9E6D7E02B1288CD000BC88D /* WelcomePageReducer.swift in Sources */,
-				B9F8EC9A2B1E7AEF00D4F3A4 /* ContactSyncService.swift in Sources */,
 				B923CAA32B758A870042D3E4 /* UIFont+UserContentExtensions.swift in Sources */,
 				B96C125D2BAE47430063687C /* UIImage+UserContentExtensions.swift in Sources */,
 				B92617702CD8472D00877ECE /* PushTokenService.swift in Sources */,
@@ -4431,7 +4420,6 @@
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
 				B9E7D4212AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
-				B90243ED2B2786BF00448809 /* UserNumberHashSnapshot.swift in Sources */,
 				B969165D2BAE1D1A00441472 /* ConversationMetadata.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,
 				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,

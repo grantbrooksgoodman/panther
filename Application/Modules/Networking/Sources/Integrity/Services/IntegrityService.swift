@@ -270,42 +270,8 @@ public final class IntegrityService {
                 exceptions.append(exception)
             }
 
-            guard let dictionary = session.userData[userID] as? [String: Any] else { continue }
-
-            if let encodedPhoneNumber = dictionary[User.SerializationKeys.phoneNumber.rawValue] as? [String: Any] {
-                let decodeResult = await PhoneNumber.decode(from: encodedPhoneNumber)
-
-                switch decodeResult {
-                case let .success(phoneNumber):
-                    let userNumberHashesPath = "\(NetworkPath.userNumberHashes.rawValue)/\(phoneNumber.nationalNumberString.digits.encodedHash)"
-                    let getValuesResult = await networking.database.getValues(at: userNumberHashesPath)
-
-                    switch getValuesResult {
-                    case let .success(values):
-                        guard var array = values as? [String] else {
-                            exceptions.append(.typecastFailed("array", metadata: [self, #file, #function, #line]))
-                            continue
-                        }
-
-                        array = array.filter { $0 != userID }
-
-                        if array.isBangQualifiedEmpty,
-                           let exception = await networking.database.setValue(NSNull(), forKey: userNumberHashesPath) {
-                            exceptions.append(exception)
-                        } else if let exception = await networking.database.setValue(array, forKey: userNumberHashesPath) {
-                            exceptions.append(exception)
-                        }
-
-                    case let .failure(exception):
-                        exceptions.append(exception)
-                    }
-
-                case let .failure(exception):
-                    exceptions.append(exception)
-                }
-            }
-
-            guard var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+            guard let dictionary = session.userData[userID] as? [String: Any],
+                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
             conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }
 
             if let exception = await repairMalformedConversations(conversationIDKeys).exception {

@@ -217,7 +217,7 @@ public final class SplashPageViewService: ObservableObject {
                 }
             }
 
-            if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: mustUpdateContactPairArchive || (randomBool && randomBool)),
+            if let exception = await services.contact.syncContactPairArchive(),
                !exception.isEqual(to: .notAuthorizedForContacts) {
                 return exception
             }
@@ -297,11 +297,15 @@ public final class SplashPageViewService: ObservableObject {
             "15555555555",
             "18888888888",
         ].contains(phoneNumber.compiledNumberString)
-        Application.isInPrevaricationMode = isUsingTestAccount && build.milestone == .generalRelease && Networking.config.environment == .production
 
-        let theme = ThemeService.currentTheme == AppTheme.prevaricationMode.theme ? AppTheme.appDefault.theme : ThemeService.currentTheme
+        guard isUsingTestAccount,
+              build.milestone == .generalRelease,
+              Networking.config.environment == .production,
+              services.metadata.isPrevaricationModeEnabled == true else { return }
+
+        Application.isInPrevaricationMode = true
         ThemeService.setTheme(
-            Application.isInPrevaricationMode ? AppTheme.prevaricationMode.theme : theme,
+            AppTheme.prevaricationMode.theme,
             checkStyle: false
         )
     }

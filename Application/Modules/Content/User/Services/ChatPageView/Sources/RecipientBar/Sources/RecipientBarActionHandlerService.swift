@@ -95,7 +95,7 @@ public final class RecipientBarActionHandlerService {
                         return
                     }
 
-                    if let exception = await services.contact.sync.syncContactPairArchive(forceUpdate: true) { Logger.log(exception, with: .toast()) }
+                    if let exception = await services.contact.syncContactPairArchive() { Logger.log(exception, with: .toast()) }
                     selectContactButtonTapped()
 
                 case let .failure(exception):
@@ -116,7 +116,7 @@ public final class RecipientBarActionHandlerService {
                 selectContactButton?.isEnabled = false
                 core.hud.showProgress(isModal: true)
 
-                if let exception = await services.contact.sync.syncContactPairArchive(),
+                if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
                     Logger.log(exception, with: .toast())
                 }
@@ -176,20 +176,18 @@ public final class RecipientBarActionHandlerService {
             }
 
             let phoneNumber = PhoneNumber(text)
-            guard !phoneNumber.compiledNumberString.isBlank,
+            guard phoneNumber.compiledNumberString.count > 1,
                   text.digits.count == text.removingOccurrences(of: ["-", "+"]).trimmingWhitespace.count else {
                 contactSelectionUIService.selectContactPair(.mock(withName: text))
                 return
             }
 
-            let getUsersResult = await userService.getUsers(phoneNumber: phoneNumber)
+            let getUserResult = await userService.getUser(phoneNumber: phoneNumber)
 
-            switch getUsersResult {
-            case let .success(users):
-                guard let firstUser = users.first else { return } // TODO: Need action for multiple users.
-
+            switch getUserResult {
+            case let .success(user):
                 guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: phoneNumber) else {
-                    contactSelectionUIService.selectContactPair(.withUser(firstUser))
+                    contactSelectionUIService.selectContactPair(.withUser(user))
                     return
                 }
 

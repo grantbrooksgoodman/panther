@@ -74,14 +74,17 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
         if let possibleCallingCodes = services.phoneNumber.possibleCallingCodes(for: numberValue),
            possibleCallingCodes.contains(services.phoneNumber.deviceCallingCode) || possibleCallingCodes.count == 1,
-           let derivedCallingCode = possibleCallingCodes.first(where: { $0 == services.phoneNumber.deviceCallingCode }) ?? possibleCallingCodes.first {
+           let derivedCallingCode = possibleCallingCodes.first(where: { $0 == services.phoneNumber.deviceCallingCode }) ?? possibleCallingCodes.first,
+           !derivedCallingCode.isBlank {
             callingCode = derivedCallingCode
         } else if let internalFormattedString,
                   let callingCodeFromInternalFormattedString = internalFormattedString.components(separatedBy: " ").first?.digits,
+                  !callingCodeFromInternalFormattedString.isBlank,
                   callingCodeFromInternalFormattedString.count < 4 {
             callingCode = callingCodeFromInternalFormattedString
         } else if let countryCode,
-                  let callingCodeFromCountryCode = services.regionDetail.callingCode(regionCode: countryCode) {
+                  let callingCodeFromCountryCode = services.regionDetail.callingCode(regionCode: countryCode),
+                  !callingCodeFromCountryCode.isBlank {
             callingCode = callingCodeFromCountryCode
         }
 
@@ -92,6 +95,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
         if !services.phoneNumber.numberIsValidLength(numberValue.count, for: resolvedCallingCode) {
             resolvedCallingCode = services.phoneNumber.possibleCallingCodes(for: numberValue)?.first ?? resolvedCallingCode
+            if resolvedCallingCode.isBlank { resolvedCallingCode = services.phoneNumber.deviceCallingCode }
         }
 
         if let possibleRegionCodes = services.regionDetail.regionCodes(by: .callingCode(resolvedCallingCode)),
@@ -100,9 +104,11 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
         } else if resolvedCallingCode == "1" {
             regionCode = "US"
         } else if let derivedRegionCode = services.regionDetail.regionCode(by: .callingCode(resolvedCallingCode)),
-                  derivedRegionCode != Localized(.multiple).wrappedValue {
+                  derivedRegionCode != Localized(.multiple).wrappedValue,
+                  !derivedRegionCode.isBlank {
             regionCode = derivedRegionCode
-        } else if let countryCode {
+        } else if let countryCode,
+                  !countryCode.isBlank {
             regionCode = countryCode.uppercased()
         }
 

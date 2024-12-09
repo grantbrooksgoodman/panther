@@ -18,49 +18,81 @@ import Networking
 public final class ContactService {
     // MARK: - Types
 
-    public enum CacheKey: String, CaseIterable {
+    private enum CacheKey: String, CaseIterable {
         case cnContacts
-        case contacts
     }
 
     // MARK: - Dependencies
 
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.userInteractiveQOSQueue) private var userInteractiveQOSQueue: DispatchQueue
 
     // MARK: - Properties
 
     public let contactPairArchive: ContactPairArchiveService
-    public let sync: ContactSyncService
 
     @Cached(CacheKey.cnContacts) public var cachedCNContacts: [CNContact]?
 
-    @Cached(CacheKey.contacts) private var cachedContacts: [Contact]?
-
     // MARK: - Init
 
-    public init(
-        contactPairArchive: ContactPairArchiveService,
-        sync: ContactSyncService
-    ) {
+    public init(contactPairArchive: ContactPairArchiveService) {
         self.contactPairArchive = contactPairArchive
-        self.sync = sync
     }
 
-    // MARK: - Fetch All Contacts
+    // MARK: - Sync Contact Pair Archive
 
-    public func fetchAllContacts(cacheStrategy: CacheStrategy = .returnCacheFirst) async -> Callback<[Contact], Exception> {
-        return await withCheckedContinuation { continuation in
-            fetchAllContactsWithCompletion(cacheStrategy: cacheStrategy) { callback in
+    public func syncContactPairArchive() async -> Exception? {
+        let getAllUsersResult = await getAllUsers()
+
+        switch getAllUsersResult {
+        case let .success(users):
+            let fetchContactPairsResult = await fetchContactPairs(for: users)
+
+            switch fetchContactPairsResult {
+            case let .success(contactPairs):
+                coreUtilities.clearCaches([
+                    .contactPairArchive,
+                    .queriedContactPairs,
+                ])
+                services.contact.contactPairArchive.addValues(contactPairs)
+
+                Logger.log(
+                    "Successfully updated contact pair archive.",
+                    domain: .contacts,
+                    metadata: [self, #file, #function, #line]
+                )
+                return nil
+
+            case let .failure(exception):
+                return exception
+            }
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
+    // MARK: - Clear Cache
+
+    public func clearCache() {
+        cachedCNContacts = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func fetchContactPairs(for users: [User]) async -> Callback<[ContactPair], Exception> {
+        await withCheckedContinuation { continuation in
+            fetchContactPairsWithCompletion(for: users) { callback in
                 continuation.resume(returning: callback)
             }
         }
     }
 
-    private func fetchAllContactsWithCompletion(
-        cacheStrategy: CacheStrategy,
-        completion: @escaping (_ callback: Callback<[Contact], Exception>) -> Void
+    private func fetchContactPairsWithCompletion(
+        for users: [User],
+        completion: @escaping (_ callback: Callback<[ContactPair], Exception>) -> Void
     ) {
         var didComplete = false
         var canComplete: Bool {
@@ -69,32 +101,11 @@ public final class ContactService {
             return true
         }
 
-        func completeWithCacheIfPresent() -> Bool {
-            guard let cachedContacts,
-                  !cachedContacts.isEmpty,
-                  canComplete else { return false }
-            completion(.success(cachedContacts))
-            return true
-        }
-
-        if cacheStrategy == .returnCacheFirst,
-           completeWithCacheIfPresent() {
-            return
-        }
-
         guard services.permission.contactPermissionStatus == .granted else {
-            if cacheStrategy == .returnCacheOnFailure,
-               completeWithCacheIfPresent() {
-                return
-            }
-
             guard canComplete else { return }
             completion(.failure(.init("Not authorized for contacts.", metadata: [self, #file, #function, #line])))
             return
         }
-
-        var cnContacts = [CNContact]()
-        var contacts = [Contact]()
 
         guard let queryKeys = [
             CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
@@ -107,98 +118,81 @@ public final class ContactService {
             CNContactThumbnailImageDataKey,
             CNContactViewController.descriptorForRequiredKeys(),
         ] as? [CNKeyDescriptor] else {
-            if cacheStrategy == .returnCacheOnFailure,
-               completeWithCacheIfPresent() {
-                return
-            }
-
             guard canComplete else { return }
             completion(.failure(.init("Failed to synthesize query keys.", metadata: [self, #file, #function, #line])))
             return
         }
 
-        let fetchRequest = CNContactFetchRequest(keysToFetch: queryKeys)
-
-        userInteractiveQOSQueue.async {
+        var contactPairs = [ContactPair]()
+        for user in users {
             do {
-                try self.cnContactStore.enumerateContacts(with: fetchRequest) { contact, _ in
-                    if !contact.phoneNumbers.isEmpty {
-                        cnContacts.append(contact)
-                        contacts.append(.init(contact))
-                    }
-                }
-            } catch {
-                if cacheStrategy == .returnCacheOnFailure,
-                   completeWithCacheIfPresent() {
-                    return
+                let predicates = [
+                    CNContact.predicateForContacts(matching: .init(stringValue: user.phoneNumber.compiledNumberString)),
+                    CNContact.predicateForContacts(matching: .init(stringValue: "+\(user.phoneNumber.compiledNumberString)")),
+                ]
+
+                var matchingContacts = [CNContact]()
+                try predicates.forEach {
+                    try matchingContacts.append(contentsOf: cnContactStore.unifiedContacts(
+                        matching: $0,
+                        keysToFetch: queryKeys
+                    ))
                 }
 
+                matchingContacts = matchingContacts.unique
+                guard !matchingContacts.isEmpty else { continue }
+
+                var cachedCNContacts = cachedCNContacts ?? []
+                cachedCNContacts.append(contentsOf: matchingContacts)
+                self.cachedCNContacts = cachedCNContacts.unique
+
+                contactPairs.append(contentsOf: matchingContacts.reduce(into: []) { partialResult, cnContact in
+                    let contactPair = ContactPair(
+                        contact: .init(cnContact),
+                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                    )
+
+                    if let existingIndex = partialResult.firstIndex(where: { $0.contact == contactPair.contact }),
+                       let existingPair = partialResult.itemAt(existingIndex) {
+                        partialResult[existingIndex] = .init(
+                            contact: contactPair.contact,
+                            numberPairs: (existingPair.numberPairs + contactPair.numberPairs)
+                                .unique
+                                .sorted(by: { $0.phoneNumber.callingCode < $1.phoneNumber.callingCode })
+                        )
+                    } else {
+                        partialResult.append(contactPair)
+                    }
+                })
+            } catch {
                 guard canComplete else { return }
                 completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
             }
+        }
 
-            guard !contacts.isEmpty else {
-                if cacheStrategy == .returnCacheOnFailure,
-                   completeWithCacheIfPresent() {
-                    return
-                }
-
-                guard canComplete else { return }
-                completion(.failure(.init("Empty contact list.", metadata: [self, #file, #function, #line])))
-                return
-            }
-
-            contacts = contacts.sorted { $0.firstName < $1.firstName }
-            self.cachedCNContacts = cnContacts
-            self.cachedContacts = contacts
-
+        guard !contactPairs.isEmpty else {
             guard canComplete else { return }
-            completion(.success(contacts))
+            completion(.failure(.init("Empty contact list.", metadata: [self, #file, #function, #line])))
+            return
         }
+
+        guard canComplete else { return }
+        completion(.success(contactPairs.unique.sorted(by: { $0.contact.firstName < $1.contact.firstName })))
     }
 
-    // MARK: - Fetch Contacts by Phone Number
+    private func getAllUsers() async -> Callback<[User], Exception> {
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
-    public func fetchContacts(by phoneNumber: PhoneNumber) async -> Callback<[Contact], Exception> {
-        guard let cachedContacts,
-              !cachedContacts.isEmpty else {
-            let fetchAllContactsResult = await fetchAllContacts()
-
-            switch fetchAllContactsResult {
-            case .success:
-                return await fetchContacts(by: phoneNumber)
-
-            case let .failure(exception):
-                return .failure(exception)
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
+
+            return await networking.userService.getUsers(ids: Array(dictionary.keys))
+
+        case let .failure(exception):
+            return .failure(exception)
         }
-
-        func satisfiesConstraints(_ contact: Contact) -> Bool {
-            let numberStrings = contact.phoneNumbers.compiledNumberStrings
-            guard let callingCodes = services.phoneNumber.possibleCallingCodes(for: numberStrings),
-                  let hashes = services.phoneNumber.possibleHashes(for: numberStrings),
-                  callingCodes.contains(phoneNumber.callingCode),
-                  hashes.contains(phoneNumber.compiledNumberString.encodedHash) else { return false }
-            return true
-        }
-
-        let matches = cachedContacts.filter { satisfiesConstraints($0) }
-        guard !matches.isEmpty else {
-            return .failure(.init(
-                "No contacts match the given phone number.",
-                extraParams: ["Contacts": cachedContacts,
-                              "PhoneNumber": phoneNumber.compiledNumberString],
-                metadata: [self, #file, #function, #line]
-            ))
-        }
-
-        return .success(matches)
-    }
-
-    // MARK: - Clear Cache
-
-    public func clearCache() {
-        cachedCNContacts = nil
-        cachedContacts = nil
     }
 }

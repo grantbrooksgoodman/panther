@@ -91,7 +91,7 @@ public struct SettingsPageReducer: Reducer {
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
         public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
-        public var viewID = UUID()
+        public var viewID = UUID() { didSet { NavigationBar.setAppearance(navigationBarAppearance) }}
         public var viewState: ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0

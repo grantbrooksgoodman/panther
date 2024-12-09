@@ -14,22 +14,27 @@ import Foundation
 import AppSubsystem
 
 public extension ContactService {
-    func firstCNContact(for phoneNumber: PhoneNumber) async -> Callback<CNContact, Exception> {
+    func firstCNContact(
+        for phoneNumber: PhoneNumber,
+        returnForEmptyCachedCNContacts: Bool = false
+    ) async -> Callback<CNContact, Exception> {
         @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
-
         let commonParams = ["PhoneNumber": phoneNumber.encoded]
 
         guard let cachedCNContacts,
               !cachedCNContacts.isEmpty else {
-            let fetchAllContactsResult = await fetchAllContacts()
+            guard !returnForEmptyCachedCNContacts else {
+                return .failure(.init(
+                    "Empty contact list.",
+                    metadata: [self, #file, #function, #line]
+                ).appending(extraParams: commonParams))
+            }
 
-            switch fetchAllContactsResult {
-            case .success:
-                return await firstCNContact(for: phoneNumber)
-
-            case let .failure(exception):
+            if let exception = await syncContactPairArchive() {
                 return .failure(exception.appending(extraParams: commonParams))
             }
+
+            return await firstCNContact(for: phoneNumber, returnForEmptyCachedCNContacts: true)
         }
 
         func satisfiesConstraints(_ contact: Contact) -> Bool {

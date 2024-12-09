@@ -20,15 +20,13 @@ public final class IntegrityServiceSession {
         conversationData: [:],
         messageData: [:],
         translationData: [:],
-        userData: [:],
-        userNumberHashData: [:]
+        userData: [:]
     )
 
     public let conversationData: [String: Any]
     public let messageData: [String: Any]
     public let translationData: [String: [String: Any]]
     public let userData: [String: Any]
-    public let userNumberHashData: [String: Any]
 
     // MARK: - Init
 
@@ -36,19 +34,16 @@ public final class IntegrityServiceSession {
         conversationData: [String: Any],
         messageData: [String: Any],
         translationData: [String: [String: Any]],
-        userData: [String: Any],
-        userNumberHashData: [String: Any]
+        userData: [String: Any]
     ) {
         self.conversationData = conversationData
         self.messageData = messageData
         self.translationData = translationData
         self.userData = userData
-        self.userNumberHashData = userNumberHashData
     }
 
     // MARK: - Resolve
 
-    // swiftlint:disable:next function_body_length
     public static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
@@ -56,7 +51,6 @@ public final class IntegrityServiceSession {
         var messageData: [String: Any]?
         var translationData: [String: [String: Any]]?
         var userData: [String: Any]?
-        var userNumberHashData: [String: Any]?
 
         let typecastFailedException = Exception.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
 
@@ -164,37 +158,10 @@ public final class IntegrityServiceSession {
             userData = .init()
         }
 
-        // Get User Number Hashes
-
-        let getUserNumberHashValuesResult = await networking.database.getValues(at: NetworkPath.userNumberHashes.rawValue)
-
-        switch getUserNumberHashValuesResult {
-        case let .success(values):
-            if let dictionary = values as? [String: Any] {
-                userNumberHashData = dictionary
-            } else {
-                guard failureStrategy == .continueOnFailure else {
-                    return .failure(typecastFailedException)
-                }
-
-                Logger.log(typecastFailedException)
-                userNumberHashData = .init()
-            }
-
-        case let .failure(exception):
-            guard failureStrategy == .continueOnFailure else {
-                return .failure(exception)
-            }
-
-            Logger.log(exception)
-            userNumberHashData = .init()
-        }
-
         guard let conversationData,
               let messageData,
               let translationData,
-              let userData,
-              let userNumberHashData else {
+              let userData else {
             return .failure(.init(metadata: [self, #file, #function, #line]))
         }
 
@@ -202,8 +169,7 @@ public final class IntegrityServiceSession {
             conversationData: conversationData,
             messageData: messageData,
             translationData: translationData,
-            userData: userData,
-            userNumberHashData: userNumberHashData
+            userData: userData
         ))
     }
 }

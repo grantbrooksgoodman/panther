@@ -21,6 +21,7 @@ public final class MetadataService {
 
         case appShareLink
         case appStoreBuildNumber
+        case isPrevaricationModeEnabled
         case redirectionKey
         case shouldForceUpdate
         case storageReferenceURL
@@ -40,6 +41,7 @@ public final class MetadataService {
 
     public private(set) var appShareLink: URL?
     public private(set) var appStoreBuildNumber: Int?
+    public private(set) var isPrevaricationModeEnabled: Bool?
     public private(set) var redirectionKey: String?
     public private(set) var shouldForceUpdate: Bool?
     public private(set) var storageReferenceURL: URL?
@@ -65,6 +67,18 @@ public final class MetadataService {
             switch getAppStoreBuildNumberResult {
             case let .success(appStoreBuildNumber):
                 self.appStoreBuildNumber = appStoreBuildNumber
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        if isPrevaricationModeEnabled == nil {
+            let getIsPrevaricationModeEnabledResult = await getIsPrevaricationModeEnabled()
+
+            switch getIsPrevaricationModeEnabledResult {
+            case let .success(isPrevaricationModeEnabled):
+                self.isPrevaricationModeEnabled = isPrevaricationModeEnabled
 
             case let .failure(exception):
                 return exception
@@ -145,6 +159,25 @@ public final class MetadataService {
             }
 
             return .success(appStoreBuildNumber)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func getIsPrevaricationModeEnabled() async -> Callback<Bool, Exception> {
+        let getValuesResult = await database.getValues(
+            at: MetadataServiceKey.isPrevaricationModeEnabled.path,
+            prependingEnvironment: false
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let isPrevaricationModeEnabled = values as? Bool else {
+                return .failure(.typecastFailed("Bool", metadata: [self, #file, #function, #line]))
+            }
+
+            return .success(isPrevaricationModeEnabled)
 
         case let .failure(exception):
             return .failure(exception)

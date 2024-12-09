@@ -13,10 +13,12 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -90,7 +92,10 @@ public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWi
     // MARK: - UIGestureRecognizer
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        guard Application.isInPrevaricationMode,
+        guard let currentUser,
+              ["15555555555", "18888888888"].contains(currentUser.phoneNumber.compiledNumberString),
+              build.milestone == .generalRelease,
+              Networking.config.environment == .production,
               let view = touch.view else { return false }
         services.analytics.logEvent(.touchUiElement, extraParams: ["ui_element": String(type(of: view))])
         return false

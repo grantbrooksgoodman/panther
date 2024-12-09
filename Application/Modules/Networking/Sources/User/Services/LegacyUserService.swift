@@ -88,65 +88,11 @@ public struct LegacyUserService {
                 return exception.appending(extraParams: commonParams)
             }
 
-            let legacyHashPath = "userHashes/\(nationalNumberString.legacyHash)"
-            let getValuesResult = await networking.database.getValues(at: legacyHashPath)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard var array = values as? [String] else {
-                    let exception: Exception = .typecastFailed("array", metadata: [self, #file, #function, #line])
-                    return exception.appending(extraParams: commonParams)
-                }
-
-                array = array.filter { $0 != id }
-
-                if let exception = await networking.database.setValue(array, forKey: legacyHashPath) {
-                    return exception.appending(extraParams: commonParams)
-                }
-
-                let newHash = nationalNumberString.encodedHash
-                let newHashPath = "\(NetworkPath.userNumberHashes.rawValue)/\(newHash)"
-                let getValuesResult = await networking.database.getValues(at: newHashPath)
-
-                switch getValuesResult {
-                case let .success(values):
-                    guard var array = values as? [String] else {
-                        let exception: Exception = .typecastFailed("array", metadata: [self, #file, #function, #line])
-                        return exception.appending(extraParams: commonParams)
-                    }
-
-                    array.append(id)
-                    array = array.unique
-
-                    if let exception = await networking.database.setValue(array, forKey: newHashPath) {
-                        return exception.appending(extraParams: commonParams)
-                    }
-
-                    Logger.log(
-                        "Successfully converted user with ID «\(id)» to new schema.",
-                        domain: .user,
-                        metadata: [self, #file, #function, #line]
-                    )
-
-                case let .failure(exception):
-                    guard exception.isEqual(to: .Networking.Database.noValueExists) else {
-                        return exception.appending(extraParams: commonParams)
-                    }
-
-                    if let exception = await networking.database.setValue([id], forKey: newHashPath) {
-                        return exception.appending(extraParams: commonParams)
-                    }
-
-                    Logger.log(
-                        "Successfully converted user with ID «\(id)» to new schema.",
-                        domain: .user,
-                        metadata: [self, #file, #function, #line]
-                    )
-                }
-
-            case let .failure(exception):
-                return exception.appending(extraParams: commonParams)
-            }
+            Logger.log(
+                "Successfully converted user with ID «\(id)» to new schema.",
+                domain: .user,
+                metadata: [self, #file, #function, #line]
+            )
 
         case let .failure(exception):
             return exception.appending(extraParams: commonParams)

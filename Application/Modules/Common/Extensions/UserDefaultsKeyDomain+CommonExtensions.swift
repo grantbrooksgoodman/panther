@@ -27,12 +27,6 @@ public extension UserDefaultsKey {
         case contactPairArchive
     }
 
-    enum ContactSyncServiceDefaultsKey: String {
-        case localUserNumberHashes
-        case mismatchedHashes
-        case serverUserNumberHashes
-    }
-
     enum ReviewServiceDefaultsKey: String {
         case appOpenCount
         case lastRequestedReviewForBuildNumber

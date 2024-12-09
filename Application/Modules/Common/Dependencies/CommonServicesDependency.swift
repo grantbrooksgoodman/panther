@@ -24,10 +24,7 @@ public enum CommonServicesDependency: DependencyKey {
                 transcription: .init()
             ),
             connectionStatus: .init(),
-            contact: .init(
-                contactPairArchive: .init(),
-                sync: .init()
-            ),
+            contact: .init(contactPairArchive: .init()),
             contentPicker: .init(
                 camera: .init(),
                 document: .init(),
