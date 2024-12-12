@@ -167,7 +167,7 @@ public struct HostedTranslationService {
         }
 
         let findArchivedTranslationResult = await archiver.findArchivedTranslation(
-            id: input.value.encodedHash,
+            input: input,
             languagePair: languagePair
         )
 
@@ -190,7 +190,10 @@ public struct HostedTranslationService {
             return .success(translation)
 
         case let .failure(exception):
-            guard exception.isEqual(to: .Networking.Database.noValueExists) else {
+            guard exception.isEqual(toAny: [
+                .Networking.Database.noValueExists,
+                .translationDerivationFailed,
+            ]) else {
                 return .failure(exception)
             }
 

@@ -263,11 +263,15 @@ public final class IntegrityService {
             tookAction = true
             guard await networking.userService.legacy.convertUser(id: userID) != nil else { continue }
 
-            if let exception = await networking.database.setValue(
-                NSNull(),
-                forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-            ) {
-                exceptions.append(exception)
+            defer {
+                Task {
+                    if let exception = await networking.database.setValue(
+                        NSNull(),
+                        forKey: "\(NetworkPath.users.rawValue)/\(userID)"
+                    ) {
+                        exceptions.append(exception)
+                    }
+                }
             }
 
             guard let dictionary = session.userData[userID] as? [String: Any],

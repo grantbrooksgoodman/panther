@@ -14,11 +14,38 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct HostedTranslationArchiver {
+// swiftlint:disable:next type_body_length
+public final class HostedTranslationArchiver {
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
     @Dependency(\.networking) private var networking: NetworkServices
+
+    // MARK: - Properties
+
+    private var isPopulatingTranslationDataSnapshot = false
+    private var translationDataSnapshot: TranslationDataSnapshot = .empty
+
+    // MARK: - Init
+
+    public init() {
+        Task {
+            guard let exception = await populateTranslationDataSnapshot(expiryThreshold: .seconds(300)) else {
+                return Logger.log(
+                    "Populated translation data snapshot.",
+                    domain: .hostedTranslation,
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            Logger.log(
+                exception,
+                domain: .hostedTranslation,
+                with: .toastInPrerelease
+            )
+        }
+    }
 
     // MARK: - Archive Recent Translations
 
@@ -84,7 +111,29 @@ public struct HostedTranslationArchiver {
 
     // MARK: - Find Archived Translations
 
-    public func findArchivedTranslation(id: String, languagePair: LanguagePair) async -> Callback<Translation, Exception> {
+    public func findArchivedTranslation(
+        input: TranslationInput,
+        languagePair: LanguagePair
+    ) async -> Callback<Translation, Exception> {
+        let findArchivedTranslationResult = await findArchivedTranslation(
+            id: input.value.encodedHash,
+            languagePair: languagePair
+        )
+
+        switch findArchivedTranslationResult {
+        case let .success(translation):
+            return .success(translation)
+
+        case let .failure(exception):
+            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return .failure(exception) }
+            return await deriveTranslation(input: input, languagePair: languagePair)
+        }
+    }
+
+    public func findArchivedTranslation(
+        id: String,
+        languagePair: LanguagePair
+    ) async -> Callback<Translation, Exception> {
         let path = "\(NetworkPath.translations.rawValue)/\(languagePair.string)/\(id)"
         let commonParams = ["Path": path]
 
@@ -92,7 +141,7 @@ public struct HostedTranslationArchiver {
             languagePair: languagePair,
             metadata: [self, #file, #function, #line]
         ) {
-            return .failure(exception)
+            return .failure(exception.appending(extraParams: commonParams))
         }
 
         let getValuesResult = await networking.database.getValues(at: path)
@@ -187,5 +236,101 @@ public struct HostedTranslationArchiver {
         )
 
         return nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func deriveTranslation(
+        input originalInput: TranslationInput,
+        languagePair originalLanguagePair: LanguagePair
+    ) async -> Callback<Translation, Exception> {
+        if let exception = await populateTranslationDataSnapshot() {
+            return .failure(exception)
+        }
+
+        let originalInputHash = originalInput.value.encodedHash
+        for (archivedLanguagePairData, archivedTranslationData) in translationDataSnapshot.data {
+            guard let archivedLanguagePair = LanguagePair(archivedLanguagePairData),
+                  let sourceLanguageTranslationData = archivedTranslationData as? [String: String],
+                  let sourceLanguageTranslation = sourceLanguageTranslationData.first(where: { $0.key == originalInputHash }),
+                  let sourceLanguageTranslationComponents = sourceLanguageTranslation.value.decodedTranslationComponents,
+                  let targetLanguageTranslationData = translationDataSnapshot.data["\(archivedLanguagePair.to)-\(originalLanguagePair.to)"],
+                  let targetLanguageTranslation = targetLanguageTranslationData[sourceLanguageTranslationComponents.output.encodedHash] as? String,
+                  let targetLanguageTranslationComponents = targetLanguageTranslation.decodedTranslationComponents else { continue }
+
+            let derivedTranslation = Translation(
+                input: .init(originalInput.value),
+                output: targetLanguageTranslationComponents.output,
+                languagePair: originalLanguagePair
+            )
+
+            if !derivedTranslation.languagePair.isIdempotent,
+               let exception = await addToHostedArchive(derivedTranslation) {
+                return .failure(exception)
+            }
+
+            if build.milestone != .generalRelease {
+                Logger.log(
+                    .init(
+                        "Successfully derived translation from existing data.",
+                        isReportable: false,
+                        extraParams: [
+                            "IntermediateLanguagePair": archivedLanguagePair.string,
+                            "SynthesisLanguagePair": "\(archivedLanguagePair.to)-\(originalLanguagePair.to)",
+                            "TargetLanguagePair": originalLanguagePair.string,
+                        ],
+                        metadata: [self, #file, #function, #line]
+                    ),
+                    domain: .hostedTranslation,
+                    with: .toast(style: .success, isPersistent: true)
+                )
+            }
+
+            return .success(derivedTranslation)
+        }
+
+        return .failure(.init(
+            "Failed to derive translation from existing data.",
+            metadata: [self, #file, #function, #line]
+        ))
+    }
+
+    private func populateTranslationDataSnapshot(expiryThreshold: Duration = .seconds(120)) async -> Exception? {
+        guard !isPopulatingTranslationDataSnapshot,
+              translationDataSnapshot.isExpired || translationDataSnapshot == .empty else { return nil }
+
+        isPopulatingTranslationDataSnapshot = true
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.translations.rawValue)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: [String: Any]] else {
+                isPopulatingTranslationDataSnapshot = false
+                return .typecastFailed(
+                    "dictionary",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
+            for (key, value) in dictionary {
+                for (translationKey, translationValue) in value {
+                    CoreDatabaseCache.addValue(
+                        .init(
+                            data: translationValue,
+                            expiresAfter: .seconds(600)
+                        ),
+                        forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.translations.rawValue)/\(key)/\(translationKey)"
+                    )
+                }
+            }
+
+            translationDataSnapshot = .init(data: dictionary, expiryThreshold: expiryThreshold)
+            isPopulatingTranslationDataSnapshot = false
+            return nil
+
+        case let .failure(exception):
+            isPopulatingTranslationDataSnapshot = false
+            return exception
+        }
     }
 }

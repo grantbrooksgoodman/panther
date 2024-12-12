@@ -247,6 +247,7 @@
 		B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */; };
 		B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */; };
 		B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */; };
+		B9890E772D0928E20086543B /* TranslationDataSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9890E762D0928E20086543B /* TranslationDataSnapshot.swift */; };
 		B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */; };
 		B98C3B9D2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3B9C2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift */; };
 		B98C3B9F2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98C3B9E2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift */; };
@@ -1040,6 +1041,7 @@
 		B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordingService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheStatus.swift; sourceTree = "<group>"; };
 		B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCacheService.swift; sourceTree = "<group>"; };
+		B9890E762D0928E20086543B /* TranslationDataSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationDataSnapshot.swift; sourceTree = "<group>"; };
 		B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationBarAppearance+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B98C3B9C2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITextFieldDelegate.swift"; sourceTree = "<group>"; };
 		B98C3B9E2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipientBar+UITableViewDataSource.swift"; sourceTree = "<group>"; };
@@ -2110,6 +2112,7 @@
 			isa = PBXGroup;
 			children = (
 				B952B8F02B1527210043181F /* HostedTranslationServiceExceptions.swift */,
+				B9890E762D0928E20086543B /* TranslationDataSnapshot.swift */,
 				B9E1BB982B30FF3600ADEA71 /* TranslationReference.swift */,
 				B952B8F72B1536F10043181F /* TranslationValidator.swift */,
 			);
@@ -4380,6 +4383,7 @@
 				B96446602B157E3E008E674A /* RootView.swift in Sources */,
 				B94262592C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift in Sources */,
 				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,
+				B9890E772D0928E20086543B /* TranslationDataSnapshot.swift in Sources */,
 				B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */,
 				B96EDD992B6381C400CB925B /* StaticListItem.swift in Sources */,
 				B90249D02B57458C00D62855 /* PermissionPageView.swift in Sources */,

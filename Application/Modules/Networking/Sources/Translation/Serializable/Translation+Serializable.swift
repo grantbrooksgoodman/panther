@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-extension Translation: Serializable {
+extension Translation: @retroactive Serializable {
     // MARK: - Type Aliases
 
     public typealias T = Translation

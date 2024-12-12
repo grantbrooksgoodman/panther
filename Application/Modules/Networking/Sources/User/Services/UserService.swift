@@ -138,7 +138,6 @@ public final class UserService {
             var cachedValues = cachedUserDataSnapshots ?? []
             cachedValues.append(
                 .init(
-                    date: Date(),
                     data: data,
                     expiryThreshold: .milliseconds(100)
                 )

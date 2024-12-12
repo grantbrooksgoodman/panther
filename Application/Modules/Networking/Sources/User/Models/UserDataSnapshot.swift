@@ -13,7 +13,7 @@ public struct UserDataSnapshot {
     // MARK: - Properties
 
     public static let empty: UserDataSnapshot = .init(
-        date: .init(timeIntervalSince1970: 0),
+        .init(timeIntervalSince1970: 0),
         data: .init(),
         expiryThreshold: .zero
     )
@@ -31,7 +31,7 @@ public struct UserDataSnapshot {
     // MARK: - Init
 
     public init(
-        date: Date,
+        _ date: Date = .now,
         data: [String: Any],
         expiryThreshold: Duration
     ) {

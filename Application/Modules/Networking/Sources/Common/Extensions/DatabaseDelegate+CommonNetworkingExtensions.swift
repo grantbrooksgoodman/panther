@@ -14,7 +14,7 @@ import Networking
 
 public extension DatabaseDelegate {
     func clearTemporaryCaches() {
-        CoreDatabaseCache.filter { $0.value.expiryThreshold != .seconds(60) }
+        CoreDatabaseCache.filter { $0.value.expiryThreshold != .seconds(300) }
     }
 
     func populateTemporaryCaches() async -> Exception? {
@@ -25,9 +25,8 @@ public extension DatabaseDelegate {
             for (key, value) in session.conversationData {
                 CoreDatabaseCache.addValue(
                     .init(
-                        .now,
                         data: value,
-                        expiresAfter: .seconds(60)
+                        expiresAfter: .seconds(300)
                     ),
                     forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.conversations.rawValue)/\(key)"
                 )
@@ -36,9 +35,8 @@ public extension DatabaseDelegate {
             for (key, value) in session.messageData {
                 CoreDatabaseCache.addValue(
                     .init(
-                        .now,
                         data: value,
-                        expiresAfter: .seconds(60)
+                        expiresAfter: .seconds(300)
                     ),
                     forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.messages.rawValue)/\(key)"
                 )
@@ -48,7 +46,6 @@ public extension DatabaseDelegate {
                 for (translationKey, translationValue) in value {
                     CoreDatabaseCache.addValue(
                         .init(
-                            .now,
                             data: translationValue,
                             expiresAfter: .seconds(600)
                         ),
@@ -60,9 +57,8 @@ public extension DatabaseDelegate {
             for (key, value) in session.userData {
                 CoreDatabaseCache.addValue(
                     .init(
-                        .now,
                         data: value,
-                        expiresAfter: .seconds(60)
+                        expiresAfter: .seconds(300)
                     ),
                     forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(key)"
                 )
