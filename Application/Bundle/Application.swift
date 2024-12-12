@@ -43,14 +43,14 @@ public enum Application {
         )
 
         AppSubsystem.initialize(
-            appStoreBuildNumber: 24673,
+            appStoreBuildNumber: 24858,
             buildMilestone: buildMilestone,
             codeName: "Panther",
             dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
             languageCode: Locale.systemLanguageCode,
-            loggingEnabled: false,
-            timebombActive: false
+            loggingEnabled: buildMilestone != .generalRelease,
+            timebombActive: buildMilestone != .generalRelease
         )
 
         // MARK: - Localization & Logging Setup
