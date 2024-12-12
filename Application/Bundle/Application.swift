@@ -49,8 +49,8 @@ public enum Application {
             dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
             languageCode: Locale.systemLanguageCode,
-            loggingEnabled: buildMilestone != .generalRelease,
-            timebombActive: buildMilestone != .generalRelease
+            loggingEnabled: false,
+            timebombActive: false
         )
 
         // MARK: - Localization & Logging Setup
