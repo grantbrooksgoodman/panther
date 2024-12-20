@@ -30,6 +30,7 @@ public struct ChatInfoPageReducer: Reducer {
         case addContactButtonTapped
         case changeMetadataButtonTapped
         case chatInfoCellTapped
+        case currentConversationMetadataChanged
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
@@ -163,6 +164,9 @@ public struct ChatInfoPageReducer: Reducer {
 
         case .chatInfoCellTapped:
             state.visibleParticipants = state.visibleParticipants.isEmpty ? state.chatParticipants : []
+
+        case .currentConversationMetadataChanged:
+            state.viewID = UUID()
 
         case .doneHeaderItemTapped,
              .doneToolbarButtonTapped:

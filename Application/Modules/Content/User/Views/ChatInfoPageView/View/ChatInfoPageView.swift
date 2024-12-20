@@ -16,12 +16,14 @@ import AppSubsystem
 public struct ChatInfoPageView: View {
     // MARK: - Properties
 
+    @StateObject private var observer: ViewObserver<ChatInfoPageObserver>
     @StateObject private var viewModel: ViewModel<ChatInfoPageReducer>
 
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View

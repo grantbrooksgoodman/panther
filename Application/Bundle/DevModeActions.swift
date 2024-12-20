@@ -27,6 +27,7 @@ public extension DevModeAction {
                 DevModeAction.AppActions.clearCachesAction,
                 DevModeAction.AppActions.resetUserDefaultsAction,
                 DevModeAction.AppActions.setCurrentUserIDAction,
+                DevModeAction.AppActions.showPenPalsPermissionPageAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
                 DevModeAction.AppActions.dangerZoneAction,
             ]
@@ -96,6 +97,17 @@ public extension DevModeAction {
             }
 
             return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
+        }
+
+        // NIT: Should be temporary, ideally.
+        private static var showPenPalsPermissionPageAction: DevModeAction {
+            func showPenPalsPermissionPage() {
+                Task { @MainActor in
+                    RootSheets.present(.penPalsPermissionPageView)
+                }
+            }
+
+            return .init(title: "Show PenPals Permission Page", perform: showPenPalsPermissionPage)
         }
 
         private static var resetUserDefaultsAction: DevModeAction {

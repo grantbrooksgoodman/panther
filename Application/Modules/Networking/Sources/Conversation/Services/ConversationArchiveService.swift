@@ -140,8 +140,10 @@ public final class ConversationArchiveService {
         Task { @MainActor in
             var conversationNameMap = [String: String]()
 
-            for conversation in archive where !conversation.metadata.name.isBangQualifiedEmpty {
-                conversationNameMap[conversation.id.key] = conversation.metadata.name
+            for conversation in archive where conversation.participants.count > 2 {
+                guard let titleLabelText = ConversationCellViewData(conversation)?.titleLabelText,
+                      !titleLabelText.isBangQualifiedEmpty else { continue }
+                conversationNameMap[conversation.id.key] = titleLabelText
             }
 
             guard let encoded = try? jsonEncoder.encode(conversationNameMap) else { return }

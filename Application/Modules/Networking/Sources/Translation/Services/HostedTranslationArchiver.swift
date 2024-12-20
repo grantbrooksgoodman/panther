@@ -269,22 +269,20 @@ public final class HostedTranslationArchiver {
                 return .failure(exception)
             }
 
-            if build.milestone != .generalRelease {
-                Logger.log(
-                    .init(
-                        "Successfully derived translation from existing data.",
-                        isReportable: false,
-                        extraParams: [
-                            "IntermediateLanguagePair": archivedLanguagePair.string,
-                            "SynthesisLanguagePair": "\(archivedLanguagePair.to)-\(originalLanguagePair.to)",
-                            "TargetLanguagePair": originalLanguagePair.string,
-                        ],
-                        metadata: [self, #file, #function, #line]
-                    ),
-                    domain: .hostedTranslation,
-                    with: .toast(style: .success, isPersistent: true)
-                )
-            }
+            Logger.log(
+                .init(
+                    "Successfully derived translation from existing data.",
+                    isReportable: false,
+                    extraParams: [
+                        "IntermediateLanguagePair": archivedLanguagePair.string,
+                        "SynthesisLanguagePair": "\(archivedLanguagePair.to)-\(originalLanguagePair.to)",
+                        "TargetLanguagePair": originalLanguagePair.string,
+                    ],
+                    metadata: [self, #file, #function, #line]
+                ),
+                domain: .hostedTranslation,
+                with: build.milestone == .generalRelease ? nil : .toast(style: .success, isPersistent: true)
+            )
 
             return .success(derivedTranslation)
         }

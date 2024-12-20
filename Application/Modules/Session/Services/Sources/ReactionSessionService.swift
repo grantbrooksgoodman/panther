@@ -115,7 +115,7 @@ public final class ReactionSessionService {
         // Update conversation with new metadata
 
         chatPageViewService.contextMenu?.dismissMenu()
-        reactionMetadata = reactionMetadata.filter { !$0.reactions.isEmpty }
+        reactionMetadata = reactionMetadata.filter { $0 != .empty }.filter { !$0.reactions.isEmpty }
         let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
         isReactingToMessage = false
 

@@ -101,7 +101,6 @@ public final class ChatPageViewService {
 
         modifyConfigurationIfNeeded()
         chatPageState.setIsPresented(true)
-        toggleBuildInfoOverlay(on: false)
         updateCollectionViewBackgroundColor()
 
         if configuration == .newChat {
@@ -175,8 +174,6 @@ public final class ChatPageViewService {
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
         NavigationBar.setAppearance(.appDefault)
-        toggleBuildInfoOverlay(on: true)
-
         contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
@@ -257,7 +254,8 @@ public final class ChatPageViewService {
     public func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
         func reloadItems() {
             Task { @MainActor in
-                guard let viewController else { return }
+                guard let viewController,
+                      chatPageState.isPresented else { return }
                 let indexPaths = indexPaths.filter { !viewController.isSectionReservedForTypingIndicator($0.section) }
                 guard !indexPaths.isEmpty else { return }
                 viewController.messagesCollectionView.reloadItems(at: indexPaths)
@@ -278,19 +276,6 @@ public final class ChatPageViewService {
             guard let parent = viewController?.parent else { return }
             parent.navigationItem.title = navigationTitle
         }
-    }
-
-    public func updateCollectionViewBackgroundColor() {
-        guard !Application.isInPrevaricationMode else { return }
-        var backgroundColor = ThemeService.isAppDefaultThemeApplied ? UIColor.background : UIColor(Colors.messagesCollectionViewPrimaryDarkBackground)
-        if configuration != .default,
-           ThemeService.isDarkModeActive {
-            backgroundColor = UIColor(Colors.messagesCollectionViewSecondaryDarkBackground)
-        }
-
-        viewController?.messagesCollectionView.backgroundColor = backgroundColor
-        viewController?.messagesCollectionView.backgroundView?.backgroundColor = backgroundColor
-        viewController?.view.backgroundColor = backgroundColor
     }
 
     private func loadMoreMessages(fromScrollToTop: Bool) {
@@ -353,14 +338,16 @@ public final class ChatPageViewService {
         }
     }
 
-    private func toggleBuildInfoOverlay(on: Bool) {
-        @Persistent(.init("hidesBuildInfoOverlay")) var hidesBuildInfoOverlay: Bool?
-        guard build.milestone != .generalRelease,
-              !(hidesBuildInfoOverlay ?? false) else { return }
-
-        switch !on {
-        case true: BuildInfoOverlay.hide(persistSetting: false)
-        case false: BuildInfoOverlay.show(persistSetting: false)
+    private func updateCollectionViewBackgroundColor() {
+        guard !Application.isInPrevaricationMode else { return }
+        var backgroundColor = ThemeService.isAppDefaultThemeApplied ? UIColor.background : UIColor(Colors.messagesCollectionViewPrimaryDarkBackground)
+        if configuration != .default,
+           ThemeService.isDarkModeActive {
+            backgroundColor = UIColor(Colors.messagesCollectionViewSecondaryDarkBackground)
         }
+
+        viewController?.messagesCollectionView.backgroundColor = backgroundColor
+        viewController?.messagesCollectionView.backgroundView?.backgroundColor = backgroundColor
+        viewController?.view.backgroundColor = backgroundColor
     }
 }

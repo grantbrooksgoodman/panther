@@ -13,16 +13,21 @@ import Foundation
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public extension IntegrityService {
     func repairDatabase(
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil
     ) async -> Exception? {
+        @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         userSession.stopObservingCurrentUserChanges()
+        CoreDatabaseCache.clear()
+        networking.database.setGlobalCacheStrategy(.disregardCache)
+        networking.storage.setGlobalCacheStrategy(.disregardCache)
 
         var exceptions = exceptions ?? .init()
         var methodsUsedForRepair = methodsUsedForRepair ?? .init()
@@ -121,7 +126,11 @@ public extension IntegrityService {
             return await repairDatabase(exceptions, methodsUsedForRepair)
         }
 
-        defer { userSession.startObservingCurrentUserChanges() }
+        defer {
+            networking.database.setGlobalCacheStrategy(nil)
+            networking.storage.setGlobalCacheStrategy(nil)
+            userSession.startObservingCurrentUserChanges()
+        }
 
         if !methodsUsedForRepair.isEmpty {
             Logger.log(

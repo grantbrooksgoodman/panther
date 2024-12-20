@@ -49,11 +49,11 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messageIDs)
-        factors.append(contentsOf: messages?.map(\.id).sorted() ?? messageIDs)
-        factors.append(contentsOf: messages?.map(\.encodedHash).sorted() ?? [])
+        factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
+        factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))
-        factors.append(contentsOf: reactionMetadata?.map(\.encodedHash).sorted() ?? [])
-        return factors
+        factors.append(contentsOf: reactionMetadata?.map(\.encodedHash) ?? [])
+        return factors.sorted()
     }
 
     // MARK: - Init

@@ -601,24 +601,12 @@ public final class IntegrityService {
 
             for translationReferenceString in translationReferenceStrings {
                 guard let reference: TranslationReference = .init(translationReferenceString),
-                      !reference.languagePair.isIdempotent else { continue }
+                      !reference.languagePair.isIdempotent,
+                      session.translationData[reference.languagePair.string]?[reference.type.key] == nil else { continue }
 
-                let path = "\(NetworkPath.translations.rawValue)/\(reference.languagePair.string)/\(reference.type.key)"
-                let getValuesResult = await networking.database.getValues(at: path)
-
-                switch getValuesResult {
-                case let .failure(exception):
-                    guard exception.isEqual(to: .Networking.Database.noValueExists) else {
-                        exceptions.append(exception)
-                        continue
-                    }
-
-                    tookAction = true
-                    if let exception = await repairMalformedMessages([key]).exception {
-                        exceptions.append(exception)
-                    }
-
-                case .success: ()
+                tookAction = true
+                if let exception = await repairMalformedMessages([key]).exception {
+                    exceptions.append(exception)
                 }
             }
         }

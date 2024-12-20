@@ -87,6 +87,7 @@
 		B90E21692CEF0ED60073E656 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B90E21682CEF0ED60073E656 /* AppSubsystem */; };
 		B9124EDB2AAFB27A00590B7B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B9124EDD2AAFB27A00590B7B /* Localizable.strings */; };
 		B91688DA28FE0E4C004C80A2 /* ExceptionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91688D928FE0E4C004C80A2 /* ExceptionCatalog.swift */; };
+		B916E01A2D0B8A440079CDDF /* ChatInfoPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B916E0192D0B8A440079CDDF /* ChatInfoPageObserver.swift */; };
 		B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */; };
 		B91822242B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */; };
 		B91822262B6DDE030068BDAB /* TypingIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */; };
@@ -99,7 +100,6 @@
 		B91E93942C2B23760099FBA4 /* IntegrityService+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E93932C2B23760099FBA4 /* IntegrityService+CommonNetworkingExtensions.swift */; };
 		B92168382C4341B800063978 /* InputStackView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92168372C4341B800063978 /* InputStackView+UserContentExtensions.swift */; };
 		B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92168392C4350D400063978 /* FileManager+UserContentExtensions.swift */; };
-		B921F3FF2CCB53AC006BB149 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B921F3FE2CCB53AC006BB149 /* Networking */; };
 		B921F4012CCB6BD1006BB149 /* FirebaseMessagingDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B921F4002CCB6BD1006BB149 /* FirebaseMessagingDependency.swift */; };
 		B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B921F4032CCB6F34006BB149 /* FirebaseAnalytics */; };
 		B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B921F4052CCB6F34006BB149 /* FirebaseMessaging */; };
@@ -139,6 +139,10 @@
 		B925A0942B6480A400111413 /* UIPasteboardDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B925A0932B6480A400111413 /* UIPasteboardDependency.swift */; };
 		B92617702CD8472D00877ECE /* PushTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926176F2CD8472D00877ECE /* PushTokenService.swift */; };
 		B92617722CD8990900877ECE /* ReactionSessionServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */; };
+		B927313B2D1272B200DCDCBA /* PenPalsPermissionContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B927313A2D1272B200DCDCBA /* PenPalsPermissionContentPageView.swift */; };
+		B927313D2D1272C500DCDCBA /* PenPalsPermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B927313C2D1272C500DCDCBA /* PenPalsPermissionPageView.swift */; };
+		B927313F2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B927313E2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift */; };
+		B92731412D1272F800DCDCBA /* PenPalsPermissionPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92731402D1272F800DCDCBA /* PenPalsPermissionPageViewStrings.swift */; };
 		B928F3CE2B17FE5700006BFD /* MetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B928F3CD2B17FE5700006BFD /* MetadataService.swift */; };
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B92E90332CD9D84A0057A0A9 /* ContextMenuInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */; };
@@ -283,6 +287,7 @@
 		B99195A82B48963200BD5BBC /* AppConstants+SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195A72B48963200BD5BBC /* AppConstants+SearchBar.swift */; };
 		B9931B2F2B8D8D730042E07D /* Contact+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9931B2E2B8D8D730042E07D /* Contact+UserContentExtensions.swift */; };
 		B9931B312B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */; };
+		B99551A22D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */; };
 		B995A45D2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */; };
 		B996C3242B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */; };
 		B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */; };
@@ -322,6 +327,7 @@
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
+		B9BC07B62D15F80600EF09DD /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B9BC07B52D15F80600EF09DD /* Networking */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */; };
@@ -884,6 +890,7 @@
 		B9124F262AAFB2F800590B7B /* cy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cy; path = cy.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B9124F272AAFB2F900590B7B /* yi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = yi; path = yi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B91688D928FE0E4C004C80A2 /* ExceptionCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExceptionCatalog.swift; sourceTree = "<group>"; };
+		B916E0192D0B8A440079CDDF /* ChatInfoPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInfoPageObserver.swift; sourceTree = "<group>"; };
 		B91822212B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactory.swift; sourceTree = "<group>"; };
 		B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageViewControllerFactoryDependency.swift; sourceTree = "<group>"; };
 		B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorService.swift; sourceTree = "<group>"; };
@@ -933,6 +940,10 @@
 		B925A0932B6480A400111413 /* UIPasteboardDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPasteboardDependency.swift; sourceTree = "<group>"; };
 		B926176F2CD8472D00877ECE /* PushTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTokenService.swift; sourceTree = "<group>"; };
 		B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionSessionServiceEffectID.swift; sourceTree = "<group>"; };
+		B927313A2D1272B200DCDCBA /* PenPalsPermissionContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsPermissionContentPageView.swift; sourceTree = "<group>"; };
+		B927313C2D1272C500DCDCBA /* PenPalsPermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsPermissionPageView.swift; sourceTree = "<group>"; };
+		B927313E2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsPermissionPageReducer.swift; sourceTree = "<group>"; };
+		B92731402D1272F800DCDCBA /* PenPalsPermissionPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsPermissionPageViewStrings.swift; sourceTree = "<group>"; };
 		B928F3CD2B17FE5700006BFD /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataService.swift; sourceTree = "<group>"; };
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuInteraction.swift; sourceTree = "<group>"; };
@@ -1077,6 +1088,7 @@
 		B99195A72B48963200BD5BBC /* AppConstants+SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SearchBar.swift"; sourceTree = "<group>"; };
 		B9931B2E2B8D8D730042E07D /* Contact+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Contact+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ContactSelectorPageView.swift"; sourceTree = "<group>"; };
+		B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+PenPalsPermissionPageView.swift"; sourceTree = "<group>"; };
 		B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ConversationsPageView.swift"; sourceTree = "<group>"; };
 		B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServicesDependency.swift; sourceTree = "<group>"; };
@@ -1503,8 +1515,8 @@
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
 				B90E21692CEF0ED60073E656 /* AppSubsystem in Frameworks */,
-				B921F3FF2CCB53AC006BB149 /* Networking in Frameworks */,
 				B9D4FD8A2CEEF88E00F4AC75 /* AppSubsystem in Frameworks */,
+				B9BC07B62D15F80600EF09DD /* Networking in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1920,6 +1932,25 @@
 				B9223D202CD584DA00C05BC6 /* MenuView.swift */,
 			);
 			path = Public;
+			sourceTree = "<group>";
+		};
+		B92731382D12726000DCDCBA /* PenPalsPermissionPageView */ = {
+			isa = PBXGroup;
+			children = (
+				B92731392D12728E00DCDCBA /* View */,
+				B927313E2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift */,
+				B92731402D1272F800DCDCBA /* PenPalsPermissionPageViewStrings.swift */,
+			);
+			path = PenPalsPermissionPageView;
+			sourceTree = "<group>";
+		};
+		B92731392D12728E00DCDCBA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B927313A2D1272B200DCDCBA /* PenPalsPermissionContentPageView.swift */,
+				B927313C2D1272C500DCDCBA /* PenPalsPermissionPageView.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		B9334E092B48E54A00C667E5 /* RegionMenu */ = {
@@ -2583,6 +2614,7 @@
 			isa = PBXGroup;
 			children = (
 				B9C696502B896213005F0BFE /* View */,
+				B916E0192D0B8A440079CDDF /* ChatInfoPageObserver.swift */,
 				B9C6964C2B895D0A005F0BFE /* ChatInfoPageReducer.swift */,
 				B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */,
 			);
@@ -3298,6 +3330,7 @@
 				B9F47AE32B576EC700D86C67 /* ConversationsPageView */,
 				B942624E2C4622880026CDE8 /* InviteQRCodePageView */,
 				B9EC04BA2B783CE400A16700 /* NewChatPageView */,
+				B92731382D12726000DCDCBA /* PenPalsPermissionPageView */,
 				B9EC04C62B79671300A16700 /* SettingsPageView */,
 				B947F2D72CAC8078004CD880 /* UserContentContainerView */,
 			);
@@ -3364,6 +3397,7 @@
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
 				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
+				B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
@@ -3485,11 +3519,11 @@
 			name = Hello;
 			packageProductDependencies = (
 				B9E2E6132C72E7AF004022FE /* MessageKit */,
-				B921F3FE2CCB53AC006BB149 /* Networking */,
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9D4FD892CEEF88E00F4AC75 /* AppSubsystem */,
 				B90E21682CEF0ED60073E656 /* AppSubsystem */,
+				B9BC07B52D15F80600EF09DD /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3615,8 +3649,8 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B921F3FD2CCB53AC006BB149 /* XCRemoteSwiftPackageReference "networking" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B9BC07B42D15F80600EF09DD /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4036,6 +4070,7 @@
 				B9A907342BAD3145007AD2C2 /* ChatParticipant.swift in Sources */,
 				B9F5609D2B69A4A0009ABDD5 /* AppGroupDefaultsDependency.swift in Sources */,
 				B9C61C9C2CD9609C00E0F0D1 /* UIColor+Extensions.swift in Sources */,
+				B927313B2D1272B200DCDCBA /* PenPalsPermissionContentPageView.swift in Sources */,
 				B996C3242B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift in Sources */,
 				B980E8B22B225F310090F141 /* ConversationID+Serializable.swift in Sources */,
 				B9E6D7ED2B1293CB000BC88D /* HostedTranslationService.swift in Sources */,
@@ -4268,6 +4303,7 @@
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
+				B927313D2D1272C500DCDCBA /* PenPalsPermissionPageView.swift in Sources */,
 				B9EC04D12B79675100A16700 /* SettingsContentPageView+StaticListItems.swift in Sources */,
 				B9E00A562C2B8D35004E350E /* LocalMediaFilePath.swift in Sources */,
 				B98589B22B60512C00E549C0 /* ConversationCellViewService.swift in Sources */,
@@ -4326,6 +4362,7 @@
 				B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */,
 				B90244052B27ABC200448809 /* LegacyTranslationService.swift in Sources */,
 				B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */,
+				B927313F2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
@@ -4365,6 +4402,7 @@
 				B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */,
+				B916E01A2D0B8A440079CDDF /* ChatInfoPageObserver.swift in Sources */,
 				B99CC5542C1927BC00319F02 /* OnboardingNavigator.swift in Sources */,
 				B90C91102B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift in Sources */,
 				B9018A402CD9C15700B72B18 /* TapGestureRecognizerService.swift in Sources */,
@@ -4390,6 +4428,7 @@
 				B98C40562C40AFCF00C72B0F /* MediaPickerService.swift in Sources */,
 				B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */,
 				B9223D272CD584DA00C05BC6 /* NSLayoutConstraint+Extensions.swift in Sources */,
+				B92731412D1272F800DCDCBA /* PenPalsPermissionPageViewStrings.swift in Sources */,
 				B9223D292CD584DA00C05BC6 /* ShadowParameters.swift in Sources */,
 				B9223D2A2CD584DA00C05BC6 /* ContextMenuInteractor.swift in Sources */,
 				B9223D2B2CD584DA00C05BC6 /* MenuView.swift in Sources */,
@@ -4425,6 +4464,7 @@
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
 				B9E7D4212AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
 				B969165D2BAE1D1A00441472 /* ConversationMetadata.swift in Sources */,
+				B99551A22D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,
 				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
@@ -4809,20 +4849,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B921F3FD2CCB53AC006BB149 /* XCRemoteSwiftPackageReference "networking" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.4.0;
+			};
+		};
+		B9BC07B42D15F80600EF09DD /* XCRemoteSwiftPackageReference "networking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
+			requirement = {
+				branch = main;
+				kind = branch;
 			};
 		};
 		B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */ = {
@@ -4840,11 +4880,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = AppSubsystem;
 		};
-		B921F3FE2CCB53AC006BB149 /* Networking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B921F3FD2CCB53AC006BB149 /* XCRemoteSwiftPackageReference "networking" */;
-			productName = Networking;
-		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -4854,6 +4889,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		B9BC07B52D15F80600EF09DD /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9BC07B42D15F80600EF09DD /* XCRemoteSwiftPackageReference "networking" */;
+			productName = Networking;
 		};
 		B9D4FD892CEEF88E00F4AC75 /* AppSubsystem */ = {
 			isa = XCSwiftPackageProductDependency;

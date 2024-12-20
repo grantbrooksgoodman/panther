@@ -25,11 +25,11 @@ public struct NewChatPageObserver: Observer {
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
     ]
-    public let viewModel: ViewModel<R>
+    public let viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<R>) {
+    public init(_ viewModel: ViewModel<NewChatPageReducer>) {
         self.viewModel = viewModel
     }
 
@@ -41,7 +41,7 @@ public struct NewChatPageObserver: Observer {
 
     public func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value as? Nil != nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
             metadata: [self, #file, #function, #line]
         )
@@ -61,7 +61,7 @@ public struct NewChatPageObserver: Observer {
         }
     }
 
-    public func send(_ action: R.Action) {
+    public func send(_ action: NewChatPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }

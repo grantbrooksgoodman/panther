@@ -34,11 +34,11 @@ public struct ConversationsPageObserver: Observer {
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
-    public let viewModel: ViewModel<R>
+    public let viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<R>) {
+    public init(_ viewModel: ViewModel<ConversationsPageReducer>) {
         self.viewModel = viewModel
     }
 
@@ -50,7 +50,7 @@ public struct ConversationsPageObserver: Observer {
 
     public func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value as? Nil != nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
             metadata: [self, #file, #function, #line]
         )
@@ -73,7 +73,7 @@ public struct ConversationsPageObserver: Observer {
         }
     }
 
-    public func send(_ action: R.Action) {
+    public func send(_ action: ConversationsPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }
@@ -125,19 +125,13 @@ public struct ConversationsPageObserver: Observer {
                     clientSession.conversation.setCurrentConversation(updatedConversation)
                     chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
 
-                    let currentAmountOfReadMessages = currentConversation
-                        .messages?
-                        .filter { updatedConversation.messages?.contains($0) ?? false }
-                        .compactMap(\.readDate)
-                        .count
+                    guard currentConversation.id.hash != updatedConversation.id.hash else { return }
+                    if let navigationTitle = ConversationCellViewData(updatedConversation)?.titleLabelText {
+                        chatPageViewService.setNavigationTitle(navigationTitle)
+                    }
 
-                    let updatedAmountOfReadMessages = updatedConversation
-                        .messages?
-                        .compactMap(\.readDate)
-                        .count
-
-                    guard currentAmountOfReadMessages != updatedAmountOfReadMessages else { return }
-                    chatPageViewService.reloadCollectionView() // Reload to display updated read date.
+                    chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
+                    Observables.currentConversationMetadataChanged.trigger()
                     return
                 }
 

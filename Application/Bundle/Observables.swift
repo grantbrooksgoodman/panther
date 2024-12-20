@@ -16,6 +16,7 @@ public extension ObservableKey {
     /* Add keys here to define new values for Observer instances. */
 
     static let contactSelectorPresentationPending: ObservableKey = .init("contactSelectorPresentationPending")
+    static let currentConversationMetadataChanged: ObservableKey = .init("currentConversationMetadataChanged")
     static let firstMessageSentInNewChat: ObservableKey = .init("firstMessageSentInNewChat")
     static let isNewChatPageDoneToolbarButtonEnabled: ObservableKey = .init("isNewChatPageDoneToolbarButtonEnabled")
     static let networkActivityOccurred: ObservableKey = .init("networkActivityOccurred")
@@ -29,6 +30,7 @@ public extension Observables {
     /* Add new properties conforming to Observable here. */
 
     static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
+    static let currentConversationMetadataChanged: Observable<Nil> = .init(key: .currentConversationMetadataChanged)
     static let firstMessageSentInNewChat: Observable<Nil> = .init(key: .firstMessageSentInNewChat)
     static let isNewChatPageDoneToolbarButtonEnabled: Observable<Bool> = .init(.isNewChatPageDoneToolbarButtonEnabled, true)
     static let networkActivityOccurred: Observable<Nil> = .init(key: .networkActivityOccurred)

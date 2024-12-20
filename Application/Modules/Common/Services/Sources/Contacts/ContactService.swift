@@ -66,6 +66,7 @@ public final class ContactService {
                 return nil
 
             case let .failure(exception):
+                guard !exception.isEqual(to: .emptyContactList) else { return nil }
                 return exception
             }
 

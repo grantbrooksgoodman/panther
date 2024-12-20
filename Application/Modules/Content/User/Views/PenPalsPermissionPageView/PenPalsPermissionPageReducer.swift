@@ -1,0 +1,86 @@
+//
+//  PenPalsPermissionPageReducer.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 17/12/2024.
+//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+/* Proprietary */
+import AppSubsystem
+import Networking
+
+public struct PenPalsPermissionPageReducer: Reducer {
+    // MARK: - Dependencies
+
+    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+
+    // MARK: - Actions
+
+    public enum Action {
+        case viewAppeared
+
+        case dismissButtonTapped
+        case enableButtonTapped
+    }
+
+    // MARK: - Feedback
+
+    public enum Feedback {
+        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+    }
+
+    // MARK: - State
+
+    public struct State: Equatable {
+        /* MARK: Types */
+
+        public enum ViewState: Equatable {
+            case loading
+            case error(Exception)
+            case loaded
+        }
+
+        /* MARK: Properties */
+
+        public var strings: [TranslationOutputMap] = PenPalsPermissionPageViewStrings.defaultOutputMap
+        public var viewState: ViewState = .loading
+
+        /* MARK: Init */
+
+        public init() {}
+    }
+
+    // MARK: - Reduce
+
+    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
+        switch event {
+        case .action(.viewAppeared):
+            state.viewState = .loading
+
+            return .task {
+                let result = await translator.resolve(PenPalsPermissionPageViewStrings.self)
+                return .resolveReturned(result)
+            }
+
+        case .action(.dismissButtonTapped):
+            RootSheets.dismiss()
+
+        case .action(.enableButtonTapped):
+            break
+
+        case let .feedback(.resolveReturned(.success(strings))):
+            state.strings = strings
+            state.viewState = .loaded
+
+        case let .feedback(.resolveReturned(.failure(exception))):
+            Logger.log(exception)
+            state.viewState = .loaded
+        }
+
+        return .none
+    }
+}

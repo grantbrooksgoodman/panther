@@ -32,7 +32,7 @@ public struct SettingsPageView: View {
         Group {
             switch viewModel.viewState {
             case .loading:
-                ProgressPageView()
+                ProgressPageView(backgroundColor: Color.listViewBackground)
             case .loaded:
                 SettingsContentPageView(viewModel)
             case let .error(exception):

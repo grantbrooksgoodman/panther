@@ -84,7 +84,7 @@ extension Conversation: Updatable {
                 messages: messages,
                 metadata: metadata,
                 participants: participants,
-                reactionMetadata: value.allSatisfy { $0 == .empty } ? nil : value,
+                reactionMetadata: value.allSatisfy { $0 == .empty } || value.isEmpty ? nil : value,
                 users: users
             ))
         }

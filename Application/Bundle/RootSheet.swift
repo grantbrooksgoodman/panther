@@ -32,4 +32,12 @@ public extension RootSheet {
                 reducer: InviteLanguagePickerReducer()
             ))
     ))
+
+    static let penPalsPermissionPageView: RootSheet = .init(.init(
+        PenPalsPermissionPageView(
+            .init(
+                initialState: .init(),
+                reducer: PenPalsPermissionPageReducer()
+            ))
+    ))
 }

@@ -166,7 +166,6 @@ public struct MessageSessionService {
         }
 
         let users = users.filter { $0 != currentUser }
-
         var translations = [Translation]()
 
         for languageCode in users.map(\.languageCode).unique {

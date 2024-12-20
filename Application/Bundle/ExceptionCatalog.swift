@@ -56,6 +56,7 @@ public extension AppException {
     static let cannotSendTextMessages: AppException = .init("56F0")
     static let contactAccessDenied: AppException = .init("C8DC")
     static let currentUserIDNotSet: AppException = .init("EA90")
+    static let emptyContactList: AppException = .init("A431")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
