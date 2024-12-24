@@ -63,6 +63,7 @@ public final class UserService {
             id,
             blockedUserIDs: nil,
             conversationIDs: nil,
+            isPenPalsParticipant: false,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
             pushTokens: pushTokens

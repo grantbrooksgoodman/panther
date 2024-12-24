@@ -28,6 +28,7 @@ public final class User: Codable, Equatable {
     public let languageCode: String
 
     // Other
+    public let isPenPalsParticipant: Bool
     public let phoneNumber: PhoneNumber
 
     // MARK: - Computed Properties
@@ -67,6 +68,7 @@ public final class User: Codable, Equatable {
         _ id: String,
         blockedUserIDs: [String]?,
         conversationIDs: [ConversationID]?,
+        isPenPalsParticipant: Bool,
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
@@ -74,6 +76,7 @@ public final class User: Codable, Equatable {
         self.id = id
         self.blockedUserIDs = blockedUserIDs
         self.conversationIDs = conversationIDs
+        self.isPenPalsParticipant = isPenPalsParticipant
         self.languageCode = languageCode
         self.phoneNumber = phoneNumber
         self.pushTokens = pushTokens
@@ -204,6 +207,7 @@ public final class User: Codable, Equatable {
         let sameConversationIDs = left.conversationIDs == right.conversationIDs
         let sameConversations = left.conversations == right.conversations
         let sameID = left.id == right.id
+        let sameIsPenPalsParticipant = left.isPenPalsParticipant == right.isPenPalsParticipant
         let sameLanguageCode = left.languageCode == right.languageCode
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
         let samePushTokens = left.pushTokens == right.pushTokens
@@ -212,6 +216,7 @@ public final class User: Codable, Equatable {
               sameConversationIDs,
               sameConversations,
               sameID,
+              sameIsPenPalsParticipant,
               sameLanguageCode,
               samePhoneNumber,
               samePushTokens else { return false }

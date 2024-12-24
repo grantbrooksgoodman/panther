@@ -38,7 +38,7 @@ extension ReactionMetadata: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        guard data[Keys.messageID.rawValue] as? String != nil,
+        guard data[Keys.messageID.rawValue] is String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]],
               encodedReactions.allSatisfy({ Reaction.canDecode(from: $0) }) else { return false }
 

@@ -56,12 +56,12 @@ extension Message: Serializable {
     public static func canDecode(from data: [String: Any]) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
-        guard data[Keys.id.rawValue] as? String != nil,
-              data[Keys.fromAccountID.rawValue] as? String != nil,
+        guard data[Keys.id.rawValue] is String,
+              data[Keys.fromAccountID.rawValue] is String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
               ContentType(rawValue: contentTypeString) != nil,
-              data[Keys.translations.rawValue] as? [String] != nil,
-              data[Keys.readDate.rawValue] as? String != nil,
+              data[Keys.translations.rawValue] is [String],
+              data[Keys.readDate.rawValue] is String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               dateFormatter.date(from: sentDateString) != nil else { return false }
 

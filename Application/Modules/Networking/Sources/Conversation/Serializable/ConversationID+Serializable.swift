@@ -25,8 +25,7 @@ extension ConversationID: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: String) -> Bool {
-        guard data.components(separatedBy: " | ").count == 2 else { return false }
-        return true
+        data.components(separatedBy: " | ").count == 2
     }
 
     public static func decode(from data: String) async -> Callback<ConversationID, Exception> {

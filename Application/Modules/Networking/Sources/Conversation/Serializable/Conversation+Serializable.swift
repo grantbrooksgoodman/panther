@@ -48,14 +48,14 @@ extension Conversation: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        guard data[Keys.id.rawValue] as? String != nil,
+        guard data[Keys.id.rawValue] is String,
               let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
               ConversationMetadata.canDecode(from: encodedMetadata),
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               encodedReactionMetadata.allSatisfy({ ReactionMetadata.canDecode(from: $0) }),
-              data[Keys.messages.rawValue] as? [String] != nil else { return false }
+              data[Keys.messages.rawValue] is [String] else { return false }
 
         return true
     }

@@ -26,6 +26,7 @@ extension User: Serializable {
         case badgeNumber
         case blockedUserIDs
         case conversationIDs = "openConversations"
+        case isPenPalsParticipant
         case languageCode
         case phoneNumber
         case pushTokens
@@ -39,6 +40,7 @@ extension User: Serializable {
             Keys.id.rawValue: id,
             Keys.blockedUserIDs.rawValue: blockedUserIDs ?? .bangQualifiedEmpty,
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
+            Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
             Keys.languageCode.rawValue: languageCode,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
             Keys.pushTokens.rawValue: pushTokens ?? .bangQualifiedEmpty,
@@ -48,14 +50,15 @@ extension User: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        guard data[Keys.id.rawValue] as? String != nil,
-              data[Keys.blockedUserIDs.rawValue] as? [String] != nil,
+        guard data[Keys.id.rawValue] is String,
+              data[Keys.blockedUserIDs.rawValue] is [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }) || conversationIDStrings == ["!"],
+              data[Keys.isPenPalsParticipant.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
-              data[Keys.languageCode.rawValue] as? String != nil,
-              data[Keys.pushTokens.rawValue] as? [String] != nil else { return false }
+              data[Keys.languageCode.rawValue] is String,
+              data[Keys.pushTokens.rawValue] is [String] else { return false }
 
         return true
     }
@@ -65,6 +68,7 @@ extension User: Serializable {
               let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
+              let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
@@ -102,6 +106,7 @@ extension User: Serializable {
             id,
             blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
+            isPenPalsParticipant: isPenPalsParticipant,
             languageCode: languageCode,
             phoneNumber: phoneNumber,
             pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens

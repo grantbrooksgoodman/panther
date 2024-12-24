@@ -40,9 +40,9 @@ extension PhoneNumber: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: [String: Any]) -> Bool {
-        guard data[Keys.callingCode.rawValue] as? String != nil,
-              data[Keys.nationalNumberString.rawValue] as? String != nil,
-              data[Keys.regionCode.rawValue] as? String != nil else { return false }
+        guard data[Keys.callingCode.rawValue] is String,
+              data[Keys.nationalNumberString.rawValue] is String,
+              data[Keys.regionCode.rawValue] is String else { return false }
 
         return true
     }

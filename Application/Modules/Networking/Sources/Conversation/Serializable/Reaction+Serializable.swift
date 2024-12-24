@@ -40,7 +40,7 @@ extension Reaction: Serializable {
     public static func canDecode(from data: [String: Any]) -> Bool {
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               Reaction.Style(encodedValue: encodedStyle) != nil,
-              data[Keys.userID.rawValue] as? String != nil else { return false }
+              data[Keys.userID.rawValue] is String else { return false }
 
         return true
     }

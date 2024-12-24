@@ -70,6 +70,7 @@ public extension ContactPair {
                             "",
                             blockedUserIDs: nil,
                             conversationIDs: nil,
+                            isPenPalsParticipant: false,
                             languageCode: "",
                             phoneNumber: .init(""),
                             pushTokens: nil

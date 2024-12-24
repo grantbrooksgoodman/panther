@@ -25,6 +25,7 @@ extension User: Updatable {
         [
             .blockedUserIDs,
             .conversationIDs,
+            .isPenPalsParticipant,
             .pushTokens,
         ]
     }
@@ -45,6 +46,7 @@ extension User: Updatable {
                 id,
                 blockedUserIDs: value.isBangQualifiedEmpty ? nil : value,
                 conversationIDs: conversationIDs,
+                isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
@@ -57,6 +59,19 @@ extension User: Updatable {
                 id,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: value,
+                isPenPalsParticipant: isPenPalsParticipant,
+                languageCode: languageCode,
+                phoneNumber: phoneNumber,
+                pushTokens: pushTokens
+            )
+
+        case .isPenPalsParticipant:
+            guard let value = value as? Bool else { return nil }
+            return .init(
+                id,
+                blockedUserIDs: blockedUserIDs,
+                conversationIDs: conversationIDs,
+                isPenPalsParticipant: value,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
@@ -68,6 +83,7 @@ extension User: Updatable {
                 id,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
+                isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
                 phoneNumber: phoneNumber,
                 pushTokens: value.isBangQualifiedEmpty ? nil : value
