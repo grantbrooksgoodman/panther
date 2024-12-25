@@ -313,6 +313,8 @@
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
+		B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */; };
+		B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */; };
 		B9A907342BAD3145007AD2C2 /* ChatParticipant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */; };
 		B9A907362BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */; };
 		B9A907382BADFFAC007AD2C2 /* CNContactContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */; };
@@ -1119,6 +1121,8 @@
 		B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberKitDependency.swift; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
+		B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsSharingData.swift; sourceTree = "<group>"; };
+		B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PenPalsSharingData+Serializable.swift"; sourceTree = "<group>"; };
 		B9A907332BAD3145007AD2C2 /* ChatParticipant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipant.swift; sourceTree = "<group>"; };
 		B9A907352BADFB92007AD2C2 /* ChatInfoPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInfoPageViewStrings.swift; sourceTree = "<group>"; };
 		B9A907372BADFFAC007AD2C2 /* CNContactContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNContactContainer.swift; sourceTree = "<group>"; };
@@ -2243,6 +2247,7 @@
 				B9E6D7AC2B125E17000BC88D /* ConversationID.swift */,
 				B969165C2BAE1D1A00441472 /* ConversationMetadata.swift */,
 				B963F1C72B23D7110087DB83 /* Participant.swift */,
+				B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */,
 				B986C4AE2CD42DB700414E57 /* Reaction.swift */,
 				B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */,
 			);
@@ -2265,6 +2270,7 @@
 				B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */,
 				B969165E2BAE1DB400441472 /* ConversationMetadata+Serializable.swift */,
 				B963F1C92B23D7250087DB83 /* Participant+Serializable.swift */,
+				B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */,
 				B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */,
 				B986C4B22CD42E7800414E57 /* ReactionMetadata+Serializable.swift */,
 			);
@@ -4169,6 +4175,7 @@
 				B921F40D2CCDC5EB006BB149 /* UserTestingService.swift in Sources */,
 				B9DCCAAF2B3618EA00532B12 /* Exception+CommonNetworkingExtensions.swift in Sources */,
 				B9223D472CD58DD100C05BC6 /* MenuView+Extensions.swift in Sources */,
+				B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */,
 				B9E0E1062B20FE8600C14274 /* MessageService.swift in Sources */,
 				B9223D3F2CD5882300C05BC6 /* ContextMenuViewControllerDelegate.swift in Sources */,
 				B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */,
@@ -4479,6 +4486,7 @@
 				B9223D412CD58C4E00C05BC6 /* MenuElementViewDelegate.swift in Sources */,
 				B9E00A542C2B8C7F004E350E /* MediaMessageService.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,
+				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
 				B92FC6B92D1BB4E9006E91C0 /* ListRowView.swift in Sources */,
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,

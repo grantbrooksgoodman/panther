@@ -214,7 +214,9 @@ public struct ChatInfoPageReducer: Reducer {
             let newMetadata: ConversationMetadata = .init(
                 name: conversation.metadata.name,
                 imageData: imageData,
-                lastModifiedDate: conversation.metadata.lastModifiedDate
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: conversation.metadata.penPalsSharingData
             )
 
             return .task {
@@ -242,7 +244,9 @@ public struct ChatInfoPageReducer: Reducer {
             let newMetadata: ConversationMetadata = .init(
                 name: sanitizedName.trimmingBorderedWhitespace,
                 imageData: conversation.metadata.imageData,
-                lastModifiedDate: conversation.metadata.lastModifiedDate
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: conversation.metadata.penPalsSharingData
             )
 
             return .task {
@@ -259,7 +263,9 @@ public struct ChatInfoPageReducer: Reducer {
             let newMetadata: ConversationMetadata = .init(
                 name: conversation.metadata.name,
                 imageData: nil,
-                lastModifiedDate: conversation.metadata.lastModifiedDate
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: conversation.metadata.penPalsSharingData
             )
 
             return .task {

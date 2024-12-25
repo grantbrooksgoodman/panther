@@ -24,7 +24,9 @@ extension ConversationMetadata: Serializable {
     public enum SerializationKeys: String {
         case name
         case imageData
+        case isPenPalsConversation
         case lastModifiedDate = "lastModified"
+        case penPalsSharingData = "isSharingPenPalsData"
     }
 
     // MARK: - Properties
@@ -34,7 +36,9 @@ extension ConversationMetadata: Serializable {
         return [
             Keys.name.rawValue: name,
             Keys.imageData.rawValue: imageData?.base64EncodedString() ?? .bangQualifiedEmpty,
+            Keys.isPenPalsConversation.rawValue: isPenPalsConversation,
             Keys.lastModifiedDate.rawValue: dateFormatter.string(from: lastModifiedDate),
+            Keys.penPalsSharingData.rawValue: penPalsSharingData.map(\.encoded),
         ]
     }
 
@@ -45,8 +49,11 @@ extension ConversationMetadata: Serializable {
 
         guard data[Keys.name.rawValue] is String,
               data[Keys.imageData.rawValue] is String,
+              data[Keys.isPenPalsConversation.rawValue] is Bool,
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
-              dateFormatter.date(from: lastModifiedDateString) != nil else { return false }
+              dateFormatter.date(from: lastModifiedDateString) != nil,
+              let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String],
+              encodedPenPalsSharingData.allSatisfy({ PenPalsSharingData.canDecode(from: $0) }) else { return false }
 
         return true
     }
@@ -56,19 +63,52 @@ extension ConversationMetadata: Serializable {
 
         guard let name = data[Keys.name.rawValue] as? String,
               let imageDataString = data[Keys.imageData.rawValue] as? String,
+              let isPenPalsConversation = data[Keys.isPenPalsConversation.rawValue] as? Bool,
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
-              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString) else {
+              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString),
+              let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String] else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
+        var penPalsSharingData = [PenPalsSharingData]()
+
+        for encodedPenPalsSharingDatum in encodedPenPalsSharingData {
+            let decodeResult = await PenPalsSharingData.decode(from: encodedPenPalsSharingDatum)
+
+            switch decodeResult {
+            case let .success(penPalsSharingDatum):
+                penPalsSharingData.append(penPalsSharingDatum)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+        }
+
+        guard !penPalsSharingData.isEmpty,
+              penPalsSharingData.count == encodedPenPalsSharingData.count else {
+            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+        }
+
         guard !imageDataString.isBangQualifiedEmpty else {
-            return .success(.init(name: name, imageData: nil, lastModifiedDate: lastModifiedDate))
+            return .success(.init(
+                name: name,
+                imageData: nil,
+                isPenPalsConversation: isPenPalsConversation,
+                lastModifiedDate: lastModifiedDate,
+                penPalsSharingData: penPalsSharingData
+            ))
         }
 
         guard let imageData = Data(base64Encoded: imageDataString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
-        return .success(.init(name: name, imageData: imageData, lastModifiedDate: lastModifiedDate))
+        return .success(.init(
+            name: name,
+            imageData: imageData,
+            isPenPalsConversation: isPenPalsConversation,
+            lastModifiedDate: lastModifiedDate,
+            penPalsSharingData: penPalsSharingData
+        ))
     }
 }

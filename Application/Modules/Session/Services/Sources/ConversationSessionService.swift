@@ -162,7 +162,9 @@ public final class ConversationSessionService {
         let newMetadata: ConversationMetadata = .init(
             name: conversation.metadata.name,
             imageData: conversation.metadata.imageData,
-            lastModifiedDate: Date()
+            isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+            lastModifiedDate: Date(),
+            penPalsSharingData: conversation.metadata.penPalsSharingData
         )
 
         let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)

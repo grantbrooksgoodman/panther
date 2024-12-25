@@ -16,12 +16,16 @@ public struct ConversationMetadata: Codable, Equatable {
     public static let empty: ConversationMetadata = .init(
         name: .bangQualifiedEmpty,
         imageData: nil,
-        lastModifiedDate: .init(timeIntervalSince1970: 0)
+        isPenPalsConversation: false,
+        lastModifiedDate: .init(timeIntervalSince1970: 0),
+        penPalsSharingData: []
     )
 
     public let name: String
     public let imageData: Data?
+    public let isPenPalsConversation: Bool
     public let lastModifiedDate: Date
+    public let penPalsSharingData: [PenPalsSharingData]
 
     // MARK: - Computed Properties
 
@@ -35,10 +39,14 @@ public struct ConversationMetadata: Codable, Equatable {
     public init(
         name: String,
         imageData: Data?,
-        lastModifiedDate: Date
+        isPenPalsConversation: Bool,
+        lastModifiedDate: Date,
+        penPalsSharingData: [PenPalsSharingData]
     ) {
         self.name = name
         self.imageData = imageData
+        self.isPenPalsConversation = isPenPalsConversation
         self.lastModifiedDate = lastModifiedDate
+        self.penPalsSharingData = penPalsSharingData
     }
 }
