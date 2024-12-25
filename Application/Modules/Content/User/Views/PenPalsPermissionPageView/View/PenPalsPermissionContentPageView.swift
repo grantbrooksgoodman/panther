@@ -19,7 +19,6 @@ public struct PenPalsPermissionContentPageView: View {
 
     private typealias Colors = AppConstants.Colors.PenPalsPermissionPageView
     private typealias Floats = AppConstants.CGFloats.PenPalsPermissionPageView
-    private typealias Strings = AppConstants.Strings.PenPalsPermissionPageView
 
     // MARK: - Properties
 
@@ -43,30 +42,7 @@ public struct PenPalsPermissionContentPageView: View {
                 .padding(.bottom, Floats.titleLabelBottomPadding)
                 .padding(.top, Floats.titleLabelTopPadding)
 
-                Rectangle()
-                    .frame(
-                        width: Floats.iconFrameWidth,
-                        height: Floats.iconFrameHeight
-                    )
-                    .foregroundStyle(Colors.iconForeground)
-                    .cornerRadius(Floats.iconCornerRadius)
-                    .shadow(
-                        color: Colors.iconShadow.opacity(Floats.iconShadowColorOpacity),
-                        radius: Floats.iconShadowRadius,
-                        x: 0,
-                        y: Floats.iconShadowYOffset
-                    )
-                    .overlay {
-                        Components.symbol(
-                            Strings.iconOverlaySymbolSystemName,
-                            foregroundColor: Colors.iconOverlaySymbolForeground,
-                            usesIntrinsicSize: false
-                        )
-                        .frame(
-                            width: Floats.iconOverlaySymbolFrameWidth,
-                            height: Floats.iconOverlaySymbolFrameHeight
-                        )
-                    }
+                PenPalsIconView(includesShadow: true)
 
                 ScrollView {
                     Components.text(

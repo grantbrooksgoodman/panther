@@ -16,6 +16,7 @@ import Networking
 public struct PenPalsPermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
 
     // MARK: - Actions
@@ -68,9 +69,19 @@ public struct PenPalsPermissionPageReducer: Reducer {
 
         case .action(.dismissButtonTapped):
             RootSheets.dismiss()
+            return .fireAndForget {
+                if let exception = await penPalsService.setDidGrantPenPalsPermission(false) {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
+            }
 
         case .action(.enableButtonTapped):
-            break
+            RootSheets.dismiss()
+            return .fireAndForget {
+                if let exception = await penPalsService.setDidGrantPenPalsPermission(true) {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
+            }
 
         case let .feedback(.resolveReturned(.success(strings))):
             state.strings = strings

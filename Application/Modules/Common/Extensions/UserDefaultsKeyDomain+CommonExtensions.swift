@@ -27,6 +27,10 @@ public extension UserDefaultsKey {
         case contactPairArchive
     }
 
+    enum PenPalsServiceDefaultsKey: String {
+        case presentedPenPalsPermissionPageAtStartup
+    }
+
     enum ReviewServiceDefaultsKey: String {
         case appOpenCount
         case lastRequestedReviewForBuildNumber

@@ -58,12 +58,6 @@ public final class ConversationsPageViewService {
         NavigationBar.setAppearance(.appDefault)
         userSession.startObservingCurrentUserChanges()
 
-        // TODO: Remove this once service created with persisted value.
-        Task.delayed(by: .seconds(5)) { @MainActor in
-            guard build.developerModeEnabled else { return }
-            RootSheets.present(.penPalsPermissionPageView)
-        }
-
         Task {
             if let exception = await services.pushToken.updatePushTokensForCurrentUser() {
                 Logger.log(exception)
@@ -96,6 +90,16 @@ public final class ConversationsPageViewService {
 
         networking.database.clearTemporaryCaches()
         Task.delayed(by: .seconds(1)) { @MainActor in
+            defer {
+                @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
+
+                if build.developerModeEnabled,
+                   !(presentedPenPalsPermissionPageAtStartup ?? false) {
+                    presentedPenPalsPermissionPageAtStartup = true
+                    RootSheets.present(.penPalsPermissionPageView)
+                }
+            }
+
             guard await self.services.permission.notificationPermissionStatus == .unknown else {
                 self.services.review.promptToReview()
                 return

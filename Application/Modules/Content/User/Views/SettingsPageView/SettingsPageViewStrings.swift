@@ -22,6 +22,7 @@ public extension TranslatedLabelStringCollection {
         case deleteAccountButtonText = "Delete Account"
         case inviteFriendsButtonText = "Invite Friends"
         case leaveAReviewButtonText = "Leave a Review"
+        case penPalsListRowText = "Participate in ⌘PenPals⌘"
         case signOutButtonText = "Sign Out"
 
         // MARK: - Properties

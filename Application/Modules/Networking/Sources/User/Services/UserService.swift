@@ -93,6 +93,24 @@ public final class UserService {
         }
     }
 
+    // MARK: - Get All Users
+
+    public func getAllUsers() async -> Callback<[User], Exception> {
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+            }
+
+            return await getUsers(ids: Array(dictionary.keys))
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
     // MARK: - Retrieval by ID
 
     public func getUser(id: String) async -> Callback<User, Exception> {

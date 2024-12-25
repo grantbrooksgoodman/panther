@@ -30,17 +30,6 @@ public extension AppConstants.CGFloats {
         public static let enableButtonLabelShadowRadius: CGFloat = 10
         public static let enableButtonLabelShadowYOffset: CGFloat = 4
 
-        public static let iconCornerRadius: CGFloat = 30
-        public static let iconFrameHeight: CGFloat = 150
-        public static let iconFrameWidth: CGFloat = 150
-
-        public static let iconOverlaySymbolFrameHeight: CGFloat = 100
-        public static let iconOverlaySymbolFrameWidth: CGFloat = 100
-
-        public static let iconShadowColorOpacity: CGFloat = 0.2
-        public static let iconShadowRadius: CGFloat = 10
-        public static let iconShadowYOffset: CGFloat = 5
-
         public static let subtitleLabelHorizontalPadding: CGFloat = 20
         public static let subtitleLabelTopPadding: CGFloat = 25
 
@@ -56,17 +45,5 @@ public extension AppConstants.Colors {
     enum PenPalsPermissionPageView {
         public static let enableButtonLabelOverlayTextForeground: Color = .white
         public static let enableButtonLabelShadow: Color = .black
-
-        public static let iconForeground: Color = .purple
-        public static let iconOverlaySymbolForeground: Color = .white
-        public static let iconShadow: Color = .black
-    }
-}
-
-// MARK: - String
-
-public extension AppConstants.Strings {
-    enum PenPalsPermissionPageView {
-        public static let iconOverlaySymbolSystemName = "figure.2"
     }
 }

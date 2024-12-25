@@ -42,6 +42,7 @@ public enum CommonServicesDependency: DependencyKey {
             metadata: .init(),
             networkActivityIndicator: .init(),
             notification: .init(),
+            penPals: .init(),
             permission: .init(),
             phoneNumber: .init(),
             propertyLists: .shared,

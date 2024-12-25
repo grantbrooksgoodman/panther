@@ -26,8 +26,8 @@ public final class ContactService {
 
     @Dependency(\.cnContactStore) private var cnContactStore: CNContactStore
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.networking.userService) private var userService: UserService
 
     // MARK: - Properties
 
@@ -44,7 +44,7 @@ public final class ContactService {
     // MARK: - Sync Contact Pair Archive
 
     public func syncContactPairArchive() async -> Exception? {
-        let getAllUsersResult = await getAllUsers()
+        let getAllUsersResult = await userService.getAllUsers()
 
         switch getAllUsersResult {
         case let .success(users):
@@ -179,21 +179,5 @@ public final class ContactService {
 
         guard canComplete else { return }
         completion(.success(contactPairs.unique.sorted(by: { $0.contact.firstName < $1.contact.firstName })))
-    }
-
-    private func getAllUsers() async -> Callback<[User], Exception> {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
-            }
-
-            return await networking.userService.getUsers(ids: Array(dictionary.keys))
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
     }
 }

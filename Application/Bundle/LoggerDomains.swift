@@ -14,6 +14,7 @@ import AppSubsystem
 
 public extension LoggerDomain {
     static let domainsExcludedFromSessionRecord: [LoggerDomain] = [
+        .caches,
         .observer,
     ]
 
@@ -21,7 +22,6 @@ public extension LoggerDomain {
         .alertKit,
         .analytics,
         .bugPrevention,
-        .caches,
         .chatPageState,
         .contacts,
         .conversation,

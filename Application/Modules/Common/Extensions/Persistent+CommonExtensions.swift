@@ -25,6 +25,10 @@ public extension Persistent {
         self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
 
+    convenience init(_ penPalsServiceKey: UserDefaultsKey.PenPalsServiceDefaultsKey) {
+        self.init(.penPalsService(penPalsServiceKey))
+    }
+
     convenience init(_ reviewServiceKey: UserDefaultsKey.ReviewServiceDefaultsKey) {
         self.init(.reviewService(reviewServiceKey))
     }

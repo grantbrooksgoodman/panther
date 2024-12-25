@@ -209,6 +209,20 @@ public final class SettingsPageViewService {
         }
     }
 
+    public func penPalsParticipantSwitchToggled(on: Bool) {
+        Task { @MainActor in
+            guard on else {
+                if let exception = await services.penPals.setDidGrantPenPalsPermission(false) {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
+
+                return
+            }
+
+            RootSheets.present(.penPalsPermissionPageView)
+        }
+    }
+
     /// `.longPressGestureRecognized`
     public func promptToEnterPrereleaseMode() {
         Task {

@@ -20,7 +20,10 @@ public struct SettingsPageObserver: Observer {
     // MARK: - Properties
 
     public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.traitCollectionChanged]
+    public let observedValues: [any ObservableProtocol] = [
+        Observables.didGrantPenPalsPermission,
+        Observables.traitCollectionChanged,
+    ]
     public let viewModel: ViewModel<R>
 
     // MARK: - Init
@@ -43,6 +46,10 @@ public struct SettingsPageObserver: Observer {
         )
 
         switch observable.key {
+        case .didGrantPenPalsPermission:
+            guard let value = observable.value as? Bool else { return }
+            send(.penPalsParticipantSwitchToggled(on: value))
+
         case .traitCollectionChanged:
             send(.traitCollectionChanged)
 

@@ -23,8 +23,9 @@ public struct SettingsContentPageView: View {
 
     // MARK: - Properties
 
+    @ObservedObject var viewModel: ViewModel<SettingsPageReducer>
+
     @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-    @ObservedObject public var viewModel: ViewModel<SettingsPageReducer>
 
     // MARK: - Bindings
 
@@ -191,6 +192,10 @@ public struct SettingsContentPageView: View {
         )
         .padding(.bottom, Floats.staticListViewBottomPadding)
         .padding(.horizontal, Floats.staticListViewHorizontalPadding)
+
+        penPalsListItem
+            .padding(.bottom, Floats.staticListViewBottomPadding)
+            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
 
         if let developerModeListItems = viewModel.developerModeListItems {
             StaticListView(developerModeListItems)

@@ -46,6 +46,7 @@ public struct SettingsPageReducer: Reducer {
 
         case doneToolbarButtonTapped
 
+        case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
         case traitCollectionChanged
         case viewDisappeared
     }
@@ -79,6 +80,7 @@ public struct SettingsPageReducer: Reducer {
         public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
         // Bool
+        public var isPenPalsParticipant = false
         public var traitCollectionChanged = false
 
         // String
@@ -142,6 +144,7 @@ public struct SettingsPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.developerModeListItems = viewService.developerModeListItems()
+            state.isPenPalsParticipant = userSession.currentUser?.isPenPalsParticipant ?? false
 
             let fetchCNContactForCurrentUserTask: Effect<Feedback> = .task {
                 let result = await viewService.fetchCNContactForCurrentUser()
@@ -175,6 +178,13 @@ public struct SettingsPageReducer: Reducer {
 
         case .inviteFriendsButtonTapped:
             viewService.inviteFriendsButtonTapped()
+
+        case let .penPalsParticipantSwitchToggled(on, fromBinding):
+            state.isPenPalsParticipant = on
+            switch fromBinding {
+            case true: viewService.penPalsParticipantSwitchToggled(on: on)
+            case false: state.viewID = UUID()
+            }
 
         case .leaveReviewButtonTapped:
             viewService.leaveReviewButtonTapped()

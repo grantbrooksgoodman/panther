@@ -70,6 +70,14 @@ public extension SettingsContentPageView {
         )
     }
 
+    var penPalsListItem: some View {
+        ListRowView(
+            .switch(isToggled: isPenPalsParticipantBinding),
+            title: viewModel.strings.value(for: .penPalsListRowText),
+            image: PenPalsIconView.image
+        )
+    }
+
     var sendFeedbackListItem: StaticListItem {
         .init(
             title: Localized(.sendFeedback).wrappedValue,
@@ -83,6 +91,15 @@ public extension SettingsContentPageView {
             title: viewModel.strings.value(for: .signOutButtonText),
             imageData: (.init(systemName: Strings.signOutButtonImageSystemName), Colors.signOutButtonImageForeground),
             action: { viewModel.send(.signOutButtonTapped) }
+        )
+    }
+
+    // MARK: - Bindings
+
+    private var isPenPalsParticipantBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPenPalsParticipant,
+            sendAction: { .penPalsParticipantSwitchToggled(on: $0, fromBinding: true) }
         )
     }
 }
