@@ -41,6 +41,13 @@ public struct ChatInfoContentPageView: View {
         )
     }
 
+    private var isPenPalsSharingDataSwitchToggledBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isPenPalsSharingDataSwitchToggled,
+            sendAction: { _ in .penPalsSharingDataSwitchToggledOn }
+        )
+    }
+
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
@@ -124,18 +131,28 @@ public struct ChatInfoContentPageView: View {
                 .padding(.bottom, 1)
                 .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 
-                Components.button(
-                    viewModel.strings.value(for: .changeMetadataButtonText),
-                    font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
-                    foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
-                ) {
-                    viewModel.send(.changeMetadataButtonTapped)
-                }
-                .disabled(!viewModel.isChangeMetadataButtonEnabled)
-                .padding(.bottom, 1)
-                .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
+                if viewModel.conversation?.metadata.isPenPalsConversation == true {
+                    ListRowView(
+                        .switch(isToggled: isPenPalsSharingDataSwitchToggledBinding),
+                        title: viewModel.strings.value(for: .sharePhoneNumberListRowText)
+                    )
+                    .padding(.horizontal, Floats.penPalsListRowViewHorizontalPadding)
+                    .padding(.top, Floats.penPalsListRowViewTopPadding)
+                    .disabled(viewModel.isPenPalsSharingDataSwitchToggled)
+                } else {
+                    Components.button(
+                        viewModel.strings.value(for: .changeMetadataButtonText),
+                        font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
+                        foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
+                    ) {
+                        viewModel.send(.changeMetadataButtonTapped)
+                    }
+                    .disabled(!viewModel.isChangeMetadataButtonEnabled)
+                    .padding(.bottom, 1)
+                    .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
 
-                listView
+                    listView
+                }
 
                 Spacer()
             }

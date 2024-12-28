@@ -73,8 +73,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
     ) {
+        @Dependency(\.clientSession) var clientSession: ClientSession
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
         guard let message = message as? Message,
               Application.isInPrevaricationMode || !message.isFromCurrentUser else { return }
@@ -85,8 +85,19 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             avatarView.tintColor = UIColor(Colors.genericAvatarViewTint)
         }
 
+        func configurePenPalsAvatar() {
+            avatarView.backgroundColor = UIColor(Colors.penPalsAvatarViewBackground)
+            avatarView.image = PenPalsIconView.image
+            avatarView.tintColor = UIColor(Colors.penPalsAvatarViewTint)
+        }
+
+        guard clientSession.conversation.currentConversation?.metadata.isPenPalsConversation == false else {
+            configurePenPalsAvatar()
+            return
+        }
+
         guard let users = currentConversation?.users,
-              let currentUser,
+              let currentUser = clientSession.user.currentUser,
               let matchingUser = (users + [currentUser]).first(where: { $0.id == message.fromAccountID }),
               let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
             configureGenericAvatar()

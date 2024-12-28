@@ -79,6 +79,15 @@ public extension Array where Element == Participant {
     }
 }
 
+public extension Array where Element == PenPalsSharingData {
+    var firstWithCurrentUserID: PenPalsSharingData? {
+        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
+        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
+        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID else { return nil }
+        return first(where: { $0.userID == resolvedCurrentUserID })
+    }
+}
+
 public extension Array where Element == String {
     /// Sorts the array with alphabetically-prefixed strings taking priority.
     var alphabeticallySorted: [String] {

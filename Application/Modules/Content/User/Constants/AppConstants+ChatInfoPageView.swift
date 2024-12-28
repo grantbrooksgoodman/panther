@@ -38,6 +38,9 @@ public extension AppConstants.CGFloats {
 
         public static let listViewYOffset: CGFloat = -8
 
+        public static let penPalsListRowViewHorizontalPadding: CGFloat = 30
+        public static let penPalsListRowViewTopPadding: CGFloat = 5
+
         public static let smallAvatarImageViewSizeHeight: CGFloat = 40
         public static let smallAvatarImageViewSizeWidth: CGFloat = 40
         public static let smallAvatarImageViewTrailingPadding: CGFloat = 2

@@ -159,10 +159,27 @@ public struct ModerationSessionService {
     }
 
     private func moderate(_ type: ModerationType, users: [User]) async -> Exception? {
-        let contactPairs = users
+        var contactPairs = users
             .map { contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .unique
+
+        // Obfuscate active PenPals' user data
+        for user in contactPairs.map(\.users).reduce([], +) where user.isObfuscatedPenPalWithCurrentUser {
+            guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
+            contactPairs[index] = .withUser(
+                .init(
+                    user.id,
+                    blockedUserIDs: user.blockedUserIDs,
+                    conversationIDs: user.conversationIDs,
+                    isPenPalsParticipant: user.isPenPalsParticipant,
+                    languageCode: user.languageCode,
+                    phoneNumber: .init("15555555555"),
+                    pushTokens: user.pushTokens
+                ),
+                name: "PenPal"
+            )
+        }
 
         guard contactPairs.count > 1 || type == .unblock else {
             guard let contactPair = contactPairs.first,
@@ -186,6 +203,14 @@ public struct ModerationSessionService {
     }
 
     private func performModeration(_ type: ModerationType, userIDs: [String]) async -> Exception? {
+        let userIDs = userIDs.filter { !$0.isBangQualifiedEmpty }
+        guard !userIDs.isBangQualifiedEmpty else {
+            return .init(
+                "No user IDs provided.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
         defer { Observables.traitCollectionChanged.trigger() }
 
         switch type {

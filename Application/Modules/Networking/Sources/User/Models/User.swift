@@ -62,6 +62,19 @@ public final class User: Codable, Equatable {
         }
     }
 
+    /// - Note: Will always return `nil` for users other than the current user.
+    public var obfuscatedPenPalUsers: [User]? {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard id == currentUserID,
+              let obfuscatedPenPalUsers = conversations?
+              .filter({ !$0.isOtherUserSharingPenPalsData })
+              .compactMap(\.users)
+              .reduce([], +)
+              .unique,
+              !obfuscatedPenPalUsers.isEmpty else { return nil }
+        return obfuscatedPenPalUsers
+    }
+
     // MARK: - Init
 
     public init(

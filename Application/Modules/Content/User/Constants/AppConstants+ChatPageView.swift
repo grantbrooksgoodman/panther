@@ -95,6 +95,9 @@ public extension AppConstants.Colors {
             public static let genericAvatarViewTint: Color = .init(uiColor: .gray)
 
             public static let messageStyleCustomLayerShadowColor: Color = .init(uiColor: .black)
+
+            public static let penPalsAvatarViewBackground: Color = .init(uiColor: .clear)
+            public static let penPalsAvatarViewTint: Color = .init(uiColor: .purple)
         }
     }
 }

@@ -54,7 +54,7 @@ public struct ConversationService {
             .init(key: id, hash: ""),
             messageIDs: [firstMessage.id],
             messages: [firstMessage],
-            metadata: .empty,
+            metadata: .empty(userIDs: participants.map(\.userID)),
             participants: participants,
             reactionMetadata: nil,
             users: nil

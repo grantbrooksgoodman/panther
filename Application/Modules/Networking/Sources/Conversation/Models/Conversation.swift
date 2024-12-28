@@ -31,7 +31,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         .init(key: "", hash: ""),
         messageIDs: [],
         messages: nil,
-        metadata: .empty,
+        metadata: .empty(userIDs: []),
         participants: [],
         reactionMetadata: nil,
         users: nil
@@ -47,6 +47,8 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         var factors = [id.key]
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
+        factors.append(metadata.isPenPalsConversation.description)
+        factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messageIDs)
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)

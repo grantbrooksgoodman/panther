@@ -23,6 +23,16 @@ public final class PenPalsService {
 
     public private(set) var didGrantPenPalsPermission = false
 
+    private var currentUserConversationUsers: [User] {
+        userSession
+            .currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .compactMap(\.users)
+            .reduce([], +)
+            .unique ?? []
+    }
+
     // MARK: - Init
 
     public init() {}
@@ -34,7 +44,11 @@ public final class PenPalsService {
 
         switch getAllUsersResult {
         case let .success(users):
-            guard let randomPenPalsParticipant = users.filter({ $0.isPenPalsParticipant }).randomElement() else {
+            guard let randomPenPalsParticipant = users
+                .filter({ !currentUserConversationUsers.contains($0) })
+                .filter({ $0.isPenPalsParticipant })
+                .filter({ $0.languageCode != userSession.currentUser?.languageCode })
+                .randomElement() else {
                 return .failure(.init(
                     "Failed to resolve random PenPals participant.",
                     metadata: [self, #file, #function, #line]

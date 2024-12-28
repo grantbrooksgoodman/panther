@@ -211,6 +211,35 @@ public final class ChatInfoPageViewService {
         }
     }
 
+    // MARK: - Present PenPals Sharing Data Confirmation Action Sheet
+
+    /// - Returns: `true` if the user selected the confirmation option.
+    public func presentPenPalsSharingDataConfirmationActionSheet() async -> Bool {
+        await withCheckedContinuation { continuation in
+            presentPenPalsSharingDataConfirmationActionSheet { confirmed in
+                continuation.resume(returning: confirmed)
+            }
+        }
+    }
+
+    public func presentPenPalsSharingDataConfirmationActionSheet(completion: @escaping (Bool) -> Void) {
+        Task {
+            let confirmAction: AKAction = .init("Share Phone Number") {
+                completion(true)
+            }
+
+            let cancelAction: AKAction = .init(
+                Localized(.cancel).wrappedValue,
+                style: .cancel
+            ) {
+                completion(false)
+            }
+
+            let actionSheet: AKActionSheet = .init(actions: [cancelAction, confirmAction])
+            await actionSheet.present()
+        }
+    }
+
     // MARK: - Clear Cache
 
     public func clearCache() {

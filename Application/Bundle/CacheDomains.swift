@@ -54,6 +54,7 @@ public extension CacheDomain {
     static let conversationArchive: CacheDomain = .init("conversationArchive")
     static let localization: CacheDomain = .init("localization")
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
+    static let penPalsIconImage: CacheDomain = .init("penPalsIconImage")
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
     static let regionDetailService: CacheDomain = .init("regionDetailService")
     static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
@@ -82,6 +83,7 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.Networking.database) { CoreDatabaseCache.clear() }
         if appDomains.contains(.localization) { Localization.clearCache() }
         if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
+        if appDomains.contains(.penPalsIconImage) { PenPalsIconImageCache.clearCache() }
         if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
         if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
         if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }

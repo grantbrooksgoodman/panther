@@ -23,13 +23,13 @@ public struct PenPalsIconView: View {
 
     // MARK: - Properties
 
-    @MainActor
-    public static var image: Image {
-        .init(uiImage: ImageRenderer(content: PenPalsIconView()).uiImage ?? .init())
-    }
-
+    private let backgroundColor: UIColor?
     private let includesShadow: Bool
     private let size: CGSize
+
+    // MARK: - Computed Properties
+
+    public static var image: UIImage? { image(backgroundColor: nil) }
 
     // MARK: - Init
 
@@ -38,9 +38,11 @@ public struct PenPalsIconView: View {
             width: AppConstants.CGFloats.PenPalsIconView.defaultFrameWidth,
             height: AppConstants.CGFloats.PenPalsIconView.defaultFrameHeight
         ),
+        backgroundColor: UIColor? = nil,
         includesShadow: Bool = false
     ) {
         self.size = size
+        self.backgroundColor = backgroundColor
         self.includesShadow = includesShadow
     }
 
@@ -53,7 +55,7 @@ public struct PenPalsIconView: View {
                 width: size.width,
                 height: size.height
             )
-            .foregroundStyle(Color.purple)
+            .foregroundStyle(backgroundColor == nil ? .purple : Color(uiColor: backgroundColor!))
             .cornerRadius(Floats.cornerRadius)
 
         if includesShadow {
@@ -81,5 +83,57 @@ public struct PenPalsIconView: View {
             width: size.width / Floats.overlayFrameWidthDivisor,
             height: size.height / Floats.overlayFrameHeightDivisor
         )
+    }
+
+    // MARK: - UIImage Representation
+
+    public static func image(backgroundColor hexCode: Int? = nil) -> UIImage? {
+        guard let hexCode else {
+            if let cachedPenPalsIconImage = _PenPalsIconImageCache.cachedPenPalsIconImage {
+                return cachedPenPalsIconImage
+            }
+
+            let image = ImageRenderer(content: PenPalsIconView()).uiImage
+            _PenPalsIconImageCache.cachedPenPalsIconImage = image
+            return image
+        }
+
+        // swiftlint:disable:next identifier_name
+        if let cachedPenPalsIconImagesForBackgroundColorHexCodes = _PenPalsIconImageCache.cachedPenPalsIconImagesForBackgroundColorHexCodes,
+           let image = cachedPenPalsIconImagesForBackgroundColorHexCodes[hexCode] {
+            return image
+        }
+
+        let image = ImageRenderer(content: PenPalsIconView(backgroundColor: .init(hex: hexCode))).uiImage // swiftlint:disable:next identifier_name
+        var cachedPenPalsIconImagesForBackgroundColorHexCodes = _PenPalsIconImageCache.cachedPenPalsIconImagesForBackgroundColorHexCodes ?? [:]
+        cachedPenPalsIconImagesForBackgroundColorHexCodes[hexCode] = image
+        return image
+    }
+}
+
+public enum PenPalsIconImageCache {
+    public static func clearCache() {
+        _PenPalsIconImageCache.clearCache()
+    }
+}
+
+private enum _PenPalsIconImageCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case penPalsIconImage // swiftlint:disable:next identifier_name
+        case penPalsIconImagesForBackgroundColorHexCodes
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.penPalsIconImage) fileprivate static var cachedPenPalsIconImage: UIImage? // swiftlint:disable:next identifier_name
+    @Cached(CacheKey.penPalsIconImagesForBackgroundColorHexCodes) fileprivate static var cachedPenPalsIconImagesForBackgroundColorHexCodes: [Int: UIImage]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedPenPalsIconImage = nil
+        cachedPenPalsIconImagesForBackgroundColorHexCodes = nil
     }
 }

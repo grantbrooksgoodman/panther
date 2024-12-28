@@ -81,11 +81,14 @@ public extension ContactPair {
         )
     }
 
-    static func withUser(_ user: User) -> ContactPair {
+    static func withUser(
+        _ user: User,
+        name: String? = nil
+    ) -> ContactPair {
         .init(
             contact: .init(
                 "",
-                firstName: user.phoneNumber.formattedString(),
+                firstName: name ?? user.phoneNumber.formattedString(),
                 lastName: "",
                 phoneNumbers: [user.phoneNumber],
                 imageData: nil

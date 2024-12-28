@@ -11,6 +11,22 @@ import Foundation
 import UIKit
 
 public extension UIColor {
+    // MARK: - Properties
+
+    var hexCode: Int? {
+        guard let components = cgColor.components,
+              components.count >= 4 else { return nil }
+
+        let red = Int(components[0] * 255.0)
+        let green = Int(components[1] * 255.0)
+        let blue = Int(components[2] * 255.0)
+        let alpha = Int(components[3] * 255.0)
+
+        return (alpha << 24) | (red << 16) | (green << 8) | blue
+    }
+
+    // MARK: - Methods
+
     func darker(by percentage: CGFloat = 30) -> UIColor? {
         adjust(by: -1 * abs(percentage))
     }

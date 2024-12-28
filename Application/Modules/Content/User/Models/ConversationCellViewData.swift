@@ -67,6 +67,7 @@ public struct ConversationCellViewData: Equatable {
         var otherUser: User?
 
         // Set title label text
+
         if !conversation.metadata.name.isBangQualifiedEmpty {
             titleLabelText = conversation.metadata.name
         } else if let contactPair = users
@@ -90,11 +91,30 @@ public struct ConversationCellViewData: Equatable {
             }
         }
 
+        // Set thumbnail image
+
         if users.count > 1 {
             thumbnailImage = conversation.metadata.image ?? thumbnailImage
         }
 
+        var flagAverageColorHexCode: Int?
+        if let otherUser {
+            flagAverageColorHexCode = (
+                UIImage(
+                    named: "\(otherUser.languageCode.lowercased()).png"
+                ) ?? .init(
+                    named: "\(otherUser.phoneNumber.regionCode.lowercased()).png"
+                )
+            )?.averageColor?.hexCode
+        }
+
+        if conversation.metadata.isPenPalsConversation {
+            titleLabelText = conversation.isOtherUserSharingPenPalsData ? titleLabelText : "PenPal"
+            thumbnailImage = PenPalsIconView.image(backgroundColor: flagAverageColorHexCode) ?? thumbnailImage
+        }
+
         // Set date & subtitle label text
+
         if let lastMessage = conversation.messages?.last {
             dateLabelText = lastMessage.sentDate.formattedShortString
 
@@ -113,6 +133,7 @@ public struct ConversationCellViewData: Equatable {
         }
 
         // Set unread indicator status
+
         if let lastMessageFromOtherUsers = conversation.messages?.filter({ !$0.isFromCurrentUser }).last {
             isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
         }

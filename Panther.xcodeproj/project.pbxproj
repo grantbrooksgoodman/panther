@@ -617,6 +617,7 @@
 		B9D0D9442B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */; };
 		B9D0D9462B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */; };
 		B9D0D9512B0310C800078A93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */; };
+		B9D312552D1F5A160007572A /* User+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312542D1F5A160007572A /* User+SessionExtensions.swift */; };
 		B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */; };
 		B9D4FD8A2CEEF88E00F4AC75 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9D4FD892CEEF88E00F4AC75 /* AppSubsystem */; };
 		B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */; };
@@ -1424,6 +1425,7 @@
 		B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServices+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DatabaseDelegate+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B9D312542D1F5A160007572A /* User+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+SessionExtensions.swift"; sourceTree = "<group>"; };
 		B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatPageView+HeaderItems.swift"; sourceTree = "<group>"; };
 		B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBarService.swift"; sourceTree = "<group>"; };
 		B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationArchiveService.swift; sourceTree = "<group>"; };
@@ -3002,6 +3004,7 @@
 			children = (
 				B9223D572CD702D500C05BC6 /* Array+SessionExtensions.swift */,
 				B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */,
+				B9D312542D1F5A160007572A /* User+SessionExtensions.swift */,
 				B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */,
 			);
 			path = Extensions;
@@ -4352,6 +4355,7 @@
 				B94262502C4622AA0026CDE8 /* InviteQRCodePageReducer.swift in Sources */,
 				B9E0E1082B2102B700C14274 /* LocalAudioFilePath.swift in Sources */,
 				B9F47B062B5864F500D86C67 /* ConversationCellView.swift in Sources */,
+				B9D312552D1F5A160007572A /* User+SessionExtensions.swift in Sources */,
 				B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */,
 				B9E6D7D42B12850D000BC88D /* CNContactStoreDependency.swift in Sources */,
 				B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */,

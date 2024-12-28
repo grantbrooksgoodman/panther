@@ -19,6 +19,7 @@ public extension TranslatedLabelStringCollection {
         case addContactButtonText = "Add contact"
         case changeMetadataButtonText = "Change name and photo"
         case participantCountLabelText = "people"
+        case sharePhoneNumberListRowText = "Share Phone Number"
 
         // MARK: - Properties
 

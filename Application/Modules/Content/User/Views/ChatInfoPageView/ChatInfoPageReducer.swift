@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+// swiftlint:disable:next type_body_length
 public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -31,6 +32,7 @@ public struct ChatInfoPageReducer: Reducer {
         case changeMetadataButtonTapped
         case chatInfoCellTapped
         case currentConversationMetadataChanged
+        case penPalsSharingDataSwitchToggledOn
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
@@ -44,9 +46,10 @@ public struct ChatInfoPageReducer: Reducer {
 
     public enum Feedback {
         case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
-        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
+        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>) // swiftlint:disable:next identifier_name
+        case penPalsSharingDataConfirmationActionSheetDismissed(Bool)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case updateValueReturned(Callback<Conversation, Exception>)
+        case updateValueReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
     }
 
     // MARK: - State
@@ -71,6 +74,7 @@ public struct ChatInfoPageReducer: Reducer {
         public var inputBarWasFirstResponder = false
         public var isAddContactButtonEnabled = true
         public var isChangeMetadataButtonEnabled = true
+        public var isPenPalsSharingDataSwitchToggled = false
         public var isPresentingCameraPickerSheet = false
         public var isPresentingImagePickerSheet = false
 
@@ -112,7 +116,8 @@ public struct ChatInfoPageReducer: Reducer {
         }
 
         public var singleCNContactContainer: CNContactContainer? {
-            guard chatParticipants.count == 1 else { return nil }
+            guard chatParticipants.count == 1,
+                  conversation?.metadata.isPenPalsConversation == false else { return nil }
             return chatParticipants.first?.cnContactContainer
         }
 
@@ -140,6 +145,7 @@ public struct ChatInfoPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
+            state.isPenPalsSharingDataSwitchToggled = state.conversation?.isCurrentUserSharingPenPalsData ?? false
             uiApplication.resignFirstResponders()
 
             let getChatParticipantsTask: Effect<Feedback> = .task {
@@ -199,6 +205,12 @@ public struct ChatInfoPageReducer: Reducer {
                 StatusBarStyle.override(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
+
+        case .penPalsSharingDataSwitchToggledOn:
+            return .task {
+                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet()
+                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
+            }
 
         case let .selectedImageChanged(image):
             guard let conversation = state.conversation,
@@ -293,21 +305,58 @@ public struct ChatInfoPageReducer: Reducer {
             Logger.log(exception)
             state.viewState = .error(exception)
 
+        case let .penPalsSharingDataConfirmationActionSheetDismissed(confirmed):
+            @Persistent(.currentUserID) var currentUserID: String?
+            guard confirmed,
+                  let conversation = state.conversation,
+                  let currentUserID else { return .none }
+
+            var newPenPalsSharingData = conversation.metadata.penPalsSharingData.filter { $0.userID != currentUserID }
+            newPenPalsSharingData.append(.init(userID: currentUserID, isSharingPenPalsData: true))
+
+            var newMetadata: ConversationMetadata?
+            if newPenPalsSharingData.allSatisfy(\.isSharingPenPalsData) {
+                newMetadata = .init(
+                    name: conversation.metadata.name,
+                    imageData: conversation.metadata.imageData,
+                    isPenPalsConversation: false,
+                    lastModifiedDate: conversation.metadata.lastModifiedDate,
+                    penPalsSharingData: newPenPalsSharingData.reduce(into: [PenPalsSharingData]()) { partialResult, data in
+                        partialResult.append(.init(userID: data.userID, isSharingPenPalsData: false))
+                    }
+                )
+            } else {
+                newMetadata = .init(
+                    name: conversation.metadata.name,
+                    imageData: conversation.metadata.imageData,
+                    isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                    lastModifiedDate: conversation.metadata.lastModifiedDate,
+                    penPalsSharingData: newPenPalsSharingData
+                )
+            }
+
+            guard let newMetadata else { return .none }
+            return .task {
+                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
+                return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
+            }
+
         case let .resolveReturned(.success(strings)):
             state.strings = strings
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
 
-        case let .updateValueReturned(.success(conversation)):
+        case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):
             conversationSession.setCurrentConversation(conversation)
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
             }
             state.isChangeMetadataButtonEnabled = true
+            state.isPenPalsSharingDataSwitchToggled = togglePenPalsDataSharingSwitch
             state.viewID = UUID()
 
-        case let .updateValueReturned(.failure(exception)):
+        case let .updateValueReturned(.failure(exception), _):
             Logger.log(exception, with: .toast())
             state.isChangeMetadataButtonEnabled = true
         }

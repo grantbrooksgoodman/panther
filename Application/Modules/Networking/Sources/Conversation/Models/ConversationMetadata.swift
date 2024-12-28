@@ -13,14 +13,6 @@ import UIKit
 public struct ConversationMetadata: Codable, Equatable {
     // MARK: - Properties
 
-    public static let empty: ConversationMetadata = .init(
-        name: .bangQualifiedEmpty,
-        imageData: nil,
-        isPenPalsConversation: false,
-        lastModifiedDate: .init(timeIntervalSince1970: 0),
-        penPalsSharingData: []
-    )
-
     public let name: String
     public let imageData: Data?
     public let isPenPalsConversation: Bool
@@ -48,5 +40,19 @@ public struct ConversationMetadata: Codable, Equatable {
         self.isPenPalsConversation = isPenPalsConversation
         self.lastModifiedDate = lastModifiedDate
         self.penPalsSharingData = penPalsSharingData
+    }
+
+    // MARK: - Default Value
+
+    public static func empty(userIDs: [String]) -> ConversationMetadata {
+        .init(
+            name: .bangQualifiedEmpty,
+            imageData: nil,
+            isPenPalsConversation: false,
+            lastModifiedDate: .init(timeIntervalSince1970: 0),
+            penPalsSharingData: userIDs.reduce(into: [PenPalsSharingData]()) { partialResult, userID in
+                partialResult.append(.init(userID: userID, isSharingPenPalsData: false))
+            }
+        )
     }
 }

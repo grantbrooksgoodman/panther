@@ -16,8 +16,26 @@ public extension Conversation {
     // MARK: - Properties
 
     var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
+
+    var isCurrentUserSharingPenPalsData: Bool {
+        guard metadata.isPenPalsConversation else { return true }
+        guard participants.count == 2,
+              let currentUserPenPalsSharingData = metadata.penPalsSharingData.firstWithCurrentUserID else { return false }
+        return currentUserPenPalsSharingData.isSharingPenPalsData
+    }
+
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
     var isMock: Bool { id.key == CommonConstants.newConversationID }
+
+    var isOtherUserSharingPenPalsData: Bool {
+        guard metadata.isPenPalsConversation else { return true }
+        guard participants.count == 2,
+              let otherUser = users?.first,
+              let otherUserPenPalsSharingData = metadata
+              .penPalsSharingData
+              .first(where: { $0.userID == otherUser.id }) else { return false }
+        return otherUserPenPalsSharingData.isSharingPenPalsData
+    }
 
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
@@ -38,7 +56,7 @@ public extension Conversation {
             .init(key: "", hash: ""),
             messageIDs: [],
             messages: nil,
-            metadata: .empty,
+            metadata: .empty(userIDs: users.map(\.id)),
             participants: [],
             reactionMetadata: nil,
             users: users
@@ -50,7 +68,7 @@ public extension Conversation {
             .init(key: CommonConstants.newConversationID, hash: ""),
             messageIDs: [],
             messages: nil,
-            metadata: .empty,
+            metadata: .empty(userIDs: users.map(\.id)),
             participants: [],
             reactionMetadata: nil,
             users: users

@@ -94,7 +94,8 @@ public final class ConversationsPageViewService {
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
 
                 if build.developerModeEnabled,
-                   !(presentedPenPalsPermissionPageAtStartup ?? false) {
+                   !(presentedPenPalsPermissionPageAtStartup ?? false),
+                   userSession.currentUser?.isPenPalsParticipant == false {
                     presentedPenPalsPermissionPageAtStartup = true
                     RootSheets.present(.penPalsPermissionPageView)
                 }

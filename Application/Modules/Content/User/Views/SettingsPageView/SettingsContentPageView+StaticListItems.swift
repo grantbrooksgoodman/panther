@@ -74,7 +74,7 @@ public extension SettingsContentPageView {
         ListRowView(
             .switch(isToggled: isPenPalsParticipantBinding),
             title: viewModel.strings.value(for: .penPalsListRowText),
-            image: PenPalsIconView.image
+            image: PenPalsIconView.image.swiftUIImage
         )
     }
 
@@ -98,7 +98,7 @@ public extension SettingsContentPageView {
 
     private var isPenPalsParticipantBinding: Binding<Bool> {
         viewModel.binding(
-            for: \.isPenPalsParticipant,
+            for: \.isPenPalsParticipantSwitchToggled,
             sendAction: { .penPalsParticipantSwitchToggled(on: $0, fromBinding: true) }
         )
     }
