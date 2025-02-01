@@ -147,10 +147,7 @@
 		B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */; };
 		B92E90332CD9D84A0057A0A9 /* ContextMenuInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */; };
 		B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */; };
-		B92FC6B92D1BB4E9006E91C0 /* ListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6B82D1BB4E9006E91C0 /* ListRowView.swift */; };
-		B92FC6BB2D1BB5A0006E91C0 /* AppConstants+ListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6BA2D1BB5A0006E91C0 /* AppConstants+ListRowView.swift */; };
-		B92FC6BD2D1BB7AE006E91C0 /* PenPalsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6BC2D1BB7AE006E91C0 /* PenPalsIconView.swift */; };
-		B92FC6BF2D1BB7EB006E91C0 /* AppConstants+PenPalsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6BE2D1BB7EB006E91C0 /* AppConstants+PenPalsIconView.swift */; };
+		B92FC6BF2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */; };
 		B9332EA52B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */; };
 		B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */; };
 		B93457072AABF9F200944602 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93457062AABF9F200944602 /* Localization.swift */; };
@@ -223,9 +220,6 @@
 		B96EDD932B6364A100CB925B /* ContactService+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */; };
 		B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD942B636A0500CB925B /* ContactDetailView.swift */; };
 		B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */; };
-		B96EDD992B6381C400CB925B /* StaticListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD982B6381C400CB925B /* StaticListItem.swift */; };
-		B96EDD9B2B63825C00CB925B /* StaticListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD9A2B63825C00CB925B /* StaticListView.swift */; };
-		B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */; };
 		B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */; };
 		B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */; };
 		B974E3982B7EE9EF00A8389E /* RecipientBarConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B974E3972B7EE9EF00A8389E /* RecipientBarConfigService.swift */; };
@@ -618,6 +612,9 @@
 		B9D0D9462B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */; };
 		B9D0D9512B0310C800078A93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */; };
 		B9D312552D1F5A160007572A /* User+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312542D1F5A160007572A /* User+SessionExtensions.swift */; };
+		B9D312572D2097F10007572A /* SquareIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312562D2097F10007572A /* SquareIconView.swift */; };
+		B9D312592D20A2C60007572A /* SquareIconViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */; };
+		B9D3125B2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */; };
 		B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */; };
 		B9D4FD8A2CEEF88E00F4AC75 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9D4FD892CEEF88E00F4AC75 /* AppSubsystem */; };
 		B9D5C72C2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */; };
@@ -676,7 +673,8 @@
 		B9EC04CB2B79672700A16700 /* SettingsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04CA2B79672700A16700 /* SettingsPageView.swift */; };
 		B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04CC2B79673400A16700 /* SettingsPageReducer.swift */; };
 		B9EC04CF2B79674800A16700 /* SettingsPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04CE2B79674700A16700 /* SettingsPageViewStrings.swift */; };
-		B9EC04D12B79675100A16700 /* SettingsContentPageView+StaticListItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04D02B79674C00A16700 /* SettingsContentPageView+StaticListItems.swift */; };
+		B9EC04D12B79675100A16700 /* SettingsContentPageView+GroupedListItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC04D02B79674C00A16700 /* SettingsContentPageView+GroupedListItems.swift */; };
+		B9EC2D282D2C63ED00FC7B94 /* User+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EC2D272D2C63ED00FC7B94 /* User+UserContentExtensions.swift */; };
 		B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F32B26621E00624794 /* ConversationService.swift */; };
 		B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */; };
 		B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9EFB9F72B268A3600624794 /* ClientSession.swift */; };
@@ -695,7 +693,6 @@
 		B9F47B022B5864E600D86C67 /* ConversationCellReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B012B5864E600D86C67 /* ConversationCellReducer.swift */; };
 		B9F47B062B5864F500D86C67 /* ConversationCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B052B5864F500D86C67 /* ConversationCellView.swift */; };
 		B9F47B082B586D0100D86C67 /* AppConstants+ConversationCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */; };
-		B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */; };
 		B9F47B0D2B58744000D86C67 /* ConversationsPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B0C2B58744000D86C67 /* ConversationsPageObserver.swift */; };
 		B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */; };
 		B9F47B2D2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */; };
@@ -956,10 +953,7 @@
 		B92CF00E28F4DF9800870B5C /* StoredItemKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoredItemKeys.swift; sourceTree = "<group>"; };
 		B92E90322CD9D84A0057A0A9 /* ContextMenuInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuInteraction.swift; sourceTree = "<group>"; };
 		B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsService.swift; sourceTree = "<group>"; };
-		B92FC6B82D1BB4E9006E91C0 /* ListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRowView.swift; sourceTree = "<group>"; };
-		B92FC6BA2D1BB5A0006E91C0 /* AppConstants+ListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ListRowView.swift"; sourceTree = "<group>"; };
-		B92FC6BC2D1BB7AE006E91C0 /* PenPalsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsIconView.swift; sourceTree = "<group>"; };
-		B92FC6BE2D1BB7EB006E91C0 /* AppConstants+PenPalsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+PenPalsIconView.swift"; sourceTree = "<group>"; };
+		B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SquareIconView.swift"; sourceTree = "<group>"; };
 		B9332EA42B747DC3002AB261 /* ChatPageViewController+AVSpeechSynthesizerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatPageViewController+AVSpeechSynthesizerDelegate.swift"; sourceTree = "<group>"; };
 		B9334E052B48E54000C667E5 /* RegionMenuReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionMenuReducer.swift; sourceTree = "<group>"; };
 		B93457062AABF9F200944602 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
@@ -1032,9 +1026,6 @@
 		B96EDD922B6364A100CB925B /* ContactService+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactService+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B96EDD942B636A0500CB925B /* ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetailView.swift; sourceTree = "<group>"; };
 		B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ContactDetailView.swift"; sourceTree = "<group>"; };
-		B96EDD982B6381C400CB925B /* StaticListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticListItem.swift; sourceTree = "<group>"; };
-		B96EDD9A2B63825C00CB925B /* StaticListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticListView.swift; sourceTree = "<group>"; };
-		B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+StaticListView.swift"; sourceTree = "<group>"; };
 		B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SettingsPageView.swift"; sourceTree = "<group>"; };
 		B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Updatable.swift"; sourceTree = "<group>"; };
 		B974E3972B7EE9EF00A8389E /* RecipientBarConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarConfigService.swift; sourceTree = "<group>"; };
@@ -1426,6 +1417,9 @@
 		B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DatabaseDelegate+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B9D312542D1F5A160007572A /* User+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+SessionExtensions.swift"; sourceTree = "<group>"; };
+		B9D312562D2097F10007572A /* SquareIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareIconView.swift; sourceTree = "<group>"; };
+		B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareIconViewConfiguration.swift; sourceTree = "<group>"; };
+		B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SquareIconViewConfiguration+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9D4FD862CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatPageView+HeaderItems.swift"; sourceTree = "<group>"; };
 		B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+RecipientBarService.swift"; sourceTree = "<group>"; };
 		B9DCCA9D2B33E31E00532B12 /* ConversationArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationArchiveService.swift; sourceTree = "<group>"; };
@@ -1482,7 +1476,8 @@
 		B9EC04CA2B79672700A16700 /* SettingsPageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPageView.swift; sourceTree = "<group>"; };
 		B9EC04CC2B79673400A16700 /* SettingsPageReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPageReducer.swift; sourceTree = "<group>"; };
 		B9EC04CE2B79674700A16700 /* SettingsPageViewStrings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPageViewStrings.swift; sourceTree = "<group>"; };
-		B9EC04D02B79674C00A16700 /* SettingsContentPageView+StaticListItems.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SettingsContentPageView+StaticListItems.swift"; sourceTree = "<group>"; };
+		B9EC04D02B79674C00A16700 /* SettingsContentPageView+GroupedListItems.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SettingsContentPageView+GroupedListItems.swift"; sourceTree = "<group>"; };
+		B9EC2D272D2C63ED00FC7B94 /* User+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9EFB9F32B26621E00624794 /* ConversationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationService.swift; sourceTree = "<group>"; };
 		B9EFB9F52B26763100624794 /* Participant+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9EFB9F72B268A3600624794 /* ClientSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSession.swift; sourceTree = "<group>"; };
@@ -1501,7 +1496,6 @@
 		B9F47B012B5864E600D86C67 /* ConversationCellReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellReducer.swift; sourceTree = "<group>"; };
 		B9F47B052B5864F500D86C67 /* ConversationCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellView.swift; sourceTree = "<group>"; };
 		B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ConversationCellView.swift"; sourceTree = "<group>"; };
-		B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9F47B0C2B58744000D86C67 /* ConversationsPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsPageObserver.swift; sourceTree = "<group>"; };
 		B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsPageViewService.swift; sourceTree = "<group>"; };
 		B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -2335,7 +2329,7 @@
 				B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */,
 				B9464F642CAF89FE00A11842 /* QueriedContactPairCache.swift */,
 				B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */,
-				B96EDD982B6381C400CB925B /* StaticListItem.swift */,
+				B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3307,7 +3301,6 @@
 			isa = PBXGroup;
 			children = (
 				B9EC04C72B79671A00A16700 /* View */,
-				B9EC04D02B79674C00A16700 /* SettingsContentPageView+StaticListItems.swift */,
 				B906C0342C47239000F414DA /* SettingsPageObserver.swift */,
 				B9EC04CC2B79673400A16700 /* SettingsPageReducer.swift */,
 				B9EC04CE2B79674700A16700 /* SettingsPageViewStrings.swift */,
@@ -3319,6 +3312,7 @@
 			isa = PBXGroup;
 			children = (
 				B9EC04C82B79671E00A16700 /* SettingsContentPageView.swift */,
+				B9EC04D02B79674C00A16700 /* SettingsContentPageView+GroupedListItems.swift */,
 				B9EC04CA2B79672700A16700 /* SettingsPageView.swift */,
 			);
 			path = View;
@@ -3396,11 +3390,9 @@
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
-				B92FC6B82D1BB4E9006E91C0 /* ListRowView.swift */,
-				B92FC6BC2D1BB7AE006E91C0 /* PenPalsIconView.swift */,
 				B986C46F2CD3235500414E57 /* ReactionsView.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
-				B96EDD9A2B63825C00CB925B /* StaticListView.swift */,
+				B9D312562D2097F10007572A /* SquareIconView.swift */,
 				B9F47AF72B58609300D86C67 /* UserInfoBadgeView.swift */,
 			);
 			path = Components;
@@ -3419,12 +3411,10 @@
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
 				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
-				B92FC6BA2D1BB5A0006E91C0 /* AppConstants+ListRowView.swift */,
-				B92FC6BE2D1BB7EB006E91C0 /* AppConstants+PenPalsIconView.swift */,
 				B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
-				B96EDD9C2B6388CB00CB925B /* AppConstants+StaticListView.swift */,
+				B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */,
 				B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */,
 				B918222B2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift */,
 				B9F47AFD2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift */,
@@ -3463,12 +3453,13 @@
 				B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */,
 				B94F26552BC0CCF300AE8AE4 /* Persistent+UserContentExtensions.swift */,
 				B98792952B708B3C0032942C /* RecordingService+UserContentExtensions.swift */,
-				B9F47B0A2B586E5000D86C67 /* UIColor+UserContentExtensions.swift */,
+				B9D3125A2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift */,
 				B923CAA22B758A870042D3E4 /* UIFont+UserContentExtensions.swift */,
 				B96C125C2BAE47430063687C /* UIImage+UserContentExtensions.swift */,
 				B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */,
 				B91822292B6DEA450068BDAB /* UIView+UserContentExtensions.swift */,
 				B9870AA52C4574C3002B1093 /* URL+UserContentExtensions.swift */,
+				B9EC2D272D2C63ED00FC7B94 /* User+UserContentExtensions.swift */,
 				B94F26532BC0CCE600AE8AE4 /* UserDefaultsKey+UserContentExtensions.swift */,
 			);
 			path = Extensions;
@@ -4089,8 +4080,6 @@
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
 				B9AD84742C404CD9009C7468 /* ContentType.swift in Sources */,
 				B9AA087F2BA2213E00D778DA /* LanguageRecognitionService.swift in Sources */,
-				B92FC6BB2D1BB5A0006E91C0 /* AppConstants+ListRowView.swift in Sources */,
-				B96EDD9D2B6388CB00CB925B /* AppConstants+StaticListView.swift in Sources */,
 				B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */,
 				B9A907342BAD3145007AD2C2 /* ChatParticipant.swift in Sources */,
 				B9F5609D2B69A4A0009ABDD5 /* AppGroupDefaultsDependency.swift in Sources */,
@@ -4162,7 +4151,7 @@
 				B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */,
 				B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */,
 				B93457092AABFB3700944602 /* Localized.swift in Sources */,
-				B92FC6BF2D1BB7EB006E91C0 /* AppConstants+PenPalsIconView.swift in Sources */,
+				B92FC6BF2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift in Sources */,
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
 				B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */,
@@ -4177,6 +4166,7 @@
 				B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */,
 				B921F40D2CCDC5EB006BB149 /* UserTestingService.swift in Sources */,
 				B9DCCAAF2B3618EA00532B12 /* Exception+CommonNetworkingExtensions.swift in Sources */,
+				B9EC2D282D2C63ED00FC7B94 /* User+UserContentExtensions.swift in Sources */,
 				B9223D472CD58DD100C05BC6 /* MenuView+Extensions.swift in Sources */,
 				B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */,
 				B9E0E1062B20FE8600C14274 /* MessageService.swift in Sources */,
@@ -4242,7 +4232,6 @@
 				B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
-				B92FC6BD2D1BB7AE006E91C0 /* PenPalsIconView.swift in Sources */,
 				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
@@ -4282,7 +4271,6 @@
 				B9334E062B48E54000C667E5 /* RegionMenuReducer.swift in Sources */,
 				B9627C672B6F2111004EE9DA /* InputBarConfigService.swift in Sources */,
 				B979AA3F2C4474B90082203C /* MediaFile.swift in Sources */,
-				B9F47B0B2B586E5000D86C67 /* UIColor+UserContentExtensions.swift in Sources */,
 				B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */,
 				B986C4B12CD42E6E00414E57 /* Reaction+Serializable.swift in Sources */,
 				B9E6D7EF2B129516000BC88D /* Translation+CommonNetworkingExtensions.swift in Sources */,
@@ -4333,7 +4321,7 @@
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
 				B927313D2D1272C500DCDCBA /* PenPalsPermissionPageView.swift in Sources */,
 				B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */,
-				B9EC04D12B79675100A16700 /* SettingsContentPageView+StaticListItems.swift in Sources */,
+				B9EC04D12B79675100A16700 /* SettingsContentPageView+GroupedListItems.swift in Sources */,
 				B9E00A562C2B8D35004E350E /* LocalMediaFilePath.swift in Sources */,
 				B98589B22B60512C00E549C0 /* ConversationCellViewService.swift in Sources */,
 				B903CA682B6C189400A238A4 /* ChatPageStateService.swift in Sources */,
@@ -4341,6 +4329,7 @@
 				B903CA702B6C2DD500A238A4 /* Conversation+UserContentExtensions.swift in Sources */,
 				B99C69322C2A063F00BA373F /* BatchFailureStrategy.swift in Sources */,
 				B955F76F2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift in Sources */,
+				B9D3125B2D20A3660007572A /* SquareIconViewConfiguration+UserContentExtensions.swift in Sources */,
 				B958870F2B32331F007FB37B /* SplashPageReducer.swift in Sources */,
 				B94D76842BBB84C2002B4BC6 /* AppConstants+SignInPageView.swift in Sources */,
 				B991957F2B47CB4000BD5BBC /* InstructionView.swift in Sources */,
@@ -4385,6 +4374,7 @@
 				B94758252BCF864D001E4872 /* ContentPicker.swift in Sources */,
 				B98C3BA12B7AF62C00CDA3E9 /* RecipientBar+UITableViewDelegate.swift in Sources */,
 				B923CAA52B758BAD0042D3E4 /* AlternateMessageService.swift in Sources */,
+				B9D312572D2097F10007572A /* SquareIconView.swift in Sources */,
 				B99195752B47C7BD00BD5BBC /* SelectLanguagePageViewStrings.swift in Sources */,
 				B90BE4462BCE5FCC00966C9E /* ErrorReportingService.swift in Sources */,
 				B952B8EF2B1521660043181F /* HostedTranslationArchiver.swift in Sources */,
@@ -4424,6 +4414,7 @@
 				B903CA742B6C2F3500A238A4 /* InputBarService.swift in Sources */,
 				B91E93912C2B1FB10099FBA4 /* ContactPairArchiveStatus.swift in Sources */,
 				B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */,
+				B9D312592D20A2C60007572A /* SquareIconViewConfiguration.swift in Sources */,
 				B978B1992B87C84200AA007A /* RootSheet.swift in Sources */,
 				B969165F2BAE1DB400441472 /* ConversationMetadata+Serializable.swift in Sources */,
 				B9C5830829BECE59009DCE29 /* DevModeActions.swift in Sources */,
@@ -4453,7 +4444,6 @@
 				B9E1BB992B30FF3600ADEA71 /* TranslationReference.swift in Sources */,
 				B9890E772D0928E20086543B /* TranslationDataSnapshot.swift in Sources */,
 				B9EC04BD2B783D7A00A16700 /* NewChatPageView.swift in Sources */,
-				B96EDD992B6381C400CB925B /* StaticListItem.swift in Sources */,
 				B90249D02B57458C00D62855 /* PermissionPageView.swift in Sources */,
 				B98C40562C40AFCF00C72B0F /* MediaPickerService.swift in Sources */,
 				B90C911A2B69E73F008DFE59 /* Date+UserContentExtensions.swift in Sources */,
@@ -4477,7 +4467,6 @@
 				B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */,
 				B99195A62B48962900BD5BBC /* SearchBar.swift in Sources */,
 				B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */,
-				B96EDD9B2B63825C00CB925B /* StaticListView.swift in Sources */,
 				B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */,
 				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
@@ -4492,7 +4481,6 @@
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,
 				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
-				B92FC6B92D1BB4E9006E91C0 /* ListRowView.swift in Sources */,
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
 				B9E7D4212AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
 				B969165D2BAE1D1A00441472 /* ConversationMetadata.swift in Sources */,

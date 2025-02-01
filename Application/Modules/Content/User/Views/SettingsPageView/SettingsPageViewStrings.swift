@@ -21,7 +21,7 @@ public extension TranslatedLabelStringCollection {
         case clearCachesButtonText = "Clear Caches"
         case deleteAccountButtonText = "Delete Account"
         case inviteFriendsButtonText = "Invite Friends"
-        case leaveAReviewButtonText = "Leave a Review"
+        case leaveReviewButtonText = "Leave a Review"
         case penPalsListRowText = "Participate in ⌘PenPals⌘"
         case signOutButtonText = "Sign Out"
 
@@ -32,7 +32,7 @@ public extension TranslatedLabelStringCollection {
             case .changeThemeButtonText:
                 return "Change Appearance"
 
-            case .leaveAReviewButtonText:
+            case .leaveReviewButtonText:
                 return "Rate the App"
 
             case .signOutButtonText:

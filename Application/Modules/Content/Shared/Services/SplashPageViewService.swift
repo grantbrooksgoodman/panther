@@ -96,9 +96,7 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: Cache Setup */
 
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         @Persistent(.currentUserID) var currentUserID: String?
-        @Persistent(.translationArchive) var translationArchive: [Translation]?
 
         if let currentUserID {
             let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
@@ -157,6 +155,9 @@ public final class SplashPageViewService: ObservableObject {
         initializationProgress += 0.01
 
         /* MARK: UserSessionService Setup */
+
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        @Persistent(.translationArchive) var translationArchive: [Translation]?
 
         let resolveCurrentUserResult = await userSession.resolveCurrentUser()
 

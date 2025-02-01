@@ -76,7 +76,7 @@ public struct SettingsPageReducer: Reducer {
         /* MARK: Properties */
 
         // Array
-        public var developerModeListItems: [StaticListItem]?
+        public var developerModeListItems: [ListRowView.Configuration]?
         public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
         // Bool

@@ -339,7 +339,7 @@ public final class SettingsPageViewService {
     // MARK: - Developer Mode List Items
 
     /// `.viewAppeared`
-    public func developerModeListItems() -> [StaticListItem]? {
+    public func developerModeListItems() -> [ListRowView.Configuration]? {
         func overrideLanguageCodeButtonTapped() {
             guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
                 guard let currentUser = userSession.currentUser else { return }
@@ -359,10 +359,8 @@ public final class SettingsPageViewService {
         }
 
         typealias Colors = AppConstants.Colors.SettingsPageView
-
         guard build.milestone != .generalRelease else { return nil }
-
-        var items = [StaticListItem]()
+        var items = [ListRowView.Configuration]()
 
         if build.developerModeEnabled,
            let currentUser = userSession.currentUser,
@@ -373,9 +371,16 @@ public final class SettingsPageViewService {
 
             items.append(
                 .init(
-                    title: overrideOrRestore,
-                    imageData: (.init(systemName: Strings.overrideLanguageCodeButtonImageSystemName), Colors.overrideLanguageCodeButtonImageForeground),
-                    action: overrideLanguageCodeButtonTapped
+                    .button(action: overrideLanguageCodeButtonTapped),
+                    innerText: overrideOrRestore,
+                    imageView: {
+                        SquareIconView(
+                            .init(
+                                backgroundColor: Colors.overrideLanguageCodeButtonImageBackground,
+                                overlaySymbolName: Strings.overrideLanguageCodeButtonImageSystemName
+                            )
+                        )
+                    }
                 )
             )
         }
@@ -383,9 +388,18 @@ public final class SettingsPageViewService {
         if !build.developerModeEnabled {
             items.append(
                 .init(
-                    title: Strings.toggleDeveloperModeButtonText,
-                    imageData: (.init(systemName: Strings.toggleDeveloperModeButtonImageSystemName), Colors.toggleDeveloperModeButtonImageForeground),
-                    action: { DevModeService.promptToToggle() }
+                    .button { DevModeService.promptToToggle() },
+                    innerText: Strings.toggleDeveloperModeButtonText,
+                    imageView: {
+                        SquareIconView(
+                            .init(
+                                backgroundColor: Colors.toggleDeveloperModeButtonImageBackground,
+                                overlayFramePercentOfTotalSize: Floats.toggleDeveloperModeButtonOverlayFramePercentOfTotalSize,
+                                overlaySymbolName: Strings.toggleDeveloperModeButtonImageSystemName,
+                                overlaySymbolWeight: .bold
+                            )
+                        )
+                    }
                 )
             )
         }

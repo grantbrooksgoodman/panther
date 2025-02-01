@@ -42,8 +42,6 @@ public extension String {
     }
 
     var englishLanguageName: String? {
-        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-
         guard self != "",
               lowercasedTrimmingWhitespaceAndNewlines != "",
               let languageCodes = RuntimeStorage.languageCodeDictionary,

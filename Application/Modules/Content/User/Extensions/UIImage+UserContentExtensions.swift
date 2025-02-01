@@ -170,10 +170,3 @@ public extension UIImage {
         return nil
     }
 }
-
-public extension UIImage? {
-    var swiftUIImage: Image? {
-        guard let self else { return nil }
-        return .init(uiImage: self)
-    }
-}

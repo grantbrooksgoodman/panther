@@ -132,10 +132,10 @@ public struct ChatInfoContentPageView: View {
                 .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 
                 if viewModel.conversation?.metadata.isPenPalsConversation == true {
-                    ListRowView(
+                    ListRowView(.init(
                         .switch(isToggled: isPenPalsSharingDataSwitchToggledBinding),
-                        title: viewModel.strings.value(for: .sharePhoneNumberListRowText)
-                    )
+                        innerText: viewModel.strings.value(for: .sharePhoneNumberListRowText)
+                    ))
                     .padding(.horizontal, Floats.penPalsListRowViewHorizontalPadding)
                     .padding(.top, Floats.penPalsListRowViewTopPadding)
                     .disabled(viewModel.isPenPalsSharingDataSwitchToggled)

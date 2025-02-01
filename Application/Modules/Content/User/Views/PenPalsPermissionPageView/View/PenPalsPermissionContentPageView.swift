@@ -42,7 +42,7 @@ public struct PenPalsPermissionContentPageView: View {
                 .padding(.bottom, Floats.titleLabelBottomPadding)
                 .padding(.top, Floats.titleLabelTopPadding)
 
-                PenPalsIconView(includesShadow: true)
+                SquareIconView(.penPalsIcon(includesShadow: true))
 
                 ScrollView {
                     Components.text(

@@ -47,20 +47,26 @@ public struct SettingsContentPageView: View {
     public var body: some View {
         ThemedView(redrawsOnAppearanceChange: true) {
             NavigationView {
-                ScrollViewReader { _ in
-                    VStack {
-                        if let cnContact = viewModel.cnContact {
-                            NavigationLink(destination: CNContactView(cnContact)) {
-                                contactDetailView
-                            }
-                        } else {
+                VStack {
+                    if let cnContact = viewModel.cnContact {
+                        NavigationLink(destination: CNContactView(cnContact)) {
                             contactDetailView
                         }
-
-                        staticListView
-                        Spacer()
-                        buildInfoButton
+                    } else {
+                        contactDetailView
                     }
+
+                    ScrollView {
+                        groupedListViews
+                    }
+                    .scrollBounceBehavior(
+                        .basedOnSize,
+                        axes: [.vertical]
+                    )
+
+                    Spacer()
+
+                    buildInfoButton
                 }
                 .background(Color.listViewBackground)
                 .navigationBarTitleDisplayMode(.inline)
@@ -139,6 +145,50 @@ public struct SettingsContentPageView: View {
     }
 
     @ViewBuilder
+    private var groupedListViews: some View {
+        GroupedListView([
+            inviteFriendsListItem,
+            leaveReviewListItem,
+        ])
+        .padding(.bottom, Floats.groupedListViewBottomPadding)
+        .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+
+        if Application.isInPrevaricationMode {
+            GroupedListView([
+                sendFeedbackListItem,
+                clearCachesListItem,
+            ])
+            .padding(.bottom, Floats.groupedListViewBottomPadding)
+            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+        } else {
+            GroupedListView([
+                changeThemeListItem,
+                sendFeedbackListItem,
+                clearCachesListItem,
+            ])
+            .padding(.bottom, Floats.groupedListViewBottomPadding)
+            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+        }
+
+        GroupedListView([
+            blockedUsersListItem,
+            deleteAccountListItem,
+            signOutListItem,
+        ])
+        .padding(.bottom, Floats.groupedListViewBottomPadding)
+        .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+
+        ListRowView(penPalsListItem)
+            .padding(.bottom, Floats.groupedListViewBottomPadding)
+            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+
+        if let developerModeListItems = viewModel.developerModeListItems {
+            GroupedListView(developerModeListItems)
+                .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+        }
+    }
+
+    @ViewBuilder
     private func sheetView(for path: SettingsNavigatorState.SheetPaths) -> some View {
         switch path {
         case .inviteQRCode:
@@ -148,58 +198,6 @@ public struct SettingsContentPageView: View {
                     reducer: InviteQRCodePageReducer()
                 )
             )
-        }
-    }
-
-    @ViewBuilder
-    private var staticListView: some View {
-        StaticListView(
-            [
-                inviteFriendsListItem,
-                leaveReviewListItem,
-            ]
-        )
-        .padding(.bottom, Floats.staticListViewBottomPadding)
-        .padding(.horizontal, Floats.staticListViewHorizontalPadding)
-
-        if Application.isInPrevaricationMode {
-            StaticListView(
-                [
-                    sendFeedbackListItem,
-                    clearCachesListItem,
-                ]
-            )
-            .padding(.bottom, Floats.staticListViewBottomPadding)
-            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
-        } else {
-            StaticListView(
-                [
-                    changeThemeListItem,
-                    sendFeedbackListItem,
-                    clearCachesListItem,
-                ]
-            )
-            .padding(.bottom, Floats.staticListViewBottomPadding)
-            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
-        }
-
-        StaticListView(
-            [
-                blockedUsersListItem,
-                deleteAccountListItem,
-                signOutListItem,
-            ]
-        )
-        .padding(.bottom, Floats.staticListViewBottomPadding)
-        .padding(.horizontal, Floats.staticListViewHorizontalPadding)
-
-        penPalsListItem
-            .padding(.bottom, Floats.staticListViewBottomPadding)
-            .padding(.horizontal, Floats.staticListViewHorizontalPadding)
-
-        if let developerModeListItems = viewModel.developerModeListItems {
-            StaticListView(developerModeListItems)
-                .padding(.horizontal, Floats.staticListViewHorizontalPadding)
         }
     }
 }

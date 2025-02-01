@@ -87,8 +87,15 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         func configurePenPalsAvatar() {
             avatarView.backgroundColor = UIColor(Colors.penPalsAvatarViewBackground)
-            avatarView.image = PenPalsIconView.image
-            avatarView.tintColor = UIColor(Colors.penPalsAvatarViewTint)
+
+            guard let penPalsIconColor = currentConversation?.users?.first(where: { $0.id == message.fromAccountID })?.penPalsIconColor else {
+                avatarView.image = SquareIconView.image(.penPalsIcon())
+                avatarView.tintColor = UIColor(Colors.penPalsAvatarViewTint)
+                return
+            }
+
+            avatarView.image = SquareIconView.image(.penPalsIcon(backgroundColor: .init(uiColor: penPalsIconColor)))
+            avatarView.tintColor = penPalsIconColor
         }
 
         guard clientSession.conversation.currentConversation?.metadata.isPenPalsConversation == false else {

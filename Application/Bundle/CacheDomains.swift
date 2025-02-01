@@ -36,6 +36,7 @@ public extension CacheDomain {
                 .queriedContactPairs,
                 .regionDetailService,
                 .settingsPageViewService,
+                .squareIconImage,
                 .textToSpeechService,
                 .transcriptionService,
                 .userService,
@@ -54,10 +55,10 @@ public extension CacheDomain {
     static let conversationArchive: CacheDomain = .init("conversationArchive")
     static let localization: CacheDomain = .init("localization")
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
-    static let penPalsIconImage: CacheDomain = .init("penPalsIconImage")
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
     static let regionDetailService: CacheDomain = .init("regionDetailService")
     static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
+    static let squareIconImage: CacheDomain = .init("squareIconImage")
     static let textToSpeechService: CacheDomain = .init("textToSpeechService")
     static let transcriptionService: CacheDomain = .init("transcriptionService")
     static let userService: CacheDomain = .init("userService")
@@ -83,10 +84,10 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.Networking.database) { CoreDatabaseCache.clear() }
         if appDomains.contains(.localization) { Localization.clearCache() }
         if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
-        if appDomains.contains(.penPalsIconImage) { PenPalsIconImageCache.clearCache() }
         if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
         if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
         if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
+        if appDomains.contains(.squareIconImage) { SquareIconImageCache.clearCache() }
         if appDomains.contains(.textToSpeechService) { TextToSpeechServiceCache.clearCache() }
         if appDomains.contains(.transcriptionService) { TranscriptionServiceCache.clearCache() }
         if appDomains.contains(.Networking.storage) { networking.storage.clearCache() }

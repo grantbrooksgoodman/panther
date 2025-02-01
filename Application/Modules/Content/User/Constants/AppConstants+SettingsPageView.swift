@@ -31,8 +31,14 @@ public extension AppConstants.CGFloats {
         public static let deleteAccountOverlayAlpha: CGFloat = 0.5
         public static let signOutNavigationDelayMilliseconds: CGFloat = 500
 
-        public static let staticListViewBottomPadding: CGFloat = 20
-        public static let staticListViewHorizontalPadding: CGFloat = 20
+        public static let groupedListViewBottomPadding: CGFloat = 20
+        public static let groupedListViewHorizontalPadding: CGFloat = 20
+
+        // swiftlint:disable identifier_name
+        public static let changeThemeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.75
+        public static let clearCachesButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
+        public static let toggleDeveloperModeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
+        // swiftlint:enable identifier_name
     }
 }
 
@@ -40,16 +46,16 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum SettingsPageView {
-        public static let blockedUsersButtonImageForeground: Color = .init(uiColor: .systemGray)
-        public static let changeThemeButtonImageForeground: Color = .purple
-        public static let clearCachesButtonImageForeground: Color = .mint
-        public static let deleteAccountButtonImageForeground: Color = .orange
-        public static let inviteFriendsButtonImageForeground: Color = .blue
-        public static let leaveReviewButtonImageForeground: Color = .yellow // swiftlint:disable:next identifier_name
-        public static let overrideLanguageCodeButtonImageForeground: Color = .mint
-        public static let sendFeedbackButtonImageForeground: Color = .green
-        public static let signOutButtonImageForeground: Color = .red
-        public static let toggleDeveloperModeButtonImageForeground: Color = .yellow
+        public static let blockedUsersButtonImageBackground: Color = .init(uiColor: .systemGray)
+        public static let changeThemeButtonImageBackground: Color = .purple
+        public static let clearCachesButtonImageBackground: Color = .mint
+        public static let deleteAccountButtonImageBackground: Color = .orange
+        public static let inviteFriendsButtonImageBackground: Color = .blue
+        public static let leaveReviewButtonImageBackground: Color = .yellow // swiftlint:disable:next identifier_name
+        public static let overrideLanguageCodeButtonImageBackground: Color = .mint
+        public static let sendFeedbackButtonImageBackground: Color = .green
+        public static let signOutButtonImageBackground: Color = .red
+        public static let toggleDeveloperModeButtonImageBackground: Color = .yellow
     }
 }
 
@@ -61,21 +67,22 @@ public extension AppConstants.Strings {
         public static let buildInfoButtonDarkBackgroundImageSystemName = "NT (White).png" // swiftlint:disable:next identifier_name
         public static let buildInfoButtonLightBackgroundImageSystemName = "NT (Black).png"
 
-        public static let blockedUsersButtonImageSystemName = "flag.square.fill"
-        public static let changeThemeButtonImageSystemName = "eye.square.fill"
-        public static let clearCachesButtonImageSystemName = "command.square.fill"
-        public static let deleteAccountButtonImageSystemName = "trash.square.fill"
-        public static let inviteFriendsButtonImageSystemName = "location.square.fill"
-        public static let leaveReviewButtonImageSystemName = "star.square.fill" // swiftlint:disable:next identifier_name
+        public static let blockedUsersButtonImageSystemName = "flag.fill"
+        public static let changeThemeButtonImageSystemName = "eye.fill"
+        public static let clearCachesButtonImageSystemName = "command"
+        public static let deleteAccountButtonImageSystemName = "trash.fill"
+        public static let inviteFriendsButtonImageSystemName = "location.fill"
+        public static let leaveReviewButtonImageSystemName = "star.fill" // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageSystemName = "square.text.square.fill"
-        public static let sendFeedbackButtonImageSystemName = "info.square.fill"
-        public static let signOutButtonImageSystemName = "hand.raised.square.fill"
-        public static let toggleDeveloperModeButtonImageSystemName = "command.square.fill"
+        public static let sendFeedbackButtonImageSystemName = "info"
+        public static let signOutButtonImageSystemName = "hand.raised.fill"
+        public static let toggleDeveloperModeButtonImageSystemName = "command"
 
         public static let overrideLanguageCodeButtonText = "Override Language Code to English"
         public static let restoreLanguageCodeButtonTextPrefix = "Restore Language to"
         public static let toggleDeveloperModeButtonText = "Toggle Developer Mode"
 
+        public static let penPalsListItemHeaderText = "PenPals"
         public static let reviewOnAppStoreURLString = "https://apps.apple.com/app/id1662674065?action=write-review"
     }
 }

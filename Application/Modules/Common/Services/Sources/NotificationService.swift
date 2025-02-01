@@ -37,7 +37,7 @@ public struct NotificationService {
 
         guard updateHostedValue,
               let currentUser = clientSession.user.currentUser else { return nil }
-        return await updateHostedBadgeNumber(badgeNumber, user: currentUser)
+        return await updateHostedBadgeNumber(badgeNumber < 0 ? 0 : badgeNumber, user: currentUser)
     }
 
     // MARK: - Notify Users of Message
@@ -118,12 +118,11 @@ public struct NotificationService {
                    let pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
                    !pushTokens.isBangQualifiedEmpty {
                     partialResult.append(contentsOf: pushTokens)
-                    partialResult = partialResult.unique
                 }
             }
 
             var exceptions = [Exception]()
-            for pushToken in pushTokens {
+            for pushToken in pushTokens.unique {
                 if let exception = await sendNotification(
                     title: title,
                     body: body,
@@ -396,7 +395,7 @@ public struct NotificationService {
             }
 
             return await networking.database.setValue(
-                newBadgeNumber,
+                newBadgeNumber < 0 ? 0 : newBadgeNumber,
                 forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
             )
 
@@ -409,7 +408,7 @@ public struct NotificationService {
             }
 
             return await networking.database.setValue(
-                badgeNumber,
+                badgeNumber < 0 ? 0 : badgeNumber,
                 forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
             )
         }

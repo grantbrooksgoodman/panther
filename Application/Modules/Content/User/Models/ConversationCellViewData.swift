@@ -97,20 +97,14 @@ public struct ConversationCellViewData: Equatable {
             thumbnailImage = conversation.metadata.image ?? thumbnailImage
         }
 
-        var flagAverageColorHexCode: Int?
-        if let otherUser {
-            flagAverageColorHexCode = (
-                UIImage(
-                    named: "\(otherUser.languageCode.lowercased()).png"
-                ) ?? .init(
-                    named: "\(otherUser.phoneNumber.regionCode.lowercased()).png"
-                )
-            )?.averageColor?.hexCode
-        }
-
         if conversation.metadata.isPenPalsConversation {
             titleLabelText = conversation.isOtherUserSharingPenPalsData ? titleLabelText : "PenPal"
-            thumbnailImage = PenPalsIconView.image(backgroundColor: flagAverageColorHexCode) ?? thumbnailImage
+            let penPalsIconColor = otherUser?.penPalsIconColor
+            thumbnailImage = SquareIconView.image(
+                .penPalsIcon(
+                    backgroundColor: penPalsIconColor.swiftUIColor ?? .purple
+                )
+            ) ?? thumbnailImage
         }
 
         // Set date & subtitle label text

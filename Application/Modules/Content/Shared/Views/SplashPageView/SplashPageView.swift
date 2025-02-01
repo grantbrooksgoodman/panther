@@ -15,14 +15,14 @@ import AppSubsystem
 import ComponentKit
 
 public struct SplashPageView: View {
-    // MARK: - Dependencies
-
-    @ObservedDependency(\.splashPageViewService) private var viewService: SplashPageViewService
-
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SplashPageView
     private typealias Floats = AppConstants.CGFloats.SplashPageView
+
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.splashPageViewService) private var viewService: SplashPageViewService
 
     // MARK: - Properties
 
