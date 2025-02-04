@@ -22,11 +22,6 @@ public struct SamplePageReducer: Reducer {
 
     public enum Action {
         case viewAppeared
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -53,9 +48,9 @@ public struct SamplePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
 
             return .task {
@@ -63,11 +58,11 @@ public struct SamplePageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
         }

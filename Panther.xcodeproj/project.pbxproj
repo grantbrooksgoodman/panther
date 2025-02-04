@@ -326,6 +326,7 @@
 		B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C62B1A42980016948C /* TranscriptionService.swift */; };
 		B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C82B1A42A20016948C /* PlaybackService.swift */; };
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
+		B9B764122D4EE6980091FFE0 /* AVAudioApplicationDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BC07B62D15F80600EF09DD /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B9BC07B52D15F80600EF09DD /* Networking */; };
@@ -1132,6 +1133,7 @@
 		B9B193C62B1A42980016948C /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		B9B193C82B1A42A20016948C /* PlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackService.swift; sourceTree = "<group>"; };
 		B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVSpeechSynthesizerDependency.swift; sourceTree = "<group>"; };
+		B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioApplicationDependency.swift; sourceTree = "<group>"; };
 		B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDeliveryService.swift; sourceTree = "<group>"; };
 		B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatedLabelStringCollection.swift; sourceTree = "<group>"; };
 		B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessagePlaybackService.swift; sourceTree = "<group>"; };
@@ -3118,6 +3120,7 @@
 			isa = PBXGroup;
 			children = (
 				B9F5609C2B69A4A0009ABDD5 /* AppGroupDefaultsDependency.swift */,
+				B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */,
 				B9E6D7CF2B12850D000BC88D /* AVAudioSessionDependency.swift */,
 				B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */,
 				B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */,
@@ -4255,6 +4258,7 @@
 				B9E6D7E02B1288CD000BC88D /* WelcomePageReducer.swift in Sources */,
 				B923CAA32B758A870042D3E4 /* UIFont+UserContentExtensions.swift in Sources */,
 				B96C125D2BAE47430063687C /* UIImage+UserContentExtensions.swift in Sources */,
+				B9B764122D4EE6980091FFE0 /* AVAudioApplicationDependency.swift in Sources */,
 				B92617702CD8472D00877ECE /* PushTokenService.swift in Sources */,
 				B9F3C4C42B6B59C600109CC5 /* ChatPageViewController+UITextViewDelegate.swift in Sources */,
 				B9E6D7B82B12626F000BC88D /* CommonPropertyLists.swift in Sources */,

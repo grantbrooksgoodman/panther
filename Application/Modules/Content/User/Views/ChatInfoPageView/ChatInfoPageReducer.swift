@@ -37,18 +37,13 @@ public struct ChatInfoPageReducer: Reducer {
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
 
-        case isPresentingCameraPickerSheetChanged(Bool, Exception?)
-        case isPresentingImagePickerSheetChanged(Bool, Exception?)
-        case selectedImageChanged(UIImage)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
-        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>) // swiftlint:disable:next identifier_name
+        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
+        case isPresentingCameraPickerSheetChanged(Bool, Exception?)
+        case isPresentingImagePickerSheetChanged(Bool, Exception?) // swiftlint:disable:next identifier_name
         case penPalsSharingDataConfirmationActionSheetDismissed(Bool)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case selectedImageChanged(UIImage)
         case updateValueReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
     }
 
@@ -128,19 +123,8 @@ public struct ChatInfoPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case let .action(action):
-            return reduce(into: &state, for: action)
-
-        case let .feedback(feedback):
-            return reduce(into: &state, for: feedback)
-        }
-    }
-
-    // MARK: - Reduce Action
-
-    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+    // swiftlint:disable:next function_body_length
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -148,7 +132,7 @@ public struct ChatInfoPageReducer: Reducer {
             state.isPenPalsSharingDataSwitchToggled = state.conversation?.isCurrentUserSharingPenPalsData ?? false
             uiApplication.resignFirstResponders()
 
-            let getChatParticipantsTask: Effect<Feedback> = .task {
+            let getChatParticipantsTask: Effect<Action> = .task {
                 let result = await viewService.getChatParticipants()
                 return .getChatParticipantsReturned(result)
             }
@@ -161,89 +145,6 @@ public struct ChatInfoPageReducer: Reducer {
         case .addContactButtonTapped:
             break
 
-        case .changeMetadataButtonTapped:
-            state.isChangeMetadataButtonEnabled = false
-            return .task {
-                let result = await viewService.presentChangeMetadataActionSheet()
-                return .changeMetadataActionSheetDismissed(result)
-            }
-
-        case .chatInfoCellTapped:
-            state.visibleParticipants = state.visibleParticipants.isEmpty ? state.chatParticipants : []
-
-        case .currentConversationMetadataChanged:
-            state.viewID = UUID()
-
-        case .doneHeaderItemTapped,
-             .doneToolbarButtonTapped:
-            RootSheets.dismiss()
-            guard state.inputBarWasFirstResponder else { return .none }
-            chatPageViewService.inputBar?.becomeFirstResponder()
-
-        case let .isPresentingCameraPickerSheetChanged(isPresentingCameraPickerSheet, exception):
-            if let exception {
-                Logger.log(exception, with: .toast())
-            }
-            state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
-
-            if !Application.isInPrevaricationMode,
-               !isPresentingCameraPickerSheet,
-               !ThemeService.isDarkModeActive {
-                StatusBarStyle.override(.darkContent)
-            }
-            state.isChangeMetadataButtonEnabled = true
-
-        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet, exception):
-            if let exception {
-                Logger.log(exception, with: .toast())
-            }
-            state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
-
-            if !Application.isInPrevaricationMode,
-               !isPresentingImagePickerSheet,
-               !ThemeService.isDarkModeActive {
-                StatusBarStyle.override(.darkContent)
-            }
-            state.isChangeMetadataButtonEnabled = true
-
-        case .penPalsSharingDataSwitchToggledOn:
-            return .task {
-                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet()
-                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
-            }
-
-        case let .selectedImageChanged(image):
-            guard let conversation = state.conversation,
-                  let imageData = image.dataCompressed(toKB: 100) else {
-                Logger.log(
-                    .init("Failed to compress image.", metadata: [self, #file, #function, #line]),
-                    with: .toast()
-                )
-                state.isChangeMetadataButtonEnabled = true
-                return .none
-            }
-
-            let newMetadata: ConversationMetadata = .init(
-                name: conversation.metadata.name,
-                imageData: imageData,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: conversation.metadata.penPalsSharingData
-            )
-
-            return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateValueReturned(result)
-            }
-        }
-
-        return .none
-    }
-
-    // MARK: - Reduce Feedback
-
-    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
-        switch feedback {
         case let .changeMetadataActionSheetDismissed(.name(name)):
             guard let conversation = state.conversation,
                   name != conversation.metadata.name,
@@ -295,6 +196,25 @@ public struct ChatInfoPageReducer: Reducer {
         case .changeMetadataActionSheetDismissed(.selectPhotoFromLibrary):
             state.isPresentingImagePickerSheet = true
 
+        case .changeMetadataButtonTapped:
+            state.isChangeMetadataButtonEnabled = false
+            return .task {
+                let result = await viewService.presentChangeMetadataActionSheet()
+                return .changeMetadataActionSheetDismissed(result)
+            }
+
+        case .chatInfoCellTapped:
+            state.visibleParticipants = state.visibleParticipants.isEmpty ? state.chatParticipants : []
+
+        case .currentConversationMetadataChanged:
+            state.viewID = UUID()
+
+        case .doneHeaderItemTapped,
+             .doneToolbarButtonTapped:
+            RootSheets.dismiss()
+            guard state.inputBarWasFirstResponder else { return .none }
+            chatPageViewService.inputBar?.becomeFirstResponder()
+
         case let .getChatParticipantsReturned(.success(chatParticipants)):
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
@@ -304,6 +224,32 @@ public struct ChatInfoPageReducer: Reducer {
         case let .getChatParticipantsReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .error(exception)
+
+        case let .isPresentingCameraPickerSheetChanged(isPresentingCameraPickerSheet, exception):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
+            state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
+
+            if !Application.isInPrevaricationMode,
+               !isPresentingCameraPickerSheet,
+               !ThemeService.isDarkModeActive {
+                StatusBarStyle.override(.darkContent)
+            }
+            state.isChangeMetadataButtonEnabled = true
+
+        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet, exception):
+            if let exception {
+                Logger.log(exception, with: .toast())
+            }
+            state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
+
+            if !Application.isInPrevaricationMode,
+               !isPresentingImagePickerSheet,
+               !ThemeService.isDarkModeActive {
+                StatusBarStyle.override(.darkContent)
+            }
+            state.isChangeMetadataButtonEnabled = true
 
         case let .penPalsSharingDataConfirmationActionSheetDismissed(confirmed):
             @Persistent(.currentUserID) var currentUserID: String?
@@ -341,11 +287,41 @@ public struct ChatInfoPageReducer: Reducer {
                 return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
             }
 
+        case .penPalsSharingDataSwitchToggledOn:
+            return .task {
+                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet()
+                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
+            }
+
         case let .resolveReturned(.success(strings)):
             state.strings = strings
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
+
+        case let .selectedImageChanged(image):
+            guard let conversation = state.conversation,
+                  let imageData = image.dataCompressed(toKB: 100) else {
+                Logger.log(
+                    .init("Failed to compress image.", metadata: [self, #file, #function, #line]),
+                    with: .toast()
+                )
+                state.isChangeMetadataButtonEnabled = true
+                return .none
+            }
+
+            let newMetadata: ConversationMetadata = .init(
+                name: conversation.metadata.name,
+                imageData: imageData,
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: conversation.metadata.penPalsSharingData
+            )
+
+            return .task {
+                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
+                return .updateValueReturned(result)
+            }
 
         case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):
             conversationSession.setCurrentConversation(conversation)

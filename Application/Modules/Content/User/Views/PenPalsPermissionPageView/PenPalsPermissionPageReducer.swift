@@ -26,11 +26,7 @@ public struct PenPalsPermissionPageReducer: Reducer {
 
         case dismissButtonTapped
         case enableButtonTapped
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -57,9 +53,9 @@ public struct PenPalsPermissionPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
 
             return .task {
@@ -67,7 +63,7 @@ public struct PenPalsPermissionPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.dismissButtonTapped):
+        case .dismissButtonTapped:
             RootSheets.dismiss()
             return .fireAndForget {
                 if let exception = await penPalsService.setDidGrantPenPalsPermission(false) {
@@ -75,7 +71,7 @@ public struct PenPalsPermissionPageReducer: Reducer {
                 }
             }
 
-        case .action(.enableButtonTapped):
+        case .enableButtonTapped:
             RootSheets.dismiss()
             return .fireAndForget {
                 if let exception = await penPalsService.setDidGrantPenPalsPermission(true) {
@@ -83,11 +79,11 @@ public struct PenPalsPermissionPageReducer: Reducer {
                 }
             }
 
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
         }

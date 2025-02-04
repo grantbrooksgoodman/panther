@@ -27,11 +27,7 @@ public struct InviteQRCodePageReducer: Reducer {
     public enum Action {
         case viewAppeared
         case doneButtonTapped
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -65,16 +61,16 @@ public struct InviteQRCodePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
             return .task {
                 let result = await translator.resolve(InviteQRCodePageViewStrings.self)
                 return .resolveReturned(result)
             }
 
-        case .action(.doneButtonTapped):
+        case .doneButtonTapped:
             navigationCoordinator.navigate(to: .settings(.sheet(nil)))
             if !Application.isInPrevaricationMode,
                ThemeService.isAppDefaultThemeApplied,
@@ -82,11 +78,11 @@ public struct InviteQRCodePageReducer: Reducer {
                 StatusBarStyle.override(.darkContent)
             }
 
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
         }

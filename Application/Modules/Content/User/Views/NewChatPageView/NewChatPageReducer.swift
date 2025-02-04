@@ -16,8 +16,8 @@ import AppSubsystem
 public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
+    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
 
     // MARK: - Properties
 
@@ -34,10 +34,6 @@ public struct NewChatPageReducer: Reducer {
         case isDoneToolbarButtonEnabledChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
     }
-
-    // MARK: - Feedback
-
-    public enum Feedback {}
 
     // MARK: - State
 
@@ -63,18 +59,18 @@ public struct NewChatPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             analyticsService.logEvent(.accessNewChatPage)
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
 
-        case .action(.doneToolbarButtonTapped):
+        case .doneToolbarButtonTapped:
             navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
 
-        case .action(.firstMessageSent):
+        case .firstMessageSent:
             guard let currentConversation,
                   let cellViewData = ConversationCellViewData(currentConversation) else { return .none }
 
@@ -82,10 +78,10 @@ public struct NewChatPageReducer: Reducer {
             state.navigationTitle = cellViewData.titleLabelText
             state.shouldUseBoldDoneToolbarButton = true
 
-        case let .action(.isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled)):
+        case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
             state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
 
-        case let .action(.isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet)):
+        case let .isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet):
             state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet
         }
 

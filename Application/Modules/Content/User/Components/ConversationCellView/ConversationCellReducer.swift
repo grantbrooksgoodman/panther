@@ -34,11 +34,7 @@ public struct ConversationCellReducer: Reducer {
         case deleteConversationButtonTapped
         case reportUsersButtonTapped
         case userInfoBadgeTapped
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case deleteConversationReturned(Exception?)
         case deletionActionSheetDismissed(cancelled: Bool)
     }
@@ -86,40 +82,30 @@ public struct ConversationCellReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             guard let cellViewData = ConversationCellViewData(state.conversation) else { return .none }
             state.cellViewData = cellViewData
 
-        case .action(.blockUsersButtonTapped):
+        case .blockUsersButtonTapped:
             guard let users = state.conversation.users else { return .none }
             return .fireAndForget {
                 guard let exception = await viewService.blockUsersButtonTapped(users) else { return }
                 Logger.log(exception)
             }
 
-        case .action(.cellTapped):
+        case .cellTapped:
             navigationCoordinator.navigate(to: .userContent(.push(.chat(state.conversation))))
 
-        case .action(.deleteConversationButtonTapped):
+        case .deleteConversationButtonTapped:
             let title = state.cellViewData.titleLabelText
             return .task {
                 let result = await viewService.presentDeletionActionSheet(title)
                 return .deletionActionSheetDismissed(cancelled: result)
             }
 
-        case .action(.reportUsersButtonTapped):
-            guard let users = state.conversation.users else { return .none }
-            return .fireAndForget {
-                guard let exception = await viewService.reportUsersButtonTapped(users) else { return }
-                Logger.log(exception)
-            }
-
-        case .action(.userInfoBadgeTapped):
-            viewService.presentUserInfoAlert(state.cellViewData)
-
-        case let .feedback(.deleteConversationReturned(exception)):
+        case let .deleteConversationReturned(exception):
             defer { clientSession.user.startObservingCurrentUserChanges() }
 
             guard let exception else {
@@ -129,7 +115,7 @@ public struct ConversationCellReducer: Reducer {
 
             Logger.log(exception, with: .toast())
 
-        case let .feedback(.deletionActionSheetDismissed(cancelled: cancelled)):
+        case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }
 
             clientSession.user.stopObservingCurrentUserChanges()
@@ -138,6 +124,16 @@ public struct ConversationCellReducer: Reducer {
                 let result = await clientSession.conversation.deleteConversation(conversation)
                 return .deleteConversationReturned(result)
             }
+
+        case .reportUsersButtonTapped:
+            guard let users = state.conversation.users else { return .none }
+            return .fireAndForget {
+                guard let exception = await viewService.reportUsersButtonTapped(users) else { return }
+                Logger.log(exception)
+            }
+
+        case .userInfoBadgeTapped:
+            viewService.presentUserInfoAlert(state.cellViewData)
         }
 
         return .none

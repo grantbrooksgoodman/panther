@@ -19,10 +19,6 @@ public struct UserContentContainerReducer: Reducer {
         case chatInfoToolbarButtonTapped
     }
 
-    // MARK: - Feedback
-
-    public typealias Feedback = Never
-
     // MARK: - State
 
     public struct State: Equatable {
@@ -33,9 +29,9 @@ public struct UserContentContainerReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.chatInfoToolbarButtonTapped):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .chatInfoToolbarButtonTapped:
             return .fireAndForget {
                 Task { @MainActor in
                     RootSheets.present(.chatInfoPageView)

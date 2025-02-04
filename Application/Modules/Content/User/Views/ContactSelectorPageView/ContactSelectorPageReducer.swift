@@ -30,15 +30,10 @@ public struct ContactSelectorPageReducer: Reducer {
         case inviteToolbarButtonTapped
 
         case isPresentedChanged(Bool)
+        case presentInvitationPromptReturned(Exception?)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
         case traitCollectionChanged
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
-        case presentInvitationPromptReturned(Exception?)
     }
 
     // MARK: - State
@@ -104,41 +99,41 @@ public struct ContactSelectorPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             core.gcd.after(.seconds(1)) { uiApplication.resignFirstResponders() }
 
-        case .action(.cancelToolbarButtonTapped):
+        case .cancelToolbarButtonTapped:
             state.isPresented.wrappedValue = false
             uiApplication.resignFirstResponders()
             core.gcd.after(.milliseconds(250)) { chatPageViewService.inputBar?.forceAppearance() }
 
-        case .action(.inviteToolbarButtonTapped):
+        case .inviteToolbarButtonTapped:
             return .task {
                 let result = await inviteService.presentInvitationPrompt()
                 return .presentInvitationPromptReturned(result)
             }
 
-        case let .action(.isPresentedChanged(isPresented)):
+        case let .isPresentedChanged(isPresented):
             state.isPresented.wrappedValue = isPresented
 
-        case let .action(.searchQueryChanged(searchQuery)):
+        case let .presentInvitationPromptReturned(exception):
+            guard let exception else { return .none }
+            Logger.log(exception, with: .toast())
+
+        case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
 
-        case let .action(.selectedContactPairChanged(selectedContactPair)):
+        case let .selectedContactPairChanged(selectedContactPair):
             state.selectedContactPair = selectedContactPair
             state.isPresented.wrappedValue = false
             core.gcd.after(.milliseconds(100)) {
                 chatPageViewService.recipientBar?.contactSelectionUI.selectContactPair(selectedContactPair, performInputBarFix: true)
             }
 
-        case .action(.traitCollectionChanged):
+        case .traitCollectionChanged:
             core.gcd.after(.milliseconds(500)) { uiApplication.resignFirstResponders() }
-
-        case let .feedback(.presentInvitationPromptReturned(exception)):
-            guard let exception else { return .none }
-            Logger.log(exception, with: .toast())
         }
 
         return .none

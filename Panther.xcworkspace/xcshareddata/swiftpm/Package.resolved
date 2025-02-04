@@ -34,7 +34,7 @@
       "location" : "https://github.com/grantbrooksgoodman/app-subsystem",
       "state" : {
         "branch" : "main",
-        "revision" : "46b3ace2f90b723aae268414a8ce86c577df3bdf"
+        "revision" : "bf8996072b89956f43975223f4ffb19fc689c850"
       }
     },
     {
@@ -151,7 +151,7 @@
       "location" : "https://github.com/grantbrooksgoodman/networking",
       "state" : {
         "branch" : "main",
-        "revision" : "045f594c62165662f19030156bbe3f6415d7ca46"
+        "revision" : "dcd447142d325bf8e5cc6f3fb373b916ccf00eb2"
       }
     },
     {

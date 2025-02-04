@@ -50,13 +50,13 @@ public struct PhoneNumberTextField: View {
             keyboardType: .phonePad,
             placeholderText: (services.phoneNumber.exampleNationalNumberString(for: regionCode), nil)
         )
-        .onChange(of: text) { newValue in
+        .onChange(of: text) { _, newValue in
             guard !newValue.isBlank else { return }
             Task { @MainActor in
                 text = partiallyFormatted
             }
         }
-        .onChange(of: regionCode) { _ in
+        .onChange(of: regionCode) { _, _ in
             guard !text.isBlank else { return }
             Task { @MainActor in
                 text = partiallyFormatted

@@ -37,7 +37,7 @@ public struct PermissionService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
-    @Dependency(\.avAudioSession) private var avAudioSession: AVAudioSession
+    @Dependency(\.avAudioApplication) private var avAudioApplication: AVAudioApplication
     @Dependency(\.build) private var build: Build
     @Dependency(\.cnContactStore) private var contactStore: CNContactStore
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -97,11 +97,7 @@ public struct PermissionService {
             return .failure(exception)
         }
 
-        return await withCheckedContinuation { continuation in
-            avAudioSession.requestRecordPermission { granted in
-                continuation.resume(returning: .success(granted ? .granted : .denied))
-            }
-        }
+        return .success((await AVAudioApplication.requestRecordPermission()) ? .granted : .denied)
     }
 
     private func requestTranscribePermission() async -> Callback<PermissionStatus, Exception> {
@@ -195,7 +191,8 @@ public struct PermissionService {
 
     private func getContactPermissionStatus() -> PermissionStatus {
         switch CNContactStore.authorizationStatus(for: .contacts) {
-        case .authorized:
+        case .authorized,
+             .limited:
             return .granted
         case .denied,
              .restricted:
@@ -227,7 +224,7 @@ public struct PermissionService {
     }
 
     private func getRecordPermissionStatus() -> PermissionStatus {
-        switch avAudioSession.recordPermission {
+        switch avAudioApplication.recordPermission {
         case .granted:
             return .granted
         case .denied:

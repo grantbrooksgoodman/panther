@@ -33,10 +33,6 @@ public struct InviteLanguagePickerReducer: Reducer {
         case traitCollectionChanged
     }
 
-    // MARK: - Feedback
-
-    public typealias Feedback = Never
-
     // MARK: - State
 
     public struct State: Equatable {
@@ -74,19 +70,19 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.isDoneHeaderItemEnabled = false
             state.traitCollectionChanged = false
 
             state.searchQuery = ""
             state.selectedLanguageCode = ""
 
-        case .action(.cancelHeaderItemTapped):
+        case .cancelHeaderItemTapped:
             RootSheets.dismiss()
 
-        case .action(.doneHeaderItemTapped):
+        case .doneHeaderItemTapped:
             guard state.isDoneHeaderItemEnabled else { return .none }
             RootSheets.dismiss()
 
@@ -99,17 +95,17 @@ public struct InviteLanguagePickerReducer: Reducer {
                 }
             }
 
-        case let .action(.searchQueryChanged(searchQuery)):
+        case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
 
-        case let .action(.selectedLanguageCodeChanged(selectedLanguageCode)):
+        case let .selectedLanguageCodeChanged(selectedLanguageCode):
             state.selectedLanguageCode = selectedLanguageCode
             state.isDoneHeaderItemEnabled = true
 
-        case .action(.traitCollectionChanged):
+        case .traitCollectionChanged:
             state.traitCollectionChanged = true
 
-        case .action(.viewDisappeared):
+        case .viewDisappeared:
             NavigationBar.setAppearance(.appDefault)
             guard state.traitCollectionChanged else { return .none }
             Observables.traitCollectionChanged.trigger()

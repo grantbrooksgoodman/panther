@@ -32,15 +32,10 @@ public struct PermissionPageReducer: Reducer {
         case viewAppeared
 
         case backButtonTapped
-        case finishButtonTapped
-
-        case contactPermissionCapsuleButtonTapped // swiftlint:disable:next identifier_name
+        case contactPermissionCapsuleButtonTapped
+        case finishButtonTapped // swiftlint:disable:next identifier_name
         case notificationPermissionCapsuleButtonTapped
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case createUserReturned(Exception?)
         case eulaAlertDismissed(cancelled: Bool)
         case requestContactPermissionReturned(Callback<PermissionService.PermissionStatus, Exception>)
@@ -80,9 +75,9 @@ public struct PermissionPageReducer: Reducer {
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
 
             return .task {
@@ -90,35 +85,17 @@ public struct PermissionPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.backButtonTapped):
+        case .backButtonTapped:
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
-        case .action(.finishButtonTapped):
-            state.isBackButtonEnabled = false
-            state.isFinishButtonEnabled = false
-
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
-
-            return .task {
-                let result = await onboardingService.presentEULAAlert()
-                return .eulaAlertDismissed(cancelled: result)
-            }
-
-        case .action(.contactPermissionCapsuleButtonTapped):
+        case .contactPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isNotificationPermissionGranted != nil
             return .task {
                 let result = await services.permission.requestPermission(for: .contacts)
                 return .requestContactPermissionReturned(result)
             }
 
-        case .action(.notificationPermissionCapsuleButtonTapped):
-            state.isFinishButtonEnabled = state.isContactPermissionGranted != nil
-            return .task {
-                let result = await services.permission.requestPermission(for: .notifications)
-                return .requestNotificationPermissionReturned(result)
-            }
-
-        case let .feedback(.createUserReturned(exception)):
+        case let .createUserReturned(exception):
             uiApplication.mainWindow?.removeOverlay()
 
             if let exception {
@@ -130,7 +107,7 @@ public struct PermissionPageReducer: Reducer {
                 navigationCoordinator.navigate(to: .root(.modal(.splash)))
             }
 
-        case let .feedback(.eulaAlertDismissed(cancelled: cancelled)):
+        case let .eulaAlertDismissed(cancelled: cancelled):
             guard !cancelled else {
                 uiApplication.mainWindow?.removeOverlay()
                 state.isBackButtonEnabled = true
@@ -143,7 +120,25 @@ public struct PermissionPageReducer: Reducer {
                 return .createUserReturned(result)
             }
 
-        case let .feedback(.requestContactPermissionReturned(.success(status))):
+        case .finishButtonTapped:
+            state.isBackButtonEnabled = false
+            state.isFinishButtonEnabled = false
+
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+
+            return .task {
+                let result = await onboardingService.presentEULAAlert()
+                return .eulaAlertDismissed(cancelled: result)
+            }
+
+        case .notificationPermissionCapsuleButtonTapped:
+            state.isFinishButtonEnabled = state.isContactPermissionGranted != nil
+            return .task {
+                let result = await services.permission.requestPermission(for: .notifications)
+                return .requestNotificationPermissionReturned(result)
+            }
+
+        case let .requestContactPermissionReturned(.success(status)):
             state.isContactPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
@@ -160,7 +155,7 @@ public struct PermissionPageReducer: Reducer {
                 }
             }
 
-        case let .feedback(.requestContactPermissionReturned(.failure(exception))):
+        case let .requestContactPermissionReturned(.failure(exception)):
             guard !exception.isEqual(to: .contactAccessDenied) else {
                 state.isContactPermissionGranted = false
                 return .task(delay: .milliseconds(500)) {
@@ -174,7 +169,7 @@ public struct PermissionPageReducer: Reducer {
 
             Logger.log(exception, with: .toast())
 
-        case let .feedback(.requestNotificationPermissionReturned(.success(status))):
+        case let .requestNotificationPermissionReturned(.success(status)):
             state.isNotificationPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
@@ -185,13 +180,13 @@ public struct PermissionPageReducer: Reducer {
                 uiApplication.registerForRemoteNotifications()
             }
 
-        case let .feedback(.requestNotificationPermissionReturned(.failure(exception))):
+        case let .requestNotificationPermissionReturned(.failure(exception)):
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
             Logger.log(exception, with: .toast())
 
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.instructionViewStrings = .init(
                 titleLabelText: strings.value(for: .instructionViewTitleLabelText),
@@ -199,7 +194,7 @@ public struct PermissionPageReducer: Reducer {
             )
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),

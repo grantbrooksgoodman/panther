@@ -19,10 +19,6 @@ public struct EmptyReducer: Reducer {
         case viewAppeared
     }
 
-    // MARK: - Feedback
-
-    public enum Feedback {}
-
     // MARK: - State
 
     public struct State: Equatable {
@@ -33,9 +29,9 @@ public struct EmptyReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             break
         }
 

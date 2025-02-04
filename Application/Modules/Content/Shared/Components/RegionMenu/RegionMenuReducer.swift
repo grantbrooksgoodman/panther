@@ -28,14 +28,9 @@ public struct RegionMenuReducer: Reducer {
     public enum Action {
         case isPresentedChanged(Bool)
         case listViewAppeared(proxy: ScrollViewProxy)
+        case runIsPresentedEffect(Bool)
         case searchQueryChanged(String)
         case selectedRegionTitleChanged(String)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
-        case isPresentedChanged(Bool)
     }
 
     // MARK: - State
@@ -98,14 +93,14 @@ public struct RegionMenuReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case let .action(.isPresentedChanged(isPresented)):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case let .isPresentedChanged(isPresented):
             return .task(delay: .milliseconds(.init(Floats.dismissDelayMilliseconds))) {
-                .isPresentedChanged(isPresented)
+                .runIsPresentedEffect(isPresented)
             }
 
-        case let .action(.listViewAppeared(proxy: proxy)):
+        case let .listViewAppeared(proxy: proxy):
             let selectedRegionCode = state.selectedRegionCode.wrappedValue
             let selectedRegionTitle = state.selectedRegionTitle
             coreGCD.after(.milliseconds(.init(Floats.dismissDelayMilliseconds))) {
@@ -114,17 +109,17 @@ public struct RegionMenuReducer: Reducer {
                 }
             }
 
-        case let .action(.searchQueryChanged(searchQuery)):
+        case let .runIsPresentedEffect(isPresented):
+            state.isPresented.wrappedValue = isPresented
+
+        case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
 
-        case let .action(.selectedRegionTitleChanged(selectedRegionTitle)):
+        case let .selectedRegionTitleChanged(selectedRegionTitle):
             state.selectedRegionCode.wrappedValue = regionDetailService.regionCode(by: .regionTitle(selectedRegionTitle)) ?? ""
             return .task(delay: .milliseconds(.init(Floats.dismissDelayMilliseconds))) {
                 .isPresentedChanged(false)
             }
-
-        case let .feedback(.isPresentedChanged(isPresented)):
-            state.isPresented.wrappedValue = isPresented
         }
 
         return .none

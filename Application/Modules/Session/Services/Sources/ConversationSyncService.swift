@@ -109,7 +109,7 @@ public final class ConversationSyncService {
         }
 
         var filteredMessageIDs = messageIDs.filter { !currentMessages.map(\.id).contains($0) }
-        if messageIDs.isEmpty {
+        if filteredMessageIDs.isEmpty {
             filteredMessageIDs = messageIDs.filter { !conversation.messageIDs.contains($0) }
         }
 

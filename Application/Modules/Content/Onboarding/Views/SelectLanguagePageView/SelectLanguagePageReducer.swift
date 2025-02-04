@@ -32,13 +32,8 @@ public struct SelectLanguagePageReducer: Reducer {
         case backButtonTapped
         case continueButtonTapped
 
-        case selectedLanguageChanged(String)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case selectedLanguageChanged(String)
     }
 
     // MARK: - State
@@ -70,9 +65,9 @@ public struct SelectLanguagePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
             coreUtilities.restoreDeviceLanguageCode()
 
@@ -89,10 +84,10 @@ public struct SelectLanguagePageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.backButtonTapped):
+        case .backButtonTapped:
             navigationCoordinator.navigate(to: .onboarding(.pop))
 
-        case .action(.continueButtonTapped):
+        case .continueButtonTapped:
             coreUtilities.restoreDeviceLanguageCode()
             guard let localizedLanguageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else {
                 state.viewState = .error(.init("No localized language code dictionary.", metadata: [self, #file, #function, #line]))
@@ -107,10 +102,7 @@ public struct SelectLanguagePageReducer: Reducer {
                 onboardingService.setLanguageCode(selectedLanguageCode)
             }
 
-        case let .action(.selectedLanguageChanged(selectedLanguage)):
-            state.selectedLanguage = selectedLanguage
-
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.instructionViewStrings = .init(
                 titleLabelText: strings.value(for: .instructionViewTitleLabelText),
@@ -118,13 +110,16 @@ public struct SelectLanguagePageReducer: Reducer {
             )
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
                 subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
             )
             state.viewState = .loaded
+
+        case let .selectedLanguageChanged(selectedLanguage):
+            state.selectedLanguage = selectedLanguage
         }
 
         return .none

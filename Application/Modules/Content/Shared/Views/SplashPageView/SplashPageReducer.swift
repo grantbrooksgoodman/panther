@@ -28,12 +28,8 @@ public struct SplashPageReducer: Reducer {
     public enum Action {
         case viewAppeared
         case bundleInitializationProgressOccurred
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case errorAlertDismissed
+
         case initializedBundle(Exception?)
         case performRetryHandlerReturned(Exception?)
     }
@@ -60,20 +56,20 @@ public struct SplashPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.didAttemptAutomaticErrorRecovery = false
             return .task {
                 let result = await viewService.initializeBundle()
                 return .initializedBundle(result)
             }
 
-        case .action(.bundleInitializationProgressOccurred):
+        case .bundleInitializationProgressOccurred:
             guard viewService.initializationProgress < 0.8 else { return .none }
             viewService.initializationProgress += 0.0005
 
-        case .feedback(.errorAlertDismissed):
+        case .errorAlertDismissed:
             guard let exception = state.exception,
                   !exception.isEqual(to: .timedOut) else {
                 return .task {
@@ -87,7 +83,7 @@ public struct SplashPageReducer: Reducer {
                 return .performRetryHandlerReturned(result)
             }
 
-        case let .feedback(.initializedBundle(exception)):
+        case let .initializedBundle(exception):
             @Persistent(.currentUserID) var currentUserID: String?
             state.exception = exception
 
@@ -114,7 +110,7 @@ public struct SplashPageReducer: Reducer {
                 navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
             }
 
-        case let .feedback(.performRetryHandlerReturned(exception)):
+        case let .performRetryHandlerReturned(exception):
             if let exception {
                 Logger.log(exception)
             }

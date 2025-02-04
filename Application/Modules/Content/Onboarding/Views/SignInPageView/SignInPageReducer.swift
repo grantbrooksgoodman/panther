@@ -35,23 +35,17 @@ public struct SignInPageReducer: Reducer {
 
         case backButtonTapped
         case continueButtonTapped
-
         case didSwipeDown
+        case runContinueButtonEffect
+        case updateRegionMenuViewID
 
-        case phoneNumberStringChanged(String)
-        case selectedRegionCodeChanged(String)
-        case verificationCodeChanged(String)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case accountDoesNotExistAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
         case authenticateUserReturned(Callback<String, Exception>)
-        case continueButtonTapped
+        case phoneNumberStringChanged(String)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case updateRegionMenuViewID
+        case selectedRegionCodeChanged(String)
+        case verificationCodeChanged(String)
         case verifyPhoneNumberReturned(Callback<String, Exception>)
     }
 
@@ -122,19 +116,8 @@ public struct SignInPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case let .action(action):
-            return reduce(into: &state, for: action)
-
-        case let .feedback(feedback):
-            return reduce(into: &state, for: feedback)
-        }
-    }
-
-    // MARK: - Reduce Action
-
-    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+    // swiftlint:disable:next function_body_length
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -147,50 +130,6 @@ public struct SignInPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .backButtonTapped:
-            switch state.configuration {
-            case .phoneNumber:
-                navigationCoordinator.navigate(to: .onboarding(.pop))
-
-            case .verificationCode:
-                state.configuration = .phoneNumber
-                state.isContinueButtonEnabled = state.numberIsValidLength
-            }
-
-        case .continueButtonTapped:
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
-                .continueButtonTapped
-            }
-
-        case .didSwipeDown:
-            uiApplication.resignFirstResponders()
-
-        case let .phoneNumberStringChanged(phoneNumberString):
-            state.phoneNumberString = phoneNumberString
-            state.isContinueButtonEnabled = state.numberIsValidLength
-
-        case let .selectedRegionCodeChanged(selectedRegionCode):
-            state.selectedRegionCode = selectedRegionCode
-            return .task(delay: .milliseconds(500)) {
-                .updateRegionMenuViewID
-            }
-
-        case let .verificationCodeChanged(verificationCode):
-            state.verificationCode = verificationCode
-            state.isContinueButtonEnabled = verificationCode.count == 6
-
-        case .viewDisappeared:
-            InteractivePopGestureRecognizer.setIsEnabled(true)
-        }
-
-        return .none
-    }
-
-    // MARK: - Reduce Feedback
-
-    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
-        switch feedback {
         case let .accountExistsReturned(accountExists):
             if accountExists {
                 let phoneNumber = state.phoneNumber
@@ -234,7 +173,38 @@ public struct SignInPageReducer: Reducer {
 
             Logger.log(exception, with: .toast())
 
+        case .backButtonTapped:
+            switch state.configuration {
+            case .phoneNumber:
+                navigationCoordinator.navigate(to: .onboarding(.pop))
+
+            case .verificationCode:
+                state.configuration = .phoneNumber
+                state.isContinueButtonEnabled = state.numberIsValidLength
+            }
+
         case .continueButtonTapped:
+            uiApplication.resignFirstResponders()
+            return .task(delay: .milliseconds(100)) {
+                .runContinueButtonEffect
+            }
+
+        case .didSwipeDown:
+            uiApplication.resignFirstResponders()
+
+        case let .phoneNumberStringChanged(phoneNumberString):
+            state.phoneNumberString = phoneNumberString
+            state.isContinueButtonEnabled = state.numberIsValidLength
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+            state.viewState = .loaded
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+            state.viewState = .loaded
+
+        case .runContinueButtonEffect:
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
@@ -260,16 +230,18 @@ public struct SignInPageReducer: Reducer {
                 }
             }
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
-            state.viewState = .loaded
+        case let .selectedRegionCodeChanged(selectedRegionCode):
+            state.selectedRegionCode = selectedRegionCode
+            return .task(delay: .milliseconds(500)) {
+                .updateRegionMenuViewID
+            }
 
         case .updateRegionMenuViewID:
             state.regionMenuViewID = UUID()
+
+        case let .verificationCodeChanged(verificationCode):
+            state.verificationCode = verificationCode
+            state.isContinueButtonEnabled = verificationCode.count == 6
 
         case let .verifyPhoneNumberReturned(.success(authID)):
             uiApplication.mainWindow?.removeOverlay()
@@ -287,6 +259,9 @@ public struct SignInPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             Logger.log(exception, with: .toast())
+
+        case .viewDisappeared:
+            InteractivePopGestureRecognizer.setIsEnabled(true)
         }
 
         return .none

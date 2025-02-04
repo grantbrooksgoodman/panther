@@ -32,29 +32,23 @@ public struct SettingsPageReducer: Reducer {
     public enum Action {
         case viewAppeared
 
-        case buildInfoButtonTapped
-        case longPressGestureRecognized
-
         case blockedUsersButtonTapped
+        case buildInfoButtonTapped
         case changeThemeButtonTapped
         case clearCachesButtonTapped
         case deleteAccountButtonTapped
+        case doneToolbarButtonTapped
         case inviteFriendsButtonTapped
         case leaveReviewButtonTapped
         case sendFeedbackButtonTapped
         case signOutButtonTapped
 
-        case doneToolbarButtonTapped
-
-        case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
+        case longPressGestureRecognized
         case traitCollectionChanged
         case viewDisappeared
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
+        case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -127,26 +121,14 @@ public struct SettingsPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case let .action(action):
-            return reduce(into: &state, for: action)
-
-        case let .feedback(feedback):
-            return reduce(into: &state, for: feedback)
-        }
-    }
-
-    // MARK: - Reduce Action
-
-    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
             state.developerModeListItems = viewService.developerModeListItems()
             state.isPenPalsParticipantSwitchToggled = userSession.currentUser?.isPenPalsParticipant ?? false
 
-            let fetchCNContactForCurrentUserTask: Effect<Feedback> = .task {
+            let fetchCNContactForCurrentUserTask: Effect<Action> = .task {
                 let result = await viewService.fetchCNContactForCurrentUser()
                 return .fetchCNContactForCurrentUserReturned(result)
             }
@@ -176,15 +158,24 @@ public struct SettingsPageReducer: Reducer {
         case .doneToolbarButtonTapped:
             navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
 
+        case let .fetchCNContactForCurrentUserReturned(.success(cnContact)):
+            state.cnContact = cnContact
+
+            let contact = Contact(cnContact)
+            let formattedPhoneNumberString = userSession.currentUser?.phoneNumber.formattedString() ?? contact.phoneNumbers.first?.formattedString()
+
+            state.contactDetailViewImage = contact.image
+            state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
+            state.contactDetailViewTitleLabelText = contact.fullName
+            state.viewID = UUID()
+
+        case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
+            state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
+            state.viewID = UUID()
+            Logger.log(exception)
+
         case .inviteFriendsButtonTapped:
             viewService.inviteFriendsButtonTapped()
-
-        case let .penPalsParticipantSwitchToggled(on, fromBinding):
-            state.isPenPalsParticipantSwitchToggled = on
-            switch fromBinding {
-            case true: viewService.penPalsParticipantSwitchToggled(on: on)
-            case false: state.viewID = UUID()
-            }
 
         case .leaveReviewButtonTapped:
             viewService.leaveReviewButtonTapped()
@@ -196,6 +187,21 @@ public struct SettingsPageReducer: Reducer {
             } else {
                 viewService.setClipboardWithHapticFeedback(state.buildInfoButtonStrings.labelText)
             }
+
+        case let .penPalsParticipantSwitchToggled(on, fromBinding):
+            state.isPenPalsParticipantSwitchToggled = on
+            switch fromBinding {
+            case true: viewService.penPalsParticipantSwitchToggled(on: on)
+            case false: state.viewID = UUID()
+            }
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+            state.viewState = .loaded
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+            state.viewState = .loaded
 
         case .sendFeedbackButtonTapped:
             viewService.sendFeedbackButtonTapped()
@@ -215,38 +221,6 @@ public struct SettingsPageReducer: Reducer {
                 Observables.traitCollectionChanged.trigger()
                 return .none
             }
-        }
-
-        return .none
-    }
-
-    // MARK: - Reduce Feedback
-
-    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
-        switch feedback {
-        case let .fetchCNContactForCurrentUserReturned(.success(cnContact)):
-            state.cnContact = cnContact
-
-            let contact = Contact(cnContact)
-            let formattedPhoneNumberString = userSession.currentUser?.phoneNumber.formattedString() ?? contact.phoneNumbers.first?.formattedString()
-
-            state.contactDetailViewImage = contact.image
-            state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
-            state.contactDetailViewTitleLabelText = contact.fullName
-            state.viewID = UUID()
-
-        case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
-            state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
-            state.viewID = UUID()
-            Logger.log(exception)
-
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
-            state.viewState = .loaded
         }
 
         return .none

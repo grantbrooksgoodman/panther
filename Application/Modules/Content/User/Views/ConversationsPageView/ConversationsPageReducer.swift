@@ -38,11 +38,7 @@ public struct ConversationsPageReducer: Reducer {
         case pulledToRefresh
         case traitCollectionChanged
         case updatedCurrentUser
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case composeToolbarButtonAnimationAmountSet(CGFloat)
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
@@ -80,19 +76,7 @@ public struct ConversationsPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case let .action(action):
-            return reduce(into: &state, for: action)
-
-        case let .feedback(feedback):
-            return reduce(into: &state, for: feedback)
-        }
-    }
-
-    // MARK: - Reduce Action
-
-    private func reduce(into state: inout State, for action: Action) -> Effect<Feedback> {
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
@@ -111,6 +95,9 @@ public struct ConversationsPageReducer: Reducer {
                 .composeToolbarButtonAnimationAmountSet(currentAnimationAmount == 1.4 ? 1 : 1.4)
             }
 
+        case let .composeToolbarButtonAnimationAmountSet(animationAmount):
+            state.animationAmount = animationAmount
+
         case .composeToolbarButtonTapped:
             navigationCoordinator.navigate(to: .userContent(.sheet(.newChat)))
 
@@ -120,6 +107,26 @@ public struct ConversationsPageReducer: Reducer {
                 let result = await viewService.reloadData()
                 return .reloadDataReturned(result)
             }
+
+        case let .reloadDataReturned(.success(conversations)):
+            state.isRefreshing = false
+            state.conversations = conversations.filteredAndSorted
+
+        case let .reloadDataReturned(.failure(exception)):
+            state.isRefreshing = false
+            Logger.log(exception, with: .toast())
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+
+            state.viewState = .loaded
+            viewService.viewLoaded()
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+
+            state.viewState = .loaded
+            viewService.viewLoaded()
 
         case .settingsToolbarButtonTapped:
             navigationCoordinator.navigate(to: .userContent(.sheet(.settings)))
@@ -153,37 +160,6 @@ public struct ConversationsPageReducer: Reducer {
             return .task {
                 .composeToolbarButtonAnimationAmountSet(1)
             }
-        }
-
-        return .none
-    }
-
-    // MARK: - Reduce Feedback
-
-    private func reduce(into state: inout State, for feedback: Feedback) -> Effect<Feedback> {
-        switch feedback {
-        case let .composeToolbarButtonAnimationAmountSet(animationAmount):
-            state.animationAmount = animationAmount
-
-        case let .reloadDataReturned(.success(conversations)):
-            state.isRefreshing = false
-            state.conversations = conversations.filteredAndSorted
-
-        case let .reloadDataReturned(.failure(exception)):
-            state.isRefreshing = false
-            Logger.log(exception, with: .toast())
-
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-
-            state.viewState = .loaded
-            viewService.viewLoaded()
-
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
-
-            state.viewState = .loaded
-            viewService.viewLoaded()
         }
 
         return .none

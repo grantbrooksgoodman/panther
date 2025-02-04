@@ -32,11 +32,7 @@ public struct WelcomePageReducer: Reducer {
 
         case continueButtonTapped
         case signInButtonTapped
-    }
 
-    // MARK: - Feedback
-
-    public enum Feedback {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -63,13 +59,13 @@ public struct WelcomePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             core.utils.restoreDeviceLanguageCode()
             onboardingService.flushValues()
 
-        case .action(.viewFirstAppeared):
+        case .viewFirstAppeared:
             state.viewState = .loading
             core.ui.overrideUserInterfaceStyle(.unspecified)
             ThemeService.setTheme(AppTheme.appDefault.theme, checkStyle: false)
@@ -79,19 +75,19 @@ public struct WelcomePageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.continueButtonTapped):
+        case .continueButtonTapped:
             navigationCoordinator.navigate(to: .onboarding(.push(.selectLanguage)))
 
-        case .action(.signInButtonTapped):
-            navigationCoordinator.navigate(to: .onboarding(.push(.signIn)))
-
-        case let .feedback(.resolveReturned(.success(strings))):
+        case let .resolveReturned(.success(strings)):
             state.strings = strings
             state.viewState = .loaded
 
-        case let .feedback(.resolveReturned(.failure(exception))):
+        case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .loaded
+
+        case .signInButtonTapped:
+            navigationCoordinator.navigate(to: .onboarding(.push(.signIn)))
         }
 
         return .none

@@ -32,18 +32,12 @@ public struct AuthCodePageReducer: Reducer {
 
         case backButtonTapped
         case continueButtonTapped
-
         case didSwipeDown
+        case runContinueButtonEffect
 
-        case verificationCodeChanged(String)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case authenticateUserReturned(Callback<String, Exception>)
-        case continueButtonTapped
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case verificationCodeChanged(String)
     }
 
     // MARK: - State
@@ -76,9 +70,9 @@ public struct AuthCodePageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
 
             return .task {
@@ -86,23 +80,7 @@ public struct AuthCodePageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.backButtonTapped):
-            navigationCoordinator.navigate(to: .onboarding(.pop))
-
-        case .action(.continueButtonTapped):
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
-                .continueButtonTapped
-            }
-
-        case .action(.didSwipeDown):
-            uiApplication.resignFirstResponders()
-
-        case let .action(.verificationCodeChanged(verificationCode)):
-            state.verificationCode = verificationCode
-            state.isContinueButtonEnabled = verificationCode.count == 6
-
-        case let .feedback(.authenticateUserReturned(.success(userID))):
+        case let .authenticateUserReturned(.success(userID)):
             uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -112,7 +90,7 @@ public struct AuthCodePageReducer: Reducer {
 
             navigationCoordinator.navigate(to: .onboarding(.push(.permission)))
 
-        case let .feedback(.authenticateUserReturned(.failure(exception))):
+        case let .authenticateUserReturned(.failure(exception)):
             uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -120,7 +98,35 @@ public struct AuthCodePageReducer: Reducer {
 
             Logger.log(exception, with: .toast())
 
-        case .feedback(.continueButtonTapped):
+        case .backButtonTapped:
+            navigationCoordinator.navigate(to: .onboarding(.pop))
+
+        case .continueButtonTapped:
+            uiApplication.resignFirstResponders()
+            return .task(delay: .milliseconds(100)) {
+                .runContinueButtonEffect
+            }
+
+        case .didSwipeDown:
+            uiApplication.resignFirstResponders()
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+            state.instructionViewStrings = .init(
+                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case .runContinueButtonEffect:
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
@@ -135,21 +141,9 @@ public struct AuthCodePageReducer: Reducer {
                 return .authenticateUserReturned(result)
             }
 
-        case let .feedback(.resolveReturned(.success(strings))):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case let .feedback(.resolveReturned(.failure(exception))):
-            Logger.log(exception)
-            state.instructionViewStrings = .init(
-                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
+        case let .verificationCodeChanged(verificationCode):
+            state.verificationCode = verificationCode
+            state.isContinueButtonEnabled = verificationCode.count == 6
         }
 
         return .none

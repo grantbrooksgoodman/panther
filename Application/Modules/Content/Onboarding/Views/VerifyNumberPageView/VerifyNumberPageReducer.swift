@@ -33,21 +33,15 @@ public struct VerifyNumberPageReducer: Reducer {
 
         case backButtonTapped
         case continueButtonTapped
-
         case didSwipeDown
+        case runContinueButtonEffect
+        case updateRegionMenuViewID
 
-        case phoneNumberStringChanged(String)
-        case selectedRegionCodeChanged(String)
-    }
-
-    // MARK: - Feedback
-
-    public enum Feedback {
         case accountExistsAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
-        case continueButtonTapped
+        case phoneNumberStringChanged(String)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case updateRegionMenuViewID
+        case selectedRegionCodeChanged(String)
         case verifyPhoneNumberReturned(Callback<String, Exception>)
     }
 
@@ -103,9 +97,9 @@ public struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, for event: Event) -> Effect<Feedback> {
-        switch event {
-        case .action(.viewAppeared):
+    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .viewAppeared:
             state.viewState = .loading
             state.selectedRegionCode = onboardingService.regionCode ?? services.regionDetail.deviceRegionCode
             state.phoneNumberString = onboardingService.phoneNumber?.partiallyFormatted(forRegion: state.selectedRegionCode) ?? ""
@@ -116,29 +110,7 @@ public struct VerifyNumberPageReducer: Reducer {
                 return .resolveReturned(result)
             }
 
-        case .action(.backButtonTapped):
-            navigationCoordinator.navigate(to: .onboarding(.pop))
-
-        case .action(.continueButtonTapped):
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
-                .continueButtonTapped
-            }
-
-        case .action(.didSwipeDown):
-            uiApplication.resignFirstResponders()
-
-        case let .action(.phoneNumberStringChanged(phoneNumberString)):
-            state.phoneNumberString = phoneNumberString
-            state.isContinueButtonEnabled = state.numberIsValidLength
-
-        case let .action(.selectedRegionCodeChanged(selectedRegionCode)):
-            state.selectedRegionCode = selectedRegionCode
-            return .task(delay: .milliseconds(500)) {
-                .updateRegionMenuViewID
-            }
-
-        case let .feedback(.accountExistsAlertDismissed(cancelled: cancelled)):
+        case let .accountExistsAlertDismissed(cancelled: cancelled):
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength
 
@@ -148,7 +120,7 @@ public struct VerifyNumberPageReducer: Reducer {
                 navigationCoordinator.navigate(to: .onboarding(.stack([.signIn])))
             }
 
-        case let .feedback(.accountExistsReturned(accountExists)):
+        case let .accountExistsReturned(accountExists):
             if accountExists {
                 uiApplication.mainWindow?.removeOverlay()
                 return .task {
@@ -163,7 +135,39 @@ public struct VerifyNumberPageReducer: Reducer {
                 }
             }
 
-        case .feedback(.continueButtonTapped):
+        case .backButtonTapped:
+            navigationCoordinator.navigate(to: .onboarding(.pop))
+
+        case .continueButtonTapped:
+            uiApplication.resignFirstResponders()
+            return .task(delay: .milliseconds(100)) {
+                .runContinueButtonEffect
+            }
+
+        case .didSwipeDown:
+            uiApplication.resignFirstResponders()
+
+        case let .phoneNumberStringChanged(phoneNumberString):
+            state.phoneNumberString = phoneNumberString
+            state.isContinueButtonEnabled = state.numberIsValidLength
+
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception)
+            state.instructionViewStrings = .init(
+                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case .runContinueButtonEffect:
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
@@ -175,26 +179,16 @@ public struct VerifyNumberPageReducer: Reducer {
                 return .accountExistsReturned(result)
             }
 
-        case let .feedback(.resolveReturned(.success(strings))):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
+        case let .selectedRegionCodeChanged(selectedRegionCode):
+            state.selectedRegionCode = selectedRegionCode
+            return .task(delay: .milliseconds(500)) {
+                .updateRegionMenuViewID
+            }
 
-        case let .feedback(.resolveReturned(.failure(exception))):
-            Logger.log(exception)
-            state.instructionViewStrings = .init(
-                titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case .feedback(.updateRegionMenuViewID):
+        case .updateRegionMenuViewID:
             state.regionMenuViewID = UUID()
 
-        case let .feedback(.verifyPhoneNumberReturned(.success(authID))):
+        case let .verifyPhoneNumberReturned(.success(authID)):
             uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -206,7 +200,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
             navigationCoordinator.navigate(to: .onboarding(.push(.authCode)))
 
-        case let .feedback(.verifyPhoneNumberReturned(.failure(exception))):
+        case let .verifyPhoneNumberReturned(.failure(exception)):
             uiApplication.mainWindow?.removeOverlay()
 
             state.isBackButtonEnabled = true
