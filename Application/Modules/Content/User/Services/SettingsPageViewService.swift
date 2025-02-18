@@ -96,7 +96,7 @@ public final class SettingsPageViewService {
             services.analytics.logEvent(.clearCaches)
 
             var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]
-            if build.developerModeEnabled {
+            if build.isDeveloperModeEnabled {
                 let reloadAction = AKAction("Reload") {
                     self.navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
                     self.navigationCoordinator.navigate(to: .root(.modal(.splash)))
@@ -106,7 +106,7 @@ public final class SettingsPageViewService {
             }
 
             await AKAlert(
-                message: "Caches have been cleared. \(build.developerModeEnabled ? "" : "You must now restart the app.")",
+                message: "Caches have been cleared. \(build.isDeveloperModeEnabled ? "" : "You must now restart the app.")",
                 actions: actions
             ).present()
         }
@@ -114,7 +114,7 @@ public final class SettingsPageViewService {
         Task {
             let confirmed = await AKConfirmationAlert(
                 title: "Clear Caches", // swiftlint:disable:next line_length
-                message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\(build.developerModeEnabled ? "" : "\n\nYou will need to restart the app for this to take effect.")",
+                message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\(build.isDeveloperModeEnabled ? "" : "\n\nYou will need to restart the app for this to take effect.")",
                 confirmButtonStyle: .destructivePreferred
             ).present()
 
@@ -231,7 +231,7 @@ public final class SettingsPageViewService {
                 let confirmed = await AKConfirmationAlert(
                     title: "Exit Prerelease Mode",
                     message: "Are you sure you'd like to exit Prerelease Mode? An app restart is required for this to take effect.",
-                    confirmButtonTitle: "Exit",
+                    confirmButtonTitle: "Apply & Exit",
                     confirmButtonStyle: .destructivePreferred
                 ).present(translating: [])
 
@@ -362,7 +362,7 @@ public final class SettingsPageViewService {
         guard build.milestone != .generalRelease else { return nil }
         var items = [ListRowView.Configuration]()
 
-        if build.developerModeEnabled,
+        if build.isDeveloperModeEnabled,
            let currentUser = userSession.currentUser,
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
@@ -385,7 +385,7 @@ public final class SettingsPageViewService {
             )
         }
 
-        if !build.developerModeEnabled {
+        if !build.isDeveloperModeEnabled {
             items.append(
                 .init(
                     .button { DevModeService.promptToToggle() },

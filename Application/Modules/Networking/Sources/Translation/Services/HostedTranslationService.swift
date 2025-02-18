@@ -16,7 +16,7 @@ import Translator
 public struct HostedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
+    @Dependency(\.translationArchiverDelegate) private var localTranslationArchiver: TranslationArchiverDelegate
     @Dependency(\.translationService) private var translator: TranslationService
 
     // MARK: - Properties
@@ -177,6 +177,7 @@ public struct HostedTranslationService {
                 translation: translation,
                 metadata: [self, #file, #function, #line]
             ) != nil || translation.input.value == translation.output {
+                // FIXME: Bug here that causes infinite recursion.
                 await archiver.removeArchivedTranslation(for: input, languagePair: languagePair)
                 return await translate(
                     input,

@@ -56,7 +56,7 @@ public final class RecipientBarContactSelectionUIService {
         core.gcd.after(.milliseconds(100)) {
             self.chatPageViewService.inputBar?.configureInputBar()
             guard self.selectedContactPairs.isEmpty else { return }
-            self.viewController.messageInputBar.inputTextView.placeholder = ""
+            self.viewController.messageInputBar.inputTextView.placeholder = nil
         }
     }
 

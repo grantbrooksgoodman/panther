@@ -13,15 +13,8 @@ import Foundation
 import AppSubsystem
 
 // FIXME: Previously saw data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency. Audit new behavior.
+// NIT: Maybe fixed with @LockIsolated?
 public final class ConversationArchiveService {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case archive
-        case conversationsForConversationIDKeys
-        case conversationsForConversationIDs
-    }
-
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
@@ -30,42 +23,32 @@ public final class ConversationArchiveService {
     // MARK: - Properties
 
     // Array
-    @Cached(CacheKey.archive) private var cachedArchive: [Conversation]?
+    @LockIsolated private var archive = [Conversation]() {
+        didSet {
+            persistedArchive = archive.isEmpty ? nil : archive
+            persistValuesForNotificationExtension()
+        }
+    }
+
     @Persistent(.conversationArchive) private var persistedArchive: [Conversation]?
 
     // Dictionary
-    @Cached(CacheKey.conversationsForConversationIDKeys) private var cachedConversationsForConversationIDKeys: [String: Conversation]?
-    @Cached(CacheKey.conversationsForConversationIDs) private var cachedConversationsForConversationIDs: [ConversationID: Conversation]?
+    @LockIsolated private var conversationsForConversationIDKeys = [String: Conversation]()
+    @LockIsolated private var conversationsForConversationIDs = [ConversationID: Conversation]()
 
-    // NSLock
-    private let threadLock = NSLock()
+    // MARK: - Init
 
-    // MARK: - Computed Properties
-
-    private var archive: [Conversation] {
-        get { cachedArchive ?? persistedArchive ?? [] }
-
-        set {
-            threadLock.lock()
-            cachedArchive = newValue
-            persistedArchive = newValue
-            persistValuesForNotificationExtension()
-            threadLock.unlock()
-        }
-    }
+    public init() { archive = persistedArchive ?? [] }
 
     // MARK: - Addition
 
     public func addValue(_ conversation: Conversation) {
-        var values = archive
+        guard !archive.contains(conversation) else { return }
+        archive.removeAll(where: { $0.id.key == conversation.id.key })
+        archive.append(conversation)
 
-        guard !values.contains(conversation) else { return }
-        values.removeAll(where: { $0.id.key == conversation.id.key })
-        values.append(conversation)
-
-        archive = values
-        cachedConversationsForConversationIDKeys = cachedConversationsForConversationIDKeys?.filter { $0.value == conversation }
-        cachedConversationsForConversationIDs = cachedConversationsForConversationIDs?.filter { $0.value == conversation }
+        conversationsForConversationIDKeys[conversation.id.key] = conversation
+        conversationsForConversationIDs[conversation.id] = conversation
 
         Logger.log(
             .init(
@@ -82,15 +65,16 @@ public final class ConversationArchiveService {
 
     public func clearArchive() {
         archive = []
-        cachedConversationsForConversationIDKeys = nil
-        cachedConversationsForConversationIDs = nil
+        conversationsForConversationIDKeys = [:]
+        conversationsForConversationIDs = [:]
     }
 
     public func removeValue(idKey: String) {
         guard archive.contains(where: { $0.id.key == idKey }) else { return }
         archive.removeAll(where: { $0.id.key == idKey })
-        cachedConversationsForConversationIDKeys = cachedConversationsForConversationIDKeys?.filter { $0.value.id.key != idKey }
-        cachedConversationsForConversationIDs = cachedConversationsForConversationIDs?.filter { $0.value.id.key != idKey }
+
+        conversationsForConversationIDKeys = conversationsForConversationIDKeys.filter { $0.value.id.key != idKey }
+        conversationsForConversationIDs = conversationsForConversationIDs.filter { $0.value.id.key != idKey }
 
         Logger.log(
             .init(
@@ -105,32 +89,22 @@ public final class ConversationArchiveService {
     // MARK: - Retrieval
 
     public func getValue(id: ConversationID) -> Conversation? {
-        if let cachedConversationsForConversationIDs,
-           let cachedValue = cachedConversationsForConversationIDs[id] {
-            return cachedValue
+        if let value = conversationsForConversationIDs[id] {
+            return value
         }
 
         guard let valueForConversationID = archive.first(where: { $0.id == id }) else { return nil }
-
-        var newCacheValue = cachedConversationsForConversationIDs ?? [:]
-        newCacheValue[id] = valueForConversationID
-        cachedConversationsForConversationIDs = newCacheValue
-
+        conversationsForConversationIDs[id] = valueForConversationID
         return valueForConversationID
     }
 
     public func getValue(idKey: String) -> Conversation? {
-        if let cachedConversationsForConversationIDKeys,
-           let cachedValue = cachedConversationsForConversationIDKeys[idKey] {
-            return cachedValue
+        if let value = conversationsForConversationIDKeys[idKey] {
+            return value
         }
 
         guard let valueForConversationIDKey = archive.first(where: { $0.id.key == idKey }) else { return nil }
-
-        var newCacheValue = cachedConversationsForConversationIDKeys ?? [:]
-        newCacheValue[idKey] = valueForConversationIDKey
-        cachedConversationsForConversationIDKeys = newCacheValue
-
+        conversationsForConversationIDKeys[idKey] = valueForConversationIDKey
         return valueForConversationIDKey
     }
 

@@ -30,7 +30,7 @@ public final class UserSessionService {
     public private(set) var currentUser: User?
 
     @Persistent(.currentUserID) private var currentUserID: String?
-    private var isUpdatingCurrentUser = false
+    @LockIsolated private var isUpdatingCurrentUser = false
 
     // MARK: - Computed Properties
 

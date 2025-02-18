@@ -88,12 +88,19 @@ public final class ConversationsPageViewService {
             }
         }
 
+        if build.milestone != .generalRelease {
+            Toast.show(.init(
+                message: "Loaded content in \(abs(Application.loadStartDate.seconds(from: .now))) seconds.",
+                perpetuation: .ephemeral(.seconds(5))
+            ))
+        }
+
         networking.database.clearTemporaryCaches()
         Task.delayed(by: .seconds(1)) { @MainActor in
             defer {
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
 
-                if build.developerModeEnabled,
+                if build.isDeveloperModeEnabled,
                    !(presentedPenPalsPermissionPageAtStartup ?? false),
                    userSession.currentUser?.isPenPalsParticipant == false {
                     presentedPenPalsPermissionPageAtStartup = true

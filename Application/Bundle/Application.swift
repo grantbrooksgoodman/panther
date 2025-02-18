@@ -18,6 +18,7 @@ public enum Application {
     // MARK: - Properties
 
     public static var isInPrevaricationMode = false
+    public static var loadStartDate: Date = .now
 
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
@@ -49,8 +50,7 @@ public enum Application {
             dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
             languageCode: Locale.systemLanguageCode,
-            loggingEnabled: buildMilestone != .generalRelease,
-            timebombActive: buildMilestone != .generalRelease
+            loggingEnabled: buildMilestone != .generalRelease
         )
 
         // MARK: - Localization & Logging Setup

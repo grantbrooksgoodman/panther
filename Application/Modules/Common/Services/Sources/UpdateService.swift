@@ -179,7 +179,7 @@ public final class UpdateService {
         }
 
         var actions: [AKAction] = [updateAction]
-        if build.developerModeEnabled {
+        if build.isDeveloperModeEnabled {
             actions.append(cancelAction)
         }
 

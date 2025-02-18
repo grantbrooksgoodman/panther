@@ -17,7 +17,7 @@ public struct ConversationsPageReducer: Reducer {
 
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
-    @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
+    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService

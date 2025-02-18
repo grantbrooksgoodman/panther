@@ -19,7 +19,7 @@ public final class HostedTranslationArchiver {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.localTranslationArchiver) private var localTranslationArchiver: LocalTranslationArchiverDelegate
+    @Dependency(\.translationArchiverDelegate) private var localTranslationArchiver: TranslationArchiverDelegate
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -312,7 +312,7 @@ public final class HostedTranslationArchiver {
 
             for (key, value) in dictionary {
                 for (translationKey, translationValue) in value {
-                    CoreDatabaseCache.addValue(
+                    CoreDatabaseStore.addValue(
                         .init(
                             data: translationValue,
                             expiresAfter: .seconds(600)

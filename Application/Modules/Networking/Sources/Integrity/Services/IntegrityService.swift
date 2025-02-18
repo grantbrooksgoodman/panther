@@ -20,14 +20,14 @@ import Networking
 public final class IntegrityService {
     // MARK: - Dependencies
 
-    @Dependency(\.build.developerModeEnabled) private var isDeveloperModeEnabled: Bool
+    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.remoteCache) private var remoteCacheService: RemoteCacheService
 
     // MARK: - Properties
 
-    private var _session: IntegrityServiceSession?
     private var didConfirmUnsafeSessionResolution = false
+    private var _session: IntegrityServiceSession?
 
     // MARK: - Computed Properties
 

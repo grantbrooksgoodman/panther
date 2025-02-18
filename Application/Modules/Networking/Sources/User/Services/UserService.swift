@@ -150,7 +150,8 @@ public final class UserService {
 
             @Persistent(.currentUserID) var currentUserID: String?; #warning("Not a fan of having this here.")
             if let languageCode = data[Keys.languageCode.rawValue] as? String,
-               id == currentUserID {
+               id == currentUserID,
+               RuntimeStorage.languageCode != languageCode {
                 coreUtilities.setLanguageCode(languageCode)
             }
 

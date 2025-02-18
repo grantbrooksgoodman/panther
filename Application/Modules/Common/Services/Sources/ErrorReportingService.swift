@@ -109,7 +109,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             guard showsToastOnSuccess else { return }
 
             var toastAction: (() -> Void)? {
-                guard self.build.developerModeEnabled,
+                guard self.build.isDeveloperModeEnabled,
                       let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString, // swiftlint:disable:next line_length
                       let encodedRevisionString = "\(build.bundleRevision) | \(buildNumberString)".addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
                 let environmentShortString = Networking.config.environment.shortString
@@ -125,7 +125,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 .init(
                     .capsule(style: .success),
                     message: Localized(.errorReportedSuccessfully).wrappedValue,
-                    perpetuation: build.developerModeEnabled ? .persistent : .ephemeral(.seconds(3))
+                    perpetuation: build.isDeveloperModeEnabled ? .persistent : .ephemeral(.seconds(3))
                 ),
                 onTap: toastAction
             )

@@ -29,7 +29,7 @@ extension Translation: @retroactive Serializable {
 
     public static func decode(from data: TranslationReference) async -> Callback<Translation, Exception> {
         @Dependency(\.networking.translationService.archiver) var hostedTranslationArchiver: HostedTranslationArchiver
-        @Dependency(\.localTranslationArchiver) var localTranslationArchiver: LocalTranslationArchiverDelegate
+        @Dependency(\.translationArchiverDelegate) var localTranslationArchiver: TranslationArchiverDelegate
 
         func addToArchive(_ translation: Translation) {
             guard translation.input.value != translation.output else { return }

@@ -59,7 +59,7 @@ public struct ConversationCellViewService {
             @Localized(.region) var regionString: String
 
             var actions: [AKAction] = [.cancelAction(title: Localized(.dismiss).wrappedValue)]
-            if build.developerModeEnabled {
+            if build.isDeveloperModeEnabled {
                 let setToCurrentUserAction: AKAction = .init("Set to Current User", style: .preferred) {
                     coreUtilities.clearCaches()
                     coreUtilities.eraseDocumentsDirectory()

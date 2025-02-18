@@ -14,7 +14,7 @@ import Networking
 
 public extension DatabaseDelegate {
     func clearTemporaryCaches() {
-        CoreDatabaseCache.filter { $0.value.expiryThreshold != .seconds(300) }
+        CoreDatabaseStore.filter { $0.value.expiryThreshold != .seconds(300) }
     }
 
     func populateTemporaryCaches() async -> Exception? {
@@ -23,7 +23,7 @@ public extension DatabaseDelegate {
         switch resolveResult {
         case let .success(session):
             for (key, value) in session.conversationData {
-                CoreDatabaseCache.addValue(
+                CoreDatabaseStore.addValue(
                     .init(
                         data: value,
                         expiresAfter: .seconds(300)
@@ -33,7 +33,7 @@ public extension DatabaseDelegate {
             }
 
             for (key, value) in session.messageData {
-                CoreDatabaseCache.addValue(
+                CoreDatabaseStore.addValue(
                     .init(
                         data: value,
                         expiresAfter: .seconds(300)
@@ -44,7 +44,7 @@ public extension DatabaseDelegate {
 
             for (key, value) in session.translationData {
                 for (translationKey, translationValue) in value {
-                    CoreDatabaseCache.addValue(
+                    CoreDatabaseStore.addValue(
                         .init(
                             data: translationValue,
                             expiresAfter: .seconds(600)
@@ -55,7 +55,7 @@ public extension DatabaseDelegate {
             }
 
             for (key, value) in session.userData {
-                CoreDatabaseCache.addValue(
+                CoreDatabaseStore.addValue(
                     .init(
                         data: value,
                         expiresAfter: .seconds(300)

@@ -318,11 +318,12 @@ public final class MediaActionHandlerService {
 
     private func presentCameraPicker() {
         StatusBarStyle.override(.lightContent)
-        isPresentingPickerController = true
         services.contentPicker.camera.present()
+        isPresentingPickerController = true
 
         services.contentPicker.camera.onDismiss { result in
             Task {
+                // FIXME: Should delay this to allow ChatPageViewController.viewWillAppear(_:) to fire.
                 self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
                     Logger.log(exception, with: .toast())

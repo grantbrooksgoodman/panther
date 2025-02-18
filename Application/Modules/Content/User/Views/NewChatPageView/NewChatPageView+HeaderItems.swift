@@ -42,10 +42,7 @@ public extension NewChatPageView {
     private var doneToolbarButtonFont: Font {
         ComponentKit.Font(
             .system(
-                style: viewModel.shouldUseBoldDoneToolbarButton ? .semibold(
-                    isItalic: false,
-                    isUnderlined: false
-                ) : .regular(isItalic: false, isUnderlined: false)
+                style: viewModel.shouldUseBoldDoneToolbarButton ? .semibold() : .regular()
             ),
             scale: .medium
         ).model

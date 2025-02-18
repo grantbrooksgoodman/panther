@@ -72,6 +72,9 @@ public struct SplashPageView: View {
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .redrawsOnTraitCollectionChange()
+        .onAppear {
+            Application.loadStartDate = .now
+        }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

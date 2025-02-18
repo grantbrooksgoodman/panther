@@ -25,7 +25,7 @@ public extension IntegrityService {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         userSession.stopObservingCurrentUserChanges()
-        CoreDatabaseCache.clear()
+        CoreDatabaseStore.clearStore()
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 

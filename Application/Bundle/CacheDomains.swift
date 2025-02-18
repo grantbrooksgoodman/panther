@@ -81,7 +81,7 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
         if appDomains.contains(.contactService) { commonServices.contact.clearCache() }
         if appDomains.contains(.conversationArchive) { networking.conversationService.archive.clearArchive() }
-        if appDomains.contains(.Networking.database) { CoreDatabaseCache.clear() }
+        if appDomains.contains(.Networking.database) { CoreDatabaseStore.clearStore() }
         if appDomains.contains(.localization) { Localization.clearCache() }
         if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
         if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
@@ -90,7 +90,7 @@ public extension CoreKit.Utilities {
         if appDomains.contains(.squareIconImage) { SquareIconImageCache.clearCache() }
         if appDomains.contains(.textToSpeechService) { TextToSpeechServiceCache.clearCache() }
         if appDomains.contains(.transcriptionService) { TranscriptionServiceCache.clearCache() }
-        if appDomains.contains(.Networking.storage) { networking.storage.clearCache() }
+        if appDomains.contains(.Networking.storage) { networking.storage.clearStore() }
         if appDomains.contains(.userService) { networking.userService.clearCache() }
     }
 }
