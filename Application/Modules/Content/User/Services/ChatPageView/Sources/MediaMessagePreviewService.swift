@@ -70,7 +70,7 @@ public final class MediaMessagePreviewService {
     public func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              message.contentType == .media,
+              message.contentType.isMediaOtherThanAudio,
               let filePath = message.richContent?.mediaComponent?.urlPath.path(),
               fileManager.fileExists(atPath: filePath),
               !isPreviewingMedia,

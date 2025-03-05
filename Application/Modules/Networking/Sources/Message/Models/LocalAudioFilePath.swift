@@ -44,7 +44,7 @@ public struct LocalAudioFilePath: Codable, Equatable {
     public init?(_ message: Message) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard message.contentType == .audio,
+        guard message.contentType.isAudio,
               let translation = message.translation else { return nil }
 
         let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(MediaFileExtension.audio(.m4a).rawValue)"

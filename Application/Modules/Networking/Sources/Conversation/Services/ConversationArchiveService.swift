@@ -22,7 +22,6 @@ public final class ConversationArchiveService {
 
     // MARK: - Properties
 
-    // Array
     @LockIsolated private var archive = [Conversation]() {
         didSet {
             persistedArchive = archive.isEmpty ? nil : archive
@@ -31,10 +30,6 @@ public final class ConversationArchiveService {
     }
 
     @Persistent(.conversationArchive) private var persistedArchive: [Conversation]?
-
-    // Dictionary
-    @LockIsolated private var conversationsForConversationIDKeys = [String: Conversation]()
-    @LockIsolated private var conversationsForConversationIDs = [ConversationID: Conversation]()
 
     // MARK: - Init
 
@@ -46,9 +41,6 @@ public final class ConversationArchiveService {
         guard !archive.contains(conversation) else { return }
         archive.removeAll(where: { $0.id.key == conversation.id.key })
         archive.append(conversation)
-
-        conversationsForConversationIDKeys[conversation.id.key] = conversation
-        conversationsForConversationIDs[conversation.id] = conversation
 
         Logger.log(
             .init(
@@ -65,16 +57,11 @@ public final class ConversationArchiveService {
 
     public func clearArchive() {
         archive = []
-        conversationsForConversationIDKeys = [:]
-        conversationsForConversationIDs = [:]
     }
 
     public func removeValue(idKey: String) {
         guard archive.contains(where: { $0.id.key == idKey }) else { return }
         archive.removeAll(where: { $0.id.key == idKey })
-
-        conversationsForConversationIDKeys = conversationsForConversationIDKeys.filter { $0.value.id.key != idKey }
-        conversationsForConversationIDs = conversationsForConversationIDs.filter { $0.value.id.key != idKey }
 
         Logger.log(
             .init(
@@ -89,23 +76,11 @@ public final class ConversationArchiveService {
     // MARK: - Retrieval
 
     public func getValue(id: ConversationID) -> Conversation? {
-        if let value = conversationsForConversationIDs[id] {
-            return value
-        }
-
-        guard let valueForConversationID = archive.first(where: { $0.id == id }) else { return nil }
-        conversationsForConversationIDs[id] = valueForConversationID
-        return valueForConversationID
+        archive.first(where: { $0.id == id })
     }
 
     public func getValue(idKey: String) -> Conversation? {
-        if let value = conversationsForConversationIDKeys[idKey] {
-            return value
-        }
-
-        guard let valueForConversationIDKey = archive.first(where: { $0.id.key == idKey }) else { return nil }
-        conversationsForConversationIDKeys[idKey] = valueForConversationIDKey
-        return valueForConversationIDKey
+        archive.first(where: { $0.id.key == idKey })
     }
 
     // MARK: - Persist Values for Notification Extension

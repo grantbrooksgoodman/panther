@@ -38,42 +38,35 @@ public struct LocalMediaFilePath: Codable, Equatable {
         self.thumbnailLocalPathURL = thumbnailLocalPathURL
     }
 
-    public init?(_ message: Message) async {
+    public init?(_ message: Message) {
         @Dependency(\.fileManager) var fileManager: FileManager
-        let resolveMediaFileExtensionResult = await message.resolveMediaFileExtension(message.id)
+        guard let fileExtension = message.contentType.rawValue.components(separatedBy: "/").last else { return nil }
 
-        switch resolveMediaFileExtensionResult {
-        case let .success(fileExtension):
-            let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
-            let networkPathString = "\(pathPrefix).\(fileExtension)"
-            let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
+        let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
+        let networkPathString = "\(pathPrefix).\(fileExtension)"
+        let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-            let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
-            let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
+        let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
+        let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
 
-            let thumbnailMediaFileExtensions = [
-                MediaFileExtension.document(.pdf).rawValue,
-                MediaFileExtension.video(.mp4).rawValue,
-            ]
+        let thumbnailMediaFileExtensions = [
+            MediaFileExtension.document(.pdf).rawValue,
+            MediaFileExtension.video(.mp4).rawValue,
+        ]
 
-            guard thumbnailMediaFileExtensions.contains(fileExtension) else {
-                self.init(
-                    networkPathString: networkPathString,
-                    localPathURL: localPathURL
-                )
-                return
-            }
-
+        guard thumbnailMediaFileExtensions.contains(fileExtension) else {
             self.init(
                 networkPathString: networkPathString,
-                localPathURL: localPathURL,
-                thumbnailNetworkPathString: thumbnailNetworkPathString,
-                thumbnailLocalPathURL: thumbnailLocalPathURL
+                localPathURL: localPathURL
             )
-
-        case let .failure(exception):
-            Logger.log(exception)
-            return nil
+            return
         }
+
+        self.init(
+            networkPathString: networkPathString,
+            localPathURL: localPathURL,
+            thumbnailNetworkPathString: thumbnailNetworkPathString,
+            thumbnailLocalPathURL: thumbnailLocalPathURL
+        )
     }
 }

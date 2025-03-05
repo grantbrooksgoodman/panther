@@ -63,11 +63,11 @@ public struct MessageService {
 
         let sentDate = Date.now
 
-        var contentType: ContentType = .text
+        var contentType: HostedContentType = .text
         if richContent?.audioComponents != nil {
-            contentType = .audio
-        } else if richContent?.mediaComponent != nil {
-            contentType = .media
+            contentType = .media(.audio(.m4a))
+        } else if let mediaComponentExtension = richContent?.mediaComponent?.fileExtension {
+            contentType = .media(mediaComponentExtension)
         }
 
         typealias Keys = Message.SerializationKeys
@@ -89,30 +89,6 @@ public struct MessageService {
             sentDate: sentDate
         )
 
-        func uploadMedia() async -> Callback<Message, Exception> {
-            func uploadAudioMessageReferenceIfNeeded() async -> Callback<Message, Exception> {
-                guard mockMessage.contentType == .audio,
-                      let audioComponents = mockMessage.audioComponents else {
-                    return .success(mockMessage)
-                }
-
-                if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
-                    return .failure(exception)
-                }
-
-                return .success(mockMessage)
-            }
-
-            guard mockMessage.contentType == .media,
-                  let mediaComponent = mockMessage.richContent?.mediaComponent else { return await uploadAudioMessageReferenceIfNeeded() }
-
-            if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
-                return .failure(exception)
-            }
-
-            return .success(mockMessage)
-        }
-
         if let exception = await networking.database.updateChildValues(
             forKey: "\(NetworkPath.messages.rawValue)/\(id)",
             with: data
@@ -120,7 +96,38 @@ public struct MessageService {
             return .failure(exception)
         }
 
-        return await uploadMedia()
+        switch mockMessage.contentType {
+        case .media(.audio):
+            guard let audioComponents = mockMessage.audioComponents else {
+                return .failure(.init(
+                    "Failed to find audio components for audio message creation.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+                return .failure(exception)
+            }
+
+            return .success(mockMessage)
+
+        case .media:
+            guard let mediaComponent = richContent?.mediaComponent else {
+                return .failure(.init(
+                    "Failed to find media component for media message creation.",
+                    metadata: [self, #file, #function, #line]
+                ))
+            }
+
+            if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
+                return .failure(exception)
+            }
+
+            return .success(mockMessage)
+
+        case .text:
+            return .success(mockMessage)
+        }
     }
 
     // MARK: - Retrieval by ID

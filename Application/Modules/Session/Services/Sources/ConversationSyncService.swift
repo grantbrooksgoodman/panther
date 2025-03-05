@@ -13,9 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 public final class ConversationSyncService {
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -43,6 +45,27 @@ public final class ConversationSyncService {
             return .success(conversation)
         }
 
+        func getConversationData() async -> Exception? {
+            let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
+            let getValuesResult = await networking.database.getValues(at: conversationKeyPath, cacheStrategy: .disregardCache)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard let newData = values as? [String: Any] else {
+                    return .typecastFailed(
+                        "dictionary",
+                        metadata: [self, #file, #function, #line]
+                    ).appending(extraParams: commonParams)
+                }
+
+                syncData = .init(conversation, newData: newData)
+                return nil
+
+            case let .failure(exception):
+                return exception.appending(extraParams: commonParams)
+            }
+        }
+
         Logger.log(
             "Synchronizing conversation with ID \(conversation.id.key).",
             domain: .conversation,
@@ -60,6 +83,10 @@ public final class ConversationSyncService {
                 domain: .conversation
             )
 
+            if let exception = await getConversationData() {
+                return .failure(exception.appending(extraParams: commonParams))
+            }
+
             if let exception = await synchronizeData() {
                 return .failure(exception.appending(extraParams: commonParams))
             }
@@ -75,20 +102,7 @@ public final class ConversationSyncService {
             return await synchronizeConversation(conversation)
         }
 
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-        let getValuesResult = await networking.database.getValues(at: conversationKeyPath, cacheStrategy: .disregardCache)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let newData = values as? [String: Any] else {
-                return .failure(
-                    .typecastFailed("dictionary", metadata: [self, #file, #function, #line]).appending(extraParams: commonParams)
-                )
-            }
-
-            syncData = .init(conversation, newData: newData)
-
-        case let .failure(exception):
+        if let exception = await getConversationData() {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
@@ -220,8 +234,16 @@ public final class ConversationSyncService {
                 return .typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line])
             }
 
-            syncData = .init(conversation, newData: syncData?.newData ?? [:])
-            return synchronizeHash()
+            let updateHashResult = await updateHash(conversation)
+
+            switch updateHashResult {
+            case let .success(conversation):
+                syncData = .init(conversation, newData: syncData?.newData ?? [:])
+                return synchronizeHash()
+
+            case let .failure(exception):
+                return exception
+            }
 
         case let .failure(exception):
             return exception
@@ -326,5 +348,49 @@ public final class ConversationSyncService {
 
         syncData = .init(conversation, newData: syncData?.newData ?? [:])
         return nil
+    }
+
+    private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        guard conversation.encodedHash != conversation.id.hash else { return .success(conversation) }
+
+        if let exception = await conversation.setUsers(forceUpdate: true) {
+            return .failure(exception)
+        }
+
+        guard var users = conversation.users else {
+            return .failure(.init(
+                "Failed to set users on conversation.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        if let currentUser {
+            users.append(currentUser)
+        }
+
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/"
+        let hashPath = conversationKeyPath + Conversation.SerializationKeys.encodedHash.rawValue
+        if let exception = await networking.database.setValue(conversation.encodedHash, forKey: hashPath) {
+            return .failure(exception)
+        }
+
+        for user in users {
+            guard var conversationIDs = user.conversationIDs,
+                  let index = conversationIDs.firstIndex(where: { $0.key == conversation.id.key }) else { continue }
+
+            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
+            conversationIDs.insert(conversation.id, at: index)
+
+            let updateValueResult = await user.updateValue(conversationIDs, forKey: .conversationIDs)
+
+            switch updateValueResult {
+            case let .failure(exception):
+                return .failure(exception)
+
+            default: ()
+            }
+        }
+
+        return .success(conversation)
     }
 }

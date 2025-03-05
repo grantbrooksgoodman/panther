@@ -36,7 +36,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         sentDate: .init(timeIntervalSince1970: 0)
     )
 
-    public let contentType: ContentType
+    public let contentType: HostedContentType
     public let richContent: RichMessageContent?
     public let translations: [Translation]?
 
@@ -54,7 +54,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // Other
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
-    public var localMediaFilePath: LocalMediaFilePath? { get async { await .init(self) } }
+    public var localMediaFilePath: LocalMediaFilePath? { .init(self) }
     /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
     public var reactions: [Reaction]? { getReactions() }
     /// The translation for this message in the current user's language code.
@@ -65,7 +65,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     public init(
         _ id: String,
         fromAccountID: String,
-        contentType: ContentType,
+        contentType: HostedContentType,
         richContent: RichMessageContent?,
         translations: [Translation]?,
         readDate: Date?,
@@ -78,46 +78,6 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate
-    }
-
-    // MARK: - Resolve Media File Extension
-
-    public func resolveMediaFileExtension(_ messageID: String) async -> Callback<String, Exception> {
-        @Dependency(\.networking) var networking: NetworkServices
-
-        let commonParams = ["MessageID": messageID]
-
-        guard contentType == .media else {
-            return .failure(.init(
-                "Message does not have a media component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
-        }
-
-        func satisfiesConstraints(_ string: String) -> Bool {
-            let isAudioCAF = string == MediaFileExtension.audio(.caf).rawValue
-            let isAudioM4A = string == MediaFileExtension.audio(.m4a).rawValue
-            return !isAudioCAF && !isAudioM4A
-        }
-
-        let fileExtensions = MediaFileExtension.hostedCases.map(\.rawValue).filter { satisfiesConstraints($0) }
-        for fileExtension in fileExtensions {
-            let itemExistsResult = await networking.storage.itemExists(at: "\(NetworkPath.media.rawValue)/\(messageID).\(fileExtension)")
-
-            switch itemExistsResult {
-            case let .success(itemExists):
-                guard itemExists else { continue }
-                return .success(fileExtension)
-
-            case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
-            }
-        }
-
-        return .failure(.init(
-            "Media item does not exist.",
-            metadata: [self, #file, #function, #line]
-        ).appending(extraParams: commonParams))
     }
 
     // MARK: - Computed Property Getters

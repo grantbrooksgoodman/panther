@@ -70,8 +70,9 @@ public final class ContextMenuActionHandlerService {
 
     public func menuForMessage(_ message: Message) -> Menu? {
         var actions = [MenuElement]()
-        guard message.contentType != .media else { return nil }
-        guard message.contentType != .audio else {
+        guard !message.contentType.isMediaOtherThanAudio else { return nil }
+
+        if message.contentType.isAudio {
             let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
             let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
 

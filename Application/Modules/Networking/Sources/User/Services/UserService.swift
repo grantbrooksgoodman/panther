@@ -150,8 +150,8 @@ public final class UserService {
 
             @Persistent(.currentUserID) var currentUserID: String?; #warning("Not a fan of having this here.")
             if let languageCode = data[Keys.languageCode.rawValue] as? String,
-               id == currentUserID,
-               RuntimeStorage.languageCode != languageCode {
+               languageCode != RuntimeStorage.languageCode,
+               id == currentUserID {
                 coreUtilities.setLanguageCode(languageCode)
             }
 
@@ -162,7 +162,7 @@ public final class UserService {
                     expiryThreshold: .milliseconds(100)
                 )
             )
-            cachedUserDataSnapshots = cachedUserDataSnapshots
+            cachedUserDataSnapshots = cachedValues
             return await User.decode(from: data)
 
         case let .failure(exception):

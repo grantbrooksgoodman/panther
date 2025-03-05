@@ -38,7 +38,7 @@ extension Message: MessageType {
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
         switch contentType {
-        case .audio:
+        case .media(.audio):
             if let audioComponent,
                let translation {
                 guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {
@@ -99,7 +99,7 @@ public extension Message {
 
     var isPlayingMessage: Bool {
         @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?
-        guard contentType == .audio,
+        guard contentType.isAudio,
               audioComponent != nil,
               let playingMessage else { return false }
         return playingMessage.id == id

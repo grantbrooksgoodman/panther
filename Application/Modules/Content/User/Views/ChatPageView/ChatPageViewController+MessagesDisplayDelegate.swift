@@ -172,7 +172,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         guard let message = message as? Message else { return .none }
         guard !Application.isInPrevaricationMode,
               ThemeService.isAppDefaultThemeApplied else {
-            return message.contentType == .audio || message.contentType == .text ? .custom { view in
+            return message.contentType.isAudio || message.contentType == .text ? .custom { view in
                 view.layer.cornerRadius = Floats.messageStyleCustomLayerCornerRadius
                 view.layer.masksToBounds = false
 

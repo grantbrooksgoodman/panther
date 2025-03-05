@@ -406,8 +406,8 @@ public final class IntegrityService {
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
-                  let contentType = ContentType(rawValue: contentTypeString),
-                  contentType == .audio,
+                  let contentType = HostedContentType(rawValue: contentTypeString),
+                  contentType.isAudio,
                   let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
 
             let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
@@ -418,7 +418,7 @@ public final class IntegrityService {
                 if !itemExists {
                     tookAction = true
                     if let exception = await networking.database.setValue(
-                        ContentType.text.rawValue,
+                        HostedContentType.text.rawValue,
                         forKey: "\(NetworkPath.messages.rawValue)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
                     ) {
                         exceptions.append(exception)
@@ -443,7 +443,7 @@ public final class IntegrityService {
 
                     tookAction = true
                     if let exception = await networking.database.setValue(
-                        ContentType.text.rawValue,
+                        HostedContentType.text.rawValue,
                         forKey: "\(NetworkPath.messages.rawValue)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
                     ) {
                         exceptions.append(exception)
@@ -465,8 +465,8 @@ public final class IntegrityService {
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
-                  let contentType = ContentType(rawValue: contentTypeString),
-                  contentType == .media else { continue }
+                  let contentType = HostedContentType(rawValue: contentTypeString),
+                  contentType.isMediaOtherThanAudio else { continue }
 
             let pathPrefix = "\(NetworkPath.media.rawValue)/\(key)"
 

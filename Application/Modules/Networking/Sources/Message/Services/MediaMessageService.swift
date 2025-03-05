@@ -123,7 +123,7 @@ public struct MediaMessageService {
         .init(
             message.id,
             fromAccountID: message.fromAccountID,
-            contentType: .media,
+            contentType: .media(mediaComponent.fileExtension),
             richContent: .media(mediaComponent),
             translations: message.translations,
             readDate: message.readDate,

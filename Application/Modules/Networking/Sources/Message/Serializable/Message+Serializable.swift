@@ -59,7 +59,7 @@ extension Message: Serializable {
         guard data[Keys.id.rawValue] is String,
               data[Keys.fromAccountID.rawValue] is String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
-              ContentType(rawValue: contentTypeString) != nil,
+              HostedContentType(rawValue: contentTypeString) != nil,
               data[Keys.translations.rawValue] is [String],
               data[Keys.readDate.rawValue] is String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -76,7 +76,7 @@ extension Message: Serializable {
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
-              let contentType = ContentType(rawValue: contentTypeString),
+              let contentType = HostedContentType(rawValue: contentTypeString),
               let translationReferences = data[Keys.translations.rawValue] as? [String],
               let readDateString = data[Keys.readDate.rawValue] as? String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -101,34 +101,48 @@ extension Message: Serializable {
             )
         }
 
-        guard contentType != .media else {
-            return await messageService.media.getMediaComponent(for: decodedMessage(nil))
+        // FIXME: Why are we always getting every translation again, and not just the ones into the user's language code?
+        func getAndApplyTranslations() async -> Callback<Message, Exception> {
+            let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
+            let references = translationReferences.compactMap { TranslationReference($0) }
+
+            /* If all the translations are originally from the current language code,
+             makeIdempotent will only decode the first reference and return a translation built from the original input. */
+            let getTranslationsResult = await getTranslations(
+                references: references,
+                makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode } && references.count > 1
+            )
+
+            switch getTranslationsResult {
+            case let .success(translations):
+                let matchingLanguage = translations.filter { $0.languagePair.to == languageCode }
+                let notMatchingLanguage = translations.filter { $0.languagePair.to != languageCode }
+                let sortedTranslations = matchingLanguage + notMatchingLanguage
+
+                return .success(decodedMessage(sortedTranslations))
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
         }
 
-        let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
-        let references = translationReferences.compactMap { TranslationReference($0) }
+        switch contentType {
+        case .media(.audio):
+            let getAndApplyTranslationsResult = await getAndApplyTranslations()
 
-        /* If all the translations are originally from the current language code,
-         makeIdempotent will only decode the first reference and return a translation built from the original input. */
-        let getTranslationsResult = await getTranslations(
-            references: references,
-            makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode } && references.count > 1
-        )
+            switch getAndApplyTranslationsResult {
+            case let .success(message):
+                return await messageService.audio.getAudioComponent(for: message)
 
-        switch getTranslationsResult {
-        case let .success(translations):
-            let matchingLanguage = translations.filter { $0.languagePair.to == languageCode }
-            let notMatchingLanguage = translations.filter { $0.languagePair.to != languageCode }
-            let sortedTranslations = matchingLanguage + notMatchingLanguage
-
-            guard contentType != .audio else {
-                return await messageService.audio.getAudioComponent(for: decodedMessage(sortedTranslations))
+            case let .failure(exception):
+                return .failure(exception)
             }
 
-            return .success(decodedMessage(sortedTranslations))
+        case .media:
+            return await messageService.media.getMediaComponent(for: decodedMessage(nil))
 
-        case let .failure(exception):
-            return .failure(exception)
+        case .text:
+            return await getAndApplyTranslations()
         }
     }
 
