@@ -40,7 +40,9 @@ public struct LocalMediaFilePath: Codable, Equatable {
 
     public init?(_ message: Message) {
         @Dependency(\.fileManager) var fileManager: FileManager
-        guard let fileExtension = message.contentType.rawValue.components(separatedBy: "/").last else { return nil }
+
+        guard message.contentType.isMediaOtherThanAudio,
+              let fileExtension = message.contentType.rawValue.components(separatedBy: "/").last else { return nil }
 
         let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
         let networkPathString = "\(pathPrefix).\(fileExtension)"

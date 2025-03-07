@@ -33,7 +33,7 @@ extension Message: Updatable {
              .fromAccountID,
              .id,
              .sentDate,
-             .translations:
+             .translationReferences:
             return nil
 
         case .readDate:
@@ -43,6 +43,7 @@ extension Message: Updatable {
                 fromAccountID: fromAccountID,
                 contentType: contentType,
                 richContent: richContent,
+                translationReferences: translationReferences,
                 translations: translations,
                 readDate: dateFormatter.date(from: value) ?? nil,
                 sentDate: sentDate

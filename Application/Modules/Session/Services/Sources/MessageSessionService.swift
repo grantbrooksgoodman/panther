@@ -232,7 +232,7 @@ public struct MessageSessionService {
                     message: message,
                     conversationIDKey: conversationIDKey
                 ) {
-                    Logger.log(exception)
+                    Logger.log(exception, domain: .notifications)
                 }
 
                 incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)

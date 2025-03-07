@@ -33,6 +33,19 @@ public struct Reaction: Codable, Hashable {
 
         // MARK: - Computed Properties
 
+        // Int
+        public var orderValue: Int {
+            switch self {
+            case .dislike: 2
+            case .emphasis: 4
+            case .laugh: 3
+            case .like: 1
+            case .love: 0
+            case .question: 5
+            }
+        }
+
+        // String
         public var emojiValue: String {
             switch self {
             case .dislike: "👎"
@@ -45,17 +58,6 @@ public struct Reaction: Codable, Hashable {
         }
 
         public var encodedValue: String { rawValue.uppercased() }
-
-        public var orderValue: Int {
-            switch self {
-            case .dislike: 2
-            case .emphasis: 4
-            case .laugh: 3
-            case .like: 1
-            case .love: 0
-            case .question: 5
-            }
-        }
 
         // MARK: - Init
 

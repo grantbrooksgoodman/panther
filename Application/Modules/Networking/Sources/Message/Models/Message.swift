@@ -17,6 +17,10 @@ import Translator
 public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
+    // Array
+    public let translationReferences: [TranslationReference]?
+    public let translations: [Translation]?
+
     // Date
     public let readDate: Date?
     public let sentDate: Date
@@ -31,6 +35,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         fromAccountID: "",
         contentType: .text,
         richContent: nil,
+        translationReferences: nil,
         translations: nil,
         readDate: nil,
         sentDate: .init(timeIntervalSince1970: 0)
@@ -38,7 +43,6 @@ public struct Message: Codable, EncodedHashable, Equatable {
 
     public let contentType: HostedContentType
     public let richContent: RichMessageContent?
-    public let translations: [Translation]?
 
     // MARK: - Computed Properties
 
@@ -67,6 +71,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         fromAccountID: String,
         contentType: HostedContentType,
         richContent: RichMessageContent?,
+        translationReferences: [TranslationReference]?,
         translations: [Translation]?,
         readDate: Date?,
         sentDate: Date
@@ -75,6 +80,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.fromAccountID = fromAccountID
         self.contentType = contentType
         self.richContent = richContent
+        self.translationReferences = translationReferences
         self.translations = translations
         self.readDate = readDate
         self.sentDate = sentDate

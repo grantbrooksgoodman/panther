@@ -120,13 +120,13 @@ public struct ConversationsPageReducer: Reducer {
             state.strings = strings
 
             state.viewState = .loaded
-            viewService.viewLoaded()
+            viewService.viewLoaded(state.conversations.isEmpty)
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
 
             state.viewState = .loaded
-            viewService.viewLoaded()
+            viewService.viewLoaded(state.conversations.isEmpty)
 
         case .settingsToolbarButtonTapped:
             navigationCoordinator.navigate(to: .userContent(.sheet(.settings)))

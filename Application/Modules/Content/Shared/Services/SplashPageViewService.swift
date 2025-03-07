@@ -178,6 +178,9 @@ public final class SplashPageViewService: ObservableObject {
                     Logger.log(exception)
                 }
 
+                // Allow temporary cache population to settle before moving on.
+                try? await Task.sleep(for: .milliseconds(500))
+
                 if let exception = await services.pushToken.prunePushTokensForCurrentUser() {
                     Logger.log(exception)
                 }

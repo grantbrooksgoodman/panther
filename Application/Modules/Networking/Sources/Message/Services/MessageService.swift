@@ -70,20 +70,12 @@ public struct MessageService {
             contentType = .media(mediaComponentExtension)
         }
 
-        typealias Keys = Message.SerializationKeys
-        let data: [String: Any] = [
-            Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.contentType.rawValue: contentType.rawValue,
-            Keys.translations.rawValue: translations?.map(\.reference.hostingKey).sorted() ?? .bangQualifiedEmpty,
-            Keys.readDate.rawValue: String.bangQualifiedEmpty,
-            Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
-        ]
-
         let mockMessage: Message = .init(
             id,
             fromAccountID: fromAccountID,
             contentType: contentType,
             richContent: richContent,
+            translationReferences: translations?.map(\.reference),
             translations: translations,
             readDate: nil,
             sentDate: sentDate
@@ -91,7 +83,7 @@ public struct MessageService {
 
         if let exception = await networking.database.updateChildValues(
             forKey: "\(NetworkPath.messages.rawValue)/\(id)",
-            with: data
+            with: mockMessage.encoded.filter { $0.key != Message.SerializationKeys.id.rawValue }
         ) {
             return .failure(exception)
         }

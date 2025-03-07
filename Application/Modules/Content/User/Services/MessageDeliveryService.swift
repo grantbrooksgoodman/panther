@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
-// wiftlint:disable:next type_body_length
+// swiftlint:disable:next type_body_length
 public final class MessageDeliveryService {
     // MARK: - Dependencies
 
@@ -239,6 +239,7 @@ public final class MessageDeliveryService {
                 fromAccountID: currentUser.id,
                 contentType: .media(.audio(.m4a)),
                 richContent: .audio([mockAudioMessageReference]),
+                translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()
@@ -249,6 +250,7 @@ public final class MessageDeliveryService {
                 fromAccountID: currentUser.id,
                 contentType: .media(mediaFile.fileExtension),
                 richContent: .media(mediaFile),
+                translationReferences: nil,
                 translations: nil,
                 readDate: nil,
                 sentDate: Date()
@@ -259,6 +261,7 @@ public final class MessageDeliveryService {
                 fromAccountID: currentUser.id,
                 contentType: .text,
                 richContent: nil,
+                translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
                 readDate: nil,
                 sentDate: Date()

@@ -26,7 +26,7 @@ extension Message: Serializable {
         case id
         case fromAccountID = "fromAccount"
         case contentType
-        case translations
+        case translationReferences = "translations"
         case readDate
         case sentDate
     }
@@ -45,7 +45,7 @@ extension Message: Serializable {
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.contentType.rawValue: contentType.rawValue,
-            Keys.translations.rawValue: translations?.map(\.reference.hostingKey) ?? .bangQualifiedEmpty,
+            Keys.translationReferences.rawValue: translationReferences?.map(\.hostingKey) ?? .bangQualifiedEmpty,
             Keys.readDate.rawValue: readDateString,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
@@ -60,7 +60,7 @@ extension Message: Serializable {
               data[Keys.fromAccountID.rawValue] is String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
               HostedContentType(rawValue: contentTypeString) != nil,
-              data[Keys.translations.rawValue] is [String],
+              data[Keys.translationReferences.rawValue] is [String],
               data[Keys.readDate.rawValue] is String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               dateFormatter.date(from: sentDateString) != nil else { return false }
@@ -69,15 +69,15 @@ extension Message: Serializable {
     }
 
     public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
               let contentType = HostedContentType(rawValue: contentTypeString),
-              let translationReferences = data[Keys.translations.rawValue] as? [String],
+              let translationReferenceStrings = data[Keys.translationReferences.rawValue] as? [String],
               let readDateString = data[Keys.readDate.rawValue] as? String,
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               let sentDate = dateFormatter.date(from: sentDateString) else {
@@ -95,23 +95,24 @@ extension Message: Serializable {
                 fromAccountID: fromAccountID,
                 contentType: contentType,
                 richContent: nil,
+                translationReferences: translationReferenceStrings.isEmpty ? nil : translationReferenceStrings.compactMap { .init($0) },
                 translations: translations,
                 readDate: readDate,
                 sentDate: sentDate
             )
         }
 
-        // FIXME: Why are we always getting every translation again, and not just the ones into the user's language code?
         func getAndApplyTranslations() async -> Callback<Message, Exception> {
-            let languageCode = userSession.currentUser?.languageCode ?? RuntimeStorage.languageCode
-            let references = translationReferences.compactMap { TranslationReference($0) }
+            let languageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
+            var references = translationReferenceStrings.compactMap { TranslationReference($0) }
 
-            /* If all the translations are originally from the current language code,
-             makeIdempotent will only decode the first reference and return a translation built from the original input. */
-            let getTranslationsResult = await getTranslations(
-                references: references,
-                makeIdempotent: references.allSatisfy { $0.languagePair.from == languageCode } && references.count > 1
-            )
+            if let firstMatchingTarget = references.first(where: { $0.languagePair.to == languageCode }) {
+                references = [firstMatchingTarget]
+            } else if let firstMatchingSource = references.first(where: { $0.languagePair.from == languageCode }) {
+                references = [firstMatchingSource]
+            }
+
+            let getTranslationsResult = await getTranslations(references: references)
 
             switch getTranslationsResult {
             case let .success(translations):
@@ -146,13 +147,8 @@ extension Message: Serializable {
         }
     }
 
-    private static func getTranslations(
-        references: [TranslationReference],
-        makeIdempotent: Bool
-    ) async -> Callback<[Translation], Exception> {
+    private static func getTranslations(references: [TranslationReference]) async -> Callback<[Translation], Exception> {
         func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
-            @Dependency(\.networking.translationService.archiver) var translationArchiver: HostedTranslationArchiver
-
             let decodeResult = await Translation.decode(from: reference)
 
             switch decodeResult {
@@ -171,15 +167,12 @@ extension Message: Serializable {
             }
         }
 
-        guard !references.isEmpty,
-              let firstReference = references.first else {
+        guard !references.isEmpty else {
             return .failure(.init(
                 "No translation references provided.",
                 metadata: [self, #file, #function, #line]
             ))
         }
-
-        let references = makeIdempotent ? [firstReference] : references
 
         var translations = [Translation]()
         for reference in references {

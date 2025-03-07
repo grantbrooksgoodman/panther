@@ -22,7 +22,7 @@ public struct MediaMessageService {
 
     public func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
         let commonParams = ["MessageID": message.id]
-        guard let localMediaFilePath = await message.localMediaFilePath else {
+        guard let localMediaFilePath = message.localMediaFilePath else {
             return .failure(.init(
                 "Message does not have a media component.",
                 metadata: [self, #file, #function, #line]
@@ -125,6 +125,7 @@ public struct MediaMessageService {
             fromAccountID: message.fromAccountID,
             contentType: .media(mediaComponent.fileExtension),
             richContent: .media(mediaComponent),
+            translationReferences: message.translationReferences,
             translations: message.translations,
             readDate: message.readDate,
             sentDate: message.sentDate

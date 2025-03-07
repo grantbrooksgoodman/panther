@@ -408,7 +408,7 @@ public final class IntegrityService {
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
                   let contentType = HostedContentType(rawValue: contentTypeString),
                   contentType.isAudio,
-                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
+                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translationReferences.rawValue] as? [String] else { continue }
 
             let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
             let inputFileItemExistsResult = await networking.storage.itemExists(at: inputFilePath)
@@ -597,7 +597,7 @@ public final class IntegrityService {
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
-                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translations.rawValue] as? [String] else { continue }
+                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translationReferences.rawValue] as? [String] else { continue }
 
             for translationReferenceString in translationReferenceStrings {
                 guard let reference: TranslationReference = .init(translationReferenceString),

@@ -38,10 +38,18 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         viewController.view.firstSubview(for: Strings.viewSemanticTag) as? UIProgressView
     }
 
-    // MARK: - Init
+    // MARK: - Object Lifecycle
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+    }
+
+    deinit {
+        appearanceTimer?.invalidate()
+        appearanceTimer = nil
+
+        deliveryProgressTimer?.invalidate()
+        deliveryProgressTimer = nil
     }
 
     // MARK: - Public
@@ -85,7 +93,7 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         appearanceTimer?.invalidate()
         appearanceTimer = nil
         appearanceTimer = .scheduledTimer(
-            timeInterval: 5,
+            timeInterval: Floats.appearanceTimerTimeInterval,
             target: self,
             selector: #selector(_startAnimatingDeliveryProgress),
             userInfo: nil,

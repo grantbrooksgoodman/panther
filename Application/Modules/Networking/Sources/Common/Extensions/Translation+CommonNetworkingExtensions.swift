@@ -12,7 +12,5 @@ import Foundation
 import Translator
 
 public extension Translation {
-    var reference: TranslationReference {
-        .init(self)
-    }
+    var reference: TranslationReference { .init(self) }
 }

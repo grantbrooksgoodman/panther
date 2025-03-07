@@ -65,14 +65,28 @@ public final class ConversationsPageViewService {
         }
     }
 
-    /// `.resolveReturned(.success(_))`
-    public func viewLoaded() {
+    /// `.resolveReturned`
+    public func viewLoaded(_ isConversationsListEmpty: Bool) {
         func showOfflineModeToast() {
             Toast.show(.init(
                 .capsule(style: .warning),
                 message: Localized(.offlineMode).wrappedValue,
                 perpetuation: .ephemeral(.seconds(10))
             ))
+        }
+
+        /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
+        func reloadIfNeeded() {
+            guard isConversationsListEmpty,
+                  (userSession.currentUser?.conversationIDs?.count) ?? 0 > 0 else { return }
+
+            Logger.log(
+                "Intercepted empty initial conversations list bug.",
+                domain: .bugPrevention,
+                metadata: [self, #file, #function, #line]
+            )
+
+            Observables.updatedCurrentUser.trigger()
         }
 
         /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.
@@ -96,10 +110,13 @@ public final class ConversationsPageViewService {
         }
 
         networking.database.clearTemporaryCaches()
+        reloadIfNeeded()
+
         Task.delayed(by: .seconds(1)) { @MainActor in
             defer {
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
 
+                // TODO: Remove predication on Developer Mode status once feature is finalized.
                 if build.isDeveloperModeEnabled,
                    !(presentedPenPalsPermissionPageAtStartup ?? false),
                    userSession.currentUser?.isPenPalsParticipant == false {

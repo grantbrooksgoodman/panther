@@ -137,6 +137,7 @@ public struct AudioMessageService {
             fromAccountID: message.fromAccountID,
             contentType: .media(.audio(.m4a)),
             richContent: .audio(audioComponents),
+            translationReferences: message.translationReferences,
             translations: message.translations,
             readDate: message.readDate,
             sentDate: message.sentDate
