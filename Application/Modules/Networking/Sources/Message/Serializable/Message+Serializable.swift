@@ -27,7 +27,7 @@ extension Message: Serializable {
         case fromAccountID = "fromAccount"
         case contentType
         case translationReferences = "translations"
-        case readDate
+        case readReceipts
         case sentDate
     }
 
@@ -35,18 +35,12 @@ extension Message: Serializable {
 
     public var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-
-        var readDateString = String.bangQualifiedEmpty
-        if let readDate {
-            readDateString = dateFormatter.string(from: readDate)
-        }
-
         return [
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
             Keys.contentType.rawValue: contentType.rawValue,
             Keys.translationReferences.rawValue: translationReferences?.map(\.hostingKey) ?? .bangQualifiedEmpty,
-            Keys.readDate.rawValue: readDateString,
+            Keys.readReceipts.rawValue: readReceipts?.map(\.encoded) ?? .bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
         ]
     }
@@ -61,7 +55,8 @@ extension Message: Serializable {
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
               HostedContentType(rawValue: contentTypeString) != nil,
               data[Keys.translationReferences.rawValue] is [String],
-              data[Keys.readDate.rawValue] is String,
+              let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
+              encodedReadReceipts.isBangQualifiedEmpty || encodedReadReceipts.allSatisfy({ ReadReceipt.canDecode(from: $0) }),
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               dateFormatter.date(from: sentDateString) != nil else { return false }
 
@@ -78,15 +73,22 @@ extension Message: Serializable {
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
               let contentType = HostedContentType(rawValue: contentTypeString),
               let translationReferenceStrings = data[Keys.translationReferences.rawValue] as? [String],
-              let readDateString = data[Keys.readDate.rawValue] as? String,
+              let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               let sentDate = dateFormatter.date(from: sentDateString) else {
             return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
-        var readDate: Date?
-        if !readDateString.isBangQualifiedEmpty {
-            readDate = dateFormatter.date(from: readDateString)
+        var readReceipts: [ReadReceipt]?
+        if !encodedReadReceipts.isBangQualifiedEmpty {
+            readReceipts = .init()
+            for encodedReadReceipt in encodedReadReceipts {
+                let decodeResult = await ReadReceipt.decode(from: encodedReadReceipt)
+                switch decodeResult {
+                case let .success(readReceipt): readReceipts?.append(readReceipt)
+                case let .failure(exception): return .failure(exception)
+                }
+            }
         }
 
         func decodedMessage(_ translations: [Translation]?) -> Message {
@@ -97,7 +99,7 @@ extension Message: Serializable {
                 richContent: nil,
                 translationReferences: translationReferenceStrings.isEmpty ? nil : translationReferenceStrings.compactMap { .init($0) },
                 translations: translations,
-                readDate: readDate,
+                readReceipts: readReceipts,
                 sentDate: sentDate
             )
         }

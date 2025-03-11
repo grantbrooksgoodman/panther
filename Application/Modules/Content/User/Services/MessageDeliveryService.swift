@@ -241,7 +241,7 @@ public final class MessageDeliveryService {
                 richContent: .audio([mockAudioMessageReference]),
                 translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
-                readDate: nil,
+                readReceipts: nil,
                 sentDate: Date()
             ))
         } else if let mediaFile {
@@ -252,7 +252,7 @@ public final class MessageDeliveryService {
                 richContent: .media(mediaFile),
                 translationReferences: nil,
                 translations: nil,
-                readDate: nil,
+                readReceipts: nil,
                 sentDate: Date()
             ))
         } else {
@@ -263,7 +263,7 @@ public final class MessageDeliveryService {
                 richContent: nil,
                 translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
-                readDate: nil,
+                readReceipts: nil,
                 sentDate: Date()
             ))
         }

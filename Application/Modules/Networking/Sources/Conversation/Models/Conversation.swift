@@ -171,13 +171,23 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
             ))
         }
 
-        let readDateString = dateFormatter.string(from: .now)
-        let messages = messages.filter { $0.readDate == nil }
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserID else {
+            return .failure(.init(
+                "Current user ID has not been set.",
+                metadata: [self, #file, #function, #line]
+            ))
+        }
+
+        let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
+        let messages = messages.filter { $0.currentUserReadReceipt == nil }
 
         var modifiedMessages = self.messages ?? []
-
         for message in messages {
-            let updateValueResult = await message.updateValue(readDateString, forKey: .readDate)
+            var readReceipts = message.readReceipts?.filter { $0.userID != currentUserID } ?? []
+            readReceipts.append(readReceipt)
+
+            let updateValueResult = await message.updateValue(readReceipts.unique, forKey: .readReceipts)
 
             switch updateValueResult {
             case let .success(message):

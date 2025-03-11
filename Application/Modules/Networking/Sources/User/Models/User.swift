@@ -112,7 +112,7 @@ public final class User: Codable, Equatable {
             return await calculateBadgeNumber(true)
         }
 
-        return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.readDate == nil }.count
+        return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }.count
     }
 
     // MARK: - Capability Testing

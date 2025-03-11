@@ -26,7 +26,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
             lastName,
             phoneNumbers.map(\.encodedHash).joined(),
             imageData?.base64EncodedString() ?? "",
-        ]
+        ].sorted()
     }
 
     // Data

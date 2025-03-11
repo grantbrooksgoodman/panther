@@ -243,10 +243,9 @@ public final class IntegrityService {
                 }
             }
 
-            let keyPath = "\(NetworkPath.messages.rawValue)/\(messageID)"
-            if let exception = await networking.database.setValue(
-                NSNull(),
-                forKey: keyPath
+            if let exception = await networking.messageService.deleteMessages(
+                ids: messageIDs ?? malformedMessageIDs,
+                failureStrategy: .continueOnFailure
             ) {
                 exceptions.append(exception)
             }

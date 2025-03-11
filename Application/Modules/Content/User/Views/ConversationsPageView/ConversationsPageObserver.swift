@@ -119,7 +119,7 @@ public struct ConversationsPageObserver: Observer {
                       let missingMessages = updatedConversation.messages?
                       .filter({ !currentMessages.contains($0) })
                       .filter({ !$0.isFromCurrentUser })
-                      .filter({ $0.readDate == nil }),
+                      .filter({ $0.currentUserReadReceipt == nil }),
                       !missingMessages.isEmpty else {
                     guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
                     clientSession.conversation.setCurrentConversation(updatedConversation)

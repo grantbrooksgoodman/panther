@@ -176,6 +176,8 @@ extension Conversation: Updatable {
             }
         }
 
+        // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
+        networking.conversationService.archive.addValue(updated)
         return .success(updated)
     }
 

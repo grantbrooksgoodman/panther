@@ -21,7 +21,7 @@ extension Message: Updatable {
 
     // MARK: - Properties
 
-    public var updatableKeys: [SerializationKeys] { [.readDate] }
+    public var updatableKeys: [SerializationKeys] { [.readReceipts] }
 
     // MARK: - Modify Key
 
@@ -36,8 +36,8 @@ extension Message: Updatable {
              .translationReferences:
             return nil
 
-        case .readDate:
-            guard let value = value as? String else { return nil }
+        case .readReceipts:
+            guard let value = value as? [ReadReceipt] else { return nil }
             return .init(
                 id,
                 fromAccountID: fromAccountID,
@@ -45,7 +45,7 @@ extension Message: Updatable {
                 richContent: richContent,
                 translationReferences: translationReferences,
                 translations: translations,
-                readDate: dateFormatter.date(from: value) ?? nil,
+                readReceipts: value.isEmpty ? nil : value,
                 sentDate: sentDate
             )
         }
@@ -69,6 +69,10 @@ extension Message: Updatable {
         let valueKeyPath = messageKeyPath + key.rawValue
         if let serializable = value as? any Serializable {
             if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
+                return .failure(exception)
+            }
+        } else if let serializable = value as? [any Serializable] {
+            if let exception = await networking.database.setValue(serializable.map { $0.encoded }, forKey: valueKeyPath) {
                 return .failure(exception)
             }
         } else if networking.database.isEncodable(value) {

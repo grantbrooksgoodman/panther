@@ -39,7 +39,7 @@ public extension SquareIconView {
                 overlaySymbolName,
                 .init(overlaySymbolWeight?.hashValue ?? 0),
                 size.debugDescription,
-            ]
+            ].sorted()
         }
 
         // MARK: - Init

@@ -179,7 +179,7 @@
 		B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D52CAC7D14004CD880 /* UserContentContainerView.swift */; };
 		B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */; };
 		B947F2DB2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */; };
-		B947F2DD2CAC8AD9004CD880 /* ReadDateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */; };
+		B947F2DD2CAC8AD9004CD880 /* ReadReceiptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DC2CAC8AD9004CD880 /* ReadReceiptService.swift */; };
 		B94D767A2BBB5A11002B4BC6 /* SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */; };
 		B94D767E2BBB5A2E002B4BC6 /* SignInContentPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */; };
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
@@ -308,6 +308,8 @@
 		B99E48E22CE16AC2006D6AFC /* ConversationSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99E48E12CE16AC2006D6AFC /* ConversationSyncService.swift */; };
 		B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */; };
 		B99F115E2D65182000BB6FC0 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B99F115D2D65182000BB6FC0 /* Networking */; };
+		B99F119C2D7B93C300BB6FC0 /* ReadReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F119B2D7B93C300BB6FC0 /* ReadReceipt.swift */; };
+		B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */; };
 		B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
 		B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */; };
@@ -662,7 +664,6 @@
 		B9E6D7DE2B1288B9000BC88D /* WelcomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7DD2B1288B9000BC88D /* WelcomePageView.swift */; };
 		B9E6D7E02B1288CD000BC88D /* WelcomePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7DF2B1288CD000BC88D /* WelcomePageReducer.swift */; };
 		B9E6D7E32B1289CF000BC88D /* WelcomePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7E22B1289CF000BC88D /* WelcomePageViewStrings.swift */; };
-		B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7E52B128A83000BC88D /* OnboardingPage.swift */; };
 		B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7E82B128DB6000BC88D /* AppConstants+WelcomePageView.swift */; };
 		B9E6D7ED2B1293CB000BC88D /* HostedTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7EC2B1293CB000BC88D /* HostedTranslationService.swift */; };
 		B9E6D7EF2B129516000BC88D /* Translation+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7EE2B129516000BC88D /* Translation+CommonNetworkingExtensions.swift */; };
@@ -989,7 +990,7 @@
 		B947F2D52CAC7D14004CD880 /* UserContentContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerView.swift; sourceTree = "<group>"; };
 		B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerReducer.swift; sourceTree = "<group>"; };
 		B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+UserContentContainerView.swift"; sourceTree = "<group>"; };
-		B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadDateService.swift; sourceTree = "<group>"; };
+		B947F2DC2CAC8AD9004CD880 /* ReadReceiptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadReceiptService.swift; sourceTree = "<group>"; };
 		B94D76792BBB5A11002B4BC6 /* SignInPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageView.swift; sourceTree = "<group>"; };
 		B94D767D2BBB5A2E002B4BC6 /* SignInContentPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInContentPageView.swift; sourceTree = "<group>"; };
 		B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInPageReducer.swift; sourceTree = "<group>"; };
@@ -1116,6 +1117,8 @@
 		B99E48DD2CDEEDDA006D6AFC /* Logger+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B99E48E12CE16AC2006D6AFC /* ConversationSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationSyncService.swift; sourceTree = "<group>"; };
 		B99ED4E52B154BCC00F9CEEF /* PhoneNumberKitDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberKitDependency.swift; sourceTree = "<group>"; };
+		B99F119B2D7B93C300BB6FC0 /* ReadReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadReceipt.swift; sourceTree = "<group>"; };
+		B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReadReceipt+Serializable.swift"; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsSharingData.swift; sourceTree = "<group>"; };
@@ -1466,7 +1469,6 @@
 		B9E6D7DD2B1288B9000BC88D /* WelcomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageView.swift; sourceTree = "<group>"; };
 		B9E6D7DF2B1288CD000BC88D /* WelcomePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageReducer.swift; sourceTree = "<group>"; };
 		B9E6D7E22B1289CF000BC88D /* WelcomePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomePageViewStrings.swift; sourceTree = "<group>"; };
-		B9E6D7E52B128A83000BC88D /* OnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPage.swift; sourceTree = "<group>"; };
 		B9E6D7E82B128DB6000BC88D /* AppConstants+WelcomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+WelcomePageView.swift"; sourceTree = "<group>"; };
 		B9E6D7EC2B1293CB000BC88D /* HostedTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostedTranslationService.swift; sourceTree = "<group>"; };
 		B9E6D7EE2B129516000BC88D /* Translation+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Translation+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
@@ -2305,6 +2307,7 @@
 			isa = PBXGroup;
 			children = (
 				B980E8AE2B225EE40090F141 /* Message+Serializable.swift */,
+				B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */,
 			);
 			path = Serializable;
 			sourceTree = "<group>";
@@ -2559,7 +2562,7 @@
 				B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */,
 				B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */,
 				B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */,
-				B947F2DC2CAC8AD9004CD880 /* ReadDateService.swift */,
+				B947F2DC2CAC8AD9004CD880 /* ReadReceiptService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
@@ -3057,6 +3060,7 @@
 				B9E0E1072B2102B700C14274 /* LocalAudioFilePath.swift */,
 				B9E00A552C2B8D35004E350E /* LocalMediaFilePath.swift */,
 				B9E0E0F22B20E89B00C14274 /* Message.swift */,
+				B99F119B2D7B93C300BB6FC0 /* ReadReceipt.swift */,
 				B979AA3C2C446CC70082203C /* RichMessageContent.swift */,
 			);
 			path = Models;
@@ -3170,7 +3174,6 @@
 				B991957A2B47CAF700BD5BBC /* Components */,
 				B9E6D7E72B128DAC000BC88D /* Constants */,
 				B99195892B47E02C00BD5BBC /* Dependencies */,
-				B9E6D7E42B128A75000BC88D /* Models */,
 				B99195822B47D1C600BD5BBC /* Services */,
 				B9E6D7D62B12884D000BC88D /* Views */,
 			);
@@ -3208,14 +3211,6 @@
 				B9E6D7DD2B1288B9000BC88D /* WelcomePageView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		B9E6D7E42B128A75000BC88D /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				B9E6D7E52B128A83000BC88D /* OnboardingPage.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		B9E6D7E72B128DAC000BC88D /* Constants */ = {
@@ -4164,7 +4159,6 @@
 				B921F4082CCC3351006BB149 /* NetworkPaths.swift in Sources */,
 				B94262522C4622D50026CDE8 /* InviteQRCodeContentPageView.swift in Sources */,
 				B9D4FD872CEEF11400F4AC75 /* NewChatPageView+HeaderItems.swift in Sources */,
-				B9E6D7E62B128A83000BC88D /* OnboardingPage.swift in Sources */,
 				B93457092AABFB3700944602 /* Localized.swift in Sources */,
 				B92FC6BF2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift in Sources */,
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
@@ -4352,7 +4346,7 @@
 				B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */,
 				B9931B312B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift in Sources */,
 				B990F5AA2B81C91000C7BE00 /* NewChatPageObserver.swift in Sources */,
-				B947F2DD2CAC8AD9004CD880 /* ReadDateService.swift in Sources */,
+				B947F2DD2CAC8AD9004CD880 /* ReadReceiptService.swift in Sources */,
 				B900BB032C98DDE200EED8E4 /* SettingsNavigator.swift in Sources */,
 				B99ED4E62B154BCC00F9CEEF /* PhoneNumberKitDependency.swift in Sources */,
 				B9C61C942CD946A600E0F0D1 /* ContextMenuActionHandlerService.swift in Sources */,
@@ -4372,6 +4366,7 @@
 				B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */,
 				B963F1C82B23D7110087DB83 /* Participant.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
+				B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */,
 				B91E93942C2B23760099FBA4 /* IntegrityService+CommonNetworkingExtensions.swift in Sources */,
 				B90C91162B69D2CC008DFE59 /* ChatPageViewController+MessagesLayoutDelegate.swift in Sources */,
 				B9E6D7E92B128DB6000BC88D /* AppConstants+WelcomePageView.swift in Sources */,
@@ -4476,6 +4471,7 @@
 				B9223D332CD584DA00C05BC6 /* MenuElementView.swift in Sources */,
 				B9223D342CD584DA00C05BC6 /* ContextMenuConfiguration.swift in Sources */,
 				B9223D362CD584DA00C05BC6 /* ContextMenuStyle.swift in Sources */,
+				B99F119C2D7B93C300BB6FC0 /* ReadReceipt.swift in Sources */,
 				B9223D372CD584DA00C05BC6 /* MenuElement.swift in Sources */,
 				B9223D382CD584DA00C05BC6 /* CALayer+Extensions.swift in Sources */,
 				B9223D392CD584DA00C05BC6 /* UIView+Extensions.swift in Sources */,

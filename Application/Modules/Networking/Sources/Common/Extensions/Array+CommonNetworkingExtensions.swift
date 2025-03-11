@@ -70,10 +70,10 @@ public extension Array where Element == Conversation {
 }
 
 public extension Array where Element == Message {
-    /// The unique messages among the array according to their `id` value, where those with populated `readDate` fields take priority.
+    /// The unique messages among the array according to their `id` value, where those with populated `readReceipts` fields take priority.
     var uniquedByID: [Message] {
-        let withReadDate = filter { $0.readDate != nil }
-        let withoutReadDate = filter { $0.readDate == nil }
+        let withReadDate = filter { $0.readReceipts != nil }
+        let withoutReadDate = filter { $0.readReceipts == nil }
 
         var messages = [Message]()
 

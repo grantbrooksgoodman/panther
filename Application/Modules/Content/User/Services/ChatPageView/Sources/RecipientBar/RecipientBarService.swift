@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RecipientBarService {
+public struct RecipientBarService {
     // MARK: - Properties
 
     public let actionHandler: RecipientBarActionHandlerService

@@ -18,12 +18,9 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     // Array
+    public let readReceipts: [ReadReceipt]?
     public let translationReferences: [TranslationReference]?
     public let translations: [Translation]?
-
-    // Date
-    public let readDate: Date?
-    public let sentDate: Date
 
     // String
     public let fromAccountID: String
@@ -37,12 +34,13 @@ public struct Message: Codable, EncodedHashable, Equatable {
         richContent: nil,
         translationReferences: nil,
         translations: nil,
-        readDate: nil,
+        readReceipts: nil,
         sentDate: .init(timeIntervalSince1970: 0)
     )
 
     public let contentType: HostedContentType
     public let richContent: RichMessageContent?
+    public let sentDate: Date
 
     // MARK: - Computed Properties
 
@@ -57,6 +55,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
 
     // Other
     public var audioComponent: AudioMessageReference? { audioComponents?.first }
+    public var currentUserReadReceipt: ReadReceipt? { getCurrentUserReadReceipt() }
     public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
     public var localMediaFilePath: LocalMediaFilePath? { .init(self) }
     /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
@@ -73,7 +72,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
         richContent: RichMessageContent?,
         translationReferences: [TranslationReference]?,
         translations: [Translation]?,
-        readDate: Date?,
+        readReceipts: [ReadReceipt]?,
         sentDate: Date
     ) {
         self.id = id
@@ -82,11 +81,16 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.richContent = richContent
         self.translationReferences = translationReferences
         self.translations = translations
-        self.readDate = readDate
+        self.readReceipts = readReceipts
         self.sentDate = sentDate
     }
 
     // MARK: - Computed Property Getters
+
+    private func getCurrentUserReadReceipt() -> ReadReceipt? {
+        @Persistent(.currentUserID) var currentUserID: String?
+        return readReceipts?.first(where: { $0.userID == currentUserID })
+    }
 
     private func getHashFactors() -> [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
@@ -97,11 +101,11 @@ public struct Message: Codable, EncodedHashable, Equatable {
             dateFormatter.string(from: sentDate),
         ]
 
-        if let readDate {
-            factors.append(dateFormatter.string(from: readDate))
+        if let readReceipts {
+            factors.append(contentsOf: readReceipts.map(\.encoded))
         }
 
-        return factors
+        return factors.sorted()
     }
 
     private func getReactions() -> [Reaction]? {

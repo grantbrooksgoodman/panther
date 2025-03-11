@@ -47,7 +47,7 @@ public final class ChatPageViewService {
     public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
     public private(set) var mediaActionHandler: MediaActionHandlerService?
     public private(set) var mediaMessagePreview: MediaMessagePreviewService?
-    public private(set) var readDate: ReadDateService?
+    public private(set) var readReceipts: ReadReceiptService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
     public private(set) var tapGestureRecognizer: TapGestureRecognizerService?
@@ -77,7 +77,7 @@ public final class ChatPageViewService {
         inputBarGestureRecognizer = .init(viewController)
         mediaActionHandler = .init(viewController)
         mediaMessagePreview = .init(viewController)
-        readDate = .init(viewController)
+        readReceipts = .init(viewController)
         recordingUI = .init(viewController)
         tapGestureRecognizer = .init(viewController)
         typingIndicator = .init(viewController)
@@ -156,7 +156,7 @@ public final class ChatPageViewService {
         }
 
         Task {
-            if let exception = await readDate?.updateReadDateForUnreadMessages() {
+            if let exception = await readReceipts?.updateReadDateForUnreadMessages() {
                 Logger.log(exception, with: .toastInPrerelease)
             }
 
@@ -234,7 +234,7 @@ public final class ChatPageViewService {
             inputBar?.setAttachMediaButtonImage()
             recipientBar?.layout.layoutSubviews()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
-            NavigationBar.setAppearance(configuration == .newChat ? .themed(showsDivider: false) : .appDefault)
+            NavigationBar.setAppearance(.appDefault)
             StatusBarStyle.restore()
             UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true

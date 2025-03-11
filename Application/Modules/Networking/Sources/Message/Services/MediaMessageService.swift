@@ -127,7 +127,7 @@ public struct MediaMessageService {
             richContent: .media(mediaComponent),
             translationReferences: message.translationReferences,
             translations: message.translations,
-            readDate: message.readDate,
+            readReceipts: message.readReceipts,
             sentDate: message.sentDate
         )
     }

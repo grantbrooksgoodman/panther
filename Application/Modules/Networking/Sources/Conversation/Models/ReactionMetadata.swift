@@ -31,7 +31,7 @@ public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
         var factors = [messageID]
         factors.append(contentsOf: reactions.map(\.userID))
         factors.append(contentsOf: reactions.map(\.style.encodedValue))
-        return factors
+        return factors.sorted()
     }
 
     // MARK: - Init

@@ -114,8 +114,9 @@ extension ChatPageViewController: MessagesDataSource {
             )
         }
 
+        @Persistent(.currentUserID) var currentUserID: String?
         let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
-        guard let readDate = message.readDate else {
+        guard let readDate = message.readReceipts?.first(where: { $0.userID != currentUserID })?.readDate else {
             return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(
                 standardAttributes,
                 secondaryAttributes: attributedStringSecondaryAttributes

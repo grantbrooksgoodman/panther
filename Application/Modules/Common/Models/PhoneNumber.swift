@@ -38,7 +38,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
             label ?? "",
             nationalNumberString,
             regionCode,
-        ]
+        ].sorted()
     }
 
     // MARK: - Init

@@ -139,7 +139,7 @@ public struct AudioMessageService {
             richContent: .audio(audioComponents),
             translationReferences: message.translationReferences,
             translations: message.translations,
-            readDate: message.readDate,
+            readReceipts: message.readReceipts,
             sentDate: message.sentDate
         )
 

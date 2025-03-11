@@ -53,7 +53,7 @@ extension User: Serializable {
         guard data[Keys.id.rawValue] is String,
               data[Keys.blockedUserIDs.rawValue] is [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
-              conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }) || conversationIDStrings == ["!"],
+              conversationIDStrings.isBangQualifiedEmpty || conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
               data[Keys.isPenPalsParticipant.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),

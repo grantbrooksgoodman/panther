@@ -192,7 +192,7 @@ extension Conversation: Serializable {
             let decoded: Conversation = .init(
                 conversationID,
                 messageIDs: messageIDs,
-                messages: messages.sorted(by: { $0.sentDate < $1.sentDate }),
+                messages: messages.sortedByAscendingSentDate,
                 metadata: metadata,
                 participants: participants,
                 reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,

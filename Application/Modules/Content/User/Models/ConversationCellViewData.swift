@@ -56,6 +56,7 @@ public struct ConversationCellViewData: Equatable {
     public init?(_ conversation: Conversation) {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
 
+        let conversation = conversation.withMessagesSortedByAscendingSentDate
         guard let users = conversation.users,
               let lastUser = users.last else { return nil }
 
@@ -129,7 +130,7 @@ public struct ConversationCellViewData: Equatable {
         // Set unread indicator status
 
         if let lastMessageFromOtherUsers = conversation.messages?.filter({ !$0.isFromCurrentUser }).last {
-            isShowingUnreadIndicator = lastMessageFromOtherUsers.readDate == nil
+            isShowingUnreadIndicator = lastMessageFromOtherUsers.currentUserReadReceipt == nil
         }
 
         self.init(

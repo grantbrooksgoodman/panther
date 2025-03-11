@@ -77,7 +77,7 @@ public struct MessageService {
             richContent: richContent,
             translationReferences: translations?.map(\.reference),
             translations: translations,
-            readDate: nil,
+            readReceipts: nil,
             sentDate: sentDate
         )
 

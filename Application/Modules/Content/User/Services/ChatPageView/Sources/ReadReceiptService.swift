@@ -1,5 +1,5 @@
 //
-//  ReadDateService.swift
+//  ReadReceiptService.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 01/10/2024.
@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class ReadDateService {
+public final class ReadReceiptService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -33,9 +33,9 @@ public final class ReadDateService {
     public func updateReadDateForUnreadMessages() async -> Exception? {
         guard let conversation = clientSession.conversation.fullConversation,
               let messages = conversation.messages?.filter({ !$0.isFromCurrentUser }),
-              messages.last?.readDate == nil else { return nil }
+              messages.last?.currentUserReadReceipt == nil else { return nil }
 
-        let unreadMessages = messages.filter { $0.readDate == nil }
+        let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
         guard !unreadMessages.isEmpty else { return nil }
 
         clientSession.user.stopObservingCurrentUserChanges()
