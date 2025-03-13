@@ -1562,7 +1562,7 @@
 		A2DF2C4828199B660089DEA1 = {
 			isa = PBXGroup;
 			children = (
-				A2DF2C5328199B660089DEA1 /* Application */,
+				A2DF2C5328199B660089DEA1 /* Sources */,
 				B9F5608F2B69A465009ABDD5 /* NotificationExtension */,
 				A2DF2C5228199B660089DEA1 /* Products */,
 				A286879128A49DA600A34912 /* Frameworks */,
@@ -1579,18 +1579,17 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A2DF2C5328199B660089DEA1 /* Application */ = {
+		A2DF2C5328199B660089DEA1 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				A2DF2C5428199B660089DEA1 /* AppDelegate.swift */,
-				A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */,
+				B93BD4F52C90399F00E8D242 /* Application.swift */,
 				B9E7D4542AAC400B00FAF2A9 /* Bundle */,
 				B9D0D70F2B02F5E500078A93 /* Debug */,
 				B91A0E242AFF2F8600E3C1A0 /* Modules */,
 				B94657702AABC6200091193B /* Navigation */,
 				A2DF2C6F28199BF40089DEA1 /* Resources */,
 			);
-			path = Application;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		A2DF2C6F28199BF40089DEA1 /* Resources */ = {
@@ -1808,6 +1807,15 @@
 				B9F47AE12B576E2100D86C67 /* User */,
 			);
 			path = Content;
+			sourceTree = "<group>";
+		};
+		B91C90482D839A0000959AEB /* Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				A2DF2C5428199B660089DEA1 /* AppDelegate.swift */,
+				A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */,
+			);
+			path = Delegates;
 			sourceTree = "<group>";
 		};
 		B9223D092CD584B500C05BC6 /* Third-party */ = {
@@ -3263,9 +3271,9 @@
 		B9E7D4542AAC400B00FAF2A9 /* Bundle */ = {
 			isa = PBXGroup;
 			children = (
+				B91C90482D839A0000959AEB /* Delegates */,
 				B99CC5522C1927AE00319F02 /* Navigators */,
 				B99B1DC929E4C7EC00117D42 /* Themes */,
-				B93BD4F52C90399F00E8D242 /* Application.swift */,
 				B9E2E6102C72E64F004022FE /* CacheDomains.swift */,
 				B9C5830729BECE59009DCE29 /* DevModeActions.swift */,
 				B91688D928FE0E4C004C80A2 /* ExceptionCatalog.swift */,
@@ -4724,12 +4732,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "Application Icon";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Application/Resources/Other/Panther.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Other/Panther.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0;
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "Application/Resources/Property Lists/Info.plist";
+				INFOPLIST_FILE = "Sources/Resources/Property Lists/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4752,12 +4760,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "Application Icon";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Application/Resources/Other/Panther.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Other/Panther.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0;
 				DEVELOPMENT_TEAM = 7R4R2FSWH9;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "Application/Resources/Property Lists/Info.plist";
+				INFOPLIST_FILE = "Sources/Resources/Property Lists/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
