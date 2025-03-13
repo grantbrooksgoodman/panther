@@ -18,11 +18,8 @@ public struct ConversationCellReducer: Reducer {
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -96,7 +93,7 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case .cellTapped:
-            navigationCoordinator.navigate(to: .userContent(.push(.chat(state.conversation))))
+            navigation.navigate(to: .userContent(.push(.chat(state.conversation))))
 
         case .deleteConversationButtonTapped:
             let title = state.cellViewData.titleLabelText

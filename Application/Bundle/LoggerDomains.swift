@@ -13,27 +13,33 @@ import Foundation
 import AppSubsystem
 
 public extension LoggerDomain {
-    static let domainsExcludedFromSessionRecord: [LoggerDomain] = [
-        .caches,
-        .observer,
-    ]
+    // MARK: - Types
 
-    static let subscribedDomains: [LoggerDomain] = [
-        .alertKit,
-        .analytics,
-        .bugPrevention,
-        .chatPageState,
-        .contacts,
-        .conversation,
-        .dataIntegrity,
-        .general,
-        .hostedTranslation,
-        .notifications,
-        .queue,
-        .translation,
-        .user,
-        .userSession,
-    ]
+    struct SubscriptionDelegate: AppSubsystem.Delegates.LoggerDomainSubscriptionDelegate {
+        public let domainsExcludedFromSessionRecord: [LoggerDomain] = [
+            .caches,
+            .observer,
+        ]
+
+        public let subscribedDomains: [LoggerDomain] = [
+            .alertKit,
+            .analytics,
+            .bugPrevention,
+            .chatPageState,
+            .contacts,
+            .conversation,
+            .dataIntegrity,
+            .general,
+            .hostedTranslation,
+            .notifications,
+            .queue,
+            .translation,
+            .user,
+            .userSession,
+        ]
+    }
+
+    // MARK: - Properties
 
     static let analytics: LoggerDomain = .init("analytics")
     static let bugPrevention: LoggerDomain = .init("bugPrevention")

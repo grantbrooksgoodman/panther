@@ -13,6 +13,18 @@ import Foundation
 import AppSubsystem
 
 public extension UserDefaultsKey {
+    // MARK: - Types
+
+    struct PermanentKeyDelegate: AppSubsystem.Delegates.PermanentUserDefaultsKeyDelegate {
+        public let permanentKeys: [UserDefaultsKey] = [
+            .application(.buildMilestoneString),
+            .init("isNetworkActivityIndicatorEnabled"),
+            .init("networkEnvironment"),
+        ]
+    }
+
+    // MARK: - Methods
+
     /* Add values here for each new defaults key. */
 
     static func application(_ key: ApplicationDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

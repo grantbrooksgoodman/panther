@@ -18,7 +18,7 @@ public extension CacheDomain {
     // MARK: - Types
 
     struct List: AppSubsystem.Delegates.CacheDomainListDelegate {
-        public var allCacheDomains: [CacheDomain] {
+        public var appCacheDomains: [CacheDomain] {
             [
                 .chatInfoPageViewService,
                 .commonPropertyLists,
@@ -27,9 +27,6 @@ public extension CacheDomain {
                 .contactPairArchive,
                 .contactService,
                 .conversationArchive,
-                .encodedHash,
-                .localization,
-                .localTranslationArchive,
                 .mediaMessagePreviewService,
                 .Networking.database,
                 .Networking.storage,
@@ -46,51 +43,90 @@ public extension CacheDomain {
 
     // MARK: - Properties
 
-    static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService")
-    static let commonPropertyLists: CacheDomain = .init("commonPropertyLists")
-    static let contactImage: CacheDomain = .init("contactImage")
-    static let contactInitialsImage: CacheDomain = .init("contactInitialsImage")
-    static let contactPairArchive: CacheDomain = .init("contactPairArchive")
-    static let contactService: CacheDomain = .init("contactService")
-    static let conversationArchive: CacheDomain = .init("conversationArchive")
-    static let localization: CacheDomain = .init("localization")
-    static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService")
-    static let queriedContactPairs: CacheDomain = .init("queriedContactPairs")
-    static let regionDetailService: CacheDomain = .init("regionDetailService")
-    static let settingsPageViewService: CacheDomain = .init("settingsPageViewService")
-    static let squareIconImage: CacheDomain = .init("squareIconImage")
-    static let textToSpeechService: CacheDomain = .init("textToSpeechService")
-    static let transcriptionService: CacheDomain = .init("transcriptionService")
-    static let userService: CacheDomain = .init("userService")
-}
+    static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService") { clearChatInfoPageViewServiceCache() }
+    static let commonPropertyLists: CacheDomain = .init("commonPropertyLists") { clearCommonPropertyListsCache() }
+    static let contactImage: CacheDomain = .init("contactImage") { clearContactImageCache() }
+    static let contactInitialsImage: CacheDomain = .init("contactInitialsImage") { clearContactInitialsImageCache() }
+    static let contactPairArchive: CacheDomain = .init("contactPairArchive") { clearContactPairArchiveCache() }
+    static let contactService: CacheDomain = .init("contactService") { clearContactServiceCache() }
+    static let conversationArchive: CacheDomain = .init("conversationArchive") { clearConversationArchiveCache() }
+    static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService") { clearMediaMessagePreviewServiceCache() }
+    static let queriedContactPairs: CacheDomain = .init("queriedContactPairs") { clearQueriedContactPairsCache() }
+    static let regionDetailService: CacheDomain = .init("regionDetailService") { clearRegionDetailServiceCache() }
+    static let settingsPageViewService: CacheDomain = .init("settingsPageViewService") { clearSettingsPageViewServiceCache() }
+    static let squareIconImage: CacheDomain = .init("squareIconImage") { clearSquareIconImageCache() }
+    static let textToSpeechService: CacheDomain = .init("textToSpeechService") { clearTextToSpeechServiceCache() }
+    static let transcriptionService: CacheDomain = .init("transcriptionService") { clearTranscriptionServiceCache() }
+    static let userService: CacheDomain = .init("userService") { clearUserServiceCache() }
 
-public extension CoreKit.Utilities {
-    func clearCaches(_ domains: [CacheDomain] = CacheDomain.allCases) {
+    // MARK: - Methods
+
+    private static func clearChatInfoPageViewServiceCache() {
         @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
-        @Dependency(\.commonServices) var commonServices: CommonServices
+        chatInfoPageViewService.clearCache()
+    }
+
+    private static func clearCommonPropertyListsCache() {
+        @Dependency(\.commonServices.propertyLists) var commonPropertyLists: CommonPropertyLists
+        commonPropertyLists.clearCache()
+    }
+
+    private static func clearContactImageCache() {
+        ContactImageCache.clearCache()
+    }
+
+    private static func clearContactInitialsImageCache() {
+        ContactInitialsImageCache.clearCache()
+    }
+
+    private static func clearContactPairArchiveCache() {
+        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        contactPairArchive.clearArchive()
+    }
+
+    private static func clearContactServiceCache() {
+        @Dependency(\.commonServices.contact) var contactService: ContactService
+        contactService.clearCache()
+    }
+
+    private static func clearConversationArchiveCache() {
+        @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
+        conversationArchive.clearArchive()
+    }
+
+    private static func clearMediaMessagePreviewServiceCache() {
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
-        @Dependency(\.networking) var networking: NetworkServices
+        mediaMessagePreviewService?.clearCache()
+    }
+
+    private static func clearQueriedContactPairsCache() {
+        QueriedContactPairCache.clearCache()
+    }
+
+    private static func clearRegionDetailServiceCache() {
+        @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
+        regionDetailService.clearCache()
+    }
+
+    private static func clearSettingsPageViewServiceCache() {
         @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
+        settingsPageViewService.clearCache()
+    }
 
-        let appDomains = clearCaches(domains: domains)
+    private static func clearSquareIconImageCache() {
+        SquareIconImageCache.clearCache()
+    }
 
-        if appDomains.contains(.chatInfoPageViewService) { chatInfoPageViewService.clearCache() }
-        if appDomains.contains(.commonPropertyLists) { commonServices.propertyLists.clearCache() }
-        if appDomains.contains(.contactImage) { ContactImageCache.clearCache() }
-        if appDomains.contains(.contactInitialsImage) { ContactInitialsImageCache.clearCache() }
-        if appDomains.contains(.contactPairArchive) { commonServices.contact.contactPairArchive.clearArchive() }
-        if appDomains.contains(.contactService) { commonServices.contact.clearCache() }
-        if appDomains.contains(.conversationArchive) { networking.conversationService.archive.clearArchive() }
-        if appDomains.contains(.Networking.database) { CoreDatabaseStore.clearStore() }
-        if appDomains.contains(.localization) { Localization.clearCache() }
-        if appDomains.contains(.mediaMessagePreviewService) { mediaMessagePreviewService?.clearCache() }
-        if appDomains.contains(.queriedContactPairs) { QueriedContactPairCache.clearCache() }
-        if appDomains.contains(.regionDetailService) { commonServices.regionDetail.clearCache() }
-        if appDomains.contains(.settingsPageViewService) { settingsPageViewService.clearCache() }
-        if appDomains.contains(.squareIconImage) { SquareIconImageCache.clearCache() }
-        if appDomains.contains(.textToSpeechService) { TextToSpeechServiceCache.clearCache() }
-        if appDomains.contains(.transcriptionService) { TranscriptionServiceCache.clearCache() }
-        if appDomains.contains(.Networking.storage) { networking.storage.clearStore() }
-        if appDomains.contains(.userService) { networking.userService.clearCache() }
+    private static func clearTextToSpeechServiceCache() {
+        TextToSpeechServiceCache.clearCache()
+    }
+
+    private static func clearTranscriptionServiceCache() {
+        TranscriptionServiceCache.clearCache()
+    }
+
+    private static func clearUserServiceCache() {
+        @Dependency(\.networking.userService) var userService: UserService
+        userService.clearCache()
     }
 }

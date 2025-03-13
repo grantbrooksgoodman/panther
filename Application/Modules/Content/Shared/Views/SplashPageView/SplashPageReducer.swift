@@ -16,12 +16,9 @@ import AppSubsystem
 public struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -104,10 +101,10 @@ public struct SplashPageReducer: Reducer {
                 }
             } else if currentUserID != nil,
                       userSession.currentUser != nil {
-                navigationCoordinator.navigate(to: .root(.modal(.userContent)))
+                navigation.navigate(to: .root(.modal(.userContent)))
             } else {
-                navigationCoordinator.navigate(to: .onboarding(.stack([])))
-                navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+                navigation.navigate(to: .onboarding(.stack([])))
+                navigation.navigate(to: .root(.modal(.onboarding)))
             }
 
         case let .performRetryHandlerReturned(exception):

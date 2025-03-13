@@ -44,6 +44,7 @@ public final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -198,8 +199,7 @@ public final class ConversationsPageViewService {
             return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
         }
 
-        @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-        guard navigationCoordinator.state.userContent.sheet == nil else { return }
+        guard navigation.state.userContent.sheet == nil else { return }
 
         Task { @MainActor in
             NavigationBar.setAppearance(.appDefault)

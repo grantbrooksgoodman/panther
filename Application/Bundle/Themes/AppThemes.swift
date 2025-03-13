@@ -24,7 +24,7 @@ public extension AppTheme {
     // MARK: - Types
 
     struct List: AppSubsystem.Delegates.AppThemeListDelegate {
-        public var allAppThemes: [AppTheme] {
+        public var appThemes: [AppTheme] {
             [
                 .appDefault,
                 .bluesky,

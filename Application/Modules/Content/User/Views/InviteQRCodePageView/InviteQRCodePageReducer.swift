@@ -16,11 +16,8 @@ import AppSubsystem
 public struct InviteQRCodePageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -71,7 +68,7 @@ public struct InviteQRCodePageReducer: Reducer {
             }
 
         case .doneButtonTapped:
-            navigationCoordinator.navigate(to: .settings(.sheet(nil)))
+            navigation.navigate(to: .settings(.sheet(nil)))
             if !Application.isInPrevaricationMode,
                ThemeService.isAppDefaultThemeApplied,
                !ThemeService.isDarkModeActive {

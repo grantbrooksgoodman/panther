@@ -198,14 +198,14 @@ public struct NotificationService {
         }
 
         Toast.show(toast) {
-            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+            @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
             guard self.chatPageState.isPresented else {
-                return navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+                return navigation.navigate(to: .userContent(.push(.chat(conversation))))
             }
 
-            navigationCoordinator.navigate(to: .userContent(.stack([])))
+            navigation.navigate(to: .userContent(.stack([])))
             self.chatPageState.addEffectUponIsPresented(changedTo: false, id: .deeplinkToOtherChat) {
-                navigationCoordinator.navigate(to: .userContent(.push(.chat(conversation))))
+                navigation.navigate(to: .userContent(.push(.chat(conversation))))
             }
         }
 

@@ -109,9 +109,7 @@ public final class SplashPageViewService: ObservableObject {
                     core.utils.eraseDocumentsDirectory()
                     core.utils.eraseTemporaryDirectory()
 
-                    var defaultsKeysToKeep = UserDefaultsKey.permanentKeys
-                    defaultsKeysToKeep.append(.userSessionService(.currentUserID))
-                    defaults.reset(keeping: defaultsKeysToKeep)
+                    defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
 
                     if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
                         Logger.log(exception)
@@ -157,7 +155,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: UserSessionService Setup */
 
         @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
-        @Persistent(.translationArchive) var translationArchive: [Translation]?
+        @Persistent(.init("translationArchive")) var translationArchive: [Translation]?
 
         let resolveCurrentUserResult = await userSession.resolveCurrentUser()
 
@@ -267,7 +265,7 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+            defaults.reset()
             didAttemptDatabaseRepair = false
         }
 

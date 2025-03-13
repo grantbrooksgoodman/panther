@@ -17,13 +17,10 @@ import Networking
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -88,7 +85,7 @@ public struct AuthCodePageReducer: Reducer {
 
             onboardingService.setUserID(userID)
 
-            navigationCoordinator.navigate(to: .onboarding(.push(.permission)))
+            navigation.navigate(to: .onboarding(.push(.permission)))
 
         case let .authenticateUserReturned(.failure(exception)):
             uiApplication.mainWindow?.removeOverlay()
@@ -99,7 +96,7 @@ public struct AuthCodePageReducer: Reducer {
             Logger.log(exception, with: .toast())
 
         case .backButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.pop))
+            navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
             uiApplication.resignFirstResponders()

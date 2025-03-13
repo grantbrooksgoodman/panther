@@ -1,0 +1,40 @@
+//
+//  NavigationCoordinatorDependency.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman on 13/03/2025.
+//  Copyright © 2013-2025 NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+
+/* Proprietary */
+import AppSubsystem
+
+private var didResolve = false
+
+public enum NavigationCoordinatorDependency: DependencyKey {
+    public static func resolve(_: DependencyValues) -> NavigationCoordinator<RootNavigationService> {
+        guard !didResolve else {
+            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+            return navigationCoordinator
+        }
+
+        let navigationCoordinator: NavigationCoordinator<RootNavigationService> = .init(
+            .init(modal: .splash),
+            navigating: RootNavigationService()
+        )
+
+        NavigationCoordinatorResolver.shared.store(navigationCoordinator)
+        didResolve = true
+        return navigationCoordinator
+    }
+}
+
+public extension DependencyValues {
+    var navigation: NavigationCoordinator<RootNavigationService> {
+        get { self[NavigationCoordinatorDependency.self] }
+        set { self[NavigationCoordinatorDependency.self] = newValue }
+    }
+}

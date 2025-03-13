@@ -18,10 +18,7 @@ public struct NewChatPageReducer: Reducer {
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -68,7 +65,7 @@ public struct NewChatPageReducer: Reducer {
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
 
         case .doneToolbarButtonTapped:
-            navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
+            navigation.navigate(to: .userContent(.sheet(.none)))
 
         case .firstMessageSent:
             guard let currentConversation,

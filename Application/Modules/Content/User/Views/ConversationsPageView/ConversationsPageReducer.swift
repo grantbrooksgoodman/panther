@@ -18,13 +18,10 @@ public struct ConversationsPageReducer: Reducer {
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -99,7 +96,7 @@ public struct ConversationsPageReducer: Reducer {
             state.animationAmount = animationAmount
 
         case .composeToolbarButtonTapped:
-            navigationCoordinator.navigate(to: .userContent(.sheet(.newChat)))
+            navigation.navigate(to: .userContent(.sheet(.newChat)))
 
         case .pulledToRefresh:
             state.isRefreshing = true
@@ -129,7 +126,7 @@ public struct ConversationsPageReducer: Reducer {
             viewService.viewLoaded(state.conversations.isEmpty)
 
         case .settingsToolbarButtonTapped:
-            navigationCoordinator.navigate(to: .userContent(.sheet(.settings)))
+            navigation.navigate(to: .userContent(.sheet(.settings)))
 
         case .traitCollectionChanged:
             viewService.traitCollectionChanged()

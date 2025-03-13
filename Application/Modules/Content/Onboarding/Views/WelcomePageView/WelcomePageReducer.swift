@@ -17,12 +17,9 @@ public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -76,7 +73,7 @@ public struct WelcomePageReducer: Reducer {
             }
 
         case .continueButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.push(.selectLanguage)))
+            navigation.navigate(to: .onboarding(.push(.selectLanguage)))
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
@@ -87,7 +84,7 @@ public struct WelcomePageReducer: Reducer {
             state.viewState = .loaded
 
         case .signInButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.push(.signIn)))
+            navigation.navigate(to: .onboarding(.push(.signIn)))
         }
 
         return .none

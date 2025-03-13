@@ -83,15 +83,21 @@ extension ChatPageViewController: MessagesDataSource {
 
         let fromLanguageExonym = message.translation?.languagePair.from.languageExonym ?? .bangQualifiedEmpty
         let toLanguageExonym = message.translation?.languagePair.to.languageExonym ?? .bangQualifiedEmpty
-        let attributedStringSecondaryAttributes: [AttributedStringConfig] = [
-            .init(boldAttributes, stringRanges: [
-                fromLanguageExonym,
-                toLanguageExonym,
-                Localized(.delivered).wrappedValue,
-                Localized(.read).wrappedValue,
-            ]),
-            .init(emojiAttributes, stringRanges: [reactionsString]),
-        ]
+        let attributedStringConfig: AttributedStringConfig = .init(
+            standardAttributes,
+            secondaryAttributes: [
+                .init(
+                    boldAttributes,
+                    stringRanges: [
+                        fromLanguageExonym,
+                        toLanguageExonym,
+                        Localized(.delivered).wrappedValue,
+                        Localized(.read).wrappedValue,
+                    ]
+                ),
+                .init(emojiAttributes, stringRanges: [reactionsString]),
+            ]
+        )
 
         if let alternateMessageService,
            alternateMessageService.isDisplayingAlternateText(for: message),
@@ -107,26 +113,17 @@ extension ChatPageViewController: MessagesDataSource {
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser,
               !reactionsString.contains("|") else {
-            guard reactionsString.contains(where: { $0.isLetter }) else { return reactionsString.attributed(emojiAttributes) }
-            return reactionsString.attributed(
-                standardAttributes,
-                secondaryAttributes: attributedStringSecondaryAttributes
-            )
+            guard reactionsString.contains(where: { $0.isLetter }) else { return reactionsString.attributed(.init(emojiAttributes)) }
+            return reactionsString.attributed(attributedStringConfig)
         }
 
         @Persistent(.currentUserID) var currentUserID: String?
         let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
         guard let readDate = message.readReceipts?.first(where: { $0.userID != currentUserID })?.readDate else {
-            return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(
-                standardAttributes,
-                secondaryAttributes: attributedStringSecondaryAttributes
-            )
+            return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(attributedStringConfig)
         }
 
-        return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(
-            standardAttributes,
-            secondaryAttributes: attributedStringSecondaryAttributes
-        )
+        return "\(prefix) \(Localized(.read).wrappedValue) \(readDate.formattedShortString)".attributed(attributedStringConfig)
     }
 
     // MARK: - Cell Top Label Attributed Text

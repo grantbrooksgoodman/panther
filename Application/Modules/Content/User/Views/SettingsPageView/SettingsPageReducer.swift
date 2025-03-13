@@ -19,13 +19,10 @@ public struct SettingsPageReducer: Reducer {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.commonServices.contact) private var contactService: ContactService
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -156,7 +153,7 @@ public struct SettingsPageReducer: Reducer {
             viewService.deleteAccountButtonTapped()
 
         case .doneToolbarButtonTapped:
-            navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
+            navigation.navigate(to: .userContent(.sheet(.none)))
 
         case let .fetchCNContactForCurrentUserReturned(.success(cnContact)):
             state.cnContact = cnContact

@@ -17,14 +17,11 @@ import Networking
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -117,7 +114,7 @@ public struct VerifyNumberPageReducer: Reducer {
             if !cancelled {
                 onboardingService.setPhoneNumber(state.phoneNumber)
                 onboardingService.setRegionCode(state.selectedRegionCode)
-                navigationCoordinator.navigate(to: .onboarding(.stack([.signIn])))
+                navigation.navigate(to: .onboarding(.stack([.signIn])))
             }
 
         case let .accountExistsReturned(accountExists):
@@ -136,7 +133,7 @@ public struct VerifyNumberPageReducer: Reducer {
             }
 
         case .backButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.pop))
+            navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
             uiApplication.resignFirstResponders()
@@ -198,7 +195,7 @@ public struct VerifyNumberPageReducer: Reducer {
             onboardingService.setPhoneNumber(state.phoneNumber)
             onboardingService.setRegionCode(state.selectedRegionCode)
 
-            navigationCoordinator.navigate(to: .onboarding(.push(.authCode)))
+            navigation.navigate(to: .onboarding(.push(.authCode)))
 
         case let .verifyPhoneNumberReturned(.failure(exception)):
             uiApplication.mainWindow?.removeOverlay()

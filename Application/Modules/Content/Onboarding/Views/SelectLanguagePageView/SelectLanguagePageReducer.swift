@@ -17,12 +17,9 @@ public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -85,7 +82,7 @@ public struct SelectLanguagePageReducer: Reducer {
             }
 
         case .backButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.pop))
+            navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
             coreUtilities.restoreDeviceLanguageCode()
@@ -98,7 +95,7 @@ public struct SelectLanguagePageReducer: Reducer {
                 coreUtilities.clearCaches([.localization, .regionDetailService])
                 coreUtilities.setLanguageCode(selectedLanguageCode)
 
-                navigationCoordinator.navigate(to: .onboarding(.push(.verifyNumber)))
+                navigation.navigate(to: .onboarding(.push(.verifyNumber)))
                 onboardingService.setLanguageCode(selectedLanguageCode)
             }
 

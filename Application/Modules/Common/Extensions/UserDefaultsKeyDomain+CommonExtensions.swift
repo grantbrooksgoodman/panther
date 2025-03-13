@@ -13,8 +13,6 @@ import Foundation
 import AppSubsystem
 
 public extension UserDefaultsKey {
-    // MARK: - Types
-
     enum GeneralAppDefaultsKey: String {
         case `default`
     }
@@ -40,17 +38,5 @@ public extension UserDefaultsKey {
         case buildNumberWhenLastForcedToUpdate
         case firstPostponedUpdate
         case relaunchesSinceLastPostponedUpdate
-    }
-
-    // MARK: - Properties
-
-    static var permanentKeys: [UserDefaultsKey] {
-        var keys: [UserDefaultsKey] = [
-            .application(.buildMilestoneString),
-            .init("isNetworkActivityIndicatorEnabled"),
-            .init("networkEnvironment"),
-        ]
-        keys.append(contentsOf: UserDefaultsKey.coreKeys)
-        return keys
     }
 }

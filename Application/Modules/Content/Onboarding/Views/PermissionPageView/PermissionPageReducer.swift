@@ -17,14 +17,11 @@ import Networking
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -86,7 +83,7 @@ public struct PermissionPageReducer: Reducer {
             }
 
         case .backButtonTapped:
-            navigationCoordinator.navigate(to: .onboarding(.pop))
+            navigation.navigate(to: .onboarding(.pop))
 
         case .contactPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isNotificationPermissionGranted != nil
@@ -104,7 +101,7 @@ public struct PermissionPageReducer: Reducer {
 
                 Logger.log(exception, with: .toast())
             } else {
-                navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                navigation.navigate(to: .root(.modal(.splash)))
             }
 
         case let .eulaAlertDismissed(cancelled: cancelled):

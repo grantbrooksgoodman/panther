@@ -36,6 +36,7 @@ public final class SettingsPageViewService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -45,7 +46,6 @@ public final class SettingsPageViewService {
     // MARK: - Properties
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Init
 
@@ -67,7 +67,7 @@ public final class SettingsPageViewService {
             func isCurrentTheme(_ theme: UITheme) -> Bool { theme.encodedHash == ThemeService.currentTheme.encodedHash }
             func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
 
-            actions = AppTheme.allCases.map { appTheme in
+            actions = AppTheme.allCases.filter { $0 != .default }.map { appTheme in
                 .init(
                     isCurrentTheme(appTheme.theme) ? "\(themeName(appTheme.theme)) (Applied)" : themeName(appTheme.theme),
                     isEnabled: !isCurrentTheme(appTheme.theme)
@@ -87,9 +87,7 @@ public final class SettingsPageViewService {
             core.utils.eraseDocumentsDirectory()
             core.utils.eraseTemporaryDirectory()
 
-            var defaultsKeysToKeep: [UserDefaultsKey] = UserDefaultsKey.permanentKeys
-            defaultsKeysToKeep.append(.userSessionService(.currentUserID))
-            defaults.reset(keeping: defaultsKeysToKeep)
+            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
 
             @Persistent(.didClearCaches) var didClearCaches: Bool?
             didClearCaches = true
@@ -98,8 +96,8 @@ public final class SettingsPageViewService {
             var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]
             if build.isDeveloperModeEnabled {
                 let reloadAction = AKAction("Reload") {
-                    self.navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
-                    self.navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                    self.navigation.navigate(to: .userContent(.sheet(.none)))
+                    self.navigation.navigate(to: .root(.modal(.splash)))
                 }
 
                 actions.insert(reloadAction, at: 0)
@@ -135,7 +133,7 @@ public final class SettingsPageViewService {
                 core.utils.eraseDocumentsDirectory()
                 core.utils.eraseTemporaryDirectory()
 
-                defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+                defaults.reset()
 
                 exit(0)
             }
@@ -192,7 +190,7 @@ public final class SettingsPageViewService {
             }
 
             let showQRCodeAction: AKAction = .init("Show QR Code") {
-                self.navigationCoordinator.navigate(to: .settings(.sheet(.inviteQRCode)))
+                self.navigation.navigate(to: .settings(.sheet(.inviteQRCode)))
             }
 
             await AKActionSheet(
@@ -316,12 +314,12 @@ public final class SettingsPageViewService {
                     }
 
                     self.services.analytics.logEvent(.logOut)
-                    self.defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+                    self.defaults.reset()
 
-                    self.navigationCoordinator.navigate(to: .userContent(.sheet(.none)))
+                    self.navigation.navigate(to: .userContent(.sheet(.none)))
                     self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
-                        self.navigationCoordinator.navigate(to: .onboarding(.stack([])))
-                        self.navigationCoordinator.navigate(to: .root(.modal(.onboarding)))
+                        self.navigation.navigate(to: .onboarding(.stack([])))
+                        self.navigation.navigate(to: .root(.modal(.onboarding)))
                     }
                 }
             }

@@ -24,8 +24,6 @@ public extension DevModeAction {
 
         public var appActions: [DevModeAction] {
             var actions = [
-                DevModeAction.AppActions.clearCachesAction,
-                DevModeAction.AppActions.resetUserDefaultsAction,
                 DevModeAction.AppActions.setCurrentUserIDAction,
                 DevModeAction.AppActions.showPenPalsPermissionPageAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
@@ -38,16 +36,6 @@ public extension DevModeAction {
         }
 
         // MARK: - Top-level Actions
-
-        private static var clearCachesAction: DevModeAction {
-            func clearCaches() {
-                @Dependency(\.coreKit) var core: CoreKit
-                core.utils.clearCaches()
-                core.hud.flash(image: .success)
-            }
-
-            return .init(title: "Clear Caches", perform: clearCaches)
-        }
 
         private static var createNewMessagesAction: DevModeAction {
             func createNewMessages() {
@@ -110,26 +98,14 @@ public extension DevModeAction {
             return .init(title: "Show PenPals Permission Page", perform: showPenPalsPermissionPage)
         }
 
-        private static var resetUserDefaultsAction: DevModeAction {
-            func resetUserDefaults() {
-                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-                @Dependency(\.userDefaults) var defaults: UserDefaults
-
-                defaults.reset(keeping: UserDefaultsKey.permanentKeys)
-                coreHUD.showSuccess(text: "Reset UserDefaults")
-            }
-
-            return .init(title: "Reset UserDefaults", perform: resetUserDefaults)
-        }
-
         private static var setCurrentUserIDAction: DevModeAction {
             func setCurrentUserID() {
                 Task {
                     @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
                     @Dependency(\.userDefaults) var defaults: UserDefaults
+                    @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
 
                     @Persistent(.currentUserID) var currentUserID: String?
-                    @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
                     let input = await AKTextInputAlert(
                         message: "Set Current User ID",
@@ -146,11 +122,11 @@ public extension DevModeAction {
                         coreUtilities.eraseDocumentsDirectory()
                         coreUtilities.eraseTemporaryDirectory()
 
-                        defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+                        defaults.reset()
                     }
 
                     currentUserID = input
-                    navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                    navigation.navigate(to: .root(.modal(.splash)))
                 }
             }
 
@@ -171,7 +147,7 @@ public extension DevModeAction {
                         coreUtilities.eraseDocumentsDirectory()
                         coreUtilities.eraseTemporaryDirectory()
 
-                        defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+                        defaults.reset()
 
                         await AKAlert(
                             message: "Switched to \(environment.description) environment. You must now restart the app.",

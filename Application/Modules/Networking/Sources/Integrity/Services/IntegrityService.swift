@@ -78,14 +78,8 @@ public final class IntegrityService {
                     return
                 }
 
-                let confirmationAlertTitle = "!! WARNING !!"
-                let confirmationAlertTitleAttributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 17, weight: .semibold),
-                    .foregroundColor: UIColor.red,
-                ]
-
                 let confirmationAlert = AKConfirmationAlert(
-                    title: confirmationAlertTitle, // swiftlint:disable:next line_length
+                    title: "!! WARNING !!", // swiftlint:disable:next line_length
                     message: "The integrity service session failed to resolve. An attempt can be made to force resolution by accepting incomplete/malformed data.\n\nProceeding with this option may result in irreparable damage to the database. Are you sure you'd like to proceed?",
                     cancelButtonTitle: "Abort",
                     cancelButtonStyle: .preferred,
@@ -93,12 +87,10 @@ public final class IntegrityService {
                     confirmButtonStyle: .destructive
                 )
 
-                confirmationAlert.setAttributedTitle(confirmationAlertTitle.attributed(
-                    confirmationAlertTitleAttributes,
-                    secondaryAttributes: [
-                        .init(confirmationAlertTitleAttributes, stringRanges: [confirmationAlertTitle]),
-                    ]
-                ))
+                confirmationAlert.setTitleAttributes(.init([
+                    .font: UIFont.systemFont(ofSize: 17, weight: .semibold),
+                    .foregroundColor: UIColor.red,
+                ]))
 
                 let confirmed = await confirmationAlert.present()
                 guard confirmed else { return completion(exception) }

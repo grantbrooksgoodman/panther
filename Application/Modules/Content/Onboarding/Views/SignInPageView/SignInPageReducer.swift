@@ -17,15 +17,12 @@ import Networking
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.translationService) private var translator: HostedTranslationService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-
-    // MARK: - Properties
-
-    @Navigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
 
     // MARK: - Actions
 
@@ -154,7 +151,7 @@ public struct SignInPageReducer: Reducer {
 
             onboardingService.setPhoneNumber(state.phoneNumber)
             onboardingService.setRegionCode(state.selectedRegionCode)
-            navigationCoordinator.navigate(to: .onboarding(.stack([.selectLanguage])))
+            navigation.navigate(to: .onboarding(.stack([.selectLanguage])))
 
         case let .authenticateUserReturned(.success(userID)):
             uiApplication.mainWindow?.removeOverlay()
@@ -163,7 +160,7 @@ public struct SignInPageReducer: Reducer {
             currentUserID = userID
             ContactPairArchiveStatus.setNeedsUpdate(true)
             services.analytics.logEvent(.logIn)
-            navigationCoordinator.navigate(to: .root(.modal(.splash)))
+            navigation.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):
             uiApplication.mainWindow?.removeOverlay()
@@ -176,7 +173,7 @@ public struct SignInPageReducer: Reducer {
         case .backButtonTapped:
             switch state.configuration {
             case .phoneNumber:
-                navigationCoordinator.navigate(to: .onboarding(.pop))
+                navigation.navigate(to: .onboarding(.pop))
 
             case .verificationCode:
                 state.configuration = .phoneNumber

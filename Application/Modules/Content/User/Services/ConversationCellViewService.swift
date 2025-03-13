@@ -20,6 +20,7 @@ public struct ConversationCellViewService {
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
 
     // MARK: - Methods
@@ -46,8 +47,6 @@ public struct ConversationCellViewService {
     /// `.userInfoBadgeTapped`
     public func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
         Task {
-            @Navigator var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-
             guard let user = cellViewData.otherUser else { return }
 
             var languageName = user.languageCode.uppercased()
@@ -65,12 +64,12 @@ public struct ConversationCellViewService {
                     coreUtilities.eraseDocumentsDirectory()
                     coreUtilities.eraseTemporaryDirectory()
 
-                    defaults.reset(keeping: UserDefaultsKey.permanentKeys)
+                    defaults.reset()
 
                     @Persistent(.currentUserID) var currentUserID: String?
                     currentUserID = user.id
 
-                    navigationCoordinator.navigate(to: .root(.modal(.splash)))
+                    navigation.navigate(to: .root(.modal(.splash)))
                 }
 
                 actions.append(setToCurrentUserAction)
