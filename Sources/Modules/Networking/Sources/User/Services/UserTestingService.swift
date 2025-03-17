@@ -82,7 +82,7 @@ public struct UserTestingService {
                 )
             }
 
-            let translateResult = await networking.translationService.translate(
+            let translateResult = await networking.hostedTranslation.translate(
                 .init(randomPhrases.randomElement() ?? "Hello world!"),
                 with: .init(from: "en", to: currentUser.languageCode)
             )

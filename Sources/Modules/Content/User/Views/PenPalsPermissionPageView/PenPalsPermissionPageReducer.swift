@@ -17,7 +17,7 @@ public struct PenPalsPermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions
 

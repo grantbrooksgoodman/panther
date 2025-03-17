@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
@@ -20,7 +21,7 @@ public struct ConversationsPageReducer: Reducer {
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
     // MARK: - Actions

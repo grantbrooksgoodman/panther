@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public struct InviteService {
     // MARK: - Dependencies
@@ -21,7 +22,7 @@ public struct InviteService {
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.uiApplication.mainWindow?.rootViewController) private var keyViewController: UIViewController?
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Present Invitation Prompt
 

@@ -169,7 +169,7 @@ public final class UserSessionService {
             guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {
                 Logger.log(
-                    .typecastFailed("dictionary", metadata: [self, #file, #function, #line]),
+                    .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]),
                     domain: .userSession
                 )
                 return
@@ -244,7 +244,7 @@ public final class UserSessionService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
             }
 
             array.append(currentUserID)

@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
@@ -19,7 +20,7 @@ public struct SelectLanguagePageReducer: Reducer {
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions
 

@@ -31,7 +31,7 @@ extension ConversationID: Serializable {
     public static func decode(from data: String) async -> Callback<ConversationID, Exception> {
         let components = data.components(separatedBy: " | ")
         guard components.count == 2 else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         let decoded: ConversationID = .init(key: components[0], hash: components[1])

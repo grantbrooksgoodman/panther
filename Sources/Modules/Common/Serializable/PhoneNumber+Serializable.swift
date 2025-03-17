@@ -51,7 +51,7 @@ extension PhoneNumber: Serializable {
         guard let callingCode = data[Keys.callingCode.rawValue] as? String,
               let nationalNumberString = data[Keys.nationalNumberString.rawValue] as? String,
               let regionCode = data[Keys.regionCode.rawValue] as? String else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         let decoded: PhoneNumber = .init(

@@ -49,7 +49,7 @@ extension Reaction: Serializable {
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               let style = Reaction.Style(encodedValue: encodedStyle),
               let userID = data[Keys.userID.rawValue] as? String else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         let decoded: Reaction = .init(style, userID: userID)

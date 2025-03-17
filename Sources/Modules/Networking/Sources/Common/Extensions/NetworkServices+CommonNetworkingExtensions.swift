@@ -1,5 +1,6 @@
 //
 //  NetworkServices+CommonNetworkingExtensions.swift
+//  Panther
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.
@@ -21,11 +22,6 @@ public extension NetworkServices {
             legacy: .init(),
             media: .init()
         )
-        public static let translationService = HostedTranslationService(
-            archiver: .init(),
-            languageRecognition: .init(),
-            legacy: .init()
-        )
         public static let userService = UserService(
             legacy: .init(),
             testing: .init()
@@ -35,6 +31,5 @@ public extension NetworkServices {
     var conversationService: ConversationService { NetworkServiceStore.conversationService }
     var integrityService: IntegrityService { NetworkServiceStore.integrityService }
     var messageService: MessageService { NetworkServiceStore.messageService }
-    var translationService: HostedTranslationService { NetworkServiceStore.translationService }
     var userService: UserService { NetworkServiceStore.userService }
 }

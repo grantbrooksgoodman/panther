@@ -103,7 +103,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             return .task {
-                let result = await networking.translationService.resolve(VerifyNumberPageViewStrings.self)
+                let result = await networking.hostedTranslation.resolve(VerifyNumberPageViewStrings.self)
                 return .resolveReturned(result)
             }
 

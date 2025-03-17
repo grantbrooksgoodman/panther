@@ -52,7 +52,7 @@ public final class ConversationSyncService {
             switch getValuesResult {
             case let .success(values):
                 guard let newData = values as? [String: Any] else {
-                    return .typecastFailed(
+                    return .Networking.typecastFailed(
                         "dictionary",
                         metadata: [self, #file, #function, #line]
                     ).appending(extraParams: commonParams)
@@ -116,7 +116,7 @@ public final class ConversationSyncService {
 
         guard let messageIDs = syncData.newData[Conversation.SerializationKeys.messages.rawValue] as? [String] else {
             self.syncData = nil
-            return .failure(.decodingFailed(
+            return .failure(.Networking.decodingFailed(
                 data: syncData.newData,
                 [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
@@ -199,7 +199,7 @@ public final class ConversationSyncService {
     private func synchronizeHash() -> Exception? {
         guard let syncData,
               let newHash = syncData.newData[Conversation.SerializationKeys.encodedHash.rawValue] as? String else {
-            return .decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
         }
 
         self.syncData = .init(.init(
@@ -231,7 +231,7 @@ public final class ConversationSyncService {
         case let .success(messages):
             let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
             guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
-                return .typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line])
+                return .Networking.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line])
             }
 
             let updateHashResult = await updateHash(conversation)
@@ -252,7 +252,7 @@ public final class ConversationSyncService {
 
     private func synchronizeMetadata() async -> Exception? {
         guard let newMetadata = syncData?.newData[Conversation.SerializationKeys.metadata.rawValue] as? [String: Any] else {
-            return .decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
         }
 
         let decodeResult = await ConversationMetadata.decode(from: newMetadata)
@@ -260,7 +260,7 @@ public final class ConversationSyncService {
         switch decodeResult {
         case let .success(decodedMetadata):
             guard let conversation = syncData?.conversation.modifyKey(.metadata, withValue: decodedMetadata) else {
-                return .typeMismatch(
+                return .Networking.typeMismatch(
                     key: Conversation.SerializationKeys.metadata.rawValue,
                     [self, #file, #function, #line]
                 )
@@ -276,7 +276,7 @@ public final class ConversationSyncService {
 
     private func synchronizeParticipants() async -> Exception? {
         guard let newParticipants = syncData?.newData[Conversation.SerializationKeys.participants.rawValue] as? [String] else {
-            return .decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
         }
 
         var updatedParticipants = [Participant]()
@@ -302,7 +302,7 @@ public final class ConversationSyncService {
         }
 
         guard let conversation = syncData?.conversation.modifyKey(.participants, withValue: updatedParticipants) else {
-            return .typeMismatch(
+            return .Networking.typeMismatch(
                 key: Conversation.SerializationKeys.participants.rawValue,
                 [self, #file, #function, #line]
             )
@@ -314,7 +314,7 @@ public final class ConversationSyncService {
 
     private func synchronizeReactionMetadata() async -> Exception? {
         guard let newReactionMetadata = syncData?.newData[Conversation.SerializationKeys.reactionMetadata.rawValue] as? [[String: Any]] else {
-            return .decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
         }
 
         var updatedReactionMetadata = [ReactionMetadata]()
@@ -340,7 +340,7 @@ public final class ConversationSyncService {
         }
 
         guard let conversation = syncData?.conversation.modifyKey(.reactionMetadata, withValue: updatedReactionMetadata) else {
-            return .typeMismatch(
+            return .Networking.typeMismatch(
                 key: Conversation.SerializationKeys.reactionMetadata.rawValue,
                 [self, #file, #function, #line]
             )

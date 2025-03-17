@@ -13,6 +13,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Translator
 
 /* 3rd-party */
 import MessageKit
@@ -28,7 +29,7 @@ public final class ContextMenuActionHandlerService {
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.networking.translationService.languageRecognition) private var languageRecognitionService: LanguageRecognitionService
+    @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 

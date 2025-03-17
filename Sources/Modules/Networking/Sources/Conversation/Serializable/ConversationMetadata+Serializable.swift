@@ -67,7 +67,7 @@ extension ConversationMetadata: Serializable {
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
               let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString),
               let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String] else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var penPalsSharingData = [PenPalsSharingData]()
@@ -100,7 +100,7 @@ extension ConversationMetadata: Serializable {
         }
 
         guard let imageData = Data(base64Encoded: imageDataString) else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         return .success(.init(

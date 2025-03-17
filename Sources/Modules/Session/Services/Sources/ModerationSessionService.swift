@@ -132,7 +132,7 @@ public struct ModerationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.typecastFailed("array", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("array", metadata: [self, #file, #function, #line]))
             }
 
             return await networking.userService.getUsers(ids: array)
@@ -148,7 +148,7 @@ public struct ModerationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Int] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
 
             return .success(dictionary)

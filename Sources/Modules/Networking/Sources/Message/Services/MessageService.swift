@@ -137,7 +137,10 @@ public struct MessageService {
         switch getValuesResult {
         case let .success(values):
             guard var data = values as? [String: Any] else {
-                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                let exception: Exception = .Networking.typecastFailed(
+                    "dictionary",
+                    metadata: [self, #file, #function, #line]
+                )
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
@@ -230,7 +233,7 @@ public struct MessageService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
             }
 
             array.removeAll(where: { $0 == messageID })

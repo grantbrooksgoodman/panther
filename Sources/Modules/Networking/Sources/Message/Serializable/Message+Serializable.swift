@@ -76,7 +76,7 @@ extension Message: Serializable {
               let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               let sentDate = dateFormatter.date(from: sentDateString) else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var readReceipts: [ReadReceipt]?

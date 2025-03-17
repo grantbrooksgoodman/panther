@@ -110,7 +110,7 @@ public struct NotificationService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
             }
 
             let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in

@@ -48,7 +48,7 @@ extension ReactionMetadata: Serializable {
     public static func decode(from data: [String: Any]) async -> Callback<ReactionMetadata, Exception> {
         guard let messageID = data[Keys.messageID.rawValue] as? String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]] else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var reactions = [Reaction]()

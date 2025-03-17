@@ -52,7 +52,10 @@ public final class IntegrityServiceSession {
         var translationData: [String: [String: Any]]?
         var userData: [String: Any]?
 
-        let typecastFailedException = Exception.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+        let typecastFailedException = Exception.Networking.typecastFailed(
+            "dictionary",
+            metadata: [self, #file, #function, #line]
+        )
 
         // Get Conversation Values
 

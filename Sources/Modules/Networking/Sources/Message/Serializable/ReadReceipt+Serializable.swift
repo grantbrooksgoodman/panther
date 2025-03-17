@@ -45,7 +45,7 @@ extension ReadReceipt: Serializable {
         guard components.count == 2,
               !components[0].isBangQualifiedEmpty,
               let readDate = dateFormatter.date(from: components[1]) else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         let decoded: ReadReceipt = .init(userID: components[0], readDate: readDate)

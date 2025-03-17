@@ -133,7 +133,7 @@ public final class IntegrityService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
             }
 
             array = array.filter { session.userData.keys.contains($0) }

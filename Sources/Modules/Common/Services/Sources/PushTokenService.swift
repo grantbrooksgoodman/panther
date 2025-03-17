@@ -65,7 +65,7 @@ public final class PushTokenService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
             }
 
             var tookAction = false

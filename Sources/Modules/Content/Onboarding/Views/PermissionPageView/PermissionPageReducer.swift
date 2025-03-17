@@ -18,9 +18,9 @@ public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
@@ -78,7 +78,7 @@ public struct PermissionPageReducer: Reducer {
             state.viewState = .loading
 
             return .task {
-                let result = await networking.translationService.resolve(PermissionPageViewStrings.self)
+                let result = await translator.resolve(PermissionPageViewStrings.self)
                 return .resolveReturned(result)
             }
 

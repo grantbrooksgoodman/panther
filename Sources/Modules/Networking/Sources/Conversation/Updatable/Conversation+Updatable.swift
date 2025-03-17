@@ -97,7 +97,7 @@ extension Conversation: Updatable {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard updatableKeys.contains(key) else {
-            return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.notUpdatable(key: key, [self, #file, #function, #line]))
         }
 
         if let exception = await setUsers(forceUpdate: true) {
@@ -112,7 +112,7 @@ extension Conversation: Updatable {
         }
 
         guard var updated = modifyKey(key, withValue: value) else {
-            return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/"
@@ -143,7 +143,7 @@ extension Conversation: Updatable {
                 return .failure(exception)
             }
         } else {
-            return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
+            return .failure(.Networking.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
         guard updated.encodedHash != encodedHash else {

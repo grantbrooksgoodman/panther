@@ -12,12 +12,13 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct InviteQRCodePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions
 

@@ -35,7 +35,7 @@ extension PenPalsSharingData: Serializable {
         let components = data.components(separatedBy: " | ")
         guard components.count == 2,
               components[1] == "true" || components[1] == "false" else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         let userID = components[0]

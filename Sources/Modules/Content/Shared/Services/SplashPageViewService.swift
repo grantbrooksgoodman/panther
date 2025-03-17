@@ -80,7 +80,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: AKCore Delegate Setup */
 
         alertKitConfig.registerReportDelegate(ErrorReportingService())
-        alertKitConfig.registerTranslationDelegate(networking.translationService)
+        alertKitConfig.registerTranslationDelegate(networking.hostedTranslation)
 
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
@@ -124,7 +124,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: HostedTranslationArchiver Setup */
 
         if currentUserID == nil {
-            if let exception = await networking.translationService.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.hostedTranslation.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             } else {
                 initializationProgress += 0.01
@@ -224,7 +224,7 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            if let exception = await networking.translationService.archiver.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
+            if let exception = await networking.hostedTranslation.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             }
 

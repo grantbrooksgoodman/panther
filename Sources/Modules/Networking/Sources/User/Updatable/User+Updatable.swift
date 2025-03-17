@@ -97,11 +97,11 @@ extension User: Updatable {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {
-            return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.notUpdatable(key: key, [self, #file, #function, #line]))
         }
 
         guard let updated = modifyKey(key, withValue: value) else {
-            return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
         let userKeyPath = "\(NetworkPath.users.rawValue)/\(id)/"
@@ -120,7 +120,7 @@ extension User: Updatable {
                 return .failure(exception)
             }
         } else {
-            return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
+            return .failure(.Networking.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
         return .success(updated)

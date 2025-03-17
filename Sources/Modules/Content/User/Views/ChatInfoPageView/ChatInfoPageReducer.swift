@@ -12,6 +12,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 // swiftlint:disable:next type_body_length
 public struct ChatInfoPageReducer: Reducer {
@@ -19,7 +20,7 @@ public struct ChatInfoPageReducer: Reducer {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 

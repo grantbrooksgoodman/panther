@@ -1,5 +1,6 @@
 //
 //  DatabaseDelegate+CommonNetworkingExtensions.swift
+//  Panther
 //
 //  Created by Grant Brooks Goodman.
 //  Copyright © NEOTechnica Corporation. All rights reserved.
@@ -66,7 +67,7 @@ public extension DatabaseDelegate {
 
             Logger.log(
                 "Established database snapshot.",
-                domain: .database,
+                domain: .Networking.database,
                 metadata: [self, #file, #function, #line]
             )
 

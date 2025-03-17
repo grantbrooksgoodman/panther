@@ -57,11 +57,11 @@ extension Message: Updatable {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {
-            return .failure(.notUpdatable(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.notUpdatable(key: key, [self, #file, #function, #line]))
         }
 
         guard let updated = modifyKey(key, withValue: value) else {
-            return .failure(.typeMismatch(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.typeMismatch(key: key, [self, #file, #function, #line]))
         }
 
         let messageKeyPath = "\(NetworkPath.messages.rawValue)/\(id)/"
@@ -80,7 +80,7 @@ extension Message: Updatable {
                 return .failure(exception)
             }
         } else {
-            return .failure(.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
+            return .failure(.Networking.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
         }
 
         return .success(updated)

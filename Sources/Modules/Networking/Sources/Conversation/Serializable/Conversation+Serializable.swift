@@ -70,7 +70,7 @@ extension Conversation: Serializable {
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               let messageIDs = data[Keys.messages.rawValue] as? [String] else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var conversationID: ConversationID?

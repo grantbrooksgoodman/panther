@@ -94,15 +94,3 @@ public extension Array where Element == String {
     static var bangQualifiedEmpty: [String] { ["!"] }
     var isBangQualifiedEmpty: Bool { isEmpty || allSatisfy(\.isBangQualifiedEmpty) }
 }
-
-public extension Array where Element == Translation {
-    var isWellFormed: Bool {
-        !isEmpty && allSatisfy(\.isWellFormed)
-    }
-}
-
-public extension Array where Element == TranslationInput {
-    var isWellFormed: Bool {
-        !isEmpty && allSatisfy(\.isWellFormed)
-    }
-}

@@ -101,7 +101,7 @@ public final class UserService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
             }
 
             return await getUsers(ids: Array(dictionary.keys))
@@ -142,7 +142,10 @@ public final class UserService {
         switch getValuesResult {
         case let .success(values):
             guard var data = values as? [String: Any] else {
-                let exception: Exception = .typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                let exception: Exception = .Networking.typecastFailed(
+                    "dictionary",
+                    metadata: [self, #file, #function, #line]
+                )
                 return .failure(exception.appending(extraParams: commonParams))
             }
 
@@ -214,7 +217,7 @@ public final class UserService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.typecastFailed(
+                return .failure(.Networking.typecastFailed(
                     "dictionary",
                     metadata: [self, #file, #function, #line]
                 ).appending(extraParams: commonParams))

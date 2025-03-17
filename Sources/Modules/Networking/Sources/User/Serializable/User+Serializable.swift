@@ -71,7 +71,7 @@ extension User: Serializable {
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         var phoneNumber: PhoneNumber?
@@ -99,7 +99,7 @@ extension User: Serializable {
         }
 
         guard let phoneNumber else {
-            return .failure(.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
         return .success(.init(

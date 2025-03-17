@@ -49,7 +49,7 @@ public final class User: Codable, Equatable {
             switch getValuesResult {
             case let .success(values):
                 guard let integer = values as? Int else {
-                    Logger.log(.typecastFailed("integer", metadata: [self, #file, #function, #line]))
+                    Logger.log(.Networking.typecastFailed("integer", metadata: [self, #file, #function, #line]))
                     return 0
                 }
 

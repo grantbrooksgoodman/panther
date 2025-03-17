@@ -73,7 +73,7 @@ public struct AuthCodePageReducer: Reducer {
             state.viewState = .loading
 
             return .task {
-                let result = await networking.translationService.resolve(AuthCodePageViewStrings.self)
+                let result = await networking.hostedTranslation.resolve(AuthCodePageViewStrings.self)
                 return .resolveReturned(result)
             }
 
@@ -84,7 +84,6 @@ public struct AuthCodePageReducer: Reducer {
             state.isContinueButtonEnabled = true
 
             onboardingService.setUserID(userID)
-
             navigation.navigate(to: .onboarding(.push(.permission)))
 
         case let .authenticateUserReturned(.failure(exception)):

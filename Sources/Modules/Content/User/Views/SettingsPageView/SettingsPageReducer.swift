@@ -13,6 +13,7 @@ import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies
@@ -20,7 +21,7 @@ public struct SettingsPageReducer: Reducer {
     @Dependency(\.build) private var build: Build
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
-    @Dependency(\.networking.translationService) private var translator: HostedTranslationService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService
 
