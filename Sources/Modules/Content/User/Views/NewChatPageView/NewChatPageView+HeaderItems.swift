@@ -24,6 +24,27 @@ public extension NewChatPageView {
         )
     }
 
+    var headerLeftItem: HeaderView.PeripheralButtonType {
+        typealias Floats = AppConstants.CGFloats.NewChatPageView
+        return .image(
+            .init(
+                image: .init(
+                    image: SquareIconView.image(
+                        .penPalsIcon(
+                            backgroundColor: viewModel.penPalsToolbarButtonBackgroundColor
+                        )
+                    ).swiftUIImage ?? .missing,
+                    size: .init(
+                        width: Floats.penPalsToolbarButtonFrameWidth,
+                        height: Floats.penPalsToolbarButtonFrameHeight
+                    )
+                )
+            ) {
+                viewModel.send(.penPalsToolbarButtonTapped)
+            }
+        )
+    }
+
     var headerRightItem: HeaderView.PeripheralButtonType {
         .text(
             .init(

@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 public extension User {
     var penPalsIconColor: UIColor? {
         (
@@ -19,5 +22,11 @@ public extension User {
                 named: "\(phoneNumber.regionCode.lowercased()).png"
             )
         )?.averageColor
+    }
+
+    var penPalsName: String {
+        @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
+        let localizedRegionName = regionDetailService.localizedRegionName(regionCode: phoneNumber.regionCode)
+        return RuntimeStorage.languageCode == "en" ? "PenPal from \(localizedRegionName)" : "PenPal (\(localizedRegionName))"
     }
 }

@@ -33,6 +33,7 @@ public struct ConversationService {
 
     public func createConversation(
         firstMessage: Message,
+        isPenPalsConversation: Bool,
         participants: [Participant]
     ) async -> Callback<Conversation, Exception> {
         guard participants.map(\.isWellFormed).allSatisfy({ $0 == true }) else {
@@ -54,7 +55,10 @@ public struct ConversationService {
             .init(key: id, hash: ""),
             messageIDs: [firstMessage.id],
             messages: [firstMessage],
-            metadata: .empty(userIDs: participants.map(\.userID)),
+            metadata: .empty(
+                userIDs: participants.map(\.userID),
+                isPenPalsConversation: isPenPalsConversation
+            ),
             participants: participants,
             reactionMetadata: nil,
             users: nil

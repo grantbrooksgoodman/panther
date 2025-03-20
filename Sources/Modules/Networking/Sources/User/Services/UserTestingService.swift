@@ -92,7 +92,7 @@ public struct UserTestingService {
                 let sendTextMessageResult = await clientSession.message.sendTextMessage(
                     translation.output,
                     toUsers: users,
-                    inConversation: conversation
+                    inConversation: (conversation, false)
                 )
 
                 switch sendTextMessageResult {

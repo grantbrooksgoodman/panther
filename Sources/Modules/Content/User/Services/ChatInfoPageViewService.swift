@@ -235,8 +235,11 @@ public final class ChatInfoPageViewService {
                 completion(false)
             }
 
-            let actionSheet: AKActionSheet = .init(actions: [cancelAction, confirmAction])
-            await actionSheet.present()
+            await AKActionSheet(
+                title: "Share Phone Number with ⌘PenPal⌘?",
+                message: "This action cannot be undone.",
+                actions: [cancelAction, confirmAction]
+            ).present(translating: [.actions([confirmAction]), .message, .title])
         }
     }
 

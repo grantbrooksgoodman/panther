@@ -16,17 +16,20 @@ import AppSubsystem
 public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService> // swiftlint:disable:next line_length
+    @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) private var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
+    @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Actions
 
     public enum Action {
-        case viewAppeared
+        case viewAppeared // swiftlint:disable:next identifier_name
+        case animatePenPalsToolbarButtonBackgroundColor
 
         case doneToolbarButtonTapped
         case firstMessageSent
+        case penPalsToolbarButtonTapped
 
         case isDoneToolbarButtonEnabledChanged(Bool)
         case isPresentingContactSelectorSheetChanged(Bool)
@@ -48,6 +51,14 @@ public struct NewChatPageReducer: Reducer {
 
         // Other
         public var conversation: Conversation = .empty
+        public var penPalsToolbarButtonBackgroundColor: Color = .purple
+
+        /* MARK: Computed Properties */
+
+        public var shouldShowPenPalsToolbarButton: Bool {
+            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+            return currentUser?.isPenPalsParticipant ?? false
+        }
 
         /* MARK: Init */
 
@@ -59,10 +70,16 @@ public struct NewChatPageReducer: Reducer {
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
-            analyticsService.logEvent(.accessNewChatPage)
+            services.analytics.logEvent(.accessNewChatPage)
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
+
+            Observables.newChatPagePenPalsToolbarButtonAnimation.trigger()
+
+        case .animatePenPalsToolbarButtonBackgroundColor:
+            state.penPalsToolbarButtonBackgroundColor = .random
+            Task.delayed(by: .milliseconds(750)) { Observables.newChatPagePenPalsToolbarButtonAnimation.trigger() }
 
         case .doneToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.none)))
@@ -74,6 +91,27 @@ public struct NewChatPageReducer: Reducer {
             state.doneToolbarButtonText = Localized(.done).wrappedValue
             state.navigationTitle = cellViewData.titleLabelText
             state.shouldUseBoldDoneToolbarButton = true
+
+        case .penPalsToolbarButtonTapped:
+            Task { @MainActor in
+                let getRandomPenPalsParticipantResult = await services.penPals.getRandomPenPalsParticipant()
+
+                switch getRandomPenPalsParticipantResult {
+                case let .success(user):
+                    recipientBarContactSelectionUIService?.selectContactPair(
+                        .withUser(
+                            user,
+                            name: user.penPalsName
+                        )
+                    )
+
+                case let .failure(exception):
+                    Logger.log(
+                        exception,
+                        with: .toast(style: exception.isEqual(to: .penPalResolutionFailed) ? .info : .error)
+                    )
+                }
+            }
 
         case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
             state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled

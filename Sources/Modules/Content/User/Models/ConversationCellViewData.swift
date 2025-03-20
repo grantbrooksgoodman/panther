@@ -99,11 +99,10 @@ public struct ConversationCellViewData: Equatable {
         }
 
         if conversation.metadata.isPenPalsConversation {
-            titleLabelText = conversation.isOtherUserSharingPenPalsData ? titleLabelText : "PenPal"
-            let penPalsIconColor = otherUser?.penPalsIconColor
+            titleLabelText = conversation.isOtherUserSharingPenPalsData ? titleLabelText : (otherUser?.penPalsName ?? "PenPal")
             thumbnailImage = SquareIconView.image(
                 .penPalsIcon(
-                    backgroundColor: penPalsIconColor.swiftUIColor ?? .purple
+                    backgroundColor: otherUser?.penPalsIconColor.swiftUIColor ?? .purple
                 )
             ) ?? thumbnailImage
         }

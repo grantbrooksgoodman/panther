@@ -79,10 +79,12 @@ public final class MessageDeliveryService {
             object: nil
         )
 
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
             inputFile,
             toUsers: users,
-            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
+            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
@@ -127,10 +129,12 @@ public final class MessageDeliveryService {
         chatPageViewService.inputBar?.toggleSendingUI(on: true, clearInputTextViewText: false)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
             mediaFile,
             toUsers: users,
-            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
+            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
@@ -175,10 +179,12 @@ public final class MessageDeliveryService {
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
-            inConversation: (fullConversation?.isMock ?? true) ? nil : fullConversation
+            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
         chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)

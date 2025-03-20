@@ -24,6 +24,7 @@ public struct NewChatPageObserver: Observer {
         Observables.contactSelectorPresentationPending,
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
+        Observables.newChatPagePenPalsToolbarButtonAnimation,
     ]
     public let viewModel: ViewModel<NewChatPageReducer>
 
@@ -57,6 +58,9 @@ public struct NewChatPageObserver: Observer {
             guard let value = observable.value as? Bool else { return }
             send(.isDoneToolbarButtonEnabledChanged(value))
 
+        case .newChatPagePenPalsToolbarButtonAnimation:
+            sendWithAnimation(.animatePenPalsToolbarButtonBackgroundColor)
+
         default: ()
         }
     }
@@ -64,6 +68,14 @@ public struct NewChatPageObserver: Observer {
     public func send(_ action: NewChatPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func sendWithAnimation(_ action: NewChatPageReducer.Action) {
+        Task { @MainActor in
+            viewModel.send(action, animation: .linear)
         }
     }
 }

@@ -86,9 +86,9 @@ public struct ConversationCellReducer: Reducer {
             state.cellViewData = cellViewData
 
         case .blockUsersButtonTapped:
-            guard let users = state.conversation.users else { return .none }
+            let conversation = state.conversation
             return .fireAndForget {
-                guard let exception = await viewService.blockUsersButtonTapped(users) else { return }
+                guard let exception = await viewService.blockUsersButtonTapped(conversation) else { return }
                 Logger.log(exception)
             }
 
@@ -123,9 +123,9 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case .reportUsersButtonTapped:
-            guard let users = state.conversation.users else { return .none }
+            let conversation = state.conversation
             return .fireAndForget {
-                guard let exception = await viewService.reportUsersButtonTapped(users) else { return }
+                guard let exception = await viewService.reportUsersButtonTapped(conversation) else { return }
                 Logger.log(exception)
             }
 

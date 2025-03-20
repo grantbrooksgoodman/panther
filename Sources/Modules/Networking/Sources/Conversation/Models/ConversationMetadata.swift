@@ -44,11 +44,14 @@ public struct ConversationMetadata: Codable, Equatable {
 
     // MARK: - Default Value
 
-    public static func empty(userIDs: [String]) -> ConversationMetadata {
+    public static func empty(
+        userIDs: [String],
+        isPenPalsConversation: Bool = false
+    ) -> ConversationMetadata {
         .init(
             name: .bangQualifiedEmpty,
             imageData: nil,
-            isPenPalsConversation: false,
+            isPenPalsConversation: isPenPalsConversation,
             lastModifiedDate: .init(timeIntervalSince1970: 0),
             penPalsSharingData: userIDs.reduce(into: [PenPalsSharingData]()) { partialResult, userID in
                 partialResult.append(.init(userID: userID, isSharingPenPalsData: false))

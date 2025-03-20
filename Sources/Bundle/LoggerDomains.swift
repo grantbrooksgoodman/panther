@@ -30,7 +30,7 @@ public extension LoggerDomain {
             .conversation,
             .dataIntegrity,
             .general,
-            .hostedTranslation,
+            .Networking.hostedTranslation,
             .notifications,
             .queue,
             .translation,
@@ -47,7 +47,6 @@ public extension LoggerDomain {
     static let contacts: LoggerDomain = .init("contacts")
     static let conversation: LoggerDomain = .init("conversation")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
-    static let hostedTranslation: LoggerDomain = .init("hostedTranslation")
     static let notifications: LoggerDomain = .init("notifications")
     static let queue: LoggerDomain = .init("queue")
     static let user: LoggerDomain = .init("user")

@@ -119,9 +119,8 @@ public extension SettingsContentPageView {
     var penPalsListItem: ListRowView.Configuration {
         .init(
             .switch(isToggled: isPenPalsParticipantBinding),
-            headerText: Strings.penPalsListItemHeaderText,
-            innerText: viewModel.strings.value(for: .penPalsListRowText), // TODO: Replace with genuine description.
-            footerText: "Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor. Incididunt ut labore et dolore magna aliqua.",
+            innerText: viewModel.strings.value(for: .penPalsListRowInnerText),
+            footerText: viewModel.strings.value(for: .penPalsListRowFooterText),
             imageView: {
                 SquareIconView.image(.penPalsIcon()).swiftUIImage
             }

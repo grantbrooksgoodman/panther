@@ -14,7 +14,9 @@ import AppSubsystem
 
 public extension User {
     var isObfuscatedPenPalWithCurrentUser: Bool {
-        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-        return currentUser?.obfuscatedPenPalUsers?.map(\.id).contains(id) ?? false
+        get async {
+            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+            return await currentUser?.obfuscatedPenPalUsers?.map(\.id).contains(id) ?? false
+        }
     }
 }

@@ -76,7 +76,11 @@ public final class SettingsPageViewService {
                 }
             }
 
-            await AKActionSheet(title: "Change Theme", actions: actions).present()
+            await AKActionSheet(
+                title: "Change Theme",
+                actions: actions,
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions([]), .title])
         }
     }
 
@@ -113,8 +117,9 @@ public final class SettingsPageViewService {
             let confirmed = await AKConfirmationAlert(
                 title: "Clear Caches", // swiftlint:disable:next line_length
                 message: "Are you sure you'd like to clear all caches?\n\nThis may fix some issues, but can also temporarily slow down the app while indexes rebuild.\(build.isDeveloperModeEnabled ? "" : "\n\nYou will need to restart the app for this to take effect.")",
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
                 confirmButtonStyle: .destructivePreferred
-            ).present()
+            ).present(translating: [.confirmButtonTitle, .message, .title])
 
             guard confirmed else { return }
             await clearCaches()
@@ -141,8 +146,9 @@ public final class SettingsPageViewService {
             let confirmed = await AKConfirmationAlert(
                 title: "Delete Account", // swiftlint:disable:next line_length
                 message: "Are you sure you'd like to delete your account? All user data will be deleted.\n\nIf you wish to continue using ⌘\(build.finalName)⌘, you will need to create a new account.\n\nAn app restart is required for this process to complete.",
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
                 confirmButtonStyle: .destructivePreferred
-            ).present()
+            ).present(translating: [.confirmButtonTitle, .message, .title])
 
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
@@ -175,7 +181,10 @@ public final class SettingsPageViewService {
                 }
             }
 
-            await AKActionSheet(actions: [deleteAccountAction]).present()
+            await AKActionSheet(
+                actions: [deleteAccountAction],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions([])])
         }
     }
 
@@ -195,8 +204,9 @@ public final class SettingsPageViewService {
 
             await AKActionSheet(
                 title: "Invite Friends",
-                actions: [sendTextMessageAction, showQRCodeAction]
-            ).present()
+                actions: [sendTextMessageAction, showQRCodeAction],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions([]), .title])
         }
     }
 
@@ -210,11 +220,29 @@ public final class SettingsPageViewService {
     public func penPalsParticipantSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {
-                if let exception = await services.penPals.setDidGrantPenPalsPermission(false) {
-                    Logger.log(exception, with: .toastInPrerelease)
+                let confirmAction: AKAction = .init(
+                    "Confirm",
+                    style: .destructive
+                ) {
+                    Task {
+                        if let exception = await self.services.penPals.setDidGrantPenPalsPermission(false) {
+                            Logger.log(exception, with: .toastInPrerelease)
+                        }
+                    }
                 }
 
-                return
+                let cancelAction: AKAction = .init(
+                    Localized(.cancel).wrappedValue,
+                    style: .cancel
+                ) {
+                    Observables.didGrantPenPalsPermission.value = true
+                }
+
+                return await AKActionSheet(
+                    title: "Stop Participating in ⌘PenPals⌘?", // swiftlint:disable:next line_length
+                    message: "This will remove your account from the pool of available ⌘PenPals⌘ for others to connect with.\n\nUntil re-enabled, you will not be able to start conversations with new ⌘PenPals⌘.",
+                    actions: [confirmAction, cancelAction]
+                ).present(translating: [.actions([confirmAction]), .message, .title])
             }
 
             RootSheets.present(.penPalsPermissionPageView)
@@ -278,8 +306,9 @@ public final class SettingsPageViewService {
                 actions: [
                     .init("Send Feedback") { self.reportDelegate.sendFeedback() },
                     .init("Report Bug") { self.reportDelegate.reportBug() },
-                ]
-            ).present()
+                ],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions([]), .title])
         }
     }
 
@@ -324,7 +353,10 @@ public final class SettingsPageViewService {
                 }
             }
 
-            await AKActionSheet(actions: [signOutAction]).present()
+            await AKActionSheet(
+                actions: [signOutAction],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions([])])
         }
     }
 

@@ -31,7 +31,7 @@ public struct MessageSessionService {
     public func sendAudioMessage(
         _ inputFile: AudioFile,
         toUsers users: [User],
-        inConversation conversation: Conversation?
+        inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async -> Callback<Conversation, Exception> {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
@@ -51,12 +51,12 @@ public struct MessageSessionService {
                 name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
                 object: self,
                 userInfo: [
-                    Strings.conversationIDKeyNotificationUserInfoKey: conversation?.id.key ?? CommonConstants.newConversationID,
+                    Strings.conversationIDKeyNotificationUserInfoKey: conversation.value?.id.key ?? CommonConstants.newConversationID,
                     Strings.inputFileNotificationUserInfoKey: inputFile,
                 ]
             )
 
-            if shouldAnimateDeliveryProgress(in: conversation) {
+            if shouldAnimateDeliveryProgress(in: conversation.value) {
                 clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
             }
 
@@ -70,7 +70,7 @@ public struct MessageSessionService {
                     with: .init(from: currentUser.languageCode, to: languageCode)
                 )
 
-                incrementDeliveryProgress(in: conversation, by: Floats.translationDeliveryProgressIncrement / .init(users.count))
+                incrementDeliveryProgress(in: conversation.value, by: Floats.translationDeliveryProgressIncrement / .init(users.count))
 
                 switch translateResult {
                 case let .success(translation):
@@ -81,7 +81,7 @@ public struct MessageSessionService {
                         languageCode: languageCode
                     )
 
-                    incrementDeliveryProgress(in: conversation, by: Floats.readToFileDeliveryProgressIncrement / .init(users.count))
+                    incrementDeliveryProgress(in: conversation.value, by: Floats.readToFileDeliveryProgressIncrement / .init(users.count))
 
                     switch readToFileResult {
                     case let .success(url):
@@ -133,7 +133,7 @@ public struct MessageSessionService {
     public func sendMediaMessage(
         _ mediaFile: MediaFile,
         toUsers users: [User],
-        inConversation conversation: Conversation?
+        inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async -> Callback<Conversation, Exception> {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
@@ -156,7 +156,7 @@ public struct MessageSessionService {
     public func sendTextMessage(
         _ text: String,
         toUsers users: [User],
-        inConversation conversation: Conversation?
+        inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
     ) async -> Callback<Conversation, Exception> {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
@@ -174,7 +174,7 @@ public struct MessageSessionService {
                 with: .init(from: currentUser.languageCode, to: languageCode)
             )
 
-            incrementDeliveryProgress(in: conversation, by: Floats.translationDeliveryProgressIncrement)
+            incrementDeliveryProgress(in: conversation.value, by: Floats.translationDeliveryProgressIncrement)
 
             switch translateResult {
             case let .success(translation):
@@ -204,7 +204,7 @@ public struct MessageSessionService {
     // MARK: - Auxiliary
 
     private func createMessageAndAddToConversation(
-        conversation: Conversation?,
+        conversation: (value: Conversation?, isPenPalsConversation: Bool),
         initiatingUser: User,
         otherUsers: [User],
         richContent: RichMessageContent?,
@@ -225,17 +225,22 @@ public struct MessageSessionService {
             }
         }
 
-        func notifyUsers(of message: Message, conversationIDKey: String) {
+        func notifyUsers(
+            of message: Message,
+            conversationIDKey: String,
+            isPenPalsConversation: Bool
+        ) {
             Task.background {
                 if let exception = await services.notification.notify(
                     otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
                     message: message,
-                    conversationIDKey: conversationIDKey
+                    conversationIDKey: conversationIDKey,
+                    isPenPalsConversation: isPenPalsConversation
                 ) {
                     Logger.log(exception, domain: .notifications)
                 }
 
-                incrementDeliveryProgress(in: conversation, by: Floats.notifyDeliveryProgressIncrement)
+                incrementDeliveryProgress(in: conversation.value, by: Floats.notifyDeliveryProgressIncrement)
             }
         }
 
@@ -247,12 +252,16 @@ public struct MessageSessionService {
             translations: translations
         )
 
-        incrementDeliveryProgress(in: conversation, by: Floats.createMessageDeliveryProgressIncrement)
+        incrementDeliveryProgress(in: conversation.value, by: Floats.createMessageDeliveryProgressIncrement)
 
         switch createMessageResult {
         case let .success(message):
-            if let conversation {
-                notifyUsers(of: message, conversationIDKey: conversation.id.key)
+            if let conversation = conversation.value {
+                notifyUsers(
+                    of: message,
+                    conversationIDKey: conversation.id.key,
+                    isPenPalsConversation: conversation.metadata.isPenPalsConversation
+                )
 
                 let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
                 guard newParticipants.map(\.hasDeletedConversation) != conversation.participants.map(\.hasDeletedConversation) else {
@@ -277,16 +286,22 @@ public struct MessageSessionService {
 
                 let createConversationResult = await networking.conversationService.createConversation(
                     firstMessage: message,
+                    isPenPalsConversation: conversation.isPenPalsConversation,
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )
 
                 services.analytics.logEvent(.createNewConversation)
-                incrementDeliveryProgress(in: conversation, by: Floats.createConversationDeliveryProgressIncrement)
+                incrementDeliveryProgress(in: conversation.value, by: Floats.createConversationDeliveryProgressIncrement)
                 clientSession.user.startObservingCurrentUserChanges()
 
                 switch createConversationResult {
                 case let .success(conversation):
-                    notifyUsers(of: message, conversationIDKey: conversation.id.key)
+                    notifyUsers(
+                        of: message,
+                        conversationIDKey: conversation.id.key,
+                        isPenPalsConversation: conversation.metadata.isPenPalsConversation
+                    )
+
                     return .success(conversation)
 
                 case let .failure(exception):

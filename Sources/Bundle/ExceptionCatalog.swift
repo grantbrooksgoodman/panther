@@ -36,6 +36,9 @@ public extension AppException {
             case "Attempted to select contact pair containing current user.":
                 return "Unable to start a conversation with yourself."
 
+            case "Failed to resolve random PenPals participant.":
+                return "Looks like there's nobody available to connect with right now. Try again later!"
+
             case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
                 return "The format of the phone number is incorrect. Please verify that you haven't included the country code."
 
@@ -64,6 +67,7 @@ public extension AppException {
     static let notAuthorizedForContacts: AppException = .init("B7FC")
     static let notRegisteredForPushNotifications: AppException = .init("FB09")
     static let noSpeechDetected: AppException = .init("24F2")
+    static let penPalResolutionFailed: AppException = .init("AD6B")
     static let sameTranslationInputOutput: AppException = .init("6CEB")
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")

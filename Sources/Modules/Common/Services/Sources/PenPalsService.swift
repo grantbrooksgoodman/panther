@@ -23,14 +23,27 @@ public final class PenPalsService {
 
     public private(set) var didGrantPenPalsPermission = false
 
-    private var currentUserConversationUsers: [User] {
+    // MARK: - Computed Properties
+
+    private var contactPairArchiveUserIDs: [String] {
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        return contactPairArchive?.map(\.users).reduce([], +).map(\.id).unique ?? []
+    }
+
+    private var currentUserConversationUserIDs: [String] {
         userSession
             .currentUser?
             .conversations?
             .visibleForCurrentUser
             .compactMap(\.users)
             .reduce([], +)
+            .map(\.id)
             .unique ?? []
+    }
+
+    private var selectContactPairUserIDs: [String] {
+        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
+        return selectedContactPairs?.users.map(\.id) ?? []
     }
 
     // MARK: - Init
@@ -40,17 +53,20 @@ public final class PenPalsService {
     // MARK: - Get Random PenPals Participant
 
     public func getRandomPenPalsParticipant() async -> Callback<User, Exception> {
-        let getAllUsersResult = await userService.getAllUsers()
+        let getAllUsersResult = await userService.getAllUsers() // TODO: Will need to be a limited query once user numbers pick up.
 
         switch getAllUsersResult {
         case let .success(users):
             guard let randomPenPalsParticipant = users
-                .filter({ !currentUserConversationUsers.contains($0) })
+                .filter({ !contactPairArchiveUserIDs.contains($0.id) })
+                .filter({ !currentUserConversationUserIDs.contains($0.id) })
+                .filter({ !selectContactPairUserIDs.contains($0.id) })
                 .filter({ $0.isPenPalsParticipant })
                 .filter({ $0.languageCode != userSession.currentUser?.languageCode })
                 .randomElement() else {
                 return .failure(.init(
                     "Failed to resolve random PenPals participant.",
+                    isReportable: false,
                     metadata: [self, #file, #function, #line]
                 ))
             }

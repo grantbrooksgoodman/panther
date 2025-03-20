@@ -23,6 +23,7 @@ public struct NotificationService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
 
@@ -46,7 +47,8 @@ public struct NotificationService {
         _ users: [User],
         ofReaction reaction: Reaction? = nil,
         message: Message,
-        conversationIDKey: String
+        conversationIDKey: String,
+        isPenPalsConversation: Bool
     ) async -> Exception? {
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
@@ -55,9 +57,10 @@ public struct NotificationService {
             )
         }
 
+        let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            let title = currentUser.phoneNumber.formattedString()
             for user in users {
+                let title = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
                 let body = notificationBody(for: message, user: user)
                 if let exception = await notify(
                     user,
@@ -76,7 +79,8 @@ public struct NotificationService {
 
         for user in users {
             let reactedString = Localized(.reacted, languageCode: user.languageCode).wrappedValue
-            let title = "\(currentUser.phoneNumber.formattedString()) \(reactedString) \(reaction.style.emojiValue)"
+            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
+            let title = "\(titlePrefix) \(reactedString) \(reaction.style.emojiValue)"
 
             var body = notificationBody(for: message, user: user)
             if let resolvedBody = body,
@@ -315,6 +319,15 @@ public struct NotificationService {
         }
 
         return nil
+    }
+
+    private func penPalsName(for otherUser: User) -> String {
+        guard let currentUser = clientSession.user.currentUser else { return "PenPal" }
+        let localizedRegionName = regionDetailService.localizedRegionName(
+            regionCode: currentUser.phoneNumber.regionCode,
+            languageCode: otherUser.languageCode
+        )
+        return otherUser.languageCode == "en" ? "PenPal from \(localizedRegionName)" : "PenPal (\(localizedRegionName))"
     }
 
     private func sendNotification(

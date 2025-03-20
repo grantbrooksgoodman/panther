@@ -24,12 +24,12 @@ public struct ModerationSessionService {
 
     // MARK: - Content Moderation
 
-    public func blockUsers(_ users: [User]) async -> Exception? {
-        await moderate(.block, users: users)
+    public func blockUsers(inConversation conversation: Conversation) async -> Exception? {
+        await moderate(.block, dataSource: (conversation, nil))
     }
 
-    public func reportUsers(_ users: [User]) async -> Exception? {
-        await moderate(.report, users: users)
+    public func reportUsers(inConversation conversation: Conversation) async -> Exception? {
+        await moderate(.report, dataSource: (conversation, nil))
     }
 
     public func unblockUsers() async -> Exception? {
@@ -37,7 +37,7 @@ public struct ModerationSessionService {
 
         switch getBlockedUsersResult {
         case let .success(users):
-            return await moderate(.unblock, users: users)
+            return await moderate(.unblock, dataSource: (nil, users))
 
         case let .failure(exception):
             return exception
@@ -158,27 +158,40 @@ public struct ModerationSessionService {
         }
     }
 
-    private func moderate(_ type: ModerationType, users: [User]) async -> Exception? {
+    private func moderate(
+        _ type: ModerationType,
+        dataSource: (conversation: Conversation?, users: [User]?)
+    ) async -> Exception? {
+        guard dataSource.conversation != nil || dataSource.users != nil,
+              let users = dataSource.conversation?.users ?? dataSource.users else {
+            return .init(
+                "No data source provided.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
         var contactPairs = users
             .map { contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .unique
 
-        // Obfuscate active PenPals' user data
-        for user in contactPairs.map(\.users).reduce([], +) where user.isObfuscatedPenPalWithCurrentUser {
-            guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
-            contactPairs[index] = .withUser(
-                .init(
-                    user.id,
-                    blockedUserIDs: user.blockedUserIDs,
-                    conversationIDs: user.conversationIDs,
-                    isPenPalsParticipant: user.isPenPalsParticipant,
-                    languageCode: user.languageCode,
-                    phoneNumber: .init("15555555555"),
-                    pushTokens: user.pushTokens
-                ),
-                name: "PenPal"
-            )
+        if dataSource.conversation?.metadata.isPenPalsConversation == true {
+            // Obfuscate active PenPals' user data
+            for user in contactPairs.map(\.users).reduce([], +) where await user.isObfuscatedPenPalWithCurrentUser {
+                guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
+                contactPairs[index] = .withUser(
+                    .init(
+                        user.id,
+                        blockedUserIDs: user.blockedUserIDs,
+                        conversationIDs: user.conversationIDs,
+                        isPenPalsParticipant: user.isPenPalsParticipant,
+                        languageCode: user.languageCode,
+                        phoneNumber: .init("15555555555"),
+                        pushTokens: user.pushTokens
+                    ),
+                    name: user.penPalsName
+                )
+            }
         }
 
         guard contactPairs.count > 1 || type == .unblock else {

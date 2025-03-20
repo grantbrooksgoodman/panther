@@ -156,20 +156,23 @@ public final class RegionDetailService {
 
     // MARK: - Region Titles
 
-    public func localizedRegionName(regionCode: String) -> String {
+    public func localizedRegionName(regionCode: String, languageCode: String? = nil) -> String {
         var cachedValue = cachedLocalizedRegionNamesForRegionCodes ?? .init()
-        if let string = cachedValue[regionCode] {
+        if let string = cachedValue[regionCode],
+           languageCode == nil {
             return string
         }
 
         func setCacheValue(_ key: String, _ value: String) {
+            guard languageCode == nil else { return }
             cachedValue[key] = value
             cachedLocalizedRegionNamesForRegionCodes = cachedValue
         }
 
         guard callingCodes[regionCode] != nil else { return regionCode }
 
-        guard let regionName = systemLocalizedLocale.localizedString(forRegionCode: regionCode.uppercased()) else {
+        let locale = languageCode == nil ? systemLocalizedLocale : Locale(languageCode: .init(languageCode!))
+        guard let regionName = locale.localizedString(forRegionCode: regionCode.uppercased()) else {
             setCacheValue(regionCode, Localized(.multiple).wrappedValue)
             return Localized(.multiple).wrappedValue
         }

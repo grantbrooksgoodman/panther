@@ -50,6 +50,7 @@ public struct NewChatPageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .header(
+                leftItem: viewModel.shouldShowPenPalsToolbarButton ? headerLeftItem : nil,
                 headerCenterItem,
                 rightItem: headerRightItem,
                 attributes: .init(

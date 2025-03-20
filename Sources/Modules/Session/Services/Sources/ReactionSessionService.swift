@@ -181,7 +181,8 @@ public final class ReactionSessionService {
             [user],
             ofReaction: reaction,
             message: message,
-            conversationIDKey: conversation.id.key
+            conversationIDKey: conversation.id.key,
+            isPenPalsConversation: conversation.metadata.isPenPalsConversation
         ) {
             return exception
         }
