@@ -80,6 +80,14 @@ public extension Array where Element == Participant {
 }
 
 public extension Array where Element == PenPalsSharingData {
+    var allShareWithEachOther: Bool {
+        let userIDs = Set(map(\.userID))
+        return allSatisfy { datum in
+            let otherUserIDs = userIDs.subtracting([datum.userID])
+            return Set(datum.sharesDataWithUserIDs ?? []) == otherUserIDs
+        }
+    }
+
     var firstWithCurrentUserID: PenPalsSharingData? {
         @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
         @Persistent(.currentUserID) var fallbackCurrentUserID: String?

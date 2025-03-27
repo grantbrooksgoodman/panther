@@ -57,52 +57,71 @@ public final class ChatInfoPageViewService {
         var chatParticipants = [ChatParticipant]()
 
         for user in users {
-            if let cachedChatParticipantsForUserIDs,
+            if !currentConversation.metadata.isPenPalsConversation,
+               let cachedChatParticipantsForUserIDs,
                let cachedChatParticipant = cachedChatParticipantsForUserIDs[user.id] {
                 chatParticipants.append(cachedChatParticipant)
                 continue
             }
 
             var chatParticipant: ChatParticipant?
-            let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
+            // swiftlint:disable:next identifier_name
+            let currentUserDoesNotShareDataButOtherUserDoes = !currentConversation.currentUserSharesPenPalsData(with: user)
+                && currentConversation.userSharesPenPalsDataWithCurrentUser(user)
 
-            switch firstCNContactResult {
-            case let .success(cnContact):
-                let contactPair: ContactPair = .init(
-                    contact: .init(cnContact),
-                    numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
-                )
+            @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
+            if !currentConversation.metadata.isPenPalsConversation
+                || currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
+                || currentUserDoesNotShareDataButOtherUserDoes
+                || penPalsService.isKnownToCurrentUser(user.id) {
+                let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
 
-                chatParticipant = .init(
-                    displayName: contactPair.contact.fullName,
-                    cnContactContainer: .init(cnContact.mutableCopy() as? CNMutableContact),
-                    contactPair: contactPair
-                )
-
-            case .failure:
-                let cnContact = CNMutableContact()
-                cnContact.phoneNumbers.append(
-                    .init(
-                        label: nil,
-                        value: .init(stringValue: user.phoneNumber.formattedString())
+                switch firstCNContactResult {
+                case let .success(cnContact):
+                    let contactPair: ContactPair = .init(
+                        contact: .init(cnContact),
+                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
                     )
-                )
 
-                let contactPair: ContactPair = .init(
-                    contact: .init(cnContact),
-                    numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
-                )
+                    chatParticipant = .init(
+                        displayName: contactPair.contact.fullName,
+                        cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact.mutableCopy() as? CNMutableContact),
+                        contactPair: contactPair
+                    )
 
+                case .failure:
+                    let cnContact = CNMutableContact()
+                    cnContact.phoneNumbers.append(
+                        .init(
+                            label: nil,
+                            value: .init(stringValue: user.phoneNumber.formattedString())
+                        )
+                    )
+
+                    let contactPair: ContactPair = .init(
+                        contact: .init(cnContact),
+                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                    )
+
+                    chatParticipant = .init(
+                        displayName: contactPair.contact.fullName,
+                        cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact, isUnknown: true),
+                        contactPair: contactPair
+                    )
+                }
+            } else {
                 chatParticipant = .init(
-                    displayName: contactPair.contact.fullName,
-                    cnContactContainer: .init(cnContact, isUnknown: true),
-                    contactPair: contactPair
+                    displayName: user.penPalsName,
+                    cnContactContainer: nil,
+                    contactPair: .withUser(user, name: user.penPalsName),
+                    isUserInteractionEnabled: !currentConversation.currentUserSharesPenPalsData(with: user)
                 )
             }
 
             guard let chatParticipant else { continue }
             chatParticipants.append(chatParticipant)
 
+            guard !currentConversation.metadata.isPenPalsConversation else { continue }
             if var cachedValue = cachedChatParticipantsForUserIDs {
                 cachedValue[user.id] = chatParticipant
                 cachedChatParticipantsForUserIDs = cachedValue
@@ -214,30 +233,37 @@ public final class ChatInfoPageViewService {
     // MARK: - Present PenPals Sharing Data Confirmation Action Sheet
 
     /// - Returns: `true` if the user selected the confirmation option.
-    public func presentPenPalsSharingDataConfirmationActionSheet() async -> Bool {
+    public func presentPenPalsSharingDataConfirmationActionSheet(
+        _ userID: String,
+        displayName: String
+    ) async -> String? {
         await withCheckedContinuation { continuation in
-            presentPenPalsSharingDataConfirmationActionSheet { confirmed in
-                continuation.resume(returning: confirmed)
+            presentPenPalsSharingDataConfirmationActionSheet(userID, displayName: displayName) { userID in
+                continuation.resume(returning: userID)
             }
         }
     }
 
-    public func presentPenPalsSharingDataConfirmationActionSheet(completion: @escaping (Bool) -> Void) {
+    public func presentPenPalsSharingDataConfirmationActionSheet(
+        _ userID: String,
+        displayName: String,
+        completion: @escaping (String?) -> Void
+    ) {
         Task {
             let confirmAction: AKAction = .init("Share Phone Number") {
-                completion(true)
+                completion(userID)
             }
 
             let cancelAction: AKAction = .init(
                 Localized(.cancel).wrappedValue,
                 style: .cancel
             ) {
-                completion(false)
+                completion(nil)
             }
 
             await AKActionSheet(
-                title: "Share Phone Number with ⌘PenPal⌘?",
-                message: "This action cannot be undone.",
+                title: "Share Phone Number with ⌘\(displayName)⌘?", // swiftlint:disable:next line_length
+                message: "Both \(RuntimeStorage.languageCode == "en" ? "PenPals" : "parties") sharing their respective phone numbers unlocks the ability to add each other as contacts.\nThis action cannot be undone.",
                 actions: [cancelAction, confirmAction]
             ).present(translating: [.actions([confirmAction]), .message, .title])
         }

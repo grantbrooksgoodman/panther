@@ -16,9 +16,11 @@ public struct ChatParticipant: Equatable {
     public let cnContactContainer: CNContactContainer?
     public let contactPair: ContactPair?
     public let displayName: String
+    public let isUserInteractionEnabled: Bool
 
     // MARK: - Computed Properties
 
+    public var firstUser: User? { contactPair?.users.first }
     public var thumbnailImage: UIImage? { contactPair?.contact.image }
 
     // MARK: - Init
@@ -26,10 +28,12 @@ public struct ChatParticipant: Equatable {
     public init(
         displayName: String,
         cnContactContainer: CNContactContainer?,
-        contactPair: ContactPair?
+        contactPair: ContactPair?,
+        isUserInteractionEnabled: Bool = true
     ) {
         self.displayName = displayName
         self.cnContactContainer = cnContactContainer
         self.contactPair = contactPair
+        self.isUserInteractionEnabled = isUserInteractionEnabled
     }
 }

@@ -62,11 +62,6 @@ public final class User: Codable, Equatable {
         }
     }
 
-    /// - Note: Will always return `nil` for users other than the current user.
-    public var obfuscatedPenPalUsers: [User]? {
-        get async { await getObfuscatedPenPalUsers() }
-    }
-
     // MARK: - Init
 
     public init(
@@ -116,12 +111,15 @@ public final class User: Codable, Equatable {
 
     // MARK: - Set Conversations
 
+    /// - Note: Returns `nil` if called on a user other than the current user.
     public func setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
-        guard let conversationIDs else { return nil }
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard id == currentUserID,
+              let conversationIDs else { return nil }
 
         var conversationsNeedingFetch = [ConversationID]()
         var conversationsNeedingUpdate = [Conversation]()
@@ -227,40 +225,5 @@ public final class User: Codable, Equatable {
               samePushTokens else { return false }
 
         return true
-    }
-
-    // MARK: - Auxiliary
-
-    private func getObfuscatedPenPalUsers(_ returnNilIfFailedOnce: Bool = false) async -> [User]? {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard id == currentUserID else { return nil }
-        guard !(conversationIDs ?? []).isEmpty,
-              let conversations else {
-            guard !returnNilIfFailedOnce else { return nil }
-
-            // NIT: Not sure why conversations sometimes aren't already populated when this is called.
-            if let exception = await setConversations() {
-                Logger.log(exception)
-                return nil
-            }
-
-            return await getObfuscatedPenPalUsers(true)
-        }
-
-        let penPalsConversations = conversations.filter(\.metadata.isPenPalsConversation)
-        for conversation in penPalsConversations {
-            if let exception = await conversation.setUsers() {
-                Logger.log(exception)
-            }
-        }
-
-        let obfuscatedPenPalUsers = penPalsConversations
-            .filter { !$0.isOtherUserSharingPenPalsData }
-            .compactMap(\.users)
-            .reduce([], +)
-            .unique
-
-        guard !obfuscatedPenPalUsers.isEmpty else { return nil }
-        return obfuscatedPenPalUsers
     }
 }

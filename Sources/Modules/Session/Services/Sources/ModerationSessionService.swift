@@ -17,9 +17,9 @@ import Networking
 public struct ModerationSessionService {
     // MARK: - Dependencies
 
-    @Dependency(\.commonServices.contact.contactPairArchive) private var contactPairArchive: ContactPairArchiveService
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Content Moderation
@@ -170,30 +170,18 @@ public struct ModerationSessionService {
             )
         }
 
-        var contactPairs = users
-            .map { contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
-            .sorted(by: { $0.contact.fullName < $1.contact.fullName })
-            .unique
-
-        if dataSource.conversation?.metadata.isPenPalsConversation == true {
-            // Obfuscate active PenPals' user data
-            for user in contactPairs.map(\.users).reduce([], +) where await user.isObfuscatedPenPalWithCurrentUser {
+        var contactPairs = users.map { services.contact.contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
+        if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil,
+           let currentUserConversations = userSession.currentUser?.conversations?.filter({ !($0.currentUserParticipant?.hasDeletedConversation ?? true) }) {
+            for user in users where currentUserConversations.contains(where: {
+                !$0.userSharesPenPalsDataWithCurrentUser(user) && !services.penPals.isKnownToCurrentUser(user.id)
+            }) {
                 guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
-                contactPairs[index] = .withUser(
-                    .init(
-                        user.id,
-                        blockedUserIDs: user.blockedUserIDs,
-                        conversationIDs: user.conversationIDs,
-                        isPenPalsParticipant: user.isPenPalsParticipant,
-                        languageCode: user.languageCode,
-                        phoneNumber: .init("15555555555"),
-                        pushTokens: user.pushTokens
-                    ),
-                    name: user.penPalsName
-                )
+                contactPairs[index] = .withUser(user, name: user.penPalsName)
             }
         }
 
+        contactPairs = contactPairs.sorted(by: { $0.contact.fullName < $1.contact.fullName }).unique
         guard contactPairs.count > 1 || type == .unblock else {
             guard let contactPair = contactPairs.first,
                   await confirmModeration(type, title: "⌘\(contactPair.contact.fullName)⌘") else { return nil }

@@ -255,7 +255,10 @@ public final class UserSessionService {
             }
 
         case let .failure(exception):
-            return exception
+            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return exception }
+            if let exception = await networking.database.setValue([currentUserID], forKey: NetworkPath.deletedUsers.rawValue) {
+                return exception
+            }
         }
 
         if let exception = await networking.integrityService.resolveSession() {

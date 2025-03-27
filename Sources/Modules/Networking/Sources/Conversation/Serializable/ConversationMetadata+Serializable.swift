@@ -26,7 +26,7 @@ extension ConversationMetadata: Serializable {
         case imageData
         case isPenPalsConversation
         case lastModifiedDate = "lastModified"
-        case penPalsSharingData = "isSharingPenPalsData"
+        case penPalsSharingData
     }
 
     // MARK: - Properties

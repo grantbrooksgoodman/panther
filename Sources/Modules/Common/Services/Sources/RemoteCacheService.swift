@@ -55,8 +55,7 @@ public struct RemoteCacheService {
             return await networking.database.setValue(array, forKey: NetworkPath.invalidatedCaches.rawValue)
 
         case let .failure(exception):
-            var exceptions = [exception]
-
+            var exceptions = exception.isEqual(to: .Networking.Database.noValueExists) ? [] : [exception]
             if let exception = await networking.database.setValue([userID], forKey: NetworkPath.invalidatedCaches.rawValue) {
                 exceptions.append(exception)
             }

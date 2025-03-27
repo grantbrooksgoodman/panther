@@ -37,12 +37,14 @@ public struct ChatInfoPageReducer: Reducer {
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
+        case penPalParticipantViewTapped(ChatParticipant)
+        case traitCollectionChanged
 
         case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
         case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
         case isPresentingCameraPickerSheetChanged(Bool, Exception?)
         case isPresentingImagePickerSheetChanged(Bool, Exception?) // swiftlint:disable:next identifier_name
-        case penPalsSharingDataConfirmationActionSheetDismissed(Bool)
+        case penPalsSharingDataConfirmationActionSheetDismissed(userID: String?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case selectedImageChanged(UIImage)
         case updateValueReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
@@ -111,6 +113,14 @@ public struct ChatInfoPageReducer: Reducer {
             return currentConversation
         }
 
+        public var showsChangeMetadataButton: Bool {
+            conversation?.metadata.isPenPalsConversation == false
+        }
+
+        public var showsPenPalsSharingDataSwitch: Bool {
+            conversation?.metadata.isPenPalsConversation == true && conversation?.participants.count == 2
+        }
+
         public var singleCNContactContainer: CNContactContainer? {
             guard chatParticipants.count == 1,
                   conversation?.metadata.isPenPalsConversation == false else { return nil }
@@ -130,7 +140,7 @@ public struct ChatInfoPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
-            state.isPenPalsSharingDataSwitchToggled = state.conversation?.isCurrentUserSharingPenPalsData ?? false
+            state.isPenPalsSharingDataSwitchToggled = state.conversation?.currentUserSharesPenPalsDataWithAllUsers ?? false
             uiApplication.resignFirstResponders()
 
             let getChatParticipantsTask: Effect<Action> = .task {
@@ -252,46 +262,78 @@ public struct ChatInfoPageReducer: Reducer {
             }
             state.isChangeMetadataButtonEnabled = true
 
-        case let .penPalsSharingDataConfirmationActionSheetDismissed(confirmed):
+        case let .penPalsSharingDataConfirmationActionSheetDismissed(userID):
             @Persistent(.currentUserID) var currentUserID: String?
-            guard confirmed,
+            guard let userID,
                   let conversation = state.conversation,
-                  let currentUserID else { return .none }
+                  let currentUserID,
+                  let currentUserPenPalsSharingData = conversation.currentUserPenPalsSharingData else { return .none }
+
+            let newCurrentUserPenPalsSharingData: PenPalsSharingData = .init(
+                userID: currentUserID,
+                sharesDataWithUserIDs: ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + [userID]).unique
+            )
 
             var newPenPalsSharingData = conversation.metadata.penPalsSharingData.filter { $0.userID != currentUserID }
-            newPenPalsSharingData.append(.init(userID: currentUserID, isSharingPenPalsData: true))
+            newPenPalsSharingData.append(newCurrentUserPenPalsSharingData)
 
-            var newMetadata: ConversationMetadata?
-            if newPenPalsSharingData.allSatisfy(\.isSharingPenPalsData) {
-                newMetadata = .init(
-                    name: conversation.metadata.name,
-                    imageData: conversation.metadata.imageData,
-                    isPenPalsConversation: false,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    penPalsSharingData: newPenPalsSharingData.reduce(into: [PenPalsSharingData]()) { partialResult, data in
-                        partialResult.append(.init(userID: data.userID, isSharingPenPalsData: false))
-                    }
+            let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? .init(
+                name: conversation.metadata.name,
+                imageData: conversation.metadata.imageData,
+                isPenPalsConversation: false,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID))
+            ) : .init(
+                name: conversation.metadata.name,
+                imageData: conversation.metadata.imageData,
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
+                lastModifiedDate: conversation.metadata.lastModifiedDate,
+                penPalsSharingData: newPenPalsSharingData
+            )
+
+            if let matchIndex = state.chatParticipants.firstIndex(where: { $0.firstUser?.id == userID }),
+               let match = state.chatParticipants.itemAt(matchIndex) {
+                let newParticipant: ChatParticipant = .init(
+                    displayName: match.displayName,
+                    cnContactContainer: match.cnContactContainer,
+                    contactPair: match.contactPair,
+                    isUserInteractionEnabled: false
                 )
-            } else {
-                newMetadata = .init(
-                    name: conversation.metadata.name,
-                    imageData: conversation.metadata.imageData,
-                    isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    penPalsSharingData: newPenPalsSharingData
-                )
+
+                state.chatParticipants = state.chatParticipants.filter { $0.firstUser?.id != userID }
+                if state.chatParticipants.count > matchIndex {
+                    state.chatParticipants.insert(newParticipant, at: matchIndex)
+                } else {
+                    state.chatParticipants.append(newParticipant)
+                }
+
+                state.visibleParticipants = state.chatParticipants
+                state.viewID = UUID()
             }
 
-            guard let newMetadata else { return .none }
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
             }
 
-        case .penPalsSharingDataSwitchToggledOn:
+        case let .penPalParticipantViewTapped(chatParticipant):
+            guard let userID = chatParticipant.firstUser?.id else { return .none }
             return .task {
-                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet()
-                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
+                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet(
+                    userID,
+                    displayName: chatParticipant.displayName
+                )
+                return .penPalsSharingDataConfirmationActionSheetDismissed(userID: result)
+            }
+
+        case .penPalsSharingDataSwitchToggledOn:
+            guard let otherUser = state.conversation?.users?.first else { return .none }
+            return .task {
+                let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet(
+                    otherUser.id,
+                    displayName: otherUser.penPalsName
+                )
+                return .penPalsSharingDataConfirmationActionSheetDismissed(userID: result)
             }
 
         case let .resolveReturned(.success(strings)):
@@ -322,6 +364,13 @@ public struct ChatInfoPageReducer: Reducer {
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result)
+            }
+
+        case .traitCollectionChanged:
+            return .task(delay: .milliseconds(100)) { @MainActor in
+                NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
+                NavigationBar.forceRedraw()
+                return .none
             }
 
         case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):

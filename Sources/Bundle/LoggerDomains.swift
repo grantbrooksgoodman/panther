@@ -32,6 +32,7 @@ public extension LoggerDomain {
             .general,
             .Networking.hostedTranslation,
             .notifications,
+            .penPals,
             .queue,
             .translation,
             .user,
@@ -48,6 +49,7 @@ public extension LoggerDomain {
     static let conversation: LoggerDomain = .init("conversation")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
     static let notifications: LoggerDomain = .init("notifications")
+    static let penPals: LoggerDomain = .init("penPals")
     static let queue: LoggerDomain = .init("queue")
     static let user: LoggerDomain = .init("user")
     static let userSession: LoggerDomain = .init("userSession")

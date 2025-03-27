@@ -20,30 +20,35 @@ extension PenPalsSharingData: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: String { "\(userID) | \(isSharingPenPalsData)" }
+    public var encoded: String {
+        let sharesDataWithUserIDsString = sharesDataWithUserIDs?.reduce(into: String()) { partialResult, userID in
+            if partialResult.isBlank { partialResult = userID } else { partialResult += ", \(userID)" }
+        } ?? .bangQualifiedEmpty
+
+        return "\(userID): \(sharesDataWithUserIDsString)"
+    }
 
     // MARK: - Methods
 
     public static func canDecode(from data: String) -> Bool {
-        let components = data.components(separatedBy: " | ")
+        let components = data.components(separatedBy: ": ")
         guard components.count == 2,
-              components[1] == "true" || components[1] == "false" else { return false }
+              components.allSatisfy({ !$0.isBlank }) else { return false }
         return true
     }
 
     public static func decode(from data: String) async -> Callback<PenPalsSharingData, Exception> {
-        let components = data.components(separatedBy: " | ")
-        guard components.count == 2,
-              components[1] == "true" || components[1] == "false" else {
+        guard canDecode(from: data) else {
             return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
 
+        let components = data.components(separatedBy: ": ")
         let userID = components[0]
-        let isSharingPenPalsData = components[1] == "true" ? true : false
+        let sharesDataWithUserIDs = components[1].components(separatedBy: ", ")
 
         let decoded: PenPalsSharingData = .init(
             userID: userID,
-            isSharingPenPalsData: isSharingPenPalsData
+            sharesDataWithUserIDs: sharesDataWithUserIDs.isBangQualifiedEmpty ? nil : sharesDataWithUserIDs
         )
 
         return .success(decoded)

@@ -34,6 +34,7 @@ public final class ContactService {
     public let contactPairArchive: ContactPairArchiveService
 
     @Cached(CacheKey.cnContacts) public var cachedCNContacts: [CNContact]?
+    public private(set) var didSyncContactPairArchive = false
 
     // MARK: - Init
 
@@ -44,6 +45,7 @@ public final class ContactService {
     // MARK: - Sync Contact Pair Archive
 
     public func syncContactPairArchive() async -> Exception? {
+        defer { didSyncContactPairArchive = true }
         let getAllUsersResult = await userService.getAllUsers()
 
         switch getAllUsersResult {

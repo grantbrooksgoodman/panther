@@ -204,6 +204,10 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
+            if let exception = await services.penPals.updateSharingDataForKnownUsers() {
+                return exception
+            }
+
             initializationProgress += 0.2
 
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }

@@ -53,9 +53,7 @@ public struct ConversationMetadata: Codable, Equatable {
             imageData: nil,
             isPenPalsConversation: isPenPalsConversation,
             lastModifiedDate: .init(timeIntervalSince1970: 0),
-            penPalsSharingData: userIDs.reduce(into: [PenPalsSharingData]()) { partialResult, userID in
-                partialResult.append(.init(userID: userID, isSharingPenPalsData: false))
-            }
+            penPalsSharingData: isPenPalsConversation ? PenPalsSharingData.prepopulated(userIDs: userIDs) : PenPalsSharingData.empty(userIDs: userIDs)
         )
     }
 }

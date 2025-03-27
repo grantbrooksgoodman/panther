@@ -24,9 +24,11 @@ public extension Array where Element == Conversation {
 
     var sortedByLatestMessageSentDate: [Conversation] {
         let filtered = filter { $0.messages?.isEmpty == false }
-        return filtered.map { conversation in
+        var sorted = filtered.map { conversation in
             (conversation, conversation.messages!.max(by: { $0.sentDate < $1.sentDate })!.sentDate)
         }.sorted(by: { $0.1 > $1.1 }).map { $0.0 }
+        sorted += filter { $0.messages == nil || $0.messages?.isEmpty == true }
+        return sorted
     }
 
     var uniquedByIDKey: [Conversation] {

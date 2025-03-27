@@ -149,28 +149,11 @@ public final class ConversationSessionService {
 
         newParticipants.append(newParticipant)
         newParticipants = newParticipants.unique
-        let encodedParticipants = newParticipants.map(\.encoded)
 
-        let path = NetworkPath.conversations.rawValue
-        if let exception = await networking.database.setValue(
-            encodedParticipants,
-            forKey: "\(path)/\(conversation.id.key)/\(Conversation.SerializationKeys.participants.rawValue)"
-        ) {
-            return exception
-        }
-
-        let newMetadata: ConversationMetadata = .init(
-            name: conversation.metadata.name,
-            imageData: conversation.metadata.imageData,
-            isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-            lastModifiedDate: Date(),
-            penPalsSharingData: conversation.metadata.penPalsSharingData
-        )
-
-        let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)
+        let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
 
         switch updateValueResult {
-        case .success:
+        case .success: // NIT: We don't care about the result because updateValue adds the updated conversation to the archive for us.
             return nil
 
         case let .failure(exception):

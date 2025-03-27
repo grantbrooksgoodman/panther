@@ -88,6 +88,9 @@ public struct ChatInfoContentPageView: View {
                 }
             }
         }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
     }
 
     // MARK: - Content View
@@ -131,7 +134,7 @@ public struct ChatInfoContentPageView: View {
                 .padding(.bottom, 1)
                 .padding(.horizontal, Floats.chatTitleLabelHorizontalPadding)
 
-                if viewModel.conversation?.metadata.isPenPalsConversation == true {
+                if viewModel.showsPenPalsSharingDataSwitch {
                     ListRowView(.init(
                         .switch(isToggled: isPenPalsSharingDataSwitchToggledBinding),
                         innerText: viewModel.strings.value(for: .sharePhoneNumberListRowText)
@@ -140,16 +143,18 @@ public struct ChatInfoContentPageView: View {
                     .padding(.top, Floats.penPalsListRowViewTopPadding)
                     .disabled(viewModel.isPenPalsSharingDataSwitchToggled)
                 } else {
-                    Components.button(
-                        viewModel.strings.value(for: .changeMetadataButtonText),
-                        font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
-                        foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
-                    ) {
-                        viewModel.send(.changeMetadataButtonTapped)
+                    if viewModel.showsChangeMetadataButton {
+                        Components.button(
+                            viewModel.strings.value(for: .changeMetadataButtonText),
+                            font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
+                            foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
+                        ) {
+                            viewModel.send(.changeMetadataButtonTapped)
+                        }
+                        .disabled(!viewModel.isChangeMetadataButtonEnabled)
+                        .padding(.bottom, 1)
+                        .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
                     }
-                    .disabled(!viewModel.isChangeMetadataButtonEnabled)
-                    .padding(.bottom, 1)
-                    .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
 
                     listView
                 }
@@ -249,22 +254,32 @@ public struct ChatInfoContentPageView: View {
                 } /* else if index == viewModel.visibleParticipants.count - 1 {
                      addContactButton
                          .disabled(!viewModel.isAddContactButtonEnabled)
-                 } */ else if let participant = viewModel.visibleParticipants.itemAt(index),
-                             let cnContactContainer = participant.cnContactContainer {
-                    NavigationLink(
-                        destination:
-                        CNContactView(
-                            cnContactContainer.cnContact,
-                            isUnknown: cnContactContainer.isUnknown
-                        )
-                    ) {
+                 } */ else if let participant = viewModel.visibleParticipants.itemAt(index) {
+                    if let cnContactContainer = participant.cnContactContainer {
+                        NavigationLink(
+                            destination:
+                            CNContactView(
+                                cnContactContainer.cnContact,
+                                isUnknown: cnContactContainer.isUnknown
+                            )
+                        ) {
+                            participantView(participant)
+                        }
+                        .dynamicTypeSize(.large)
+                    } else if participant.isUserInteractionEnabled {
+                        Button {
+                            viewModel.send(.penPalParticipantViewTapped(participant))
+                        } label: {
+                            participantView(participant)
+                        }
+                    } else {
                         participantView(participant)
                     }
-                    .dynamicTypeSize(.large)
                 }
             }
         }
         .animation(.default, value: viewModel.visibleParticipants)
+        .id(viewModel.viewID)
         .offset(y: Floats.listViewYOffset)
     }
 
@@ -286,7 +301,7 @@ public struct ChatInfoContentPageView: View {
                 font: .systemSemibold
             )
 
-            if let firstUser = participant.contactPair?.users.first {
+            if let firstUser = participant.firstUser {
                 UserInfoBadgeView(firstUser)
             }
         }
