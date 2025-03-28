@@ -17,7 +17,7 @@ public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService> // swiftlint:disable:next line_length
+    @Dependency(\.navigation) private var navigation: Navigation // swiftlint:disable:next line_length
     @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) private var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -57,7 +57,7 @@ public struct NewChatPageReducer: Reducer {
 
         public var shouldShowPenPalsToolbarButton: Bool {
             @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-            return currentUser?.isPenPalsParticipant ?? false
+            return (currentUser?.isPenPalsParticipant ?? false) && !shouldUseBoldDoneToolbarButton
         }
 
         /* MARK: Init */

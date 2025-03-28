@@ -20,7 +20,7 @@ public struct SettingsPageReducer: Reducer {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.commonServices.contact) private var contactService: ContactService
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.settingsPageViewService) private var viewService: SettingsPageViewService

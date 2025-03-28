@@ -202,7 +202,7 @@ public struct NotificationService {
         }
 
         Toast.show(toast) {
-            @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
+            @Dependency(\.navigation) var navigation: Navigation
             guard self.chatPageState.isPresented else {
                 return navigation.navigate(to: .userContent(.push(.chat(conversation))))
             }

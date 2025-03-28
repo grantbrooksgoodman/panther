@@ -212,7 +212,9 @@ public final class PenPalsService {
     private func populateValuesIfNeeded() async -> Exception? {
         var exceptions = [Exception]()
 
-        if let exception = await contactService.syncContactPairArchive() {
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+           let exception = await contactService.syncContactPairArchive() {
             exceptions.append(exception)
         }
 

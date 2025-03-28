@@ -74,7 +74,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) {
         @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        @Dependency(\.commonServices) var services: CommonServices
 
         guard let message = message as? Message,
               Application.isInPrevaricationMode || !message.isFromCurrentUser else { return }
@@ -98,17 +98,19 @@ extension ChatPageViewController: MessagesDisplayDelegate {
             avatarView.tintColor = penPalsIconColor
         }
 
-        guard clientSession.conversation.currentConversation?.metadata.isPenPalsConversation == false else {
-            configurePenPalsAvatar()
-            return
-        }
-
         guard let users = currentConversation?.users,
               let currentUser = clientSession.user.currentUser,
-              let matchingUser = (users + [currentUser]).first(where: { $0.id == message.fromAccountID }),
-              let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
-            configureGenericAvatar()
-            return
+              let matchingUser = (users + [currentUser]).first(where: { $0.id == message.fromAccountID }) else {
+            return configureGenericAvatar()
+        }
+
+        guard clientSession.conversation.currentConversation?.mutuallySharedPenPalsDataBetweenCurrentUserAnd(matchingUser) == true ||
+            services.penPals.isKnownToCurrentUser(matchingUser.id) else {
+            return configurePenPalsAvatar()
+        }
+
+        guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
+            return configureGenericAvatar()
         }
 
         guard let image = contactPair.contact.image else {

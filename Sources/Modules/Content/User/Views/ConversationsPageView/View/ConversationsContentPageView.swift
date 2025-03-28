@@ -22,7 +22,6 @@ public struct ConversationsContentPageView: View {
 
     // MARK: - Properties
 
-    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     @ObservedObject private var viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init

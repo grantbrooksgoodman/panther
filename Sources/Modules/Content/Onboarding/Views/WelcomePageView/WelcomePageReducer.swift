@@ -17,7 +17,7 @@ public struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 

@@ -27,7 +27,6 @@ public extension DevModeAction {
         public var appActions: [DevModeAction] {
             var actions = [
                 DevModeAction.AppActions.setCurrentUserIDAction,
-                DevModeAction.AppActions.showPenPalsPermissionPageAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
                 DevModeAction.AppActions.dangerZoneAction,
             ]
@@ -76,7 +75,7 @@ public extension DevModeAction {
 
                     if currentUser?.conversations != nil {
                         actions.insert(
-                            DevModeAction.AppActions.deleteConversationsForCurrentUserAction,
+                            DevModeAction.AppActions.deleteCurrentUserConversationsAction,
                             at: 2
                         )
                     }
@@ -98,23 +97,12 @@ public extension DevModeAction {
             return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
         }
 
-        // NIT: Should be temporary, ideally.
-        private static var showPenPalsPermissionPageAction: DevModeAction {
-            func showPenPalsPermissionPage() {
-                Task { @MainActor in
-                    RootSheets.present(.penPalsPermissionPageView)
-                }
-            }
-
-            return .init(title: "Show PenPals Permission Page", perform: showPenPalsPermissionPage)
-        }
-
         private static var setCurrentUserIDAction: DevModeAction {
             func setCurrentUserID() {
                 Task {
                     @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
                     @Dependency(\.userDefaults) var defaults: UserDefaults
-                    @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
+                    @Dependency(\.navigation) var navigation: Navigation
 
                     @Persistent(.currentUserID) var currentUserID: String?
 
@@ -211,23 +199,23 @@ public extension DevModeAction {
 
         // MARK: - Danger Zone Actions
 
-        private static var deleteConversationsForCurrentUserAction: DevModeAction {
-            func deleteConversationsForCurrentUser() {
+        private static var deleteCurrentUserConversationsAction: DevModeAction {
+            func deleteCurrentUserConversations() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
                     @Dependency(\.userDefaults) var defaults: UserDefaults
-                    @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
+                    @Dependency(\.navigation) var navigation: Navigation
                     @Dependency(\.clientSession.user) var userSession: UserSessionService
 
                     guard await AKConfirmationAlert(
-                        title: "Delete Conversations for Current User",
+                        title: "Delete Current User Conversations",
                         message: "This will delete all conversations for the current user.\n\nThis operation cannot be undone.",
                         confirmButtonStyle: .destructivePreferred
                     ).present(translating: []) else { return }
 
                     userSession.stopObservingCurrentUserChanges()
 
-                    if let exception = await core.utils.deleteConversationsForCurrentUser() {
+                    if let exception = await core.utils.deleteCurrentUserConversations() {
                         Logger.log(exception, with: .toast())
                     } else {
                         core.hud.flash(image: .success)
@@ -244,9 +232,9 @@ public extension DevModeAction {
             }
 
             return .init(
-                title: "Delete Conversations for Current User",
+                title: "Delete Current User Conversations",
                 isDestructive: true,
-                perform: deleteConversationsForCurrentUser
+                perform: deleteCurrentUserConversations
             )
         }
 

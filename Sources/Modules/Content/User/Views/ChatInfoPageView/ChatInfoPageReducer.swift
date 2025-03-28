@@ -231,6 +231,13 @@ public struct ChatInfoPageReducer: Reducer {
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
             state.isAddContactButtonEnabled = chatParticipants.count <= 9
+
+            guard state.viewState == .loading else {
+                state.viewID = UUID()
+                chatPageViewService.reloadCollectionView()
+                return .none
+            }
+
             state.viewState = .loaded
 
         case let .getChatParticipantsReturned(.failure(exception)):
@@ -292,34 +299,6 @@ public struct ChatInfoPageReducer: Reducer {
                 penPalsSharingData: newPenPalsSharingData
             )
 
-            if let matchIndex = state.chatParticipants.firstIndex(where: { $0.firstUser?.id == userID }),
-               let match = state.chatParticipants.itemAt(matchIndex) {
-                let newParticipant: ChatParticipant = .init(
-                    displayName: match.displayName,
-                    cnContactContainer: match.cnContactContainer,
-                    contactPair: match.contactPair,
-                    isPenPal: match.isPenPal
-                )
-
-                state.chatParticipants = state.chatParticipants.filter { $0.firstUser?.id != userID }
-                if state.chatParticipants.count > matchIndex {
-                    state.chatParticipants.insert(newParticipant, at: matchIndex)
-                } else {
-                    state.chatParticipants.append(newParticipant)
-                }
-
-                state.visibleParticipants = state.chatParticipants
-                state.viewID = UUID()
-            }
-
-            if newPenPalsSharingData.allShareWithEachOther,
-               conversation.participants.count == 2 {
-                RootSheets.dismiss()
-                Task.delayed(by: .seconds(1)) { @MainActor in
-                    RootSheets.present(.chatInfoPageView)
-                }
-            }
-
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
@@ -331,7 +310,10 @@ public struct ChatInfoPageReducer: Reducer {
             if chatParticipant.isPenPal,
                state.conversation?.currentUserSharesPenPalsData(with: user) == true {
                 return .task {
-                    await viewService.showPenPalsSharingStatusToast(chatParticipant.displayName)
+                    await viewService.showPenPalsSharingStatusToast(
+                        user.id,
+                        displayName: chatParticipant.displayName
+                    )
                     return .none
                 }
             }
@@ -392,6 +374,8 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
         case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):
+            let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
+
             conversationSession.setCurrentConversation(conversation)
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
@@ -399,6 +383,12 @@ public struct ChatInfoPageReducer: Reducer {
             state.isChangeMetadataButtonEnabled = true
             state.isPenPalsSharingDataSwitchToggled = togglePenPalsDataSharingSwitch
             state.viewID = UUID()
+
+            guard oldConversationIsPenPalsConversation else { return .none }
+            return .task {
+                let result = await viewService.getChatParticipants()
+                return .getChatParticipantsReturned(result)
+            }
 
         case let .updateValueReturned(.failure(exception), _):
             Logger.log(exception, with: .toast())

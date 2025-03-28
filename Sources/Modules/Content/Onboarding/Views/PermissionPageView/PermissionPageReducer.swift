@@ -17,7 +17,7 @@ import Networking
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate

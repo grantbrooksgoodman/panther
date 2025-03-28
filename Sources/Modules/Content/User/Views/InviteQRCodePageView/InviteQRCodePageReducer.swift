@@ -17,7 +17,7 @@ import Networking
 public struct InviteQRCodePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions

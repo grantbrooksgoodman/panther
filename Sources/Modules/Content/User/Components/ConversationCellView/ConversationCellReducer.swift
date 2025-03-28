@@ -18,7 +18,7 @@ public struct ConversationCellReducer: Reducer {
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions

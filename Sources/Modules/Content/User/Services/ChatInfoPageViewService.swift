@@ -33,7 +33,11 @@ public final class ChatInfoPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.userDefaults) private var defaults: UserDefaults
+    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Properties
@@ -76,8 +80,8 @@ public final class ChatInfoPageViewService {
                 || currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
                 || currentUserDoesNotShareDataButOtherUserDoes
                 || penPalsService.isKnownToCurrentUser(user.id) {
-                let isPenPal = (!currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
-                    !penPalsService.isKnownToCurrentUser(user.id)) || !currentConversation.metadata.isPenPalsConversation
+                let isPenPal = !currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
+                    !penPalsService.isKnownToCurrentUser(user.id)
                 let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
 
                 switch firstCNContactResult {
@@ -241,10 +245,7 @@ public final class ChatInfoPageViewService {
     /// `.penPalParticipantViewTapped`
     /// `.penPalsSharingDataSwitchToggledOn`
     /// - Returns: `true` if the user selected the confirmation option.
-    public func presentPenPalsSharingDataConfirmationActionSheet(
-        _ userID: String,
-        displayName: String
-    ) async -> String? {
+    public func presentPenPalsSharingDataConfirmationActionSheet(_ userID: String, displayName: String) async -> String? {
         await withCheckedContinuation { continuation in
             presentPenPalsSharingDataConfirmationActionSheet(userID, displayName: displayName) { userID in
                 continuation.resume(returning: userID)
@@ -252,7 +253,7 @@ public final class ChatInfoPageViewService {
         }
     }
 
-    public func presentPenPalsSharingDataConfirmationActionSheet(
+    private func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
         displayName: String,
         completion: @escaping (String?) -> Void
@@ -269,11 +270,16 @@ public final class ChatInfoPageViewService {
                 completion(nil)
             }
 
+            var actions = [cancelAction, confirmAction]
+            if isDeveloperModeEnabled {
+                actions.append(.init("Set to Current User", style: .preferred) { self.clearCachesAndSignIn(userID) })
+            }
+
             Toast.hide()
             await AKActionSheet(
                 title: "Share Phone Number with ⌘\(displayName)⌘?", // swiftlint:disable:next line_length
                 message: "Both \(RuntimeStorage.languageCode == "en" ? "PenPals" : "parties") sharing their respective phone numbers unlocks the ability to add each other as contacts.\nThis action cannot be undone.",
-                actions: [cancelAction, confirmAction]
+                actions: actions
             ).present(translating: [.actions([confirmAction]), .message, .title])
         }
     }
@@ -281,26 +287,22 @@ public final class ChatInfoPageViewService {
     // MARK: - Show PenPals Sharing Status Toast
 
     /// `.penPalParticipantViewTapped`
-    public func showPenPalsSharingStatusToast(_ title: String) async {
+    public func showPenPalsSharingStatusToast(_ userID: String, displayName: String) async {
         var message = "You have already shared your phone number with this user."
-        let translateResult = await translator.translate(
+        message = (try? await translator.translate(
             .init(message),
             with: .system,
             hud: (.milliseconds(500), true)
-        )
-
-        switch translateResult {
-        case let .success(translation): message = translation.output
-        case let .failure(exception): Logger.log(exception, with: .toastInPrerelease)
-        }
+        ).get().output) ?? message
 
         Toast.show(
             .init(
                 .banner(style: .info, appearanceEdge: .bottom),
-                title: title,
+                title: displayName,
                 message: message,
                 perpetuation: .ephemeral(.seconds(5))
-            )
+            ),
+            onTap: isDeveloperModeEnabled ? { self.clearCachesAndSignIn(userID) } : nil
         )
     }
 
@@ -308,5 +310,22 @@ public final class ChatInfoPageViewService {
 
     public func clearCache() {
         cachedChatParticipantsForUserIDs = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func clearCachesAndSignIn(_ userID: String) {
+        coreUtilities.clearCaches()
+        coreUtilities.eraseDocumentsDirectory()
+        coreUtilities.eraseTemporaryDirectory()
+
+        defaults.reset()
+
+        @Persistent(.currentUserID) var currentUserID: String?
+        currentUserID = userID
+
+        RootSheets.dismiss()
+        navigation.navigate(to: .userContent(.stack([])))
+        navigation.navigate(to: .root(.modal(.splash)))
     }
 }

@@ -19,22 +19,25 @@ public struct UserContentContainerView: View {
 
     private typealias Strings = AppConstants.Strings.UserContentContainerView
 
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.navigation) private var navigation: Navigation
+
     // MARK: - Properties
 
-    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
     @StateObject private var viewModel: ViewModel<UserContentContainerReducer>
 
     // MARK: - Bindings
 
     private var navigationPathBinding: Binding<[UserContentNavigatorState.SeguePaths]> {
-        navigationCoordinator.navigable(
+        navigation.navigable(
             \.userContent.stack,
             route: { .userContent(.stack($0)) }
         )
     }
 
     private var sheetBinding: Binding<UserContentNavigatorState.SheetPaths?> {
-        navigationCoordinator.navigable(
+        navigation.navigable(
             \.userContent.sheet,
             route: { .userContent(.sheet($0)) }
         )

@@ -184,7 +184,7 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        @Dependency(\.commonServices) var services: CommonServices
 
         guard let currentConversation,
               currentConversation.participants.count > 2,
@@ -214,11 +214,19 @@ extension ChatPageViewController: MessagesDataSource {
         }
 
         let prefix = "\((!Application.isInPrevaricationMode && ThemeService.isAppDefaultThemeApplied) ? "   " : "")"
-        guard let contactPair = contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
-            return .init(string: "\(prefix)\(matchingUser.phoneNumber.formattedString())", attributes: attributes)
+        guard currentConversation.userSharesPenPalsDataWithCurrentUser(matchingUser) ||
+            services.penPals.isKnownToCurrentUser(matchingUser.id) else {
+            return .init(string: "\(prefix)\(matchingUser.penPalsName)", attributes: attributes)
         }
 
-        return .init(string: "\(prefix)\(contactPair.contact.fullName)", attributes: attributes)
+        let contactName = services
+            .contact
+            .contactPairArchive
+            .getValue(phoneNumber: matchingUser.phoneNumber)?
+            .contact
+            .fullName ?? matchingUser.phoneNumber.formattedString()
+
+        return .init(string: "\(prefix)\(contactName)", attributes: attributes)
     }
 
     // MARK: - Number of Sections

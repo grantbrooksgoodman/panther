@@ -36,7 +36,7 @@ public final class SettingsPageViewService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication

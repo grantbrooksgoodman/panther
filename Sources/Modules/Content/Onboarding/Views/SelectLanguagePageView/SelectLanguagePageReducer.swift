@@ -18,7 +18,7 @@ public struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 

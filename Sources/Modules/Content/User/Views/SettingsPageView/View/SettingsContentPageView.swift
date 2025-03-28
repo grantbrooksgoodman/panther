@@ -21,16 +21,18 @@ public struct SettingsContentPageView: View {
     private typealias Floats = AppConstants.CGFloats.SettingsPageView
     private typealias Strings = AppConstants.Strings.SettingsPageView
 
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.navigation) private var navigation: Navigation
+
     // MARK: - Properties
 
     @ObservedObject var viewModel: ViewModel<SettingsPageReducer>
 
-    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
-
     // MARK: - Bindings
 
     private var sheetBinding: Binding<SettingsNavigatorState.SheetPaths?> {
-        navigationCoordinator.navigable(
+        navigation.navigable(
             \.settings.sheet,
             route: { .settings(.sheet($0)) }
         )

@@ -170,6 +170,10 @@ public struct ModerationSessionService {
             )
         }
 
+        if let exception = await populateValuesIfNeeded() {
+            Logger.log(exception)
+        }
+
         var contactPairs = users.map { services.contact.contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
         if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil,
            let currentUserConversations = userSession.currentUser?.conversations?.filter({ !($0.currentUserParticipant?.hasDeletedConversation ?? true) }) {
@@ -227,6 +231,25 @@ public struct ModerationSessionService {
             guard let exception = await unblockUsers(ids: userIDs) else { return nil }
             return exception
         }
+    }
+
+    private func populateValuesIfNeeded() async -> Exception? {
+        var exceptions = [Exception]()
+
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+           let exception = await services.contact.syncContactPairArchive() {
+            exceptions.append(exception)
+        }
+
+        guard let currentUser = userSession.currentUser,
+              currentUser.conversations == nil || currentUser.conversations?.isEmpty == true else { return exceptions.compiledException }
+
+        if let exception = await userSession.currentUser?.setConversations() {
+            exceptions.append(exception)
+        }
+
+        return exceptions.compiledException
     }
 
     private func reportUsers(ids userIDs: [String]) async -> Exception? {

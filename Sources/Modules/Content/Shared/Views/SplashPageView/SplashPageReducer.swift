@@ -16,7 +16,7 @@ import AppSubsystem
 public struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
 

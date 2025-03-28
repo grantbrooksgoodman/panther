@@ -44,7 +44,7 @@ public final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -116,10 +116,7 @@ public final class ConversationsPageViewService {
         Task.delayed(by: .seconds(1)) { @MainActor in
             defer {
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
-
-                // TODO: Remove predication on Developer Mode status once feature is finalized.
-                if build.isDeveloperModeEnabled,
-                   !(presentedPenPalsPermissionPageAtStartup ?? false),
+                if !(presentedPenPalsPermissionPageAtStartup ?? false),
                    userSession.currentUser?.isPenPalsParticipant == false {
                     presentedPenPalsPermissionPageAtStartup = true
                     RootSheets.present(.penPalsPermissionPageView)

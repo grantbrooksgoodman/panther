@@ -30,9 +30,9 @@ public extension CoreKit.Utilities {
     // MARK: - Methods
 
     @MainActor
-    func deleteConversationsForCurrentUser() async -> Exception? {
-        @Dependency(\.networking) var networking: NetworkServices
+    func deleteCurrentUserConversations() async -> Exception? {
         @Dependency(\.clientSession.user.currentUser?.conversationIDs) var conversationIDs: [ConversationID]?
+        @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.uiApplication) var uiApplication: UIApplication
 
         guard let conversationIDs,

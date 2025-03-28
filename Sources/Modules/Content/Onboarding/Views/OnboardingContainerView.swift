@@ -14,14 +14,14 @@ import SwiftUI
 import AppSubsystem
 
 public struct OnboardingContainerView: View {
-    // MARK: - Properties
+    // MARK: - Dependencies
 
-    @ObservedNavigator private var navigationCoordinator: NavigationCoordinator<RootNavigationService>
+    @ObservedDependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Bindings
 
     private var navigationPathBinding: Binding<[OnboardingNavigatorState.SeguePaths]> {
-        navigationCoordinator.navigable(
+        navigation.navigable(
             \.onboarding.stack,
             route: { .onboarding(.stack($0)) }
         )

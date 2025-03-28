@@ -20,7 +20,7 @@ public struct ConversationCellViewService {
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
 
     // MARK: - Methods

@@ -31,6 +31,18 @@ public final class MessageDeliveryService {
     private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
     private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
 
+    // MARK: - Computed Properties
+
+    private var fullConversation: Conversation? { clientSession.conversation.fullConversation }
+    private var isPenPalsConversation: Bool {
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName)) ||
+            fullConversation?.metadata.isPenPalsConversation == true
+    }
+
+    private var selectedContactPairs: [ContactPair]? { chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs }
+    private var users: [User] { (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique }
+
     // MARK: - Object Lifecycle
 
     deinit {
@@ -61,10 +73,6 @@ public final class MessageDeliveryService {
     // MARK: - Send Audio Message
 
     public func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
-        let fullConversation = clientSession.conversation.fullConversation
-        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
-
         guard !users.isEmpty else { return nil }
 
         isSendingMessage = true
@@ -79,8 +87,6 @@ public final class MessageDeliveryService {
             object: nil
         )
 
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
             inputFile,
             toUsers: users,
@@ -116,15 +122,9 @@ public final class MessageDeliveryService {
     // MARK: - Send Media Message
 
     public func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
-        let fullConversation = clientSession.conversation.fullConversation
-        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
-
         guard !users.isEmpty else { return nil }
-        services.haptics.generateFeedback(.medium)
 
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
+        services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(
             audioFile: nil,
             mediaFile: mediaFile,
@@ -170,16 +170,10 @@ public final class MessageDeliveryService {
     // MARK: - Send Text Message
 
     public func sendTextMessage(_ text: String) async -> Exception? {
-        let fullConversation = clientSession.conversation.fullConversation
-        let selectedContactPairs = chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
-        let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
-
         guard !users.isEmpty,
               !text.isBlank else { return nil }
-        services.haptics.generateFeedback(.medium)
 
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
+        services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(
             audioFile: nil,
             mediaFile: nil,

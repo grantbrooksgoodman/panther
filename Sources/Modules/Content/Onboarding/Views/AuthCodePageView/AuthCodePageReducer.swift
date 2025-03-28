@@ -17,7 +17,7 @@ import Networking
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.navigation) private var navigation: NavigationCoordinator<RootNavigationService>
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
