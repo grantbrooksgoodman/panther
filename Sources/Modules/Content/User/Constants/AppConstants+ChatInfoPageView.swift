@@ -55,6 +55,10 @@ public extension AppConstants.Colors {
     enum ChatInfoPageView {
         public static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
         public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+
+        // swiftlint:disable:next identifier_name
+        public static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
+        public static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
     }
 }
 
@@ -62,6 +66,8 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatInfoPageView {
-        public static let addContactButtonImageSystemName = "plus"
+        public static let addContactButtonImageSystemName = "plus" // swiftlint:disable:next identifier_name
+        public static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
+        public static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
     }
 }

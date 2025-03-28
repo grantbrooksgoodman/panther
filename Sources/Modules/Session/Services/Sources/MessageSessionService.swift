@@ -53,6 +53,7 @@ public struct MessageSessionService {
                 userInfo: [
                     Strings.conversationIDKeyNotificationUserInfoKey: conversation.value?.id.key ?? CommonConstants.newConversationID,
                     Strings.inputFileNotificationUserInfoKey: inputFile,
+                    Strings.isPenPalsConversationNotificationUserInfoKey: conversation.isPenPalsConversation,
                 ]
             )
 

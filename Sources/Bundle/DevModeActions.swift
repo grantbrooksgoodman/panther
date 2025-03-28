@@ -6,6 +6,8 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -63,23 +65,32 @@ public extension DevModeAction {
         private static var dangerZoneAction: DevModeAction {
             func dangerZone() {
                 Task {
-                    let actions: [AKAction] = [
+                    @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+
+                    var actions: [DevModeAction] = [
                         DevModeAction.AppActions.eraseDocumentsDirectoryAction,
                         DevModeAction.AppActions.eraseTemporaryDirectoryAction,
                         DevModeAction.AppActions.destroyConversationDatabaseAction,
                         DevModeAction.AppActions.resetPushTokensAction,
-                    ].map {
-                        AKAction(
-                            $0.title,
-                            style: $0.isDestructive ? .destructive : .default,
-                            effect: $0.perform
+                    ]
+
+                    if currentUser?.conversations != nil {
+                        actions.insert(
+                            DevModeAction.AppActions.deleteConversationsForCurrentUserAction,
+                            at: 2
                         )
                     }
 
                     await AKActionSheet(
                         title: "Danger Zone",
                         message: "Exercise caution when using these options.",
-                        actions: actions
+                        actions: actions.map {
+                            AKAction(
+                                $0.title,
+                                style: $0.isDestructive ? .destructive : .default,
+                                effect: $0.perform
+                            )
+                        }
                     ).present(translating: [])
                 }
             }
@@ -200,6 +211,45 @@ public extension DevModeAction {
 
         // MARK: - Danger Zone Actions
 
+        private static var deleteConversationsForCurrentUserAction: DevModeAction {
+            func deleteConversationsForCurrentUser() {
+                Task {
+                    @Dependency(\.coreKit) var core: CoreKit
+                    @Dependency(\.userDefaults) var defaults: UserDefaults
+                    @Dependency(\.navigation) var navigation: NavigationCoordinator<RootNavigationService>
+                    @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+                    guard await AKConfirmationAlert(
+                        title: "Delete Conversations for Current User",
+                        message: "This will delete all conversations for the current user.\n\nThis operation cannot be undone.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: []) else { return }
+
+                    userSession.stopObservingCurrentUserChanges()
+
+                    if let exception = await core.utils.deleteConversationsForCurrentUser() {
+                        Logger.log(exception, with: .toast())
+                    } else {
+                        core.hud.flash(image: .success)
+                        core.gcd.after(.seconds(1)) {
+                            core.utils.clearCaches()
+                            core.utils.eraseDocumentsDirectory()
+                            core.utils.eraseTemporaryDirectory()
+
+                            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
+                            navigation.navigate(to: .root(.modal(.splash)))
+                        }
+                    }
+                }
+            }
+
+            return .init(
+                title: "Delete Conversations for Current User",
+                isDestructive: true,
+                perform: deleteConversationsForCurrentUser
+            )
+        }
+
         private static var destroyConversationDatabaseAction: DevModeAction {
             func destroyConversationDatabase() {
                 Task {
@@ -299,3 +349,5 @@ public extension DevModeAction {
         }
     }
 }
+
+// swiftlint:enable type_body_length

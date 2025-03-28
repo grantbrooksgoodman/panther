@@ -14,6 +14,7 @@ import UIKit
 /* Proprietary */
 import AlertKit
 import AppSubsystem
+import Networking
 
 public final class ChatInfoPageViewService {
     // MARK: - Types
@@ -33,6 +34,7 @@ public final class ChatInfoPageViewService {
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Properties
 
@@ -74,6 +76,8 @@ public final class ChatInfoPageViewService {
                 || currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
                 || currentUserDoesNotShareDataButOtherUserDoes
                 || penPalsService.isKnownToCurrentUser(user.id) {
+                let isPenPal = (!currentConversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
+                    !penPalsService.isKnownToCurrentUser(user.id)) || !currentConversation.metadata.isPenPalsConversation
                 let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
 
                 switch firstCNContactResult {
@@ -86,7 +90,8 @@ public final class ChatInfoPageViewService {
                     chatParticipant = .init(
                         displayName: contactPair.contact.fullName,
                         cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact.mutableCopy() as? CNMutableContact),
-                        contactPair: contactPair
+                        contactPair: contactPair,
+                        isPenPal: isPenPal
                     )
 
                 case .failure:
@@ -106,7 +111,8 @@ public final class ChatInfoPageViewService {
                     chatParticipant = .init(
                         displayName: contactPair.contact.fullName,
                         cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact, isUnknown: true),
-                        contactPair: contactPair
+                        contactPair: contactPair,
+                        isPenPal: isPenPal
                     )
                 }
             } else {
@@ -114,7 +120,7 @@ public final class ChatInfoPageViewService {
                     displayName: user.penPalsName,
                     cnContactContainer: nil,
                     contactPair: .withUser(user, name: user.penPalsName),
-                    isUserInteractionEnabled: !currentConversation.currentUserSharesPenPalsData(with: user)
+                    isPenPal: true
                 )
             }
 
@@ -232,6 +238,8 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Present PenPals Sharing Data Confirmation Action Sheet
 
+    /// `.penPalParticipantViewTapped`
+    /// `.penPalsSharingDataSwitchToggledOn`
     /// - Returns: `true` if the user selected the confirmation option.
     public func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
@@ -261,12 +269,39 @@ public final class ChatInfoPageViewService {
                 completion(nil)
             }
 
+            Toast.hide()
             await AKActionSheet(
                 title: "Share Phone Number with ⌘\(displayName)⌘?", // swiftlint:disable:next line_length
                 message: "Both \(RuntimeStorage.languageCode == "en" ? "PenPals" : "parties") sharing their respective phone numbers unlocks the ability to add each other as contacts.\nThis action cannot be undone.",
                 actions: [cancelAction, confirmAction]
             ).present(translating: [.actions([confirmAction]), .message, .title])
         }
+    }
+
+    // MARK: - Show PenPals Sharing Status Toast
+
+    /// `.penPalParticipantViewTapped`
+    public func showPenPalsSharingStatusToast(_ title: String) async {
+        var message = "You have already shared your phone number with this user."
+        let translateResult = await translator.translate(
+            .init(message),
+            with: .system,
+            hud: (.milliseconds(500), true)
+        )
+
+        switch translateResult {
+        case let .success(translation): message = translation.output
+        case let .failure(exception): Logger.log(exception, with: .toastInPrerelease)
+        }
+
+        Toast.show(
+            .init(
+                .banner(style: .info, appearanceEdge: .bottom),
+                title: title,
+                message: message,
+                perpetuation: .ephemeral(.seconds(5))
+            )
+        )
     }
 
     // MARK: - Clear Cache

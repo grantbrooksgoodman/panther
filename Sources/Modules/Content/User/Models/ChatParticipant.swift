@@ -16,12 +16,18 @@ public struct ChatParticipant: Equatable {
     public let cnContactContainer: CNContactContainer?
     public let contactPair: ContactPair?
     public let displayName: String
-    public let isUserInteractionEnabled: Bool
+    public let isPenPal: Bool
 
     // MARK: - Computed Properties
 
     public var firstUser: User? { contactPair?.users.first }
-    public var thumbnailImage: UIImage? { contactPair?.contact.image }
+    public var thumbnailImage: UIImage? {
+        isPenPal ? SquareIconView.image(
+            .penPalsIcon(
+                backgroundColor: .init(uiColor: firstUser?.penPalsIconColor ?? .purple)
+            )
+        ) : contactPair?.contact.image
+    }
 
     // MARK: - Init
 
@@ -29,11 +35,11 @@ public struct ChatParticipant: Equatable {
         displayName: String,
         cnContactContainer: CNContactContainer?,
         contactPair: ContactPair?,
-        isUserInteractionEnabled: Bool = true
+        isPenPal: Bool
     ) {
         self.displayName = displayName
         self.cnContactContainer = cnContactContainer
         self.contactPair = contactPair
-        self.isUserInteractionEnabled = isUserInteractionEnabled
+        self.isPenPal = isPenPal
     }
 }

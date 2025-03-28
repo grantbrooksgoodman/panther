@@ -32,6 +32,7 @@ public extension AppConstants.Strings {
     enum MessageSessionService { // swiftlint:disable:next identifier_name
         public static let audioMessageTranscriptionSucceededNotificationName = "audioMessageTranscriptionSucceeded"
         public static let conversationIDKeyNotificationUserInfoKey = "conversationIDKey"
-        public static let inputFileNotificationUserInfoKey = "inputFile"
+        public static let inputFileNotificationUserInfoKey = "inputFile" // swiftlint:disable:next identifier_name
+        public static let isPenPalsConversationNotificationUserInfoKey = "isPenPalsConversation"
     }
 }

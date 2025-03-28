@@ -121,16 +121,21 @@ public final class MessageDeliveryService {
         let users = (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
 
         guard !users.isEmpty else { return nil }
-
         services.haptics.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(audioFile: nil, mediaFile: mediaFile, text: nil)
+
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
+        addMockMessageToCurrentConversation(
+            audioFile: nil,
+            mediaFile: mediaFile,
+            text: nil,
+            isPenPalsConversation: isPenPalsConversation
+        )
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true, clearInputTextViewText: false)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
             mediaFile,
             toUsers: users,
@@ -171,16 +176,21 @@ public final class MessageDeliveryService {
 
         guard !users.isEmpty,
               !text.isBlank else { return nil }
-
         services.haptics.generateFeedback(.medium)
-        addMockMessageToCurrentConversation(audioFile: nil, mediaFile: nil, text: text)
+
+        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
+        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
+        addMockMessageToCurrentConversation(
+            audioFile: nil,
+            mediaFile: nil,
+            text: text,
+            isPenPalsConversation: isPenPalsConversation
+        )
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
-        let isPenPalsConversation = (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName))
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
             text,
             toUsers: users,
@@ -217,7 +227,8 @@ public final class MessageDeliveryService {
     private func addMockMessageToCurrentConversation(
         audioFile: AudioFile?,
         mediaFile: MediaFile?,
-        text: String?
+        text: String?,
+        isPenPalsConversation: Bool
     ) {
         assert(audioFile != nil || mediaFile != nil || text != nil, "No values provided.")
 
@@ -274,11 +285,19 @@ public final class MessageDeliveryService {
             ))
         }
 
+        let newMetadata: ConversationMetadata = .init(
+            name: conversation.metadata.name,
+            imageData: conversation.metadata.imageData,
+            isPenPalsConversation: isPenPalsConversation,
+            lastModifiedDate: conversation.metadata.lastModifiedDate,
+            penPalsSharingData: conversation.metadata.penPalsSharingData
+        )
+
         let newConversation: Conversation = .init(
             conversation.id,
             messageIDs: conversation.messageIDs,
             messages: messages,
-            metadata: conversation.metadata,
+            metadata: newMetadata,
             participants: conversation.participants,
             reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
@@ -331,7 +350,8 @@ public final class MessageDeliveryService {
 
         guard let userInfo = notification.userInfo,
               let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
-              let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile else { return }
+              let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
+              let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
 
         defer {
             notificationCenter.removeObserver(
@@ -342,6 +362,11 @@ public final class MessageDeliveryService {
         }
 
         guard conversationIDKey == clientSession.conversation.currentConversation?.id.key else { return }
-        addMockMessageToCurrentConversation(audioFile: inputFile, mediaFile: nil, text: nil)
+        addMockMessageToCurrentConversation(
+            audioFile: inputFile,
+            mediaFile: nil,
+            text: nil,
+            isPenPalsConversation: isPenPalsConversation
+        )
     }
 }

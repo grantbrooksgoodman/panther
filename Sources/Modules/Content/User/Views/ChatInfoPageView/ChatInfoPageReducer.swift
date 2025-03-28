@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -14,7 +16,6 @@ import UIKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
 public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
@@ -297,7 +298,7 @@ public struct ChatInfoPageReducer: Reducer {
                     displayName: match.displayName,
                     cnContactContainer: match.cnContactContainer,
                     contactPair: match.contactPair,
-                    isUserInteractionEnabled: false
+                    isPenPal: match.isPenPal
                 )
 
                 state.chatParticipants = state.chatParticipants.filter { $0.firstUser?.id != userID }
@@ -311,16 +312,33 @@ public struct ChatInfoPageReducer: Reducer {
                 state.viewID = UUID()
             }
 
+            if newPenPalsSharingData.allShareWithEachOther,
+               conversation.participants.count == 2 {
+                RootSheets.dismiss()
+                Task.delayed(by: .seconds(1)) { @MainActor in
+                    RootSheets.present(.chatInfoPageView)
+                }
+            }
+
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
             }
 
         case let .penPalParticipantViewTapped(chatParticipant):
-            guard let userID = chatParticipant.firstUser?.id else { return .none }
+            guard let user = chatParticipant.firstUser else { return .none }
+
+            if chatParticipant.isPenPal,
+               state.conversation?.currentUserSharesPenPalsData(with: user) == true {
+                return .task {
+                    await viewService.showPenPalsSharingStatusToast(chatParticipant.displayName)
+                    return .none
+                }
+            }
+
             return .task {
                 let result = await viewService.presentPenPalsSharingDataConfirmationActionSheet(
-                    userID,
+                    user.id,
                     displayName: chatParticipant.displayName
                 )
                 return .penPalsSharingDataConfirmationActionSheetDismissed(userID: result)
@@ -396,3 +414,5 @@ private extension Array where Element == TranslationOutputMap {
         (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }
+
+// swiftlint:enable file_length type_body_length

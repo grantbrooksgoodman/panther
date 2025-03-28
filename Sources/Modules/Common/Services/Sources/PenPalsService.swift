@@ -46,6 +46,17 @@ public final class PenPalsService {
         (contactPairArchiveUserIDs + currentUserConversationUserIDs()).contains(userID)
     }
 
+    // MARK: - Is Obfuscated Pen Pal with Current User
+
+    public func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
+        guard let currentUser = userSession.currentUser,
+              let penPalsConversations = currentUser
+              .conversations?
+              .visibleForCurrentUser
+              .filter({ $0.metadata.isPenPalsConversation }) else { return false }
+        return penPalsConversations.contains(where: { !$0.userSharesPenPalsDataWithCurrentUser(user) })
+    }
+
     // MARK: - Update Sharing Data for Known Users
 
     public func updateSharingDataForKnownUsers() async -> Exception? {
@@ -132,6 +143,7 @@ public final class PenPalsService {
             guard let randomPenPalsParticipant = users
                 .filter({ $0.isPenPalsParticipant })
                 .filter({ $0.languageCode != userSession.currentUser?.languageCode })
+                .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
                 .filter({ !contactPairArchiveUserIDs.contains($0.id) })
                 .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
                 .filter({ !selectContactPairUserIDs.contains($0.id) })
@@ -200,8 +212,7 @@ public final class PenPalsService {
     private func populateValuesIfNeeded() async -> Exception? {
         var exceptions = [Exception]()
 
-        if !contactService.didSyncContactPairArchive,
-           let exception = await contactService.syncContactPairArchive() {
+        if let exception = await contactService.syncContactPairArchive() {
             exceptions.append(exception)
         }
 

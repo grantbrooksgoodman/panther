@@ -24,6 +24,7 @@ public final class RecipientBarTableViewService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations) private var conversations: [Conversation]?
+    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
@@ -94,7 +95,7 @@ public final class RecipientBarTableViewService {
            .visibleForCurrentUser
            .compactMap(\.users)
            .reduce([], +)
-           .filter({ !knownUsers.users.contains($0) })
+           .filter({ !knownUsers.users.contains($0) && !penPalsService.isObfuscatedPenPalWithCurrentUser($0) })
            .map({ ContactPair.withUser($0) }) {
             return (knownUsers + unknownUsers).uniquedByPhoneNumber
         }

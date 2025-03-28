@@ -210,6 +210,7 @@ public final class SplashPageViewService: ObservableObject {
 
             initializationProgress += 0.2
 
+            // TODO: No longer necessary – updateSharingDataForKnownUsers() already calls syncContactPairArchive().
             var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
             let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)
             didClearCaches = nil

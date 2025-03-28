@@ -80,6 +80,12 @@ public extension Array where Element == Participant {
 }
 
 public extension Array where Element == PenPalsSharingData {
+    var allShareWithCurrentUser: Bool {
+        guard let firstWithCurrentUserID else { return false }
+        return filter { $0.userID != firstWithCurrentUserID.userID }
+            .allSatisfy { Set($0.sharesDataWithUserIDs ?? []).contains(firstWithCurrentUserID.userID) }
+    }
+
     var allShareWithEachOther: Bool {
         let userIDs = Set(map(\.userID))
         return allSatisfy { datum in

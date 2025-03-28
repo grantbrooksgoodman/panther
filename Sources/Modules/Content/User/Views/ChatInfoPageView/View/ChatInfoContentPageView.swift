@@ -14,6 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
+// swiftlint:disable:next type_body_length
 public struct ChatInfoContentPageView: View {
     // MARK: - Constants Accessors
 
@@ -266,14 +267,12 @@ public struct ChatInfoContentPageView: View {
                             participantView(participant)
                         }
                         .dynamicTypeSize(.large)
-                    } else if participant.isUserInteractionEnabled {
+                    } else {
                         Button {
                             viewModel.send(.penPalParticipantViewTapped(participant))
                         } label: {
                             participantView(participant)
                         }
-                    } else {
-                        participantView(participant)
                     }
                 }
             }
@@ -303,6 +302,23 @@ public struct ChatInfoContentPageView: View {
 
             if let firstUser = participant.firstUser {
                 UserInfoBadgeView(firstUser)
+            }
+
+            if participant.isPenPal {
+                Spacer()
+
+                if let firstUser = participant.firstUser,
+                   viewModel.conversation?.currentUserSharesPenPalsData(with: firstUser) == true {
+                    Components.symbol(
+                        Strings.penPalsSharingStatusIconCompleteImageSystemName,
+                        foregroundColor: Colors.penPalsSharingStatusIconCompleteForeground
+                    )
+                } else {
+                    Components.symbol(
+                        Strings.penPalsSharingStatusIconIncompleteImageSystemName,
+                        foregroundColor: Colors.penPalsSharingStatusIconIncompleteForeground
+                    )
+                }
             }
         }
     }

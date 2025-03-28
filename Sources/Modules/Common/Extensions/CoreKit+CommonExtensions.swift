@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -27,6 +28,48 @@ public extension CoreKit.GCD {
 
 public extension CoreKit.Utilities {
     // MARK: - Methods
+
+    @MainActor
+    func deleteConversationsForCurrentUser() async -> Exception? {
+        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.user.currentUser?.conversationIDs) var conversationIDs: [ConversationID]?
+        @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+        guard let conversationIDs,
+              !conversationIDs.isEmpty else {
+            return .init(
+                "Current user has no open conversations.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        uiApplication.mainWindow?.addOverlay(
+            alpha: 0.5,
+            activityIndicator: (.large, .white)
+        )
+
+        defer {
+            networking.database.setGlobalCacheStrategy(nil)
+            networking.storage.setGlobalCacheStrategy(nil)
+            uiApplication.mainWindow?.removeOverlay()
+        }
+
+        networking.database.setGlobalCacheStrategy(.disregardCache)
+        networking.storage.setGlobalCacheStrategy(.disregardCache)
+
+        for conversationIDKey in conversationIDs.map(\.key) {
+            CoreDatabaseStore.clearStore()
+            if let exception = await networking.integrityService.resolveSession() {
+                return exception
+            }
+
+            if let exception = await networking.integrityService.repairMalformedConversations([conversationIDKey]).exception {
+                return exception
+            }
+        }
+
+        return nil
+    }
 
     func destroyConversationDatabase() async -> Exception? {
         @Dependency(\.networking) var networking: NetworkServices
