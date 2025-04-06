@@ -44,8 +44,6 @@ public struct NewChatPageView: View {
             VStack {
                 ChatPageView(viewModel.conversation, configuration: .newChat)
                     .ignoresSafeArea(.keyboard)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(viewModel.navigationTitle)
                     .background(Color.background)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

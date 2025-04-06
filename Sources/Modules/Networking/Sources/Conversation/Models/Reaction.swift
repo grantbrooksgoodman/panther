@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -33,18 +34,6 @@ public struct Reaction: Codable, Hashable {
 
         // MARK: - Computed Properties
 
-        // Int
-        public var orderValue: Int {
-            switch self {
-            case .dislike: 2
-            case .emphasis: 4
-            case .laugh: 3
-            case .like: 1
-            case .love: 0
-            case .question: 5
-            }
-        }
-
         // String
         public var emojiValue: String {
             switch self {
@@ -58,6 +47,29 @@ public struct Reaction: Codable, Hashable {
         }
 
         public var encodedValue: String { rawValue.uppercased() }
+
+        // Other
+        public var orderValue: Int {
+            switch self {
+            case .dislike: 2
+            case .emphasis: 4
+            case .laugh: 3
+            case .like: 1
+            case .love: 0
+            case .question: 5
+            }
+        }
+
+        public var squareIconBackgroundColor: Color {
+            switch self {
+            case .dislike: .init(uiColor: .init(hex: 0xFF5252))
+            case .emphasis: .init(uiColor: .init(hex: 0x0FB9B1))
+            case .laugh: .init(uiColor: .init(hex: 0xC56CF0))
+            case .like: .init(uiColor: .init(hex: 0x27AE60))
+            case .love: .init(uiColor: .init(hex: 0x30AAF2))
+            case .question: .init(uiColor: .init(hex: 0xFFB142))
+            }
+        }
 
         // MARK: - Init
 

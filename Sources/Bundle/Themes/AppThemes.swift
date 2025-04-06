@@ -87,7 +87,7 @@ public extension AppTheme {
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
-        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
+        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .white))
 
         let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
         let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
@@ -119,7 +119,7 @@ public extension AppTheme {
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
-        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
+        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .white))
 
         let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
         let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
@@ -151,7 +151,7 @@ public extension AppTheme {
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
-        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
+        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .white))
 
         let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
         let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))
@@ -216,7 +216,7 @@ public extension AppTheme {
         let listViewBackground = Item(type: .listViewBackground, set: .init(primary: .init(hex: 0x1C1C1E)))
 
         let navigationBarBackground = Item(type: .navigationBarBackground, set: .init(primary: backgroundColor))
-        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: accentColor))
+        let navigationBarTitle = Item(type: .navigationBarTitle, set: .init(primary: .white))
 
         let senderBubble = Item(type: .senderBubble, set: .init(primary: accentColor))
         let receiverBubble = Item(type: .receiverBubble, set: .init(primary: .init(hex: 0x27252A)))

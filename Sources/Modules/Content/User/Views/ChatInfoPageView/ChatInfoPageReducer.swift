@@ -20,6 +20,7 @@ public struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -35,6 +36,7 @@ public struct ChatInfoPageReducer: Reducer {
         case chatInfoCellTapped
         case currentConversationMetadataChanged
         case penPalsSharingDataSwitchToggledOn
+        case userInfoBadgeTapped(User)
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
@@ -112,6 +114,11 @@ public struct ChatInfoPageReducer: Reducer {
         public var conversation: Conversation? {
             @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
             return currentConversation
+        }
+
+        public var isDeveloperModeEnabled: Bool {
+            @Dependency(\.build) var build: Build
+            return build.isDeveloperModeEnabled
         }
 
         public var showsChangeMetadataButton: Bool {
@@ -393,6 +400,9 @@ public struct ChatInfoPageReducer: Reducer {
         case let .updateValueReturned(.failure(exception), _):
             Logger.log(exception, with: .toast())
             state.isChangeMetadataButtonEnabled = true
+
+        case let .userInfoBadgeTapped(user):
+            conversationCellViewService.presentUserInfoAlert(.init(user: user))
         }
 
         return .none

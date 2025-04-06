@@ -20,14 +20,18 @@ public struct InstructionView: View {
     private typealias Colors = AppConstants.Colors.InstructionView
     private typealias Floats = AppConstants.CGFloats.InstructionView
 
+    // MARK: - Dependencies
+
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+
     // MARK: - Properties
 
     private let strings: InstructionViewStrings
-    @Environment(\.mainWindowSize) private var mainWindowSize: CGSize
 
     // MARK: - Computed Properties
 
     private var halfOfScreenWidth: CGFloat { mainWindowSize.width / Floats.mainWindowSizeWidthDivisor }
+    private var mainWindowSize: CGSize { uiApplication.mainScreen?.bounds.size ?? UIScreen.main.bounds.size }
 
     // MARK: - Init
 

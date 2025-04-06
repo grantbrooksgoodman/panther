@@ -36,7 +36,17 @@ public final class PlaybackService {
     // MARK: - Object Lifecycle
 
     deinit {
-        stopObservingPlayerState()
+        notificationCenter.removeObserver(
+            self,
+            name: AVPlayerItem.didPlayToEndTimeNotification,
+            object: currentPlayerItem
+        )
+
+        notificationCenter.removeObserver(
+            self,
+            name: AVPlayerItem.failedToPlayToEndTimeNotification,
+            object: currentPlayerItem
+        )
     }
 
     // MARK: - Playback
@@ -88,60 +98,33 @@ public final class PlaybackService {
 
     // MARK: - Auxiliary
 
-    @objc
-    private func didFailToFinishPlaying() {
-        failedToFinishPlayingEffect?()
-        failedToFinishPlayingEffect = nil
-
-        stopObservingPlayerState()
-        currentPlayerItem = nil
-    }
-
-    @objc
-    private func didFinishPlaying() {
-        finishedPlayingEffect?()
-        finishedPlayingEffect = nil
-
-        stopObservingPlayerState()
-        currentPlayerItem = nil
-    }
-
-    @objc
     private func didStopPlaying() {
         stopPlayingEffect?()
         stopPlayingEffect = nil
-
-        stopObservingPlayerState()
         currentPlayerItem = nil
     }
 
     private func startObservingPlayerState() {
         notificationCenter.addObserver(
             self,
-            selector: #selector(didFinishPlaying),
             name: AVPlayerItem.didPlayToEndTimeNotification,
-            object: currentPlayerItem
-        )
+            object: currentPlayerItem,
+            removeAfterFirstPost: true
+        ) { _ in
+            self.finishedPlayingEffect?()
+            self.finishedPlayingEffect = nil
+            self.currentPlayerItem = nil
+        }
 
         notificationCenter.addObserver(
             self,
-            selector: #selector(didFailToFinishPlaying),
             name: AVPlayerItem.failedToPlayToEndTimeNotification,
-            object: currentPlayerItem
-        )
-    }
-
-    private func stopObservingPlayerState() {
-        notificationCenter.removeObserver(
-            self,
-            name: AVPlayerItem.didPlayToEndTimeNotification,
-            object: currentPlayerItem
-        )
-
-        notificationCenter.removeObserver(
-            self,
-            name: AVPlayerItem.failedToPlayToEndTimeNotification,
-            object: currentPlayerItem
-        )
+            object: currentPlayerItem,
+            removeAfterFirstPost: true
+        ) { _ in
+            self.failedToFinishPlayingEffect?()
+            self.failedToFinishPlayingEffect = nil
+            self.currentPlayerItem = nil
+        }
     }
 }

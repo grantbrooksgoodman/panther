@@ -73,13 +73,15 @@ public struct SettingsPageReducer: Reducer {
 
         // Bool
         public var isPenPalsParticipantSwitchToggled = false
-        public var traitCollectionChanged = false
+
+        fileprivate var traitCollectionChanged = false
 
         // String
+        public let doneToolbarButtonText = Localized(.done).wrappedValue
+        public let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["..."])
+
         public var contactDetailViewSubtitleLabelText: String?
         public var contactDetailViewTitleLabelText = ""
-        @Localized(.done) public var doneToolbarButtonText: String
-        public var navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["..."])
 
         // Other
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
@@ -92,6 +94,17 @@ public struct SettingsPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        // Bool
+        public var isBlockedUsersButtonEnabled: Bool {
+            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            return !(blockedUserIDs ?? []).isBangQualifiedEmpty
+        }
+
+        public var isChangeThemeButtonEnabled: Bool {
+            @Persistent(.init("pendingThemeID")) var pendingThemeID: String?
+            return pendingThemeID == nil
+        }
+
         // UIImage
         public var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
         public var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
@@ -100,11 +113,6 @@ public struct SettingsPageReducer: Reducer {
         public var blockedUsersButtonText: String {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
-        }
-
-        public var isBlockedUsersButtonEnabled: Bool {
-            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
-            return !(blockedUserIDs ?? []).isBangQualifiedEmpty
         }
 
         public var navigationBarAppearance: NavigationBarAppearance {

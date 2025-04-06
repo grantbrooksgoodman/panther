@@ -58,20 +58,41 @@ public struct SquareIconView: View {
     }
 
     private var overlayView: some View {
-        Components.symbol(
-            configuration.overlaySymbolName,
-            foregroundColor: configuration.overlaySymbolForegroundColor,
-            weight: configuration.overlaySymbolWeight,
-            usesIntrinsicSize: false
-        )
-        .frame(
-            width: (
-                configuration.size.width * configuration.overlayFramePercentOfTotalSize
-            ).rounded(.toNearestOrEven),
-            height: (
-                configuration.size.height * configuration.overlayFramePercentOfTotalSize
-            ).rounded(.toNearestOrEven)
-        )
+        Group {
+            switch configuration.overlay {
+            case let .symbol(
+                name: name,
+                foregroundColor: foregroundColor,
+                framePercentOfTotalSize: framePercentOfTotalSize,
+                weight: weight
+            ):
+                Components.symbol(
+                    name,
+                    foregroundColor: foregroundColor,
+                    weight: weight,
+                    usesIntrinsicSize: false
+                )
+                .frame(
+                    width: (
+                        configuration.size.width * framePercentOfTotalSize
+                    ).rounded(.toNearestOrEven),
+                    height: (
+                        configuration.size.height * framePercentOfTotalSize
+                    ).rounded(.toNearestOrEven)
+                )
+
+            case let .text(
+                string: string,
+                font: font,
+                foregroundColor: foregroundColor
+            ):
+                Components.text(
+                    string,
+                    font: font,
+                    foregroundColor: foregroundColor
+                )
+            }
+        }
     }
 
     // MARK: - UIImage Representation

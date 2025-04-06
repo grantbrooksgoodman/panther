@@ -12,20 +12,35 @@ import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
+import ComponentKit
 
 public extension SquareIconView {
     struct Configuration: EncodedHashable {
+        // MARK: - Types
+
+        public enum OverlayConfiguration {
+            case symbol(
+                name: String,
+                foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
+                framePercentOfTotalSize: CGFloat = AppConstants.CGFloats.SquareIconView.overlayFrameHeightMultiplier,
+                weight: Font.Weight? = nil
+            )
+
+            case text(
+                string: String,
+                font: ComponentKit.Font = .system(scale: .custom(AppConstants.CGFloats.SquareIconView.overlayTextFontScale)),
+                foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground
+            )
+        }
+
         // MARK: - Properties
 
         // Color
         public let backgroundColor: Color
-        public let overlaySymbolForegroundColor: Color
 
         // Other
         public let includesShadow: Bool
-        public let overlayFramePercentOfTotalSize: CGFloat
-        public let overlaySymbolName: String
-        public let overlaySymbolWeight: Font.Weight?
+        public let overlay: OverlayConfiguration
         public let size: CGSize
 
         // MARK: - Computed Properties
@@ -34,10 +49,13 @@ public extension SquareIconView {
             [
                 backgroundColor.description,
                 includesShadow.description,
-                overlayFramePercentOfTotalSize.description,
-                overlaySymbolForegroundColor.description,
-                overlaySymbolName,
-                .init(overlaySymbolWeight?.hashValue ?? 0),
+                overlay.foregroundColor.description,
+                overlay.rawValue,
+                overlay.symbolFramePercentOfTotalSize?.description ?? "",
+                .init(overlay.symbolWeight?.hashValue ?? 0),
+                String(overlay.textFont?.scale.points ?? 0),
+                String(overlay.textFont?.type),
+                String(overlay.textFont?.type.name),
                 size.debugDescription,
             ].sorted()
         }
@@ -50,19 +68,50 @@ public extension SquareIconView {
                 height: AppConstants.CGFloats.SquareIconView.defaultFrameHeight
             ),
             backgroundColor: Color,
-            overlayFramePercentOfTotalSize: CGFloat = AppConstants.CGFloats.SquareIconView.overlayFrameHeightMultiplier,
-            overlaySymbolName: String,
-            overlaySymbolForegroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
-            overlaySymbolWeight: Font.Weight? = nil,
+            overlay: OverlayConfiguration,
             includesShadow: Bool = false
         ) {
             self.size = size
             self.backgroundColor = backgroundColor
-            self.overlayFramePercentOfTotalSize = overlayFramePercentOfTotalSize
-            self.overlaySymbolName = overlaySymbolName
-            self.overlaySymbolForegroundColor = overlaySymbolForegroundColor
-            self.overlaySymbolWeight = overlaySymbolWeight
+            self.overlay = overlay
             self.includesShadow = includesShadow
+        }
+    }
+}
+
+private extension SquareIconView.Configuration.OverlayConfiguration {
+    var foregroundColor: Color {
+        switch self {
+        case let .symbol(name: _, foregroundColor, _, _): return foregroundColor
+        case let .text(string: _, _, foregroundColor): return foregroundColor
+        }
+    }
+
+    var rawValue: String {
+        switch self {
+        case let .symbol(name: name, _, _, _): return name
+        case let .text(string: string, _, _): return string
+        }
+    }
+
+    var symbolFramePercentOfTotalSize: CGFloat? {
+        switch self {
+        case let .symbol(name: _, _, framePercentOfTotalSize, _): return framePercentOfTotalSize
+        case .text: return nil
+        }
+    }
+
+    var symbolWeight: Font.Weight? {
+        switch self {
+        case let .symbol(name: _, _, _, weight): return weight
+        case .text: return nil
+        }
+    }
+
+    var textFont: ComponentKit.Font? {
+        switch self {
+        case .symbol: return nil
+        case let .text(_, font, _): return font
         }
     }
 }

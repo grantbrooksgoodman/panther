@@ -301,7 +301,10 @@ public struct ChatInfoContentPageView: View {
             )
 
             if let firstUser = participant.firstUser {
-                UserInfoBadgeView(firstUser)
+                UserInfoBadgeView(
+                    firstUser,
+                    action: viewModel.isDeveloperModeEnabled ? { viewModel.send(.userInfoBadgeTapped(firstUser)) } : nil
+                )
             }
 
             if participant.isPenPal {

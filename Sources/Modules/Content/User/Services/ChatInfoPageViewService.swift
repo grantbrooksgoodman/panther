@@ -33,12 +33,8 @@ public final class ChatInfoPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
-    @Dependency(\.navigation) private var navigation: Navigation
-    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Properties
 
@@ -270,16 +266,11 @@ public final class ChatInfoPageViewService {
                 completion(nil)
             }
 
-            var actions = [cancelAction, confirmAction]
-            if isDeveloperModeEnabled {
-                actions.append(.init("Set to Current User", style: .preferred) { self.clearCachesAndSignIn(userID) })
-            }
-
             Toast.hide()
             await AKActionSheet(
                 title: "Share Phone Number with ⌘\(displayName)⌘?", // swiftlint:disable:next line_length
                 message: "Both \(RuntimeStorage.languageCode == "en" ? "PenPals" : "parties") sharing their respective phone numbers unlocks the ability to add each other as contacts.\nThis action cannot be undone.",
-                actions: actions
+                actions: [cancelAction, confirmAction]
             ).present(translating: [.actions([confirmAction]), .message, .title])
         }
     }
@@ -288,21 +279,14 @@ public final class ChatInfoPageViewService {
 
     /// `.penPalParticipantViewTapped`
     public func showPenPalsSharingStatusToast(_ userID: String, displayName: String) async {
-        var message = "You have already shared your phone number with this user."
-        message = (try? await translator.translate(
-            .init(message),
-            with: .system,
-            hud: (.milliseconds(500), true)
-        ).get().output) ?? message
-
         Toast.show(
             .init(
                 .banner(style: .info, appearanceEdge: .bottom),
                 title: displayName,
-                message: message,
+                message: "You have already shared your phone number with this user.",
                 perpetuation: .ephemeral(.seconds(5))
             ),
-            onTap: isDeveloperModeEnabled ? { self.clearCachesAndSignIn(userID) } : nil
+            translating: [.message]
         )
     }
 
@@ -310,22 +294,5 @@ public final class ChatInfoPageViewService {
 
     public func clearCache() {
         cachedChatParticipantsForUserIDs = nil
-    }
-
-    // MARK: - Auxiliary
-
-    private func clearCachesAndSignIn(_ userID: String) {
-        coreUtilities.clearCaches()
-        coreUtilities.eraseDocumentsDirectory()
-        coreUtilities.eraseTemporaryDirectory()
-
-        defaults.reset()
-
-        @Persistent(.currentUserID) var currentUserID: String?
-        currentUserID = userID
-
-        RootSheets.dismiss()
-        navigation.navigate(to: .userContent(.stack([])))
-        navigation.navigate(to: .root(.modal(.splash)))
     }
 }

@@ -151,27 +151,6 @@ public final class AudioMessagePlaybackService {
         return .init(message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL)
     }
 
-    @objc
-    private func didSetDuration(_ notification: Notification) {
-        typealias Strings = AppConstants.Strings.AudioFile
-        guard let userInfo = notification.userInfo,
-              let duration = userInfo[Strings.durationNotificationUserInfoKey] as? Float,
-              let url = userInfo[Strings.urlNotificationUserInfoKey] as? URL else { return }
-
-        notificationCenter.removeObserver(
-            self,
-            name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
-            object: AudioFile(url)
-        )
-
-        Task { @MainActor in
-            for (audioFileURL, cell) in cellsAwaitingDurationLabelSet where audioFileURL == url {
-                cell.durationLabel.text = duration.durationString
-                cellsAwaitingDurationLabelSet[audioFileURL] = nil
-            }
-        }
-    }
-
     private func message(for cell: AudioMessageCell) -> Message? {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
         return viewController.currentConversation?.messages?.itemAt(indexPath.section)
@@ -216,10 +195,22 @@ public final class AudioMessagePlaybackService {
 
             notificationCenter.addObserver(
                 self,
-                selector: #selector(didSetDuration(_:)),
                 name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
-                object: audioFile
-            )
+                object: audioFile,
+                removeAfterFirstPost: true
+            ) { notification in
+                typealias Strings = AppConstants.Strings.AudioFile
+                guard let userInfo = notification.userInfo,
+                      let duration = userInfo[Strings.durationNotificationUserInfoKey] as? Float,
+                      let url = userInfo[Strings.urlNotificationUserInfoKey] as? URL else { return }
+
+                Task { @MainActor in
+                    for (audioFileURL, cell) in self.cellsAwaitingDurationLabelSet where audioFileURL == url {
+                        cell.durationLabel.text = duration.durationString
+                        self.cellsAwaitingDurationLabelSet[audioFileURL] = nil
+                    }
+                }
+            }
 
             cellsAwaitingDurationLabelSet[audioFile.url] = cell
         }

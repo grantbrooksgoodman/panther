@@ -72,8 +72,10 @@ public final class ReactionSessionService {
 
         guard !reactionMetadata
             .filter({ $0.messageID == message.id })
-            .filter({ $0.reactions.contains(where: { $0.userID == currentUserID }) })
-            .contains(where: { $0.reactions.contains(where: { $0.style == reaction.style }) }) else {
+            .map(\.reactions)
+            .reduce([], +)
+            .filter({ $0.userID == currentUserID })
+            .contains(where: { $0.style == reaction.style }) else {
             chatPageViewService.contextMenu?.dismissMenu()
             return await removeReaction(from: message)
         }
@@ -81,7 +83,7 @@ public final class ReactionSessionService {
         // Filter metadata to remove previous reactions to current message
 
         isReactingToMessage = true
-        reactionMetadata = reactionMetadata.filteringCurrentUserReactions(to: message)
+        reactionMetadata = reactionMetadata.filteringCurrentUserReactions(to: message.id)
 
         // Add new reaction to metadata
 
@@ -195,7 +197,7 @@ public final class ReactionSessionService {
         guard let conversation = conversationSession.currentConversation,
               let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }),
               !message.isMock,
-              let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message) else {
+              let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
             return .init(
                 "Failed to resolve required values.",
                 metadata: [self, #file, #function, #line]

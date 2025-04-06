@@ -53,6 +53,15 @@ public struct ConversationCellViewData: Equatable {
         self.thumbnailImage = thumbnailImage
     }
 
+    public init(user: User) {
+        titleLabelText = ConversationCellViewData.empty.titleLabelText
+        subtitleLabelText = ConversationCellViewData.empty.subtitleLabelText
+        dateLabelText = ConversationCellViewData.empty.dateLabelText
+        isShowingUnreadIndicator = ConversationCellViewData.empty.isShowingUnreadIndicator
+        otherUser = user
+        thumbnailImage = nil
+    }
+
     public init?(_ conversation: Conversation) {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
 

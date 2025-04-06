@@ -99,7 +99,7 @@ public final class UpdateService {
         let interval = calendar.dateComponents(
             [.day],
             from: firstPostponedUpdate.comparator,
-            to: Date().comparator
+            to: Date.now.comparator
         )
 
         guard let daysPassed = interval.day else {

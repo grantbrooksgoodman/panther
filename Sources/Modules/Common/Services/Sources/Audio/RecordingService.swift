@@ -92,7 +92,6 @@ public final class RecordingService: NSObject {
 
     public func stopRecording() -> Callback<URL, Exception> {
         willStartRecording = false
-
         stopObservingInterruptions()
 
         guard let audioRecorder else {
@@ -113,10 +112,25 @@ public final class RecordingService: NSObject {
     private func startObservingInterruptions() {
         notificationCenter.addObserver(
             self,
-            selector: #selector(handleInterruption),
             name: AVAudioSession.interruptionNotification,
             object: avAudioSession
-        )
+        ) { notification in
+            guard let userInfo = notification.userInfo,
+                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+
+            switch type {
+            case .began:
+                switch self.stopRecording() {
+                case let .failure(exception):
+                    Logger.log(exception)
+
+                default: ()
+                }
+
+            default: ()
+            }
+        }
     }
 
     private func stopObservingInterruptions() {
@@ -125,25 +139,6 @@ public final class RecordingService: NSObject {
             name: AVAudioSession.interruptionNotification,
             object: avAudioSession
         )
-    }
-
-    @objc
-    private func handleInterruption(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-
-        switch type {
-        case .began:
-            switch stopRecording() {
-            case let .failure(exception):
-                Logger.log(exception)
-
-            default: ()
-            }
-
-        default: ()
-        }
     }
 }
 

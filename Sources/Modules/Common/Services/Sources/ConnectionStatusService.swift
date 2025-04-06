@@ -36,12 +36,17 @@ public final class ConnectionStatusService {
             Logger.log(.init(error, metadata: [self, #file, #function, #line]))
         }
 
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(connectionChanged),
-            name: .reachabilityChanged,
-            object: nil
-        )
+        notificationCenter.addObserver(self, name: .reachabilityChanged) { _ in
+            guard self.build.isOnline else {
+                self.uponConnectionChanged.values.forEach { $0() }
+                self.isAwaitingConnectionRestoration = true
+                return
+            }
+
+            guard self.isAwaitingConnectionRestoration else { return }
+            self.uponConnectionChanged.values.forEach { $0() }
+            self.isAwaitingConnectionRestoration = false
+        }
     }
 
     // MARK: - Object Lifecycle
@@ -72,20 +77,5 @@ public final class ConnectionStatusService {
 
     public func removeEffect(_ id: ConnectionStatusServiceEffectID) {
         uponConnectionChanged[id] = nil
-    }
-
-    // MARK: - Auxiliary
-
-    @objc
-    private func connectionChanged() {
-        guard build.isOnline else {
-            uponConnectionChanged.values.forEach { $0() }
-            isAwaitingConnectionRestoration = true
-            return
-        }
-
-        guard isAwaitingConnectionRestoration else { return }
-        uponConnectionChanged.values.forEach { $0() }
-        isAwaitingConnectionRestoration = false
     }
 }

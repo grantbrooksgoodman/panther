@@ -44,7 +44,7 @@ public extension Date { // swiftlint:disable:next identifier_name
 
         @Dependency(\.currentCalendar) var calendar: Calendar
 
-        let distance = calendar.startOfDay(for: Date()).distance(to: calendar.startOfDay(for: self))
+        let distance = calendar.startOfDay(for: Date.now).distance(to: calendar.startOfDay(for: self))
         let timeString = DateFormatter.localizedString(from: self, dateStyle: .none, timeStyle: .short)
 
         let overYearFormatter = DateFormatter()
@@ -71,7 +71,7 @@ public extension Date { // swiftlint:disable:next identifier_name
             return attributedForChatPageMessageSeparator(string, separatorIndex: separator.count)
         } else if distance >= Floats.chatPageMessageSeparatorAttributedDateStringWeekdayComparator {
             let weekdayString = weekdayString()
-            let currentWeekdayString = Date().weekdayString()
+            let currentWeekdayString = Date.now.weekdayString()
 
             guard weekdayString == currentWeekdayString else {
                 let string = "\(weekdayString) \(timeString)"

@@ -60,6 +60,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case originalInLanguage
 
     case reacted
+    case reactionDetails
     case read
     case region
     case repairingData
@@ -98,6 +99,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case wednesday
 
     case yesterday
+    case you
 
     // MARK: - Properties
 

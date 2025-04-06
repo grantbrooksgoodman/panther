@@ -202,10 +202,11 @@ public final class ContextMenuInteractionService {
     public func addKeyboardWillShowObserver() {
         notificationCenter.addObserver(
             self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
+            name: UIResponder.keyboardWillShowNotification
+        ) { notification in
+            guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+            self.scrollViewMaxContentOffsetY = self.viewController.messagesCollectionView.maxContentOffsetY + keyboardFrame.cgRectValue.height
+        }
     }
 
     public func removeKeyboardWillShowObserver() {
@@ -327,12 +328,6 @@ public final class ContextMenuInteractionService {
         viewController.messagesCollectionView.indexPath(for: cell)
     }
 
-    @objc
-    private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-        scrollViewMaxContentOffsetY = viewController.messagesCollectionView.maxContentOffsetY + keyboardFrame.cgRectValue.height
-    }
-
     private func restoreSpeakingCellAttributes() {
         guard let speakingCell = chatPageViewService.contextMenu?.actionHandler.speakingCell as? TextMessageCell,
               let speakingMessage = chatPageViewService.contextMenu?.actionHandler.speakingMessage,
@@ -369,8 +364,8 @@ public final class ContextMenuInteractionService {
         @Persistent(.currentUserID) var currentUserID: String?
         guard let messages = self.viewController.currentConversation?.messages,
               let reactions = messages.first(where: { $0.id == selectedMessageID })?.reactions,
-              let reactionEmojiValue = reactions.first(where: { $0.userID == currentUserID })?.style.emojiValue else { return }
-        viewController.markSelected(reactionEmojiValue)
+              let reactionStyle = reactions.first(where: { $0.userID == currentUserID })?.style else { return }
+        viewController.markSelected(reactionStyle)
     }
 }
 

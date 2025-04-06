@@ -249,7 +249,7 @@ public struct MessageService {
                 name: conversation.metadata.name,
                 imageData: conversation.metadata.imageData,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: Date(),
+                lastModifiedDate: Date.now,
                 penPalsSharingData: conversation.metadata.penPalsSharingData
             )
 

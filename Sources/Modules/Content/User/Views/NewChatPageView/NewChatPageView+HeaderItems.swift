@@ -70,8 +70,7 @@ public extension NewChatPageView {
     }
 
     private var doneToolbarButtonForegroundColor: Color {
-        guard !Application.isInPrevaricationMode,
-              ThemeService.isAppDefaultThemeApplied else { return .navigationBarTitle }
+        guard !Application.isInPrevaricationMode else { return .navigationBarTitle }
         return viewModel.isDoneToolbarButtonEnabled ? .accent : .disabled
     }
 }

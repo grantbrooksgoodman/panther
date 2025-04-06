@@ -76,7 +76,7 @@ public struct BuildInfoButtonStrings: Equatable {
             labelText = "\(currentUserID ?? fallbackCurrentUserID ?? "�") | \(Networking.config.environment.shortString)"
 
         case .copyright:
-            labelText = "Copyright © \(calendar.component(.year, from: Date())) NEOTechnica Corp."
+            labelText = "Copyright © \(calendar.component(.year, from: Date.now)) NEOTechnica Corp."
         }
     }
 }

@@ -20,8 +20,10 @@ public extension SquareIconView.Configuration {
     ) -> SquareIconView.Configuration {
         .init(
             backgroundColor: backgroundColor,
-            overlayFramePercentOfTotalSize: 2 / 3,
-            overlaySymbolName: "figure.2",
+            overlay: .symbol(
+                name: "figure.2",
+                framePercentOfTotalSize: 2 / 3
+            ),
             includesShadow: includesShadow
         )
     }

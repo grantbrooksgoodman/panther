@@ -24,6 +24,7 @@ public extension AppConstants.CGFloats {
 
         public static let overlayFrameHeightMultiplier: CGFloat = 2 / 3
         public static let overlayFrameWidthMultiplier: CGFloat = 2 / 3
+        public static let overlayTextFontScale: CGFloat = 60
 
         public static let shadowColorOpacity: CGFloat = 0.2
         public static let shadowRadius: CGFloat = 10

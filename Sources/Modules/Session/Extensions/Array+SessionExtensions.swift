@@ -13,10 +13,10 @@ import Foundation
 import AppSubsystem
 
 public extension Array where Element == ReactionMetadata {
-    func filteringCurrentUserReactions(to message: Message) -> [ReactionMetadata] {
+    func filteringCurrentUserReactions(to messageID: String) -> [ReactionMetadata] {
         @Persistent(.currentUserID) var currentUserID: String?
         func satisfiesConstraints(_ metadata: ReactionMetadata) -> Bool {
-            guard metadata.messageID == message.id,
+            guard metadata.messageID == messageID,
                   metadata.reactions.map(\.userID).contains(currentUserID) else { return false }
             return true
         }

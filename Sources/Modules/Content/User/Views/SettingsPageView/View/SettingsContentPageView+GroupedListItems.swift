@@ -31,7 +31,7 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.blockedUsersButtonImageBackground,
-                        overlaySymbolName: Strings.blockedUsersButtonImageSystemName
+                        overlay: .symbol(name: Strings.blockedUsersButtonImageSystemName)
                     )
                 )
             }
@@ -42,12 +42,15 @@ public extension SettingsContentPageView {
         .init(
             .button { viewModel.send(.changeThemeButtonTapped) },
             innerText: viewModel.strings.value(for: .changeThemeButtonText),
+            isEnabled: viewModel.isChangeThemeButtonEnabled,
             imageView: {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.changeThemeButtonImageBackground,
-                        overlayFramePercentOfTotalSize: Floats.changeThemeButtonOverlayFramePercentOfTotalSize,
-                        overlaySymbolName: Strings.changeThemeButtonImageSystemName
+                        overlay: .symbol(
+                            name: Strings.changeThemeButtonImageSystemName,
+                            framePercentOfTotalSize: Floats.changeThemeButtonOverlayFramePercentOfTotalSize
+                        )
                     )
                 )
             }
@@ -62,9 +65,11 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.clearCachesButtonImageBackground,
-                        overlayFramePercentOfTotalSize: Floats.clearCachesButtonOverlayFramePercentOfTotalSize,
-                        overlaySymbolName: Strings.clearCachesButtonImageSystemName,
-                        overlaySymbolWeight: .bold
+                        overlay: .symbol(
+                            name: Strings.clearCachesButtonImageSystemName,
+                            framePercentOfTotalSize: Floats.clearCachesButtonOverlayFramePercentOfTotalSize,
+                            weight: .bold
+                        )
                     )
                 )
             }
@@ -79,7 +84,7 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.deleteAccountButtonImageBackground,
-                        overlaySymbolName: Strings.deleteAccountButtonImageSystemName
+                        overlay: .symbol(name: Strings.deleteAccountButtonImageSystemName)
                     )
                 )
             }
@@ -94,7 +99,7 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.inviteFriendsButtonImageBackground,
-                        overlaySymbolName: Strings.inviteFriendsButtonImageSystemName
+                        overlay: .symbol(name: Strings.inviteFriendsButtonImageSystemName)
                     )
                 )
             }
@@ -109,7 +114,7 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.leaveReviewButtonImageBackground,
-                        overlaySymbolName: Strings.leaveReviewButtonImageSystemName
+                        overlay: .symbol(name: Strings.leaveReviewButtonImageSystemName)
                     )
                 )
             }
@@ -135,8 +140,10 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.sendFeedbackButtonImageBackground,
-                        overlaySymbolName: Strings.sendFeedbackButtonImageSystemName,
-                        overlaySymbolWeight: .semibold
+                        overlay: .symbol(
+                            name: Strings.sendFeedbackButtonImageSystemName,
+                            weight: .semibold
+                        )
                     )
                 )
             }
@@ -151,7 +158,7 @@ public extension SettingsContentPageView {
                 SquareIconView(
                     .init(
                         backgroundColor: Colors.signOutButtonImageBackground,
-                        overlaySymbolName: Strings.signOutButtonImageSystemName
+                        overlay: .symbol(name: Strings.signOutButtonImageSystemName)
                     )
                 )
             }

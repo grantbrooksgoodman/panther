@@ -5252,6 +5252,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>反应</string>
 	</dict>
+	<key>reaction_details</key>
+	<dict>
+		<key>af</key>
+		<string>Reaksiebesonderhede...</string>
+		<key>ar</key>
+		<string>تفاصيل رد الفعل ...</string>
+		<key>az</key>
+		<string>Reaksiya təfərrüatları...</string>
+		<key>be</key>
+		<string>Падрабязнасці рэакцыі...</string>
+		<key>bg</key>
+		<string>Подробности за реакцията...</string>
+		<key>bn</key>
+		<string>প্রতিক্রিয়া বিশদ...</string>
+		<key>bs</key>
+		<string>Detalji reakcije...</string>
+		<key>ca</key>
+		<string>Detalls de la reacció...</string>
+		<key>cs</key>
+		<string>Detaily reakce...</string>
+		<key>cy</key>
+		<string>Manylion Ymateb...</string>
+		<key>da</key>
+		<string>Reaktionsdetaljer...</string>
+		<key>de</key>
+		<string>Reaktionsdetails...</string>
+		<key>el</key>
+		<string>Λεπτομέρειες αντίδρασης...</string>
+		<key>en</key>
+		<string>Reaction Details...</string>
+		<key>eo</key>
+		<string>Reagaj detaloj...</string>
+		<key>es</key>
+		<string>Detalles de reacción...</string>
+		<key>et</key>
+		<string>Reaktsiooni üksikasjad...</string>
+		<key>eu</key>
+		<string>Erreakzioaren xehetasunak...</string>
+		<key>fa</key>
+		<string>جزئیات واکنش ...</string>
+		<key>fi</key>
+		<string>Reaktiotiedot...</string>
+		<key>fr</key>
+		<string>Détails de la réaction...</string>
+		<key>ga</key>
+		<string>Sonraí imoibriúcháin...</string>
+		<key>gd</key>
+		<string>Mion-fhiosrachadh ath-bhualadh...</string>
+		<key>gl</key>
+		<string>Detalles da reacción...</string>
+		<key>gu</key>
+		<string>પ્રતિક્રિયાની વિગતો...</string>
+		<key>he</key>
+		<string>פרטי תגובה...</string>
+		<key>hi</key>
+		<string>प्रतिक्रिया विवरण...</string>
+		<key>hr</key>
+		<string>Detalji reakcije...</string>
+		<key>ht</key>
+		<string>Detay reyaksyon...</string>
+		<key>hu</key>
+		<string>A reakció részletei...</string>
+		<key>hy</key>
+		<string>Արձագանքի մանրամասներ...</string>
+		<key>id</key>
+		<string>Detail Reaksi...</string>
+		<key>is</key>
+		<string>Viðbragðsupplýsingar...</string>
+		<key>it</key>
+		<string>Dettagli di reazione...</string>
+		<key>ja</key>
+		<string>反応の詳細...</string>
+		<key>ka</key>
+		<string>Რეაქციის დეტალები...</string>
+		<key>kk</key>
+		<string>Реакция туралы мәліметтер...</string>
+		<key>kn</key>
+		<string>ಪ್ರತಿಕ್ರಿಯೆ ವಿವರಗಳು...</string>
+		<key>ko</key>
+		<string>반응 세부 정보...</string>
+		<key>ky</key>
+		<string>Реакция чоо-жайы...</string>
+		<key>lt</key>
+		<string>Išsami reakcija...</string>
+		<key>mg</key>
+		<string>Ny antsipiriany momba ny fanehoan-kevitra...</string>
+		<key>mi</key>
+		<string>Taipitopito tauhohenga...</string>
+		<key>mk</key>
+		<string>Детали за реакција...</string>
+		<key>ml</key>
+		<string>പ്രതികരണ വിശദാംശങ്ങൾ...</string>
+		<key>mn</key>
+		<string>Урвалын мэдээлэл...</string>
+		<key>mt</key>
+		<string>Dettalji tar-Reazzjoni...</string>
+		<key>ne</key>
+		<string>प्रतिक्रिया विवरण...</string>
+		<key>nl</key>
+		<string>Reactiedetails...</string>
+		<key>no</key>
+		<string>Reaksjonsdetaljer...</string>
+		<key>pa</key>
+		<string>ਪ੍ਰਤੀਕਰਮ ਦੇ ਵੇਰਵੇ...</string>
+		<key>pl</key>
+		<string>Szczegóły reakcji...</string>
+		<key>pt</key>
+		<string>Detalhes da reação...</string>
+		<key>ro</key>
+		<string>Detalii despre reacție...</string>
+		<key>ru</key>
+		<string>Детали реакции...</string>
+		<key>si</key>
+		<string>ප්‍රතික්‍රියා විස්තර...</string>
+		<key>sk</key>
+		<string>Detaily reakcie...</string>
+		<key>sl</key>
+		<string>Podrobnosti o reakciji...</string>
+		<key>sq</key>
+		<string>Detajet e reagimit...</string>
+		<key>sr</key>
+		<string>Детаљи реакције...</string>
+		<key>su</key>
+		<string>Rincian réaksi...</string>
+		<key>sv</key>
+		<string>Reaktionsdetaljer...</string>
+		<key>sw</key>
+		<string>Maelezo ya majibu...</string>
+		<key>ta</key>
+		<string>எதிர்வினை விவரங்கள்...</string>
+		<key>te</key>
+		<string>ప్రతిచర్య వివరాలు...</string>
+		<key>tg</key>
+		<string>Тафсилоти реаксия...</string>
+		<key>th</key>
+		<string>รายละเอียดปฏิกิริยา...</string>
+		<key>tl</key>
+		<string>Mga detalye ng reaksyon...</string>
+		<key>tr</key>
+		<string>Reaksiyon detayları...</string>
+		<key>tt</key>
+		<string>Реакция детальләре...</string>
+		<key>uk</key>
+		<string>Деталі реакції...</string>
+		<key>ur</key>
+		<string>رد عمل کی تفصیلات ...</string>
+		<key>uz</key>
+		<string>Reaktsiya tafsilotlari...</string>
+		<key>vi</key>
+		<string>Chi tiết phản ứng...</string>
+		<key>yi</key>
+		<string>אָפּרוף דעטאַילס ...</string>
+		<key>zh</key>
+		<string>反应详情...</string>
+	</dict>
 	<key>read</key>
 	<dict>
 		<key>af</key>
@@ -10366,6 +10521,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>נעכטן</string>
 		<key>zh</key>
 		<string>昨天</string>
+	</dict>
+	<key>you</key>
+	<dict>
+		<key>af</key>
+		<string>Julle</string>
+		<key>ar</key>
+		<string>أنت</string>
+		<key>az</key>
+		<string>Siz</string>
+		<key>be</key>
+		<string>Ты</string>
+		<key>bg</key>
+		<string>Ти</string>
+		<key>bn</key>
+		<string>আপনি</string>
+		<key>bs</key>
+		<string>Ti</string>
+		<key>ca</key>
+		<string>Vostès</string>
+		<key>cs</key>
+		<string>Vy</string>
+		<key>cy</key>
+		<string>Chi</string>
+		<key>da</key>
+		<string>Du</string>
+		<key>de</key>
+		<string>Du</string>
+		<key>el</key>
+		<string>Εσείς</string>
+		<key>en</key>
+		<string>You</string>
+		<key>eo</key>
+		<string>Vi</string>
+		<key>es</key>
+		<string>Tú</string>
+		<key>et</key>
+		<string>Sina</string>
+		<key>eu</key>
+		<string>Hi</string>
+		<key>fa</key>
+		<string>شما</string>
+		<key>fi</key>
+		<string>Sinä</string>
+		<key>fr</key>
+		<string>Toi</string>
+		<key>ga</key>
+		<string>Tú</string>
+		<key>gd</key>
+		<string>Thu</string>
+		<key>gl</key>
+		<string>Ti</string>
+		<key>gu</key>
+		<string>તું</string>
+		<key>he</key>
+		<string>אַתָה</string>
+		<key>hi</key>
+		<string>आप</string>
+		<key>hr</key>
+		<string>Vas</string>
+		<key>ht</key>
+		<string>Ou</string>
+		<key>hu</key>
+		<string>Te</string>
+		<key>hy</key>
+		<string>Դու</string>
+		<key>id</key>
+		<string>Anda</string>
+		<key>is</key>
+		<string>Þú</string>
+		<key>it</key>
+		<string>Voi</string>
+		<key>ja</key>
+		<string>あなた</string>
+		<key>ka</key>
+		<string>Შენ</string>
+		<key>kk</key>
+		<string>Сен</string>
+		<key>kn</key>
+		<string>ನೀವು</string>
+		<key>ko</key>
+		<string>너</string>
+		<key>ky</key>
+		<string>Сен</string>
+		<key>lt</key>
+		<string>Tu</string>
+		<key>mg</key>
+		<string>Ianao</string>
+		<key>mi</key>
+		<string>Koe</string>
+		<key>mk</key>
+		<string>Вие</string>
+		<key>ml</key>
+		<string>നീ</string>
+		<key>mn</key>
+		<string>Та</string>
+		<key>mt</key>
+		<string>Int</string>
+		<key>ne</key>
+		<string>तिमीहरु</string>
+		<key>nl</key>
+		<string>Jij</string>
+		<key>no</key>
+		<string>Du</string>
+		<key>pa</key>
+		<string>ਤੁਸੀਂ</string>
+		<key>pl</key>
+		<string>Ty</string>
+		<key>pt</key>
+		<string>Você</string>
+		<key>ro</key>
+		<string>Tu</string>
+		<key>ru</key>
+		<string>Ты</string>
+		<key>si</key>
+		<string>ඔබ</string>
+		<key>sk</key>
+		<string>Vy</string>
+		<key>sl</key>
+		<string>Ti</string>
+		<key>sq</key>
+		<string>Ju</string>
+		<key>sr</key>
+		<string>Ти</string>
+		<key>su</key>
+		<string>Anjeun</string>
+		<key>sv</key>
+		<string>Du</string>
+		<key>sw</key>
+		<string>Wewe</string>
+		<key>ta</key>
+		<string>நீங்கள்</string>
+		<key>te</key>
+		<string>మీరు</string>
+		<key>tg</key>
+		<string>Шумо</string>
+		<key>th</key>
+		<string>คุณ</string>
+		<key>tl</key>
+		<string>Ikaw</string>
+		<key>tr</key>
+		<string>Sen</string>
+		<key>tt</key>
+		<string>Син</string>
+		<key>uk</key>
+		<string>Ти</string>
+		<key>ur</key>
+		<string>تم</string>
+		<key>uz</key>
+		<string>Siz</string>
+		<key>vi</key>
+		<string>Bạn</string>
+		<key>yi</key>
+		<string>איר</string>
+		<key>zh</key>
+		<string>你</string>
 	</dict>
 </dict>
 </plist>

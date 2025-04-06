@@ -61,63 +61,12 @@ public final class ContextMenuActionHandlerService {
         return viewController.currentConversation?.messages?.first(where: { $0.id == selectedMessageID })
     }
 
-    // MARK: - Init
-
-    public init(_ viewController: ChatPageViewController) {
-        self.viewController = viewController
-    }
-
-    // MARK: - Menu for Message
-
-    public func menuForMessage(_ message: Message) -> Menu? {
-        var actions = [MenuElement]()
-        guard !message.contentType.isMediaOtherThanAudio else { return nil }
-
-        if message.contentType.isAudio {
-            let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
-            let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
-
-            if isDisplayingAudioTranscription {
-                actions.append(
-                    .init(
-                        title: Localized(.copy).wrappedValue,
-                        image: .init(systemName: Strings.copyActionImageSystemName),
-                        identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
-                        handler: handleAction(_:)
-                    )
-                )
-            }
-
-            if avSpeechSynthesizer.isSpeaking || (isDisplayingAudioTranscription && message.isFromCurrentUser) {
-                actions.append(
-                    .init(
-                        title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
-                        image: .init(systemName: Strings.speakActionImageSystemName),
-                        identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
-                        handler: handleAction(_:)
-                    )
-                )
-            }
-
-            let audioMessageActionImage = UIImage(
-                systemName: isDisplayingAudioTranscription ? Strings.audioMessageActionImageSystemName : Strings.audioMessageActionAlternateImageSystemName
-            )
-            actions.append(
-                .init(
-                    title: actionTitle,
-                    image: audioMessageActionImage,
-                    identifier: .init(rawValue: Strings.audioMessageActionIdentifierRawValue),
-                    handler: handleAction(_:)
-                )
-            )
-
-            return .init(children: actions)
-        }
-
+    private var textMessageMenuActions: [MenuElement] {
         let speakActionImage = UIImage(
             systemName: avSpeechSynthesizer.isSpeaking ? Strings.speakActionAlternateImageSystemName : Strings.speakActionImageSystemName
         )
-        actions = [
+
+        return [
             .init(
                 title: Localized(.copy).wrappedValue,
                 image: .init(systemName: Strings.copyActionImageSystemName),
@@ -131,28 +80,36 @@ public final class ContextMenuActionHandlerService {
                 handler: handleAction(_:)
             ),
         ]
+    }
 
-        guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
-              message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
-              let languageCode = message.isFromCurrentUser ? message.translation?.languagePair.to : message.translation?.languagePair.from,
-              languageCode != currentUser?.languageCode,
-              !avSpeechSynthesizer.isSpeaking else { return .init(children: actions) }
+    // MARK: - Init
 
-        let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: message) ?? false
-        let actionTitle = Localized( // swiftlint:disable:next line_length
-            message.isFromCurrentUser ? (isDisplayingAlternateText ? .viewOriginal : .viewTranslation) : (isDisplayingAlternateText ? .viewTranslation : .viewOriginal)
-        ).wrappedValue
+    public init(_ viewController: ChatPageViewController) {
+        self.viewController = viewController
+    }
 
-        actions.append(
+    // MARK: - Menu for Message
+
+    public func menuForMessage(_ message: Message) -> Menu? {
+        func sorted(_ actions: [MenuElement]) -> [MenuElement] { actions.sorted(by: { $0.title < $1.title }) }
+        var actions: [MenuElement] = message.reactions == nil ? [] : [
             .init(
-                title: actionTitle,
-                image: .init(resource: .viewAlternate),
-                identifier: .init(rawValue: Strings.viewAlterateActionIdentifierRawValue),
+                title: Localized(.reactionDetails).wrappedValue,
+                image: .init(systemName: Strings.reactionDetailsActionImageSystemName),
+                identifier: .init(Strings.reactionDetailsActionIdentifierRawValue),
                 handler: handleAction(_:)
-            )
-        )
+            ),
+        ]
 
-        return .init(children: actions)
+        guard !message.contentType.isMediaOtherThanAudio else { return actions.isEmpty ? nil : .init(children: actions) }
+        guard !message.contentType.isAudio else { return .init(children: sorted(actions + getAudioMessageActions(for: message))) }
+
+        actions.append(contentsOf: textMessageMenuActions)
+        if let viewAlternateAction = getViewAlternateAction(for: message) {
+            actions.append(viewAlternateAction)
+        }
+
+        return .init(children: sorted(actions))
     }
 
     // MARK: - Reset Speaking Message
@@ -173,6 +130,13 @@ public final class ContextMenuActionHandlerService {
         chatPageViewService.contextMenu?.dismissMenu()
         guard let selectedCell = selectedCell as? TextMessageCell else { return }
         uiPasteboard.string = selectedCell.messageLabel.text
+    }
+
+    private func handleReactionDetailsAction() {
+        chatPageViewService.contextMenu?.dismissMenu()
+        Task { @MainActor in
+            RootSheets.present(.reactionDetailsPageView)
+        }
     }
 
     private func handleSpeakAction() {
@@ -204,6 +168,10 @@ public final class ContextMenuActionHandlerService {
                 for: messageLabelText,
                 inLanguage: utteranceLanguageCode
             ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold),
+                languageRecognitionService.matchConfidence(
+                    for: messageLabelText,
+                    inLanguage: notCurrentUserUtteranceLanguageCode
+                ) >= .init(Floats.languageRecognitionMatchConfidenceThreshold),
                 processed(selectedMessage.translation?.input.value) == processed(selectedMessage.translation?.output) {
                 utteranceLanguageCode = [
                     currentUserUtteranceLanguageCode,
@@ -227,11 +195,76 @@ public final class ContextMenuActionHandlerService {
 
     // MARK: - Auxiliary
 
+    private func getAudioMessageActions(for message: Message) -> [MenuElement] {
+        var actions = [MenuElement]()
+
+        let isDisplayingAudioTranscription = chatPageViewService.alternateMessage?.isDisplayingAudioTranscription(for: message) ?? false
+        let actionTitle = Localized(isDisplayingAudioTranscription ? .viewAsAudio : .viewTranscription).wrappedValue
+
+        if isDisplayingAudioTranscription {
+            actions.append(
+                .init(
+                    title: Localized(.copy).wrappedValue,
+                    image: .init(systemName: Strings.copyActionImageSystemName),
+                    identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
+                    handler: handleAction(_:)
+                )
+            )
+        }
+
+        if avSpeechSynthesizer.isSpeaking || (isDisplayingAudioTranscription && message.isFromCurrentUser) {
+            actions.append(
+                .init(
+                    title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                    image: .init(systemName: Strings.speakActionImageSystemName),
+                    identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
+                    handler: handleAction(_:)
+                )
+            )
+        }
+
+        let audioMessageActionImage = UIImage(
+            systemName: isDisplayingAudioTranscription ? Strings.audioMessageActionImageSystemName : Strings.audioMessageActionAlternateImageSystemName
+        )
+
+        actions.append(
+            .init(
+                title: actionTitle,
+                image: audioMessageActionImage,
+                identifier: .init(rawValue: Strings.audioMessageActionIdentifierRawValue),
+                handler: handleAction(_:)
+            )
+        )
+
+        return actions
+    }
+
+    private func getViewAlternateAction(for message: Message) -> MenuElement? {
+        guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
+              message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
+              let languageCode = message.isFromCurrentUser ? message.translation?.languagePair.to : message.translation?.languagePair.from,
+              languageCode != currentUser?.languageCode,
+              !avSpeechSynthesizer.isSpeaking else { return nil }
+
+        let isDisplayingAlternateText = chatPageViewService.alternateMessage?.isDisplayingAlternateText(for: message) ?? false
+        let actionTitle = Localized( // swiftlint:disable:next line_length
+            message.isFromCurrentUser ? (isDisplayingAlternateText ? .viewOriginal : .viewTranslation) : (isDisplayingAlternateText ? .viewTranslation : .viewOriginal)
+        ).wrappedValue
+
+        return .init(
+            title: actionTitle,
+            image: .init(resource: .viewAlternate),
+            identifier: .init(rawValue: Strings.viewAlterateActionIdentifierRawValue),
+            handler: handleAction(_:)
+        )
+    }
+
     private func handleAction(_ action: MenuElement) {
         guard let identifier = action.identifier else { return }
         switch identifier.rawValue {
         case Strings.audioMessageActionIdentifierRawValue: handleAudioMessageAction()
         case Strings.copyActionIdentifierRawValue: handleCopyAction()
+        case Strings.reactionDetailsActionIdentifierRawValue: handleReactionDetailsAction()
         case Strings.speakActionIdentifierRawValue: handleSpeakAction()
         case Strings.viewAlterateActionIdentifierRawValue: handleViewAlternateAction()
         default: ()

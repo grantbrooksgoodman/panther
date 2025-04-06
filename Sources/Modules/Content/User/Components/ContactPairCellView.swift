@@ -19,6 +19,11 @@ public struct ContactPairCellView: View {
 
     private typealias Floats = AppConstants.CGFloats.ContactPairCellView
 
+    // MARK: - Dependencies
+
+    @Dependency(\.build) private var build: Build
+    @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
+
     // MARK: - Properties
 
     // String
@@ -93,7 +98,10 @@ public struct ContactPairCellView: View {
             Spacer()
 
             if let user = contactPair.users.first {
-                UserInfoBadgeView(user)
+                UserInfoBadgeView(
+                    user,
+                    action: build.isDeveloperModeEnabled ? { conversationCellViewService.presentUserInfoAlert(.init(user: user)) } : nil
+                )
             }
         }
     }

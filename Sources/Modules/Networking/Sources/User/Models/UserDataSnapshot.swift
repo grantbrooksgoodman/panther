@@ -25,7 +25,7 @@ public struct UserDataSnapshot {
     // MARK: - Computed Properties
 
     public var isExpired: Bool {
-        Double(abs(date.seconds(from: Date()) * 1000)) > expiryThreshold.milliseconds
+        Double(abs(date.seconds(from: Date.now) * 1000)) > expiryThreshold.milliseconds
     }
 
     // MARK: - Init

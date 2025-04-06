@@ -37,6 +37,7 @@ public final class SettingsPageViewService {
     @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.reportDelegate) private var reportDelegate: ReportDelegate
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -72,7 +73,21 @@ public final class SettingsPageViewService {
                     isCurrentTheme(appTheme.theme) ? "\(themeName(appTheme.theme)) (Applied)" : themeName(appTheme.theme),
                     isEnabled: !isCurrentTheme(appTheme.theme)
                 ) {
+                    func triggerTraitCollectionChange(_ delay: Duration) {
+                        Task.delayed(by: delay) { @MainActor in
+                            Observables.traitCollectionChanged.trigger()
+                        }
+                    }
+
                     ThemeService.setTheme(appTheme.theme)
+                    guard ThemeService.currentTheme.style != appTheme.theme.style else { return triggerTraitCollectionChange(.milliseconds(100)) }
+                    self.notificationCenter.addObserver(
+                        self,
+                        name: .uiAlertControllerDismissed,
+                        removeAfterFirstPost: true
+                    ) { _ in
+                        triggerTraitCollectionChange(.milliseconds(500))
+                    }
                 }
             }
 
@@ -407,7 +422,7 @@ public final class SettingsPageViewService {
                         SquareIconView(
                             .init(
                                 backgroundColor: Colors.overrideLanguageCodeButtonImageBackground,
-                                overlaySymbolName: Strings.overrideLanguageCodeButtonImageSystemName
+                                overlay: .symbol(name: Strings.overrideLanguageCodeButtonImageSystemName)
                             )
                         )
                     }
@@ -424,9 +439,11 @@ public final class SettingsPageViewService {
                         SquareIconView(
                             .init(
                                 backgroundColor: Colors.toggleDeveloperModeButtonImageBackground,
-                                overlayFramePercentOfTotalSize: Floats.toggleDeveloperModeButtonOverlayFramePercentOfTotalSize,
-                                overlaySymbolName: Strings.toggleDeveloperModeButtonImageSystemName,
-                                overlaySymbolWeight: .bold
+                                overlay: .symbol(
+                                    name: Strings.toggleDeveloperModeButtonImageSystemName,
+                                    framePercentOfTotalSize: Floats.toggleDeveloperModeButtonOverlayFramePercentOfTotalSize,
+                                    weight: .bold
+                                )
                             )
                         )
                     }

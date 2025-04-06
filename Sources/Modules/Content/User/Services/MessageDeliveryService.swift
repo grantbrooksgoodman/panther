@@ -82,10 +82,22 @@ public final class MessageDeliveryService {
         typealias Strings = AppConstants.Strings.MessageSessionService
         notificationCenter.addObserver(
             self,
-            selector: #selector(postedTranscriptionSucceededNotification(_:)),
             name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
-            object: nil
-        )
+            removeAfterFirstPost: true
+        ) { notification in
+            guard let userInfo = notification.userInfo,
+                  let conversationIDKey = userInfo[Strings.conversationIDKeyNotificationUserInfoKey] as? String,
+                  let inputFile = userInfo[Strings.inputFileNotificationUserInfoKey] as? AudioFile,
+                  let isPenPalsConversation = userInfo[Strings.isPenPalsConversationNotificationUserInfoKey] as? Bool else { return }
+
+            guard conversationIDKey == self.clientSession.conversation.currentConversation?.id.key else { return }
+            self.addMockMessageToCurrentConversation(
+                audioFile: inputFile,
+                mediaFile: nil,
+                text: nil,
+                isPenPalsConversation: isPenPalsConversation
+            )
+        }
 
         let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
             inputFile,
@@ -253,7 +265,7 @@ public final class MessageDeliveryService {
                 translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
                 readReceipts: nil,
-                sentDate: Date()
+                sentDate: Date.now
             ))
         } else if let mediaFile {
             messages.append(.init(
@@ -264,7 +276,7 @@ public final class MessageDeliveryService {
                 translationReferences: nil,
                 translations: nil,
                 readReceipts: nil,
-                sentDate: Date()
+                sentDate: Date.now
             ))
         } else {
             messages.append(.init(
@@ -275,7 +287,7 @@ public final class MessageDeliveryService {
                 translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
                 readReceipts: nil,
-                sentDate: Date()
+                sentDate: Date.now
             ))
         }
 

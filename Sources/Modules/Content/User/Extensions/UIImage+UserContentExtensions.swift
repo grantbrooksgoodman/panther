@@ -97,19 +97,10 @@ public extension UIImage {
         return compressedData
     }
 
-    func resized(toPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {
-        let imageSize = CGSize(width: size.width * percentage, height: size.height * percentage)
-        let format = imageRendererFormat
-        format.opaque = isOpaque
-        return UIGraphicsImageRenderer(size: imageSize, format: format).image { _ in
-            draw(in: .init(origin: .zero, size: imageSize))
-        }
-    }
-
     static func fromInitials(
         _ initials: String,
         backgroundColor: UIColor = .systemGray,
-        font: UIFont = .systemFont(ofSize: 20),
+        font: UIFont = .systemFont(ofSize: 20, weight: .semibold),
         textColor: UIColor = .white,
         size: CGSize = .init(width: 50, height: 50)
     ) -> UIImage? {
@@ -139,6 +130,15 @@ public extension UIImage {
 
         initials.draw(in: textFrame, withAttributes: textAttributes)
         return UIGraphicsGetImageFromCurrentImageContext()
+    }
+
+    private func resized(toPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {
+        let imageSize = CGSize(width: size.width * percentage, height: size.height * percentage)
+        let format = imageRendererFormat
+        format.opaque = isOpaque
+        return UIGraphicsImageRenderer(size: imageSize, format: format).image { _ in
+            draw(in: .init(origin: .zero, size: imageSize))
+        }
     }
 
     private func _dataCompressed(toKB kilobytes: Int, toleratedMarginOfError: CGFloat) -> Data? {

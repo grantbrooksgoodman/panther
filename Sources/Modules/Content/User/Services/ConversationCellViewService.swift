@@ -69,6 +69,8 @@ public struct ConversationCellViewService {
                     @Persistent(.currentUserID) var currentUserID: String?
                     currentUserID = user.id
 
+                    RootSheets.dismiss()
+                    navigation.navigate(to: .userContent(.stack([])))
                     navigation.navigate(to: .root(.modal(.splash)))
                 }
 
@@ -76,7 +78,7 @@ public struct ConversationCellViewService {
             }
 
             await AKAlert(
-                title: cellViewData.titleLabelText, // swiftlint:disable:next line_length
+                title: cellViewData.titleLabelText.isEmpty ? nil : cellViewData.titleLabelText, // swiftlint:disable:next line_length
                 message: "\(languageString): \(languageName)\n\(regionString): \(regionDetailService.localizedRegionName(regionCode: user.phoneNumber.regionCode))",
                 actions: actions
             ).present(translating: [])

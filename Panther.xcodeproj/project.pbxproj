@@ -50,6 +50,8 @@
 		B9018A402CD9C15700B72B18 /* TapGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */; };
 		B9018A432CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */; };
 		B9018A452CD9CAE300B72B18 /* AttributeDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */; };
+		B9021F282D9C6F4800336D24 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B9021F272D9C6F4800336D24 /* Networking */; };
+		B9021F2B2D9C6F6100336D24 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9021F2A2D9C6F6100336D24 /* AppSubsystem */; };
 		B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244062B27C84E00448809 /* LegacyMessageService.swift */; };
 		B90249C02B573A4500D62855 /* AuthCodePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249BF2B573A4500D62855 /* AuthCodePageReducer.swift */; };
 		B90249C22B573A4F00D62855 /* AuthCodePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249C12B573A4F00D62855 /* AuthCodePageView.swift */; };
@@ -223,6 +225,7 @@
 		B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */; };
 		B974E3982B7EE9EF00A8389E /* RecipientBarConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B974E3972B7EE9EF00A8389E /* RecipientBarConfigService.swift */; };
 		B978B1992B87C84200AA007A /* RootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B978B1982B87C84200AA007A /* RootSheet.swift */; };
+		B9798BAE2D9E05AC00FE03D9 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9798BAD2D9E05AC00FE03D9 /* AppSubsystem */; };
 		B979AA372C444B3C0082203C /* MediaActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA362C444B3C0082203C /* MediaActionHandlerService.swift */; };
 		B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA382C444E4A0082203C /* CameraPickerService.swift */; };
 		B979AA3B2C445F990082203C /* ContentPickerResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B979AA3A2C445F990082203C /* ContentPickerResult.swift */; };
@@ -310,7 +313,6 @@
 		B99F119C2D7B93C300BB6FC0 /* ReadReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F119B2D7B93C300BB6FC0 /* ReadReceipt.swift */; };
 		B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */; };
 		B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */; };
-		B9A334282D8CCB7900BF5DBD /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B9A334272D8CCB7900BF5DBD /* Networking */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
 		B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */; };
 		B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */; };
@@ -353,6 +355,10 @@
 		B9C9560E2B64578B001C7E01 /* BuildInfoButtonStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C9560D2B64578B001C7E01 /* BuildInfoButtonStrings.swift */; };
 		B9CE533C2D6181B4004FE422 /* AppSubsystem in Frameworks */ = {isa = PBXBuildFile; productRef = B9CE533B2D6181B4004FE422 /* AppSubsystem */; };
 		B9CF639E2C6F244E00A6208F /* ContactNameServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */; };
+		B9CFA7FD2D99C6C20075E02D /* ReactionDetailsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CFA7FC2D99C6C20075E02D /* ReactionDetailsPageView.swift */; };
+		B9CFA7FF2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CFA7FE2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift */; };
+		B9CFA8032D9B6DB10075E02D /* ReactionDetailsPageObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CFA8022D9B6DB10075E02D /* ReactionDetailsPageObserver.swift */; };
+		B9CFA8052D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CFA8042D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift */; };
 		B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D7102B02FFEA00078A93 /* PLISTGenerator.swift */; };
 		B9D0D8142B0300B000078A93 /* gb-sct.png in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D7162B0300AC00078A93 /* gb-sct.png */; };
 		B9D0D8152B0300B000078A93 /* ve.png in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D7172B0300AC00078A93 /* ve.png */; };
@@ -1148,6 +1154,10 @@
 		B9C6CAD52C2A0D430095B42C /* IntegrityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrityService.swift; sourceTree = "<group>"; };
 		B9C9560D2B64578B001C7E01 /* BuildInfoButtonStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoButtonStrings.swift; sourceTree = "<group>"; };
 		B9CF639D2C6F244E00A6208F /* ContactNameServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactNameServiceDependency.swift; sourceTree = "<group>"; };
+		B9CFA7FC2D99C6C20075E02D /* ReactionDetailsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDetailsPageView.swift; sourceTree = "<group>"; };
+		B9CFA7FE2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDetailsPageReducer.swift; sourceTree = "<group>"; };
+		B9CFA8022D9B6DB10075E02D /* ReactionDetailsPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDetailsPageObserver.swift; sourceTree = "<group>"; };
+		B9CFA8042D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ReactionDetailsPageView.swift"; sourceTree = "<group>"; };
 		B9D0D7102B02FFEA00078A93 /* PLISTGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PLISTGenerator.swift; sourceTree = "<group>"; };
 		B9D0D7162B0300AC00078A93 /* gb-sct.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gb-sct.png"; sourceTree = "<group>"; };
 		B9D0D7172B0300AC00078A93 /* ve.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ve.png; sourceTree = "<group>"; };
@@ -1518,7 +1528,9 @@
 				B9D4FD8A2CEEF88E00F4AC75 /* AppSubsystem in Frameworks */,
 				B9CE533C2D6181B4004FE422 /* AppSubsystem in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
-				B9A334282D8CCB7900BF5DBD /* Networking in Frameworks */,
+				B9798BAE2D9E05AC00FE03D9 /* AppSubsystem in Frameworks */,
+				B9021F282D9C6F4800336D24 /* Networking in Frameworks */,
+				B9021F2B2D9C6F6100336D24 /* AppSubsystem in Frameworks */,
 				B97A28092D84CE9200397A6B /* Networking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2620,6 +2632,16 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		B9CFA7FB2D99C68D0075E02D /* ReactionDetailsPageView */ = {
+			isa = PBXGroup;
+			children = (
+				B9CFA8022D9B6DB10075E02D /* ReactionDetailsPageObserver.swift */,
+				B9CFA7FE2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift */,
+				B9CFA7FC2D99C6C20075E02D /* ReactionDetailsPageView.swift */,
+			);
+			path = ReactionDetailsPageView;
+			sourceTree = "<group>";
+		};
 		B9D0D70F2B02F5E500078A93 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
@@ -3266,6 +3288,7 @@
 				B942624E2C4622880026CDE8 /* InviteQRCodePageView */,
 				B9EC04BA2B783CE400A16700 /* NewChatPageView */,
 				B92731382D12726000DCDCBA /* PenPalsPermissionPageView */,
+				B9CFA7FB2D99C68D0075E02D /* ReactionDetailsPageView */,
 				B9EC04C62B79671300A16700 /* SettingsPageView */,
 				B947F2D72CAC8078004CD880 /* UserContentContainerView */,
 			);
@@ -3334,6 +3357,7 @@
 				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
 				B95DCE502D8CC968003730F9 /* AppConstants+NewChatPageView.swift */,
 				B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */,
+				B9CFA8042D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */,
@@ -3470,7 +3494,9 @@
 				B97A28082D84CE9200397A6B /* Networking */,
 				B9839E1E2D8B36280093BFC5 /* Networking */,
 				B95DCE4A2D8B543C003730F9 /* Networking */,
-				B9A334272D8CCB7900BF5DBD /* Networking */,
+				B9021F272D9C6F4800336D24 /* Networking */,
+				B9021F2A2D9C6F6100336D24 /* AppSubsystem */,
+				B9798BAD2D9E05AC00FE03D9 /* AppSubsystem */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3597,7 +3623,7 @@
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				B9A334262D8CCB7900BF5DBD /* XCRemoteSwiftPackageReference "networking" */,
+				B9021F262D9C6F4800336D24 /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4160,6 +4186,7 @@
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
 				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
+				B9CFA8032D9B6DB10075E02D /* ReactionDetailsPageObserver.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
 				B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */,
 				B99195842B47D1D300BD5BBC /* OnboardingService.swift in Sources */,
@@ -4226,6 +4253,7 @@
 				B9E0E0F72B20EA0200C14274 /* AudioFile.swift in Sources */,
 				B99CC5562C1927FA00319F02 /* RootNavigator.swift in Sources */,
 				B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */,
+				B9CFA8052D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift in Sources */,
 				B9C696522B896319005F0BFE /* ChatInfoPageViewService.swift in Sources */,
 				B96EDD8D2B635A6000CB925B /* SettingsPageViewService.swift in Sources */,
 				B94262552C462C290026CDE8 /* InviteQRCodePageView.swift in Sources */,
@@ -4306,7 +4334,9 @@
 				B925A0942B6480A400111413 /* UIPasteboardDependency.swift in Sources */,
 				B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */,
 				B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */,
+				B9CFA7FF2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift in Sources */,
 				B927313F2D1272DF00DCDCBA /* PenPalsPermissionPageReducer.swift in Sources */,
+				B9CFA7FD2D99C6C20075E02D /* ReactionDetailsPageView.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
 				B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
@@ -4790,20 +4820,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		B9021F262D9C6F4800336D24 /* XCRemoteSwiftPackageReference "networking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.4.0;
-			};
-		};
-		B9A334262D8CCB7900BF5DBD /* XCRemoteSwiftPackageReference "networking" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
-			requirement = {
-				branch = main;
-				kind = branch;
 			};
 		};
 		B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */ = {
@@ -4817,6 +4847,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B9021F272D9C6F4800336D24 /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9021F262D9C6F4800336D24 /* XCRemoteSwiftPackageReference "networking" */;
+			productName = Networking;
+		};
+		B9021F2A2D9C6F6100336D24 /* AppSubsystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppSubsystem;
+		};
 		B90E21682CEF0ED60073E656 /* AppSubsystem */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppSubsystem;
@@ -4839,6 +4878,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Networking;
 		};
+		B9798BAD2D9E05AC00FE03D9 /* AppSubsystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppSubsystem;
+		};
 		B97A28082D84CE9200397A6B /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Networking;
@@ -4849,11 +4892,6 @@
 		};
 		B9839E1E2D8B36280093BFC5 /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Networking;
-		};
-		B9A334272D8CCB7900BF5DBD /* Networking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B9A334262D8CCB7900BF5DBD /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
 		};
 		B9CE533B2D6181B4004FE422 /* AppSubsystem */ = {

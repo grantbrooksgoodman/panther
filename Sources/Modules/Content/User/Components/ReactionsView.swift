@@ -55,12 +55,12 @@ public final class ReactionsViewController: UIViewController {
         stackView.subviews.forEach { $0.backgroundColor = .systemGray3 }
     }
 
-    public func markSelected(_ emoji: String) {
+    public func markSelected(_ reactionStyle: Reaction.Style) {
         stackView
             .subviews
             .compactMap { $0 as? UIButton }
-            .first(where: { $0.titleLabel?.text == emoji })?
-            .backgroundColor = .accent
+            .first(where: { $0.titleLabel?.text == reactionStyle.emojiValue })?
+            .backgroundColor = UIColor(reactionStyle.squareIconBackgroundColor)
     }
 
     // MARK: - Auxiliary

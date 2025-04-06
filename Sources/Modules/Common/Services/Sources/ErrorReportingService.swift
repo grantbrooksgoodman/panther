@@ -84,7 +84,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             let bundleVersionString = build.bundleVersion
             let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
 
-            var shortDateHash = dateFormatter.string(from: Date()).encodedHash
+            var shortDateHash = dateFormatter.string(from: Date.now).encodedHash
             shortDateHash = shortDateHash.components[0 ... shortDateHash.components.count / 2].joined()
 
             guard error.id.count > 3,

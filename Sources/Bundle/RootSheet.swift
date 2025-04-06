@@ -40,4 +40,13 @@ public extension RootSheet {
                 reducer: PenPalsPermissionPageReducer()
             ))
     ))
+
+    static let reactionDetailsPageView: RootSheet = .init(.init(
+        ReactionDetailsPageView(
+            .init(
+                initialState: .init(),
+                reducer: ReactionDetailsPageReducer()
+            )
+        )
+    ))
 }
