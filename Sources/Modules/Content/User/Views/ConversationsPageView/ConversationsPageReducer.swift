@@ -45,14 +45,6 @@ public struct ConversationsPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Array
@@ -65,7 +57,7 @@ public struct ConversationsPageReducer: Reducer {
         // Other
         public var animationAmount: CGFloat = 1
         public var viewID = UUID()
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 

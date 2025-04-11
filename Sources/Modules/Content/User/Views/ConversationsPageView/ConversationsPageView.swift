@@ -1,5 +1,5 @@
 //
-//  ConversationsContentPageView.swift
+//  ConversationsPageView.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 16/01/2024.
@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ConversationsContentPageView: View {
+public struct ConversationsPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ConversationsPageView
@@ -22,54 +22,61 @@ public struct ConversationsContentPageView: View {
 
     // MARK: - Properties
 
-    @ObservedObject private var viewModel: ViewModel<ConversationsPageReducer>
+    @StateObject private var observer: ViewObserver<ConversationsPageObserver>
+    @StateObject private var viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ConversationsPageReducer>) {
-        self.viewModel = viewModel
+        _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
     public var body: some View {
-        ThemedView {
-            VStack {
-                NavigationView {
-                    List {
-                        ForEach(viewModel.conversations, id: \.self) { conversation in
-                            ConversationCellView(
-                                .init(
-                                    initialState: .init(conversation),
-                                    reducer: ConversationCellReducer()
+        StatefulView(viewModel.binding(for: \.viewState)) {
+            ThemedView {
+                VStack {
+                    NavigationView {
+                        List {
+                            ForEach(viewModel.conversations, id: \.self) { conversation in
+                                ConversationCellView(
+                                    .init(
+                                        initialState: .init(conversation),
+                                        reducer: ConversationCellReducer()
+                                    )
                                 )
-                            )
+                            }
+                        }
+                        .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
+                        .listStyle(.plain)
+                        .navigationBarAppearance(.appDefault)
+                        .navigationTitle(viewModel.strings.value(for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle))
+                        .refreshable {
+                            await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
+                        }
+                        .toolbar {
+                            composeToolbarButton
+                            settingsToolbarButton
                         }
                     }
-                    .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
-                    .listStyle(.plain)
-                    .navigationBarAppearance(.appDefault)
-                    .navigationTitle(viewModel.strings.value(for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle))
-                    .refreshable {
-                        await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
-                    }
-                    .toolbar {
-                        composeToolbarButton
-                        settingsToolbarButton
-                    }
+                    .accentColor(Color.accent)
+                    .id(viewModel.viewID)
                 }
-                .accentColor(Color.accent)
-                .id(viewModel.viewID)
             }
-        }
-        .navigationBarBackButtonHidden()
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
+            .navigationBarBackButtonHidden()
         }
         .preferredStatusBarStyle(
             Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
     }
 
     private var composeToolbarButton: some ToolbarContent {

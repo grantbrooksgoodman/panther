@@ -60,8 +60,9 @@ public final class MediaActionHandlerService {
                     takePhotoAction,
                     selectDocumentAction,
                     selectPhotoOrVideoAction,
-                ]
-            ).present()
+                ],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions()])
         }
     }
 

@@ -56,14 +56,6 @@ public struct ChatInfoPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Array
@@ -81,7 +73,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Other
         @Localized(.done) public var doneButtonText: String
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
         public var viewID = UUID()
 
         /* MARK: Computed Properties */

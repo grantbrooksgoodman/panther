@@ -45,14 +45,6 @@ public struct VerifyNumberPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Bool
@@ -67,7 +59,7 @@ public struct VerifyNumberPageReducer: Reducer {
         public var instructionViewStrings: InstructionViewStrings = .empty
         public var regionMenuViewID = UUID()
         public var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 

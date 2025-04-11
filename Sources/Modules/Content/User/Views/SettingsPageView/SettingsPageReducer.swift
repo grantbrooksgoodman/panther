@@ -57,14 +57,6 @@ public struct SettingsPageReducer: Reducer {
 
         private typealias Strings = AppConstants.Strings.SettingsPageView
 
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Array
@@ -88,7 +80,7 @@ public struct SettingsPageReducer: Reducer {
         public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
         public var viewID = UUID() { didSet { NavigationBar.setAppearance(navigationBarAppearance) }}
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0
 

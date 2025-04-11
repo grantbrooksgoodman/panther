@@ -195,7 +195,10 @@ public final class ChatInfoPageViewService {
                     photoChangeType = .selectPhotoFromLibrary
                 }
 
-                await AKActionSheet(actions: [takePhotoAction, chooseFromLibraryAction]).present()
+                await AKActionSheet(
+                    actions: [takePhotoAction, chooseFromLibraryAction],
+                    cancelButtonTitle: Localized(.cancel).wrappedValue
+                ).present(translating: [.actions()])
                 return photoChangeType
             }
 
@@ -230,7 +233,10 @@ public final class ChatInfoPageViewService {
                 actions.append(removePhotoAction)
             }
 
-            await AKActionSheet(actions: actions).present()
+            await AKActionSheet(
+                actions: actions,
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions()])
             guard canComplete else { return }
             completion(nil)
         }

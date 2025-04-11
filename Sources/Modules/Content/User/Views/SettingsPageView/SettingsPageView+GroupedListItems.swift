@@ -1,5 +1,5 @@
 //
-//  SettingsContentPageView+GroupedListItems.swift
+//  SettingsPageView+GroupedListItems.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 25/01/2024.
@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public extension SettingsContentPageView {
+public extension SettingsPageView {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SettingsPageView

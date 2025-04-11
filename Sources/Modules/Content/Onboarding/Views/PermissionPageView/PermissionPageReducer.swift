@@ -43,14 +43,6 @@ public struct PermissionPageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Bool
@@ -62,7 +54,7 @@ public struct PermissionPageReducer: Reducer {
         // Other
         public var instructionViewStrings: InstructionViewStrings = .empty
         public var strings: [TranslationOutputMap] = PermissionPageViewStrings.defaultOutputMap
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 

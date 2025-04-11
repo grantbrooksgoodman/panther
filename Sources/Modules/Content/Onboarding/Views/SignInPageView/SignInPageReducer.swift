@@ -56,10 +56,9 @@ public struct SignInPageReducer: Reducer {
             case verificationCode
         }
 
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
+        fileprivate enum TaskID {
+            case authenticateUser
+            case verifyPhoneNumber
         }
 
         /* MARK: Properties */
@@ -78,7 +77,7 @@ public struct SignInPageReducer: Reducer {
         public var configuration: Configuration = .phoneNumber
         public var regionMenuViewID = UUID()
         public var strings: [TranslationOutputMap] = SignInPageViewStrings.defaultOutputMap
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
@@ -130,10 +129,11 @@ public struct SignInPageReducer: Reducer {
         case let .accountExistsReturned(accountExists):
             if accountExists {
                 let phoneNumber = state.phoneNumber
-                return .task {
+                let verifyPhoneNumberTask: Effect<Action> = .task {
                     let result = await networking.auth.verifyPhoneNumber(internationalNumber: phoneNumber.compiledNumberString)
                     return .verifyPhoneNumberReturned(result)
-                }
+                }.cancellable(id: State.TaskID.verifyPhoneNumber)
+                return .cancel(id: State.TaskID.authenticateUser).merge(with: verifyPhoneNumberTask)
             } else {
                 uiApplication.mainWindow?.removeOverlay()
                 return .task {
@@ -218,13 +218,14 @@ public struct SignInPageReducer: Reducer {
             case .verificationCode:
                 let authID = state.authID
                 let verificationCode = state.verificationCode
-                return .task {
+                let authenticateUserTask: Effect<Action> = .task {
                     let result = await networking.auth.authenticateUser(
                         authID: authID,
                         verificationCode: verificationCode
                     )
                     return .authenticateUserReturned(result)
-                }
+                }.cancellable(id: State.TaskID.authenticateUser)
+                return .cancel(id: State.TaskID.verifyPhoneNumber).merge(with: authenticateUserTask)
             }
 
         case let .selectedRegionCodeChanged(selectedRegionCode):

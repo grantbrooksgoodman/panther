@@ -36,18 +36,10 @@ public struct WelcomePageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         public var strings: [TranslationOutputMap] = WelcomePageViewStrings.defaultOutputMap
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 

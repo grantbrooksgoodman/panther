@@ -68,10 +68,10 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
         }
 
         Task {
-            await AKActionSheet(actions: [
-                confirmAction,
-                .cancelAction,
-            ]).present(translating: [.actions([confirmAction])])
+            await AKActionSheet(
+                actions: [confirmAction],
+                cancelButtonTitle: Localized(.cancel).wrappedValue
+            ).present(translating: [.actions()])
         }
     }
 

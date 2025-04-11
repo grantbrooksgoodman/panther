@@ -40,14 +40,6 @@ public struct AuthCodePageReducer: Reducer {
     // MARK: - State
 
     public struct State: Equatable {
-        /* MARK: Types */
-
-        public enum ViewState: Equatable {
-            case loading
-            case error(Exception)
-            case loaded
-        }
-
         /* MARK: Properties */
 
         // Bool
@@ -58,7 +50,7 @@ public struct AuthCodePageReducer: Reducer {
         public var instructionViewStrings: InstructionViewStrings = .empty
         public var strings: [TranslationOutputMap] = AuthCodePageViewStrings.defaultOutputMap
         public var verificationCode = ""
-        public var viewState: ViewState = .loading
+        public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 

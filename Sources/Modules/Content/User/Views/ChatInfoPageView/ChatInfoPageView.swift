@@ -1,5 +1,5 @@
 //
-//  ChatInfoContentPageView.swift
+//  ChatInfoPageView.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 23/02/2024.
@@ -15,7 +15,7 @@ import AppSubsystem
 import ComponentKit
 
 // swiftlint:disable:next type_body_length
-public struct ChatInfoContentPageView: View {
+public struct ChatInfoPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatInfoPageView
@@ -24,7 +24,8 @@ public struct ChatInfoContentPageView: View {
 
     // MARK: - Properties
 
-    @ObservedObject private var viewModel: ViewModel<ChatInfoPageReducer>
+    @StateObject private var observer: ViewObserver<ChatInfoPageObserver>
+    @StateObject private var viewModel: ViewModel<ChatInfoPageReducer>
 
     // MARK: - Bindings
 
@@ -52,42 +53,53 @@ public struct ChatInfoContentPageView: View {
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
-        self.viewModel = viewModel
+        _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - Body
 
     public var body: some View {
-        ThemedView(
-            navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
-            restoresNavigationBarAppearanceOnDisappear: true
+        StatefulView(
+            viewModel.binding(for: \.viewState),
+            progressPageViewBackgroundColor: .listViewBackground
         ) {
-            NavigationView {
-                contentView
-                    .id(viewModel.viewID)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.listViewBackground)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        doneToolbarButton
+            ThemedView(
+                navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
+                restoresNavigationBarAppearanceOnDisappear: true
+            ) {
+                NavigationView {
+                    contentView
+                        .id(viewModel.viewID)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.listViewBackground)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            doneToolbarButton
+                        }
+                }
+                .accentColor(Color.accent)
+                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
+                .sheet(isPresented: cameraPickerSheetBinding) {
+                    ContentPickerView<UIImage>(.camera) { image in
+                        viewModel.send(.selectedImageChanged(image))
+                    } onDismiss: { exception in
+                        viewModel.send(.isPresentingCameraPickerSheetChanged(false, exception))
                     }
-            }
-            .accentColor(Color.accent)
-            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
-            .sheet(isPresented: cameraPickerSheetBinding) {
-                ContentPickerView<UIImage>(.camera) { image in
-                    viewModel.send(.selectedImageChanged(image))
-                } onDismiss: { exception in
-                    viewModel.send(.isPresentingCameraPickerSheetChanged(false, exception))
+                }
+                .sheet(isPresented: imagePickerSheetBinding) {
+                    ContentPickerView<UIImage>(.photoLibrary) { image in
+                        viewModel.send(.selectedImageChanged(image))
+                    } onDismiss: { exception in
+                        viewModel.send(.isPresentingImagePickerSheetChanged(false, exception))
+                    }
                 }
             }
-            .sheet(isPresented: imagePickerSheetBinding) {
-                ContentPickerView<UIImage>(.photoLibrary) { image in
-                    viewModel.send(.selectedImageChanged(image))
-                } onDismiss: { exception in
-                    viewModel.send(.isPresentingImagePickerSheetChanged(false, exception))
-                }
-            }
+        }
+        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
+        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
         }
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)

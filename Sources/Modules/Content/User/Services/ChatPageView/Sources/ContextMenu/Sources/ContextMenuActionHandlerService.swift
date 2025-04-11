@@ -91,7 +91,6 @@ public final class ContextMenuActionHandlerService {
     // MARK: - Menu for Message
 
     public func menuForMessage(_ message: Message) -> Menu? {
-        func sorted(_ actions: [MenuElement]) -> [MenuElement] { actions.sorted(by: { $0.title < $1.title }) }
         var actions: [MenuElement] = message.reactions == nil ? [] : [
             .init(
                 title: Localized(.reactionDetails).wrappedValue,
@@ -102,14 +101,14 @@ public final class ContextMenuActionHandlerService {
         ]
 
         guard !message.contentType.isMediaOtherThanAudio else { return actions.isEmpty ? nil : .init(children: actions) }
-        guard !message.contentType.isAudio else { return .init(children: sorted(actions + getAudioMessageActions(for: message))) }
+        guard !message.contentType.isAudio else { return .init(children: actions + getAudioMessageActions(for: message)) }
 
         actions.append(contentsOf: textMessageMenuActions)
         if let viewAlternateAction = getViewAlternateAction(for: message) {
             actions.append(viewAlternateAction)
         }
 
-        return .init(children: sorted(actions))
+        return .init(children: actions)
     }
 
     // MARK: - Reset Speaking Message

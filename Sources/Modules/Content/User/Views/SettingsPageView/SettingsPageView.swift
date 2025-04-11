@@ -1,5 +1,5 @@
 //
-//  SettingsContentPageView.swift
+//  SettingsPageView.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman on 25/01/2024.
@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SettingsContentPageView: View {
+public struct SettingsPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SettingsPageView
@@ -27,7 +27,9 @@ public struct SettingsContentPageView: View {
 
     // MARK: - Properties
 
-    @ObservedObject var viewModel: ViewModel<SettingsPageReducer>
+    @StateObject var viewModel: ViewModel<SettingsPageReducer>
+
+    @StateObject private var observer: ViewObserver<SettingsPageObserver>
 
     // MARK: - Bindings
 
@@ -41,50 +43,67 @@ public struct SettingsContentPageView: View {
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<SettingsPageReducer>) {
-        self.viewModel = viewModel
+        _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
     public var body: some View {
-        ThemedView(redrawsOnAppearanceChange: true) {
-            NavigationView {
-                VStack {
-                    if let cnContact = viewModel.cnContact {
-                        NavigationLink(destination: CNContactView(cnContact)) {
+        StatefulView(
+            viewModel.binding(for: \.viewState),
+            progressPageViewBackgroundColor: .listViewBackground
+        ) {
+            ThemedView(redrawsOnAppearanceChange: true) {
+                NavigationView {
+                    VStack {
+                        if let cnContact = viewModel.cnContact {
+                            NavigationLink(destination: CNContactView(cnContact)) {
+                                contactDetailView
+                            }
+                        } else {
                             contactDetailView
                         }
-                    } else {
-                        contactDetailView
+
+                        ScrollView {
+                            groupedListViews
+                        }
+                        .scrollBounceBehavior(
+                            .basedOnSize,
+                            axes: [.vertical]
+                        )
+
+                        Spacer()
+
+                        buildInfoButton
                     }
-
-                    ScrollView {
-                        groupedListViews
+                    .background(Color.listViewBackground)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(viewModel.navigationTitle)
+                    .toolbar {
+                        doneToolbarButton
                     }
-                    .scrollBounceBehavior(
-                        .basedOnSize,
-                        axes: [.vertical]
-                    )
-
-                    Spacer()
-
-                    buildInfoButton
                 }
-                .background(Color.listViewBackground)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle(viewModel.navigationTitle)
-                .toolbar {
-                    doneToolbarButton
-                }
+                .accentColor(Color.accent)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .interactiveDismissDisabled(true)
+                .sheet(item: sheetBinding) { sheetView(for: $0) }
+                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
             }
-            .accentColor(Color.accent)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .interactiveDismissDisabled(true)
-            .sheet(item: sheetBinding) { sheetView(for: $0) }
-            .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
+            .id(viewModel.viewID)
         }
-        .id(viewModel.viewID)
+        .navigationBarAppearance(viewModel.navigationBarAppearance)
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+        .redrawsOnTraitCollectionChange()
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
+        }
+        .onTraitCollectionChange {
+            viewModel.send(.traitCollectionChanged)
+        }
     }
 
     private var buildInfoButton: some View {

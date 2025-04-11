@@ -42,7 +42,7 @@ public extension AppException {
             case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
                 return "The format of the phone number is incorrect. Please verify that you haven't included the country code."
 
-            case "The multifactor verification code used to create the auth credential is invalid.Re-collect the verification code and be sure to use the verification code provided by the user.":
+            case "The multifactor verification code used to create the auth credential is invalid. Re-collect the verification code and be sure to use the verification code provided by the user.":
                 return "The verification code is incorrect. Please try again."
 
             case "The SMS code has expired. Please re-send the verification code to try again.":
