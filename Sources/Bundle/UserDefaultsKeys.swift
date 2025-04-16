@@ -11,6 +11,7 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public extension UserDefaultsKey {
     // MARK: - Types
@@ -18,8 +19,8 @@ public extension UserDefaultsKey {
     struct PermanentKeyDelegate: AppSubsystem.Delegates.PermanentUserDefaultsKeyDelegate {
         public let permanentKeys: [UserDefaultsKey] = [
             .application(.buildMilestoneString),
-            .init("isNetworkActivityIndicatorEnabled"),
-            .init("networkEnvironment"),
+            .networking(.isNetworkActivityIndicatorEnabled),
+            .networking(.networkEnvironment),
         ]
     }
 
@@ -34,7 +35,6 @@ public extension UserDefaultsKey {
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func penPalsService(_ key: PenPalsServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func reviewService(_ key: ReviewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
-    static func settingsPageViewService(_ key: SettingsPageViewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func updateService(_ key: UpdateServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func userSessionService(_ key: UserSessionServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
 }

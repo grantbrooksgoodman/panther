@@ -22,15 +22,12 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     public enum Action {
         case viewAppeared
-        case viewDisappeared
 
         case cancelHeaderItemTapped
         case doneHeaderItemTapped
 
         case searchQueryChanged(String)
         case selectedLanguageCodeChanged(String)
-
-        case traitCollectionChanged
     }
 
     // MARK: - State
@@ -101,14 +98,6 @@ public struct InviteLanguagePickerReducer: Reducer {
         case let .selectedLanguageCodeChanged(selectedLanguageCode):
             state.selectedLanguageCode = selectedLanguageCode
             state.isDoneHeaderItemEnabled = true
-
-        case .traitCollectionChanged:
-            state.traitCollectionChanged = true
-
-        case .viewDisappeared:
-            NavigationBar.setAppearance(.appDefault)
-            guard state.traitCollectionChanged else { return .none }
-            Observables.traitCollectionChanged.trigger()
         }
 
         return .none

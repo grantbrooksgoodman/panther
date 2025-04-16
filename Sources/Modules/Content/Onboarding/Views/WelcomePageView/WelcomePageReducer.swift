@@ -57,7 +57,7 @@ public struct WelcomePageReducer: Reducer {
         case .viewFirstAppeared:
             state.viewState = .loading
             core.ui.overrideUserInterfaceStyle(.unspecified)
-            ThemeService.setTheme(AppTheme.appDefault.theme, checkStyle: false)
+            ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
 
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)

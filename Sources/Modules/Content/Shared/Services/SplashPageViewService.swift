@@ -34,7 +34,6 @@ public final class SplashPageViewService: ObservableObject {
     // Bool
     private var didAttemptDatabaseRepair = false
     private var didAttemptUserConversion = false
-    @Persistent(.didClearCaches) private var didClearCaches: Bool?
     private var didSurpassQuickLoadTimeoutDuration = false
 
     // Other
@@ -53,11 +52,7 @@ public final class SplashPageViewService: ObservableObject {
 
     // MARK: - Computed Properties
 
-    public var shouldShowLoadingLabel: Bool {
-        didAttemptDatabaseRepair ||
-            (didClearCaches ?? false) ||
-            didSurpassQuickLoadTimeoutDuration
-    }
+    public var shouldShowLoadingLabel: Bool { didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration }
 
     // MARK: - Methods
 
@@ -208,31 +203,6 @@ public final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            initializationProgress += 0.2
-
-            // TODO: No longer necessary – updateSharingDataForKnownUsers() already calls syncContactPairArchive().
-            var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 4 == 0 }
-            let mustUpdateContactPairArchive = ContactPairArchiveStatus.needsUpdate || (didClearCaches ?? false)
-            didClearCaches = nil
-
-            defer { ContactPairArchiveStatus.setNeedsUpdate(false) }
-
-            if !mustUpdateContactPairArchive {
-                guard randomBool, randomBool, randomBool else {
-                    initializationProgress = 1
-                    return nil
-                }
-            }
-
-            if let exception = await services.contact.syncContactPairArchive(),
-               !exception.isEqual(to: .notAuthorizedForContacts) {
-                return exception
-            }
-
-            if let exception = await networking.hostedTranslation.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
-                Logger.log(exception)
-            }
-
             initializationProgress = 1
             return nil
 
@@ -312,7 +282,7 @@ public final class SplashPageViewService: ObservableObject {
 
         Application.isInPrevaricationMode = true
         ThemeService.setTheme(
-            AppTheme.prevaricationMode.theme,
+            UITheme.prevaricationMode,
             checkStyle: false
         )
     }

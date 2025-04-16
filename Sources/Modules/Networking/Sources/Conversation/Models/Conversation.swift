@@ -51,6 +51,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
         factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messageIDs)
+        // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
         factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: participants.map(\.encoded))

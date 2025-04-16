@@ -35,14 +35,14 @@ public enum Application {
         // MARK: - App Subsystem Setup
 
         AppSubsystem.delegates.register(
-            appThemeListDelegate: AppTheme.List(),
-            buildInfoOverlayDotIndicatorColorDelegate: BuildInfoOverlay.DotIndicatorColorDelegate(),
+            buildInfoOverlayDotIndicatorColorDelegate: Networking.BuildInfoOverlayDotIndicatorColorDelegate.shared,
             cacheDomainListDelegate: CacheDomain.List(),
             devModeAppActionDelegate: DevModeAction.AppActions(),
             exceptionMetadataDelegate: AppException.ExceptionMetadataDelegate(),
             localizedStringsDelegate: LocalizedStringKey.LocalizedStringsDelegate(),
             loggerDomainSubscriptionDelegate: LoggerDomain.SubscriptionDelegate(),
-            permanentUserDefaultsKeyDelegate: UserDefaultsKey.PermanentKeyDelegate()
+            permanentUserDefaultsKeyDelegate: UserDefaultsKey.PermanentKeyDelegate(),
+            uiThemeListDelegate: UITheme.List()
         )
 
         AppSubsystem.initialize(
@@ -64,20 +64,8 @@ public enum Application {
         // MARK: - Theme Setup
 
         Task.delayed(by: .seconds(1)) {
-            guard ThemeService.currentTheme == AppTheme.default.theme else { return }
-            ThemeService.setTheme(AppTheme.appDefault.theme, checkStyle: false)
-        }
-    }
-}
-
-private extension BuildInfoOverlay {
-    struct DotIndicatorColorDelegate: AppSubsystem.Delegates.BuildInfoOverlayDotIndicatorColorDelegate {
-        public var developerModeIndicatorDotColor: Color {
-            switch Networking.config.environment {
-            case .development: return .green
-            case .production: return .red
-            case .staging: return .orange
-            }
+            guard ThemeService.currentTheme == UITheme.default else { return }
+            ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
     }
 }

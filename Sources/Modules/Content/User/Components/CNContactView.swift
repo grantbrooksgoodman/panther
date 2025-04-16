@@ -30,10 +30,12 @@ public struct CNContactView: View {
     // MARK: - View
 
     public var body: some View {
-        _CNContactView(cnContact, isUnknown: isUnknown)
-            .navigationBarBackButtonHidden()
-            .navigationTitle("\u{2800}")
-            .background(Color.listViewBackground)
+        ThemedView {
+            _CNContactView(cnContact, isUnknown: isUnknown)
+                .navigationBarBackButtonHidden()
+                .navigationTitle("\u{2800}")
+                .background(Color.groupedContentBackground)
+        }
     }
 }
 

@@ -34,7 +34,7 @@ public struct InviteQRCodePageView: View {
     public var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
-            progressPageViewBackgroundColor: .listViewBackground
+            progressPageViewBackgroundColor: .groupedContentBackground
         ) {
             ThemedView(navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default()) {
                 VStack {

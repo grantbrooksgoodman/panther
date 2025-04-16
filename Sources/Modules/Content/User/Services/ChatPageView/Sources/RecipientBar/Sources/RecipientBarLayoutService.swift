@@ -132,7 +132,7 @@ public final class RecipientBarLayoutService {
     }
 
     private func configureBackgroundColor() {
-        let darkBackground: UIColor = ThemeService.isAppDefaultThemeApplied ? .listViewBackground : .background
+        let darkBackground: UIColor = ThemeService.isAppDefaultThemeApplied ? .groupedContentBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
         recipientBarView?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
     }

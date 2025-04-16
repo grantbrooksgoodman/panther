@@ -54,7 +54,7 @@ public struct InviteLanguagePickerView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.listViewBackground)
+            .background(Color.groupedContentBackground)
             .interactiveDismissDisabled(true)
         }
         .header(
@@ -72,16 +72,14 @@ public struct InviteLanguagePickerView: View {
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
-        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
         .preferredStatusBarStyle(.lightContent)
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
-        }
         .onAppear {
             viewModel.send(.viewAppeared)
         }
-        .onDisappear {
-            viewModel.send(.viewDisappeared)
+        .onTraitCollectionChange {
+            let previousQuery = viewModel.searchQuery
+            viewModel.send(.searchQueryChanged(" "))
+            viewModel.send(.searchQueryChanged(previousQuery.isBlank ? "" : previousQuery))
         }
     }
 

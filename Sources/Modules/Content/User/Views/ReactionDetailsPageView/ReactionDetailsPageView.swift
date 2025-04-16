@@ -43,7 +43,7 @@ public struct ReactionDetailsPageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .id(viewModel.viewID)
-            .background(Color.listViewBackground)
+            .background(Color.groupedContentBackground)
             .header(
                 .text(.init(viewModel.navigationTitle)),
                 rightItem: .doneButton(

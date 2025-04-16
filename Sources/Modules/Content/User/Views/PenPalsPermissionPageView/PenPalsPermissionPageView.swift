@@ -35,7 +35,7 @@ public struct PenPalsPermissionPageView: View {
     public var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
-            progressPageViewBackgroundColor: ThemeService.isDarkModeActive ? Color.listViewBackground : .white
+            progressPageViewBackgroundColor: ThemeService.isDarkModeActive ? Color.groupedContentBackground : .white
         ) {
             ThemedView {
                 VStack {
@@ -101,7 +101,6 @@ public struct PenPalsPermissionPageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-//        .background(ThemeService.isDarkModeActive ? Color.listViewBackground : .white)
         .interactiveDismissDisabled()
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: true)
         .onFirstAppear {

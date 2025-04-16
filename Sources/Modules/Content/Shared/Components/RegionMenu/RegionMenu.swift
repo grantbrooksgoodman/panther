@@ -137,7 +137,7 @@ private struct RegionPickerView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.listViewBackground)
+                .background(Color.groupedContentBackground)
             }
             .header(
                 .text(.init(viewModel.headerLabelText)),

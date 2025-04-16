@@ -368,7 +368,6 @@ public struct ChatInfoPageReducer: Reducer {
         case .traitCollectionChanged:
             return .task(delay: .milliseconds(100)) { @MainActor in
                 NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
-                NavigationBar.forceRedraw()
                 return .none
             }
 

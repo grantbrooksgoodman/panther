@@ -68,10 +68,10 @@ public final class SettingsPageViewService {
             func isCurrentTheme(_ theme: UITheme) -> Bool { theme.encodedHash == ThemeService.currentTheme.encodedHash }
             func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
 
-            actions = AppTheme.allCases.filter { $0 != .default }.map { appTheme in
+            actions = UITheme.allCases.filter { $0 != .default }.map { uiTheme in
                 .init(
-                    isCurrentTheme(appTheme.theme) ? "\(themeName(appTheme.theme)) (Applied)" : themeName(appTheme.theme),
-                    isEnabled: !isCurrentTheme(appTheme.theme)
+                    isCurrentTheme(uiTheme) ? "\(themeName(uiTheme)) (Applied)" : themeName(uiTheme),
+                    isEnabled: !isCurrentTheme(uiTheme)
                 ) {
                     func triggerTraitCollectionChange(_ delay: Duration) {
                         Task.delayed(by: delay) { @MainActor in
@@ -79,8 +79,8 @@ public final class SettingsPageViewService {
                         }
                     }
 
-                    ThemeService.setTheme(appTheme.theme)
-                    guard ThemeService.currentTheme.style != appTheme.theme.style else { return triggerTraitCollectionChange(.milliseconds(100)) }
+                    ThemeService.setTheme(uiTheme)
+                    guard ThemeService.currentTheme.style != uiTheme.style else { return triggerTraitCollectionChange(.milliseconds(100)) }
                     self.notificationCenter.addObserver(
                         self,
                         name: .uiAlertControllerDismissed,
@@ -107,9 +107,6 @@ public final class SettingsPageViewService {
             core.utils.eraseTemporaryDirectory()
 
             defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-
-            @Persistent(.didClearCaches) var didClearCaches: Bool?
-            didClearCaches = true
             services.analytics.logEvent(.clearCaches)
 
             var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]

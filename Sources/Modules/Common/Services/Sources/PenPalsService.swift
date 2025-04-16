@@ -59,6 +59,7 @@ public final class PenPalsService {
 
     // MARK: - Update Sharing Data for Known Users
 
+    /// - Note: Will populate the contact pair archive and the current user's conversations if either are `nil` or empty.
     public func updateSharingDataForKnownUsers() async -> Exception? {
         if let exception = await populateValuesIfNeeded() {
             Logger.log(exception, domain: .penPals)

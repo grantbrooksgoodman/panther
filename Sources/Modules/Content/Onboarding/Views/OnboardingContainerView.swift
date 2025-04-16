@@ -31,14 +31,21 @@ public struct OnboardingContainerView: View {
 
     @ViewBuilder
     public var body: some View {
-        NavigationStack(path: navigationPathBinding) {
-            WelcomePageView(
-                .init(
-                    initialState: .init(),
-                    reducer: WelcomePageReducer()
+        ZStack {
+            Color.clear
+                .frame(width: .zero, height: .zero)
+                .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+                .redrawsOnTraitCollectionChange()
+
+            NavigationStack(path: navigationPathBinding) {
+                WelcomePageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: WelcomePageReducer()
+                    )
                 )
-            )
-            .navigationDestination(for: OnboardingNavigatorState.SeguePaths.self) { destinationView(for: $0) }
+                .navigationDestination(for: OnboardingNavigatorState.SeguePaths.self) { destinationView(for: $0) }
+            }
         }
     }
 

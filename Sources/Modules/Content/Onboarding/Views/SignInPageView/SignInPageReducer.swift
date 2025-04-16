@@ -158,7 +158,6 @@ public struct SignInPageReducer: Reducer {
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
-            ContactPairArchiveStatus.setNeedsUpdate(true)
             services.analytics.logEvent(.logIn)
             navigation.navigate(to: .root(.modal(.splash)))
 

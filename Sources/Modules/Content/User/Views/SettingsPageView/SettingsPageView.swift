@@ -52,7 +52,7 @@ public struct SettingsPageView: View {
     public var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
-            progressPageViewBackgroundColor: .listViewBackground
+            progressPageViewBackgroundColor: .groupedContentBackground
         ) {
             ThemedView(redrawsOnAppearanceChange: true) {
                 NavigationView {
@@ -77,7 +77,7 @@ public struct SettingsPageView: View {
 
                         buildInfoButton
                     }
-                    .background(Color.listViewBackground)
+                    .background(Color.groupedContentBackground)
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationTitle(viewModel.navigationTitle)
                     .toolbar {
@@ -87,7 +87,6 @@ public struct SettingsPageView: View {
                 .accentColor(Color.accent)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .interactiveDismissDisabled(true)
-                .sheet(item: sheetBinding) { sheetView(for: $0) }
                 .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
             }
             .id(viewModel.viewID)
@@ -95,6 +94,7 @@ public struct SettingsPageView: View {
         .navigationBarAppearance(viewModel.navigationBarAppearance)
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         .redrawsOnTraitCollectionChange()
+        .sheet(item: sheetBinding) { sheetView(for: $0) }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

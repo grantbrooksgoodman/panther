@@ -62,7 +62,7 @@ public struct ChatInfoPageView: View {
     public var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
-            progressPageViewBackgroundColor: .listViewBackground
+            progressPageViewBackgroundColor: .groupedContentBackground
         ) {
             ThemedView(
                 navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
@@ -72,7 +72,7 @@ public struct ChatInfoPageView: View {
                     contentView
                         .id(viewModel.viewID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.listViewBackground)
+                        .background(Color.groupedContentBackground)
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             doneToolbarButton
@@ -96,7 +96,6 @@ public struct ChatInfoPageView: View {
                 }
             }
         }
-        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
@@ -216,28 +215,30 @@ public struct ChatInfoPageView: View {
         Button {
             viewModel.send(.chatInfoCellTapped)
         } label: {
-            HStack(alignment: .center) {
-                VStack(alignment: .leading) {
-                    Components.text(
-                        viewModel.chatInfoCellTitleLabelText,
-                        font: .systemSemibold
-                    )
-                    .padding(.bottom, 1)
+            ThemedView {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading) {
+                        Components.text(
+                            viewModel.chatInfoCellTitleLabelText,
+                            font: .systemSemibold
+                        )
+                        .padding(.bottom, 1)
 
-                    Components.text(
-                        viewModel.chatInfoCellSubtitleLabelText,
-                        font: .system(scale: .custom(Floats.chatInfoCellSubtitleLabelFontSize)),
+                        Components.text(
+                            viewModel.chatInfoCellSubtitleLabelText,
+                            font: .system(scale: .custom(Floats.chatInfoCellSubtitleLabelFontSize)),
+                            foregroundColor: .subtitleText
+                        )
+                        .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    Components.symbol(
+                        viewModel.chatInfoCellImageSystemName,
                         foregroundColor: .subtitleText
                     )
-                    .lineLimit(1)
                 }
-
-                Spacer()
-
-                Components.symbol(
-                    viewModel.chatInfoCellImageSystemName,
-                    foregroundColor: .subtitleText
-                )
             }
         }
         .foregroundStyle(Color.titleText)
@@ -307,16 +308,20 @@ public struct ChatInfoPageView: View {
             )
             .padding(.trailing, Floats.smallAvatarImageViewTrailingPadding)
 
-            Components.text(
-                participant.displayName,
-                font: .systemSemibold
-            )
+            ThemedView {
+                Group {
+                    Components.text(
+                        participant.displayName,
+                        font: .systemSemibold
+                    )
 
-            if let firstUser = participant.firstUser {
-                UserInfoBadgeView(
-                    firstUser,
-                    action: viewModel.isDeveloperModeEnabled ? { viewModel.send(.userInfoBadgeTapped(firstUser)) } : nil
-                )
+                    if let firstUser = participant.firstUser {
+                        UserInfoBadgeView(
+                            firstUser,
+                            action: viewModel.isDeveloperModeEnabled ? { viewModel.send(.userInfoBadgeTapped(firstUser)) } : nil
+                        )
+                    }
+                }
             }
 
             if participant.isPenPal {
