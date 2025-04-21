@@ -32,7 +32,7 @@ public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWi
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        window = RootWindowScene.instantiate(scene, rootView: RootView().indicatesNetworkActivity())
+        window = RootWindowScene.instantiate(scene, rootView: RootView())
 
         let tapGesture = UITapGestureRecognizer(target: self, action: nil)
         tapGesture.delegate = self

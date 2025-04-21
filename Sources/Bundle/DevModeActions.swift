@@ -28,6 +28,7 @@ public extension DevModeAction {
             var actions = [
                 DevModeAction.AppActions.setCurrentUserIDAction,
                 DevModeAction.AppActions.switchEnvironmentAction,
+                DevModeAction.AppActions.validateDatabaseIntegrityAction,
                 DevModeAction.AppActions.dangerZoneAction,
             ]
 
@@ -195,6 +196,22 @@ public extension DevModeAction {
             }
 
             return .init(title: "Switch Environment", perform: switchEnvironment)
+        }
+
+        private static var validateDatabaseIntegrityAction: DevModeAction {
+            func validateDatabaseIntegrity() {
+                Task {
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Dependency(\.networking.integrityService) var integrityService: IntegrityService
+
+                    coreHUD.showProgress(isModal: true)
+                    defer { coreHUD.hide() }
+                    guard let exception = await integrityService.repairDatabase() else { return }
+                    Logger.log(exception, with: .toast())
+                }
+            }
+
+            return .init(title: "Validate Database Integrity", perform: validateDatabaseIntegrity)
         }
 
         // MARK: - Danger Zone Actions

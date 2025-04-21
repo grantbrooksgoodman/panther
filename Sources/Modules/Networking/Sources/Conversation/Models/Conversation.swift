@@ -181,27 +181,34 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
         }
 
         let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
-        let messages = messages.filter { $0.currentUserReadReceipt == nil }
+        let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
 
         var modifiedMessages = self.messages ?? []
-        for message in messages {
-            var readReceipts = message.readReceipts?.filter { $0.userID != currentUserID } ?? []
+        for unreadMessage in unreadMessages {
+            var readReceipts = unreadMessage.readReceipts?.filter { $0.userID != currentUserID } ?? []
             readReceipts.append(readReceipt)
 
-            let updateValueResult = await message.updateValue(readReceipts.unique, forKey: .readReceipts)
+            let updateValueResult = await unreadMessage.updateValue(readReceipts.unique, forKey: .readReceipts)
 
             switch updateValueResult {
-            case let .success(message):
-                if let messageIndex = modifiedMessages.firstIndex(where: { $0.id == message.id }) {
-                    modifiedMessages.remove(at: messageIndex)
-                    modifiedMessages.insert(message, at: messageIndex)
+            case let .success(readMessage):
+                if let unreadMessageIndex = modifiedMessages.firstIndex(where: { $0.id == readMessage.id }) {
+                    modifiedMessages.remove(at: unreadMessageIndex)
+                    modifiedMessages.insert(readMessage, at: unreadMessageIndex)
                 } else {
-                    modifiedMessages.append(message)
+                    modifiedMessages.append(readMessage)
                 }
 
             case let .failure(exception):
                 return .failure(exception)
             }
+        }
+
+        guard modifiedMessages.count == (self.messages ?? []).count else {
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: [self, #file, #function, #line]
+            ))
         }
 
         return await updateValue(modifiedMessages, forKey: .messages)

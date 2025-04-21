@@ -294,6 +294,7 @@
 		B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */; };
 		B99F13F42A280A0500B9FCE2 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */; };
 		B99F53B02DB0266400CA3FCB /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B99F53AF2DB0266400CA3FCB /* Networking */; };
+		B99F53B22DB0491000CA3FCB /* OnNavigationTransitionViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99F53B12DB0491000CA3FCB /* OnNavigationTransitionViewModifier.swift */; };
 		B9A409262B71D333005F2489 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A409252B71D333005F2489 /* HapticsService.swift */; };
 		B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */; };
 		B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */; };
@@ -1075,6 +1076,7 @@
 		B99F119B2D7B93C300BB6FC0 /* ReadReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadReceipt.swift; sourceTree = "<group>"; };
 		B99F119D2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReadReceipt+Serializable.swift"; sourceTree = "<group>"; };
 		B99F13F32A280A0500B9FCE2 /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
+		B99F53B12DB0491000CA3FCB /* OnNavigationTransitionViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnNavigationTransitionViewModifier.swift; sourceTree = "<group>"; };
 		B9A409252B71D333005F2489 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenPalsSharingData.swift; sourceTree = "<group>"; };
 		B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PenPalsSharingData+Serializable.swift"; sourceTree = "<group>"; };
@@ -3139,6 +3141,7 @@
 			isa = PBXGroup;
 			children = (
 				B9F47AFB2B5862B300D86C67 /* HighPriorityButtonStyle.swift */,
+				B99F53B12DB0491000CA3FCB /* OnNavigationTransitionViewModifier.swift */,
 				B9F47AF92B5861C800D86C67 /* RoundedCornersViewModifier.swift */,
 			);
 			path = "View Modifiers";
@@ -3940,6 +3943,7 @@
 				A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */,
 				B99CC54F2C19271200319F02 /* OnboardingContainerView.swift in Sources */,
 				B9E0E0F32B20E89B00C14274 /* Message.swift in Sources */,
+				B99F53B22DB0491000CA3FCB /* OnNavigationTransitionViewModifier.swift in Sources */,
 				B90249D42B5745BF00D62855 /* AppConstants+PermissionPageView.swift in Sources */,
 				B99195732B47C7B600BD5BBC /* SelectLanguagePageReducer.swift in Sources */,
 				B963F1C62B23D6480087DB83 /* Conversation+Serializable.swift in Sources */,

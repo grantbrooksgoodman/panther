@@ -232,6 +232,6 @@ extension ChatPageViewController: MessagesDataSource {
     // MARK: - Number of Sections
 
     public func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
-        (currentConversation?.messages ?? []).count
+        currentConversation?.messages?.count ?? 0
     }
 }

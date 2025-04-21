@@ -26,7 +26,10 @@ public extension IntegrityService {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         userSession.stopObservingCurrentUserChanges()
+
         CoreDatabaseStore.clearStore()
+        networking.storage.clearStore()
+
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
@@ -137,6 +140,7 @@ public extension IntegrityService {
             Logger.log(
                 "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)",
                 domain: .dataIntegrity,
+                with: .toastInPrerelease,
                 metadata: [self, #file, #function, #line]
             )
 
@@ -152,6 +156,7 @@ public extension IntegrityService {
             Logger.log(
                 "Hosted data integrity was validated.",
                 domain: .dataIntegrity,
+                with: .toastInPrerelease,
                 metadata: [self, #file, #function, #line]
             )
         }

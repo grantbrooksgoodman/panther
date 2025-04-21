@@ -49,14 +49,17 @@ public final class User: Codable, Equatable {
             switch getValuesResult {
             case let .success(values):
                 guard let integer = values as? Int else {
-                    Logger.log(.Networking.typecastFailed("integer", metadata: [self, #file, #function, #line]))
+                    Logger.log(
+                        .Networking.typecastFailed("integer", metadata: [self, #file, #function, #line]),
+                        domain: .user
+                    )
                     return 0
                 }
 
                 return integer
 
             case let .failure(exception):
-                Logger.log(exception)
+                Logger.log(exception, domain: .user)
                 return 0
             }
         }
@@ -87,19 +90,32 @@ public final class User: Codable, Equatable {
     /// - Note: Will return `0` for users other than the current user.
     public func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
         @Persistent(.currentUserID) var currentUserID: String?
-        guard id == currentUserID,
-              let conversationIDs,
-              !conversationIDs.isEmpty,
-              let conversations,
-              !conversations.isEmpty else { return 0 }
+        guard id == currentUserID else { return 0 }
 
-        guard conversations.visibleForCurrentUser.allSatisfy({ $0.messages != nil }) else {
+        if conversationIDs?.isEmpty == false,
+           conversations == nil || conversations?.isEmpty == true {
             guard !returnZeroIfFailedOnce else { return 0 }
-            _ = await conversations.visibleForCurrentUser.setMessages()
+            if let exception = await setConversations() {
+                Logger.log(exception, domain: .user)
+                return 0
+            }
+
+            guard let conversations,
+                  !conversations.isEmpty else { return 0 }
+
+            for conversation in conversations.visibleForCurrentUser.filter({ $0.messages == nil }) {
+                if let exception = await conversation.setMessages() { Logger.log(exception, domain: .user) }
+            }
+
             return await calculateBadgeNumber(true)
         }
 
-        return conversations.compactMap(\.messages).reduce([], +).filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }.count
+        guard let conversations else { return 0 }
+        return conversations
+            .visibleForCurrentUser
+            .compactMap(\.messages)
+            .reduce([], +)
+            .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }.count
     }
 
     // MARK: - Capability Testing

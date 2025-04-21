@@ -160,7 +160,7 @@ public final class TypingIndicatorService {
 
     @MainActor
     private func updateIsTypingForCurrentUser(_ isTyping: Bool) async -> Exception? {
-        guard let conversation = viewController.currentConversation,
+        guard let conversation = clientSession.conversation.fullConversation,
               conversation.participants.count == 2 else { return nil }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {

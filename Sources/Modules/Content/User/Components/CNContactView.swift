@@ -19,12 +19,18 @@ public struct CNContactView: View {
 
     private let cnContact: CNContact
     private let isUnknown: Bool
+    private let navigationBarAppearance: NavigationBarAppearance
 
     // MARK: - Init
 
-    public init(_ cnContact: CNContact, isUnknown: Bool = false) {
+    public init(
+        _ cnContact: CNContact,
+        isUnknown: Bool = false,
+        navigationBarAppearance: NavigationBarAppearance = Application.isInPrevaricationMode ? .appDefault : .default()
+    ) {
         self.cnContact = cnContact
         self.isUnknown = isUnknown
+        self.navigationBarAppearance = navigationBarAppearance
     }
 
     // MARK: - View
@@ -35,6 +41,9 @@ public struct CNContactView: View {
                 .navigationBarBackButtonHidden()
                 .navigationTitle("\u{2800}")
                 .background(Color.groupedContentBackground)
+        }
+        .onNavigationTransition(.push) { _ in
+            NavigationBar.setAppearance(navigationBarAppearance)
         }
     }
 }

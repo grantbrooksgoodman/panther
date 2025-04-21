@@ -17,7 +17,7 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum PenPalsPermissionPageView {
-        public static let dismissButtonBottomPadding: CGFloat = 40
+        public static let dismissButtonBottomPadding: CGFloat = 70
 
         public static let enableButtonBottomPadding: CGFloat = 20
 

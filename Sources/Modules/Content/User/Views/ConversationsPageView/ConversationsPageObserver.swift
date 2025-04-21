@@ -113,7 +113,7 @@ public struct ConversationsPageObserver: Observer {
                 return
             }
 
-            if let currentConversation = clientSession.conversation.currentConversation,
+            if let currentConversation = clientSession.conversation.fullConversation,
                let updatedConversation = clientSession.user.currentUser?.conversations?.first(where: { $0.id.key == currentConversation.id.key }) {
                 guard let currentMessages = currentConversation.messages,
                       let missingMessages = updatedConversation.messages?

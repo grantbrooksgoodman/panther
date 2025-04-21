@@ -235,7 +235,7 @@ public final class ChatPageViewService {
             recipientBar?.layout.layoutSubviews()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
             NavigationBar.setAppearance(.appDefault)
-            StatusBarStyle.restore()
+            StatusBarStyle.override(Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent)
             UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true
             viewController?.navigationController?.isNavigationBarHidden = false

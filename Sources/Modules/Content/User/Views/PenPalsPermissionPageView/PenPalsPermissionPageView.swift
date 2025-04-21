@@ -101,6 +101,7 @@ public struct PenPalsPermissionPageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .ignoresSafeArea()
         .interactiveDismissDisabled()
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: true)
         .onFirstAppear {

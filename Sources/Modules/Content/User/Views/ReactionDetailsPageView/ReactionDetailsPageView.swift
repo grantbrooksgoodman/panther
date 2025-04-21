@@ -45,7 +45,7 @@ public struct ReactionDetailsPageView: View {
             .id(viewModel.viewID)
             .background(Color.groupedContentBackground)
             .header(
-                .text(.init(viewModel.navigationTitle)),
+                .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: .doneButton(
                     foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
                 ) { viewModel.send(.doneHeaderItemTapped) },

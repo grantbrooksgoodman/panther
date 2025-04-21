@@ -449,6 +449,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
+    // TODO: Audit this – may not need to be so thorough now that we don't manually resolve media extensions.
     public func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false

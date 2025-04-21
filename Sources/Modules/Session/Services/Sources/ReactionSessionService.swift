@@ -57,7 +57,7 @@ public final class ReactionSessionService {
     @MainActor
     public func react(_ reaction: Reaction, to message: Message) async -> Exception? {
         guard !message.isMock else { return nil }
-        guard let conversation = conversationSession.currentConversation,
+        guard let conversation = conversationSession.fullConversation,
               let currentUserID,
               let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }) else {
             return .init(
@@ -194,7 +194,7 @@ public final class ReactionSessionService {
 
     @MainActor
     private func removeReaction(from message: Message) async -> Exception? {
-        guard let conversation = conversationSession.currentConversation,
+        guard let conversation = conversationSession.fullConversation,
               let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }),
               !message.isMock,
               let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
