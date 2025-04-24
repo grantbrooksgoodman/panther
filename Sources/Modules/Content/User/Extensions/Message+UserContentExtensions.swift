@@ -72,11 +72,18 @@ extension Message: MessageType {
         let primaryText = isFromCurrentUser ? translation.input.value.sanitized : translation.output
         let alternateText = isFromCurrentUser ? translation.output : translation.input.value.sanitized
 
+        let consentAcknowledgementMessage = Localized(.messageRecipientConsentAcknowledgementMessage).wrappedValue
+        let consentRequestMessage = Localized(.messageRecipientConsentRequestMessage).wrappedValue
+
+        let resolvedText = isConsentMessage ? (
+            isConsentAcknowledgementMessage ? consentAcknowledgementMessage : consentRequestMessage
+        ).sanitized.trimmingBorderedWhitespace : (isDisplayingAlternateText ? alternateText : primaryText)
+
         return .attributedText(
             .messageCellString(
-                isDisplayingAlternateText ? alternateText : primaryText,
+                resolvedText,
                 foregroundColor: attributedStringForegroundColor,
-                italicized: isDisplayingAlternateText
+                italicized: isConsentMessage || isDisplayingAlternateText
             )
         )
     }
@@ -89,6 +96,35 @@ extension Message: MessageType {
 
 public extension Message {
     var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
+
+    static var consentRequestMessageID: String?
+
+    var isConsentAcknowledgementMessage: Bool {
+        guard let translation else { return false }
+        return translation.input.value == Localized(
+            .messageRecipientConsentAcknowledgementMessage,
+            languageCode: translation.languagePair.from
+        ).wrappedValue
+    }
+
+    var isConsentMessage: Bool { isConsentAcknowledgementMessage || isConsentRequestMessage }
+
+    var isConsentRequestMessage: Bool {
+        if let consentRequestMessageID = Message.consentRequestMessageID { return id == consentRequestMessageID }
+        @Dependency(\.clientSession.conversation.fullConversation) var fullConversation: Conversation?
+
+        guard let translation else { return false }
+        let inputMatches = translation.input.value == Localized(
+            .messageRecipientConsentRequestMessage,
+            languageCode: translation.languagePair.from
+        ).wrappedValue
+
+        guard let fullConversation else { return inputMatches }
+        let firstMessageID = fullConversation.messages?.first?.id ?? fullConversation.messageIDs.first
+        let isConsentMessage = inputMatches && (id == CommonConstants.newMessageID || id == firstMessageID)
+        Message.consentRequestMessageID = (isConsentMessage && id != CommonConstants.newMessageID) ? id : Message.consentRequestMessageID
+        return isConsentMessage
+    }
 
     var isFromCurrentUser: Bool {
         @Persistent(.currentUserID) var currentUserID: String?

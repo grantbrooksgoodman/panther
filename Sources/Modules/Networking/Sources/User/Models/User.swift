@@ -20,16 +20,22 @@ public final class User: Codable, Equatable {
     public let blockedUserIDs: [String]?
     public let pushTokens: [String]?
 
+    // NIT: Should be @LockIsolated, but would lose Codable conformance.
     public private(set) var conversationIDs: [ConversationID]?
     public private(set) var conversations: [Conversation]?
+
+    // Bool
+    public let isPenPalsParticipant: Bool
+    public let messageRecipientConsentRequired: Bool
 
     // String
     public let id: String
     public let languageCode: String
 
     // Other
-    public let isPenPalsParticipant: Bool
     public let phoneNumber: PhoneNumber
+
+    private var isSettingConversations = false
 
     // MARK: - Computed Properties
 
@@ -73,6 +79,7 @@ public final class User: Codable, Equatable {
         conversationIDs: [ConversationID]?,
         isPenPalsParticipant: Bool,
         languageCode: String,
+        messageRecipientConsentRequired: Bool,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
     ) {
@@ -81,6 +88,7 @@ public final class User: Codable, Equatable {
         self.conversationIDs = conversationIDs
         self.isPenPalsParticipant = isPenPalsParticipant
         self.languageCode = languageCode
+        self.messageRecipientConsentRequired = messageRecipientConsentRequired
         self.phoneNumber = phoneNumber
         self.pushTokens = pushTokens
     }
@@ -133,9 +141,20 @@ public final class User: Codable, Equatable {
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
+        guard !isSettingConversations else {
+            Logger.log(.init(
+                "Detected extraneous call to User.setConversations().",
+                isReportable: false,
+                metadata: [self, #file, #function, #line]
+            ), with: .toastInPrerelease)
+            return nil
+        }
+
         @Persistent(.currentUserID) var currentUserID: String?
         guard id == currentUserID,
               let conversationIDs else { return nil }
+
+        isSettingConversations = true
 
         var conversationsNeedingFetch = [ConversationID]()
         var conversationsNeedingUpdate = [Conversation]()
@@ -165,6 +184,7 @@ public final class User: Codable, Equatable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
+                self.isSettingConversations = false
             }
             return nil
         }
@@ -178,12 +198,14 @@ public final class User: Codable, Equatable {
                 decodedConversations.append(updatedConversation)
 
             case let .failure(exception):
+                isSettingConversations = false
                 return exception
             }
         }
 
         guard !conversationsNeedingFetch.isEmpty else {
             guard decodedConversations.count == conversationIDs.count else {
+                isSettingConversations = false
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
@@ -192,6 +214,7 @@ public final class User: Codable, Equatable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
+                self.isSettingConversations = false
             }
             return nil
         }
@@ -203,6 +226,7 @@ public final class User: Codable, Equatable {
             decodedConversations.append(contentsOf: conversations)
 
             guard decodedConversations.count == conversationIDs.count else {
+                isSettingConversations = false
                 return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
             }
 
@@ -211,10 +235,12 @@ public final class User: Codable, Equatable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 self.conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
+                self.isSettingConversations = false
             }
             return nil
 
         case let .failure(exception):
+            isSettingConversations = false
             return exception
         }
     }
@@ -228,6 +254,7 @@ public final class User: Codable, Equatable {
         let sameID = left.id == right.id
         let sameIsPenPalsParticipant = left.isPenPalsParticipant == right.isPenPalsParticipant
         let sameLanguageCode = left.languageCode == right.languageCode
+        let sameMessageRecipientConsentRequired = left.messageRecipientConsentRequired == right.messageRecipientConsentRequired
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
         let samePushTokens = left.pushTokens == right.pushTokens
 
@@ -237,6 +264,7 @@ public final class User: Codable, Equatable {
               sameID,
               sameIsPenPalsParticipant,
               sameLanguageCode,
+              sameMessageRecipientConsentRequired,
               samePhoneNumber,
               samePushTokens else { return false }
 

@@ -66,7 +66,8 @@ public struct ChatInfoPageView: View {
         ) {
             ThemedView(
                 navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
-                restoresNavigationBarAppearanceOnDisappear: true
+                redrawsOnAppearanceChange: viewModel.singleCNContactContainer != nil,
+                restoresNavigationBarAppearanceOnDisappear: false
             ) {
                 NavigationView {
                     contentView
@@ -99,6 +100,9 @@ public struct ChatInfoPageView: View {
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
         .onFirstAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
         }
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)

@@ -28,8 +28,8 @@ public final class MessageDeliveryService {
         didSet { didSetIsSendingMessage() }
     }
 
-    private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
-    private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
+    @LockIsolated private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
+    @LockIsolated private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
 
     // MARK: - Computed Properties
 
@@ -246,7 +246,10 @@ public final class MessageDeliveryService {
         let mockTranslation: Translation = .init(
             input: .init(text ?? ""),
             output: text ?? "",
-            languagePair: .system
+            languagePair: .init(
+                from: currentUser.languageCode,
+                to: currentUser.languageCode
+            )
         )
 
         if let audioFile {
@@ -296,7 +299,9 @@ public final class MessageDeliveryService {
             imageData: conversation.metadata.imageData,
             isPenPalsConversation: isPenPalsConversation,
             lastModifiedDate: conversation.metadata.lastModifiedDate,
-            penPalsSharingData: conversation.metadata.penPalsSharingData
+            messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+            penPalsSharingData: conversation.metadata.penPalsSharingData,
+            requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
         )
 
         let newConversation: Conversation = .init(

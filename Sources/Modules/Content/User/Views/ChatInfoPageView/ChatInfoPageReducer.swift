@@ -30,6 +30,7 @@ public struct ChatInfoPageReducer: Reducer {
 
     public enum Action {
         case viewAppeared
+        case viewDisappeared
 
         case addContactButtonTapped
         case changeMetadataButtonTapped
@@ -139,8 +140,9 @@ public struct ChatInfoPageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
-            state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
-            state.isPenPalsSharingDataSwitchToggled = state.conversation?.currentUserSharesPenPalsDataWithAllUsers ?? false
+            state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder == true
+            state.isChangeMetadataButtonEnabled = state.conversation?.metadata.requiresConsentFromInitiator == nil
+            state.isPenPalsSharingDataSwitchToggled = state.conversation?.currentUserSharesPenPalsDataWithAllUsers == true
             uiApplication.resignFirstResponders()
 
             let getChatParticipantsTask: Effect<Action> = .task {
@@ -170,7 +172,9 @@ public struct ChatInfoPageReducer: Reducer {
                 imageData: conversation.metadata.imageData,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
                 lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: conversation.metadata.penPalsSharingData
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: conversation.metadata.penPalsSharingData,
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             )
 
             return .task {
@@ -189,7 +193,9 @@ public struct ChatInfoPageReducer: Reducer {
                 imageData: nil,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
                 lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: conversation.metadata.penPalsSharingData
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: conversation.metadata.penPalsSharingData,
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             )
 
             return .task {
@@ -289,13 +295,17 @@ public struct ChatInfoPageReducer: Reducer {
                 imageData: conversation.metadata.imageData,
                 isPenPalsConversation: false,
                 lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID))
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID)),
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             ) : .init(
                 name: conversation.metadata.name,
                 imageData: conversation.metadata.imageData,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
                 lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: newPenPalsSharingData
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: newPenPalsSharingData,
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             )
 
             return .task {
@@ -357,7 +367,9 @@ public struct ChatInfoPageReducer: Reducer {
                 imageData: imageData,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
                 lastModifiedDate: conversation.metadata.lastModifiedDate,
-                penPalsSharingData: conversation.metadata.penPalsSharingData
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: conversation.metadata.penPalsSharingData,
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             )
 
             return .task {
@@ -394,6 +406,9 @@ public struct ChatInfoPageReducer: Reducer {
 
         case let .userInfoBadgeTapped(user):
             conversationCellViewService.presentUserInfoAlert(.init(user: user))
+
+        case .viewDisappeared:
+            NavigationBar.setAppearance(.appDefault)
         }
 
         return .none

@@ -160,7 +160,7 @@ public final class RecipientBarActionHandlerService {
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
             guard !text.isBlank else {
-                guard !contactSelectionUIService.selectedContactPairs.filter({ $0.isMock }).isEmpty else {
+                guard !contactSelectionUIService.selectedContactPairs.filter(\.isMock).isEmpty else {
                     contactSelectionUIService.unhighlightAllViews()
                     guard makeInputBarFirstResponder else { return }
                     self.chatPageViewService.inputBar?.becomeFirstResponder()

@@ -21,7 +21,7 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
     public func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
-            if let exception = await inputBarService?.didPressSendButton(with: text) {
+            if let exception = await inputBarService?.actionHandler.didPressSendButton(with: text) {
                 Logger.log(exception, with: .toast())
             }
         }

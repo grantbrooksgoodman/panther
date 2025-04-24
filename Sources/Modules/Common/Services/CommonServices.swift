@@ -23,6 +23,7 @@ public struct CommonServices {
     public let contentPicker: ContentPickerService
     public let haptics: HapticsService
     public let invite: InviteService
+    public let messageRecipientConsent: MessageRecipientConsentService
     public let metadata: MetadataService
     public let networkActivityIndicator: NetworkActivityIndicatorService
     public let notification: NotificationService
@@ -48,6 +49,7 @@ public struct CommonServices {
         contentPicker: ContentPickerService,
         haptics: HapticsService,
         invite: InviteService,
+        messageRecipientConsent: MessageRecipientConsentService,
         metadata: MetadataService,
         networkActivityIndicator: NetworkActivityIndicatorService,
         notification: NotificationService,
@@ -70,6 +72,7 @@ public struct CommonServices {
         self.contentPicker = contentPicker
         self.haptics = haptics
         self.invite = invite
+        self.messageRecipientConsent = messageRecipientConsent
         self.metadata = metadata
         self.networkActivityIndicator = networkActivityIndicator
         self.notification = notification

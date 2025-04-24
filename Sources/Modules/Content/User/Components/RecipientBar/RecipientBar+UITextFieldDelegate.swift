@@ -37,15 +37,20 @@ extension RecipientBar: UITextFieldDelegate {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         chatPageViewService.inputBar?.setAttachMediaButtonIsEnabled(false)
         chatPageViewService.inputBar?.setSendButtonIsEnabled(false)
+        guard chatPageViewService.inputBar?.isForcingAppearance == false else { return }
         chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: false)
     }
 
     // MARK: - Did End Editing
 
     public func textFieldDidEndEditing(_ textField: UITextField) {
-        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var contactSelectionUIService: RecipientBarContactSelectionUIService?
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.UITextFieldDelegate
-        coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) { contactSelectionUIService?.toggleLabelRepresentation(on: true) }
+        coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) {
+            guard chatPageViewService.inputBar?.isFirstResponder == false,
+                  chatPageViewService.inputBar?.isForcingAppearance == false else { return }
+            chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: true)
+        }
     }
 }

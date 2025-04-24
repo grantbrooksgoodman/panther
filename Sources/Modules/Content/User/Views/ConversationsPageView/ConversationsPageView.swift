@@ -67,12 +67,11 @@ public struct ConversationsPageView: View {
             }
             .navigationBarBackButtonHidden()
         }
-        .preferredStatusBarStyle(
-            Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent,
-            restoreOnDisappear: !Application.isInPrevaricationMode
-        )
         .onFirstAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
         }
         .onTraitCollectionChange {
             viewModel.send(.traitCollectionChanged)

@@ -28,6 +28,7 @@ extension User: Serializable {
         case conversationIDs = "openConversations"
         case isPenPalsParticipant
         case languageCode
+        case messageRecipientConsentRequired
         case phoneNumber
         case pushTokens
     }
@@ -42,6 +43,7 @@ extension User: Serializable {
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
             Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
             Keys.languageCode.rawValue: languageCode,
+            Keys.messageRecipientConsentRequired.rawValue: messageRecipientConsentRequired,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
             Keys.pushTokens.rawValue: pushTokens ?? .bangQualifiedEmpty,
         ]
@@ -55,6 +57,7 @@ extension User: Serializable {
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               conversationIDStrings.isBangQualifiedEmpty || conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
               data[Keys.isPenPalsParticipant.rawValue] is Bool,
+              data[Keys.messageRecipientConsentRequired.rawValue] is Bool,
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] is String,
@@ -70,6 +73,7 @@ extension User: Serializable {
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
+              let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
             return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
@@ -108,6 +112,7 @@ extension User: Serializable {
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
             isPenPalsParticipant: isPenPalsParticipant,
             languageCode: languageCode,
+            messageRecipientConsentRequired: messageRecipientConsentRequired,
             phoneNumber: phoneNumber,
             pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens
         ))

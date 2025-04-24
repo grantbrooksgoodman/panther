@@ -97,6 +97,7 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
+        Message.consentRequestMessageID = nil
         viewController?.view.isUserInteractionEnabled = false
 
         modifyConfigurationIfNeeded()
@@ -173,6 +174,7 @@ public final class ChatPageViewService {
         guard !(mediaActionHandler?.isPresentingPickerController ?? false),
               !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
 
+        Message.consentRequestMessageID = nil
         NavigationBar.setAppearance(.appDefault)
         contextMenu?.interaction.stopAddingContextMenuInteractionToVisibleCells()
         typingIndicator?.stopCheckingForTypingIndicatorChanges()

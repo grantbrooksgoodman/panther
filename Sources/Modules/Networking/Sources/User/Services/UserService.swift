@@ -65,6 +65,7 @@ public final class UserService {
             conversationIDs: nil,
             isPenPalsParticipant: false,
             languageCode: languageCode,
+            messageRecipientConsentRequired: false,
             phoneNumber: phoneNumber,
             pushTokens: pushTokens
         )

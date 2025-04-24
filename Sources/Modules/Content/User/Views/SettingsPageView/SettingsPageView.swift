@@ -203,6 +203,10 @@ public struct SettingsPageView: View {
             .padding(.bottom, Floats.groupedListViewBottomPadding)
             .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 
+        ListRowView(messageRecipientConsentListItem)
+            .padding(.bottom, Floats.groupedListViewBottomPadding)
+            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
+
         if let developerModeListItems = viewModel.developerModeListItems {
             GroupedListView(developerModeListItems)
                 .padding(.horizontal, Floats.groupedListViewHorizontalPadding)

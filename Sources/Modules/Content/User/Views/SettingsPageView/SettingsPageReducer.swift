@@ -46,6 +46,7 @@ public struct SettingsPageReducer: Reducer {
         case viewDisappeared
 
         case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
+        case messageRecipientConsentSwitchToggled(on: Bool)
         case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
@@ -64,6 +65,7 @@ public struct SettingsPageReducer: Reducer {
         public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
         // Bool
+        public var isMessageRecipientConsentSwitchToggled = false
         public var isPenPalsParticipantSwitchToggled = false
 
         fileprivate var traitCollectionChanged = false
@@ -124,6 +126,7 @@ public struct SettingsPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.developerModeListItems = viewService.developerModeListItems()
+            state.isMessageRecipientConsentSwitchToggled = userSession.currentUser?.messageRecipientConsentRequired ?? false
             state.isPenPalsParticipantSwitchToggled = userSession.currentUser?.isPenPalsParticipant ?? false
 
             let fetchCNContactForCurrentUserTask: Effect<Action> = .task {
@@ -185,6 +188,10 @@ public struct SettingsPageReducer: Reducer {
             } else {
                 viewService.setClipboardWithHapticFeedback(state.buildInfoButtonStrings.labelText)
             }
+
+        case let .messageRecipientConsentSwitchToggled(on: on):
+            state.isMessageRecipientConsentSwitchToggled = on
+            viewService.messageRecipientConsentSwitchToggled(on: on)
 
         case let .penPalsParticipantSwitchToggled(on, fromBinding):
             state.isPenPalsParticipantSwitchToggled = on

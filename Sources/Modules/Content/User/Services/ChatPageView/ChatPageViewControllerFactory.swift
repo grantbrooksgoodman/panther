@@ -105,13 +105,11 @@ public struct ChatPageViewControllerFactory {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
         typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
-        guard let mainScreen = uiApplication.mainScreen else { return }
-
         let deliveryProgressView: UIProgressView = .init(
             frame: .init(
                 x: 0,
                 y: 0,
-                width: mainScreen.bounds.width,
+                width: (uiApplication.mainScreen ?? .main).bounds.width,
                 height: Floats.viewFrameHeight
             )
         )
@@ -156,7 +154,7 @@ public struct ChatPageViewControllerFactory {
             ) }
             .onDeselected { $0.transform = .identity }
 
-        attachMediaButton.onTouchUpInside { _ in inputBarService?.didPressAttachMediaButton() }
+        attachMediaButton.onTouchUpInside { _ in inputBarService?.actionHandler.didPressAttachMediaButton() }
 
         // Configure send button
 
@@ -166,11 +164,11 @@ public struct ChatPageViewControllerFactory {
         )
 
         let sendButtonNormalImage = inputBarConfigService.sendButtonImage(
-            forRecording: inputBarConfigService.canConfigureInputBarForRecording,
+            forRecording: inputBarConfigService.canShowRecordButton,
             isHighlighted: false
         )
         let sendButtonHighlightedImage = inputBarConfigService.sendButtonImage(
-            forRecording: inputBarConfigService.canConfigureInputBarForRecording,
+            forRecording: inputBarConfigService.canShowRecordButton,
             isHighlighted: true
         )
 
@@ -179,10 +177,10 @@ public struct ChatPageViewControllerFactory {
 
         let recordButtonSemanticTag = coreUI.semTag(for: Strings.recordButtonSemanticTag)
         let sendButtonSemanticTag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
-        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
+        let canShowRecordButton = inputBarConfigService.canShowRecordButton
 
-        inputBar.sendButton.tag = canConfigureInputBarForRecording ? recordButtonSemanticTag : sendButtonSemanticTag
-        inputBar.sendButton.tintColor = canConfigureInputBarForRecording ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
+        inputBar.sendButton.tag = canShowRecordButton ? recordButtonSemanticTag : sendButtonSemanticTag
+        inputBar.sendButton.tintColor = canShowRecordButton ? .init(Colors.sendButtonRecordTint) : .init(Colors.sendButtonTextTint)
         inputBar.sendButton.title = nil
 
         inputBar.sendButton
@@ -222,6 +220,18 @@ public struct ChatPageViewControllerFactory {
         inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
         inputBar.inputTextView.textContainerInset.right = inputBar.sendButton.frame.width + Floats.textContainerInsetRightIncrement
         inputBar.inputTextView.tintColor = .accent
+
+        // Configure consent button
+
+        let consentButton = UIButton(type: .system)
+        consentButton.maximumContentSizeCategory = .large
+
+        consentButton.alpha = 0
+        consentButton.isEnabled = false
+        consentButton.isUserInteractionEnabled = false
+
+        consentButton.tag = coreUI.semTag(for: Strings.consentButtonSemanticTag)
+        inputBar.addSubview(consentButton)
 
         guard Application.isInPrevaricationMode else { return }
         inputBar.backgroundView.backgroundColor = UIColor(Colors.prevaricationModeBackground)

@@ -59,11 +59,22 @@ public final class ConversationsPageViewService {
         NavigationBar.setAppearance(.appDefault)
         userSession.startObservingCurrentUserChanges()
 
+        core.gcd.after(.milliseconds(500)) {
+            StatusBarStyle.override(
+                Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent
+            )
+        }
+
         Task {
             if let exception = await services.pushToken.updatePushTokensForCurrentUser() {
                 Logger.log(exception)
             }
         }
+    }
+
+    public func viewDisappeared() {
+        guard !Application.isInPrevaricationMode else { return }
+        StatusBarStyle.restore()
     }
 
     /// `.resolveReturned`

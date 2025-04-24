@@ -250,7 +250,9 @@ public struct MessageService {
                 imageData: conversation.metadata.imageData,
                 isPenPalsConversation: conversation.metadata.isPenPalsConversation,
                 lastModifiedDate: Date.now,
-                penPalsSharingData: conversation.metadata.penPalsSharingData
+                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: conversation.metadata.penPalsSharingData,
+                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
             )
 
             let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)

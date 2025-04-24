@@ -28,6 +28,7 @@ public struct ConversationsPageReducer: Reducer {
 
     public enum Action {
         case viewAppeared
+        case viewDisappeared
 
         case animatedComposeToolbarButtonAppeared
         case composeToolbarButtonTapped
@@ -150,6 +151,9 @@ public struct ConversationsPageReducer: Reducer {
             return .task {
                 .composeToolbarButtonAnimationAmountSet(1)
             }
+
+        case .viewDisappeared:
+            viewService.viewDisappeared()
         }
 
         return .none

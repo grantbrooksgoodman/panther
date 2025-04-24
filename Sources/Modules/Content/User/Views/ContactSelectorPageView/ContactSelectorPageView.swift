@@ -72,12 +72,6 @@ public struct ContactSelectorPageView: View {
             )
         )
         .redrawsOnTraitCollectionChange()
-        .onTraitCollectionChange {
-            viewModel.send(.traitCollectionChanged)
-        }
-        .onFirstAppear {
-            viewModel.send(.viewAppeared)
-        }
     }
 
     private var cancelToolbarButton: some ToolbarContent {

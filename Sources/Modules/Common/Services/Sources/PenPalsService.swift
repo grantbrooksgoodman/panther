@@ -13,16 +13,12 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class PenPalsService {
+public struct PenPalsService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.userService) private var userService: UserService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
-
-    // MARK: - Properties
-
-    public private(set) var didGrantPenPalsPermission = false
 
     // MARK: - Computed Properties
 
@@ -100,13 +96,17 @@ public final class PenPalsService {
                 imageData: penPalsConversation.metadata.imageData,
                 isPenPalsConversation: false,
                 lastModifiedDate: penPalsConversation.metadata.lastModifiedDate,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
+                messageRecipientConsentAcknowledgementData: penPalsConversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID)),
+                requiresConsentFromInitiator: penPalsConversation.metadata.requiresConsentFromInitiator
             ) : .init(
                 name: penPalsConversation.metadata.name,
                 imageData: penPalsConversation.metadata.imageData,
                 isPenPalsConversation: penPalsConversation.metadata.isPenPalsConversation,
                 lastModifiedDate: penPalsConversation.metadata.lastModifiedDate,
-                penPalsSharingData: newPenPalsSharingData
+                messageRecipientConsentAcknowledgementData: penPalsConversation.metadata.messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: newPenPalsSharingData,
+                requiresConsentFromInitiator: penPalsConversation.metadata.requiresConsentFromInitiator
             )
 
             let updateValueResult = await penPalsConversation.updateValue(newMetadata, forKey: .metadata)
@@ -180,7 +180,6 @@ public final class PenPalsService {
 
         switch updateValueResult {
         case let .success(user):
-            self.didGrantPenPalsPermission = didGrantPenPalsPermission
             Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
             return userSession.setCurrentUser(user)
 

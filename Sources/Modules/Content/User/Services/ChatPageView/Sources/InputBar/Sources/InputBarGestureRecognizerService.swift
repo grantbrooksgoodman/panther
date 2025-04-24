@@ -90,7 +90,7 @@ public final class InputBarGestureRecognizerService {
         switch recognizer.state {
         case .began:
             Task { @MainActor in
-                guard let exception = await chatPageViewService.inputBar?.didPressRecordButton(with: .startRecording) else { return }
+                guard let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .startRecording) else { return }
                 showError(exception)
             }
 
@@ -103,7 +103,7 @@ public final class InputBarGestureRecognizerService {
             Task { @MainActor in
                 guard !inputBar.sendButton.bounds.contains(convertedPoint),
                       services.audio.recording.isInOrWillTransitionToRecordingState,
-                      let exception = await chatPageViewService.inputBar?.didPressRecordButton(with: .cancelRecording) else { return }
+                      let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .cancelRecording) else { return }
                 showError(exception)
             }
 
@@ -119,14 +119,14 @@ public final class InputBarGestureRecognizerService {
                             domain: .bugPrevention,
                             metadata: [self, #file, #function, #line]
                         )
-                        guard let exception = await self.chatPageViewService.inputBar?.didPressRecordButton(with: .stopRecording) else { return }
+                        guard let exception = await self.chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) else { return }
                         self.showError(exception)
                     }
                 }
             }
 
             Task { @MainActor in
-                if let exception = await chatPageViewService.inputBar?.didPressRecordButton(with: .stopRecording) {
+                if let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) {
                     showError(exception)
                 }
 

@@ -261,6 +261,13 @@ public struct NotificationService {
             }
 
         case .text:
+            guard !message.isConsentMessage else {
+                return Localized(
+                    message.isConsentAcknowledgementMessage ? .messageRecipientConsentAcknowledgementMessage : .messageRecipientConsentRequestMessage,
+                    languageCode: user.languageCode
+                ).wrappedValue
+            }
+
             if let translations = message.translations {
                 body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
                 if body == nil {

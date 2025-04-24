@@ -52,6 +52,7 @@ public extension AppConstants.Colors {
         public static let deleteAccountButtonImageBackground: Color = .orange
         public static let inviteFriendsButtonImageBackground: Color = .blue
         public static let leaveReviewButtonImageBackground: Color = .yellow // swiftlint:disable:next identifier_name
+        public static let messageRecipientConsentButtonImageBackground: Color = .green // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageBackground: Color = .mint
         public static let sendFeedbackButtonImageBackground: Color = .green
         public static let signOutButtonImageBackground: Color = .red
@@ -73,6 +74,7 @@ public extension AppConstants.Strings {
         public static let deleteAccountButtonImageSystemName = "trash.fill"
         public static let inviteFriendsButtonImageSystemName = "location.fill"
         public static let leaveReviewButtonImageSystemName = "star.fill" // swiftlint:disable:next identifier_name
+        public static let messageRecipientConsentButtonImageSystemName = "shield.pattern.checkered" // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageSystemName = "square.text.square.fill"
         public static let sendFeedbackButtonImageSystemName = "info"
         public static let signOutButtonImageSystemName = "hand.raised.fill"

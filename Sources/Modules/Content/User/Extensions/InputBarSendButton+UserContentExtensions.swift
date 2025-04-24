@@ -23,6 +23,8 @@ public extension InputBarSendButton {
         let imageMatches = image(for: .normal) == .record
         let tagMatches = tag == coreUI.semTag(for: Strings.recordButtonSemanticTag)
 
+        // NIT: Not sure why this is necessary.
+        guard ThemeService.isAppDefaultThemeApplied else { return imageMatches || tagMatches }
         return imageMatches && tagMatches
     }
 }

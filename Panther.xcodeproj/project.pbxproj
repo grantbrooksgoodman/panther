@@ -61,6 +61,10 @@
 		B90249D42B5745BF00D62855 /* AppConstants+PermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D32B5745BF00D62855 /* AppConstants+PermissionPageView.swift */; };
 		B90249D62B57533900D62855 /* StatusIndicatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D52B57533900D62855 /* StatusIndicatorButton.swift */; };
 		B90249D82B57536400D62855 /* AppConstants+StatusIndicatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249D72B57536400D62855 /* AppConstants+StatusIndicatorButton.swift */; };
+		B90285E92DB70442006DD790 /* MessageRecipientConsentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90285E82DB70442006DD790 /* MessageRecipientConsentService.swift */; };
+		B90285EB2DB70C93006DD790 /* MessageRecipientConsentAcknowledgementData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90285EA2DB70C93006DD790 /* MessageRecipientConsentAcknowledgementData.swift */; };
+		B90285ED2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90285EC2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift */; };
+		B902860F2DB9AA9F006DD790 /* InputBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B902860E2DB9AA9F006DD790 /* InputBarActionHandlerService.swift */; };
 		B903CA682B6C189400A238A4 /* ChatPageStateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA672B6C189400A238A4 /* ChatPageStateService.swift */; };
 		B903CA6A2B6C194900A238A4 /* ChatPageStateServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */; };
 		B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */; };
@@ -772,6 +776,10 @@
 		B90249D32B5745BF00D62855 /* AppConstants+PermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+PermissionPageView.swift"; sourceTree = "<group>"; };
 		B90249D52B57533900D62855 /* StatusIndicatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIndicatorButton.swift; sourceTree = "<group>"; };
 		B90249D72B57536400D62855 /* AppConstants+StatusIndicatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+StatusIndicatorButton.swift"; sourceTree = "<group>"; };
+		B90285E82DB70442006DD790 /* MessageRecipientConsentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRecipientConsentService.swift; sourceTree = "<group>"; };
+		B90285EA2DB70C93006DD790 /* MessageRecipientConsentAcknowledgementData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRecipientConsentAcknowledgementData.swift; sourceTree = "<group>"; };
+		B90285EC2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageRecipientConsentAcknowledgementData+Serializable.swift"; sourceTree = "<group>"; };
+		B902860E2DB9AA9F006DD790 /* InputBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarActionHandlerService.swift; sourceTree = "<group>"; };
 		B903CA672B6C189400A238A4 /* ChatPageStateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageStateService.swift; sourceTree = "<group>"; };
 		B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageStateServiceDependency.swift; sourceTree = "<group>"; };
 		B903CA6B2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPageStateServiceEffectID.swift; sourceTree = "<group>"; };
@@ -2099,6 +2107,7 @@
 				B963F1C32B23D62E0087DB83 /* Conversation.swift */,
 				B9E6D7AC2B125E17000BC88D /* ConversationID.swift */,
 				B969165C2BAE1D1A00441472 /* ConversationMetadata.swift */,
+				B90285EA2DB70C93006DD790 /* MessageRecipientConsentAcknowledgementData.swift */,
 				B963F1C72B23D7110087DB83 /* Participant.swift */,
 				B9A5D81F2D1C9B8600B03908 /* PenPalsSharingData.swift */,
 				B986C4AE2CD42DB700414E57 /* Reaction.swift */,
@@ -2122,6 +2131,7 @@
 				B963F1C52B23D6480087DB83 /* Conversation+Serializable.swift */,
 				B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */,
 				B969165E2BAE1DB400441472 /* ConversationMetadata+Serializable.swift */,
+				B90285EC2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift */,
 				B963F1C92B23D7250087DB83 /* Participant+Serializable.swift */,
 				B9A5D8212D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift */,
 				B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */,
@@ -2280,6 +2290,7 @@
 				B9A409252B71D333005F2489 /* HapticsService.swift */,
 				B900B5312B1AB3FA00BA2F1D /* InviteService.swift */,
 				B928F3CD2B17FE5700006BFD /* MetadataService.swift */,
+				B90285E82DB70442006DD790 /* MessageRecipientConsentService.swift */,
 				B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */,
 				B99195872B47D76900BD5BBC /* NotificationService.swift */,
 				B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */,
@@ -2444,6 +2455,7 @@
 		B9C61C982CD954D200E0F0D1 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B902860E2DB9AA9F006DD790 /* InputBarActionHandlerService.swift */,
 				B9627C662B6F2111004EE9DA /* InputBarConfigService.swift */,
 				B9627C622B6EC325004EE9DA /* InputBarGestureRecognizerService.swift */,
 			);
@@ -3906,6 +3918,7 @@
 				B9931B2F2B8D8D730042E07D /* Contact+UserContentExtensions.swift in Sources */,
 				B9F47B082B586D0100D86C67 /* AppConstants+ConversationCellView.swift in Sources */,
 				B9EFB9F62B26763100624794 /* Participant+CommonNetworkingExtensions.swift in Sources */,
+				B90285E92DB70442006DD790 /* MessageRecipientConsentService.swift in Sources */,
 				B942625D2C46D5EA0026CDE8 /* InviteQRCodePageViewServiceDependency.swift in Sources */,
 				B9E6D7E32B1289CF000BC88D /* WelcomePageViewStrings.swift in Sources */,
 				B90C91142B69D280008DFE59 /* ChatPageViewController+MessagesDisplayDelegate.swift in Sources */,
@@ -3929,6 +3942,7 @@
 				B92168382C4341B800063978 /* InputStackView+UserContentExtensions.swift in Sources */,
 				B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */,
 				B921F40D2CCDC5EB006BB149 /* UserTestingService.swift in Sources */,
+				B902860F2DB9AA9F006DD790 /* InputBarActionHandlerService.swift in Sources */,
 				B9EC2D282D2C63ED00FC7B94 /* User+UserContentExtensions.swift in Sources */,
 				B9223D472CD58DD100C05BC6 /* MenuView+Extensions.swift in Sources */,
 				B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */,
@@ -4155,6 +4169,7 @@
 				B96969212B18287E00ADA875 /* UserDefaultsKeyDomain+CommonExtensions.swift in Sources */,
 				B979AA3D2C446CC70082203C /* RichMessageContent.swift in Sources */,
 				B979AA3B2C445F990082203C /* ContentPickerResult.swift in Sources */,
+				B90285EB2DB70C93006DD790 /* MessageRecipientConsentAcknowledgementData.swift in Sources */,
 				B979AA372C444B3C0082203C /* MediaActionHandlerService.swift in Sources */,
 				B942625B2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift in Sources */,
 				B9F47AF82B58609300D86C67 /* UserInfoBadgeView.swift in Sources */,
@@ -4217,6 +4232,7 @@
 				B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */,
 				B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */,
 				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
+				B90285ED2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
 				B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */,
 				B986C4AF2CD42DB700414E57 /* Reaction.swift in Sources */,

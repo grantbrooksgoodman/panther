@@ -39,6 +39,7 @@ public enum CommonServicesDependency: DependencyKey {
                 softImpactFeedbackGenerator: .init(style: .soft)
             ),
             invite: .init(),
+            messageRecipientConsent: .init(),
             metadata: .init(),
             networkActivityIndicator: .init(),
             notification: .init(),

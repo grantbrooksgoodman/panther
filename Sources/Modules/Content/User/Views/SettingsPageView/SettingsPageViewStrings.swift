@@ -24,6 +24,8 @@ public extension TranslatedLabelStringCollection {
         case leaveReviewButtonText = "Leave a Review"
         case penPalsListRowInnerText = "Participate in ⌘PenPals⌘" // swiftlint:disable:next line_length
         case penPalsListRowFooterText = "⌘PenPals⌘ enables cross-cultural communication, allowing users to connect fluently with a randomly-selected person at any time."
+        case recipientConsentListRowInnerText = "Require Recipient Consent"
+        case recipientConsentListRowFooterText = "Require consent from recipients to receive messages from your account."
         case signOutButtonText = "Sign Out"
 
         // MARK: - Properties

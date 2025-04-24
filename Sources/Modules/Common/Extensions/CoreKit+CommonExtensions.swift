@@ -71,6 +71,46 @@ public extension CoreKit.Utilities {
         return nil
     }
 
+    @MainActor
+    func deleteMRCConversations() async -> Exception? {
+        @Dependency(\.clientSession.user.currentUser?.conversations) var conversations: [Conversation]?
+        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+        guard let conversationIDKeys = conversations?.filter({
+            $0.didSendConsentMessage ||
+                $0.messages?.contains(where: { $0.isConsentMessage }) == true ||
+                $0.metadata.requiresConsentFromInitiator != nil
+        }).map(\.id.key) else { return nil }
+
+        uiApplication.mainWindow?.addOverlay(
+            alpha: 0.5,
+            activityIndicator: (.large, .white)
+        )
+
+        defer {
+            networking.database.setGlobalCacheStrategy(nil)
+            networking.storage.setGlobalCacheStrategy(nil)
+            uiApplication.mainWindow?.removeOverlay()
+        }
+
+        networking.database.setGlobalCacheStrategy(.disregardCache)
+        networking.storage.setGlobalCacheStrategy(.disregardCache)
+
+        for conversationIDKey in conversationIDKeys {
+            CoreDatabaseStore.clearStore()
+            if let exception = await networking.integrityService.resolveSession() {
+                return exception
+            }
+
+            if let exception = await networking.integrityService.repairMalformedConversations([conversationIDKey]).exception {
+                return exception
+            }
+        }
+
+        return nil
+    }
+
     func destroyConversationDatabase() async -> Exception? {
         @Dependency(\.networking) var networking: NetworkServices
 

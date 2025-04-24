@@ -9,7 +9,6 @@
 // swiftlint:disable file_length type_body_length
 
 /* Native */
-import AVFAudio
 import Foundation
 import UIKit
 
@@ -23,7 +22,7 @@ public final class InputBarService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
-        case shouldConfigureInputBarForRecording
+        case shouldShowRecordButton
     }
 
     // MARK: - Constants Accessors
@@ -34,80 +33,43 @@ public final class InputBarService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.clientSession.conversation.fullConversation) private var fullConversation: Conversation?
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
+    @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
-    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
-    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.uiApplication.mainScreen) private var mainScreen: UIScreen?
 
     // MARK: - Properties
+
+    public let actionHandler: InputBarActionHandlerService
 
     public private(set) var isForcingAppearance = false
 
     private let viewController: ChatPageViewController
 
-    // swiftlint:disable:next identifier_name
-    @Cached(CacheKey.shouldConfigureInputBarForRecording) private var cachedShouldConfigureInputBarForRecording: (
-        encodedConversationID: String,
-        shouldConfigureForRecording: Bool
-    )?
-    private var isStoppingRecording = false
+    @Cached(CacheKey.shouldShowRecordButton) private var cachedShouldShowRecordButton: (encodedConversationID: String, Bool)?
 
     // MARK: - Computed Properties
 
     public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
-    public var shouldEnableAttachMediaButton: Bool {
-        guard build.isOnline else { return false }
+    public var shouldEnableAttachMediaButton: Bool { getShouldEnableAttachMediaButton() }
+    public var shouldEnableSendButton: Bool { getShouldEnableSendButton() }
 
-        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
-        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
-        let isSendingMessage = messageDeliveryService.isSendingMessage
-
-        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage
-    }
-
-    public var shouldEnableSendButton: Bool {
-        guard build.isOnline else { return false }
-
-        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
-        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
-        let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
-        let isSendingMessage = messageDeliveryService.isSendingMessage
-        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
-
-        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage }
-        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage && !isTextViewTextBlank
-    }
-
+    private var consentButton: UIButton? { inputBar.firstSubview(for: Strings.consentButtonSemanticTag) as? UIButton }
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
-    private var shouldConfigureInputBarForRecording: Bool {
-        let isTextViewTextEmpty = inputBar.inputTextView.text.sanitized.isEmpty
-        if !isTextViewTextEmpty,
-           let cachedValue = cachedShouldConfigureInputBarForRecording,
-           cachedValue.encodedConversationID == viewController.currentConversation?.id.encoded {
-            return cachedValue.shouldConfigureForRecording
-        }
-
-        let canConfigureInputBarForRecording = inputBarConfigService.canConfigureInputBarForRecording
-        let shouldConfigureForRecording = canConfigureInputBarForRecording && isTextViewTextEmpty
-
-        guard !isTextViewTextEmpty else { return shouldConfigureForRecording }
-        cachedShouldConfigureInputBarForRecording = (
-            viewController.currentConversation?.id.encoded ?? .bangQualifiedEmpty,
-            shouldConfigureForRecording
-        )
-
-        return shouldConfigureForRecording
-    }
+    private var shouldEnableConsentButton: Bool { getShouldEnableConsentButton() }
+    private var shouldShowConsentButton: Bool { getShouldShowConsentButton() }
+    private var shouldShowRecordButton: Bool { getShouldShowRecordButton() }
 
     // MARK: - Init
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
+        actionHandler = .init(viewController)
     }
 
     // MARK: - Configure Input Bar
@@ -117,7 +79,17 @@ public final class InputBarService {
         forceUpdate: Bool = false
     ) {
         mainQueue.async {
-            let forRecording = forRecording ?? self.shouldConfigureInputBarForRecording
+            guard !self.shouldShowConsentButton else { return self.showConsentButton() }
+            if self.inputBar.inputTextView.alpha == 0 {
+                UIView.animate(withDuration: Floats.transitionAnimationDuration) {
+                    self.consentButton?.alpha = 0
+                    self.inputBar.inputTextView.alpha = 1
+                    self.inputBar.leftStackView.alpha = 1
+                    self.inputBar.sendButton.alpha = 1
+                }
+            }
+
+            let forRecording = forRecording ?? self.shouldShowRecordButton
             if !forceUpdate {
                 switch forRecording {
                 case true:
@@ -212,6 +184,7 @@ public final class InputBarService {
     // MARK: - Become First Responder
 
     public func becomeFirstResponder() {
+        guard !shouldShowConsentButton else { return }
         let startDate = Date.now
         while chatPageState.isPresented,
               !inputBar.inputTextView.isFirstResponder,
@@ -219,95 +192,6 @@ public final class InputBarService {
             guard inputBar.inputTextView.canBecomeFirstResponder else { break }
             inputBar.inputTextView.becomeFirstResponder()
         }
-    }
-
-    // MARK: - Did Press Attach Media Button
-
-    public func didPressAttachMediaButton() {
-        chatPageViewService.mediaActionHandler?.attachMediaButtonTapped()
-    }
-
-    // MARK: - Did Press Record Button
-
-    public func didPressRecordButton(with command: RecordButtonCommand) async -> Exception? {
-        switch command {
-        case .cancelRecording:
-            guard !isStoppingRecording,
-                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
-            isStoppingRecording = true
-
-            defer { isStoppingRecording = false }
-            await chatPageViewService.recordingUI?.hideRecordingUI()
-            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
-            if let exception = services.audio.recording.cancelRecording() {
-                guard !exception.isEqual(toAny: [.couldntRemoveInput, .noAudioRecorderToStop]) else { return nil }
-                return exception
-            }
-
-            playRecordingCancellationVibration()
-            return nil
-
-        case .startRecording:
-            guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
-            avSpeechSynthesizer.stopSpeaking(at: .immediate)
-            chatPageViewService.audioMessagePlayback?.stopPlayback()
-            await chatPageViewService.recordingUI?.showRecordingUI()
-            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
-            services.haptics.generateFeedback(.medium)
-            return services.audio.recording.startRecording()
-
-        case .stopRecording:
-            guard !isStoppingRecording,
-                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
-            isStoppingRecording = true
-
-            defer { isStoppingRecording = false }
-            await chatPageViewService.recordingUI?.hideRecordingUI()
-            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
-            let stopRecordingResult = services.audio.recording.stopRecording()
-
-            switch stopRecordingResult {
-            case let .success(url):
-                guard let inputFile = AudioFile(url) else {
-                    return .init(
-                        "Failed to generate input audio file.",
-                        metadata: [self, #file, #function, #line]
-                    )
-                }
-
-                return await messageDeliveryService.sendAudioMessage(inputFile)
-
-            case let .failure(exception):
-                guard !exception.isEqual(toAny: [.noAudioRecorderToStop, .transcribeNoSuchFileOrDirectory]) else { return nil }
-                playRecordingCancellationVibration()
-                return exception
-            }
-        }
-    }
-
-    // MARK: - Did Press Send Button
-
-    @MainActor
-    public func didPressSendButton(with text: String) async -> Exception? {
-        /// - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
-        var isConversationEmpty: Bool {
-            if let currentConversation = viewController.currentConversation,
-               currentConversation.isEmpty {
-                Logger.log(
-                    "Intercepted invalid send button press bug.",
-                    domain: .bugPrevention,
-                    metadata: [self, #file, #function, #line]
-                )
-
-                return true
-            }
-
-            return false
-        }
-
-        guard !isConversationEmpty else { return nil }
-        avSpeechSynthesizer.stopSpeaking(at: .immediate)
-        return await messageDeliveryService.sendTextMessage(text)
     }
 
     // MARK: - Force Appearance
@@ -368,6 +252,17 @@ public final class InputBarService {
         }
     }
 
+    // MARK: - Set Consent Button Is Enabled
+
+    public func setConsentButtonIsEnabled(_ isEnabled: Bool) {
+        mainQueue.async {
+            guard let consentButton = self.consentButton else { return }
+            consentButton.isEnabled = isEnabled
+            consentButton.isUserInteractionEnabled = isEnabled
+            consentButton.setTitleColor(isEnabled ? .accent : .disabled, for: .normal)
+        }
+    }
+
     // MARK: - Set Send Button Is Enabled
 
     public func setSendButtonIsEnabled(_ isEnabled: Bool) {
@@ -412,13 +307,133 @@ public final class InputBarService {
         }
     }
 
+    // MARK: - Computed Property Getters
+
+    private func getShouldEnableAttachMediaButton() -> Bool {
+        guard build.isOnline else { return false }
+
+        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
+        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
+
+        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage
+    }
+
+    private func getShouldEnableConsentButton() -> Bool {
+        guard let fullConversation else { return false }
+        if let selectedContactPairs = chatPageViewService
+            .recipientBar?
+            .contactSelectionUI
+            .selectedContactPairs,
+            selectedContactPairs.contains(where: \.isMock) {
+            return false
+        }
+
+        let didSendConsentMessage = fullConversation.didSendConsentMessage
+        let grantedConsent = fullConversation.currentUserGrantedMessageReceiptConsent
+        let requiresConsent = fullConversation.currentUserInitiatorRequiresMessageReceiptConsent
+
+        return (!grantedConsent || (requiresConsent && !didSendConsentMessage)) && !isSendingMessage
+    }
+
+    private func getShouldEnableSendButton() -> Bool {
+        guard build.isOnline else { return false }
+
+        let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
+        let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
+        let isSendButtonConfiguredForText = !inputBar.sendButton.isRecordButton
+        let isTextViewTextBlank = inputBar.inputTextView.text.sanitized.isBlank
+
+        guard isSendButtonConfiguredForText else { return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage }
+        return !isConversationEmpty && !isRecipientBarFirstResponder && !isSendingMessage && !isTextViewTextBlank
+    }
+
+    private func getShouldShowConsentButton() -> Bool {
+        if consentButton?.alpha == 1,
+           isSendingMessage {
+            return true
+        }
+
+        guard let currentConversation = viewController.currentConversation,
+              !currentConversation.isEmpty else { return false }
+        return currentConversation.currentUserInitiatorRequiresMessageReceiptConsent || !currentConversation.currentUserGrantedMessageReceiptConsent
+    }
+
+    private func getShouldShowRecordButton() -> Bool {
+        let isTextViewTextEmpty = inputBar.inputTextView.text.sanitized.isEmpty
+        if !isTextViewTextEmpty,
+           let cachedValue = cachedShouldShowRecordButton,
+           cachedValue.encodedConversationID == viewController.currentConversation?.id.encoded {
+            return cachedValue.1
+        }
+
+        let canShowRecordButton = inputBarConfigService.canShowRecordButton
+        let shouldConfigureForRecording = canShowRecordButton && isTextViewTextEmpty
+
+        guard !isTextViewTextEmpty else { return shouldConfigureForRecording }
+        cachedShouldShowRecordButton = (
+            viewController.currentConversation?.id.encoded ?? .bangQualifiedEmpty,
+            shouldConfigureForRecording
+        )
+
+        return shouldConfigureForRecording
+    }
+
     // MARK: - Auxiliary
 
-    private func playRecordingCancellationVibration() {
-        services.haptics.generateFeedback(.heavy)
-        core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) {
-            self.services.haptics.generateFeedback(.heavy)
-            self.core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { self.services.haptics.generateFeedback(.heavy) }
+    private func showConsentButton() {
+        guard let consentButton,
+              let fullConversation else { return }
+
+        consentButton.addTarget(
+            actionHandler,
+            action: #selector(actionHandler.didPressConsentButton),
+            for: .touchUpInside
+        )
+
+        consentButton.isEnabled = shouldEnableConsentButton
+        consentButton.isUserInteractionEnabled = shouldEnableConsentButton
+
+        consentButton.setTitle(
+            Localized(
+                fullConversation.currentUserInitiatorRequiresMessageReceiptConsent ?
+                    (fullConversation.didSendConsentMessage ? .awaitingConsent : .requestConsent) :
+                    .acknowledgeConsent
+            ).wrappedValue,
+            for: .normal
+        )
+
+        consentButton.setTitleColor(
+            shouldEnableConsentButton || (fullConversation
+                .currentUserInitiatorRequiresMessageReceiptConsent && fullConversation
+                .didSendConsentMessage) ? .accent : .disabled,
+            for: .normal
+        )
+
+        consentButton.titleLabel?.font = consentButton.title(for: .normal) == Localized(.awaitingConsent).wrappedValue ?
+            .systemFont(ofSize: Floats.consentButtonFontSize) :
+            .boldSystemFont(ofSize: Floats.consentButtonFontSize)
+
+        consentButton.frame.size = consentButton.intrinsicContentSize
+        while consentButton.frame.width > (mainScreen ?? .main).bounds.width { consentButton.frame.size.width -= 1 }
+        consentButton.frame.size.width -= Floats.consentButtonFrameWidthDecrement
+
+        consentButton.titleLabel?.adjustsFontSizeToFitWidth = true
+        consentButton.titleLabel?.minimumScaleFactor = Floats.consentButtonTitleLabelMinimumScaleFactor
+        consentButton.center = inputBar.center
+
+        if !(fullConversation.currentUserInitiatorRequiresMessageReceiptConsent && fullConversation.didSendConsentMessage) {
+            consentButton.removeShimmerEffect()
+        }
+
+        UIView.animate(withDuration: Floats.transitionAnimationDuration) {
+            self.inputBar.inputTextView.alpha = 0
+            self.inputBar.leftStackView.alpha = 0
+            self.inputBar.sendButton.alpha = 0
+            consentButton.alpha = 1
+        } completion: { _ in
+            guard fullConversation.currentUserInitiatorRequiresMessageReceiptConsent,
+                  fullConversation.didSendConsentMessage else { return }
+            consentButton.addShimmerEffect()
         }
     }
 }

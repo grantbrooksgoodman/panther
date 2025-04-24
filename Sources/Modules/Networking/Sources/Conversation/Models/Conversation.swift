@@ -45,15 +45,19 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
     public var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
-        factors.append(metadata.name)
-        factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
-        factors.append(metadata.isPenPalsConversation.description)
-        factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
-        factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
         factors.append(contentsOf: messageIDs)
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
         factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
         factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
+
+        factors.append(metadata.name)
+        factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
+        factors.append(metadata.isPenPalsConversation.description)
+        factors.append(dateFormatter.string(from: metadata.lastModifiedDate))
+        factors.append(contentsOf: metadata.messageRecipientConsentAcknowledgementData.map(\.encoded))
+        factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
+        factors.append(metadata.requiresConsentFromInitiator == nil ? .bangQualifiedEmpty : metadata.requiresConsentFromInitiator!.description)
+
         factors.append(contentsOf: participants.map(\.encoded))
         factors.append(contentsOf: reactionMetadata?.map(\.encodedHash) ?? [])
         return factors.sorted()

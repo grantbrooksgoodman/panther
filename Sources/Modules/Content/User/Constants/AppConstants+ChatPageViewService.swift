@@ -72,6 +72,10 @@ public extension AppConstants.CGFloats {
             public static let buttonSizeHeight: CGFloat = 30
             public static let buttonSizeWidth: CGFloat = 30
 
+            public static let consentButtonFontSize: CGFloat = 17
+            public static let consentButtonFrameWidthDecrement: CGFloat = 20 // swiftlint:disable:next identifier_name
+            public static let consentButtonTitleLabelMinimumScaleFactor: CGFloat = 0.5
+
             public static let forceAppearanceDelayMilliseconds: CGFloat = 200
 
             public static let layerBorderWidth: CGFloat = 0.5
@@ -205,6 +209,7 @@ public extension AppConstants.Strings {
 
         enum InputBar {
             public static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
+            public static let consentButtonSemanticTag = "CONSENT_BUTTON"
             public static let recordButtonSemanticTag = "RECORD_BUTTON"
             public static let sendButtonOfflineImageSystemName = "wifi.slash"
             public static let sendButtonSemanticTag = "SEND_BUTTON"

@@ -131,8 +131,15 @@ public struct ConversationCellViewData: Equatable {
             } else if lastMessage.richContent?.mediaComponent != nil {
                 subtitleLabelText = "📎 \(Localized(.attachment).wrappedValue)"
             } else if let translation = lastMessage.translation {
+                let consentAcknowledgementMessage = Localized(.messageRecipientConsentAcknowledgementMessage).wrappedValue
+                let consentRequestMessage = Localized(.messageRecipientConsentRequestMessage).wrappedValue
                 let isLastMessageFromCurrentUser = lastMessage.isFromCurrentUser
-                subtitleLabelText = isLastMessageFromCurrentUser ? translation.input.value.sanitized : translation.output
+
+                let resolvedText = lastMessage.isConsentMessage ? (
+                    lastMessage.isConsentAcknowledgementMessage ? consentAcknowledgementMessage : consentRequestMessage
+                ).sanitized.trimmingBorderedWhitespace : (isLastMessageFromCurrentUser ? translation.input.value.sanitized : translation.output)
+
+                subtitleLabelText = resolvedText
             }
         }
 

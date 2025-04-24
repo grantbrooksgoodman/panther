@@ -157,6 +157,161 @@
 		<key>zh</key>
 		<string>Chinese (中文)</string>
 	</dict>
+	<key>acknowledge_consent</key>
+	<dict>
+		<key>af</key>
+		<string>Gee toestemming</string>
+		<key>ar</key>
+		<string>منح الموافقة</string>
+		<key>az</key>
+		<string>Razılıq verin</string>
+		<key>be</key>
+		<string>Даць згоду</string>
+		<key>bg</key>
+		<string>Дайте съгласие</string>
+		<key>bn</key>
+		<string>সম্মতি প্রদান করুন</string>
+		<key>bs</key>
+		<string>Dajte saglasnost</string>
+		<key>ca</key>
+		<string>Donar el consentiment</string>
+		<key>cs</key>
+		<string>Udělte souhlas</string>
+		<key>cy</key>
+		<string>Rhoi caniatâd</string>
+		<key>da</key>
+		<string>Giv samtykke</string>
+		<key>de</key>
+		<string>Einwilligung erteilen</string>
+		<key>el</key>
+		<string>Χορήγηση συγκατάθεσης</string>
+		<key>en</key>
+		<string>Acknowledge consent</string>
+		<key>eo</key>
+		<string>Koncedu konsenton</string>
+		<key>es</key>
+		<string>Otorgar consentimiento</string>
+		<key>et</key>
+		<string>Nõusoleku andmine</string>
+		<key>eu</key>
+		<string>Eman baimena</string>
+		<key>fa</key>
+		<string>اعطای رضایت</string>
+		<key>fi</key>
+		<string>Myönnä suostumus</string>
+		<key>fr</key>
+		<string>Consentement</string>
+		<key>ga</key>
+		<string>Toiliú a dheonú</string>
+		<key>gd</key>
+		<string>Thoir cead</string>
+		<key>gl</key>
+		<string>Consentimento de subvención</string>
+		<key>gu</key>
+		<string>અનુદાન સંમતિ</string>
+		<key>he</key>
+		<string>תן הסכמה</string>
+		<key>hi</key>
+		<string>अनुदान सहमति</string>
+		<key>hr</key>
+		<string>Odobriti</string>
+		<key>ht</key>
+		<string>Bay konsantman</string>
+		<key>hu</key>
+		<string>Adja meg a beleegyezést</string>
+		<key>hy</key>
+		<string>Տրամադրել համաձայնություն</string>
+		<key>id</key>
+		<string>Berikan persetujuan</string>
+		<key>is</key>
+		<string>Veita samþykki</string>
+		<key>it</key>
+		<string>Concedere il consenso</string>
+		<key>ja</key>
+		<string>同意を与える</string>
+		<key>ka</key>
+		<string>Თანხმობის გაცემა</string>
+		<key>kk</key>
+		<string>Grant consent</string>
+		<key>kn</key>
+		<string>ಒಪ್ಪಿಗೆ ನೀಡಿ</string>
+		<key>ko</key>
+		<string>보조 동의</string>
+		<key>ky</key>
+		<string>Макулдук берүү</string>
+		<key>lt</key>
+		<string>Sutikimo davimas</string>
+		<key>mg</key>
+		<string>Omeo fanekena</string>
+		<key>mi</key>
+		<string>Tuku whakaaetanga</string>
+		<key>mk</key>
+		<string>Дајте согласност</string>
+		<key>ml</key>
+		<string>ഗ്രാന്റ് സമ്മതം</string>
+		<key>mn</key>
+		<string>Тохирохшил өгөх</string>
+		<key>mt</key>
+		<string>Kunsens ta &apos;għotja</string>
+		<key>ne</key>
+		<string>सहमति दिनुहोस्</string>
+		<key>nl</key>
+		<string>Toestemming geven</string>
+		<key>no</key>
+		<string>Gi samtykke</string>
+		<key>pa</key>
+		<string>ਸਹਿਮਤੀ ਦਿਓ</string>
+		<key>pl</key>
+		<string>Wyraź zgodę</string>
+		<key>pt</key>
+		<string>Conceder consentimento</string>
+		<key>ro</key>
+		<string>Consimțământul acordat</string>
+		<key>ru</key>
+		<string>Грант согласие</string>
+		<key>si</key>
+		<string>කැමැත්ත ප්රදාන</string>
+		<key>sk</key>
+		<string>Udeliť súhlas</string>
+		<key>sl</key>
+		<string>Podeli soglasje</string>
+		<key>sq</key>
+		<string>Jep pëlqimin</string>
+		<key>sr</key>
+		<string>Дајте сагласност</string>
+		<key>su</key>
+		<string>Pasihan idin</string>
+		<key>sv</key>
+		<string>Ge samtycke</string>
+		<key>sw</key>
+		<string>Toa idhini</string>
+		<key>ta</key>
+		<string>ஒப்புதல் மானியம்</string>
+		<key>te</key>
+		<string>సమ్మతి మంజూరు</string>
+		<key>tg</key>
+		<string>Ризоият диҳед</string>
+		<key>th</key>
+		<string>ให้ความยินยอม</string>
+		<key>tl</key>
+		<string>Magbigay ng pahintulot</string>
+		<key>tr</key>
+		<string>Onaylama</string>
+		<key>tt</key>
+		<string>Рөхсәт</string>
+		<key>uk</key>
+		<string>Надати згоду</string>
+		<key>ur</key>
+		<string>رضامندی دیں۔</string>
+		<key>uz</key>
+		<string>Rozilik berish</string>
+		<key>vi</key>
+		<string>Cấp phép</string>
+		<key>yi</key>
+		<string>געבן צושטימען</string>
+		<key>zh</key>
+		<string>授予同意</string>
+	</dict>
 	<key>attachment</key>
 	<dict>
 		<key>af</key>
@@ -466,6 +621,161 @@
 		<string>אַודיאָ אָנזאָג</string>
 		<key>zh</key>
 		<string>语音信息</string>
+	</dict>
+	<key>awaiting_consent</key>
+	<dict>
+		<key>af</key>
+		<string>Wag op toestemming om boodskappe uit te ruil...</string>
+		<key>ar</key>
+		<string>في انتظار الموافقة على تبادل الرسائل...</string>
+		<key>az</key>
+		<string>Mesaj mübadiləsi üçün razılıq gözlənilir...</string>
+		<key>be</key>
+		<string>Чакае згоды на абмену паведамленнямі...</string>
+		<key>bg</key>
+		<string>Очаква се съгласие за обмен на съобщения...</string>
+		<key>bn</key>
+		<string>বার্তা বিনিময়ের জন্য সম্মতির অপেক্ষায়...</string>
+		<key>bs</key>
+		<string>Čeka se saglasnost za razmjenu poruka...</string>
+		<key>ca</key>
+		<string>S&apos;està esperant el consentiment per intercanviar missatges...</string>
+		<key>cs</key>
+		<string>Čeká se na souhlas s výměnou zpráv...</string>
+		<key>cy</key>
+		<string>Aros am ganiatâd i gyfnewid negeseuon...</string>
+		<key>da</key>
+		<string>Venter på samtykke til at udveksle beskeder...</string>
+		<key>de</key>
+		<string>Warten auf Zustimmung zum Austausch von Nachrichten...</string>
+		<key>el</key>
+		<string>Αναμονή συναίνεσης για ανταλλαγή μηνυμάτων...</string>
+		<key>en</key>
+		<string>Awaiting consent to exchange messages...</string>
+		<key>eo</key>
+		<string>Atendante konsenton por interŝanĝi mesaĝojn...</string>
+		<key>es</key>
+		<string>Esperando consentimiento para intercambiar mensajes...</string>
+		<key>et</key>
+		<string>Ootab nõusolekut sõnumite vahetamiseks...</string>
+		<key>eu</key>
+		<string>Mezuak trukatzeko baimenaren zain...</string>
+		<key>fa</key>
+		<string>در انتظار رضایت برای تبادل پیام...</string>
+		<key>fi</key>
+		<string>Odottaa suostumusta viestien vaihtamiseen...</string>
+		<key>fr</key>
+		<string>En attente du consentement pour échanger des messages...</string>
+		<key>ga</key>
+		<string>Ag feitheamh le toiliú chun teachtaireachtaí a mhalartú...</string>
+		<key>gd</key>
+		<string>A’ feitheamh ri cead airson teachdaireachdan iomlaid...</string>
+		<key>gl</key>
+		<string>Agardando o consentimento para intercambiar mensaxes...</string>
+		<key>gu</key>
+		<string>સંદેશાઓની આપ-લે માટે સંમતિની રાહ જોઈ રહ્યા છીએ...</string>
+		<key>he</key>
+		<string>ממתין להסכמה להחלפת הודעות...</string>
+		<key>hi</key>
+		<string>संदेशों के आदान-प्रदान हेतु सहमति की प्रतीक्षा...</string>
+		<key>hr</key>
+		<string>Čeka se pristanak za razmjenu poruka...</string>
+		<key>ht</key>
+		<string>Ap tann konsantman pou echanj mesaj...</string>
+		<key>hu</key>
+		<string>Beleegyezésre vár az üzenetváltáshoz...</string>
+		<key>hy</key>
+		<string>Հաղորդագրությունների փոխանակման համաձայնության սպասում...</string>
+		<key>id</key>
+		<string>Menunggu persetujuan untuk bertukar pesan...</string>
+		<key>is</key>
+		<string>Bíður samþykkis til að skiptast á skilaboðum...</string>
+		<key>it</key>
+		<string>In attesa del consenso per lo scambio di messaggi...</string>
+		<key>ja</key>
+		<string>メッセージ交換の同意を待っています...</string>
+		<key>ka</key>
+		<string>Ელოდება თანხმობას შეტყობინებების გაცვლაზე...</string>
+		<key>kk</key>
+		<string>Хабар алмасуға келісімді күтуде...</string>
+		<key>kn</key>
+		<string>ಸಂದೇಶಗಳನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು ಒಪ್ಪಿಗೆಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ...</string>
+		<key>ko</key>
+		<string>메시지 교환에 대한 동의를 기다리는 중...</string>
+		<key>ky</key>
+		<string>Билдирүүлөрдү алмашууга макулдук күтүүдө...</string>
+		<key>lt</key>
+		<string>Laukia sutikimo keistis žinutėmis...</string>
+		<key>mg</key>
+		<string>Miandry ny fanekena hifanakalo hafatra...</string>
+		<key>mi</key>
+		<string>E tatari ana ki te whakaae ki te whakawhiti karere...</string>
+		<key>mk</key>
+		<string>Се чека согласност за размена на пораки...</string>
+		<key>ml</key>
+		<string>സന്ദേശങ്ങൾ കൈമാറാൻ സമ്മതത്തിനായി കാത്തിരിക്കുന്നു...</string>
+		<key>mn</key>
+		<string>Мессеж солилцох зөвшөөрлийг хүлээж байна...</string>
+		<key>mt</key>
+		<string>Jistennew il-kunsens biex jiskambjaw messaġġi...</string>
+		<key>ne</key>
+		<string>सन्देशहरू आदानप्रदान गर्न सहमतिको प्रतीक्षा गर्दै...</string>
+		<key>nl</key>
+		<string>Wacht op toestemming om berichten uit te wisselen...</string>
+		<key>no</key>
+		<string>Avventer samtykke til å utveksle meldinger...</string>
+		<key>pa</key>
+		<string>ਸੁਨੇਹਿਆਂ ਦੇ ਆਦਾਨ-ਪ੍ਰਦਾਨ ਲਈ ਸਹਿਮਤੀ ਦੀ ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...</string>
+		<key>pl</key>
+		<string>Oczekiwanie na zgodę na wymianę wiadomości...</string>
+		<key>pt</key>
+		<string>Aguardando consentimento para troca de mensagens...</string>
+		<key>ro</key>
+		<string>În așteptarea consimțământului pentru schimbul de mesaje...</string>
+		<key>ru</key>
+		<string>Ожидание согласия на обмен сообщениями...</string>
+		<key>si</key>
+		<string>පණිවිඩ හුවමාරු කර ගැනීම සඳහා කැමැත්ත බලාපොරොත්තුවෙන්...</string>
+		<key>sk</key>
+		<string>Čaká sa na súhlas s výmenou správ...</string>
+		<key>sl</key>
+		<string>Čakanje na soglasje za izmenjavo sporočil...</string>
+		<key>sq</key>
+		<string>Në pritje të pëlqimit për të shkëmbyer mesazhe...</string>
+		<key>sr</key>
+		<string>Чека се сагласност за размену порука...</string>
+		<key>su</key>
+		<string>Ngadagoan idin pikeun tukeur pesen...</string>
+		<key>sv</key>
+		<string>Väntar på samtycke till att byta meddelanden...</string>
+		<key>sw</key>
+		<string>Inasubiri idhini ya kubadilishana ujumbe...</string>
+		<key>ta</key>
+		<string>செய்திகளைப் பரிமாறிக் கொள்ள ஒப்புதல் காத்திருக்கிறது...</string>
+		<key>te</key>
+		<string>సందేశాలను మార్పిడి చేసుకోవడానికి సమ్మతి కోసం వేచి ఉంది...</string>
+		<key>tg</key>
+		<string>Интизории розигии паёмҳо...</string>
+		<key>th</key>
+		<string>รอความยินยอมในการแลกเปลี่ยนข้อความ...</string>
+		<key>tl</key>
+		<string>Naghihintay ng pahintulot na makipagpalitan ng mga mensahe...</string>
+		<key>tr</key>
+		<string>Mesaj alışverişi için rızası beklemek...</string>
+		<key>tt</key>
+		<string>Хәбәр алмашу өчен ризалык көтү...</string>
+		<key>uk</key>
+		<string>Очікується згода на обмін повідомленнями...</string>
+		<key>ur</key>
+		<string>پیغامات کے تبادلے کے لیے رضامندی کا انتظار ہے۔...</string>
+		<key>uz</key>
+		<string>Xabarlar almashishga rozilikni kutish...</string>
+		<key>vi</key>
+		<string>Đang chờ sự đồng ý để trao đổi tin nhắn...</string>
+		<key>yi</key>
+		<string>אַווייטינג צושטימען צו וועקסל אַרטיקלען...</string>
+		<key>zh</key>
+		<string>等待同意交换信息...</string>
 	</dict>
 	<key>blocked</key>
 	<dict>
@@ -3101,6 +3411,316 @@
 		<string>דאַונלאָודינג דאַטן</string>
 		<key>zh</key>
 		<string>下载数据</string>
+	</dict>
+	<key>message_recipient_consent_acknowledgement_message</key>
+	<dict>
+		<key>af</key>
+		<string>Toestemming verleen. ⌘</string>
+		<key>ar</key>
+		<string>الموافقة الممنوحة. ⌘</string>
+		<key>az</key>
+		<string>Razılıq verildi. ⌘</string>
+		<key>be</key>
+		<string>Згода дадзена. ⌘</string>
+		<key>bg</key>
+		<string>Съгласие да бъде предоставено. ⌘</string>
+		<key>bn</key>
+		<string>সম্মতি মঞ্জুর। ⌘</string>
+		<key>bs</key>
+		<string>Saglasnost data. ⌘</string>
+		<key>ca</key>
+		<string>Consentiment concedit. ⌘</string>
+		<key>cs</key>
+		<string>Souhlas udělen. ⌘</string>
+		<key>cy</key>
+		<string>Rhoddwyd caniatâd. ⌘</string>
+		<key>da</key>
+		<string>Samtykke tildelt. ⌘</string>
+		<key>de</key>
+		<string>Zustimmung erteilt. ⌘</string>
+		<key>el</key>
+		<string>Η συναίνεση χορηγήθηκε. ⌘</string>
+		<key>en</key>
+		<string>Consent acknowledged. ⌘</string>
+		<key>eo</key>
+		<string>Konsento donita. ⌘</string>
+		<key>es</key>
+		<string>Consentimiento concedido. ⌘</string>
+		<key>et</key>
+		<string>Nõusolek antud. ⌘</string>
+		<key>eu</key>
+		<string>Emandako baimena. ⌘</string>
+		<key>fa</key>
+		<string>رضایت داده شد. ⌘</string>
+		<key>fi</key>
+		<string>Suostumus. ⌘</string>
+		<key>fr</key>
+		<string>Consentement accordé. ⌘</string>
+		<key>ga</key>
+		<string>Toiliú tugtha. ⌘</string>
+		<key>gd</key>
+		<string>Cead air a bhuileachadh. ⌘</string>
+		<key>gl</key>
+		<string>Consentimento concedido. ⌘</string>
+		<key>gu</key>
+		<string>સંમતિ આપવામાં આવી. ⌘</string>
+		<key>he</key>
+		<string>הסכמה שניתנה. ⌘</string>
+		<key>hi</key>
+		<string>सहमति प्रदान की गई। ⌘</string>
+		<key>hr</key>
+		<string>Pristanak dat. ⌘</string>
+		<key>ht</key>
+		<string>Konsantman yo akòde. ⌘</string>
+		<key>hu</key>
+		<string>A megadott hozzájárulás. ⌘</string>
+		<key>hy</key>
+		<string>Տրված է համաձայնություն: ⌘</string>
+		<key>id</key>
+		<string>Persetujuan diberikan. ⌘</string>
+		<key>is</key>
+		<string>Samþykki veitt. ⌘</string>
+		<key>it</key>
+		<string>Consenso accordato. ⌘</string>
+		<key>ja</key>
+		<string>同意します。 ⌘</string>
+		<key>ka</key>
+		<string>Თანხმობა გაცემულია. ⌘</string>
+		<key>kk</key>
+		<string>Келісім берілді. ⌘</string>
+		<key>kn</key>
+		<string>ಒಪ್ಪಿಗೆಯನ್ನು ನೀಡಲಾಗಿದೆ. ⌘</string>
+		<key>ko</key>
+		<string>동의합니다. ⌘</string>
+		<key>ky</key>
+		<string>Макулдук берилди. ⌘</string>
+		<key>lt</key>
+		<string>Sutikimas duotas. ⌘</string>
+		<key>mg</key>
+		<string>Manaiky ny fanekena. ⌘</string>
+		<key>mi</key>
+		<string>Kua whakaaetia te whakaaetanga. ⌘</string>
+		<key>mk</key>
+		<string>Дадена е согласност. ⌘</string>
+		<key>ml</key>
+		<string>സമ്മതം നൽകി. ⌘</string>
+		<key>mn</key>
+		<string>Зөвшөөрөл олгосон. ⌘</string>
+		<key>mt</key>
+		<string>Kunsens moghti. ⌘</string>
+		<key>ne</key>
+		<string>सहमति प्रदान गरियो। ⌘</string>
+		<key>nl</key>
+		<string>Toestemming verleend. ⌘</string>
+		<key>no</key>
+		<string>Samtykke gitt. ⌘</string>
+		<key>pa</key>
+		<string>ਸਹਿਮਤੀ ਦਿੱਤੀ ਗਈ। ⌘</string>
+		<key>pl</key>
+		<string>Zgoda udzielona. ⌘</string>
+		<key>pt</key>
+		<string>Consentimento concedido. ⌘</string>
+		<key>ro</key>
+		<string>Consimțământul acordat. ⌘</string>
+		<key>ru</key>
+		<string>Согласие предоставлено. ⌘</string>
+		<key>si</key>
+		<string>කැමැත්තෙන් එකඟ විය. ⌘</string>
+		<key>sk</key>
+		<string>Súhlas udelený. ⌘</string>
+		<key>sl</key>
+		<string>Privolitev. ⌘</string>
+		<key>sq</key>
+		<string>Pëlqimi i dhënë. ⌘</string>
+		<key>sr</key>
+		<string>Сагласност дата. ⌘</string>
+		<key>su</key>
+		<string>Idin dipasihan. ⌘</string>
+		<key>sv</key>
+		<string>Samtycke beviljat. ⌘</string>
+		<key>sw</key>
+		<string>Idhini imetolewa. ⌘</string>
+		<key>ta</key>
+		<string>ஒப்புதல் வழங்கப்பட்டது. ⌘</string>
+		<key>te</key>
+		<string>సమ్మతి మంజూరు చేయబడింది. ⌘</string>
+		<key>tg</key>
+		<string>Розӣ шуд. ⌘</string>
+		<key>th</key>
+		<string>การยินยอมให้แล้ว ⌘</string>
+		<key>tl</key>
+		<string>Ipinagkaloob ang pahintulot. ⌘</string>
+		<key>tr</key>
+		<string>Onay verildi. ⌘</string>
+		<key>tt</key>
+		<string>Риза. ⌘</string>
+		<key>uk</key>
+		<string>Згода надана. ⌘</string>
+		<key>ur</key>
+		<string>رضامندی عطا کی گئی۔ ⌘</string>
+		<key>uz</key>
+		<string>Rozilik berildi. ⌘</string>
+		<key>vi</key>
+		<string>Sự đồng ý đã được chấp thuận. ⌘</string>
+		<key>yi</key>
+		<string>צושטימונג געגעבן. ⌘</string>
+		<key>zh</key>
+		<string>已同意。 ⌘</string>
+	</dict>
+	<key>message_recipient_consent_request_message</key>
+	<dict>
+		<key>af</key>
+		<string>Hierdie gebruiker vereis jou toestemming om boodskappe uit te ruil. Antwoord om jou toestemming te bevestig. ⌘</string>
+		<key>ar</key>
+		<string>يتطلب هذا المستخدم موافقتك لتبادل الرسائل. ردّ لتأكيد موافقتك. ⌘</string>
+		<key>az</key>
+		<string>Bu istifadəçi mesaj mübadiləsi üçün razılığınızı tələb edir. Razılığınızı təsdiqləmək üçün cavab verin. ⌘</string>
+		<key>be</key>
+		<string>Гэтаму карыстальніку патрабуецца ваша згода на абмен паведамленнямі. Адкажыце, каб пацвердзіць сваю згоду. ⌘</string>
+		<key>bg</key>
+		<string>Този потребител изисква вашето съгласие за обмен на съобщения. Отговорете, за да потвърдите съгласието си. ⌘</string>
+		<key>bn</key>
+		<string>এই ব্যবহারকারীর বার্তা আদান-প্রদানের জন্য আপনার সম্মতি প্রয়োজন। আপনার সম্মতি নিশ্চিত করতে উত্তর দিন। ⌘</string>
+		<key>bs</key>
+		<string>Ovaj korisnik zahtijeva vaš pristanak za razmjenu poruka. Odgovor da potvrdite svoj pristanak. ⌘</string>
+		<key>ca</key>
+		<string>Aquest usuari requereix el vostre consentiment per intercanviar missatges. Respon per confirmar el teu consentiment. ⌘</string>
+		<key>cs</key>
+		<string>Tento uživatel vyžaduje váš souhlas s výměnou zpráv. Odpovězte a potvrďte svůj souhlas. ⌘</string>
+		<key>cy</key>
+		<string>Mae angen eich caniatâd ar y defnyddiwr hwn i gyfnewid negeseuon. Ymateb i gadarnhau eich caniatâd. ⌘</string>
+		<key>da</key>
+		<string>Denne bruger kræver dit samtykke for at udveksle beskeder. Svar for at bekræfte dit samtykke. ⌘</string>
+		<key>de</key>
+		<string>Dieser Benutzer benötigt Ihre Zustimmung zum Nachrichtenaustausch. Antworten Sie, um Ihre Zustimmung zu bestätigen. ⌘</string>
+		<key>el</key>
+		<string>Αυτός ο χρήστης απαιτεί τη συγκατάθεσή σας για την ανταλλαγή μηνυμάτων. Απαντήστε για να επιβεβαιώσετε τη συγκατάθεσή σας. ⌘</string>
+		<key>en</key>
+		<string>This user requires your consent to exchange messages. Acknowledge to confirm. ⌘</string>
+		<key>eo</key>
+		<string>Ĉi tiu uzanto postulas vian konsenton interŝanĝi mesaĝojn. Respondu por konfirmi vian konsenton. ⌘</string>
+		<key>es</key>
+		<string>Este usuario necesita tu consentimiento para intercambiar mensajes. Responde para confirmarlo. ⌘</string>
+		<key>et</key>
+		<string>See kasutaja nõuab sõnumite vahetamiseks teie nõusolekut. Nõusoleku kinnitamiseks vastake. ⌘</string>
+		<key>eu</key>
+		<string>Erabiltzaile honek zure baimena behar du mezuak trukatzeko. Erantzun zure baimena berresteko. ⌘</string>
+		<key>fa</key>
+		<string>این کاربر برای تبادل پیام به رضایت شما نیاز دارد. برای تایید رضایت خود پاسخ دهید. ⌘</string>
+		<key>fi</key>
+		<string>Tämä käyttäjä vaatii suostumuksesi viestien vaihtamiseen. Vahvista suostumuksesi vastaamalla. ⌘</string>
+		<key>fr</key>
+		<string>Cet utilisateur nécessite votre consentement pour échanger des messages. Répondre pour confirmer votre consentement. ⌘</string>
+		<key>ga</key>
+		<string>Éilíonn an t -úsáideoir seo do thoiliú chun teachtaireachtaí a mhalartú. Freagra chun do thoiliú a dheimhniú. ⌘</string>
+		<key>gd</key>
+		<string>Feumaidh an cleachdaiche seo do chead airson teachdaireachdan iomlaid. Freagair gus do chead a dhearbhadh. ⌘</string>
+		<key>gl</key>
+		<string>Este usuario require o seu consentimento para intercambiar mensaxes. Responde para confirmar o seu consentimento. ⌘</string>
+		<key>gu</key>
+		<string>આ વપરાશકર્તાને સંદેશાઓની આપ-લે કરવા માટે તમારી સંમતિની જરૂર છે. તમારી સંમતિની પુષ્ટિ કરવા માટે જવાબ આપો. ⌘</string>
+		<key>he</key>
+		<string>משתמש זה דורש את הסכמתך כדי להחליף הודעות. השב כדי לאשר את הסכמתך. ⌘</string>
+		<key>hi</key>
+		<string>इस उपयोगकर्ता को संदेशों के आदान-प्रदान के लिए आपकी सहमति की आवश्यकता है। अपनी सहमति की पुष्टि करने के लिए उत्तर दें। ⌘</string>
+		<key>hr</key>
+		<string>Ovaj korisnik zahtijeva vaš pristanak za razmjenu poruka. Odgovorite kako biste potvrdili svoj pristanak. ⌘</string>
+		<key>ht</key>
+		<string>Itilizatè sa a mande konsantman w pou chanje mesaj. Reponn pou konfime konsantman ou. ⌘</string>
+		<key>hu</key>
+		<string>Ennek a felhasználónak az Ön hozzájárulása szükséges az üzenetváltáshoz. Válaszoljon beleegyezése megerősítéséhez. ⌘</string>
+		<key>hy</key>
+		<string>Այս օգտագործողը պահանջում է ձեր համաձայնությունը փոխանակելու հաղորդագրությունները: Պատասխանեք հաստատելու ձեր համաձայնությունը: ⌘</string>
+		<key>id</key>
+		<string>Pengguna ini membutuhkan persetujuan Anda untuk bertukar pesan. Balas untuk mengkonfirmasi persetujuan Anda. ⌘</string>
+		<key>is</key>
+		<string>Þessi notandi þarfnast samþykkis þíns til að skiptast á skilaboðum. Svaraðu til að staðfesta samþykki þitt. ⌘</string>
+		<key>it</key>
+		<string>Questo utente ha bisogno del tuo consenso per scambiare messaggi. Rispondi per confermare il tuo consenso. ⌘</string>
+		<key>ja</key>
+		<string>このユーザーは、メッセージを交換するために同意が必要です。あなたの同意を確認するために返信してください。 ⌘</string>
+		<key>ka</key>
+		<string>Ეს მომხმარებელი ითხოვს თქვენს თანხმობას შეტყობინებების გაცვლისთვის. უპასუხეთ თქვენი თანხმობის დასადასტურებლად. ⌘</string>
+		<key>kk</key>
+		<string>Бұл пайдаланушы хабар алмасу үшін сіздің келісіміңізді талап етеді. Келісіміңізді растау үшін жауап беріңіз. ⌘</string>
+		<key>kn</key>
+		<string>ಸಂದೇಶಗಳನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು ಈ ಬಳಕೆದಾರರಿಗೆ ನಿಮ್ಮ ಒಪ್ಪಿಗೆಯ ಅಗತ್ಯವಿದೆ. ನಿಮ್ಮ ಒಪ್ಪಿಗೆಯನ್ನು ದೃ to ೀಕರಿಸಲು ಪ್ರತ್ಯುತ್ತರಿಸಿ. ⌘</string>
+		<key>ko</key>
+		<string>이 사용자는 메시지 교환에 귀하의 동의가 필요합니다. 동의를 확인하려면 답장을 보내주세요. ⌘</string>
+		<key>ky</key>
+		<string>Бул колдонуучу билдирүү алмашуу үчүн сиздин макулдугуңузду талап кылат. Макулдугуңузду ырастоо үчүн жооп бериңиз. ⌘</string>
+		<key>lt</key>
+		<string>Šiam vartotojui reikalingas jūsų sutikimas keistis žinutėmis. Atsakykite, kad patvirtintumėte savo sutikimą. ⌘</string>
+		<key>mg</key>
+		<string>Ity mpampiasa ity dia mitaky ny fanekenao mba hifanakalozana hafatra. Valiny mba hanamafisana ny fanekenao. ⌘</string>
+		<key>mi</key>
+		<string>Me whakaae tenei kaiwhakamahi ki te whakawhiti karere. Whakautu ki te whakaū i to whakaaetanga. ⌘</string>
+		<key>mk</key>
+		<string>На овој корисник му е потребна ваша согласност за размена на пораки. Одговорете за да ја потврдите вашата согласност. ⌘</string>
+		<key>ml</key>
+		<string>സന്ദേശങ്ങൾ കൈമാറാൻ ഈ ഉപയോക്താവിന് നിങ്ങളുടെ സമ്മതം ആവശ്യമാണ്. നിങ്ങളുടെ സമ്മതം സ്ഥിരീകരിക്കാൻ മറുപടി നൽകുക. ⌘</string>
+		<key>mn</key>
+		<string>Энэ хэрэглэгч мессеж солилцохын тулд танаас зөвшөөрөл авах шаардлагатай. Зөвшөөрлөө баталгаажуулахын тулд хариу бичнэ үү. ⌘</string>
+		<key>mt</key>
+		<string>Dan l-utent jeħtieġ il-kunsens tiegħek biex jiskambja messaġġi. Irrispondi biex tikkonferma l-kunsens tiegħek. ⌘</string>
+		<key>ne</key>
+		<string>यस प्रयोगकर्तालाई सन्देशहरू आदानप्रदान गर्न तपाईंको सहमति चाहिन्छ। आफ्नो सहमति पुष्टि गर्न जवाफ दिनुहोस्। ⌘</string>
+		<key>nl</key>
+		<string>Deze gebruiker vereist uw toestemming om berichten uit te wisselen. Antwoord om uw toestemming te bevestigen. ⌘</string>
+		<key>no</key>
+		<string>Denne brukeren krever ditt samtykke for å utveksle meldinger. Svar for å bekrefte ditt samtykke. ⌘</string>
+		<key>pa</key>
+		<string>ਇਸ ਉਪਭੋਗਤਾ ਨੂੰ ਸੰਦੇਸ਼ਾਂ ਦਾ ਆਦਾਨ-ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ ਸਹਿਮਤੀ ਦੀ ਲੋੜ ਹੁੰਦੀ ਹੈ. ਤੁਹਾਡੀ ਸਹਿਮਤੀ ਦੀ ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਜਵਾਬ. ⌘</string>
+		<key>pl</key>
+		<string>Ten użytkownik wymaga Twojej zgody na wymianę wiadomości. Odpowiedz, aby potwierdzić swoją zgodę. ⌘</string>
+		<key>pt</key>
+		<string>Este usuário requer seu consentimento para trocar mensagens. Responda para confirmar seu consentimento. ⌘</string>
+		<key>ro</key>
+		<string>Acest utilizator are nevoie de acordul dvs. pentru a face schimb de mesaje. Răspundeți pentru a vă confirma consimțământul. ⌘</string>
+		<key>ru</key>
+		<string>Этот пользователь требует вашего согласия на обмен сообщениями. Ответьте, чтобы подтвердить свое согласие. ⌘</string>
+		<key>si</key>
+		<string>පණිවිඩ හුවමාරු කර ගැනීමට මෙම පරිශීලකයාට ඔබගේ කැමැත්ත අවශ්‍ය වේ. ඔබගේ කැමැත්ත තහවුරු කිරීමට පිළිතුරු දෙන්න. ⌘</string>
+		<key>sk</key>
+		<string>Tento používateľ vyžaduje váš súhlas na výmenu správ. Odpovedzte na potvrdenie súhlasu. ⌘</string>
+		<key>sl</key>
+		<string>Ta uporabnik potrebuje vaše soglasje za izmenjavo sporočil. Odgovorite, da potrdite svoje soglasje. ⌘</string>
+		<key>sq</key>
+		<string>Ky përdorues kërkon pëlqimin tuaj për të shkëmbyer mesazhe. Përgjigjuni për të konfirmuar pëlqimin tuaj. ⌘</string>
+		<key>sr</key>
+		<string>Овај корисник захтева вашу сагласност за размену порука. Одговорите да бисте потврдили своју сагласност. ⌘</string>
+		<key>su</key>
+		<string>Pamaké ieu ngabutuhkeun idin anjeun pikeun tukeur pesen. Bales pikeun mastikeun idin anjeun. ⌘</string>
+		<key>sv</key>
+		<string>Den här användaren kräver ditt samtycke till att utbyta meddelanden. Svara för att bekräfta ditt samtycke. ⌘</string>
+		<key>sw</key>
+		<string>Mtumiaji huyu anahitaji idhini yako ya kubadilishana ujumbe. Jibu kudhibitisha idhini yako. ⌘</string>
+		<key>ta</key>
+		<string>இந்தப் பயனருக்கு செய்திகளைப் பரிமாற உங்கள் ஒப்புதல் தேவை. உங்கள் சம்மதத்தை உறுதிப்படுத்த பதிலளிக்கவும். ⌘</string>
+		<key>te</key>
+		<string>సందేశాలను మార్పిడి చేయడానికి ఈ వినియోగదారుకు మీ సమ్మతి అవసరం. మీ సమ్మతిని ధృవీకరించడానికి ప్రత్యుత్తరం ఇవ్వండి. ⌘</string>
+		<key>tg</key>
+		<string>Ин корбар барои мубодилаи паёмҳо розигии шуморо талаб мекунад. Барои тасдиқи розигии худ ҷавоб диҳед. ⌘</string>
+		<key>th</key>
+		<string>ผู้ใช้รายนี้ต้องได้รับความยินยอมจากคุณในการแลกเปลี่ยนข้อความ ตอบกลับเพื่อยืนยันความยินยอมของคุณ ⌘</string>
+		<key>tl</key>
+		<string>Ang user na ito ay nangangailangan ng iyong pahintulot upang makipagpalitan ng mga mensahe. Tumugon upang kumpirmahin ang iyong pahintulot. ⌘</string>
+		<key>tr</key>
+		<string>Bu kullanıcı mesaj alışverişi için sizin onayınıza ihtiyaç duyuyor. Onayınızı onaylamak için yanıtlayın. ⌘</string>
+		<key>tt</key>
+		<string>Бу кулланучы хәбәрләр алмашу өчен сезнең ризалыгыгызны таләп итә. Сезнең ризалыгыгызны раслау өчен җавап бирегез. ⌘</string>
+		<key>uk</key>
+		<string>Цей користувач вимагає вашої згоди на обмін повідомленнями. Відповідь, щоб підтвердити свою згоду. ⌘</string>
+		<key>ur</key>
+		<string>اس صارف کو پیغامات کا تبادلہ کرنے کے لئے آپ کی رضامندی کی ضرورت ہے۔ اپنی رضامندی کی تصدیق کے لئے جواب دیں۔ ⌘</string>
+		<key>uz</key>
+		<string>Bu foydalanuvchi xabar almashish uchun sizning roziligingizni talab qiladi. Roziligingizni tasdiqlash uchun javob bering. ⌘</string>
+		<key>vi</key>
+		<string>Người dùng này cần sự đồng ý của bạn để trao đổi tin nhắn. Trả lời để xác nhận sự đồng ý của bạn. ⌘</string>
+		<key>yi</key>
+		<string>דער באַניצער ריקווייערז דיין צושטימען צו וועקסל אַרטיקלען. ענטפער צו באַשטעטיקן דיין צושטימען. ⌘</string>
+		<key>zh</key>
+		<string>此用户需要您的同意才能交换消息。请回复以确认您的同意。 ⌘</string>
 	</dict>
 	<key>monday</key>
 	<dict>
@@ -6336,6 +6956,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>באריכט באַניצער</string>
 		<key>zh</key>
 		<string>报告用户</string>
+	</dict>
+	<key>request_consent</key>
+	<dict>
+		<key>af</key>
+		<string>Versoek toestemming om boodskappe uit te ruil</string>
+		<key>ar</key>
+		<string>طلب الموافقة على تبادل الرسائل</string>
+		<key>az</key>
+		<string>Mesaj mübadiləsinə razılıq verin</string>
+		<key>be</key>
+		<string>Запытаць згоду на абмен паведамленнямі</string>
+		<key>bg</key>
+		<string>Искане на съгласие за обмен на съобщения</string>
+		<key>bn</key>
+		<string>বার্তা বিনিময়ের জন্য সম্মতির অনুরোধ করুন</string>
+		<key>bs</key>
+		<string>Zatražite saglasnost za razmjenu poruka</string>
+		<key>ca</key>
+		<string>Sol·liciteu el consentiment per intercanviar missatges</string>
+		<key>cs</key>
+		<string>Vyžádejte si souhlas s výměnou zpráv</string>
+		<key>cy</key>
+		<string>Gofyn am ganiatâd i gyfnewid negeseuon</string>
+		<key>da</key>
+		<string>Anmod om samtykke til at udveksle beskeder</string>
+		<key>de</key>
+		<string>Zustimmung zum Nachrichtenaustausch anfordern</string>
+		<key>el</key>
+		<string>Ζητήστε συναίνεση για ανταλλαγή μηνυμάτων</string>
+		<key>en</key>
+		<string>Request consent to exchange messages</string>
+		<key>eo</key>
+		<string>Petu konsenton por interŝanĝi mesaĝojn</string>
+		<key>es</key>
+		<string>Solicitar consentimiento para intercambiar mensajes</string>
+		<key>et</key>
+		<string>Taotlege nõusolekut sõnumite vahetamiseks</string>
+		<key>eu</key>
+		<string>Eskatu baimena mezuak trukatzeko</string>
+		<key>fa</key>
+		<string>درخواست رضایت برای تبادل پیام</string>
+		<key>fi</key>
+		<string>Pyydä suostumus viestien vaihtoon</string>
+		<key>fr</key>
+		<string>Demander le consentement pour échanger des messages</string>
+		<key>ga</key>
+		<string>Iarr toiliú chun teachtaireachtaí a mhalartú</string>
+		<key>gd</key>
+		<string>Iarr cead airson teachdaireachdan iomlaid</string>
+		<key>gl</key>
+		<string>Solicitar consentimento para intercambiar mensaxes</string>
+		<key>gu</key>
+		<string>સંદેશાઓની આપ-લે કરવા માટે સંમતિની વિનંતી કરો</string>
+		<key>he</key>
+		<string>בקש הסכמה להחלפת הודעות</string>
+		<key>hi</key>
+		<string>संदेशों का आदान -प्रदान करने के लिए सहमति का अनुरोध करें</string>
+		<key>hr</key>
+		<string>Zatraži pristanak za razmjenu poruka</string>
+		<key>ht</key>
+		<string>Mande konsantman pou echanj mesaj</string>
+		<key>hu</key>
+		<string>Kérjen hozzájárulást az üzenetek cseréjéhez</string>
+		<key>hy</key>
+		<string>Հաղորդագրությունների փոխանակման համաձայնություն խնդրեք</string>
+		<key>id</key>
+		<string>Minta persetujuan untuk bertukar pesan</string>
+		<key>is</key>
+		<string>Óska eftir samþykki til að skiptast á skilaboðum</string>
+		<key>it</key>
+		<string>Richiedi il consenso per lo scambio di messaggi</string>
+		<key>ja</key>
+		<string>メッセージ交換の同意を求める</string>
+		<key>ka</key>
+		<string>Მოითხოვეთ თანხმობა შეტყობინებების გაცვლაზე</string>
+		<key>kk</key>
+		<string>Хабарлама алмасуға келісім сұраңыз</string>
+		<key>kn</key>
+		<string>ಸಂದೇಶಗಳನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು ಒಪ್ಪಿಗೆ ವಿನಂತಿಸಿ</string>
+		<key>ko</key>
+		<string>메시지 교환에 대한 동의 요청</string>
+		<key>ky</key>
+		<string>Билдирүүлөрдү алмашуу үчүн макулдук сурам</string>
+		<key>lt</key>
+		<string>Prašyti sutikimo keistis žinutėmis</string>
+		<key>mg</key>
+		<string>Mangataka fanekena hifanakalo hafatra</string>
+		<key>mi</key>
+		<string>Tonoa whakaaetanga ki te whakawhiti karere</string>
+		<key>mk</key>
+		<string>Барање согласност за размена на пораки</string>
+		<key>ml</key>
+		<string>സന്ദേശങ്ങൾ കൈമാറാൻ സമ്മതം അഭ്യർത്ഥിക്കുക</string>
+		<key>mn</key>
+		<string>Мессеж солилцох зөвшөөрөл хүсэх</string>
+		<key>mt</key>
+		<string>Itlob il-kunsens biex tiskambja messaġġi</string>
+		<key>ne</key>
+		<string>सन्देशहरू आदानप्रदान गर्न सहमति अनुरोध गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Vraag toestemming om berichten uit te wisselen</string>
+		<key>no</key>
+		<string>Be om samtykke til utveksling av meldinger</string>
+		<key>pa</key>
+		<string>ਸੰਦੇਸ਼ਾਂ ਦਾ ਆਦਾਨ-ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ ਸਹਿਮਤੀ ਦਿਓ</string>
+		<key>pl</key>
+		<string>Poproś o zgodę na wymianę wiadomości</string>
+		<key>pt</key>
+		<string>Solicitar consentimento para troca de mensagens</string>
+		<key>ro</key>
+		<string>Solicitați consimțământul pentru a face schimb de mesaje</string>
+		<key>ru</key>
+		<string>Запрос согласия на обмен сообщениями</string>
+		<key>si</key>
+		<string>පණිවිඩ හුවමාරු කර ගැනීමට කැමැත්ත ඉල්ලන්න</string>
+		<key>sk</key>
+		<string>Vyžiadajte si súhlas s výmenou správ</string>
+		<key>sl</key>
+		<string>Zahteva za soglasje za izmenjavo sporočil</string>
+		<key>sq</key>
+		<string>Kërkoni pëlqimin për të shkëmbyer mesazhe</string>
+		<key>sr</key>
+		<string>Затражите сагласност за размену порука</string>
+		<key>su</key>
+		<string>Ménta idin pikeun tukeur pesen</string>
+		<key>sv</key>
+		<string>Begär samtycke för att utbyta meddelanden</string>
+		<key>sw</key>
+		<string>Omba idhini ya kubadilishana ujumbe</string>
+		<key>ta</key>
+		<string>செய்திகளைப் பரிமாறிக் கொள்ள ஒப்புதல் கோருங்கள்</string>
+		<key>te</key>
+		<string>సందేశాలను మార్పిడి చేసుకోవడానికి సమ్మతిని అభ్యర్థించండి</string>
+		<key>tg</key>
+		<string>Барои мубодилаи паёмҳо розигӣ дархост кунед</string>
+		<key>th</key>
+		<string>ขอความยินยอมในการแลกเปลี่ยนข้อความ</string>
+		<key>tl</key>
+		<string>Humiling ng pahintulot na makipagpalitan ng mga mensahe</string>
+		<key>tr</key>
+		<string>Mesaj alışverişi için onay isteyin</string>
+		<key>tt</key>
+		<string>Хәбәр алмашу өчен ризалык сорагыз</string>
+		<key>uk</key>
+		<string>Запит на згоду на обмін повідомленнями</string>
+		<key>ur</key>
+		<string>پیغامات کے تبادلے کے لیے رضامندی کی درخواست کریں۔</string>
+		<key>uz</key>
+		<string>Xabarlarni almashish uchun rozilik so&apos;rang</string>
+		<key>vi</key>
+		<string>Yêu cầu đồng ý trao đổi tin nhắn</string>
+		<key>yi</key>
+		<string>בעטן צושטימען צו וועקסל אַרטיקלען</string>
+		<key>zh</key>
+		<string>请求同意交换信息</string>
 	</dict>
 	<key>saturday</key>
 	<dict>
@@ -10521,6 +11296,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>נעכטן</string>
 		<key>zh</key>
 		<string>昨天</string>
+	</dict>
+	<key>yes</key>
+	<dict>
+		<key>af</key>
+		<string>JA</string>
+		<key>ar</key>
+		<string>نعم</string>
+		<key>az</key>
+		<string>Bəli</string>
+		<key>be</key>
+		<string>Так</string>
+		<key>bg</key>
+		<string>ДА</string>
+		<key>bn</key>
+		<string>হ্যাঁ</string>
+		<key>bs</key>
+		<string>DA</string>
+		<key>ca</key>
+		<string>SÍ</string>
+		<key>cs</key>
+		<string>ANO</string>
+		<key>cy</key>
+		<string>OES</string>
+		<key>da</key>
+		<string>JA</string>
+		<key>de</key>
+		<string>JA</string>
+		<key>el</key>
+		<string>ΝΑΙ</string>
+		<key>en</key>
+		<string>YES</string>
+		<key>eo</key>
+		<string>JES</string>
+		<key>es</key>
+		<string>SÍ</string>
+		<key>et</key>
+		<string>JAH</string>
+		<key>eu</key>
+		<string>BAI</string>
+		<key>fa</key>
+		<string>بله</string>
+		<key>fi</key>
+		<string>KYLLÄ</string>
+		<key>fr</key>
+		<string>OUI</string>
+		<key>ga</key>
+		<string>TÁ</string>
+		<key>gd</key>
+		<string>THA</string>
+		<key>gl</key>
+		<string>SI</string>
+		<key>gu</key>
+		<string>હા</string>
+		<key>he</key>
+		<string>כֵּן</string>
+		<key>hi</key>
+		<string>हाँ</string>
+		<key>hr</key>
+		<string>DA</string>
+		<key>ht</key>
+		<string>WI</string>
+		<key>hu</key>
+		<string>IGEN</string>
+		<key>hy</key>
+		<string>ԱՅՈ</string>
+		<key>id</key>
+		<string>YA</string>
+		<key>is</key>
+		<string>JÁ</string>
+		<key>it</key>
+		<string>SÌ</string>
+		<key>ja</key>
+		<string>はい</string>
+		<key>ka</key>
+		<string>Დიახ</string>
+		<key>kk</key>
+		<string>ИӘ</string>
+		<key>kn</key>
+		<string>ಹೌದು</string>
+		<key>ko</key>
+		<string>예</string>
+		<key>ky</key>
+		<string>ООБА</string>
+		<key>lt</key>
+		<string>TAIP</string>
+		<key>mg</key>
+		<string>ENY</string>
+		<key>mi</key>
+		<string>Ae</string>
+		<key>mk</key>
+		<string>ДА</string>
+		<key>ml</key>
+		<string>സമ്മതം</string>
+		<key>mn</key>
+		<string>ТИЙМ</string>
+		<key>mt</key>
+		<string>IVA</string>
+		<key>ne</key>
+		<string>हो</string>
+		<key>nl</key>
+		<string>JA</string>
+		<key>no</key>
+		<string>JA</string>
+		<key>pa</key>
+		<string>ਹਾਂ</string>
+		<key>pl</key>
+		<string>TAK</string>
+		<key>pt</key>
+		<string>SIM</string>
+		<key>ro</key>
+		<string>DA</string>
+		<key>ru</key>
+		<string>ДА</string>
+		<key>si</key>
+		<string>ඔව්</string>
+		<key>sk</key>
+		<string>ÁNO</string>
+		<key>sl</key>
+		<string>DA</string>
+		<key>sq</key>
+		<string>PO</string>
+		<key>sr</key>
+		<string>ДА</string>
+		<key>su</key>
+		<string>ENYA</string>
+		<key>sv</key>
+		<string>JA</string>
+		<key>sw</key>
+		<string>NDIYO</string>
+		<key>ta</key>
+		<string>ஆம்</string>
+		<key>te</key>
+		<string>అవును</string>
+		<key>tg</key>
+		<string>ҲА</string>
+		<key>th</key>
+		<string>ใช่</string>
+		<key>tl</key>
+		<string>Oo</string>
+		<key>tr</key>
+		<string>EVET</string>
+		<key>tt</key>
+		<string>Әйе</string>
+		<key>uk</key>
+		<string>ТАК</string>
+		<key>ur</key>
+		<string>ہاں</string>
+		<key>uz</key>
+		<string>HA</string>
+		<key>vi</key>
+		<string>ĐÚNG</string>
+		<key>yi</key>
+		<string>יאָ</string>
+		<key>zh</key>
+		<string>是的</string>
 	</dict>
 	<key>you</key>
 	<dict>

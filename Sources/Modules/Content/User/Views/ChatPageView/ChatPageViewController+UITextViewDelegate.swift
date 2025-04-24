@@ -33,7 +33,7 @@ extension ChatPageViewController: UITextViewDelegate {
         guard let recipientBarService = chatPageViewService.recipientBar,
               let textField = recipientBarService.layout.textField else { return true }
 
-        guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: { $0.isMock }) || textField.isFirstResponder,
+        guard recipientBarService.contactSelectionUI.selectedContactPairs.contains(where: \.isMock) || textField.isFirstResponder,
               recipientBarService.layout.tableView?.alpha == 0 else { return true }
 
         recipientBarService.actionHandler.textFieldShouldReturn(textField.text ?? "", makeInputBarFirstResponder: false)
@@ -48,6 +48,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
         typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
         coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) {
+            guard chatPageViewService.inputBar?.isForcingAppearance == false else { return }
             chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: true)
         }
 

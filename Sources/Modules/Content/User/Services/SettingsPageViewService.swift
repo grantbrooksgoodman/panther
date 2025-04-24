@@ -229,6 +229,14 @@ public final class SettingsPageViewService {
         }
     }
 
+    public func messageRecipientConsentSwitchToggled(on: Bool) {
+        Task {
+            if let exception = await services.messageRecipientConsent.setMessageRecipientConsentRequired(on) {
+                Logger.log(exception, with: .toast())
+            }
+        }
+    }
+
     public func penPalsParticipantSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {

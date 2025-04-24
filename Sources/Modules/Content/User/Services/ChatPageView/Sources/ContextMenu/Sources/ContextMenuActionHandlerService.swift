@@ -91,6 +91,7 @@ public final class ContextMenuActionHandlerService {
     // MARK: - Menu for Message
 
     public func menuForMessage(_ message: Message) -> Menu? {
+        guard !message.isConsentMessage else { return nil }
         var actions: [MenuElement] = message.reactions == nil ? [] : [
             .init(
                 title: Localized(.reactionDetails).wrappedValue,

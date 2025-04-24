@@ -26,6 +26,7 @@ extension User: Updatable {
             .blockedUserIDs,
             .conversationIDs,
             .isPenPalsParticipant,
+            .messageRecipientConsentRequired,
             .pushTokens,
         ]
     }
@@ -48,6 +49,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
             )
@@ -61,6 +63,7 @@ extension User: Updatable {
                 conversationIDs: value,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
             )
@@ -73,6 +76,20 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: value,
                 languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
+                phoneNumber: phoneNumber,
+                pushTokens: pushTokens
+            )
+
+        case .messageRecipientConsentRequired:
+            guard let value = value as? Bool else { return nil }
+            return .init(
+                id,
+                blockedUserIDs: blockedUserIDs,
+                conversationIDs: conversationIDs,
+                isPenPalsParticipant: value,
+                languageCode: languageCode,
+                messageRecipientConsentRequired: value,
                 phoneNumber: phoneNumber,
                 pushTokens: pushTokens
             )
@@ -85,6 +102,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 pushTokens: value.isBangQualifiedEmpty ? nil : value
             )

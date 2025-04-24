@@ -15,6 +15,22 @@ import AppSubsystem
 public extension Conversation {
     // MARK: - Properties
 
+    var currentUserGrantedMessageReceiptConsent: Bool {
+        guard !currentUserInitiatorRequiresMessageReceiptConsent,
+              metadata.requiresConsentFromInitiator != nil else { return true }
+        return metadata
+            .messageRecipientConsentAcknowledgementData
+            .firstWithCurrentUserID?
+            .consentAcknowledged == true
+    }
+
+    // swiftlint:disable:next identifier_name
+    var currentUserInitiatorRequiresMessageReceiptConsent: Bool {
+        @Persistent(.currentUserID) var currentUserID: String?
+        guard let currentUserID else { return false }
+        return metadata.requiresConsentFromInitiator == currentUserID
+    }
+
     var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
     var currentUserPenPalsSharingData: PenPalsSharingData? { metadata.penPalsSharingData.firstWithCurrentUserID }
     var currentUserSharesPenPalsDataWithAllUsers: Bool {
@@ -22,6 +38,10 @@ public extension Conversation {
         return currentUserPenPalsSharingData?
             .sharesDataWithUserIDs?
             .containsAllStrings(in: participants.filter { $0 != currentUserParticipant }.map(\.userID)) ?? false
+    }
+
+    var didSendConsentMessage: Bool {
+        messages?.contains(where: \.isConsentRequestMessage) == true
     }
 
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }

@@ -26,7 +26,7 @@ public struct InputBarConfigService {
 
     // MARK: - Computed Properties
 
-    public var canConfigureInputBarForRecording: Bool {
+    public var canShowRecordButton: Bool {
         guard let currentUser = clientSession.user.currentUser,
               let conversation = clientSession.conversation.currentConversation else { return false }
 

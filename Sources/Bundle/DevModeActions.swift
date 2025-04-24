@@ -6,7 +6,7 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -78,6 +78,11 @@ public extension DevModeAction {
                         actions.insert(
                             DevModeAction.AppActions.deleteCurrentUserConversationsAction,
                             at: 2
+                        )
+
+                        actions.insert(
+                            DevModeAction.AppActions.deleteMRCConversationsAction,
+                            at: 3
                         )
                     }
 
@@ -255,6 +260,45 @@ public extension DevModeAction {
             )
         }
 
+        private static var deleteMRCConversationsAction: DevModeAction {
+            func deleteMRCConversations() {
+                Task {
+                    @Dependency(\.coreKit) var core: CoreKit
+                    @Dependency(\.userDefaults) var defaults: UserDefaults
+                    @Dependency(\.navigation) var navigation: Navigation
+                    @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+                    guard await AKConfirmationAlert(
+                        title: "Delete MRC Conversations",
+                        message: "This will delete all Message Recipient Consent conversations for the current user.\n\nThis operation cannot be undone.",
+                        confirmButtonStyle: .destructivePreferred
+                    ).present(translating: []) else { return }
+
+                    userSession.stopObservingCurrentUserChanges()
+
+                    if let exception = await core.utils.deleteMRCConversations() {
+                        Logger.log(exception, with: .toast())
+                    } else {
+                        core.hud.flash(image: .success)
+                        core.gcd.after(.seconds(1)) {
+                            core.utils.clearCaches()
+                            core.utils.eraseDocumentsDirectory()
+                            core.utils.eraseTemporaryDirectory()
+
+                            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
+                            navigation.navigate(to: .root(.modal(.splash)))
+                        }
+                    }
+                }
+            }
+
+            return .init(
+                title: "Delete MRC Conversations",
+                isDestructive: true,
+                perform: deleteMRCConversations
+            )
+        }
+
         private static var destroyConversationDatabaseAction: DevModeAction {
             func destroyConversationDatabase() {
                 Task {
@@ -355,4 +399,4 @@ public extension DevModeAction {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

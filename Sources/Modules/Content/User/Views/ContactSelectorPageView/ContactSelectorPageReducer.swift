@@ -17,15 +17,12 @@ public struct ContactSelectorPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
 
     public enum Action {
-        case viewAppeared
-
         case cancelToolbarButtonTapped
         case inviteToolbarButtonTapped
 
@@ -33,7 +30,6 @@ public struct ContactSelectorPageReducer: Reducer {
         case presentInvitationPromptReturned(Exception?)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
-        case traitCollectionChanged
     }
 
     // MARK: - State
@@ -101,13 +97,15 @@ public struct ContactSelectorPageReducer: Reducer {
 
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
-        case .viewAppeared:
-            core.gcd.after(.seconds(1)) { uiApplication.resignFirstResponders() }
-
         case .cancelToolbarButtonTapped:
             state.isPresented.wrappedValue = false
-            uiApplication.resignFirstResponders()
-            core.gcd.after(.milliseconds(250)) { chatPageViewService.inputBar?.forceAppearance() }
+            coreGCD.after(.milliseconds(100)) {
+                chatPageViewService.inputBar?.forceAppearance()
+                coreGCD.after(.milliseconds(200)) {
+                    guard let recipientBarIsFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder else { return }
+                    chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: !recipientBarIsFirstResponder)
+                }
+            }
 
         case .inviteToolbarButtonTapped:
             return .task {
@@ -128,12 +126,13 @@ public struct ContactSelectorPageReducer: Reducer {
         case let .selectedContactPairChanged(selectedContactPair):
             state.selectedContactPair = selectedContactPair
             state.isPresented.wrappedValue = false
-            core.gcd.after(.milliseconds(100)) {
+            coreGCD.after(.milliseconds(100)) {
                 chatPageViewService.recipientBar?.contactSelectionUI.selectContactPair(selectedContactPair, performInputBarFix: true)
+                coreGCD.after(.milliseconds(200)) {
+                    guard let recipientBarIsFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder else { return }
+                    chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: !recipientBarIsFirstResponder)
+                }
             }
-
-        case .traitCollectionChanged:
-            core.gcd.after(.milliseconds(500)) { uiApplication.resignFirstResponders() }
         }
 
         return .none

@@ -62,5 +62,6 @@ public struct ReactionDetailsPageView: View {
                 viewModel.send(.viewDisappeared)
             }
         }
+        .ignoresSafeArea()
     }
 }

@@ -121,13 +121,29 @@ public extension SettingsPageView {
         )
     }
 
+    var messageRecipientConsentListItem: ListRowView.Configuration {
+        .init(
+            .switch(isToggled: isMessageRecipientConsentSwitchToggledBinding),
+            innerText: viewModel.strings.value(for: .recipientConsentListRowInnerText),
+            footerText: viewModel.strings.value(for: .recipientConsentListRowFooterText),
+            imageView: {
+                SquareIconView(
+                    .init(
+                        backgroundColor: Colors.messageRecipientConsentButtonImageBackground,
+                        overlay: .symbol(name: Strings.messageRecipientConsentButtonImageSystemName)
+                    )
+                )
+            }
+        )
+    }
+
     var penPalsListItem: ListRowView.Configuration {
         .init(
-            .switch(isToggled: isPenPalsParticipantBinding),
+            .switch(isToggled: isPenPalsParticipantSwitchToggledBinding),
             innerText: viewModel.strings.value(for: .penPalsListRowInnerText),
             footerText: viewModel.strings.value(for: .penPalsListRowFooterText),
             imageView: {
-                SquareIconView.image(.penPalsIcon()).swiftUIImage
+                SquareIconView(.penPalsIcon())
             }
         )
     }
@@ -167,7 +183,15 @@ public extension SettingsPageView {
 
     // MARK: - Bindings
 
-    private var isPenPalsParticipantBinding: Binding<Bool> {
+    // swiftlint:disable:next identifier_name
+    private var isMessageRecipientConsentSwitchToggledBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isMessageRecipientConsentSwitchToggled,
+            sendAction: { .messageRecipientConsentSwitchToggled(on: $0) }
+        )
+    }
+
+    private var isPenPalsParticipantSwitchToggledBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPenPalsParticipantSwitchToggled,
             sendAction: { .penPalsParticipantSwitchToggled(on: $0, fromBinding: true) }

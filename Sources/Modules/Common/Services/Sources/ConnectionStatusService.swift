@@ -22,7 +22,7 @@ public final class ConnectionStatusService {
 
     private var isAwaitingConnectionRestoration = false
     private var reachability: Reachability?
-    private var uponConnectionChanged = [ConnectionStatusServiceEffectID: () -> Void]()
+    @LockIsolated private var uponConnectionChanged = [ConnectionStatusServiceEffectID: () -> Void]()
 
     // MARK: - Init
 

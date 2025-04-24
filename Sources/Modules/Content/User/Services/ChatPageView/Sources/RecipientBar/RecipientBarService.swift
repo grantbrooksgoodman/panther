@@ -14,6 +14,10 @@ import UIKit
 import AppSubsystem
 
 public struct RecipientBarService {
+    // MARK: - Dependencies
+
+    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
+
     // MARK: - Properties
 
     public let actionHandler: RecipientBarActionHandlerService
@@ -38,7 +42,11 @@ public struct RecipientBarService {
     // MARK: - On Layout Subviews
 
     public func onLayoutSubviews() {
+        defer { tableView.reloadData() }
+        if let frontmostViewController {
+            guard String(type(of: frontmostViewController)) == AppConstants.Strings.ChatPageViewService.frontmostViewControllerID else { return }
+        }
+
         layout.textField?.becomeFirstResponder()
-        tableView.reloadData()
     }
 }

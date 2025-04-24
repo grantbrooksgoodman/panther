@@ -72,6 +72,7 @@ public extension ContactPair {
                             conversationIDs: nil,
                             isPenPalsParticipant: false,
                             languageCode: "",
+                            messageRecipientConsentRequired: false,
                             phoneNumber: .init(""),
                             pushTokens: nil
                         ),

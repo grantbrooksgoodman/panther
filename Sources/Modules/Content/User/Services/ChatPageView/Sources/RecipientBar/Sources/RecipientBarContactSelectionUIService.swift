@@ -61,7 +61,7 @@ public final class RecipientBarContactSelectionUIService {
     }
 
     public func deselectMockContactPairs() {
-        selectedContactPairs.filter { $0.isMock }.map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
+        selectedContactPairs.filter(\.isMock).map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
         guard let configService = chatPageViewService.recipientBar?.config,
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
 

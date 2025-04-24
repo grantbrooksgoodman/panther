@@ -107,6 +107,7 @@ public final class RecipientBarConfigService {
 
             defer { setInsetsAndReload() }
 
+            Message.consentRequestMessageID = nil
             guard let existingConversation = conversations?.sortedByLatestMessageSentDate
                 .first(where: { users.map(\.id).sorted() == $0.users!.map(\.id).sorted() }) else {
                 defer { shouldReload = !isPreviousConversationEmpty }
