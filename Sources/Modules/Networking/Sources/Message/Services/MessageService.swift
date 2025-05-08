@@ -18,6 +18,7 @@ public struct MessageService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
+    @Dependency(\.fileManager.documentsDirectoryURL) private var documentsDirectoryURL: URL
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -70,7 +71,7 @@ public struct MessageService {
             contentType = .media(mediaComponentExtension)
         }
 
-        let mockMessage: Message = .init(
+        var mockMessage: Message = .init(
             id,
             fromAccountID: fromAccountID,
             contentType: contentType,
@@ -101,6 +102,24 @@ public struct MessageService {
                 return .failure(exception)
             }
 
+            mockMessage = mockMessage.replacingRichContent(.audio(
+                audioComponents.reduce(into: [AudioMessageReference]()) { partialResult, audioComponent in
+                    let inputFileExtension = audioComponent.original.fileExtension.rawValue
+                    let outputFileExtension = audioComponent.translated.fileExtension.rawValue
+
+                    let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(mockMessage.id).\(inputFileExtension)"
+                    let outputFilePath = "\(audioComponent.translatedDirectoryPath)/\(audioComponent.translated.name).\(outputFileExtension)"
+
+                    partialResult.append(
+                        audioComponent.replacingAudioFiles(
+                            newInputFileName: mockMessage.id,
+                            newInputFileURL: documentsDirectoryURL.appending(path: inputFilePath),
+                            newOutputFileURL: documentsDirectoryURL.appending(path: outputFilePath)
+                        )
+                    )
+                }
+            ))
+
             return .success(mockMessage)
 
         case .media:
@@ -114,6 +133,13 @@ public struct MessageService {
             if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
                 return .failure(exception)
             }
+
+            let filePath = "\(NetworkPath.media.rawValue)/\(mockMessage.id).\(mediaComponent.fileExtension.rawValue)"
+            mockMessage = mockMessage.replacingRichContent(.media(.init(
+                documentsDirectoryURL.appending(path: filePath),
+                name: mockMessage.id,
+                fileExtension: mediaComponent.fileExtension
+            )))
 
             return .success(mockMessage)
 
@@ -294,5 +320,45 @@ public struct MessageService {
         }
 
         return exceptions.compiledException
+    }
+}
+
+private extension AudioMessageReference {
+    func replacingAudioFiles(
+        newInputFileName: String,
+        newInputFileURL: URL,
+        newOutputFileURL: URL
+    ) -> AudioMessageReference {
+        .init(
+            translation: translation,
+            original: .init(
+                newInputFileURL,
+                name: newInputFileName,
+                fileExtension: original.fileExtension,
+                contentDuration: original.duration
+            ),
+            translated: .init(
+                newOutputFileURL,
+                name: translated.name,
+                fileExtension: translated.fileExtension,
+                contentDuration: translated.duration
+            ),
+            translatedDirectoryPath: translatedDirectoryPath
+        )
+    }
+}
+
+private extension Message {
+    func replacingRichContent(_ richContent: RichMessageContent?) -> Message {
+        .init(
+            id,
+            fromAccountID: fromAccountID,
+            contentType: contentType,
+            richContent: richContent,
+            translationReferences: translationReferences,
+            translations: translations,
+            readReceipts: readReceipts,
+            sentDate: sentDate
+        )
     }
 }

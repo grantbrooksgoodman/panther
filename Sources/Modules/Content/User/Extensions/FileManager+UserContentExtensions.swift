@@ -13,6 +13,24 @@ import Foundation
 import AppSubsystem
 
 public extension FileManager {
+    func copy(
+        fileAt url: URL,
+        toPath path: URL
+    ) -> Exception? {
+        let dataFromURLResult = Data.fromURL(url)
+
+        switch dataFromURLResult {
+        case let .success(data):
+            return createFile(
+                atPath: path,
+                data: data
+            )
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
     func createFile(
         atPath path: URL,
         data: Data
@@ -59,5 +77,24 @@ public extension FileManager {
         }
 
         return nil
+    }
+
+    func move(
+        fileAt url: URL,
+        toPath path: URL
+    ) -> Exception? {
+        if let exception = copy(
+            fileAt: url,
+            toPath: path
+        ) {
+            return exception
+        }
+
+        do {
+            try removeItem(at: url)
+            return nil
+        } catch {
+            return .init(error, metadata: [self, #file, #function, #line])
+        }
     }
 }

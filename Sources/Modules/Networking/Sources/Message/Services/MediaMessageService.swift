@@ -16,6 +16,7 @@ import Networking
 public struct MediaMessageService {
     // MARK: - Dependencies
 
+    @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Get Media Component
@@ -91,18 +92,32 @@ public struct MediaMessageService {
                 return exception
             }
 
+            if let exception = fileManager.move(
+                fileAt: mediaComponent.urlPath,
+                toPath: fileManager.documentsDirectoryURL.appending(path: mediaNetworkPath)
+            ) {
+                return exception
+            }
+
             guard mediaComponent.hasThumbnail,
                   let thumbnailPath = mediaComponent.urlPath.thumbnailPath else { return nil }
             let thumbnailDataFromURLResult = Data.fromURL(thumbnailPath)
 
             switch thumbnailDataFromURLResult {
             case let .success(thumbnailData):
-                return await networking.storage.upload(
+                if let exception = await networking.storage.upload(
                     thumbnailData,
                     metadata: .init(
                         thumbnailNetworkPath,
                         contentType: MediaFileExtension.image(.jpeg).contentTypeString
                     )
+                ) {
+                    return exception
+                }
+
+                return fileManager.move(
+                    fileAt: thumbnailPath,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPath)
                 )
 
             case let .failure(exception):

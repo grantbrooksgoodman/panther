@@ -96,8 +96,33 @@ public struct AudioMessageService {
         }
 
         for audioComponent in audioComponents {
+            func moveOutputFile() {
+                // swiftlint:disable:next line_length
+                let outputFilePath = "\(audioComponent.translatedDirectoryPath)/\(audioComponent.translated.name).\(audioComponent.translated.fileExtension.rawValue)"
+                if let exception = fileManager.move(
+                    fileAt: audioComponent.translated.url,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: outputFilePath)
+                ) {
+                    Logger.log(exception)
+                }
+
+                do { // swiftlint:disable:next line_length
+                    try fileManager.removeItem(at: fileManager.documentsDirectoryURL.appending(path: "\(audioComponent.translated.name).\(AudioFileExtension.caf.rawValue)"))
+                } catch {
+                    Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+                }
+            }
+
             if let exception = await uploadInput(audioComponent.original) {
                 return exception
+            }
+
+            let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(audioComponent.original.fileExtension.rawValue)"
+            if let exception = fileManager.move(
+                fileAt: audioComponent.original.url,
+                toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
+            ) {
+                Logger.log(exception)
             }
 
             guard !audioComponent.translation.languagePair.isIdempotent else { continue }
@@ -106,6 +131,7 @@ public struct AudioMessageService {
 
             switch preRecordedOutputExistsResult {
             case let .success(preRecordedOutputExists):
+                defer { moveOutputFile() }
                 guard !preRecordedOutputExists else { continue }
 
                 if let exception = await upload(

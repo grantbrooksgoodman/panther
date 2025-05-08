@@ -265,7 +265,7 @@ public struct NotificationService {
                 return Localized(
                     message.isConsentAcknowledgementMessage ? .messageRecipientConsentAcknowledgementMessage : .messageRecipientConsentRequestMessage,
                     languageCode: user.languageCode
-                ).wrappedValue
+                ).wrappedValue.sanitized.trimmingBorderedWhitespace
             }
 
             if let translations = message.translations {
