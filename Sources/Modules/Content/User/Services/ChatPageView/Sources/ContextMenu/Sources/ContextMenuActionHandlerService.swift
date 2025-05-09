@@ -101,7 +101,7 @@ public final class ContextMenuActionHandlerService {
             ),
         ]
 
-        guard !message.contentType.isMediaOtherThanAudio else { return actions.isEmpty ? nil : .init(children: actions) }
+        guard !message.contentType.isMedia else { return actions.isEmpty ? nil : .init(children: actions) }
         guard !message.contentType.isAudio else { return .init(children: actions + getAudioMessageActions(for: message)) }
 
         actions.append(contentsOf: textMessageMenuActions)

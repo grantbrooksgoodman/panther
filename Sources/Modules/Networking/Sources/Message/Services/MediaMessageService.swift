@@ -74,9 +74,19 @@ public struct MediaMessageService {
     // MARK: - Upload Media Component
 
     public func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
-        let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
+        let pathPrefix = "\(NetworkPath.media.rawValue)/\(mediaComponent.encodedHash.shortened)"
         let mediaNetworkPath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailNetworkPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
+
+        if (try? await networking.storage.itemExists(at: mediaNetworkPath).get()) == true {
+            guard mediaComponent.hasThumbnail,
+                  (try? await networking.storage.itemExists(at: thumbnailNetworkPath).get()) == false else {
+                try? fileManager.removeItem(at: mediaComponent.urlPath)
+                guard let thumbnailPath = mediaComponent.urlPath.thumbnailPath else { return nil }
+                try? fileManager.removeItem(at: thumbnailPath)
+                return nil
+            }
+        }
 
         let mediaDataFromURLResult = Data.fromURL(mediaComponent.urlPath)
 
@@ -138,7 +148,10 @@ public struct MediaMessageService {
         .init(
             message.id,
             fromAccountID: message.fromAccountID,
-            contentType: .media(mediaComponent.fileExtension),
+            contentType: .media(
+                id: mediaComponent.encodedHash.shortened,
+                extension: mediaComponent.fileExtension
+            ),
             richContent: .media(mediaComponent),
             translationReferences: message.translationReferences,
             translations: message.translations,

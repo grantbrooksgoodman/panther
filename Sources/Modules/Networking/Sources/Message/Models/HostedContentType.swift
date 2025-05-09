@@ -12,7 +12,8 @@ import Foundation
 public enum HostedContentType: Codable, Equatable {
     // MARK: - Cases
 
-    case media(MediaFileExtension)
+    case audio(AudioFileExtension)
+    case media(id: String, extension: MediaFileExtension)
     case text
 
     // MARK: - Properties
@@ -20,33 +21,62 @@ public enum HostedContentType: Codable, Equatable {
     // Bool
     public var isAudio: Bool {
         switch self {
-        case .media(.audio): return true
+        case .audio: return true
         default: return false
         }
     }
 
-    public var isMediaOtherThanAudio: Bool { !isAudio && self != .text }
+    public var isMedia: Bool {
+        switch self {
+        case .media: return true
+        default: return false
+        }
+    }
 
     // String
+    public var mediaFileID: String? {
+        switch self {
+        case let .media(id: id, extension: _): return id
+        default: return nil
+        }
+    }
+
     public var rawValue: String {
         switch self {
-        case let .media(fileExtension): return fileExtension.contentTypeString
+        case let .audio(fileExtension): return fileExtension.contentTypeString
+        case let .media(_, fileExtension): return fileExtension.contentTypeString
         case .text: return "text"
         }
     }
 
     // MARK: - Init
 
-    public init?(rawValue: String) {
-        if rawValue == HostedContentType.text.rawValue {
+    public init?(hostedValue: String) {
+        if hostedValue == HostedContentType.text.rawValue {
             self = .text
             return
         }
 
-        guard let mediaFileExtension = MediaFileExtension
-            .hostedCases
-            .first(where: { $0.contentTypeString == rawValue }) else { return nil }
+        let components = hostedValue.components(separatedBy: " – ")
+        guard (components.itemAt(1) ?? hostedValue).isBangQualifiedEmpty == false,
+              let fileExtension = MediaFileExtension
+              .hostedCases
+              .first(where: { $0.contentTypeString == components.first ?? hostedValue }) else { return nil }
 
-        self = .media(mediaFileExtension)
+        switch components.count {
+        case 1:
+            switch fileExtension {
+            case let .audio(audioFileExtension): self = .audio(audioFileExtension)
+            default: return nil
+            }
+
+        case 2:
+            switch fileExtension {
+            case .audio: return nil
+            default: self = .media(id: components[1], extension: fileExtension)
+            }
+
+        default: return nil
+        }
     }
 }

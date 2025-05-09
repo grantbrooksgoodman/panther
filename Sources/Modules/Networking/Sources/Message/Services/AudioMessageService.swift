@@ -161,7 +161,7 @@ public struct AudioMessageService {
         let modifiedMessage: Message = .init(
             message.id,
             fromAccountID: message.fromAccountID,
-            contentType: .media(.audio(.m4a)),
+            contentType: .audio(.m4a),
             richContent: .audio(audioComponents),
             translationReferences: message.translationReferences,
             translations: message.translations,

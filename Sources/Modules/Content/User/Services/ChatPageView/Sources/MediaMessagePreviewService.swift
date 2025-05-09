@@ -70,7 +70,7 @@ public final class MediaMessagePreviewService {
     public func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-              message.contentType.isMediaOtherThanAudio,
+              message.contentType.isMedia,
               let filePath = message.richContent?.mediaComponent?.urlPath.path(),
               fileManager.fileExists(atPath: filePath),
               !isPreviewingMedia,
@@ -92,10 +92,15 @@ public final class MediaMessagePreviewService {
         quickViewer.onDismiss {
             self.chatPageViewService.redrawForAppearanceChange()
             self.isPreviewingMedia = false
+
             if inputBarWasFirstResponder {
                 self.chatPageViewService.inputBar?.becomeFirstResponder()
             } else if recipientBarWasFirstResponder {
                 self.chatPageViewService.recipientBar?.layout.textField?.becomeFirstResponder()
+            }
+
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                self.viewController.view.isUserInteractionEnabled = true
             }
         }
 

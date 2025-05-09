@@ -38,7 +38,7 @@ extension Message: MessageType {
         let attributedStringForegroundColor = UIColor(isFromCurrentUser ? Colors.kindAttributedTextCurrentUserForeground : nonCurrentUserForegroundColor)
 
         switch contentType {
-        case .media(.audio):
+        case .audio:
             if let audioComponent,
                let translation {
                 guard alternateMessageService?.isDisplayingAudioTranscription(for: self) ?? false else {

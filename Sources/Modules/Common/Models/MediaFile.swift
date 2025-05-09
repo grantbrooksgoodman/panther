@@ -7,12 +7,13 @@
 //
 
 /* Native */
+import CryptoKit
 import Foundation
 
 /* Proprietary */
 import AppSubsystem
 
-public struct MediaFile: Codable, Equatable {
+public struct MediaFile: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     public let fileExtension: MediaFileExtension
@@ -20,6 +21,18 @@ public struct MediaFile: Codable, Equatable {
     public let urlPath: URL
 
     // MARK: - Computed Properties
+
+    public var hashFactors: [String] {
+        var factors = [fileExtension.rawValue]
+
+        let dataFromURLResult = Data.fromURL(urlPath)
+        switch dataFromURLResult {
+        case let .success(data): factors.append(data.hash)
+        case let .failure(exception): Logger.log(exception, with: .toastInPrerelease)
+        }
+
+        return factors.sorted()
+    }
 
     public var hasThumbnail: Bool {
         @Dependency(\.fileManager) var fileManager: FileManager
@@ -54,6 +67,17 @@ public struct MediaFile: Codable, Equatable {
             url,
             name: components[0],
             fileExtension: fileExtension
+        )
+    }
+}
+
+private extension Data {
+    var hash: String {
+        .init(
+            SHA256
+                .hash(data: self)
+                .compactMap { String(format: "%02x", $0) }
+                .joined()
         )
     }
 }

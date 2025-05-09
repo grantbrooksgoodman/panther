@@ -38,7 +38,7 @@ extension Message: Serializable {
         return [
             Keys.id.rawValue: id,
             Keys.fromAccountID.rawValue: fromAccountID,
-            Keys.contentType.rawValue: contentType.rawValue,
+            Keys.contentType.rawValue: contentType.mediaFileID == nil ? contentType.rawValue : "\(contentType.rawValue) – \(contentType.mediaFileID!)",
             Keys.translationReferences.rawValue: translationReferences?.map(\.hostingKey) ?? .bangQualifiedEmpty,
             Keys.readReceipts.rawValue: readReceipts?.map(\.encoded) ?? .bangQualifiedEmpty,
             Keys.sentDate.rawValue: dateFormatter.string(from: sentDate),
@@ -53,7 +53,7 @@ extension Message: Serializable {
         guard data[Keys.id.rawValue] is String,
               data[Keys.fromAccountID.rawValue] is String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
-              HostedContentType(rawValue: contentTypeString) != nil,
+              HostedContentType(hostedValue: contentTypeString) != nil,
               data[Keys.translationReferences.rawValue] is [String],
               let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               encodedReadReceipts.isBangQualifiedEmpty || encodedReadReceipts.allSatisfy({ ReadReceipt.canDecode(from: $0) }),
@@ -71,7 +71,7 @@ extension Message: Serializable {
         guard let id = data[Keys.id.rawValue] as? String,
               let fromAccountID = data[Keys.fromAccountID.rawValue] as? String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
-              let contentType = HostedContentType(rawValue: contentTypeString),
+              let contentType = HostedContentType(hostedValue: contentTypeString),
               let translationReferenceStrings = data[Keys.translationReferences.rawValue] as? [String],
               let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
@@ -130,7 +130,7 @@ extension Message: Serializable {
         }
 
         switch contentType {
-        case .media(.audio):
+        case .audio:
             let getAndApplyTranslationsResult = await getAndApplyTranslations()
 
             switch getAndApplyTranslationsResult {

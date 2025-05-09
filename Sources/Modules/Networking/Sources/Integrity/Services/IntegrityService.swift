@@ -397,7 +397,7 @@ public final class IntegrityService {
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
-                  let contentType = HostedContentType(rawValue: contentTypeString),
+                  let contentType = HostedContentType(hostedValue: contentTypeString),
                   contentType.isAudio,
                   let translationReferenceStrings = dictionary[Message.SerializationKeys.translationReferences.rawValue] as? [String] else { continue }
 
@@ -449,7 +449,6 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    // TODO: Audit this – may not need to be so thorough now that we don't manually resolve media extensions.
     public func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
@@ -457,106 +456,38 @@ public final class IntegrityService {
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
-                  let contentType = HostedContentType(rawValue: contentTypeString),
-                  contentType.isMediaOtherThanAudio else { continue }
+                  let contentType = HostedContentType(hostedValue: contentTypeString) else { continue }
 
-            let pathPrefix = "\(NetworkPath.media.rawValue)/\(key)"
+            switch contentType {
+            case let .media(id: fileID, extension: fileExtension):
+                let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"
+                let mediaFilePath = "\(pathPrefix).\(fileExtension.rawValue)"
+                let mediaThumbnailFilePath = "\(mediaFilePath)\(MediaFile.thumbnailImageNameSuffix)"
 
-            let jpegImageFilePath = "\(pathPrefix).\(MediaFileExtension.image(.jpeg).rawValue)"
-            let pdfDocumentFilePath = "\(pathPrefix).\(MediaFileExtension.document(.pdf).rawValue)"
-            let mp4VideoFilePath = "\(pathPrefix).\(MediaFileExtension.video(.mp4).rawValue)"
+                var mediaItemExists = false
+                var thumbnailItemExists = false
 
-            let mediaThumbnailFilePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
-
-            var jpegImageFileItemExists = false
-            var pdfDocumentFileExists = false
-            var mp4VideoFileItemExists = false
-
-            // Check JPEG exists
-
-            let jpegImageFileItemExistsResult = await networking.storage.itemExists(at: jpegImageFilePath)
-
-            switch jpegImageFileItemExistsResult {
-            case let .success(itemExists):
-                jpegImageFileItemExists = itemExists
-
-            case let .failure(exception):
-                exceptions.append(exception)
-            }
-
-            // Check PDF exists
-
-            let pdfDocumentFileItemExistsResult = await networking.storage.itemExists(at: pdfDocumentFilePath)
-
-            switch pdfDocumentFileItemExistsResult {
-            case let .success(itemExists):
-                pdfDocumentFileExists = itemExists
-
-            case let .failure(exception):
-                exceptions.append(exception)
-            }
-
-            // Check PDF thumbnail exists
-
-            if pdfDocumentFileExists {
-                let pdfDocumentThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
-
-                switch pdfDocumentThumbnailFileItemExistsResult {
-                case let .success(itemExists):
-                    guard !itemExists else { continue }
-
-                    tookAction = true
-                    if let exception = await repairMalformedMessages([key]).exception {
-                        exceptions.append(exception)
-                    }
-
-                case let .failure(exception):
-                    exceptions.append(exception)
+                let mediaItemExistsResult = await networking.storage.itemExists(at: mediaFilePath)
+                switch mediaItemExistsResult {
+                case let .success(itemExists): mediaItemExists = itemExists
+                case let .failure(exception): exceptions.append(exception)
                 }
-            }
 
-            // Check MP4 exists
-
-            let mp4VideoFileItemExistsResult = await networking.storage.itemExists(at: mp4VideoFilePath)
-
-            switch mp4VideoFileItemExistsResult {
-            case let .success(itemExists):
-                mp4VideoFileItemExists = itemExists
-
-            case let .failure(exception):
-                exceptions.append(exception)
-            }
-
-            // Check MP4 thumbnail exists
-
-            if mp4VideoFileItemExists {
-                let mp4VideoThumbnailFileItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
-
-                switch mp4VideoThumbnailFileItemExistsResult {
-                case let .success(itemExists):
-                    guard !itemExists else { continue }
-
-                    tookAction = true
-                    if let exception = await repairMalformedMessages([key]).exception {
-                        exceptions.append(exception)
-                    }
-
-                case let .failure(exception):
-                    exceptions.append(exception)
+                let thumbnailItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
+                switch thumbnailItemExistsResult {
+                case let .success(itemExists): thumbnailItemExists = itemExists
+                case let .failure(exception): exceptions.append(exception)
                 }
-            }
 
-            guard [
-                jpegImageFileItemExists,
-                pdfDocumentFileExists,
-                mp4VideoFileItemExists,
-            ].contains(true) else {
+                guard mediaItemExists,
+                      thumbnailItemExists || !(fileExtension.isDocument || fileExtension.isVideo) else { continue }
+
                 tookAction = true
                 if let exception = await repairMalformedMessages([key]).exception {
                     exceptions.append(exception)
                 }
 
-                continue
+            default: continue
             }
         }
 

@@ -66,9 +66,10 @@ public struct MessageService {
 
         var contentType: HostedContentType = .text
         if richContent?.audioComponents != nil {
-            contentType = .media(.audio(.m4a))
-        } else if let mediaComponentExtension = richContent?.mediaComponent?.fileExtension {
-            contentType = .media(mediaComponentExtension)
+            contentType = .audio(.m4a)
+        } else if let mediaFileID = richContent?.mediaComponent?.encodedHash.shortened,
+                  let mediaFileExtension = richContent?.mediaComponent?.fileExtension {
+            contentType = .media(id: mediaFileID, extension: mediaFileExtension)
         }
 
         var mockMessage: Message = .init(
@@ -90,7 +91,7 @@ public struct MessageService {
         }
 
         switch mockMessage.contentType {
-        case .media(.audio):
+        case .audio:
             guard let audioComponents = mockMessage.audioComponents else {
                 return .failure(.init(
                     "Failed to find audio components for audio message creation.",
@@ -130,14 +131,15 @@ public struct MessageService {
                 ))
             }
 
+            let mediaFileID = mediaComponent.encodedHash.shortened
             if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
                 return .failure(exception)
             }
 
-            let filePath = "\(NetworkPath.media.rawValue)/\(mockMessage.id).\(mediaComponent.fileExtension.rawValue)"
+            let filePath = "\(NetworkPath.media.rawValue)/\(mediaFileID).\(mediaComponent.fileExtension.rawValue)"
             mockMessage = mockMessage.replacingRichContent(.media(.init(
                 documentsDirectoryURL.appending(path: filePath),
-                name: mockMessage.id,
+                name: mediaFileID,
                 fileExtension: mediaComponent.fileExtension
             )))
 

@@ -248,7 +248,7 @@ public struct NotificationService {
         var body: String?
 
         switch message.contentType {
-        case .media(.audio):
+        case .audio:
             body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
 
         case .media:

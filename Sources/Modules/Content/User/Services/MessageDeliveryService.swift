@@ -263,7 +263,7 @@ public final class MessageDeliveryService {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                contentType: .media(.audio(.m4a)),
+                contentType: .audio(.m4a),
                 richContent: .audio([mockAudioMessageReference]),
                 translationReferences: [mockTranslation.reference],
                 translations: [mockTranslation],
@@ -274,7 +274,10 @@ public final class MessageDeliveryService {
             messages.append(.init(
                 CommonConstants.newMessageID,
                 fromAccountID: currentUser.id,
-                contentType: .media(mediaFile.fileExtension),
+                contentType: .media(
+                    id: mediaFile.encodedHash.shortened,
+                    extension: mediaFile.fileExtension
+                ),
                 richContent: .media(mediaFile),
                 translationReferences: nil,
                 translations: nil,

@@ -41,34 +41,36 @@ public struct LocalMediaFilePath: Codable, Equatable {
     public init?(_ message: Message) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard message.contentType.isMediaOtherThanAudio,
-              let fileExtension = message.contentType.rawValue.components(separatedBy: "/").last else { return nil }
+        switch message.contentType {
+        case let .media(id: fileID, extension: fileExtension):
+            let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"
+            let networkPathString = "\(pathPrefix).\(fileExtension.rawValue)"
+            let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        let pathPrefix = "\(NetworkPath.media.rawValue)/\(message.id)"
-        let networkPathString = "\(pathPrefix).\(fileExtension)"
-        let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
+            let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
+            let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
 
-        let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
-        let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
+            let thumbnailMediaFileExtensions = [
+                MediaFileExtension.document(.pdf),
+                MediaFileExtension.video(.mp4),
+            ]
 
-        let thumbnailMediaFileExtensions = [
-            MediaFileExtension.document(.pdf).rawValue,
-            MediaFileExtension.video(.mp4).rawValue,
-        ]
+            guard thumbnailMediaFileExtensions.contains(fileExtension) else {
+                self.init(
+                    networkPathString: networkPathString,
+                    localPathURL: localPathURL
+                )
+                return
+            }
 
-        guard thumbnailMediaFileExtensions.contains(fileExtension) else {
             self.init(
                 networkPathString: networkPathString,
-                localPathURL: localPathURL
+                localPathURL: localPathURL,
+                thumbnailNetworkPathString: thumbnailNetworkPathString,
+                thumbnailLocalPathURL: thumbnailLocalPathURL
             )
-            return
-        }
 
-        self.init(
-            networkPathString: networkPathString,
-            localPathURL: localPathURL,
-            thumbnailNetworkPathString: thumbnailNetworkPathString,
-            thumbnailLocalPathURL: thumbnailLocalPathURL
-        )
+        default: return nil
+        }
     }
 }
