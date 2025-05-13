@@ -196,6 +196,9 @@ public extension AppConstants.Strings {
             public static let reactionDetailsActionIdentifierRawValue = "reaction_details"
             public static let reactionDetailsActionImageSystemName = "info.circle"
 
+            public static let saveActionIdentifierRawValue = "save"
+            public static let saveActionImageSystemName = "square.and.arrow.down"
+
             public static let speakActionAlternateImageSystemName = "speaker.slash.circle"
             public static let speakActionIdentifierRawValue = "speak"
             public static let speakActionImageSystemName = "speaker.wave.2.circle"

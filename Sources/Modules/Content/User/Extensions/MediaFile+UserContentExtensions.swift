@@ -22,18 +22,18 @@ extension MediaFile: MediaItem {
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
 
         if let cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails,
-           let thumbnailPath = urlPath.thumbnailPath,
+           let thumbnailPath = localPathURL.thumbnailPath,
            let cachedThumbnail = cachedThumbnails[thumbnailPath] {
             return cachedThumbnail
-        } else if let cachedImage = mediaMessagePreviewService?.cachedImages?[urlPath] {
+        } else if let cachedImage = mediaMessagePreviewService?.cachedImages?[localPathURL] {
             return cachedImage
         }
 
-        guard let thumbnailPath = urlPath.thumbnailPath,
+        guard let thumbnailPath = localPathURL.thumbnailPath,
               fileManager.fileExists(atPath: thumbnailPath.path()) else {
-            guard let image = UIImage(contentsOfFile: urlPath.path()) else { return .missing }
+            guard let image = UIImage(contentsOfFile: localPathURL.path()) else { return .missing }
             if var cachedImages = mediaMessagePreviewService?.cachedImages {
-                cachedImages[urlPath] = image
+                cachedImages[localPathURL] = image
                 mediaMessagePreviewService?.cachedImages = cachedImages
             }
             return image
@@ -49,7 +49,7 @@ extension MediaFile: MediaItem {
 
     public var placeholderImage: UIImage { .init() }
     public var size: CGSize { image?.size ?? .zero }
-    public var url: URL? { urlPath }
+    public var url: URL? { localPathURL }
 }
 
 public extension MediaFile {

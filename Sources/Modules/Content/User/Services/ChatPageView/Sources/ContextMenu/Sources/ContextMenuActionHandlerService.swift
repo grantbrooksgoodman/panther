@@ -28,6 +28,7 @@ public final class ContextMenuActionHandlerService {
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.commonServices) private var services: CommonServices
@@ -101,7 +102,19 @@ public final class ContextMenuActionHandlerService {
             ),
         ]
 
-        guard !message.contentType.isMedia else { return actions.isEmpty ? nil : .init(children: actions) }
+        if message.contentType.isMedia {
+            actions.append(
+                .init(
+                    title: Localized(.saveFile).wrappedValue,
+                    image: .init(systemName: Strings.saveActionImageSystemName),
+                    identifier: .init(Strings.saveActionIdentifierRawValue),
+                    handler: handleAction(_:)
+                ),
+            )
+
+            return .init(children: actions)
+        }
+
         guard !message.contentType.isAudio else { return .init(children: actions + getAudioMessageActions(for: message)) }
 
         actions.append(contentsOf: textMessageMenuActions)
@@ -136,6 +149,19 @@ public final class ContextMenuActionHandlerService {
         chatPageViewService.contextMenu?.dismissMenu()
         Task { @MainActor in
             RootSheets.present(.reactionDetailsPageView)
+        }
+    }
+
+    private func handleSaveAction() {
+        if let image = selectedMessage?.imageComponent?.image {
+            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            coreHUD.showSuccess()
+        } else if let videoPathString = selectedMessage?.videoComponent?.localPathURL.path() {
+            UISaveVideoAtPathToSavedPhotosAlbum(videoPathString, nil, nil, nil)
+            coreHUD.showSuccess()
+        } else if let documentPathURL = selectedMessage?.documentComponent?.localPathURL,
+                  let exception = services.documentExport.presentExportController(forFileAt: documentPathURL) {
+            Logger.log(exception, with: .toast())
         }
     }
 
@@ -265,6 +291,7 @@ public final class ContextMenuActionHandlerService {
         case Strings.audioMessageActionIdentifierRawValue: handleAudioMessageAction()
         case Strings.copyActionIdentifierRawValue: handleCopyAction()
         case Strings.reactionDetailsActionIdentifierRawValue: handleReactionDetailsAction()
+        case Strings.saveActionIdentifierRawValue: handleSaveAction()
         case Strings.speakActionIdentifierRawValue: handleSpeakAction()
         case Strings.viewAlterateActionIdentifierRawValue: handleViewAlternateAction()
         default: ()

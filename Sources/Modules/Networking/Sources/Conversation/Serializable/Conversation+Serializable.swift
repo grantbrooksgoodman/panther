@@ -156,6 +156,7 @@ extension Conversation: Serializable {
             Logger.log(
                 .init(
                     "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    isReportable: false,
                     extraParams: ["ConversationIDKey": conversationID.key,
                                   "ConversationIDHash": conversationID.hash],
                     metadata: [self, #file, #function, #line]

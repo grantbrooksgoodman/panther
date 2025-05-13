@@ -103,6 +103,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
             Logger.log(
                 .init(
                     "Set messages on conversation.",
+                    isReportable: false,
                     extraParams: ["ConversationID": id.encoded],
                     metadata: [self, #file, #function, #line]
                 ),
@@ -151,6 +152,7 @@ public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
             Logger.log(
                 .init(
                     "Set users on conversation.",
+                    isReportable: false,
                     extraParams: ["ConversationID": id.encoded],
                     metadata: [self, #file, #function, #line]
                 ),

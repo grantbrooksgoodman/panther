@@ -77,6 +77,8 @@ public final class SplashPageViewService: ObservableObject {
         alertKitConfig.registerReportDelegate(ErrorReportingService())
         alertKitConfig.registerTranslationDelegate(networking.hostedTranslation)
 
+        Logger.setReportsErrorsAutomatically(true)
+
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
                 Logger.log(exception)

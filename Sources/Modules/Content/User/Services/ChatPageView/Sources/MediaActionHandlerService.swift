@@ -82,15 +82,15 @@ public final class MediaActionHandlerService {
             )
         }
 
-        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
-        let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
+        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
+        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
 
         let dataFromURLResult = Data.fromURL(url)
 
         switch dataFromURLResult {
         case let .success(data):
             if let exception = fileManager.createFile(
-                atPath: localPath,
+                atPath: localPathURL,
                 data: data
             ) {
                 return exception
@@ -104,7 +104,7 @@ public final class MediaActionHandlerService {
             switch getThumbnailImageResult {
             case let .success(image):
                 guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
-                      let thumbnailPath = localPath.thumbnailPath else {
+                      let thumbnailPath = localPathURL.thumbnailPath else {
                     return .init("Failed to process thumbnail data.", metadata: [self, #file, #function, #line])
                 }
 
@@ -116,7 +116,7 @@ public final class MediaActionHandlerService {
                 }
 
                 if let exception = await messageDeliveryService.sendMediaMessage(.init(
-                    localPath,
+                    relativePath,
                     name: Strings.defaultDocumentName,
                     fileExtension: mediaFileExtension
                 )) {
@@ -141,16 +141,16 @@ public final class MediaActionHandlerService {
             return .init("Failed to compress image.", metadata: [self, #file, #function, #line])
         }
 
-        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
-        let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
+        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
+        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
 
         if let exception = fileManager.createFile(
-            atPath: localPath,
+            atPath: localPathURL,
             data: data
         ) {
             return exception
         } else if let exception = await messageDeliveryService.sendMediaMessage(.init(
-            localPath,
+            relativePath,
             name: Strings.defaultImageName,
             fileExtension: .image(.jpeg)
         )) {
@@ -163,22 +163,22 @@ public final class MediaActionHandlerService {
     // MARK: - Process & Send Video
 
     private func processAndSendVideo(_ url: URL) async -> Exception? {
-        let networkPath = "\(NetworkPath.media.rawValue)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
-        let localPath = fileManager.documentsDirectoryURL.appending(path: networkPath)
+        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
 
-        if let exception = await compressVideo(at: url, outputURL: localPath) {
+        if let exception = await compressVideo(at: url, outputURL: localPathURL) {
             return exception
         }
 
         let getThumbnailImageResult = await getThumbnailImage(
-            localPath,
+            localPathURL,
             contentType: .video(.mp4)
         )
 
         switch getThumbnailImageResult {
         case let .success(image):
             guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
-                  let thumbnailPath = localPath.thumbnailPath else {
+                  let thumbnailPath = localPathURL.thumbnailPath else {
                 return .init("Failed to process thumbnail data.", metadata: [self, #file, #function, #line])
             }
 
@@ -190,7 +190,7 @@ public final class MediaActionHandlerService {
             }
 
             if let exception = await messageDeliveryService.sendMediaMessage(.init(
-                localPath,
+                relativePath,
                 name: Strings.defaultVideoName,
                 fileExtension: .video(.mp4)
             )) {

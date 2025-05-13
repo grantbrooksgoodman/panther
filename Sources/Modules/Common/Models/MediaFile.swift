@@ -18,14 +18,14 @@ public struct MediaFile: Codable, EncodedHashable, Equatable {
 
     public let fileExtension: MediaFileExtension
     public let name: String
-    public let urlPath: URL
+    public let relativePath: String
 
     // MARK: - Computed Properties
 
     public var hashFactors: [String] {
         var factors = [fileExtension.rawValue]
 
-        let dataFromURLResult = Data.fromURL(urlPath)
+        let dataFromURLResult = Data.fromURL(localPathURL)
         switch dataFromURLResult {
         case let .success(data): factors.append(data.hash)
         case let .failure(exception): Logger.log(exception, with: .toastInPrerelease)
@@ -36,27 +36,33 @@ public struct MediaFile: Codable, EncodedHashable, Equatable {
 
     public var hasThumbnail: Bool {
         @Dependency(\.fileManager) var fileManager: FileManager
-        guard let thumbnailPath = urlPath.thumbnailPath else { return false }
+        guard let thumbnailPath = localPathURL.thumbnailPath else { return false }
         return fileManager.fileExists(atPath: thumbnailPath.path())
+    }
+
+    public var localPathURL: URL {
+        @Dependency(\.fileManager) var fileManager: FileManager
+        return fileManager.documentsDirectoryURL.appending(path: relativePath)
     }
 
     // MARK: - Init
 
     public init(
-        _ urlPath: URL,
+        _ relativePath: String,
         name: String,
         fileExtension: MediaFileExtension
     ) {
-        self.urlPath = urlPath
+        self.relativePath = relativePath
         self.name = name
         self.fileExtension = fileExtension
     }
 
-    public init?(_ url: URL) {
+    public init?(_ relativePath: String) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)),
-              let fileName = url.absoluteString.components(separatedBy: "/").last,
+        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
+        guard fileManager.fileExists(atPath: localPathURL.path()) || fileManager.fileExists(atPath: localPathURL.path(percentEncoded: false)),
+              let fileName = relativePath.components(separatedBy: "/").last,
               fileName.components(separatedBy: ".").count == 2 else { return nil }
 
         let components = fileName.components(separatedBy: ".")
@@ -64,10 +70,19 @@ public struct MediaFile: Codable, EncodedHashable, Equatable {
               let fileExtension = MediaFileExtension(fileExtensionString) else { return nil }
 
         self.init(
-            url,
+            relativePath,
             name: components[0],
             fileExtension: fileExtension
         )
+    }
+}
+
+extension URL {
+    var fileExtension: String? {
+        guard let fileName = absoluteString.components(separatedBy: "/").last,
+              let fileExtension = fileName.components(separatedBy: ".").itemAt(1),
+              MediaFileExtension(fileExtension) != nil else { return nil }
+        return fileExtension
     }
 }
 

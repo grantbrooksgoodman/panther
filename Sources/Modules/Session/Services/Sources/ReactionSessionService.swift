@@ -59,7 +59,7 @@ public final class ReactionSessionService {
         guard !message.isMock else { return nil }
         guard let conversation = conversationSession.fullConversation,
               let currentUserID,
-              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }) else {
+              let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }) else {
             return .init(
                 "Failed to resolve required values.",
                 metadata: [self, #file, #function, #line]
@@ -122,7 +122,7 @@ public final class ReactionSessionService {
         isReactingToMessage = false
 
         switch updateValueResult {
-        case let .success(updatedConversation): // TODO: Audit the efficacy of the below code.
+        case let .success(updatedConversation):
             conversationSession.setCurrentConversation(updatedConversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
             chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
@@ -143,6 +143,7 @@ public final class ReactionSessionService {
 
             Logger.log(.init(
                 "Running effects for change of \"isReactingToMessage\" to TRUE.",
+                isReportable: false,
                 extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToTrue.keys.map(\.rawValue)],
                 metadata: [self, #file, #function, #line]
             ))
@@ -156,6 +157,7 @@ public final class ReactionSessionService {
 
             Logger.log(.init(
                 "Running effects for change of \"isReactingToMessage\" to FALSE.",
+                isReportable: false,
                 extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToFalse.keys.map(\.rawValue)],
                 metadata: [self, #file, #function, #line]
             ))
@@ -195,7 +197,7 @@ public final class ReactionSessionService {
     @MainActor
     private func removeReaction(from message: Message) async -> Exception? {
         guard let conversation = conversationSession.fullConversation,
-              let messageIndex = conversation.messages?.firstIndex(where: { $0.id == message.id }),
+              let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }),
               !message.isMock,
               let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
             return .init(
@@ -209,7 +211,7 @@ public final class ReactionSessionService {
         isReactingToMessage = false
 
         switch updateValueResult {
-        case let .success(conversation): // TODO: Audit the efficacy of the below code.
+        case let .success(conversation):
             conversationSession.setCurrentConversation(conversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
             chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()

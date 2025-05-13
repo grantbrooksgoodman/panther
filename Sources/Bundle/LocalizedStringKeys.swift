@@ -34,6 +34,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case dismiss
     case done
 
+    case errorReported
     case errorReportedSuccessfully
 
     case friday
@@ -75,6 +76,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case requestConsent
 
     case saturday
+    case saveFile
     case search
     case selectCallingCode
     case selectLanguage
@@ -125,6 +127,7 @@ public extension LocalizedStringKey {
     struct LocalizedStringsDelegate: AppSubsystem.Delegates.LocalizedStringsDelegate {
         public var cancel: String { Localized(.cancel).wrappedValue }
         public var done: String { Localized(.done).wrappedValue }
+        public var errorReported: String { Localized(.errorReported).wrappedValue }
         public var dismiss: String { Localized(.dismiss).wrappedValue }
         public var internetConnectionOffline: String { Localized(.internetConnectionOffline).wrappedValue }
         public var noEmail: String { Localized(.noEmail).wrappedValue }

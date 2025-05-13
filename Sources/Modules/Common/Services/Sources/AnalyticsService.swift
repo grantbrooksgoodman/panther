@@ -115,6 +115,7 @@ public struct AnalyticsService {
             Logger.log(
                 .init(
                     "Logging analytics event \"\(event.name)\".",
+                    isReportable: false,
                     extraParams: parameters,
                     metadata: [self, #file, #function, #line]
                 ),

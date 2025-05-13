@@ -21,6 +21,7 @@ public struct CommonServices {
     public let connectionStatus: ConnectionStatusService
     public let contact: ContactService
     public let contentPicker: ContentPickerService
+    public let documentExport: DocumentExportService
     public let haptics: HapticsService
     public let invite: InviteService
     public let messageRecipientConsent: MessageRecipientConsentService
@@ -47,6 +48,7 @@ public struct CommonServices {
         connectionStatus: ConnectionStatusService,
         contact: ContactService,
         contentPicker: ContentPickerService,
+        documentExport: DocumentExportService,
         haptics: HapticsService,
         invite: InviteService,
         messageRecipientConsent: MessageRecipientConsentService,
@@ -70,6 +72,7 @@ public struct CommonServices {
         self.connectionStatus = connectionStatus
         self.contact = contact
         self.contentPicker = contentPicker
+        self.documentExport = documentExport
         self.haptics = haptics
         self.invite = invite
         self.messageRecipientConsent = messageRecipientConsent

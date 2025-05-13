@@ -30,6 +30,7 @@ public enum CommonServicesDependency: DependencyKey {
                 document: .init(),
                 media: .init()
             ),
+            documentExport: .init(),
             haptics: .init(
                 heavyImpactFeedbackGenerator: .init(style: .heavy),
                 lightImpactFeedbackGenerator: .init(style: .light),

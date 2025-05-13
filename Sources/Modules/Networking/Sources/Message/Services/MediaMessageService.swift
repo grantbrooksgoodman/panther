@@ -75,27 +75,37 @@ public struct MediaMessageService {
 
     public func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
         let pathPrefix = "\(NetworkPath.media.rawValue)/\(mediaComponent.encodedHash.shortened)"
-        let mediaNetworkPath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
-        let thumbnailNetworkPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
+        let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
+        let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        if (try? await networking.storage.itemExists(at: mediaNetworkPath).get()) == true {
+        if (try? await networking.storage.itemExists(at: relativePath).get()) == true {
             guard mediaComponent.hasThumbnail,
-                  (try? await networking.storage.itemExists(at: thumbnailNetworkPath).get()) == false else {
-                try? fileManager.removeItem(at: mediaComponent.urlPath)
-                guard let thumbnailPath = mediaComponent.urlPath.thumbnailPath else { return nil }
-                try? fileManager.removeItem(at: thumbnailPath)
-                return nil
+                  (try? await networking.storage.itemExists(at: thumbnailRelativePath).get()) == false else {
+                if let exception = fileManager.move(
+                    fileAt: mediaComponent.localPathURL,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)
+                ) {
+                    return exception
+                }
+
+                guard mediaComponent.hasThumbnail,
+                      let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return nil }
+
+                return fileManager.move(
+                    fileAt: thumbnailPath,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
+                )
             }
         }
 
-        let mediaDataFromURLResult = Data.fromURL(mediaComponent.urlPath)
+        let mediaDataFromURLResult = Data.fromURL(mediaComponent.localPathURL)
 
         switch mediaDataFromURLResult {
         case let .success(mediaData):
             if let exception = await networking.storage.upload(
                 mediaData,
                 metadata: .init(
-                    mediaNetworkPath,
+                    relativePath,
                     contentType: mediaComponent.fileExtension.contentTypeString
                 )
             ) {
@@ -103,14 +113,15 @@ public struct MediaMessageService {
             }
 
             if let exception = fileManager.move(
-                fileAt: mediaComponent.urlPath,
-                toPath: fileManager.documentsDirectoryURL.appending(path: mediaNetworkPath)
+                fileAt: mediaComponent.localPathURL,
+                toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)
             ) {
                 return exception
             }
 
             guard mediaComponent.hasThumbnail,
-                  let thumbnailPath = mediaComponent.urlPath.thumbnailPath else { return nil }
+                  let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return nil }
+
             let thumbnailDataFromURLResult = Data.fromURL(thumbnailPath)
 
             switch thumbnailDataFromURLResult {
@@ -118,7 +129,7 @@ public struct MediaMessageService {
                 if let exception = await networking.storage.upload(
                     thumbnailData,
                     metadata: .init(
-                        thumbnailNetworkPath,
+                        thumbnailRelativePath,
                         contentType: MediaFileExtension.image(.jpeg).contentTypeString
                     )
                 ) {
@@ -127,7 +138,7 @@ public struct MediaMessageService {
 
                 return fileManager.move(
                     fileAt: thumbnailPath,
-                    toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPath)
+                    toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
                 )
 
             case let .failure(exception):
@@ -166,7 +177,7 @@ public struct MediaMessageService {
     ) -> Callback<MediaFile, Exception> {
         let commonParams = ["MessageID": message.id]
 
-        guard let mediaFile = MediaFile(localPath.localPathURL) else {
+        guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Media message reference has no local copy.",
                 metadata: [self, #file, #function, #line]
@@ -183,22 +194,22 @@ public struct MediaMessageService {
         let commonParams = ["MessageID": message.id]
 
         if let exception = await networking.storage.downloadItem(
-            at: localPath.networkPathString,
+            at: localPath.relativePathString,
             to: localPath.localPathURL
         ) {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        if let thumbnailNetworkPathString = localPath.thumbnailNetworkPathString,
-           let thumbnailLocalPathURL = localPath.thumbnailLocalPathURL,
+        if let thumbnailPathString = localPath.relativeThumbnailPathString,
+           let thumbnailPathURL = localPath.localThumbnailPathURL,
            let exception = await networking.storage.downloadItem(
-               at: thumbnailNetworkPathString,
-               to: thumbnailLocalPathURL
+               at: thumbnailPathString,
+               to: thumbnailPathURL
            ) {
             return .failure(exception.appending(extraParams: commonParams))
         }
 
-        guard let mediaFile = MediaFile(localPath.localPathURL) else {
+        guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Failed to generate media file.",
                 metadata: [self, #file, #function, #line]

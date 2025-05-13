@@ -103,6 +103,7 @@ public struct MessageService {
                 return .failure(exception)
             }
 
+            // NIT: Can have uploadAudioComponents modify the message.
             mockMessage = mockMessage.replacingRichContent(.audio(
                 audioComponents.reduce(into: [AudioMessageReference]()) { partialResult, audioComponent in
                     let inputFileExtension = audioComponent.original.fileExtension.rawValue
@@ -136,9 +137,9 @@ public struct MessageService {
                 return .failure(exception)
             }
 
-            let filePath = "\(NetworkPath.media.rawValue)/\(mediaFileID).\(mediaComponent.fileExtension.rawValue)"
+            // NIT: Can have uploadMediaComponent modify the message.
             mockMessage = mockMessage.replacingRichContent(.media(.init(
-                documentsDirectoryURL.appending(path: filePath),
+                "\(NetworkPath.media.rawValue)/\(mediaFileID).\(mediaComponent.fileExtension.rawValue)",
                 name: mediaFileID,
                 fileExtension: mediaComponent.fileExtension
             )))

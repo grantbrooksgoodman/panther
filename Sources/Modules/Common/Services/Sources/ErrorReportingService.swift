@@ -101,12 +101,20 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                     customValues: commonParams
                 )
             ) {
+                guard Logger.reportsErrorsAutomatically else {
+                    return Logger.log(exception, with: .toast())
+                }
+
+                Logger.setReportsErrorsAutomatically(false)
                 Logger.log(exception, with: .toast())
+                Logger.setReportsErrorsAutomatically(true)
+
                 return
             }
 
             reportedErrorCodes.append(errorCode)
-            guard showsToastOnSuccess else { return }
+            guard showsToastOnSuccess,
+                  !Logger.reportsErrorsAutomatically else { return }
 
             var toastAction: (() -> Void)? {
                 guard self.build.isDeveloperModeEnabled,

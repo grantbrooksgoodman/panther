@@ -130,6 +130,7 @@ public final class UserService {
             Logger.log(
                 .init(
                     "Returning cached user data snapshot.",
+                    isReportable: false,
                     extraParams: ["UserID": id],
                     metadata: [self, #file, #function, #line]
                 ),

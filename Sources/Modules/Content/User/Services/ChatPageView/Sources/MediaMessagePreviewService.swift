@@ -27,6 +27,7 @@ public final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -46,7 +47,7 @@ public final class MediaMessagePreviewService {
         viewController
             .currentConversation?
             .messages?
-            .compactMap { $0.richContent?.mediaComponent?.urlPath.path() } ?? []
+            .compactMap { $0.richContent?.mediaComponent?.localPathURL.path() } ?? []
     }
 
     // MARK: - Init
@@ -71,7 +72,7 @@ public final class MediaMessagePreviewService {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
               message.contentType.isMedia,
-              let filePath = message.richContent?.mediaComponent?.urlPath.path(),
+              let filePath = message.richContent?.mediaComponent?.localPathURL.path(),
               fileManager.fileExists(atPath: filePath),
               !isPreviewingMedia,
               let contextMenuService = chatPageViewService.contextMenu,
@@ -81,6 +82,7 @@ public final class MediaMessagePreviewService {
         let recipientBarWasFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         uiApplication.resignFirstResponders()
 
+        InteractivePopGestureRecognizer.setIsEnabled(false)
         if let exception = quickViewer.preview(
             filesAtPaths: mediaPaths,
             startingIndex: mediaPaths.firstIndex(of: filePath) ?? 0,
@@ -99,9 +101,7 @@ public final class MediaMessagePreviewService {
                 self.chatPageViewService.recipientBar?.layout.textField?.becomeFirstResponder()
             }
 
-            Task.delayed(by: .seconds(1)) { @MainActor in
-                self.viewController.view.isUserInteractionEnabled = true
-            }
+            self.enableUserInteraction()
         }
 
         isPreviewingMedia = true
@@ -115,6 +115,22 @@ public final class MediaMessagePreviewService {
     }
 
     // MARK: - Auxiliary
+
+    /// - NOTE: Fixes a bug in which a dismissal of the `QuickViewer` would cause the view's user interaction to become disabled.
+    private func enableUserInteraction() {
+        Logger.log(
+            "Intercepted QuickViewer dismissal user interaction bug.",
+            domain: .bugPrevention,
+            metadata: [self, #file, #function, #line]
+        )
+
+        InteractivePopGestureRecognizer.setIsEnabled(true)
+        viewController.view.isUserInteractionEnabled = true
+
+        coreGCD.after(.seconds(1)) { self.viewController.view.isUserInteractionEnabled = true }
+        coreGCD.after(.seconds(2)) { self.viewController.view.isUserInteractionEnabled = true }
+        coreGCD.after(.seconds(3)) { self.viewController.view.isUserInteractionEnabled = true }
+    }
 
     @objc
     private func pinchGestureRecognized(recognizer: UIPinchGestureRecognizer) {

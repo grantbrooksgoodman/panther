@@ -66,6 +66,7 @@ public final class ContactPairArchiveService {
             Logger.log(
                 .init(
                     "Added contact pair to persisted archive.",
+                    isReportable: false,
                     extraParams: [
                         "FullName": contactPair.contact.fullName,
                         "PhoneNumbers": contactPair.numberPairs.map { $0.phoneNumber.formattedString() }.description,

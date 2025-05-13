@@ -16,58 +16,47 @@ import Networking
 public struct LocalMediaFilePath: Codable, Equatable {
     // MARK: - Properties
 
-    // String
-    public let networkPathString: String
-    public let thumbnailNetworkPathString: String?
+    public let relativePathString: String
+    public let relativeThumbnailPathString: String?
 
-    // URL
-    public let localPathURL: URL
-    public let thumbnailLocalPathURL: URL?
+    // MARK: - Computed Properties
+
+    public var localPathURL: URL {
+        @Dependency(\.fileManager) var fileManager: FileManager
+        return fileManager.documentsDirectoryURL.appending(path: relativePathString)
+    }
+
+    public var localThumbnailPathURL: URL? {
+        @Dependency(\.fileManager) var fileManager: FileManager
+        guard let relativeThumbnailPathString else { return nil }
+        return fileManager.documentsDirectoryURL.appending(path: relativeThumbnailPathString)
+    }
 
     // MARK: - Init
 
     public init(
-        networkPathString: String,
-        localPathURL: URL,
-        thumbnailNetworkPathString: String? = nil,
-        thumbnailLocalPathURL: URL? = nil
+        relativePathString: String,
+        relativeThumbnailPathString: String? = nil,
     ) {
-        self.networkPathString = networkPathString
-        self.localPathURL = localPathURL
-        self.thumbnailNetworkPathString = thumbnailNetworkPathString
-        self.thumbnailLocalPathURL = thumbnailLocalPathURL
+        self.relativePathString = relativePathString
+        self.relativeThumbnailPathString = relativeThumbnailPathString
     }
 
     public init?(_ message: Message) {
-        @Dependency(\.fileManager) var fileManager: FileManager
-
         switch message.contentType {
         case let .media(id: fileID, extension: fileExtension):
             let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"
-            let networkPathString = "\(pathPrefix).\(fileExtension.rawValue)"
-            let thumbnailNetworkPathString = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
-
-            let localPathURL = fileManager.documentsDirectoryURL.appending(path: networkPathString)
-            let thumbnailLocalPathURL = fileManager.documentsDirectoryURL.appending(path: thumbnailNetworkPathString)
+            let filePath = "\(pathPrefix).\(fileExtension.rawValue)"
+            let thumbnailPath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
             let thumbnailMediaFileExtensions = [
                 MediaFileExtension.document(.pdf),
                 MediaFileExtension.video(.mp4),
             ]
 
-            guard thumbnailMediaFileExtensions.contains(fileExtension) else {
-                self.init(
-                    networkPathString: networkPathString,
-                    localPathURL: localPathURL
-                )
-                return
-            }
-
             self.init(
-                networkPathString: networkPathString,
-                localPathURL: localPathURL,
-                thumbnailNetworkPathString: thumbnailNetworkPathString,
-                thumbnailLocalPathURL: thumbnailLocalPathURL
+                relativePathString: filePath,
+                relativeThumbnailPathString: thumbnailMediaFileExtensions.contains(fileExtension) ? thumbnailPath : nil
             )
 
         default: return nil

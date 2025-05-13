@@ -39,7 +39,11 @@ public final class PushTokenService {
 
         var pushTokens = currentUser.pushTokens ?? []
         guard !pushTokens.contains(currentToken) else {
-            return .init("Push tokens already up to date.", metadata: [self, #file, #function, #line])
+            return .init(
+                "Push tokens already up to date.",
+                isReportable: false,
+                metadata: [self, #file, #function, #line]
+            )
         }
 
         pushTokens.append(currentToken)

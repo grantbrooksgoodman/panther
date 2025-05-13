@@ -62,6 +62,7 @@ public extension HostedTranslationDelegate {
                 Logger.log(
                     .init(
                         "Added hosted translation to local archive.",
+                        isReportable: false,
                         extraParams: ["ReferenceHostingKey": decoded.reference.hostingKey],
                         metadata: [self, #file, #function, #line]
                     ),

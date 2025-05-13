@@ -77,6 +77,7 @@ public final class ConversationSyncService {
             Logger.log(
                 .init(
                     "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    isReportable: false,
                     extraParams: commonParams,
                     metadata: [self, #file, #function, #line]
                 ),

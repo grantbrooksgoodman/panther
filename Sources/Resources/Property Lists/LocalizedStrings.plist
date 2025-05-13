@@ -2172,6 +2172,161 @@
 		<key>zh</key>
 		<string>完毕</string>
 	</dict>
+	<key>error_reported</key>
+	<dict>
+		<key>af</key>
+		<string>Hierdie fout is aangemeld.</string>
+		<key>ar</key>
+		<string>لقد تم الإبلاغ عن هذا الخطأ.</string>
+		<key>az</key>
+		<string>Bu səhv bildirildi.</string>
+		<key>be</key>
+		<string>Пра гэтую памылку паведамілі.</string>
+		<key>bg</key>
+		<string>Тази грешка е докладвана.</string>
+		<key>bn</key>
+		<string>এই ত্রুটিটি রিপোর্ট করা হয়েছে।</string>
+		<key>bs</key>
+		<string>Ova greška je prijavljena.</string>
+		<key>ca</key>
+		<string>S&apos;ha informat d&apos;aquest error.</string>
+		<key>cs</key>
+		<string>Tato chyba byla nahlášena.</string>
+		<key>cy</key>
+		<string>Mae&apos;r gwall hwn wedi cael ei adrodd.</string>
+		<key>da</key>
+		<string>Denne fejl er blevet rapporteret.</string>
+		<key>de</key>
+		<string>Dieser Fehler wurde gemeldet.</string>
+		<key>el</key>
+		<string>Αυτό το σφάλμα έχει αναφερθεί.</string>
+		<key>en</key>
+		<string>This error has been reported.</string>
+		<key>eo</key>
+		<string>Ĉi tiu eraro estis raportita.</string>
+		<key>es</key>
+		<string>Se ha informado de este error.</string>
+		<key>et</key>
+		<string>Sellest veast on teatatud.</string>
+		<key>eu</key>
+		<string>Errore honen berri eman da.</string>
+		<key>fa</key>
+		<string>این خطا گزارش شده است.</string>
+		<key>fi</key>
+		<string>Tästä virheestä on ilmoitettu.</string>
+		<key>fr</key>
+		<string>Cette erreur a été signalée.</string>
+		<key>ga</key>
+		<string>Tuairiscíodh an earráid seo.</string>
+		<key>gd</key>
+		<string>Chaidh aithris air a’ mhearachd seo.</string>
+		<key>gl</key>
+		<string>Este erro foi informado.</string>
+		<key>gu</key>
+		<string>આ ભૂલની જાણ કરવામાં આવી છે.</string>
+		<key>he</key>
+		<string>שגיאה זו דווחה.</string>
+		<key>hi</key>
+		<string>यह त्रुटि बताई गई है।</string>
+		<key>hr</key>
+		<string>Ova je pogreška zabilježena.</string>
+		<key>ht</key>
+		<string>Erè sa a te rapòte.</string>
+		<key>hu</key>
+		<string>Ezt a hibát jelentették.</string>
+		<key>hy</key>
+		<string>Այս սխալի մասին հաղորդվել է։</string>
+		<key>id</key>
+		<string>Kesalahan ini telah dilaporkan.</string>
+		<key>is</key>
+		<string>Þessi villa hefur verið tilkynnt.</string>
+		<key>it</key>
+		<string>Questo errore è stato segnalato.</string>
+		<key>ja</key>
+		<string>このエラーは報告されています。</string>
+		<key>ka</key>
+		<string>Ეს შეცდომა დაფიქსირდა.</string>
+		<key>kk</key>
+		<string>Бұл қате туралы хабарланды.</string>
+		<key>kn</key>
+		<string>ಈ ದೋಷ ವರದಿಯಾಗಿದೆ.</string>
+		<key>ko</key>
+		<string>이 오류가 보고되었습니다.</string>
+		<key>ky</key>
+		<string>Бул ката билдирилди.</string>
+		<key>lt</key>
+		<string>Apie šią klaidą pranešta.</string>
+		<key>mg</key>
+		<string>Ity hadisoana ity dia notaterina.</string>
+		<key>mi</key>
+		<string>Kua korerotia tenei hapa.</string>
+		<key>mk</key>
+		<string>Оваа грешка е пријавена.</string>
+		<key>ml</key>
+		<string>ഈ പിശക് റിപ്പോർട്ട് ചെയ്തിട്ടുണ്ട്.</string>
+		<key>mn</key>
+		<string>Энэ алдааг мэдээлсэн.</string>
+		<key>mt</key>
+		<string>Dan l-iżball ġie rrappurtat.</string>
+		<key>ne</key>
+		<string>यो त्रुटि रिपोर्ट गरिएको छ।</string>
+		<key>nl</key>
+		<string>Deze fout is gemeld.</string>
+		<key>no</key>
+		<string>Denne feilen er rapportert.</string>
+		<key>pa</key>
+		<string>ਇਸ ਗਲਤੀ ਦੀ ਰਿਪੋਰਟ ਕੀਤੀ ਗਈ ਹੈ।</string>
+		<key>pl</key>
+		<string>Ten błąd został zgłoszony.</string>
+		<key>pt</key>
+		<string>Este erro foi relatado.</string>
+		<key>ro</key>
+		<string>Această eroare a fost raportată.</string>
+		<key>ru</key>
+		<string>Об этой ошибке сообщено.</string>
+		<key>si</key>
+		<string>මෙම දෝෂය වාර්තා කර ඇත.</string>
+		<key>sk</key>
+		<string>Táto chyba bola hlásená.</string>
+		<key>sl</key>
+		<string>O tej napaki so poročali.</string>
+		<key>sq</key>
+		<string>Ky gabim është raportuar.</string>
+		<key>sr</key>
+		<string>Ова грешка је пријављена.</string>
+		<key>su</key>
+		<string>Kasalahan ieu parantos dilaporkeun.</string>
+		<key>sv</key>
+		<string>Detta fel har rapporterats.</string>
+		<key>sw</key>
+		<string>Hitilafu hii imeripotiwa.</string>
+		<key>ta</key>
+		<string>இந்தப் பிழை புகாரளிக்கப்பட்டுள்ளது.</string>
+		<key>te</key>
+		<string>ఈ లోపం నివేదించబడింది.</string>
+		<key>tg</key>
+		<string>Дар бораи ин хато хабар дода шудааст.</string>
+		<key>th</key>
+		<string>ข้อผิดพลาดนี้ได้รับการรายงาน</string>
+		<key>tl</key>
+		<string>Naiulat na ang error na ito.</string>
+		<key>tr</key>
+		<string>Bu hata rapor edildi.</string>
+		<key>tt</key>
+		<string>Бу хата хәбәр ителде.</string>
+		<key>uk</key>
+		<string>Про цю помилку повідомлено.</string>
+		<key>ur</key>
+		<string>اس غلطی کی اطلاع دی گئی ہے۔</string>
+		<key>uz</key>
+		<string>Bu xato haqida xabar berildi.</string>
+		<key>vi</key>
+		<string>Lỗi này đã được báo cáo.</string>
+		<key>yi</key>
+		<string>די טעות איז געמאלדן געוואָרן.</string>
+		<key>zh</key>
+		<string>该错误已报告。</string>
+	</dict>
 	<key>error_reported_successfully</key>
 	<dict>
 		<key>af</key>
@@ -7266,6 +7421,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>שבת</string>
 		<key>zh</key>
 		<string>周六</string>
+	</dict>
+	<key>save_file</key>
+	<dict>
+		<key>af</key>
+		<string>Stoor die lêer</string>
+		<key>ar</key>
+		<string>حفظ الملف</string>
+		<key>az</key>
+		<string>Faylı saxla</string>
+		<key>be</key>
+		<string>Захавайце файл</string>
+		<key>bg</key>
+		<string>Запазете файла</string>
+		<key>bn</key>
+		<string>ফাইলটি সংরক্ষণ করুন</string>
+		<key>bs</key>
+		<string>Sačuvaj datoteku</string>
+		<key>ca</key>
+		<string>Desa el fitxer</string>
+		<key>cs</key>
+		<string>Uložte soubor</string>
+		<key>cy</key>
+		<string>Cadw&apos;r Ffeil</string>
+		<key>da</key>
+		<string>Gem filen</string>
+		<key>de</key>
+		<string>Speichern Sie die Datei</string>
+		<key>el</key>
+		<string>Αποθήκευση του αρχείου</string>
+		<key>en</key>
+		<string>Save</string>
+		<key>eo</key>
+		<string>Konservu la dosieron</string>
+		<key>es</key>
+		<string>Guardar</string>
+		<key>et</key>
+		<string>Salvestage fail</string>
+		<key>eu</key>
+		<string>Gorde fitxategia</string>
+		<key>fa</key>
+		<string>فایل را ذخیره کنید</string>
+		<key>fi</key>
+		<string>Tallenna tiedosto</string>
+		<key>fr</key>
+		<string>Enregistrer le fichier</string>
+		<key>ga</key>
+		<string>Sábháil an Comhad</string>
+		<key>gd</key>
+		<string>Sàbhail am faidhle</string>
+		<key>gl</key>
+		<string>Gardar o ficheiro</string>
+		<key>gu</key>
+		<string>ફાઇલ સાચવો</string>
+		<key>he</key>
+		<string>שמור את הקובץ</string>
+		<key>hi</key>
+		<string>फ़ाइल सहेजें</string>
+		<key>hr</key>
+		<string>Spremi datoteku</string>
+		<key>ht</key>
+		<string>Sove Fichye a</string>
+		<key>hu</key>
+		<string>Mentse el a fájlt</string>
+		<key>hy</key>
+		<string>Պահպանեք ֆայլը</string>
+		<key>id</key>
+		<string>Simpan file</string>
+		<key>is</key>
+		<string>Vista skrána</string>
+		<key>it</key>
+		<string>Salva il file</string>
+		<key>ja</key>
+		<string>ファイルを保存する</string>
+		<key>ka</key>
+		<string>Შეინახეთ ფაილი</string>
+		<key>kk</key>
+		<string>Файлды сақтаңыз</string>
+		<key>kn</key>
+		<string>ಫೈಲ್ ಉಳಿಸಿ</string>
+		<key>ko</key>
+		<string>파일 저장</string>
+		<key>ky</key>
+		<string>Файлды сактаңыз</string>
+		<key>lt</key>
+		<string>Išsaugokite failą</string>
+		<key>mg</key>
+		<string>Save the File</string>
+		<key>mi</key>
+		<string>Whakaorangia te konae</string>
+		<key>mk</key>
+		<string>Зачувај ја датотеката</string>
+		<key>ml</key>
+		<string>ഫയൽ സേവ് ചെയ്യുക</string>
+		<key>mn</key>
+		<string>Файлыг хадгалах</string>
+		<key>mt</key>
+		<string>Salva l-Fajl</string>
+		<key>ne</key>
+		<string>फाइल बचत गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Sla het bestand op</string>
+		<key>no</key>
+		<string>Lagre filen</string>
+		<key>pa</key>
+		<string>ਫਾਈਲ ਸੇਵ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Zapisz plik</string>
+		<key>pt</key>
+		<string>Salvar o arquivo</string>
+		<key>ro</key>
+		<string>Salvați fișierul</string>
+		<key>ru</key>
+		<string>Сохраните файл</string>
+		<key>si</key>
+		<string>ගොනුව සුරකින්න</string>
+		<key>sk</key>
+		<string>Uložte súbor</string>
+		<key>sl</key>
+		<string>Shrani datoteko</string>
+		<key>sq</key>
+		<string>Ruani skedarin</string>
+		<key>sr</key>
+		<string>Сачувај датотеку</string>
+		<key>su</key>
+		<string>Simpen File</string>
+		<key>sv</key>
+		<string>Spara filen</string>
+		<key>sw</key>
+		<string>Hifadhi Faili</string>
+		<key>ta</key>
+		<string>கோப்பைச் சேமிக்கவும்</string>
+		<key>te</key>
+		<string>ఫైల్‌ను సేవ్ చేయండి</string>
+		<key>tg</key>
+		<string>Файлро захира кунед</string>
+		<key>th</key>
+		<string>บันทึกไฟล์</string>
+		<key>tl</key>
+		<string>I-save ang File</string>
+		<key>tr</key>
+		<string>Dosyayı Kaydet</string>
+		<key>tt</key>
+		<string>Файлны саклагыз</string>
+		<key>uk</key>
+		<string>Збережіть файл</string>
+		<key>ur</key>
+		<string>فائل کو محفوظ کریں۔</string>
+		<key>uz</key>
+		<string>Faylni saqlang</string>
+		<key>vi</key>
+		<string>Lưu tập tin</string>
+		<key>yi</key>
+		<string>ראַטעווען די טעקע</string>
+		<key>zh</key>
+		<string>保存文件</string>
 	</dict>
 	<key>search</key>
 	<dict>

@@ -45,6 +45,7 @@ public final class ConversationArchiveService {
         Logger.log(
             .init(
                 "Added conversation to persisted archive.",
+                isReportable: false,
                 extraParams: ["ConversationIDKey": conversation.id.key,
                               "ConversationIDHash": conversation.id.hash],
                 metadata: [self, #file, #function, #line]
@@ -66,6 +67,7 @@ public final class ConversationArchiveService {
         Logger.log(
             .init(
                 "Removed conversation from persisted archive.",
+                isReportable: false,
                 extraParams: ["ConversationIDKey": idKey],
                 metadata: [self, #file, #function, #line]
             ),

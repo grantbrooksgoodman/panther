@@ -453,6 +453,7 @@ public final class IntegrityService {
         var exceptions = [Exception]()
         var tookAction = false
 
+        var verifiedMediaItemPaths = [String]()
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
@@ -462,25 +463,40 @@ public final class IntegrityService {
             case let .media(id: fileID, extension: fileExtension):
                 let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"
                 let mediaFilePath = "\(pathPrefix).\(fileExtension.rawValue)"
-                let mediaThumbnailFilePath = "\(mediaFilePath)\(MediaFile.thumbnailImageNameSuffix)"
+                let mediaThumbnailFilePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
                 var mediaItemExists = false
                 var thumbnailItemExists = false
 
-                let mediaItemExistsResult = await networking.storage.itemExists(at: mediaFilePath)
-                switch mediaItemExistsResult {
-                case let .success(itemExists): mediaItemExists = itemExists
-                case let .failure(exception): exceptions.append(exception)
+                if verifiedMediaItemPaths.contains(mediaFilePath) {
+                    mediaItemExists = true
+                } else {
+                    let mediaItemExistsResult = await networking.storage.itemExists(at: mediaFilePath)
+                    switch mediaItemExistsResult {
+                    case let .success(itemExists): mediaItemExists = itemExists
+                    case let .failure(exception): exceptions.append(exception)
+                    }
                 }
 
-                let thumbnailItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
-                switch thumbnailItemExistsResult {
-                case let .success(itemExists): thumbnailItemExists = itemExists
-                case let .failure(exception): exceptions.append(exception)
+                if verifiedMediaItemPaths.contains(mediaThumbnailFilePath) {
+                    thumbnailItemExists = true
+                } else {
+                    let thumbnailItemExistsResult = await networking.storage.itemExists(at: mediaThumbnailFilePath)
+                    switch thumbnailItemExistsResult {
+                    case let .success(itemExists): thumbnailItemExists = itemExists
+                    case let .failure(exception): exceptions.append(exception)
+                    }
                 }
 
-                guard mediaItemExists,
-                      thumbnailItemExists || !(fileExtension.isDocument || fileExtension.isVideo) else { continue }
+                if mediaItemExists {
+                    verifiedMediaItemPaths.append(mediaFilePath)
+                }
+
+                if thumbnailItemExists {
+                    verifiedMediaItemPaths.append(mediaThumbnailFilePath)
+                }
+
+                guard !mediaItemExists || (!thumbnailItemExists && (fileExtension.isDocument || fileExtension.isVideo)) else { continue }
 
                 tookAction = true
                 if let exception = await repairMalformedMessages([key]).exception {

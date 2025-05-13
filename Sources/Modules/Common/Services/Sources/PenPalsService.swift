@@ -116,6 +116,7 @@ public struct PenPalsService {
                 Logger.log(
                     .init(
                         "Updated PenPals sharing data.",
+                        isReportable: false,
                         extraParams: ["ConversationIDKey": penPalsConversation.id.key],
                         metadata: [self, #file, #function, #line]
                     ),
