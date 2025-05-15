@@ -186,6 +186,7 @@ public struct AudioMessageService {
               let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
             return .failure(.init(
                 "Audio message reference has no local copy.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
         }

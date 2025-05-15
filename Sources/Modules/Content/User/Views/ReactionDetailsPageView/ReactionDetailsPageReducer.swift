@@ -110,7 +110,7 @@ public struct ReactionDetailsPageReducer: Reducer {
                   !ThemeService.isDarkModeActive,
                   navigation.state.userContent.sheet == .newChat else { return .none }
 
-            StatusBarStyle.override(.darkContent)
+            StatusBar.overrideStyle(.darkContent)
         }
 
         return .none

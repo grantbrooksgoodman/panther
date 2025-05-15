@@ -97,6 +97,7 @@ public final class RecordingService: NSObject {
         guard let audioRecorder else {
             return .failure(.init(
                 "No audio recorder to stop.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ))
         }

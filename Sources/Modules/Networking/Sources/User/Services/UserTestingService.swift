@@ -18,7 +18,10 @@ public struct UserTestingService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.uiApplication.keyViewController) private var keyViewController: UIViewController?
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -51,10 +54,15 @@ public struct UserTestingService {
 
     @MainActor
     public func createRandomMessages(count: Int = 1) async -> Exception? {
-        keyViewController?.view.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+        keyViewController?.view.addOverlay(
+            alpha: 0.5,
+            activityIndicator: .largeWhite
+        )
+
         let originalCount = count
         var count = count
 
+        clientSession.user.stopObservingCurrentUserChanges()
         while count > 0 {
             if let exception = await createRandomMessage() {
                 keyViewController?.view.removeOverlay()
@@ -64,15 +72,18 @@ public struct UserTestingService {
             count -= 1
         }
 
+        navigation.navigate(to: .root(.modal(.splash)))
         keyViewController?.view.removeOverlay()
-        Toast.show(.init(
-            .capsule(style: .success),
-            message: "Created \(originalCount) new message(s)",
-            perpetuation: .ephemeral(.seconds(5))
-        ))
+        core.gcd.after(.seconds(1)) {
+            core.hud.showSuccess(
+                text: "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
+            )
+        }
+
         return nil
     }
 
+    // swiftlint:disable:next function_body_length
     private func createRandomMessage() async -> Exception? {
         func sendMessage(to users: [User], in conversation: Conversation?) async -> Exception? {
             guard let currentUser = clientSession.user.currentUser else {
@@ -109,27 +120,58 @@ public struct UserTestingService {
         }
 
         let randomPhrases = [
-            "Tom got a small piece of pie.",
-            "Two more days and all his problems would be solved.",
-            "Two seats were vacant.",
-            "We have a lot of rain in June.",
-            "We have never been to Asia, nor have we visited Africa.",
-            "We need to rent a room for our party.",
-            "When I was little I had a car door slammed shut on my hand and I still remember it quite vividly.",
-            "Writing a list of random sentences is harder than I initially thought it would be.",
-            "Yeah, I think it's a good environment for learning English.",
-            "You can't compare apples and oranges, but what about bananas and plantains?",
+            "Are you still coming tonight?",
+            "Can you believe what happened today?",
+            "Can you help me with this problem?",
+            "Can you help me with this task?",
+            "Can you send me the report?",
+            "Can you share the link again?",
+            "Do you think it's going to rain tomorrow?",
+            "Do you want to grab lunch later?",
+            "Do you want to meet up this weekend?",
+            "Have you heard about the new restaurant in town?",
+            "Have you seen the new movie yet?",
+            "He plays the guitar very well.",
+            "He traveled to five countries last year.",
+            "Her dog loves to run in the park.",
+            "Her favorite color is blue.",
+            "Hey, are you free later?",
+            "His favorite color is blue.",
+            "I think I left my keys at home.",
+            "I was thinking about you today.",
+            "I'll be there in 10 minutes!",
+            "I'll get back to you on that.",
+            "Is now a good time to chat?",
+            "Just checking in, how's your day going?",
+            "Let's catch up soon!",
+            "She enjoys reading books in her free time.",
+            "Sorry, I missed your message.",
+            "Thanks for sending that over!",
+            "That movie was really interesting.",
+            "That was an incredible experience!",
+            "The cake smells delicious.",
+            "The quick brown fox jumps over the lazy dog.",
+            "The weather is nice today, isn't it?",
+            "The weather is perfect for a walk.",
+            "They traveled to Japan last summer.",
+            "They're planning a surprise party.",
         ]
 
         @Persistent(.currentUserID) var currentUserID: String?
-        currentUserID = await randomUserID
+        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
+        currentUserID = (randomBool && randomBool && randomBool) ? (await randomUserID) : currentUserID
 
         let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
         switch resolveCurrentUserResult {
         case let .success(currentUser):
-            var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
             guard randomBool, randomBool, randomBool else {
+                clearCaches()
+                if let exception = await networking.database.populateTemporaryCaches() {
+                    return exception
+                }
+
+                try? await Task.sleep(for: .seconds(1))
                 if let exception = await currentUser.setConversations() {
                     return exception
                 }
@@ -172,6 +214,14 @@ public struct UserTestingService {
     }
 
     // MARK: - Auxiliary
+
+    private func clearCaches() {
+        core.utils.clearCaches()
+        core.utils.eraseDocumentsDirectory()
+        core.utils.eraseTemporaryDirectory()
+
+        defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
+    }
 
     private func getRandomUsers(
         _ count: Int,

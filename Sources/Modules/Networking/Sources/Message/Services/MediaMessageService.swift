@@ -180,6 +180,7 @@ public struct MediaMessageService {
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Media message reference has no local copy.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
         }

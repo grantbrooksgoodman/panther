@@ -138,6 +138,7 @@ public final class UserSessionService {
         guard !build.isOnline else {
             return .init(
                 "Internet connection is not offline.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             )
         }
@@ -145,6 +146,7 @@ public final class UserSessionService {
         guard let offlineCurrentUser else {
             return .init(
                 "No persisted user exists.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             )
         }

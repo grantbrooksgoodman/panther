@@ -45,7 +45,7 @@ public extension CoreKit.Utilities {
 
         uiApplication.mainWindow?.addOverlay(
             alpha: 0.5,
-            activityIndicator: (.large, .white)
+            activityIndicator: .largeWhite
         )
 
         defer {
@@ -85,7 +85,7 @@ public extension CoreKit.Utilities {
 
         uiApplication.mainWindow?.addOverlay(
             alpha: 0.5,
-            activityIndicator: (.large, .white)
+            activityIndicator: .largeWhite
         )
 
         defer {

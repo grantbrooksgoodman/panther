@@ -26,6 +26,7 @@ public extension ContactService {
             guard !returnForEmptyCachedCNContacts else {
                 return .failure(.init(
                     "Empty contact list.",
+                    isReportable: false,
                     metadata: [self, #file, #function, #line]
                 ).appending(extraParams: commonParams))
             }
@@ -49,6 +50,7 @@ public extension ContactService {
         guard let match = cachedCNContacts.first(where: { satisfiesConstraints(.init($0)) }) else {
             return .failure(.init(
                 "No contacts found for provided phone number.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ).appending(extraParams: commonParams))
         }

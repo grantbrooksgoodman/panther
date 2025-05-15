@@ -173,7 +173,11 @@ public final class ContactService {
 
         guard !contactPairs.isEmpty else {
             guard canComplete else { return }
-            completion(.failure(.init("Empty contact list.", metadata: [self, #file, #function, #line])))
+            completion(.failure(.init(
+                "Empty contact list.",
+                isReportable: false,
+                metadata: [self, #file, #function, #line]
+            )))
             return
         }
 

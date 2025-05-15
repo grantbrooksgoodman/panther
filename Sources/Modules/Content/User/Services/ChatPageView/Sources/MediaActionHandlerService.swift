@@ -296,7 +296,7 @@ public final class MediaActionHandlerService {
 
     @MainActor
     private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
-        StatusBarStyle.restore()
+        StatusBar.restoreStyle()
         guard let callback else { return nil }
 
         switch callback {
@@ -318,7 +318,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentCameraPicker() {
-        StatusBarStyle.override(.lightContent)
+        StatusBar.overrideStyle(.lightContent)
         services.contentPicker.camera.present()
         isPresentingPickerController = true
 
@@ -334,7 +334,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentDocumentPicker() {
-        StatusBarStyle.override(.lightContent)
+        StatusBar.overrideStyle(.lightContent)
         services.contentPicker.document.present()
         isPresentingPickerController = true
 
@@ -349,7 +349,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentMediaPicker() {
-        StatusBarStyle.override(.lightContent)
+        StatusBar.overrideStyle(.lightContent)
         services.contentPicker.media.present()
         isPresentingPickerController = true
 

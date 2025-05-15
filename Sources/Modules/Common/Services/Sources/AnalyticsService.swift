@@ -37,6 +37,7 @@ public struct AnalyticsService {
         case closeApp
         case createNewConversation
 
+        case deleteAccount
         case deleteConversation
         case dismissNewChatPage
 

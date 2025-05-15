@@ -102,14 +102,9 @@ public final class SettingsPageViewService {
     public func clearCachesButtonTapped() {
         @Sendable
         func clearCaches() async {
-            core.utils.clearCaches()
-            core.utils.eraseDocumentsDirectory()
-            core.utils.eraseTemporaryDirectory()
+            self.clearCaches(preserveCurrentUserID: true)
 
-            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-            services.analytics.logEvent(.clearCaches)
-
-            var actions = [AKAction("Exit", style: .destructivePreferred, effect: { exit(0) })]
+            var actions = [AKAction("Exit", style: .destructivePreferred, effect: exitGracefully)]
             if build.isDeveloperModeEnabled {
                 let reloadAction = AKAction("Reload") {
                     self.navigation.navigate(to: .userContent(.sheet(.none)))
@@ -146,13 +141,8 @@ public final class SettingsPageViewService {
                     Logger.log(exception)
                 }
 
-                core.utils.clearCaches()
-                core.utils.eraseDocumentsDirectory()
-                core.utils.eraseTemporaryDirectory()
-
-                defaults.reset()
-
-                exit(0)
+                clearCaches(preserveCurrentUserID: false)
+                exitGracefully()
             }
 
             let confirmed = await AKConfirmationAlert(
@@ -167,7 +157,7 @@ public final class SettingsPageViewService {
                 Task {
                     await self.uiApplication.mainWindow?.addOverlay(
                         alpha: Floats.deleteAccountOverlayAlpha,
-                        activityIndicator: (.large, .white)
+                        activityIndicator: .largeWhite
                     )
 
                     if let exception = self.userSession.stopObservingCurrentUserChanges() {
@@ -490,6 +480,31 @@ public final class SettingsPageViewService {
 
     public func clearCache() {
         cachedCNContactForCurrentUser = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func clearCaches(preserveCurrentUserID: Bool) {
+        core.utils.clearCaches()
+        core.utils.eraseDocumentsDirectory()
+        core.utils.eraseTemporaryDirectory()
+
+        defaults.reset(preserving: .permanentAndSubsystemKeys(
+            plus: preserveCurrentUserID ? [.userSessionService(.currentUserID)] : nil
+        ))
+        services.analytics.logEvent(preserveCurrentUserID ? .clearCaches : .deleteAccount)
+    }
+
+    private func exitGracefully() {
+        Task { @MainActor in
+            StatusBar.toggleVisibility()
+            uiApplication.mainWindow?.addOverlay(activityIndicator: .largeWhite)
+
+            navigation.navigate(to: .userContent(.sheet(.none)))
+            navigation.navigate(to: .root(.modal(.splash)))
+
+            core.gcd.after(.seconds(1)) { self.core.utils.exitGracefully() }
+        }
     }
 }
 

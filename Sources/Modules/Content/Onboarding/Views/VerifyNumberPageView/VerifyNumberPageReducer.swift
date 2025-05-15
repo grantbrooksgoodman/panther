@@ -86,6 +86,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    // swiftlint:disable:next function_body_length
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
@@ -160,7 +161,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             let phoneNumber = state.phoneNumber
             return .task {
@@ -194,6 +195,21 @@ public struct VerifyNumberPageReducer: Reducer {
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength
+
+            var exception = exception
+            if let networkErrorDescriptor = exception.extraParams?["FIRAuthErrorUserInfoNameKey"] as? String,
+               [
+                   "ERROR_INVALID_PHONE_NUMBER",
+                   "ERROR_WEB_CONTEXT_CANCELLED",
+               ].contains(networkErrorDescriptor) {
+                exception = .init(
+                    exception.descriptor,
+                    isReportable: false,
+                    extraParams: exception.extraParams,
+                    underlyingExceptions: exception.underlyingExceptions,
+                    metadata: exception.metadata
+                )
+            }
 
             Logger.log(exception, with: .toast())
         }

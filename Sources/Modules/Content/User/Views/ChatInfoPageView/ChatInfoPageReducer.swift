@@ -258,7 +258,7 @@ public struct ChatInfoPageReducer: Reducer {
             if !Application.isInPrevaricationMode,
                !isPresentingCameraPickerSheet,
                !ThemeService.isDarkModeActive {
-                StatusBarStyle.override(.darkContent)
+                StatusBar.overrideStyle(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
 
@@ -271,7 +271,7 @@ public struct ChatInfoPageReducer: Reducer {
             if !Application.isInPrevaricationMode,
                !isPresentingImagePickerSheet,
                !ThemeService.isDarkModeActive {
-                StatusBarStyle.override(.darkContent)
+                StatusBar.overrideStyle(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
 

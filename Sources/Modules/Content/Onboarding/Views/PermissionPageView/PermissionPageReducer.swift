@@ -113,7 +113,11 @@ public struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isFinishButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(
+                alpha: 0.5,
+                activityIndicator: .largeWhite,
+                isModal: false
+            )
 
             return .task {
                 let result = await onboardingService.presentEULAAlert()

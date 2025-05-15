@@ -84,6 +84,21 @@ public struct AuthCodePageReducer: Reducer {
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.verificationCode.count == 6
 
+            var exception = exception
+            if let networkErrorDescriptor = exception.extraParams?["FIRAuthErrorUserInfoNameKey"] as? String,
+               [
+                   "ERROR_INVALID_VERIFICATION_CODE",
+                   "ERROR_WEB_CONTEXT_CANCELLED",
+               ].contains(networkErrorDescriptor) {
+                exception = .init(
+                    exception.descriptor,
+                    isReportable: false,
+                    extraParams: exception.extraParams,
+                    underlyingExceptions: exception.underlyingExceptions,
+                    metadata: exception.metadata
+                )
+            }
+
             Logger.log(exception, with: .toast())
 
         case .backButtonTapped:
@@ -118,7 +133,7 @@ public struct AuthCodePageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: (.large, .white))
+            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             let verificationCode = state.verificationCode
             return .task {

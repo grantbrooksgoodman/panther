@@ -60,7 +60,7 @@ public final class ConversationsPageViewService {
         userSession.startObservingCurrentUserChanges()
 
         core.gcd.after(.milliseconds(500)) {
-            StatusBarStyle.override(
+            StatusBar.overrideStyle(
                 Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent
             )
         }
@@ -74,7 +74,7 @@ public final class ConversationsPageViewService {
 
     public func viewDisappeared() {
         guard !Application.isInPrevaricationMode else { return }
-        StatusBarStyle.restore()
+        StatusBar.restoreStyle()
     }
 
     /// `.resolveReturned`
@@ -211,7 +211,9 @@ public final class ConversationsPageViewService {
 
         Task { @MainActor in
             NavigationBar.setAppearance(.appDefault)
-            StatusBarStyle.override(Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+            StatusBar.overrideStyle(
+                Application.isInPrevaricationMode || ThemeService.isDarkModeActive ? .lightContent : .darkContent
+            )
         }
     }
 

@@ -49,7 +49,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         self.temporaryFilePath = temporaryFilePath
         viewController.delegate = self
 
-        StatusBarStyle.override(.lightContent)
+        StatusBar.overrideStyle(.lightContent)
         coreUI.present(viewController)
         return nil
     }
@@ -72,9 +72,9 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Auxiliary
 
     private func onDismiss() {
+        defer { StatusBar.restoreStyle() }
         guard let temporaryFilePath else { return }
         try? fileManager.removeItem(at: temporaryFilePath)
         self.temporaryFilePath = nil
-        StatusBarStyle.restore()
     }
 }

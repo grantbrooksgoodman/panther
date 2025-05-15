@@ -488,11 +488,13 @@ public final class IntegrityService {
                     }
                 }
 
-                if mediaItemExists {
+                if mediaItemExists,
+                   !verifiedMediaItemPaths.contains(mediaFilePath) {
                     verifiedMediaItemPaths.append(mediaFilePath)
                 }
 
-                if thumbnailItemExists {
+                if thumbnailItemExists,
+                   !verifiedMediaItemPaths.contains(mediaThumbnailFilePath) {
                     verifiedMediaItemPaths.append(mediaThumbnailFilePath)
                 }
 

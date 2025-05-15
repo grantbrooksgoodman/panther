@@ -148,6 +148,7 @@ public final class ConversationSyncService {
                     Logger.log(
                         .init(
                             "Resolving all messages to fully synchronize conversation.",
+                            isReportable: false,
                             extraParams: commonParams,
                             metadata: [self, #file, #function, #line]
                         ),

@@ -232,6 +232,7 @@ public final class UserService {
                 guard let user = users.first(where: { $0.phoneNumber.compiledNumberString == phoneNumber.compiledNumberString }) else {
                     return .failure(.init(
                         "No users with the provided phone number.",
+                        isReportable: false,
                         metadata: [self, #file, #function, #line]
                     ).appending(extraParams: commonParams))
                 }

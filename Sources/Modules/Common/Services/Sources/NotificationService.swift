@@ -157,6 +157,7 @@ public struct NotificationService {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "No current user – will not respond to notification.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ))
         }
@@ -166,6 +167,7 @@ public struct NotificationService {
             guard recipientUserID == currentUser.id else {
                 let exception: Exception = .init(
                     "Notification not intended for current user – ignoring.",
+                    isReportable: false,
                     metadata: [self, #file, #function, #line]
                 )
 

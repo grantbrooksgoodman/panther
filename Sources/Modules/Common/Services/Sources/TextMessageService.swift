@@ -26,7 +26,11 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
         recipient phoneNumber: PhoneNumber? = nil
     ) -> Exception? {
         guard MFMessageComposeViewController.canSendText() else {
-            return .init("Device is unable to send text messages.", metadata: [self, #file, #function, #line])
+            return .init(
+                "Device is unable to send text messages.",
+                isReportable: false,
+                metadata: [self, #file, #function, #line]
+            )
         }
 
         Task { @MainActor in
