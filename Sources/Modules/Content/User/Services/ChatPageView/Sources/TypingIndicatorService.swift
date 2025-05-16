@@ -145,6 +145,8 @@ public final class TypingIndicatorService {
     private func checkForTypingIndicatorChanges() {
         guard !chatPageState.isWaitingToUpdateConversations else { return }
 
+        // FIXME: Still encounter crashing bugs with this. Seems to be a MessageKit issue.
+        // https://github.com/MessageKit/MessageKit/issues/1788
         @Persistent(.currentUserID) var currentUserID: String?
         guard let conversation = viewController.currentConversation,
               conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {

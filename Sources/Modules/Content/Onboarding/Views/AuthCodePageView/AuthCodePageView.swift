@@ -72,6 +72,7 @@ public struct AuthCodePageView: View {
                     ) {
                         viewModel.send(.continueButtonTapped)
                     }
+                    .disabled(!viewModel.isContinueButtonEnabled)
                     .padding(.top, Floats.continueButtonTopPadding)
 
                     Components.button(

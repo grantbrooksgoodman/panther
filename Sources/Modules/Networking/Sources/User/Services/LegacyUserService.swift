@@ -103,48 +103,6 @@ public struct LegacyUserService {
 
         return nil
     }
-
-    public func renameNumberData(forUser id: String) async -> Exception? {
-        let commonParams = ["UserID": id]
-
-        let userPath = "\(NetworkPath.users.rawValue)/\(id)"
-        let getValuesResult = await networking.database.getValues(at: userPath)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                let exception: Exception = .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: [self, #file, #function, #line]
-                )
-                return exception.appending(extraParams: commonParams)
-            }
-
-            guard let numberData = dictionary["numberData"] as? [String: Any] else {
-                let exception = Exception("Failed to decode number information.", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
-            }
-
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/numberData") {
-                return exception.appending(extraParams: commonParams)
-            }
-
-            if let exception = await networking.database.setValue(numberData, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(extraParams: commonParams)
-            }
-
-            Logger.log(
-                "Successfully renamed number data for user with ID «\(id)».",
-                domain: .user,
-                metadata: [self, #file, #function, #line]
-            )
-
-        case let .failure(exception):
-            return exception.appending(extraParams: commonParams)
-        }
-
-        return nil
-    }
 }
 
 private extension String {

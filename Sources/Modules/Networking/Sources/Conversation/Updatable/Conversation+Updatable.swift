@@ -119,9 +119,8 @@ extension Conversation: Updatable {
         let valueKeyPath = conversationKeyPath + key.rawValue
 
         if key == .messages,
-           let messages = value as? [Message] {
-            let messageIDs = messages.map(\.id).isBangQualifiedEmpty ? Array.bangQualifiedEmpty : messages.map(\.id)
-            if let exception = await networking.database.setValue(messageIDs.unique, forKey: valueKeyPath) {
+           let messageIDs = (value as? [Message])?.map(\.id) {
+            if let exception = await addMessageIDs(messageIDs) {
                 return .failure(exception)
             }
 
@@ -182,6 +181,38 @@ extension Conversation: Updatable {
     }
 
     // MARK: - Auxiliary
+
+    /// Ensures updates take into account any messages sent during execution of `updateValue` logic.
+    /// We disregard modification of the local value, since this scenario should trigger a latent call to `ConversationsPageViewObserver.updateConversations()`.
+    private func addMessageIDs(_ messageIDs: [String]) async -> Exception? {
+        @Dependency(\.networking) var networking: NetworkServices
+
+        var newMessageIDs = messageIDs
+
+        let messagesKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
+        let getValuesResult = await networking.database.getValues(at: messagesKeyPath, cacheStrategy: .disregardCache)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let array = values as? [String] else {
+                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+            }
+
+            newMessageIDs += array
+
+        case let .failure(exception):
+            return exception
+        }
+
+        if let exception = await networking.database.setValue(
+            newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
+            forKey: messagesKeyPath
+        ) {
+            return exception
+        }
+
+        return nil
+    }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(

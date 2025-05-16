@@ -192,6 +192,7 @@ public struct NotificationService {
               conversationIDKeys.contains(conversationIDKey) else {
             return .failure(.init(
                 "Current user is not participating in the conversation associated with this notification.",
+                isReportable: false,
                 metadata: [self, #file, #function, #line]
             ))
         }

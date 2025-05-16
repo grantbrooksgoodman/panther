@@ -23,6 +23,7 @@ public struct ConversationsPageObserver: Observer {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
@@ -82,6 +83,23 @@ public struct ConversationsPageObserver: Observer {
     // MARK: - Auxiliary
 
     private func updateConversations() {
+        guard !chatPageState.isPresented || !messageDeliveryService.isSendingMessage else {
+            Logger.log(
+                "Awaiting message send completion before updating conversations...",
+                domain: .conversation,
+                metadata: [self, #file, #function, #line]
+            )
+
+            return messageDeliveryService.addEffectUponIsSendingMessage(
+                changedTo: false,
+                id: .updateConversations
+            ) { _updateConversations() }
+        }
+
+        _updateConversations()
+    }
+
+    private func _updateConversations() {
         Task { @MainActor in
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
@@ -90,17 +108,29 @@ public struct ConversationsPageObserver: Observer {
 
             switch resolveCurrentUserResult {
             case let .failure(exception):
-                Logger.log(exception, with: .toastInPrerelease)
+                Logger.log(
+                    exception,
+                    domain: .conversation,
+                    with: .toastInPrerelease
+                )
 
             default: ()
             }
 
             if let exception = await clientSession.user.currentUser?.setConversations() {
-                Logger.log(exception, with: .toastInPrerelease)
+                Logger.log(
+                    exception,
+                    domain: .conversation,
+                    with: .toastInPrerelease
+                )
             }
 
             if let exception = await clientSession.user.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
-                Logger.log(exception, with: .toastInPrerelease)
+                Logger.log(
+                    exception,
+                    domain: .conversation,
+                    with: .toastInPrerelease
+                )
             }
 
             defer {
@@ -141,7 +171,7 @@ public struct ConversationsPageObserver: Observer {
                 case let .success(conversation):
                     if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
                        let exception = await notificationService.setBadgeNumber(badgeNumber) {
-                        Logger.log(exception)
+                        Logger.log(exception, domain: .conversation)
                     }
 
                     guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
@@ -149,7 +179,7 @@ public struct ConversationsPageObserver: Observer {
                     chatPageViewService.reloadCollectionView()
 
                 case let .failure(exception):
-                    Logger.log(exception)
+                    Logger.log(exception, domain: .conversation)
                 }
             }
 

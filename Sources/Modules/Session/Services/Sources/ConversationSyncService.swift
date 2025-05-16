@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -13,7 +15,6 @@ import Foundation
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
 public final class ConversationSyncService {
     // MARK: - Dependencies
 
@@ -22,7 +23,14 @@ public final class ConversationSyncService {
 
     // MARK: - Properties
 
-    private var syncData: ConversationSyncData?
+    @LockIsolated private var _syncData: ConversationSyncData = .empty
+
+    // MARK: - Computed Properties
+
+    private var syncData: ConversationSyncData? {
+        get { _syncData == .empty ? nil : _syncData }
+        set { _syncData = newValue ?? .empty }
+    }
 
     // MARK: - Synchronization
 
@@ -396,3 +404,5 @@ public final class ConversationSyncService {
         return .success(conversation)
     }
 }
+
+// swiftlint:enable file_length type_body_length

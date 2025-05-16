@@ -146,7 +146,7 @@ public final class User: Codable, Equatable {
                 "Detected extraneous call to User.setConversations().",
                 isReportable: false,
                 metadata: [self, #file, #function, #line]
-            ), with: .toastInPrerelease)
+            ))
             return nil
         }
 

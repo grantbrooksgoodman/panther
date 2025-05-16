@@ -88,6 +88,7 @@ public struct AuthCodePageReducer: Reducer {
             if let networkErrorDescriptor = exception.extraParams?["FIRAuthErrorUserInfoNameKey"] as? String,
                [
                    "ERROR_INVALID_VERIFICATION_CODE",
+                   "ERROR_SESSION_EXPIRED",
                    "ERROR_WEB_CONTEXT_CANCELLED",
                ].contains(networkErrorDescriptor) {
                 exception = .init(
