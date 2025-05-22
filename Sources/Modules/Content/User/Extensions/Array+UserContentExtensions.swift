@@ -52,9 +52,12 @@ public extension Array where Element == ContactPair {
             return validTerms.contains { $0.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm.lowercasedTrimmingWhitespaceAndNewlines) }
         }
 
-        var cachedContactPairsForSearchTerms = QueriedContactPairCache.cachedContactPairsForSearchTerms ?? [:]
-        cachedContactPairsForSearchTerms[searchTerm] = queriedContactPairs
-        QueriedContactPairCache.cachedContactPairsForSearchTerms = cachedContactPairsForSearchTerms
+        if QueriedContactPairCache.canWriteToCache {
+            var cachedContactPairsForSearchTerms = QueriedContactPairCache.cachedContactPairsForSearchTerms ?? [:]
+            cachedContactPairsForSearchTerms[searchTerm] = queriedContactPairs
+            QueriedContactPairCache.cachedContactPairsForSearchTerms = cachedContactPairsForSearchTerms
+        }
+
         return queriedContactPairs.filter { !selectedContactPairs.contains($0) }
     }
 }

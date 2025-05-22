@@ -47,6 +47,7 @@ public struct ConversationCellView: View {
                 configuration: .preview
             )
             .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
+            .id(viewModel.conversation.id)
         }
         .frame(height: Floats.frameHeight)
         .swipeActions(edge: .leading, allowsFullSwipe: false) { swipeActionButtons(.leading) }

@@ -267,7 +267,14 @@ public final class UserSessionService {
             return exception
         }
 
-        return await networking.integrityService.repairMalformedUsers([currentUserID]).exception
+        if let exception = await networking.integrityService.repairMalformedUsers([currentUserID]).exception {
+            return exception
+        }
+
+        currentUser = nil
+        self.currentUserID = nil
+
+        return nil
     }
 
     // MARK: - Auxiliary

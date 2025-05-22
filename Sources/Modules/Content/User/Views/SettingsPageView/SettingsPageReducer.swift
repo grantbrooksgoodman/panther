@@ -81,7 +81,7 @@ public struct SettingsPageReducer: Reducer {
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
         public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
-        public var viewID = UUID() { didSet { NavigationBar.setAppearance(navigationBarAppearance) }}
+        public var viewID = UUID()
         public var viewState: StatefulView.ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0
@@ -129,6 +129,7 @@ public struct SettingsPageReducer: Reducer {
             state.isMessageRecipientConsentSwitchToggled = userSession.currentUser?.messageRecipientConsentRequired ?? false
             state.isPenPalsParticipantSwitchToggled = userSession.currentUser?.isPenPalsParticipant ?? false
 
+            NavigationBar.setAppearance(state.navigationBarAppearance)
             let fetchCNContactForCurrentUserTask: Effect<Action> = .task {
                 let result = await viewService.fetchCNContactForCurrentUser()
                 return .fetchCNContactForCurrentUserReturned(result)
@@ -145,7 +146,6 @@ public struct SettingsPageReducer: Reducer {
         case .buildInfoButtonTapped:
             state.buildInfoButtonStrings = state.buildInfoButtonStrings.next
             state.timesEncounteredCopyrightText += state.buildInfoButtonStrings == .init(.copyright) ? 1 : 0
-            state.viewID = UUID()
 
         case .changeThemeButtonTapped:
             viewService.changeThemeButtonTapped()
@@ -168,11 +168,9 @@ public struct SettingsPageReducer: Reducer {
             state.contactDetailViewImage = contact.image
             state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
             state.contactDetailViewTitleLabelText = contact.fullName
-            state.viewID = UUID()
 
         case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
-            state.viewID = UUID()
             Logger.log(exception)
 
         case .inviteFriendsButtonTapped:
@@ -195,10 +193,8 @@ public struct SettingsPageReducer: Reducer {
 
         case let .penPalsParticipantSwitchToggled(on, fromBinding):
             state.isPenPalsParticipantSwitchToggled = on
-            switch fromBinding {
-            case true: viewService.penPalsParticipantSwitchToggled(on: on)
-            case false: state.viewID = UUID()
-            }
+            guard fromBinding else { return .none }
+            viewService.penPalsParticipantSwitchToggled(on: on)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

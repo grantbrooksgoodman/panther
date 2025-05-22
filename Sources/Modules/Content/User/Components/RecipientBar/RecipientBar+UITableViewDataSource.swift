@@ -24,7 +24,10 @@ extension RecipientBar: UITableViewDataSource {
 
         guard let contactPair = tableViewService?.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return cell }
 
-        cell.contentConfiguration = UIHostingConfiguration { ContactPairCellView(contactPair: contactPair) }
+        cell.contentConfiguration = UIHostingConfiguration {
+            ContactPairCellView(contactPair: contactPair)
+                .redrawsOnTraitCollectionChange()
+        }
         cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser || contactPair.containsCurrentUser)
 
         return cell

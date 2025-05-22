@@ -20,6 +20,8 @@ extension RecipientBar: UITableViewDelegate {
         @Dependency(\.chatPageViewService.recipientBar) var recipientBarService: RecipientBarService?
         guard let contactPair = recipientBarService?.tableView.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return }
         recipientBarService?.contactSelectionUI.selectContactPair(contactPair)
+        guard recipientBarService?.layout.textField?.isFirstResponder == false else { return }
+        recipientBarService?.layout.textField?.becomeFirstResponder()
     }
 
     // MARK: - Scroll View Did Scroll

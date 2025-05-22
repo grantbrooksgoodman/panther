@@ -54,7 +54,7 @@ public struct SettingsPageView: View {
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground
         ) {
-            ThemedView(redrawsOnAppearanceChange: true) {
+            ThemedView {
                 NavigationView {
                     VStack {
                         if let cnContact = viewModel.cnContact {
@@ -67,6 +67,7 @@ public struct SettingsPageView: View {
 
                         ScrollView {
                             groupedListViews
+                                .redrawsOnTraitCollectionChange()
                         }
                         .scrollBounceBehavior(
                             .basedOnSize,
@@ -89,11 +90,8 @@ public struct SettingsPageView: View {
                 .interactiveDismissDisabled(true)
                 .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
             }
-            .id(viewModel.viewID)
         }
-        .navigationBarAppearance(viewModel.navigationBarAppearance)
         .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
-        .redrawsOnTraitCollectionChange()
         .sheet(item: sheetBinding) { sheetView(for: $0) }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
@@ -151,6 +149,7 @@ public struct SettingsPageView: View {
         .padding(.bottom, Floats.contactDetailViewBottomPadding)
         .padding(.horizontal, Floats.contactDetailViewHorizontalPadding)
         .padding(.top, Floats.contactDetailViewTopPadding)
+        .redrawsOnTraitCollectionChange()
     }
 
     private var doneToolbarButton: some ToolbarContent {
@@ -187,6 +186,7 @@ public struct SettingsPageView: View {
                 sendFeedbackListItem,
                 clearCachesListItem,
             ])
+            .id(viewModel.viewID)
             .padding(.bottom, Floats.groupedListViewBottomPadding)
             .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
         }
@@ -196,6 +196,7 @@ public struct SettingsPageView: View {
             deleteAccountListItem,
             signOutListItem,
         ])
+        .id(viewModel.viewID)
         .padding(.bottom, Floats.groupedListViewBottomPadding)
         .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 

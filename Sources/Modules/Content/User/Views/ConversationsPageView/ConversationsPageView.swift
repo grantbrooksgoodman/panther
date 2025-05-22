@@ -47,12 +47,14 @@ public struct ConversationsPageView: View {
                                         reducer: ConversationCellReducer()
                                     )
                                 )
+                                .redrawsOnTraitCollectionChange()
                             }
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                         .listStyle(.plain)
-                        .navigationBarAppearance(.appDefault)
-                        .navigationTitle(viewModel.strings.value(for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle))
+                        .navigationTitle(viewModel.strings.value(
+                            for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle
+                        ))
                         .refreshable {
                             await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
                         }
@@ -62,7 +64,6 @@ public struct ConversationsPageView: View {
                         }
                     }
                     .accentColor(Color.accent)
-                    .id(viewModel.viewID)
                 }
             }
             .navigationBarBackButtonHidden()

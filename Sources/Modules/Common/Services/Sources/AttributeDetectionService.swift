@@ -62,14 +62,16 @@ public final class AttributeDetectionService {
         let matches = dataDetector?.matches(in: attributedText.string, options: [], range: range) ?? []
 
         for match in matches where match.range.contains(characterIndex) {
+            guard let range = Range(match.range, in: attributedText.string) else { continue }
+
             switch match.resultType {
             case .date:
                 guard let date = match.date else { continue }
-                delegate?.didSelectDate(date)
+                delegate?.didSelectDate(date, inText: .init(attributedText.string[range]))
 
             case .link:
                 guard let url = match.url else { continue }
-                delegate?.didSelectURL(url)
+                delegate?.didSelectURL(url, inText: .init(attributedText.string[range]))
 
             case .phoneNumber:
                 guard let phoneNumber = match.phoneNumber else { continue }

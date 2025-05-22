@@ -32,6 +32,7 @@ public final class RecipientBarTableViewService {
     private let viewController: ChatPageViewController
 
     private var contactPairs: [ContactPair]?
+    private var currentQuery: String?
     private var queriedContactPairs = [ContactPair]()
 
     // MARK: - Computed Properties
@@ -42,28 +43,27 @@ public final class RecipientBarTableViewService {
 
     public init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
-        resolveContactPairs()
     }
 
     // MARK: - Reload Data
 
     public func reloadData() {
-        guard let contactPairs,
-              !contactPairs.isEmpty,
-              let recipientBarView = service?.layout.recipientBarView,
-              let tableView = service?.layout.tableView else { return }
+        guard contactPairs != nil else {
+            Task.background(delayedBy: .seconds(1)) { @MainActor in
+                resolveContactPairs()
+                _reloadData()
+            }
 
-        if tableView.dataSource == nil { tableView.dataSource = recipientBarView }
-        if tableView.delegate == nil { tableView.delegate = recipientBarView }
+            return
+        }
 
-        queriedContactPairs = contactPairs
-        tableView.reloadData()
+        _reloadData()
     }
 
     // MARK: - Resolve Contact Pairs
 
     public func resolveContactPairs() {
-        contactPairs = getContactPairs()
+        contactPairs = getContactPairs() ?? []
     }
 
     // MARK: - Set Query
@@ -72,13 +72,15 @@ public final class RecipientBarTableViewService {
         guard let recipientBarView = service?.layout.recipientBarView,
               let tableView = service?.layout.tableView else { return }
 
+        currentQuery = query.isBlank ? nil : query
         guard !query.isBlank else {
             tableView.alpha = 0
             reloadData()
             return
         }
 
-        queriedContactPairs = (contactPairs ?? []).queried(by: query)
+        let contactPairs = contactPairs ?? []
+        queriedContactPairs = query.isZero ? contactPairs : contactPairs.queried(by: query)
 
         tableView.frame.origin.y = recipientBarView.frame.maxY
         tableView.alpha = 1
@@ -115,4 +117,22 @@ public final class RecipientBarTableViewService {
             contactPairs: sortedByLastName(dictionary[$0]!)
         ) }
     }
+
+    private func _reloadData() {
+        guard let contactPairs,
+              !contactPairs.isEmpty,
+              let recipientBarView = service?.layout.recipientBarView,
+              let tableView = service?.layout.tableView else { return }
+
+        if tableView.dataSource == nil { tableView.dataSource = recipientBarView }
+        if tableView.delegate == nil { tableView.delegate = recipientBarView }
+
+        queriedContactPairs = currentQuery == nil || currentQuery?.isZero == true ? contactPairs : contactPairs.queried(by: currentQuery!)
+        tableView.reloadData()
+        QueriedContactPairCache.canWriteToCache = true // NIT: May need to toggle this value when NewChatPageView disappears.
+    }
+}
+
+private extension String {
+    var isZero: Bool { lowercasedTrimmingWhitespaceAndNewlines == "0" }
 }

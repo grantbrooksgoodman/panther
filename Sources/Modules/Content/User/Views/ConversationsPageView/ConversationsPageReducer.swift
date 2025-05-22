@@ -57,7 +57,6 @@ public struct ConversationsPageReducer: Reducer {
 
         // Other
         public var animationAmount: CGFloat = 1
-        public var viewID = UUID()
         public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
@@ -124,7 +123,6 @@ public struct ConversationsPageReducer: Reducer {
 
         case .traitCollectionChanged:
             viewService.traitCollectionChanged()
-            state.viewID = UUID()
 
         case .updatedCurrentUser:
             /// - NOTE: Fixes a bug in which mistimed updates would fail to set users on all conversations.

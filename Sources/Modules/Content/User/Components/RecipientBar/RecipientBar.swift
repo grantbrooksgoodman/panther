@@ -15,6 +15,8 @@ public final class RecipientBar: UIView {
 
     private let service: RecipientBarService
 
+    private var didRunLayoutSubviewsEffect = false
+
     // MARK: - Init
 
     public init(service: RecipientBarService) {
@@ -31,6 +33,9 @@ public final class RecipientBar: UIView {
 
     override public func layoutSubviews() {
         service.layout.layoutSubviews()
+
+        guard !didRunLayoutSubviewsEffect else { return }
         service.onLayoutSubviews()
+        didRunLayoutSubviewsEffect = true
     }
 }

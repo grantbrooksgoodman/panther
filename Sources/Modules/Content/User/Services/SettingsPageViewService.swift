@@ -73,20 +73,16 @@ public final class SettingsPageViewService {
                     isCurrentTheme(uiTheme) ? "\(themeName(uiTheme)) (Applied)" : themeName(uiTheme),
                     isEnabled: !isCurrentTheme(uiTheme)
                 ) {
-                    func triggerTraitCollectionChange(_ delay: Duration) {
-                        Task.delayed(by: delay) { @MainActor in
-                            Observables.traitCollectionChanged.trigger()
-                        }
-                    }
-
                     ThemeService.setTheme(uiTheme)
-                    guard ThemeService.currentTheme.style != uiTheme.style else { return triggerTraitCollectionChange(.milliseconds(100)) }
+                    guard ThemeService.currentTheme.style != uiTheme.style else { return }
                     self.notificationCenter.addObserver(
                         self,
                         name: .uiAlertControllerDismissed,
                         removeAfterFirstPost: true
                     ) { _ in
-                        triggerTraitCollectionChange(.milliseconds(500))
+                        Task.delayed(by: .milliseconds(500)) { @MainActor in
+                            Observables.traitCollectionChanged.trigger()
+                        }
                     }
                 }
             }
@@ -492,6 +488,8 @@ public final class SettingsPageViewService {
         defaults.reset(preserving: .permanentAndSubsystemKeys(
             plus: preserveCurrentUserID ? [.userSessionService(.currentUserID)] : nil
         ))
+
+        defaults.synchronize()
         services.analytics.logEvent(preserveCurrentUserID ? .clearCaches : .deleteAccount)
     }
 

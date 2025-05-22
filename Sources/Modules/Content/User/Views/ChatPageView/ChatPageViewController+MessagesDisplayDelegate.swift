@@ -144,14 +144,10 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         let alternateColor = UIColor(Colors.detectorAttributesAlternateForeground)
         let colorToUse = message.isFromCurrentUser ? primaryColor : (ThemeService.isDarkModeActive ? primaryColor : alternateColor)
 
-        var attributes: [NSAttributedString.Key: Any] = [
+        return [
             .foregroundColor: colorToUse,
             .underlineStyle: NSUnderlineStyle.single.rawValue,
         ]
-
-        guard let cell = messagesCollectionView.cellForItem(at: indexPath) as? TextMessageCell else { return attributes }
-        attributes[.font] = cell.messageLabel.font
-        return attributes
     }
 
     // MARK: - Enabled Detectors

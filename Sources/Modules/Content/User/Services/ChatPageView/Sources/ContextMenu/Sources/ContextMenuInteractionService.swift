@@ -240,19 +240,21 @@ public final class ContextMenuInteractionService {
         ))
 
         for cell in visibleCells {
+            defer {
+                // Remove default UIMenu long press gesture recognizer
+                cell.contentView
+                    .gestureRecognizers?
+                    .removeAll(where: {
+                        ($0 as? UILongPressGestureRecognizer)?.minimumPressDuration == Floats.longPressGestureMinimumPressDuration
+                    })
+            }
+
             guard ContextMenuInteraction.canBegin,
                   let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
                   let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
                   cell.contextMenuMessageID != message.id,
                   !message.isMock,
                   !messageDeliveryService.isSendingMessage else { continue }
-
-            // Remove default UIMenu long press gesture recognizer
-            cell.contentView
-                .gestureRecognizers?
-                .removeAll(where: {
-                    ($0 as? UILongPressGestureRecognizer)?.minimumPressDuration == Floats.longPressGestureMinimumPressDuration
-                })
 
             cell.contextMenuMessageID = message.id
             let reactionsViewController = ReactionsViewController()

@@ -22,6 +22,7 @@ public enum QueriedContactPairCache {
     // MARK: - Properties
 
     @Cached(CacheKey.contactPairsForSearchTerms) public static var cachedContactPairsForSearchTerms: [String: [ContactPair]]?
+    public static var canWriteToCache = false
 
     // MARK: - Clear Cache
 
