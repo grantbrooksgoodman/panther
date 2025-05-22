@@ -65,7 +65,7 @@ public struct InviteQRCodePageReducer: Reducer {
             if !Application.isInPrevaricationMode,
                ThemeService.isAppDefaultThemeApplied,
                !ThemeService.isDarkModeActive {
-                StatusBarStyle.override(.darkContent)
+                StatusBar.overrideStyle(.darkContent)
             }
 
         case let .resolveReturned(.success(strings)):

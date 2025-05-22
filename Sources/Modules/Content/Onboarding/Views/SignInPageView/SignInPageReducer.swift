@@ -183,7 +183,7 @@ public struct SignInPageReducer: Reducer {
                 )
             }
 
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case .backButtonTapped:
             switch state.configuration {

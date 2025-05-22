@@ -49,11 +49,11 @@ public final class MessageRecipientConsentService {
         let acknowledgeAction: AKAction = .init(Localized(.acknowledgeConsent).wrappedValue) {
             Task {
                 if let exception = await self.acknowledgeConsent(forUser: currentUser, inConversation: conversation) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
 
                 if let exception = await self.messageDeliveryService.sendTextMessage(consentMessage) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
         }

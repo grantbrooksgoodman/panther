@@ -118,7 +118,7 @@ public struct ContactSelectorPageReducer: Reducer {
 
         case let .presentInvitationPromptReturned(exception):
             guard let exception else { return .none }
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery

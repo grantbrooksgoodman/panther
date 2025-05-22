@@ -87,7 +87,7 @@ public struct InviteLanguagePickerReducer: Reducer {
             coreGCD.after(.seconds(2)) {
                 Task {
                     if let exception = await inviteService.composeInvitation(languageCode: languageCode) {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     }
                 }
             }

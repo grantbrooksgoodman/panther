@@ -57,7 +57,7 @@ public final class SettingsPageViewService {
     public func blockedUsersButtonTapped() {
         Task {
             guard let exception = await moderationSession.unblockUsers() else { return }
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
         }
     }
 
@@ -162,7 +162,7 @@ public final class SettingsPageViewService {
 
                     if let exception = await self.userSession.deleteAccount() {
                         await self.uiApplication.mainWindow?.removeOverlay()
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                         return
                     }
 
@@ -191,7 +191,7 @@ public final class SettingsPageViewService {
             let sendTextMessageAction: AKAction = .init("Send Text Message") {
                 Task { @MainActor in
                     if let exception = await self.services.invite.presentInvitationPrompt() {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     }
                 }
             }
@@ -218,7 +218,7 @@ public final class SettingsPageViewService {
     public func messageRecipientConsentSwitchToggled(on: Bool) {
         Task {
             if let exception = await services.messageRecipientConsent.setMessageRecipientConsentRequired(on) {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
         }
     }

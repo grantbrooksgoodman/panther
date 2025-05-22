@@ -86,7 +86,7 @@ public final class RecipientBarContactSelectionUIService {
                     isReportable: false,
                     metadata: [self, #file, #function, #line]
                 ),
-                with: .toast(isPersistent: false)
+                with: .toast(style: nil, isPersistent: false)
             )
 
             return
@@ -99,7 +99,7 @@ public final class RecipientBarContactSelectionUIService {
                     isReportable: false,
                     metadata: [self, #file, #function, #line]
                 ),
-                with: .toast(isPersistent: false)
+                with: .toast(style: nil, isPersistent: false)
             )
 
             return

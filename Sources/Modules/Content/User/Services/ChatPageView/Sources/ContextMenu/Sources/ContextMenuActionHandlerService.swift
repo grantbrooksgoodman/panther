@@ -161,7 +161,7 @@ public final class ContextMenuActionHandlerService {
             coreHUD.showSuccess()
         } else if let documentPathURL = selectedMessage?.documentComponent?.localPathURL,
                   let exception = services.documentExport.presentExportController(forFileAt: documentPathURL) {
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
         }
     }
 

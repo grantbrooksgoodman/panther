@@ -327,7 +327,7 @@ public final class MediaActionHandlerService {
                 // FIXME: Should delay this to allow ChatPageViewController.viewWillAppear(_:) to fire.
                 self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
         }
@@ -342,7 +342,7 @@ public final class MediaActionHandlerService {
             Task {
                 self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
         }
@@ -357,7 +357,7 @@ public final class MediaActionHandlerService {
             Task {
                 self.isPresentingPickerController = false
                 if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
         }

@@ -6,8 +6,6 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -27,7 +25,6 @@ public extension DevModeAction {
         public var appActions: [DevModeAction] {
             var actions = [
                 DevModeAction.AppActions.setCurrentUserIDAction,
-                DevModeAction.AppActions.switchEnvironmentAction,
                 DevModeAction.AppActions.validateDatabaseIntegrityAction,
                 DevModeAction.AppActions.dangerZoneAction,
             ]
@@ -54,7 +51,7 @@ public extension DevModeAction {
                           let integer = Int(messageCount) else { return }
 
                     if let exception = await userTestingService.createRandomMessages(count: integer) {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     }
                 }
             }
@@ -68,8 +65,6 @@ public extension DevModeAction {
                     @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
                     var actions: [DevModeAction] = [
-                        DevModeAction.AppActions.eraseDocumentsDirectoryAction,
-                        DevModeAction.AppActions.eraseTemporaryDirectoryAction,
                         DevModeAction.AppActions.destroyConversationDatabaseAction,
                         DevModeAction.AppActions.resetPushTokensAction,
                     ]
@@ -138,71 +133,6 @@ public extension DevModeAction {
             return .init(title: "Set Current User ID", perform: setCurrentUserID)
         }
 
-        private static var switchEnvironmentAction: DevModeAction {
-            func switchEnvironment() {
-                Task {
-                    @Sendable
-                    func switchTo(_ environment: NetworkEnvironment) async {
-                        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-                        @Dependency(\.userDefaults) var defaults: UserDefaults
-
-                        Networking.config.setEnvironment(environment)
-
-                        coreUtilities.clearCaches()
-                        coreUtilities.eraseDocumentsDirectory()
-                        coreUtilities.eraseTemporaryDirectory()
-
-                        defaults.reset()
-
-                        await AKAlert(
-                            message: "Switched to \(environment.description) environment. You must now restart the app.",
-                            actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
-                        ).present(translating: [])
-                    }
-
-                    let switchToDevelopmentAction: AKAction = .init("Switch to Development") {
-                        Task { await switchTo(.development) }
-                    }
-
-                    let switchToProductionAction: AKAction = .init("Switch to Production", style: .destructive) {
-                        Task { await switchTo(.production) }
-                    }
-
-                    let switchToStagingAction: AKAction = .init("Switch to Staging") {
-                        Task { await switchTo(.staging) }
-                    }
-
-                    var actions = [AKAction]()
-                    switch Networking.config.environment {
-                    case .development:
-                        actions = [
-                            switchToProductionAction,
-                            switchToStagingAction,
-                        ]
-
-                    case .production:
-                        actions = [
-                            switchToDevelopmentAction,
-                            switchToStagingAction,
-                        ]
-
-                    case .staging:
-                        actions = [
-                            switchToDevelopmentAction,
-                            switchToProductionAction,
-                        ]
-                    }
-
-                    await AKActionSheet(
-                        title: "Switch from \(Networking.config.environment.description) Environment",
-                        actions: actions
-                    ).present(translating: [])
-                }
-            }
-
-            return .init(title: "Switch Environment", perform: switchEnvironment)
-        }
-
         private static var validateDatabaseIntegrityAction: DevModeAction {
             func validateDatabaseIntegrity() {
                 Task {
@@ -212,7 +142,7 @@ public extension DevModeAction {
                     coreHUD.showProgress(isModal: true)
                     defer { coreHUD.hide() }
                     guard let exception = await integrityService.repairDatabase() else { return }
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
 
@@ -238,7 +168,7 @@ public extension DevModeAction {
                     userSession.stopObservingCurrentUserChanges()
 
                     if let exception = await core.utils.deleteCurrentUserConversations() {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash(image: .success)
                         core.gcd.after(.seconds(1)) {
@@ -277,7 +207,7 @@ public extension DevModeAction {
                     userSession.stopObservingCurrentUserChanges()
 
                     if let exception = await core.utils.deleteMRCConversations() {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash(image: .success)
                         core.gcd.after(.seconds(1)) {
@@ -319,7 +249,7 @@ public extension DevModeAction {
 
                     guard doubleConfirmed else { return }
                     if let exception = await core.utils.destroyConversationDatabase() {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash(image: .success)
                     }
@@ -327,46 +257,6 @@ public extension DevModeAction {
             }
 
             return .init(title: "Destroy Conversation Database", isDestructive: true, perform: destroyConversationDatabase)
-        }
-
-        private static var eraseDocumentsDirectoryAction: DevModeAction {
-            func eraseDocumentsDirectory() {
-                Task {
-                    @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-
-                    let confirmed = await AKConfirmationAlert(
-                        title: "Erase Documents Directory",
-                        message: "This will remove all files in the userland Documents directory. An app restart is required.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
-
-                    guard confirmed else { return }
-                    guard let exception = coreUtilities.eraseDocumentsDirectory() else {
-                        await AKAlert(
-                            message: "The Documents directory has been erased. You must now restart the app.",
-                            actions: [.init("Exit", style: .destructivePreferred, effect: { exit(0) })]
-                        ).present(translating: [])
-                        return
-                    }
-
-                    Logger.log(exception, with: .errorAlert)
-                }
-            }
-
-            return .init(title: "Erase Documents Directory", perform: eraseDocumentsDirectory)
-        }
-
-        private static var eraseTemporaryDirectoryAction: DevModeAction {
-            func eraseTemporaryDirectory() {
-                @Dependency(\.coreKit) var core: CoreKit
-                if let exception = core.utils.eraseTemporaryDirectory() {
-                    Logger.log(exception, with: .toast())
-                } else {
-                    core.hud.flash(image: .success)
-                }
-            }
-
-            return .init(title: "Erase Temporary Directory", perform: eraseTemporaryDirectory)
         }
 
         private static var resetPushTokensAction: DevModeAction {
@@ -383,7 +273,7 @@ public extension DevModeAction {
                     guard confirmed else { return }
 
                     if let exception = await core.utils.resetPushTokens() {
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash("Reset Push Tokens", image: .success)
                     }
@@ -398,5 +288,3 @@ public extension DevModeAction {
         }
     }
 }
-
-// swiftlint:enable file_length type_body_length

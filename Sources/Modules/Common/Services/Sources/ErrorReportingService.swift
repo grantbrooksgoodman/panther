@@ -102,11 +102,11 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 )
             ) {
                 guard Logger.reportsErrorsAutomatically else {
-                    return Logger.log(exception, with: .toast())
+                    return Logger.log(exception, with: .toast)
                 }
 
                 Logger.setReportsErrorsAutomatically(false)
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
                 Logger.setReportsErrorsAutomatically(true)
 
                 return

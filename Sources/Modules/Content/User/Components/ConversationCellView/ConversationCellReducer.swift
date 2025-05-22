@@ -110,7 +110,7 @@ public struct ConversationCellReducer: Reducer {
                 return .none
             }
 
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }

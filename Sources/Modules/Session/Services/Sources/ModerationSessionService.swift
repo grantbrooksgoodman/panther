@@ -60,7 +60,7 @@ public struct ModerationSessionService {
                     Task {
                         guard await confirmModeration(type, title: "⌘\(contactPair.contact.fullName)⌘") else { return }
                         guard let exception = await performModeration(type, userIDs: contactPair.users.map(\.id)) else { return showSuccess(type) }
-                        Logger.log(exception, with: .toast())
+                        Logger.log(exception, with: .toast)
                     }
                 }
             )
@@ -73,7 +73,7 @@ public struct ModerationSessionService {
             Task {
                 guard await confirmModeration(type, title: "All Users") else { return }
                 guard let exception = await performModeration(type, userIDs: contactPairs.users.map(\.id)) else { return showSuccess(type) }
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
         }
 

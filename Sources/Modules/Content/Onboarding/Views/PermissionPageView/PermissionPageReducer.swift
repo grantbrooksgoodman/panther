@@ -91,7 +91,7 @@ public struct PermissionPageReducer: Reducer {
                 state.isBackButtonEnabled = true
                 state.isFinishButtonEnabled = false
 
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             } else {
                 navigation.navigate(to: .root(.modal(.splash)))
             }
@@ -160,7 +160,7 @@ public struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case let .requestNotificationPermissionReturned(.success(status)):
             state.isNotificationPermissionGranted = status == .granted
@@ -177,7 +177,7 @@ public struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

@@ -16,6 +16,6 @@ public extension Logger.AlertType {
     static var toastInPrerelease: Logger.AlertType? {
         @Dependency(\.build) var build: Build
         guard build.milestone != .generalRelease else { return nil }
-        return .toast()
+        return .toast
     }
 }

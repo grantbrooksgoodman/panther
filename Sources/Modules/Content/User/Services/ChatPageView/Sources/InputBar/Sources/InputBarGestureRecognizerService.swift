@@ -177,7 +177,7 @@ public final class InputBarGestureRecognizerService {
                     }
 
                 case let .failure(exception):
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
             }
         }
@@ -210,7 +210,7 @@ public final class InputBarGestureRecognizerService {
             .noSpeechDetected,
             .transcribeNoSuchFileOrDirectory,
         ]) else {
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
             return
         }
 

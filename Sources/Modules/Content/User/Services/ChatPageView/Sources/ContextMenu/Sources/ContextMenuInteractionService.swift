@@ -170,7 +170,7 @@ public final class ContextMenuInteractionService {
            let reaction = Reaction(reactionStyle) {
             Task {
                 if let exception = await clientSession.reaction.react(reaction, to: message) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
 
                 scrollToLastItemIfNeeded(message)
@@ -190,7 +190,7 @@ public final class ContextMenuInteractionService {
             Task {
                 if let reaction = Reaction(.love),
                    let exception = await self.clientSession.reaction.react(reaction, to: message) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
 
                 scrollToLastItemIfNeeded(message)

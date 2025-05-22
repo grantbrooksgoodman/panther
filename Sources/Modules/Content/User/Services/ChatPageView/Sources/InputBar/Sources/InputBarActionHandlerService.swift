@@ -57,7 +57,7 @@ public final class InputBarActionHandlerService {
     public func didPressConsentButton() {
         Task {
             if let exception = await services.messageRecipientConsent.sendConsentMessageInCurrentConversation() {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
         }
     }

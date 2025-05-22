@@ -100,7 +100,7 @@ public struct AuthCodePageReducer: Reducer {
                 )
             }
 
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case .backButtonTapped:
             navigation.navigate(to: .onboarding(.pop))

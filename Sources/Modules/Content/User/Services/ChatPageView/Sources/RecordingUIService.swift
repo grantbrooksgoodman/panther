@@ -199,7 +199,7 @@ public final class RecordingUIService {
 
         if let exception = recordingService.cancelRecording() {
             guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
         }
     }
 

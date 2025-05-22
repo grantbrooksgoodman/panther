@@ -68,7 +68,7 @@ public final class AudioMessagePlaybackService {
         }
 
         if let exception = didTapPlayButton(in: cell) {
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
         }
     }
 

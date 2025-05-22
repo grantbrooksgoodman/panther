@@ -251,7 +251,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         case let .isPresentingCameraPickerSheetChanged(isPresentingCameraPickerSheet, exception):
             if let exception {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
             state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
 
@@ -264,7 +264,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet, exception):
             if let exception {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
             state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
 
@@ -356,7 +356,7 @@ public struct ChatInfoPageReducer: Reducer {
                   let imageData = image.dataCompressed(toKB: 100) else {
                 Logger.log(
                     .init("Failed to compress image.", metadata: [self, #file, #function, #line]),
-                    with: .toast()
+                    with: .toast
                 )
                 state.isChangeMetadataButtonEnabled = true
                 return .none
@@ -401,7 +401,7 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
         case let .updateValueReturned(.failure(exception), _):
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
             state.isChangeMetadataButtonEnabled = true
 
         case let .userInfoBadgeTapped(user):

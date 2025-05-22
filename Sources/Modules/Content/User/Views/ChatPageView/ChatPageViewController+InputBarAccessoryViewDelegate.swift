@@ -22,7 +22,7 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
             if let exception = await inputBarService?.actionHandler.didPressSendButton(with: text) {
-                Logger.log(exception, with: .toast())
+                Logger.log(exception, with: .toast)
             }
         }
     }

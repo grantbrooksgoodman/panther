@@ -104,7 +104,7 @@ public struct ConversationsPageReducer: Reducer {
 
         case let .reloadDataReturned(.failure(exception)):
             state.isRefreshing = false
-            Logger.log(exception, with: .toast())
+            Logger.log(exception, with: .toast)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
@@ -133,7 +133,7 @@ public struct ConversationsPageReducer: Reducer {
                     Logger.log(
                         "Intercepted badly set users on conversations bug.",
                         domain: .bugPrevention,
-                        with: isDeveloperModeEnabled ? .toast() : nil,
+                        with: isDeveloperModeEnabled ? .toast : nil,
                         metadata: [self, #file, #function, #line]
                     )
 

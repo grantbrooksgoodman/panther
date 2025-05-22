@@ -95,7 +95,7 @@ public final class RecipientBarActionHandlerService {
                         return
                     }
 
-                    if let exception = await services.contact.syncContactPairArchive() { Logger.log(exception, with: .toast()) }
+                    if let exception = await services.contact.syncContactPairArchive() { Logger.log(exception, with: .toast) }
                     selectContactButtonTapped()
 
                 case let .failure(exception):
@@ -104,7 +104,7 @@ public final class RecipientBarActionHandlerService {
                         return
                     }
 
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
 
                 return
@@ -118,7 +118,7 @@ public final class RecipientBarActionHandlerService {
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
-                    Logger.log(exception, with: .toast())
+                    Logger.log(exception, with: .toast)
                 }
 
                 guard (contactPairArchive ?? []).isEmpty else {
@@ -130,7 +130,7 @@ public final class RecipientBarActionHandlerService {
                 let inviteAction: AKAction = .init(Strings.inviteAlertActionTitle, style: .preferred) {
                     Task {
                         if let exception = await self.services.invite.presentInvitationPrompt() {
-                            Logger.log(exception, with: .toast())
+                            Logger.log(exception, with: .toast)
                         }
                     }
                 }
