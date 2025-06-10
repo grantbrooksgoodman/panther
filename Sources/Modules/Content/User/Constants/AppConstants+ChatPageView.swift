@@ -42,8 +42,8 @@ public extension AppConstants.CGFloats {
         }
 
         enum MessagesDisplayDelegate {
-            public static let audioCellProgressViewDefaultThemeTrackTintColorAlphaComponent: CGFloat = 0.8
-            public static let audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage: CGFloat = 6
+            public static let audioCellProgressViewTrackTintColorAlphaComponent: CGFloat = 0.8
+            public static let audioCellProgressViewTrackTintColorDarkeningPercentage: CGFloat = 6
 
             public static let messageStyleCustomLayerCornerRadius: CGFloat = 10
             public static let messageStyleCustomLayerShadowOffsetHeight: CGFloat = 2
@@ -88,6 +88,8 @@ public extension AppConstants.Colors {
         }
 
         enum MessagesDisplayDelegate {
+            public static let audioCellProgressViewCurrentUserAccent: Color = .init(uiColor: .white)
+
             public static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
             public static let detectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
 

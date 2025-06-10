@@ -72,7 +72,10 @@ public struct InviteLanguagePickerView: View {
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
-        .preferredStatusBarStyle(.lightContent)
+        .preferredStatusBarStyle(
+            .lightContent,
+            restoreOnDisappear: !Application.isInPrevaricationMode
+        )
         .onAppear {
             viewModel.send(.viewAppeared)
         }

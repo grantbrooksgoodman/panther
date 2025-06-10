@@ -42,6 +42,7 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
                 composeVC.recipients = ["+\(phoneNumber.compiledNumberString)"]
             }
 
+            StatusBar.overrideStyle(.lightContent)
             coreUI.present(composeVC)
         }
 
@@ -54,6 +55,6 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
         _ controller: MFMessageComposeViewController,
         didFinishWith result: MessageComposeResult
     ) {
-        controller.dismiss(animated: true)
+        controller.dismiss(animated: true) { StatusBar.overrideStyle(.appAware) }
     }
 }

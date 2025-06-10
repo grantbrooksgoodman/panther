@@ -97,7 +97,10 @@ public struct ChatInfoPageView: View {
                 }
             }
         }
-        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+        .preferredStatusBarStyle(
+            .lightContent,
+            restoreOnDisappear: !Application.isInPrevaricationMode
+        )
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

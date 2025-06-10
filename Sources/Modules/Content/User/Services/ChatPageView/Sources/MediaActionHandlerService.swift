@@ -296,7 +296,7 @@ public final class MediaActionHandlerService {
 
     @MainActor
     private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
-        StatusBar.restoreStyle()
+        StatusBar.overrideStyle(.appAware)
         guard let callback else { return nil }
 
         switch callback {

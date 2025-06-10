@@ -59,7 +59,10 @@ public struct NewChatPageView: View {
             .background(Color.background)
             .foregroundStyle(Color.background)
             .interactiveDismissDisabled()
-            .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+            .preferredStatusBarStyle(
+                .lightContent,
+                restoreOnDisappear: !Application.isInPrevaricationMode
+            )
             .sheet(isPresented: contactSelectorSheetBinding) {
                 ContactSelectorPageView(
                     .init(

@@ -36,33 +36,27 @@ extension ChatPageViewController: MessagesDisplayDelegate {
     // MARK: - Configure Audio Cell
 
     public func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
+        @Dependency(\.chatPageViewService.audioMessagePlayback) var audioMessagePlaybackService: AudioMessagePlaybackService?
         guard let message = message as? Message else { return }
 
         cell.playButton.setImage(.play.withRenderingMode(.alwaysTemplate), for: .normal)
         cell.playButton.setImage(.stop.withRenderingMode(.alwaysTemplate), for: .selected)
 
-        func setPlayingCellIfNeeded() {
-            @Dependency(\.chatPageViewService.audioMessagePlayback) var audioMessagePlaybackService: AudioMessagePlaybackService?
-            guard message.isPlayingMessage else { return }
-            audioMessagePlaybackService?.setPlayingCell(cell)
-            cell.playButton.isSelected = true
-        }
+        let accentColor: UIColor = message.isFromCurrentUser ? UIColor(Colors.audioCellProgressViewCurrentUserAccent) : .accent
 
-        defer { setPlayingCellIfNeeded() }
+        cell.durationLabel.textColor = accentColor
+        cell.playButton.tintColor = accentColor
 
-        guard message.isFromCurrentUser else {
-            cell.durationLabel.textColor = .accent
-            cell.playButton.tintColor = .accent
-            cell.progressView.progressTintColor = .accent
-            cell.progressView.trackTintColor = nil
-            return
-        }
-
-        guard ThemeService.isAppDefaultThemeApplied else { return }
-        cell.progressView.trackTintColor = message
+        cell.progressView.progressTintColor = accentColor
+        cell.progressView.trackTintColor = message.isFromCurrentUser ? message
             .backgroundColor
-            .darker(by: Floats.audioCellProgressViewDefaultThemeTrackTintColorDarkeningPercentage)?
-            .withAlphaComponent(Floats.audioCellProgressViewDefaultThemeTrackTintColorAlphaComponent)
+            .darker(by: Floats.audioCellProgressViewTrackTintColorDarkeningPercentage)?
+            .withAlphaComponent(Floats.audioCellProgressViewTrackTintColorAlphaComponent) : nil
+
+        guard message.isPlayingMessage else { return }
+
+        audioMessagePlaybackService?.setPlayingCell(cell)
+        cell.playButton.isSelected = true
     }
 
     // MARK: - Configure Avatar View

@@ -68,7 +68,7 @@ public struct SplashPageView: View {
         .fadeIn(delay: .milliseconds(Floats.fadeInDelayMilliseconds))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .preferredStatusBarStyle(
-            ThemeService.isDarkModeActive ? .lightContent : (ThemeService.isAppDefaultThemeApplied ? .darkContent : .lightContent),
+            .appAware,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .redrawsOnTraitCollectionChange()
@@ -80,7 +80,7 @@ public struct SplashPageView: View {
         }
     }
 
-    @ViewBuilder
+    @ViewBuilder // TODO: Create AppConstants for the colors here.
     private var progressBar: some View {
         if viewService.shouldShowLoadingLabel {
             ProgressView(value: viewService.initializationProgress) {

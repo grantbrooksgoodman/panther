@@ -65,14 +65,15 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     }
 
     public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        controller.dismiss(animated: true)
-        onDismiss()
+        controller.dismiss(animated: true) {
+            StatusBar.overrideStyle(.appAware)
+            self.onDismiss()
+        }
     }
 
     // MARK: - Auxiliary
 
     private func onDismiss() {
-        defer { StatusBar.restoreStyle() }
         guard let temporaryFilePath else { return }
         try? fileManager.removeItem(at: temporaryFilePath)
         self.temporaryFilePath = nil

@@ -34,7 +34,7 @@ public struct OnboardingContainerView: View {
         ZStack {
             Color.clear
                 .frame(width: .zero, height: .zero)
-                .preferredStatusBarStyle(ThemeService.isDarkModeActive ? .lightContent : .darkContent)
+                .preferredStatusBarStyle(.appAware)
                 .redrawsOnTraitCollectionChange()
 
             NavigationStack(path: navigationPathBinding) {

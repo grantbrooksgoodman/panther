@@ -103,7 +103,10 @@ public struct PenPalsPermissionPageView: View {
         }
         .ignoresSafeArea()
         .interactiveDismissDisabled()
-        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: true)
+        .preferredStatusBarStyle(
+            .lightContent,
+            restoreOnDisappear: !Application.isInPrevaricationMode
+        )
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

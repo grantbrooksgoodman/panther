@@ -91,7 +91,10 @@ public struct SettingsPageView: View {
                 .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
             }
         }
-        .preferredStatusBarStyle(.lightContent, restoreOnDisappear: !Application.isInPrevaricationMode)
+        .preferredStatusBarStyle(
+            .lightContent,
+            restoreOnDisappear: !Application.isInPrevaricationMode
+        )
         .sheet(item: sheetBinding) { sheetView(for: $0) }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
