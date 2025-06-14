@@ -206,7 +206,7 @@ public final class RecipientBarContactSelectionUIService {
 
                 guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
                 let redColor = UIColor(Colors.contactViewRedText) // NIT: This should never happen anyway.
-                contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
+                contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : UIColor(Colors.accent)
                 guard index < self.contactViews.count - 1 else { continue }
 
                 var labelText = (contactLabel.text ?? "")
@@ -253,13 +253,13 @@ public final class RecipientBarContactSelectionUIService {
 
         switch isHighlighted(viewID: contactHash) {
         case true:
-            contactLabel.textColor = contactView.backgroundColor == redColor ? redColor : .accent
+            contactLabel.textColor = contactView.backgroundColor == redColor ? redColor : UIColor(Colors.accent)
             contactView.backgroundColor = contactViewSelectionColor
             contactView.layer.borderColor = contactViewSelectionColor.cgColor
 
         case false:
-            contactView.backgroundColor = contactLabel.textColor == redColor ? redColor : .accent
-            contactView.layer.borderColor = contactLabel.textColor == redColor ? redColor.cgColor : UIColor.accent.cgColor
+            contactView.backgroundColor = contactLabel.textColor == redColor ? redColor : UIColor(Colors.accent)
+            contactView.layer.borderColor = contactLabel.textColor == redColor ? redColor.cgColor : UIColor(Colors.accent).cgColor
             contactLabel.textColor = UIColor(Colors.contactViewHighlightedText)
 
             guard let textField = chatPageViewService.recipientBar?.layout.textField,
@@ -272,7 +272,7 @@ public final class RecipientBarContactSelectionUIService {
         for contactView in contactViews {
             guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
             let redColor = UIColor(Colors.contactViewRedText)
-            contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : .accent
+            contactLabel.textColor = contactLabel.textColor == redColor || contactView.backgroundColor == redColor ? redColor : UIColor(Colors.accent)
 
             contactView.backgroundColor = contactViewSelectionColor
             contactView.layer.borderColor = contactViewSelectionColor.cgColor
@@ -306,8 +306,9 @@ public final class RecipientBarContactSelectionUIService {
             size: .init(width: 0, height: Floats.contactViewFrameHeight)
         ))
 
+        contactView.alpha = UIApplication.v26FeaturesEnabled ? 0.75 : 1
         contactView.backgroundColor = contactViewSelectionColor
-        contactView.center.y = recipientBarView.center.y
+        contactView.center.y = toLabel.center.y
         contactView.isUserInteractionEnabled = true
 
         contactView.layer.borderColor = contactViewSelectionColor.cgColor
@@ -326,7 +327,7 @@ public final class RecipientBarContactSelectionUIService {
 
         contactLabel.text = text
         contactLabel.textAlignment = .center
-        contactLabel.textColor = useRedTextColor ? UIColor(Colors.contactViewRedText) : .accent
+        contactLabel.textColor = useRedTextColor ? UIColor(Colors.contactViewRedText) : UIColor(Colors.accent)
 
         contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
         contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width

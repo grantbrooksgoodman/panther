@@ -21,6 +21,7 @@ public extension AppConstants.CGFloats {
         public static let chevronImageFrameMaxHeight: CGFloat = 15
         public static let chevronImageFrameMaxWidth: CGFloat = 15
         public static let cornerRadius: CGFloat = 8
+        public static let glassEffectPadding: CGFloat = 4
     }
 }
 

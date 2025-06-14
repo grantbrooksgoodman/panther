@@ -34,27 +34,22 @@ public struct SquareIconView: View {
 
     @ViewBuilder
     public var body: some View {
-        let baseView = Rectangle()
+        Rectangle()
             .frame(
                 width: configuration.size.width,
                 height: configuration.size.height
             )
             .foregroundStyle(configuration.backgroundColor)
             .cornerRadius(Floats.cornerRadius)
-
-        if configuration.includesShadow {
-            baseView
-                .shadow(
+            .if(configuration.includesShadow) {
+                $0.shadow(
                     color: Colors.shadow.opacity(Floats.shadowColorOpacity),
                     radius: Floats.shadowRadius,
                     x: 0,
                     y: Floats.shadowYOffset
                 )
-                .overlay { overlayView }
-        } else {
-            baseView
-                .overlay { overlayView }
-        }
+            }
+            .overlay { overlayView }
     }
 
     private var overlayView: some View {

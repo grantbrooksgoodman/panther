@@ -52,7 +52,7 @@ public struct ReactionDetailsPageView: View {
                 attributes: .init(sizeClass: .sheet)
             )
             .preferredStatusBarStyle(
-                .lightContent,
+                .conditionalLightContent,
                 restoreOnDisappear: !Application.isInPrevaricationMode
             )
             .onFirstAppear {

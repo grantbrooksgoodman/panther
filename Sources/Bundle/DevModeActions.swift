@@ -29,8 +29,14 @@ public extension DevModeAction {
                 DevModeAction.AppActions.dangerZoneAction,
             ]
 
-            guard Networking.config.environment != .production else { return actions }
-            actions.insert(DevModeAction.AppActions.createNewMessagesAction, at: 1)
+            if Networking.config.environment != .production {
+                actions.insert(DevModeAction.AppActions.createNewMessagesAction, at: 1)
+            }
+
+            if UIApplication.v26FeaturesEnabled {
+                actions.insert(DevModeAction.AppActions.toggleV26FeaturesAction, at: 1)
+            }
+
             return actions
         }
 
@@ -284,6 +290,33 @@ public extension DevModeAction {
                 title: "Reset Push Tokens",
                 isDestructive: true,
                 perform: resetPushTokens
+            )
+        }
+
+        private static var toggleV26FeaturesAction: DevModeAction {
+            @Persistent(.v26FeaturesEnabled) var persistedValue: Bool?
+            let v26FeaturesEnabled = persistedValue == true
+
+            func toggleV26Features() {
+                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.uiApplication.mainWindow) var mainWindow: UIWindow?
+
+                persistedValue = !v26FeaturesEnabled
+                UserDefaults.standard.synchronize() // NIT: Trying to force sync.
+                core.hud.showSuccess(
+                    text: "v26 Features \(!v26FeaturesEnabled ? "Disabled" : "Enabled")"
+                )
+
+                core.gcd.after(.seconds(1)) {
+                    StatusBar.toggleVisibility()
+                    mainWindow?.addOverlay(activityIndicator: .largeWhite)
+                    core.gcd.after(.seconds(1)) { core.utils.exitGracefully() }
+                }
+            }
+
+            return .init(
+                title: "\(v26FeaturesEnabled ? "Disable" : "Enable") v26 Features",
+                perform: toggleV26Features
             )
         }
     }

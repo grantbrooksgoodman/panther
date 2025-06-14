@@ -92,7 +92,7 @@ public struct SettingsPageView: View {
             }
         }
         .preferredStatusBarStyle(
-            .lightContent,
+            .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .sheet(item: sheetBinding) { sheetView(for: $0) }
@@ -157,12 +157,22 @@ public struct SettingsPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Components.button(
-                viewModel.doneToolbarButtonText,
-                font: .systemSemibold,
-                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
-            ) {
-                viewModel.send(.doneToolbarButtonTapped)
+            if UIApplication.v26FeaturesEnabled {
+                Components.button(
+                    symbolName: Strings.doneToolbarButtonImageSystemName,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                    usesIntrinsicSize: false
+                ) {
+                    viewModel.send(.doneToolbarButtonTapped)
+                }
+            } else {
+                Components.button(
+                    viewModel.doneToolbarButtonText,
+                    font: .systemSemibold,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                ) {
+                    viewModel.send(.doneToolbarButtonTapped)
+                }
             }
         }
     }

@@ -91,19 +91,20 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
     /* MARK: Init */
 
     public init?(_ string: String) {
-        if string == AudioFileExtension.caf.rawValue {
+        let rawValue = string.lowercasedTrimmingWhitespaceAndNewlines
+        if rawValue == AudioFileExtension.caf.rawValue {
             self = .audio(.caf)
-        } else if string == AudioFileExtension.m4a.rawValue {
+        } else if rawValue == AudioFileExtension.m4a.rawValue {
             self = .audio(.m4a)
-        } else if string == DocumentFileExtension.pdf.rawValue {
+        } else if rawValue == DocumentFileExtension.pdf.rawValue {
             self = .document(.pdf)
-        } else if string == ImageFileExtension.jpeg.rawValue {
+        } else if rawValue == ImageFileExtension.jpeg.rawValue {
             self = .image(.jpeg)
-        } else if string == ImageFileExtension.jpg.rawValue {
+        } else if rawValue == ImageFileExtension.jpg.rawValue {
             self = .image(.jpg)
-        } else if string == ImageFileExtension.png.rawValue {
+        } else if rawValue == ImageFileExtension.png.rawValue {
             self = .image(.png)
-        } else if string == VideoFileExtension.mp4.rawValue {
+        } else if rawValue == VideoFileExtension.mp4.rawValue {
             self = .video(.mp4)
         } else {
             return nil

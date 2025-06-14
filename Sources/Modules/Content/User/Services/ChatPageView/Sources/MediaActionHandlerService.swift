@@ -27,6 +27,7 @@ public final class MediaActionHandlerService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.qlThumbnailGenerator) private var qlThumbnailGenerator: QLThumbnailGenerator
@@ -89,6 +90,17 @@ public final class MediaActionHandlerService {
 
         switch dataFromURLResult {
         case let .success(data):
+            guard !mediaFileExtension.isImage else {
+                if let image = UIImage(data: data) {
+                    return await processAndSendImage(image)
+                }
+
+                return .init(
+                    "Failed to process image data.",
+                    metadata: [self, #file, #function, #line]
+                )
+            }
+
             if let exception = fileManager.createFile(
                 atPath: localPathURL,
                 data: data
@@ -297,6 +309,8 @@ public final class MediaActionHandlerService {
     @MainActor
     private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
         StatusBar.overrideStyle(.appAware)
+        coreGCD.after(.seconds(1)) { StatusBar.overrideStyle(.appAware) }
+
         guard let callback else { return nil }
 
         switch callback {
@@ -318,7 +332,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentCameraPicker() {
-        StatusBar.overrideStyle(.lightContent)
+        StatusBar.overrideStyle(.conditionalLightContent)
         services.contentPicker.camera.present()
         isPresentingPickerController = true
 
@@ -334,7 +348,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentDocumentPicker() {
-        StatusBar.overrideStyle(.lightContent)
+        StatusBar.overrideStyle(.conditionalLightContent)
         services.contentPicker.document.present()
         isPresentingPickerController = true
 
@@ -349,7 +363,7 @@ public final class MediaActionHandlerService {
     }
 
     private func presentMediaPicker() {
-        StatusBar.overrideStyle(.lightContent)
+        StatusBar.overrideStyle(.conditionalLightContent)
         services.contentPicker.media.present()
         isPresentingPickerController = true
 

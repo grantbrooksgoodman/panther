@@ -42,7 +42,7 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
                 composeVC.recipients = ["+\(phoneNumber.compiledNumberString)"]
             }
 
-            StatusBar.overrideStyle(.lightContent)
+            StatusBar.overrideStyle(.conditionalLightContent)
             coreUI.present(composeVC)
         }
 

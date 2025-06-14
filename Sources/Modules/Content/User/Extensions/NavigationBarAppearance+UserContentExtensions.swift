@@ -15,7 +15,16 @@ import AppSubsystem
 
 public extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
-        guard Application.isInPrevaricationMode else {
+        if Application.isInPrevaricationMode {
+            return .custom(.init(
+                titleColor: .navigationBarTitle,
+                backgroundColor: .navigationBarBackground,
+                barButtonItemColor: .navigationBarTitle,
+                showsDivider: true
+            ))
+        } else if UIApplication.v26FeaturesEnabled {
+            return .default(scrollEdgeConfig: nil)
+        } else {
             return .default(scrollEdgeConfig: .init(
                 titleColor: .navigationBarTitle,
                 backgroundColor: (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98),
@@ -23,12 +32,37 @@ public extension NavigationBarAppearance {
                 showsDivider: false
             ))
         }
+    }
 
-        return .custom(.init(
+    static var chatPageView: NavigationBarAppearance {
+        guard UIApplication.v26FeaturesEnabled else { return .appDefault }
+        return .custom(
+            .init(
+                titleColor: .navigationBarTitle,
+                backgroundColor: .navigationBarBackground.withAlphaComponent(0.65),
+                barButtonItemColor: .accent,
+                showsDivider: false
+            ),
+            scrollEdgeConfig: .v26ScrollEdgeConfig
+        )
+    }
+
+    static var newChatPageView: NavigationBarAppearance {
+        guard UIApplication.v26FeaturesEnabled else { return .appDefault }
+        return .custom(
+            .v26ScrollEdgeConfig,
+            scrollEdgeConfig: .v26ScrollEdgeConfig
+        )
+    }
+}
+
+private extension NavigationBarConfiguration {
+    static var v26ScrollEdgeConfig: NavigationBarConfiguration {
+        .init(
             titleColor: .navigationBarTitle,
-            backgroundColor: .navigationBarBackground,
-            barButtonItemColor: .navigationBarTitle,
-            showsDivider: true
-        ))
+            backgroundColor: .clear,
+            barButtonItemColor: .accent,
+            showsDivider: false
+        )
     }
 }

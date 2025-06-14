@@ -55,6 +55,26 @@ public struct NewChatPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        public var navigationBarHeight: CGFloat {
+            @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
+            return (viewControllers
+                .compactMap { $0 as? UINavigationController }
+                .first?
+                .navigationBar
+                .frame
+                .height ?? 54) + 20
+        }
+
+        public var navigationBarOpacity: CGFloat {
+            @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
+            return (viewControllers
+                .compactMap { $0 as? ChatPageViewController }
+                .first?
+                .messagesCollectionView
+                .contentOffset
+                .y ?? 0) > 0 ? 0.8 : 0
+        }
+
         public var shouldShowPenPalsToolbarButton: Bool {
             @Dependency(\.clientSession.user.currentUser) var currentUser: User?
             return (currentUser?.isPenPalsParticipant ?? false) && !shouldUseBoldDoneToolbarButton

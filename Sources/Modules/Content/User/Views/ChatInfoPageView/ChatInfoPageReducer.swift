@@ -408,7 +408,7 @@ public struct ChatInfoPageReducer: Reducer {
             conversationCellViewService.presentUserInfoAlert(.init(user: user))
 
         case .viewDisappeared:
-            NavigationBar.setAppearance(.appDefault)
+            NavigationBar.setAppearance(.chatPageView)
         }
 
         return .none

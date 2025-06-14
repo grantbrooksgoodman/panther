@@ -13,8 +13,8 @@ import Foundation
 import AppSubsystem
 
 public extension Persistent {
-    convenience init(_ generalKey: UserDefaultsKey.GeneralAppDefaultsKey) {
-        self.init(.general(generalKey))
+    convenience init(_ applicationKey: UserDefaultsKey.ApplicationDefaultsKey) {
+        self.init(.application(applicationKey))
     }
 
     convenience init(_ audioServiceKey: UserDefaultsKey.AudioServiceDefaultsKey) {

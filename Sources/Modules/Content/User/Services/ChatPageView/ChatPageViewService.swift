@@ -109,7 +109,9 @@ public final class ChatPageViewService {
         }
 
         viewController?.messageInputBar.alpha = configuration == .default ? 0 : 1
+
         guard configuration == .default else { return }
+        NavigationBar.setAppearance(.chatPageView)
         startSettingNavigationBarButtonItemAppearance()
     }
 
@@ -236,7 +238,7 @@ public final class ChatPageViewService {
             inputBar?.setAttachMediaButtonImage()
             recipientBar?.layout.layoutSubviews()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
-            NavigationBar.setAppearance(.appDefault)
+            NavigationBar.setAppearance(configuration == .newChat ? .newChatPageView : .chatPageView)
             StatusBar.overrideStyle(.appAware)
             UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true

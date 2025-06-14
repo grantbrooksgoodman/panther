@@ -81,7 +81,14 @@ public struct ContactDetailView: View {
             }
         }
         .padding()
-        .background(ThemeService.isDarkModeActive ? Colors.darkBackground : Colors.lightBackground)
-        .cornerRadius(Floats.cornerRadius)
+        .if(
+            UIApplication.v26FeaturesEnabled,
+            { $0.glassEffect(padding: Floats.glassEffectPadding) },
+            else: {
+                $0
+                    .background(ThemeService.isDarkModeActive ? Colors.darkBackground : Colors.lightBackground)
+                    .cornerRadius(Floats.cornerRadius)
+            }
+        )
     }
 }

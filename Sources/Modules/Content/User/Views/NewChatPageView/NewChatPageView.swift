@@ -15,6 +15,12 @@ import AppSubsystem
 import ComponentKit
 
 public struct NewChatPageView: View {
+    // MARK: - Constants Accessors
+
+    private typealias Colors = AppConstants.Colors.NewChatPageView
+    private typealias Floats = AppConstants.CGFloats.NewChatPageView
+    private typealias Strings = AppConstants.Strings.NewChatPageView
+
     // MARK: - Properties
 
     @StateObject var viewModel: ViewModel<NewChatPageReducer>
@@ -44,23 +50,20 @@ public struct NewChatPageView: View {
             VStack {
                 ChatPageView(viewModel.conversation, configuration: .newChat)
                     .ignoresSafeArea(.keyboard)
-                    .background(Color.background)
+                    .background(
+                        UIApplication.v26FeaturesEnabled && ThemeService.isDarkModeActive ? Color.groupedContentBackground : .background
+                    )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .header(
-                leftItem: viewModel.shouldShowPenPalsToolbarButton ? headerLeftItem : nil,
-                headerCenterItem,
-                rightItem: headerRightItem,
-                attributes: .init(
-                    showsDivider: viewModel.shouldUseBoldDoneToolbarButton,
-                    sizeClass: .sheet
-                )
+            .if(
+                UIApplication.v26FeaturesEnabled,
+                { v26Layout($0) },
+                else: { preV26Layout($0) }
             )
-            .background(Color.background)
             .foregroundStyle(Color.background)
             .interactiveDismissDisabled()
             .preferredStatusBarStyle(
-                .lightContent,
+                .conditionalLightContent,
                 restoreOnDisappear: !Application.isInPrevaricationMode
             )
             .sheet(isPresented: contactSelectorSheetBinding) {
@@ -75,5 +78,89 @@ public struct NewChatPageView: View {
                 viewModel.send(.viewAppeared)
             }
         }
+    }
+
+    private var doneToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Components.button(
+                symbolName: viewModel.shouldUseBoldDoneToolbarButton ?
+                    Strings.doneToolbarButtonImageSystemName :
+                    Strings.cancelToolbarButtonImageSystemName,
+                foregroundColor: viewModel.shouldUseBoldDoneToolbarButton ?
+                    Colors.doneToolbarButtonForeground :
+                    (viewModel.shouldShowPenPalsToolbarButton ? .accent : Colors.cancelToolbarButtonForeground),
+                weight: viewModel.shouldUseBoldDoneToolbarButton ? .bold : .semibold,
+                usesIntrinsicSize: false
+            ) {
+                viewModel.send(.doneToolbarButtonTapped)
+            }
+            .frame(
+                width: Floats.doneToolbarButtonFrameWidth,
+                height: Floats.doneToolbarButtonFrameHeight
+            )
+        }
+    }
+
+    private var penPalsToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                viewModel.send(.penPalsToolbarButtonTapped)
+            } label: {
+                (SquareIconView.image(
+                    .penPalsIcon(
+                        backgroundColor: viewModel.penPalsToolbarButtonBackgroundColor
+                    )
+                ).swiftUIImage ?? .missing)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(
+                        width: Floats.penPalsToolbarButtonFrameWidth,
+                        height: Floats.penPalsToolbarButtonFrameHeight
+                    )
+            }
+        }
+    }
+
+    private func preV26Layout(_ content: some View) -> some View {
+        content
+            .header(
+                leftItem: viewModel.shouldShowPenPalsToolbarButton ? headerLeftItem : nil,
+                headerCenterItem,
+                rightItem: headerRightItem,
+                attributes: .init(
+                    showsDivider: viewModel.shouldUseBoldDoneToolbarButton,
+                    sizeClass: .sheet
+                )
+            )
+            .background(Color.background)
+    }
+
+    private func v26Layout(_ content: some View) -> some View {
+        NavigationView {
+            ZStack(alignment: .top) {
+                Color.clear
+                    .frame(width: .zero, height: .zero)
+                    .ignoresSafeArea(edges: .top)
+                    .navigationBarAppearance(.newChatPageView)
+
+                content
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(viewModel.navigationTitle)
+                    .toolbar {
+                        doneToolbarButton
+                        if viewModel.shouldShowPenPalsToolbarButton {
+                            penPalsToolbarButton
+                        }
+                    }
+
+                Rectangle()
+                    .fill(.bar)
+                    .frame(height: viewModel.navigationBarHeight)
+                    .ignoresSafeArea(edges: .top)
+                    .opacity(viewModel.navigationBarOpacity)
+            }
+        }
+        .background(ThemeService.isDarkModeActive ? Color.groupedContentBackground : .background)
+        .toolbarBackground(Color.groupedContentBackground, for: .navigationBar)
     }
 }

@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -16,7 +17,28 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum NewChatPageView {
+        public static let doneToolbarButtonFrameHeight: CGFloat = 30
+        public static let doneToolbarButtonFrameWidth: CGFloat = 30
+
         public static let penPalsToolbarButtonFrameHeight: CGFloat = 30
         public static let penPalsToolbarButtonFrameWidth: CGFloat = 30
+    }
+}
+
+// MARK: - Color
+
+public extension AppConstants.Colors {
+    enum NewChatPageView {
+        public static let cancelToolbarButtonForeground: Color = .red
+        public static let doneToolbarButtonForeground: Color = .green
+    }
+}
+
+// MARK: - String
+
+public extension AppConstants.Strings {
+    enum NewChatPageView {
+        public static let cancelToolbarButtonImageSystemName = "xmark"
+        public static let doneToolbarButtonImageSystemName = "checkmark"
     }
 }

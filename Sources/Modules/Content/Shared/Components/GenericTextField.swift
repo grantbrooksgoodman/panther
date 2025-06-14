@@ -94,11 +94,9 @@ public struct GenericTextField: View {
         )
 
         if isThemed {
-            return AnyView(
-                ThemedView { textField }
-            )
+            return ThemedView { textField }.eraseToAnyView()
         }
 
-        return AnyView(textField)
+        return textField.eraseToAnyView()
     }
 }

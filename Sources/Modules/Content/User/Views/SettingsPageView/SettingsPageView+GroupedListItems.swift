@@ -28,12 +28,12 @@ public extension SettingsPageView {
             innerText: viewModel.blockedUsersButtonText,
             isEnabled: viewModel.isBlockedUsersButtonEnabled,
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.blockedUsersButtonImageBackground,
                         overlay: .symbol(name: Strings.blockedUsersButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -44,7 +44,7 @@ public extension SettingsPageView {
             innerText: viewModel.strings.value(for: .changeThemeButtonText),
             isEnabled: viewModel.isChangeThemeButtonEnabled,
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.changeThemeButtonImageBackground,
                         overlay: .symbol(
@@ -52,7 +52,7 @@ public extension SettingsPageView {
                             framePercentOfTotalSize: Floats.changeThemeButtonOverlayFramePercentOfTotalSize
                         )
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -62,7 +62,7 @@ public extension SettingsPageView {
             .button { viewModel.send(.clearCachesButtonTapped) },
             innerText: viewModel.strings.value(for: .clearCachesButtonText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.clearCachesButtonImageBackground,
                         overlay: .symbol(
@@ -71,7 +71,7 @@ public extension SettingsPageView {
                             weight: .bold
                         )
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -81,12 +81,12 @@ public extension SettingsPageView {
             .button { viewModel.send(.deleteAccountButtonTapped) },
             innerText: viewModel.strings.value(for: .deleteAccountButtonText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.deleteAccountButtonImageBackground,
                         overlay: .symbol(name: Strings.deleteAccountButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -96,12 +96,12 @@ public extension SettingsPageView {
             .button { viewModel.send(.inviteFriendsButtonTapped) },
             innerText: viewModel.strings.value(for: .inviteFriendsButtonText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.inviteFriendsButtonImageBackground,
                         overlay: .symbol(name: Strings.inviteFriendsButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -111,12 +111,12 @@ public extension SettingsPageView {
             .button { viewModel.send(.leaveReviewButtonTapped) },
             innerText: viewModel.strings.value(for: .leaveReviewButtonText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.leaveReviewButtonImageBackground,
                         overlay: .symbol(name: Strings.leaveReviewButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -127,12 +127,12 @@ public extension SettingsPageView {
             innerText: viewModel.strings.value(for: .recipientConsentListRowInnerText),
             footerText: viewModel.strings.value(for: .recipientConsentListRowFooterText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.messageRecipientConsentButtonImageBackground,
                         overlay: .symbol(name: Strings.messageRecipientConsentButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -143,7 +143,7 @@ public extension SettingsPageView {
             innerText: viewModel.strings.value(for: .penPalsListRowInnerText),
             footerText: viewModel.strings.value(for: .penPalsListRowFooterText),
             imageView: {
-                SquareIconView(.penPalsIcon())
+                SquareIconView.image(.penPalsIcon()).swiftUIImage
             }
         )
     }
@@ -153,7 +153,7 @@ public extension SettingsPageView {
             .button { viewModel.send(.sendFeedbackButtonTapped) },
             innerText: Localized(.sendFeedback).wrappedValue,
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.sendFeedbackButtonImageBackground,
                         overlay: .symbol(
@@ -161,7 +161,7 @@ public extension SettingsPageView {
                             weight: .semibold
                         )
                     )
-                )
+                ).swiftUIImage
             }
         )
     }
@@ -171,12 +171,12 @@ public extension SettingsPageView {
             .button { viewModel.send(.signOutButtonTapped) },
             innerText: viewModel.strings.value(for: .signOutButtonText),
             imageView: {
-                SquareIconView(
+                SquareIconView.image(
                     .init(
                         backgroundColor: Colors.signOutButtonImageBackground,
                         overlay: .symbol(name: Strings.signOutButtonImageSystemName)
                     )
-                )
+                ).swiftUIImage
             }
         )
     }

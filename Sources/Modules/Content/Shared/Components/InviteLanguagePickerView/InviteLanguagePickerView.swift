@@ -73,7 +73,7 @@ public struct InviteLanguagePickerView: View {
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
         .preferredStatusBarStyle(
-            .lightContent,
+            .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .onAppear {

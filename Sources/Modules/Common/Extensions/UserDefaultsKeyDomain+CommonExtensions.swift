@@ -13,8 +13,10 @@ import Foundation
 import AppSubsystem
 
 public extension UserDefaultsKey {
-    enum GeneralAppDefaultsKey: String {
-        case `default`
+    enum ApplicationDefaultsKey: String {
+        case buildMilestoneString
+        case hasRunOnce
+        case v26FeaturesEnabled
     }
 
     enum AudioServiceDefaultsKey: String {

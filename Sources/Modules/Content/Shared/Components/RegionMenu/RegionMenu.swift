@@ -153,7 +153,7 @@ private struct RegionPickerView: View {
                 viewModel.send(.searchQueryChanged(" "))
                 viewModel.send(.searchQueryChanged(previousQuery.isBlank ? "" : previousQuery))
             }
-            .preferredStatusBarStyle(.lightContent)
+            .preferredStatusBarStyle(.conditionalLightContent)
         } else {
             EmptyView()
         }

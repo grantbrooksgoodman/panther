@@ -48,7 +48,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
     // MARK: - Set Up Firebase Analytics
 
     private func setUpFirebaseAnalytics() {
-        Analytics.setAnalyticsCollectionEnabled(true)
+        Analytics.setAnalyticsCollectionEnabled(AnalyticsService.shouldEnableDataCollection)
     }
 
     // MARK: - Set Up Push Notifications

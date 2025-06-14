@@ -60,20 +60,27 @@ public extension AppConstants.CGFloats.ChatPageViewService {
 
         enum Layout {
             public static let borderHeight: CGFloat = 0.3
+
             public static let frameHeight: CGFloat = 54
+
+            public static let glassEffectViewAlpha: CGFloat = 0.95
+            public static let glassEffectViewCornerRadius: CGFloat = 16
+            public static let glassEffectViewFrameWidthDecrement: CGFloat = 10
 
             public static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
 
             public static let selectContactButtonMinXDecrement: CGFloat = 5
-            public static let selectContactButtonXOriginDecrement: CGFloat = 10
-            public static let selectContactButtonFrameHeight: CGFloat = 26
-            public static let selectContactButtonFrameWidth: CGFloat = 26
+            public static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.v26FeaturesEnabled ? 20 : 10
+            public static let selectContactButtonFrameHeight: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
+            public static let selectContactButtonFrameWidth: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
 
             public static let textFieldWidthDecrement: CGFloat = 85
             public static let textFieldXOriginIncrement: CGFloat = 5
-
             public static let toLabelFontSize: CGFloat = 14
-            public static let toLabelXOrigin: CGFloat = 15
+            public static let toLabelXOrigin: CGFloat = UIApplication.v26FeaturesEnabled ? 20 : 15
+
+            public static let v26RecipientBarYOriginIncrement: CGFloat = 10
+            public static let v26TextFieldFrameHeight: CGFloat = 24
         }
 
         enum UITextFieldDelegate { // swiftlint:disable:next identifier_name
@@ -87,6 +94,8 @@ public extension AppConstants.CGFloats.ChatPageViewService {
 public extension AppConstants.Colors.ChatPageViewService {
     enum RecipientBarService {
         enum ContactSelectionUI {
+            public static let accent: Color = .init(uiColor: .systemBlue)
+
             public static let contactViewDarkSelection: Color = .init(uiColor: .init(hex: 0x2A2A2C))
             public static let contactViewHighlightedText: Color = .init(uiColor: .white)
             public static let contactViewLightSelection: Color = .init(uiColor: .init(hex: 0xECF0F1))
@@ -119,7 +128,8 @@ public extension AppConstants.Strings.ChatPageViewService {
             public static let contactViewSemanticTag = "CONTACT_VIEW"
         }
 
-        enum Layout { // swiftlint:disable:next identifier_name
+        enum Layout {
+            public static let glassEffectViewSemanticTag = "GLASS_EFFECT_VIEW" // swiftlint:disable:next identifier_name
             public static let prevaricationModeSelectContactButtonImageSystemName = "person.crop.circle.fill.badge.plus"
             public static let recipientBarSemanticTag = "RECIPIENT_BAR"
             public static let selectContactButtonSemanticTag = "SELECT_CONTACT_BUTTON"

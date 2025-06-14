@@ -65,6 +65,20 @@ public struct AnalyticsService {
         }
     }
 
+    // MARK: - Computed Properties
+
+    public static var shouldEnableDataCollection: Bool {
+        @Dependency(\.build) var build: Build
+
+        if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
+            guard Networking.config.environment == .production,
+                  build.milestone == .generalRelease else { return false }
+            return true
+        }
+
+        return true
+    }
+
     // MARK: - Properties
 
     private var commonParams: [String: String] {
@@ -96,10 +110,7 @@ public struct AnalyticsService {
 
     public func logEvent(_ event: AnalyticsEvent, extraParams: [String: String]? = nil) {
         Task { @MainActor in
-            if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
-                guard Networking.config.environment == .production,
-                      build.milestone == .generalRelease else { return }
-            }
+            guard AnalyticsService.shouldEnableDataCollection else { return }
 
             var parameters = commonParams
             if let extraParams {

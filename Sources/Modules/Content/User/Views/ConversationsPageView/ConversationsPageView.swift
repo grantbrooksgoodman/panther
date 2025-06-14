@@ -17,6 +17,7 @@ import ComponentKit
 public struct ConversationsPageView: View {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.ConversationsPageView
     private typealias Floats = AppConstants.CGFloats.ConversationsPageView
     private typealias Strings = AppConstants.Strings.ConversationsPageView
 
@@ -81,34 +82,26 @@ public struct ConversationsPageView: View {
 
     private var composeToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            if viewModel.conversations.isEmpty {
-                Components.button(
-                    symbolName: Strings.composeToolbarButtonLabelImageSystemName,
-                    foregroundColor: .accent,
-                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
-                    usesIntrinsicSize: false
-                ) {
-                    viewModel.send(.composeToolbarButtonTapped)
-                }
-                .scaleEffect(viewModel.animationAmount)
-                .animation(
-                    .linear(duration: Floats.composeToolbarButtonAnimationDuration)
-                        .delay(Floats.composeToolbarButtonAnimationDelay)
-                        .repeatForever(autoreverses: true),
-                    value: viewModel.animationAmount
-                )
-                .onAppear {
-                    viewModel.send(.animatedComposeToolbarButtonAppeared)
-                }
-            } else {
-                Components.button(
-                    symbolName: Strings.composeToolbarButtonLabelImageSystemName,
-                    foregroundColor: .accent,
-                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
-                    usesIntrinsicSize: false
-                ) {
-                    viewModel.send(.composeToolbarButtonTapped)
-                }
+            Components.button(
+                symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                foregroundColor: Colors.composeToolbarButtonForeground,
+                secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
+                usesIntrinsicSize: false
+            ) {
+                viewModel.send(.composeToolbarButtonTapped)
+            }
+            .if(viewModel.conversations.isEmpty) {
+                $0
+                    .scaleEffect(viewModel.animationAmount)
+                    .animation(
+                        .linear(duration: Floats.composeToolbarButtonAnimationDuration)
+                            .delay(Floats.composeToolbarButtonAnimationDelay)
+                            .repeatForever(autoreverses: true),
+                        value: viewModel.animationAmount
+                    )
+                    .onAppear {
+                        viewModel.send(.animatedComposeToolbarButtonAppeared)
+                    }
             }
         }
     }
@@ -117,7 +110,7 @@ public struct ConversationsPageView: View {
         ToolbarItem(placement: .topBarLeading) {
             Components.button(
                 symbolName: Strings.settingsToolbarButtonLabelImageSystemName,
-                foregroundColor: .accent,
+                foregroundColor: Colors.settingsToolbarButtonForeground,
                 secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false
             ) {

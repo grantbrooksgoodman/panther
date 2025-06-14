@@ -22,7 +22,7 @@ public enum Application {
 
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
-        var buildMilestone: Build.Milestone = .generalRelease
+        var buildMilestone: Build.Milestone = UIDevice.isSimulator ? .beta : .generalRelease
         if let persistedMilestoneString { buildMilestone = .init(rawValue: persistedMilestoneString) ?? buildMilestone }
         persistedMilestoneString = buildMilestone.rawValue
         return buildMilestone
@@ -59,7 +59,15 @@ public enum Application {
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
-        if buildMilestone == .generalRelease { Networking.config.setEnvironment(.production) } // TODO: Fix to make Production default.
+
+        @Persistent(.hasRunOnce) var hasRunOnce: Bool?
+        if UIDevice.isSimulator,
+           hasRunOnce == nil {
+            hasRunOnce = true
+            Networking.config.setEnvironment(.development)
+        } else if buildMilestone == .generalRelease { // TODO: Fix to make Production default.
+            Networking.config.setEnvironment(.production)
+        }
 
         // MARK: - Theme Setup
 
@@ -67,17 +75,5 @@ public enum Application {
             guard ThemeService.currentTheme == UITheme.default else { return }
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
-    }
-}
-
-public extension Persistent {
-    convenience init(_ applicationKey: UserDefaultsKey.ApplicationDefaultsKey) {
-        self.init(.application(applicationKey))
-    }
-}
-
-public extension UserDefaultsKey {
-    enum ApplicationDefaultsKey: String {
-        case buildMilestoneString
     }
 }

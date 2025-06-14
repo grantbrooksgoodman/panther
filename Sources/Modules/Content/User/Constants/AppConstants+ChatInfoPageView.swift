@@ -66,7 +66,8 @@ public extension AppConstants.Colors {
 
 public extension AppConstants.Strings {
     enum ChatInfoPageView {
-        public static let addContactButtonImageSystemName = "plus" // swiftlint:disable:next identifier_name
+        public static let addContactButtonImageSystemName = "plus"
+        public static let doneButtonImageSystemName = "checkmark" // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
     }

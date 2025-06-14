@@ -224,16 +224,22 @@ public struct PermissionService {
     }
 
     private func getRecordPermissionStatus() -> PermissionStatus {
-        switch avAudioApplication.recordPermission {
-        case .granted:
-            return .granted
-        case .denied:
-            return .denied
-        case .undetermined:
-            return .unknown
-        @unknown default:
-            return .unknown
+        var status: PermissionStatus {
+            switch avAudioApplication.recordPermission {
+            case .granted: .granted
+            case .denied: .denied
+            case .undetermined: .unknown
+            @unknown default: .unknown
+            }
         }
+
+        // FIXME: iOS 26 – May be a bug only applicable to the beta.
+        #if targetEnvironment(simulator)
+        guard !UIApplication.iOS26IsAvailable else { return .denied }
+        return status
+        #else
+        return status
+        #endif
     }
 
     private func getTranscribePermissionStatus() -> PermissionStatus {

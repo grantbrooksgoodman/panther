@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+// swiftlint:disable:next type_body_length
 public final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
 
@@ -23,6 +24,7 @@ public final class RecipientBarLayoutService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -30,6 +32,7 @@ public final class RecipientBarLayoutService {
 
     private let viewController: ChatPageViewController
 
+    private var hasLaidOutSubviewsOnce = false
     private var wasTextFieldFirstResponder = false
 
     // MARK: - Computed Properties
@@ -59,6 +62,12 @@ public final class RecipientBarLayoutService {
         configureTableView()
         configureToLabel()
         configureTextField()
+
+        guard UIApplication.v26FeaturesEnabled,
+              !hasLaidOutSubviewsOnce else { return }
+
+        hasLaidOutSubviewsOnce = true
+        recipientBarView?.frame.origin.y += Floats.v26RecipientBarYOriginIncrement
     }
 
     // MARK: - Remove from Superview
@@ -103,7 +112,8 @@ public final class RecipientBarLayoutService {
             return true
         }
 
-        guard let recipientBarView else { return }
+        guard let recipientBarView,
+              !configureGlassEffectView() else { return }
 
         var borderColor = UIColor(ThemeService.isDarkModeActive ? Colors.darkBorder : Colors.lightBorder).cgColor
         if !ThemeService.isAppDefaultThemeApplied {
@@ -132,15 +142,44 @@ public final class RecipientBarLayoutService {
     }
 
     private func configureBackgroundColor() {
+        guard !UIApplication.v26FeaturesEnabled else {
+            recipientBarView?.backgroundColor = .clear
+            return
+        }
+
         let darkBackground: UIColor = ThemeService.isAppDefaultThemeApplied ? .groupedContentBackground : .background
         let lightBackground = UIColor(Colors.lightBackground).withAlphaComponent(Floats.lightBackgroundColorAlphaComponent)
         recipientBarView?.backgroundColor = ThemeService.isDarkModeActive ? darkBackground : lightBackground
     }
 
+    /// - Returns: `true` if the glass effect view was configured.
+    private func configureGlassEffectView() -> Bool {
+        guard UIApplication.v26FeaturesEnabled,
+              let recipientBarView else { return false }
+
+        let preExistingViews = recipientBarView.subviews(for: Strings.glassEffectViewSemanticTag)
+        guard preExistingViews.isEmpty else {
+            preExistingViews.forEach { $0.frame.size.height = recipientBarView.frame.size.height }
+            return true
+        }
+
+        guard let glassEffectView = buildGlassEffectView() else { return false }
+        glassEffectView.tag = core.ui.semTag(for: Strings.glassEffectViewSemanticTag)
+        recipientBarView.addSubview(glassEffectView)
+        return true
+    }
+
     private func configureSelectContactButton() {
         guard let recipientBarView,
-              recipientBarView.subviews(for: Strings.selectContactButtonSemanticTag).isEmpty,
-              let selectContactButton = buildSelectContactButton() else { return }
+              recipientBarView.subviews(for: Strings.selectContactButtonSemanticTag).isEmpty else {
+            recipientBarView?
+                .subviews(for: Strings.selectContactButtonSemanticTag)
+                .forEach { $0.removeFromSuperview() }
+            return configureSelectContactButton()
+        }
+
+        guard let selectContactButton = buildSelectContactButton() else { return }
+
         selectContactButton.tag = core.ui.semTag(for: Strings.selectContactButtonSemanticTag)
         recipientBarView.addSubview(selectContactButton)
     }
@@ -179,6 +218,34 @@ public final class RecipientBarLayoutService {
 
     // MARK: - View Builders
 
+    private func buildGlassEffectView() -> UIVisualEffectView? {
+        #if compiler(>=6.2)
+        guard #available(iOS 26, *),
+              let recipientBarView else { return nil }
+
+        let glassEffect = UIGlassEffect()
+        glassEffect.isInteractive = true
+        glassEffect.tintColor = .clear
+
+        let glassEffectView = UIVisualEffectView(effect: glassEffect)
+        glassEffectView.frame = .init(
+            origin: .zero,
+            size: .init(
+                width: recipientBarView.frame.width - Floats.glassEffectViewFrameWidthDecrement,
+                height: recipientBarView.frame.height
+            )
+        )
+
+        glassEffectView.alpha = Floats.glassEffectViewAlpha
+        glassEffectView.center = recipientBarView.center
+        glassEffectView.layer.cornerRadius = Floats.glassEffectViewCornerRadius
+
+        return glassEffectView
+        #else
+        return nil
+        #endif
+    }
+
     private func buildSelectContactButton() -> UIButton? {
         guard let actionHandlerService = service?.actionHandler,
               let recipientBarView else { return nil }
@@ -198,18 +265,35 @@ public final class RecipientBarLayoutService {
                 .init(systemName: Strings.prevaricationModeSelectContactButtonImageSystemName),
                 for: .normal
             )
+        } else if UIApplication.v26FeaturesEnabled {
+            selectContactButton.setImage(
+                inputBarConfigService.attachMediaButtonImage(isHighlighted: false),
+                for: .normal
+            )
+
+            selectContactButton.setImage(
+                inputBarConfigService.attachMediaButtonImage(isHighlighted: true),
+                for: .highlighted
+            )
         }
 
-        selectContactButton.frame.size.height = selectContactButton.intrinsicContentSize.height
-        selectContactButton.frame.size.width = selectContactButton.intrinsicContentSize.width
+        selectContactButton.frame.size.height = min(
+            selectContactButton.intrinsicContentSize.height,
+            Floats.selectContactButtonFrameHeight
+        )
 
-        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.intrinsicContentSize.width
+        selectContactButton.frame.size.width = min(
+            selectContactButton.intrinsicContentSize.width,
+            Floats.selectContactButtonFrameWidth
+        )
+
+        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
         let decrementValue = Floats.selectContactButtonXOriginDecrement
         let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
         selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
         while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
-        selectContactButton.center.y = recipientBarView.center.y
+        selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
 
         return selectContactButton
     }
@@ -231,10 +315,15 @@ public final class RecipientBarLayoutService {
               let service,
               let toLabel else { return nil }
 
-        let textField: RecipientBarTextField = .init(frame: .init(
-            origin: .zero,
-            size: .init(width: screenWidth - Floats.textFieldWidthDecrement, height: Floats.frameHeight)
-        ))
+        let textField: RecipientBarTextField = .init(
+            frame: .init(
+                origin: .zero,
+                size: .init(
+                    width: screenWidth - Floats.textFieldWidthDecrement,
+                    height: UIApplication.v26FeaturesEnabled ? Floats.v26TextFieldFrameHeight : Floats.frameHeight
+                )
+            )
+        )
         textField.onSuperfluousBackspace { service.actionHandler.onSuperflousBackspace() }
 
         textField.addTarget(
@@ -245,6 +334,7 @@ public final class RecipientBarLayoutService {
         textField.delegate = recipientBarView
 
         textField.frame.origin.x = toLabel.frame.maxX + Floats.textFieldXOriginIncrement
+        textField.center.y = toLabel.center.y
 
         textField.autocorrectionType = .no
         textField.keyboardType = .namePhonePad

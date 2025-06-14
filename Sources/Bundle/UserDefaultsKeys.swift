@@ -19,6 +19,8 @@ public extension UserDefaultsKey {
     struct PermanentKeyDelegate: AppSubsystem.Delegates.PermanentUserDefaultsKeyDelegate {
         public let permanentKeys: [UserDefaultsKey] = [
             .application(.buildMilestoneString),
+            .application(.hasRunOnce),
+            .application(.v26FeaturesEnabled),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),
         ]
@@ -29,7 +31,6 @@ public extension UserDefaultsKey {
     /* Add values here for each new defaults key. */
 
     static func application(_ key: ApplicationDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
-    static func general(_ key: GeneralAppDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func audioService(_ key: AudioServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

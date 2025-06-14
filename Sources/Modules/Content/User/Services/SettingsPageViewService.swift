@@ -410,12 +410,12 @@ public final class SettingsPageViewService {
                     .button(action: overrideLanguageCodeButtonTapped),
                     innerText: overrideOrRestore,
                     imageView: {
-                        SquareIconView(
+                        SquareIconView.image(
                             .init(
                                 backgroundColor: Colors.overrideLanguageCodeButtonImageBackground,
                                 overlay: .symbol(name: Strings.overrideLanguageCodeButtonImageSystemName)
                             )
-                        )
+                        ).swiftUIImage
                     }
                 )
             )
@@ -427,7 +427,7 @@ public final class SettingsPageViewService {
                     .button { DevModeService.promptToToggle() },
                     innerText: Strings.toggleDeveloperModeButtonText,
                     imageView: {
-                        SquareIconView(
+                        SquareIconView.image(
                             .init(
                                 backgroundColor: Colors.toggleDeveloperModeButtonImageBackground,
                                 overlay: .symbol(
@@ -436,7 +436,7 @@ public final class SettingsPageViewService {
                                     weight: .bold
                                 )
                             )
-                        )
+                        ).swiftUIImage
                     }
                 )
             )

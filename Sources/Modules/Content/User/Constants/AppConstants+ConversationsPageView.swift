@@ -23,6 +23,15 @@ public extension AppConstants.CGFloats {
     }
 }
 
+// MARK: - Color
+
+public extension AppConstants.Colors {
+    enum ConversationsPageView {
+        public static let composeToolbarButtonForeground: Color = .init(uiColor: .systemBlue)
+        public static let settingsToolbarButtonForeground: Color = .init(uiColor: .systemBlue)
+    }
+}
+
 // MARK: - String
 
 public extension AppConstants.Strings {

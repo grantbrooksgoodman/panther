@@ -59,8 +59,8 @@ public struct AvatarImageView: View {
         .font(.system(size: Floats.systemFontSize))
         .frame(width: size.width, height: size.height)
         .cornerRadius(Floats.cornerRadius)
-        .overlay {
-            if badgeCount > 1 {
+        .if(badgeCount > 1) {
+            $0.overlay {
                 badgeView
                     .offset(
                         x: Floats.badgeViewOffsetX,

@@ -49,7 +49,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         self.temporaryFilePath = temporaryFilePath
         viewController.delegate = self
 
-        StatusBar.overrideStyle(.lightContent)
+        StatusBar.overrideStyle(.conditionalLightContent)
         coreUI.present(viewController)
         return nil
     }

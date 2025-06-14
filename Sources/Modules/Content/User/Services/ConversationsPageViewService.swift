@@ -112,8 +112,14 @@ public final class ConversationsPageViewService {
         }
 
         if build.milestone != .generalRelease {
+            let numberOfConversations = userSession.currentUser?.conversations?.visibleForCurrentUser.count ?? 1
+            let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
+
+            let secondsPerConversation = String(format: "%.2f", Float(secondsToLoad) / Float(numberOfConversations))
+            let addendum = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+
             Toast.show(.init(
-                message: "Loaded content in \(abs(Application.loadStartDate.seconds(from: .now))) seconds.",
+                message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "").",
                 perpetuation: .ephemeral(.seconds(5))
             ))
         }

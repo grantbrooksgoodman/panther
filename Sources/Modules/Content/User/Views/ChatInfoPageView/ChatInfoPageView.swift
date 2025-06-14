@@ -98,7 +98,7 @@ public struct ChatInfoPageView: View {
             }
         }
         .preferredStatusBarStyle(
-            .lightContent,
+            .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .onFirstAppear {
@@ -255,12 +255,22 @@ public struct ChatInfoPageView: View {
 
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Components.button(
-                viewModel.doneButtonText,
-                font: .systemSemibold,
-                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
-            ) {
-                viewModel.send(.doneToolbarButtonTapped)
+            if UIApplication.v26FeaturesEnabled {
+                Components.button(
+                    symbolName: Strings.doneButtonImageSystemName,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                    usesIntrinsicSize: false
+                ) {
+                    viewModel.send(.doneToolbarButtonTapped)
+                }
+            } else {
+                Components.button(
+                    viewModel.doneButtonText,
+                    font: .systemSemibold,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                ) {
+                    viewModel.send(.doneToolbarButtonTapped)
+                }
             }
         }
     }

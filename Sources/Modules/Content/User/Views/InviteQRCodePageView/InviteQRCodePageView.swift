@@ -62,7 +62,7 @@ public struct InviteQRCodePageView: View {
             }
         }
         .preferredStatusBarStyle(
-            .lightContent,
+            .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
         )
         .onFirstAppear {

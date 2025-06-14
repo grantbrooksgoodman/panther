@@ -47,9 +47,7 @@ public extension UITheme {
     // MARK: - Colored Items
 
     private static var appDefaultColoredItems: [Item] {
-        let accentColor = UIColor.systemBlue
-
-        let accent = Item(.accent, set: .init(accentColor))
+        let accent = Item(.accent, set: UIApplication.v26FeaturesEnabled ? .init(.black, variant: .white) : .init(.systemBlue))
         let background = Item(.background, set: .init(.white, variant: .black))
         let disabled = Item(.disabled, set: .init(.systemGray3))
         let groupedContentBackground = Item(.groupedContentBackground, set: .init(.init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))
@@ -57,7 +55,7 @@ public extension UITheme {
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(.init(hex: 0xF8F8F8), variant: .init(hex: 0x2A2A2C)))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.black, variant: .white))
 
-        let senderBubble = Item(.senderBubble, set: .init(accentColor))
+        let senderBubble = Item(.senderBubble, set: .init(.systemBlue))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0xE5E5EA), variant: .init(hex: 0x27252A)))
 
         let titleText = Item(.titleText, set: .init(.black, variant: .white))
