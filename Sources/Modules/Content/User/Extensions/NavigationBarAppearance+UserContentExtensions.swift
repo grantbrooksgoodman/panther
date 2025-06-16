@@ -39,7 +39,7 @@ public extension NavigationBarAppearance {
         return .custom(
             .init(
                 titleColor: .navigationBarTitle,
-                backgroundColor: .navigationBarBackground.withAlphaComponent(0.65),
+                backgroundColor: .navigationBarBackground.withAlphaComponent(0.75),
                 barButtonItemColor: .accent,
                 showsDivider: false
             ),

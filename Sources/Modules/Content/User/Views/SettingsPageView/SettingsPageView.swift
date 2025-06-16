@@ -67,6 +67,7 @@ public struct SettingsPageView: View {
 
                         ScrollView {
                             groupedListViews
+                                .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
                                 .redrawsOnTraitCollectionChange()
                         }
                         .scrollBounceBehavior(
@@ -184,7 +185,6 @@ public struct SettingsPageView: View {
             leaveReviewListItem,
         ])
         .padding(.bottom, Floats.groupedListViewBottomPadding)
-        .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 
         if Application.isInPrevaricationMode {
             GroupedListView([
@@ -192,7 +192,6 @@ public struct SettingsPageView: View {
                 clearCachesListItem,
             ])
             .padding(.bottom, Floats.groupedListViewBottomPadding)
-            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
         } else {
             GroupedListView([
                 changeThemeListItem,
@@ -201,7 +200,6 @@ public struct SettingsPageView: View {
             ])
             .id(viewModel.viewID)
             .padding(.bottom, Floats.groupedListViewBottomPadding)
-            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
         }
 
         GroupedListView([
@@ -211,19 +209,15 @@ public struct SettingsPageView: View {
         ])
         .id(viewModel.viewID)
         .padding(.bottom, Floats.groupedListViewBottomPadding)
-        .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 
         ListRowView(penPalsListItem)
             .padding(.bottom, Floats.groupedListViewBottomPadding)
-            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 
         ListRowView(messageRecipientConsentListItem)
             .padding(.bottom, Floats.groupedListViewBottomPadding)
-            .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
 
         if let developerModeListItems = viewModel.developerModeListItems {
             GroupedListView(developerModeListItems)
-                .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
         }
     }
 

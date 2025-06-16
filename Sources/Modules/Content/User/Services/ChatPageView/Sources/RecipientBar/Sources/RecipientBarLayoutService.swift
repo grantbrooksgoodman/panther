@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -13,7 +15,6 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-// swiftlint:disable:next type_body_length
 public final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
 
@@ -59,15 +60,18 @@ public final class RecipientBarLayoutService {
         configureBorders()
 
         configureSelectContactButton()
+
         configureTableView()
         configureToLabel()
         configureTextField()
 
-        guard UIApplication.v26FeaturesEnabled,
-              !hasLaidOutSubviewsOnce else { return }
+        guard UIApplication.v26FeaturesEnabled else { return }
+        recipientBarView?.center.x = viewController.view.center.x
 
+        guard !hasLaidOutSubviewsOnce else { return }
         hasLaidOutSubviewsOnce = true
-        recipientBarView?.frame.origin.y += Floats.v26RecipientBarYOriginIncrement
+
+        recipientBarView?.frame.origin.y += Floats.v26YOriginIncrement
     }
 
     // MARK: - Remove from Superview
@@ -172,16 +176,18 @@ public final class RecipientBarLayoutService {
     private func configureSelectContactButton() {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.selectContactButtonSemanticTag).isEmpty else {
-            recipientBarView?
-                .subviews(for: Strings.selectContactButtonSemanticTag)
-                .forEach { $0.removeFromSuperview() }
-            return configureSelectContactButton()
+            correctSelectContactButtonXOrigin()
+            setSelectContactButtonImage()
+            return correctTextFieldWidth()
         }
 
         guard let selectContactButton = buildSelectContactButton() else { return }
 
         selectContactButton.tag = core.ui.semTag(for: Strings.selectContactButtonSemanticTag)
         recipientBarView.addSubview(selectContactButton)
+
+        guard UIApplication.v26FeaturesEnabled else { return }
+        correctTextFieldWidth()
     }
 
     private func configureTableView() {
@@ -196,10 +202,8 @@ public final class RecipientBarLayoutService {
               recipientBarView.subviews(for: Strings.textFieldSemanticTag).isEmpty,
               let textField = buildTextField() else { return }
         textField.tag = core.ui.semTag(for: Strings.textFieldSemanticTag)
-        if let selectContactButton {
-            while textField.frame.maxX >= (selectContactButton.frame.minX - Floats.selectContactButtonMinXDecrement) { textField.frame.size.width -= 1 }
-        }
         recipientBarView.addSubview(textField)
+        correctTextFieldWidth()
     }
 
     private func configureToLabel() {
@@ -231,7 +235,7 @@ public final class RecipientBarLayoutService {
         glassEffectView.frame = .init(
             origin: .zero,
             size: .init(
-                width: recipientBarView.frame.width - Floats.glassEffectViewFrameWidthDecrement,
+                width: recipientBarView.frame.width,
                 height: recipientBarView.frame.height
             )
         )
@@ -247,10 +251,13 @@ public final class RecipientBarLayoutService {
     }
 
     private func buildSelectContactButton() -> UIButton? {
-        guard let actionHandlerService = service?.actionHandler,
-              let recipientBarView else { return nil }
+        guard let actionHandlerService = service?.actionHandler else { return nil }
 
-        let selectContactButton: UIButton = .init(type: .contactAdd)
+        let selectContactButton: UIButton = .init(
+            type: UIApplication.v26FeaturesEnabled ? .custom : .contactAdd
+        )
+
+        selectContactButton.imageView?.contentMode = .scaleAspectFit
         selectContactButton.tintColor = .accent
         selectContactButton.maximumContentSizeCategory = .large
 
@@ -260,22 +267,7 @@ public final class RecipientBarLayoutService {
             for: .touchUpInside
         )
 
-        if Application.isInPrevaricationMode {
-            selectContactButton.setImage(
-                .init(systemName: Strings.prevaricationModeSelectContactButtonImageSystemName),
-                for: .normal
-            )
-        } else if UIApplication.v26FeaturesEnabled {
-            selectContactButton.setImage(
-                inputBarConfigService.attachMediaButtonImage(isHighlighted: false),
-                for: .normal
-            )
-
-            selectContactButton.setImage(
-                inputBarConfigService.attachMediaButtonImage(isHighlighted: true),
-                for: .highlighted
-            )
-        }
+        setSelectContactButtonImage(selectContactButton)
 
         selectContactButton.frame.size.height = min(
             selectContactButton.intrinsicContentSize.height,
@@ -287,14 +279,7 @@ public final class RecipientBarLayoutService {
             Floats.selectContactButtonFrameWidth
         )
 
-        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
-        let decrementValue = Floats.selectContactButtonXOriginDecrement
-        let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
-
-        selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
-        while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
-        selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
-
+        correctSelectContactButtonXOrigin(selectContactButton)
         return selectContactButton
     }
 
@@ -360,4 +345,63 @@ public final class RecipientBarLayoutService {
 
         return toLabel
     }
+
+    // MARK: - Auxiliary
+
+    private func correctSelectContactButtonXOrigin(_ selectContactButton: UIButton? = nil) {
+        guard let recipientBarView,
+              let selectContactButton = selectContactButton ?? self.selectContactButton else { return }
+
+        let xOriginOffset = recipientBarView.frame.maxX - selectContactButton.frame.size.width
+        let decrementValue = Floats.selectContactButtonXOriginDecrement
+        let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
+
+        selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
+        while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
+        selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
+    }
+
+    private func correctTextFieldWidth() {
+        guard let selectContactButton,
+              let textField else { return }
+
+        while textField.frame.maxX >= (selectContactButton.frame.minX - Floats.selectContactButtonMinXDecrement) {
+            textField.frame.size.width -= 1
+        }
+    }
+
+    private func setSelectContactButtonImage(_ selectContactButton: UIButton? = nil) {
+        guard let selectContactButton = selectContactButton ?? self.selectContactButton else { return }
+
+        if Application.isInPrevaricationMode {
+            selectContactButton.setImage(
+                .init(systemName: Strings.prevaricationModeSelectContactButtonImageSystemName),
+                for: .normal
+            )
+        } else if UIApplication.v26FeaturesEnabled {
+            if ThemeService.isDarkModeActive {
+                selectContactButton.setImage(
+                    .init(resource: .plusDark),
+                    for: .normal
+                )
+
+                selectContactButton.setImage(
+                    .init(resource: .plusDarkHighlighted),
+                    for: .highlighted
+                )
+            } else {
+                selectContactButton.setImage(
+                    .init(resource: .plusLight),
+                    for: .normal
+                )
+
+                selectContactButton.setImage(
+                    .init(resource: .plusLightHighlighted),
+                    for: .highlighted
+                )
+            }
+        }
+    }
 }
+
+// swiftlint:enable file_length type_body_length

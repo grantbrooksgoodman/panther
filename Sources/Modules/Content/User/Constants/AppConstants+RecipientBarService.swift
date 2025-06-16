@@ -41,7 +41,7 @@ public extension AppConstants.CGFloats.ChatPageViewService {
 
             public static let contactLabelSystemFontSize: CGFloat = 16
 
-            public static let contactViewCornerRadius: CGFloat = 6
+            public static let contactViewCornerRadius: CGFloat = UIApplication.v26FeaturesEnabled ? 12 : 6
             public static let contactViewFrameHeight: CGFloat = 30
             public static let contactViewFrameXOrigin: CGFloat = 40
             public static let contactViewMaximumWidthDivisor: CGFloat = 2
@@ -54,8 +54,9 @@ public extension AppConstants.CGFloats.ChatPageViewService {
             public static let recipientBarReconfigurationSublevel: CGFloat = 2
 
             public static let selectedContactPairsMaximum: CGFloat = 10
-
             public static let sublevelCount: CGFloat = 10
+
+            public static let v26ContactViewAlpha: CGFloat = 0.85
         }
 
         enum Layout {
@@ -64,23 +65,23 @@ public extension AppConstants.CGFloats.ChatPageViewService {
             public static let frameHeight: CGFloat = 54
 
             public static let glassEffectViewAlpha: CGFloat = 0.95
-            public static let glassEffectViewCornerRadius: CGFloat = 16
-            public static let glassEffectViewFrameWidthDecrement: CGFloat = 10
+            public static let glassEffectViewCornerRadius: CGFloat = 28
 
             public static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
 
             public static let selectContactButtonMinXDecrement: CGFloat = 5
-            public static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.v26FeaturesEnabled ? 20 : 10
+            public static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.v26FeaturesEnabled ? 40 : 10
             public static let selectContactButtonFrameHeight: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
             public static let selectContactButtonFrameWidth: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
 
             public static let textFieldWidthDecrement: CGFloat = 85
             public static let textFieldXOriginIncrement: CGFloat = 5
             public static let toLabelFontSize: CGFloat = 14
-            public static let toLabelXOrigin: CGFloat = UIApplication.v26FeaturesEnabled ? 20 : 15
+            public static let toLabelXOrigin: CGFloat = 15
 
-            public static let v26RecipientBarYOriginIncrement: CGFloat = 10
+            public static let v26FrameWidthDecrement: CGFloat = 50
             public static let v26TextFieldFrameHeight: CGFloat = 24
+            public static let v26YOriginIncrement: CGFloat = 10
         }
 
         enum UITextFieldDelegate { // swiftlint:disable:next identifier_name

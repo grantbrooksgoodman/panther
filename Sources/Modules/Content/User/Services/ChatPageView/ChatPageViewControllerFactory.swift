@@ -56,6 +56,16 @@ public struct ChatPageViewControllerFactory {
         viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameHeight
 
         let recipientBar = RecipientBar(service: service)
+        if UIApplication.v26FeaturesEnabled {
+            recipientBar.frame = .init(
+                origin: .zero,
+                size: .init(
+                    width: viewController.view.frame.width - Floats.v26FrameWidthDecrement,
+                    height: Floats.frameHeight
+                )
+            )
+        }
+
         recipientBar.tag = coreUI.semTag(for: Strings.recipientBarSemanticTag)
         viewController.view.addSubview(recipientBar)
     }

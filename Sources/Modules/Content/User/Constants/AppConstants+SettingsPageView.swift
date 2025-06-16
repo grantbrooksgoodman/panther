@@ -32,7 +32,7 @@ public extension AppConstants.CGFloats {
         public static let signOutNavigationDelayMilliseconds: CGFloat = 500
 
         public static let groupedListViewBottomPadding: CGFloat = 20
-        public static let groupedListViewHorizontalPadding: CGFloat = 20
+        public static let groupedListViewHorizontalPadding: CGFloat = UIApplication.v26FeaturesEnabled ? 25 : 20
 
         // swiftlint:disable identifier_name
         public static let changeThemeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.75

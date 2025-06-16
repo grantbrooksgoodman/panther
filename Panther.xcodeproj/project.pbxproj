@@ -325,6 +325,7 @@
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
+		B9BE3DD02DFD45350010B463 /* InputBarAccessoryView in Frameworks */ = {isa = PBXBuildFile; productRef = B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */; };
 		B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */; };
 		B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FA2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift */; };
 		B9BF37FE2B6DC06600024548 /* AppConstants+MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BF37FD2B6DC06600024548 /* AppConstants+MessageSessionService.swift */; };
@@ -1496,6 +1497,7 @@
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
 				B9B732662DD2B66100B27C97 /* Networking in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
+				B9BE3DD02DFD45350010B463 /* InputBarAccessoryView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3339,6 +3341,7 @@
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9B732652DD2B66100B27C97 /* Networking */,
+				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3466,6 +3469,7 @@
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9B732642DD2B66100B27C97 /* XCRemoteSwiftPackageReference "networking" */,
+				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4675,6 +4679,14 @@
 				kind = branch;
 			};
 		};
+		B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nathantannar4/InputBarAccessoryView";
+			requirement = {
+				kind = exactVersion;
+				version = 6.3.0;
+			};
+		};
 		B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MessageKit/MessageKit";
@@ -4700,6 +4712,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B9B732642DD2B66100B27C97 /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
+		};
+		B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */;
+			productName = InputBarAccessoryView;
 		};
 		B9E2E6132C72E7AF004022FE /* MessageKit */ = {
 			isa = XCSwiftPackageProductDependency;

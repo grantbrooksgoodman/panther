@@ -33,7 +33,7 @@ public extension DevModeAction {
                 actions.insert(DevModeAction.AppActions.createNewMessagesAction, at: 1)
             }
 
-            if UIApplication.v26FeaturesEnabled {
+            if UIApplication.isFullyV26Compatible {
                 actions.insert(DevModeAction.AppActions.toggleV26FeaturesAction, at: 1)
             }
 
@@ -304,7 +304,7 @@ public extension DevModeAction {
                 persistedValue = !v26FeaturesEnabled
                 UserDefaults.standard.synchronize() // NIT: Trying to force sync.
                 core.hud.showSuccess(
-                    text: "v26 Features \(!v26FeaturesEnabled ? "Disabled" : "Enabled")"
+                    text: "v26 Features \(persistedValue == true ? "Enabled" : "Disabled")"
                 )
 
                 core.gcd.after(.seconds(1)) {

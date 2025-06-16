@@ -54,7 +54,7 @@ public struct SplashPageView: View {
                     .animation(.easeIn, value: viewService.initializationProgress)
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
-                    .tint(Color.accent)
+                    .tint(UIApplication.v26FeaturesEnabled ? Colors.progressBarTint : .accent)
                     .padding(.horizontal, Floats.progressBarHorizontalPadding)
                     .padding(.top, Floats.progressBarTopPadding)
             } else {
