@@ -28,7 +28,8 @@ public extension AppConstants.CGFloats {
         public static let buttonLabelVStackFrameMinHeight: CGFloat = 80
         public static let buttonLabelVStackFrameMinWidth: CGFloat = 45
 
-        public static let dismissDelayMilliseconds: CGFloat = 500
+        public static let delayMilliseconds: CGFloat = 500
+        public static let secondaryDelayMilliseconds: CGFloat = 200
 
         public static let headerLabelFrameMaxHeight: CGFloat = 54
         public static let headerLabelSystemFontSize: CGFloat = 17

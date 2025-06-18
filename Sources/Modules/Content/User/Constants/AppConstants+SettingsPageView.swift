@@ -72,7 +72,6 @@ public extension AppConstants.Strings {
         public static let changeThemeButtonImageSystemName = "eye.fill"
         public static let clearCachesButtonImageSystemName = "command"
         public static let deleteAccountButtonImageSystemName = "trash.fill"
-        public static let doneToolbarButtonImageSystemName = "checkmark"
         public static let inviteFriendsButtonImageSystemName = "location.fill"
         public static let leaveReviewButtonImageSystemName = "star.fill" // swiftlint:disable:next identifier_name
         public static let messageRecipientConsentButtonImageSystemName = "shield.pattern.checkered" // swiftlint:disable:next identifier_name

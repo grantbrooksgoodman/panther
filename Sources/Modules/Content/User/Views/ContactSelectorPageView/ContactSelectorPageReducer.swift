@@ -38,7 +38,6 @@ public struct ContactSelectorPageReducer: Reducer {
         /* MARK: Properties */
 
         // String
-        @Localized(.cancel) public var cancelToolbarButtonText: String
         @Localized(.invite) public var inviteToolbarButtonText: String
         @Localized(.contacts) public var navigationTitle: String
         @Localized(.noResults) public var noResultsLabelText: String
@@ -67,7 +66,6 @@ public struct ContactSelectorPageReducer: Reducer {
         /* MARK: Equatable Conformance */
 
         public static func == (left: State, right: State) -> Bool {
-            let sameCancelToolbarButtonText = left.cancelToolbarButtonText == right.cancelToolbarButtonText
             let sameContactPairs = left.contactPairs == right.contactPairs
             let sameInviteToolbarButtonText = left.inviteToolbarButtonText == right.inviteToolbarButtonText
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
@@ -78,8 +76,7 @@ public struct ContactSelectorPageReducer: Reducer {
             let sameSections = left.sections == right.sections
             let sameSelectedContactPair = left.selectedContactPair == right.selectedContactPair
 
-            guard sameCancelToolbarButtonText,
-                  sameContactPairs,
+            guard sameContactPairs,
                   sameInviteToolbarButtonText,
                   sameIsPresented,
                   sameNavigationTitle,

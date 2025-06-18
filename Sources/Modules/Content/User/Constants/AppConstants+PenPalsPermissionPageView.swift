@@ -43,6 +43,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum PenPalsPermissionPageView {
+        public static let accent: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
         public static let enableButtonLabelOverlayTextForeground: Color = .white
         public static let enableButtonLabelShadow: Color = .black
     }

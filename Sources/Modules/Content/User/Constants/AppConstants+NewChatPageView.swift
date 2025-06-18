@@ -20,6 +20,8 @@ public extension AppConstants.CGFloats {
         public static let doneToolbarButtonFrameHeight: CGFloat = 30
         public static let doneToolbarButtonFrameWidth: CGFloat = 30
 
+        public static let navigationBarHeightIncrement: CGFloat = 20
+
         public static let penPalsToolbarButtonFrameHeight: CGFloat = 30
         public static let penPalsToolbarButtonFrameWidth: CGFloat = 30
     }

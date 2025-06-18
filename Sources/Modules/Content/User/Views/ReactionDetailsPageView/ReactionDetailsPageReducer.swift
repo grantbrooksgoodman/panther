@@ -105,6 +105,13 @@ public struct ReactionDetailsPageReducer: Reducer {
             state.viewID = UUID()
 
         case .viewDisappeared:
+            if UIApplication.v26FeaturesEnabled,
+               navigation.state.userContent.sheet != .newChat {
+                Task { @MainActor in
+                    NavigationBar.setAppearance(.chatPageView)
+                }
+            }
+
             guard !Application.isInPrevaricationMode,
                   ThemeService.isAppDefaultThemeApplied,
                   !ThemeService.isDarkModeActive,

@@ -123,9 +123,7 @@ public struct ChatInfoPageView: View {
             )
             .offset(y: Floats.singleCNContactViewYOffset)
             .header(
-                rightItem: .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
-                    viewModel.send(.doneHeaderItemTapped)
-                },
+                rightItem: headerRightItem,
                 attributes: .init(
                     appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
                     sizeClass: .sheet
@@ -256,11 +254,7 @@ public struct ChatInfoPageView: View {
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             if UIApplication.v26FeaturesEnabled {
-                Components.button(
-                    symbolName: Strings.doneButtonImageSystemName,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
-                    usesIntrinsicSize: false
-                ) {
+                Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)
                 }
             } else {
@@ -271,6 +265,20 @@ public struct ChatInfoPageView: View {
                 ) {
                     viewModel.send(.doneToolbarButtonTapped)
                 }
+            }
+        }
+    }
+
+    // MARK: - Header Right Item
+
+    private var headerRightItem: HeaderView.PeripheralButtonType {
+        if UIApplication.v26FeaturesEnabled {
+            return .v26DoneButton {
+                viewModel.send(.doneHeaderItemTapped)
+            }
+        } else {
+            return .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+                viewModel.send(.doneHeaderItemTapped)
             }
         }
     }

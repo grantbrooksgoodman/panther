@@ -22,6 +22,7 @@ public struct RegionMenuReducer: Reducer {
 
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
 
@@ -96,17 +97,21 @@ public struct RegionMenuReducer: Reducer {
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case let .isPresentedChanged(isPresented):
-            return .task(delay: .milliseconds(.init(Floats.dismissDelayMilliseconds))) {
+            return .task(delay: .milliseconds(.init(Floats.delayMilliseconds))) {
                 .runIsPresentedEffect(isPresented)
             }
 
         case let .listViewAppeared(proxy: proxy):
             let selectedRegionCode = state.selectedRegionCode.wrappedValue
             let selectedRegionTitle = state.selectedRegionTitle
-            coreGCD.after(.milliseconds(.init(Floats.dismissDelayMilliseconds))) {
+
+            coreGCD.after(.milliseconds(.init(Floats.delayMilliseconds))) {
                 withAnimation {
                     proxy.scrollTo(selectedRegionTitle ?? selectedRegionCode, anchor: .top)
                 }
+
+                guard UIApplication.v26FeaturesEnabled else { return }
+                showCurrentSelection()
             }
 
         case let .runIsPresentedEffect(isPresented):
@@ -117,11 +122,26 @@ public struct RegionMenuReducer: Reducer {
 
         case let .selectedRegionTitleChanged(selectedRegionTitle):
             state.selectedRegionCode.wrappedValue = regionDetailService.regionCode(by: .regionTitle(selectedRegionTitle)) ?? ""
-            return .task(delay: .milliseconds(.init(Floats.dismissDelayMilliseconds))) {
+            return .task(delay: .milliseconds(.init(Floats.delayMilliseconds))) {
                 .isPresentedChanged(false)
             }
         }
 
         return .none
+    }
+
+    // MARK: - Auxiliary
+
+    /// - NOTE: Fixes a bug in which the initial appearance of the list view in iOS 26 would not display the current selection.
+    private func showCurrentSelection() {
+        coreGCD.after(.milliseconds(Floats.secondaryDelayMilliseconds)) {
+            uiApplication
+                .presentedViews
+                .filter(\.canBecomeFirstResponder)
+                .unique
+                .forEach { $0.becomeFirstResponder() }
+
+            uiApplication.resignFirstResponders()
+        }
     }
 }

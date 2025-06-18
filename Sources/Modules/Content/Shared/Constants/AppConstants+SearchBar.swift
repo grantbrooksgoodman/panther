@@ -18,12 +18,17 @@ import AppSubsystem
 public extension AppConstants.CGFloats {
     enum SearchBar {
         public static let clearButtonImageOpacity: CGFloat = 1
+
         public static let defaultBottomPadding: CGFloat = 8
+
+        public static let glassEffectPadding: CGFloat = 4
 
         public static let innerHStackCornerRadius: CGFloat = 10
         public static let innerHStackHorizontalPadding: CGFloat = 8
 
         public static let textFieldFrameHeight: CGFloat = 36
+
+        public static let v26HorizontalPadding: CGFloat = 15
     }
 }
 

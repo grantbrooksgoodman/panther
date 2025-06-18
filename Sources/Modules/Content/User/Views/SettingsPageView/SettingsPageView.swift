@@ -159,11 +159,7 @@ public struct SettingsPageView: View {
     private var doneToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             if UIApplication.v26FeaturesEnabled {
-                Components.button(
-                    symbolName: Strings.doneToolbarButtonImageSystemName,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
-                    usesIntrinsicSize: false
-                ) {
+                Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)
                 }
             } else {

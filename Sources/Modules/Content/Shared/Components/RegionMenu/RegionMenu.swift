@@ -124,22 +124,22 @@ private struct RegionPickerView: View {
     public var body: some View {
         if viewModel.isPresented.wrappedValue {
             ScrollViewReader { proxy in
-                SearchBar(searchQueryBinding)
-
-                VStack {
-                    if let regionTitles = viewModel.queriedRegionTitles {
-                        listView(regionTitles: regionTitles)
-                            .onAppear {
-                                viewModel.send(.listViewAppeared(proxy: proxy))
-                            }
-                    } else {
-                        noResultsView
+                SearchBar.inView(withQuery: searchQueryBinding) {
+                    VStack {
+                        if let regionTitles = viewModel.queriedRegionTitles {
+                            listView(regionTitles: regionTitles)
+                                .onAppear {
+                                    viewModel.send(.listViewAppeared(proxy: proxy))
+                                }
+                        } else {
+                            noResultsView
+                        }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.groupedContentBackground)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.groupedContentBackground)
             }
-            .header(
+            .v26Header(
                 .text(.init(viewModel.headerLabelText)),
                 attributes: .init(showsDivider: false, sizeClass: .sheet)
             )

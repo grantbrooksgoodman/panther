@@ -39,32 +39,22 @@ public struct ContactSelectorPageView: View {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
-    // MARK: - View
+    // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: 0) {
-            SearchBar(searchQueryBinding)
-
-            if !viewModel.queriedContactPairs.isEmpty {
-                listView
-            } else {
-                noResultsView
+        SearchBar.inView(withQuery: searchQueryBinding) {
+            Group {
+                if !viewModel.queriedContactPairs.isEmpty {
+                    listView
+                } else {
+                    noResultsView
+                }
             }
         }
-        .header(
-            leftItem: .text(.init(text: .init(
-                viewModel.inviteToolbarButtonText,
-                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
-            )) {
-                viewModel.send(.inviteToolbarButtonTapped)
-            }),
+        .v26Header(
+            leftItem: headerLeftItem,
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
-            rightItem: .cancelButton(
-                font: .system(size: Floats.cancelToolbarButtonSystemFontSize),
-                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
-            ) {
-                viewModel.send(.cancelToolbarButtonTapped)
-            },
+            rightItem: headerRightItem,
             attributes: .init(
                 appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
                 showsDivider: false,
@@ -74,24 +64,27 @@ public struct ContactSelectorPageView: View {
         .redrawsOnTraitCollectionChange()
     }
 
-    private var cancelToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Components.button(viewModel.cancelToolbarButtonText) {
-                viewModel.send(.cancelToolbarButtonTapped)
-            }
-        }
+    // MARK: - Header Items
+
+    private var headerLeftItem: HeaderView.PeripheralButtonType {
+        .text(
+            .init(
+                text: .init(
+                    viewModel.inviteToolbarButtonText,
+                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                )
+            ) { viewModel.send(.inviteToolbarButtonTapped) }
+        )
     }
 
-    private var inviteToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Components.button(
-                viewModel.inviteToolbarButtonText,
-                font: .systemSemibold
-            ) {
-                viewModel.send(.inviteToolbarButtonTapped)
-            }
-        }
+    private var headerRightItem: HeaderView.PeripheralButtonType {
+        .cancelButton(
+            font: .system(size: Floats.cancelToolbarButtonSystemFontSize),
+            foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+        ) { viewModel.send(.cancelToolbarButtonTapped) }
     }
+
+    // MARK: - List View
 
     private var listView: some View {
         List {
@@ -113,6 +106,8 @@ public struct ContactSelectorPageView: View {
         .environment(\.defaultMinListRowHeight, Floats.listViewDefaultMinListRowHeight)
         .listStyle(.inset)
     }
+
+    // MARK: - No Results View
 
     private var noResultsView: some View {
         Group {

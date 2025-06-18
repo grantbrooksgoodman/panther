@@ -74,7 +74,7 @@ public struct PenPalsPermissionPageView: View {
                                 minWidth: Floats.enableButtonLabelFrameMinWidth,
                                 maxWidth: .infinity
                             )
-                            .foregroundStyle(Color.accent)
+                            .foregroundStyle(Colors.accent)
                             .cornerRadius(Floats.enableButtonLabelCornerRadius)
                             .shadow(
                                 color: Colors.enableButtonLabelShadow.opacity(Floats.enableButtonLabelShadowColorOpacity),
@@ -93,7 +93,11 @@ public struct PenPalsPermissionPageView: View {
                     }
                     .padding(.bottom, Floats.enableButtonBottomPadding)
 
-                    Components.button(viewModel.strings.value(for: .dismissButtonText)) {
+                    Components.button(
+                        viewModel.strings.value(for: .dismissButtonText),
+                        font: .system,
+                        foregroundColor: Colors.accent
+                    ) {
                         viewModel.send(.dismissButtonTapped)
                     }
                     .padding(.bottom, Floats.dismissButtonBottomPadding)

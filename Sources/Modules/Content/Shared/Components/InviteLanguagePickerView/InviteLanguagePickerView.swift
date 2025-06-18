@@ -43,21 +43,20 @@ public struct InviteLanguagePickerView: View {
 
     public var body: some View {
         ScrollViewReader { _ in
-            SearchBar(searchQueryBinding)
-
-            VStack {
-                if viewModel.queriedLanguageNames.isEmpty,
-                   !viewModel.searchQuery.isBlank {
-                    noResultsView
-                } else {
-                    listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
+            SearchBar.inView(withQuery: searchQueryBinding) {
+                VStack {
+                    if viewModel.queriedLanguageNames.isEmpty,
+                       !viewModel.searchQuery.isBlank {
+                        noResultsView
+                    } else {
+                        listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.groupedContentBackground)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.groupedContentBackground)
-            .interactiveDismissDisabled(true)
         }
-        .header(
+        .v26Header(
             leftItem: .cancelButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
                 viewModel.send(.cancelHeaderItemTapped)
             },
@@ -72,6 +71,7 @@ public struct InviteLanguagePickerView: View {
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
+        .interactiveDismissDisabled(true)
         .preferredStatusBarStyle(
             .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode

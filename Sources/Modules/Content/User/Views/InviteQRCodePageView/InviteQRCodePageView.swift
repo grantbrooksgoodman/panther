@@ -53,7 +53,7 @@ public struct InviteQRCodePageView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .header(
+                .v26Header(
                     rightItem: .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
                         viewModel.send(.doneButtonTapped)
                     },

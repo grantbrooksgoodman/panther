@@ -62,6 +62,8 @@ public final class ChatPageViewService {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
 
+        // NIT: Could store [ConversationID: ViewController] and allow for multiple presentations (i.e., "Add Contact" button) that way?
+
         self.configuration = configuration
         let viewController = chatPageViewControllerFactory.buildViewController()
         self.viewController = viewController
@@ -238,7 +240,13 @@ public final class ChatPageViewService {
             inputBar?.setAttachMediaButtonImage()
             recipientBar?.layout.layoutSubviews()
             recipientBar?.contactSelectionUI.unhighlightAllViews()
-            NavigationBar.setAppearance(configuration == .newChat ? .newChatPageView : .chatPageView)
+
+            if configuration == .newChat {
+                NavigationBar.setAppearance(.newChatPageView)
+            } else if !uiApplication.isPresentingSheet {
+                NavigationBar.setAppearance(.chatPageView)
+            }
+
             StatusBar.overrideStyle(.appAware)
             UIView.dismissCurrentContextMenu()
             viewController?.navigationController?.isNavigationBarHidden = true

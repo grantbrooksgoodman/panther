@@ -68,8 +68,22 @@ public struct UserContentContainerView: View {
 
     // MARK: - Auxiliary
 
+    private var chatInfoToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Components.button(
+                symbolName: Strings.chatInfoButtonImageSystemName,
+                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
+                usesIntrinsicSize: false
+            ) {
+                viewModel.send(.chatInfoToolbarButtonTapped)
+            }
+        }
+    }
+
+    @ViewBuilder
     private func chatPageView(_ conversation: Conversation) -> some View {
-        ChatPageView(
+        let baseView = ChatPageView(
             conversation,
             configuration: .default
         )
@@ -78,17 +92,24 @@ public struct UserContentContainerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(ConversationCellViewData(conversation)?.titleLabelText ?? "")
         .toolbarRole(.editor)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Components.button(
-                    symbolName: Strings.chatInfoButtonImageSystemName,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
-                    secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
-                    usesIntrinsicSize: false
-                ) {
-                    viewModel.send(.chatInfoToolbarButtonTapped)
+
+        if UIApplication.v26FeaturesEnabled {
+            ZStack {
+                ThemedView {
+                    Color.clear
+                        .frame(width: .zero, height: .zero)
+                        .toolbar {
+                            chatInfoToolbarButton
+                        }
                 }
+
+                baseView
             }
+        } else {
+            baseView
+                .toolbar {
+                    chatInfoToolbarButton
+                }
         }
     }
 

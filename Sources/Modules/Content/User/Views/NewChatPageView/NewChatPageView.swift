@@ -155,7 +155,7 @@ public struct NewChatPageView: View {
 
                 Rectangle()
                     .fill(.bar)
-                    .frame(height: viewModel.navigationBarHeight)
+                    .frame(height: NavigationBar.height + Floats.navigationBarHeightIncrement)
                     .ignoresSafeArea(edges: .top)
                     .opacity(viewModel.navigationBarOpacity)
             }

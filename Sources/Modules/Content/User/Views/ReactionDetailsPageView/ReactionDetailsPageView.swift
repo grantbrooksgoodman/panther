@@ -44,7 +44,7 @@ public struct ReactionDetailsPageView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .id(viewModel.viewID)
             .background(Color.groupedContentBackground)
-            .header(
+            .v26Header(
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: .doneButton(
                     foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent

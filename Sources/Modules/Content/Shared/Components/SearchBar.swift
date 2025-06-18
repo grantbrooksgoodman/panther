@@ -67,11 +67,45 @@ public struct SearchBar: View {
                 .opacity(query.isEmpty ? 0 : Floats.clearButtonImageOpacity)
             }
             .padding(.horizontal, Floats.innerHStackHorizontalPadding)
-            .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
-            .cornerRadius(Floats.innerHStackCornerRadius)
+            .if(
+                UIApplication.v26FeaturesEnabled,
+                {
+                    $0
+                        .glassEffect(padding: Floats.glassEffectPadding)
+                },
+                else: {
+                    $0
+                        .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
+                        .cornerRadius(Floats.innerHStackCornerRadius)
+                }
+            )
         }
         .padding(.bottom, bottomPadding)
-        .padding([.leading, .trailing])
-        .background(Color.navigationBarBackground)
+        .padding(.horizontal, UIApplication.v26FeaturesEnabled ? Floats.v26HorizontalPadding : nil)
+        .background(UIApplication.v26FeaturesEnabled ? Color.clear : .navigationBarBackground)
+    }
+
+    // MARK: - View Builder
+
+    @ViewBuilder
+    static func inView(
+        withQuery query: Binding<String>,
+        content: @escaping () -> some View
+    ) -> some View {
+        if UIApplication.v26FeaturesEnabled {
+            ZStack {
+                content()
+
+                VStack {
+                    Spacer()
+                    SearchBar(query)
+                }
+            }
+        } else {
+            VStack(spacing: 0) {
+                SearchBar(query)
+                content()
+            }
+        }
     }
 }
