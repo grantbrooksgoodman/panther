@@ -39,7 +39,15 @@ public struct ConversationsPageView: View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             ThemedView {
                 VStack {
-                    NavigationView {
+                    NavigationWindow(
+                        isBackButtonHidden: true,
+                        toolbarItems: [settingsToolbarButton],
+                        toolbarTitle: .init(
+                            viewModel.strings.value(
+                                for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle
+                            )
+                        )
+                    ) {
                         List {
                             ForEach(viewModel.conversations, id: \.self) { conversation in
                                 ConversationCellView(
@@ -53,21 +61,13 @@ public struct ConversationsPageView: View {
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                         .listStyle(.plain)
-                        .navigationTitle(viewModel.strings.value(
-                            for: Application.isInPrevaricationMode ? .prevaricationModeNavigationTitle : .navigationTitle
-                        ))
                         .refreshable {
                             await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
                         }
-                        .toolbar {
-                            composeToolbarButton
-                            settingsToolbarButton
-                        }
+                        .toolbar { composeToolbarButton }
                     }
-                    .accentColor(Color.accent)
                 }
             }
-            .navigationBarBackButtonHidden()
         }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
@@ -106,8 +106,8 @@ public struct ConversationsPageView: View {
         }
     }
 
-    private var settingsToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+    private var settingsToolbarButton: NavigationWindow.Toolbar.Item {
+        .init(placement: .topBarLeading) {
             Components.button(
                 symbolName: Strings.settingsToolbarButtonLabelImageSystemName,
                 foregroundColor: Colors.settingsToolbarButtonForeground,

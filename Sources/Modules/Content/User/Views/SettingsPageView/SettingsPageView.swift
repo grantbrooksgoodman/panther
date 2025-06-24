@@ -55,7 +55,12 @@ public struct SettingsPageView: View {
             progressPageViewBackgroundColor: .groupedContentBackground
         ) {
             ThemedView {
-                NavigationView {
+                NavigationWindow(
+                    displayMode: .inline,
+                    toolbarBackgroundColor: .navigationBarBackground,
+                    toolbarItems: [doneToolbarButton],
+                    toolbarTitle: .init(viewModel.navigationTitle)
+                ) {
                     VStack {
                         if let cnContact = viewModel.cnContact {
                             NavigationLink(destination: CNContactView(cnContact)) {
@@ -80,16 +85,9 @@ public struct SettingsPageView: View {
                         buildInfoButton
                     }
                     .background(Color.groupedContentBackground)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(viewModel.navigationTitle)
-                    .toolbar {
-                        doneToolbarButton
-                    }
                 }
-                .accentColor(Color.accent)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .interactiveDismissDisabled(true)
-                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
             }
         }
         .preferredStatusBarStyle(
@@ -156,8 +154,8 @@ public struct SettingsPageView: View {
         .redrawsOnTraitCollectionChange()
     }
 
-    private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+    private var doneToolbarButton: NavigationWindow.Toolbar.Item {
+        .init(placement: .topBarTrailing) {
             if UIApplication.v26FeaturesEnabled {
                 Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)

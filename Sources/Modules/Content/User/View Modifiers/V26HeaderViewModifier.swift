@@ -106,7 +106,14 @@ private struct V26HeaderViewModifier: ViewModifier {
             .if(
                 UIApplication.v26FeaturesEnabled,
                 { content in
-                    NavigationView {
+                    NavigationWindow(
+                        displayMode: .inline,
+                        toolbarItems: [
+                            leadingToolbarItem,
+                            principalToolbarItem,
+                            trailingToolbarItem,
+                        ].compactMap { $0 }
+                    ) {
                         ZStack(alignment: .top) {
                             Color.clear
                                 .frame(width: .zero, height: .zero)
@@ -114,12 +121,6 @@ private struct V26HeaderViewModifier: ViewModifier {
                                 .navigationBarAppearance(navigationBarAppearance)
 
                             content
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    leadingToolbarItem
-                                    principalToolbarItem
-                                    trailingToolbarItem
-                                }
 
                             Rectangle()
                                 .fill(Color(uiColor: attributes.appearance.backgroundColor))
@@ -143,32 +144,30 @@ private struct V26HeaderViewModifier: ViewModifier {
 
     // MARK: - Toolbar Items
 
-    private var leadingToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            if let leftItem {
-                peripheralToolbarButton(for: leftItem, isLeadingItem: true)
-            }
+    private var leadingToolbarItem: NavigationWindow.Toolbar.Item? {
+        guard let leftItem else { return nil }
+        return .init(placement: .topBarLeading) {
+            peripheralToolbarButton(for: leftItem, isLeadingItem: true)
         }
     }
 
-    private var principalToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            if let centerItem,
-               let navigationTitle = centerItem.navigationTitle {
-                Components.text(
-                    navigationTitle,
-                    font: .systemSemibold,
-                    foregroundColor: centerItem.titleForegroundColor ?? .navigationBarTitle
-                )
-            }
+    private var principalToolbarItem: NavigationWindow.Toolbar.Item? {
+        guard let centerItem,
+              let navigationTitle = centerItem.navigationTitle else { return nil }
+
+        return .init(placement: .principal) {
+            Components.text(
+                navigationTitle,
+                font: .systemSemibold,
+                foregroundColor: centerItem.titleForegroundColor ?? .navigationBarTitle
+            )
         }
     }
 
-    private var trailingToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            if let rightItem {
-                peripheralToolbarButton(for: rightItem, isLeadingItem: false)
-            }
+    private var trailingToolbarItem: NavigationWindow.Toolbar.Item? {
+        guard let rightItem else { return nil }
+        return .init(placement: .topBarTrailing) {
+            peripheralToolbarButton(for: rightItem, isLeadingItem: false)
         }
     }
 

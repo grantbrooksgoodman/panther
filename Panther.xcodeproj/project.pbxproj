@@ -171,6 +171,7 @@
 		B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94388702B3219CE002D94FF /* UserSessionService.swift */; };
 		B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */; };
 		B9464F652CAF89FE00A11842 /* QueriedContactPairCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9464F642CAF89FE00A11842 /* QueriedContactPairCache.swift */; };
+		B94721102E0B4506008A76E5 /* NavigationWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947210F2E0B4506008A76E5 /* NavigationWindow.swift */; };
 		B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947581B2BCF79EF001E4872 /* CameraPickerView.swift */; };
 		B94758202BCF7A18001E4872 /* CameraPickerView+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947581F2BCF7A18001E4872 /* CameraPickerView+Coordinator.swift */; };
 		B94758222BCF7A35001E4872 /* ContentPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94758212BCF7A35001E4872 /* ContentPickerView.swift */; };
@@ -966,6 +967,7 @@
 		B94388702B3219CE002D94FF /* UserSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMessagePreviewService.swift; sourceTree = "<group>"; };
 		B9464F642CAF89FE00A11842 /* QueriedContactPairCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueriedContactPairCache.swift; sourceTree = "<group>"; };
+		B947210F2E0B4506008A76E5 /* NavigationWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationWindow.swift; sourceTree = "<group>"; };
 		B947581B2BCF79EF001E4872 /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
 		B947581F2BCF7A18001E4872 /* CameraPickerView+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraPickerView+Coordinator.swift"; sourceTree = "<group>"; };
 		B94758212BCF7A35001E4872 /* ContentPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPickerView.swift; sourceTree = "<group>"; };
@@ -3210,6 +3212,7 @@
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
+				B947210F2E0B4506008A76E5 /* NavigationWindow.swift */,
 				B986C46F2CD3235500414E57 /* ReactionsView.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
 				B9D312562D2097F10007572A /* SquareIconView.swift */,
@@ -3487,7 +3490,7 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
+				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 				B900BE132E09DD7900F4FA8D /* XCRemoteSwiftPackageReference "networking" */,
 			);
@@ -3801,9 +3804,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4011,6 +4018,7 @@
 				B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */,
 				B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */,
 				B9C9560E2B64578B001C7E01 /* BuildInfoButtonStrings.swift in Sources */,
+				B94721102E0B4506008A76E5 /* NavigationWindow.swift in Sources */,
 				A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */,
 				B94D76822BBB5A3F002B4BC6 /* SignInPageViewStrings.swift in Sources */,
 				B96EDD932B6364A100CB925B /* ContactService+UserContentExtensions.swift in Sources */,
@@ -4691,7 +4699,7 @@
 				kind = branch;
 			};
 		};
-		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -4725,12 +4733,12 @@
 		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
 		B921F4052CCB6F34006BB149 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
 		B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */ = {

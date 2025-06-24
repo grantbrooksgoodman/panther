@@ -69,18 +69,16 @@ public struct ChatInfoPageView: View {
                 redrawsOnAppearanceChange: viewModel.singleCNContactContainer != nil,
                 restoresNavigationBarAppearanceOnDisappear: false
             ) {
-                NavigationView {
+                NavigationWindow(
+                    displayMode: .inline,
+                    toolbarBackgroundColor: .navigationBarBackground,
+                    toolbarItems: [doneToolbarButton]
+                ) {
                     contentView
                         .id(viewModel.viewID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.groupedContentBackground)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            doneToolbarButton
-                        }
                 }
-                .accentColor(Color.accent)
-                .toolbarBackground(Color.navigationBarBackground, for: .navigationBar)
                 .sheet(isPresented: cameraPickerSheetBinding) {
                     ContentPickerView<UIImage>(.camera) { image in
                         viewModel.send(.selectedImageChanged(image))
@@ -251,8 +249,8 @@ public struct ChatInfoPageView: View {
 
     // MARK: - Done Toolbar Button
 
-    private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+    private var doneToolbarButton: NavigationWindow.Toolbar.Item {
+        .init(placement: .topBarTrailing) {
             if UIApplication.v26FeaturesEnabled {
                 Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)

@@ -80,8 +80,8 @@ public struct NewChatPageView: View {
         }
     }
 
-    private var doneToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+    private var doneToolbarButton: NavigationWindow.Toolbar.Item {
+        .init(placement: .topBarTrailing) {
             Components.button(
                 symbolName: viewModel.shouldUseBoldDoneToolbarButton ?
                     Strings.doneToolbarButtonImageSystemName :
@@ -136,7 +136,12 @@ public struct NewChatPageView: View {
     }
 
     private func v26Layout(_ content: some View) -> some View {
-        NavigationView {
+        NavigationWindow(
+            displayMode: .inline,
+            toolbarBackgroundColor: .groupedContentBackground,
+            toolbarItems: [doneToolbarButton],
+            toolbarTitle: .init(viewModel.navigationTitle)
+        ) {
             ZStack(alignment: .top) {
                 Color.clear
                     .frame(width: .zero, height: .zero)
@@ -144,10 +149,7 @@ public struct NewChatPageView: View {
                     .navigationBarAppearance(.newChatPageView)
 
                 content
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(viewModel.navigationTitle)
                     .toolbar {
-                        doneToolbarButton
                         if viewModel.shouldShowPenPalsToolbarButton {
                             penPalsToolbarButton
                         }
@@ -161,6 +163,5 @@ public struct NewChatPageView: View {
             }
         }
         .background(ThemeService.isDarkModeActive ? Color.groupedContentBackground : .background)
-        .toolbarBackground(Color.groupedContentBackground, for: .navigationBar)
     }
 }
