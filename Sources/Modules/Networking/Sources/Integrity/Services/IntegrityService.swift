@@ -69,6 +69,7 @@ public final class IntegrityService {
 
             case let .failure(exception):
                 guard failureStrategy == .returnOnFailure,
+                      !exception.isEqual(to: .readWriteAccessDisabled),
                       isDeveloperModeEnabled else { return completion(exception) }
 
                 guard !didConfirmUnsafeSessionResolution else {

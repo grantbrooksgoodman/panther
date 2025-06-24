@@ -175,11 +175,8 @@ public extension AppConstants.Colors {
 public extension AppConstants.Strings {
     enum ChatPageViewService {
         public static let barButtonItemViewID = "_UIModernBarButton" // swiftlint:disable:next line_length
-        public static let chatPageViewPreviewViewControllerID = "UIHostingController<IDView<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>, ConversationID>>"
-        public static let editingOverlayViewControllerID = "UIEditingOverlayViewController"
+        public static let chatPageViewPreviewHostingControllerID = "UIHostingController<IDView<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>, ConversationID>>"
         public static let frontmostViewControllerID = "ChatPageViewController"
-        public static let inputWindowControllerID = "UIInputWindowController"
-        public static let navigationStackHostingControllerID = "NavigationStackHostingController<AnyView>"
 
         enum AudioMessagePlayback {
             public static let cellDefaultDurationLabelText = "0:00"

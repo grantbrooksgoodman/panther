@@ -28,7 +28,7 @@ extension RecipientBar: UITableViewDataSource {
             ContactPairCellView(contactPair: contactPair)
                 .redrawsOnTraitCollectionChange()
         }
-        cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser || contactPair.containsCurrentUser)
+        cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser || contactPair.containsCurrentUser || contactPair.isSelected)
 
         return cell
     }

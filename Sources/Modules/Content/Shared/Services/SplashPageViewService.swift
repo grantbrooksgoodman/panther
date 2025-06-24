@@ -83,7 +83,7 @@ public final class SplashPageViewService: ObservableObject {
         alertKitConfig.registerReportDelegate(ErrorReportingService())
         alertKitConfig.registerTranslationDelegate(networking.hostedTranslation)
 
-        Logger.setReportsErrorsAutomatically(true)
+        /* MARK: Offline User Setup */
 
         guard build.isOnline else {
             if let exception = userSession.setOfflineCurrentUser() {
@@ -96,6 +96,35 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.setLanguageCode(currentUser.languageCode)
             return nil
         }
+
+        /* MARK: Language Code Resolution */
+
+        if let exception = await userSession.resolveAndSetLanguageCode() {
+            Logger.log(exception)
+        }
+
+        initializationProgress += 0.01
+
+        /* MARK: MetadataService Setup */
+
+        if let exception = await services.metadata.resolveValues() {
+            return exception
+        }
+
+        initializationProgress += 0.01
+
+        /* MARK: UpdateService Setup */
+
+        services.update.incrementRelaunchCountIfNeeded()
+        if let exception = await services.update.promptToUpdateIfNeeded() {
+            return exception
+        }
+
+        initializationProgress += 0.01
+
+        /* MARK: Logger Setup */
+
+        Logger.setReportsErrorsAutomatically(true)
 
         /* MARK: Cache Setup */
 
@@ -134,26 +163,9 @@ public final class SplashPageViewService: ObservableObject {
             }
         }
 
-        /* MARK: MetadataService Setup */
-
-        if let exception = await services.metadata.resolveValues() {
-            return exception
-        }
-
-        initializationProgress += 0.01
-
         /* MARK: ReviewService Setup */
 
         services.review.incrementAppOpenCount()
-
-        /* MARK: UpdateService Setup */
-
-        services.update.incrementRelaunchCountIfNeeded()
-        if let exception = await services.update.promptToUpdateIfNeeded() {
-            return exception
-        }
-
-        initializationProgress += 0.01
 
         /* MARK: UserSessionService Setup */
 

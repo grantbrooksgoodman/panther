@@ -22,6 +22,7 @@ public struct ConnectionStatusServiceEffectID: Hashable {
 }
 
 public extension ConnectionStatusServiceEffectID {
+    static let checkForUpdates: ConnectionStatusServiceEffectID = .init("checkForUpdates")
     static let configureInputBar: ConnectionStatusServiceEffectID = .init("configureInputBar")
     static let showOfflineModeToast: ConnectionStatusServiceEffectID = .init("showOfflineModeToast")
 }

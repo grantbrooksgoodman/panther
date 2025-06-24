@@ -145,6 +145,15 @@ public final class ConversationsPageViewService {
             _ = await self.services.permission.requestPermission(for: .notifications)
         }
 
+        services.connectionStatus.addEffectUponConnectionChanged(id: .checkForUpdates) {
+            guard self.build.isOnline else { return }
+            Task {
+                if let exception = await self.services.update.promptToUpdateIfNeeded() {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
+            }
+        }
+
         services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
             guard !self.build.isOnline else { return }
             showOfflineModeToast()

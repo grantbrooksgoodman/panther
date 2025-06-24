@@ -53,7 +53,7 @@ public enum CommonServicesDependency: DependencyKey {
             remoteCache: .init(),
             review: .init(),
             textMessage: .init(),
-            update: .init()
+            update: .shared
         )
     }
 }

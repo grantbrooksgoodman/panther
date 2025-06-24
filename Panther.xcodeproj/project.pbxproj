@@ -48,6 +48,7 @@
 		B900B54E2B1AE04600BA2F1D /* ContactNameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B54D2B1AE04600BA2F1D /* ContactNameService.swift */; };
 		B900B5522B1AED6400BA2F1D /* ContactPairArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5512B1AED6400BA2F1D /* ContactPairArchiveService.swift */; };
 		B900BB032C98DDE200EED8E4 /* SettingsNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900BB022C98DDE200EED8E4 /* SettingsNavigator.swift */; };
+		B900BE152E09DD7900F4FA8D /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B900BE142E09DD7900F4FA8D /* Networking */; };
 		B9018A402CD9C15700B72B18 /* TapGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */; };
 		B9018A432CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */; };
 		B9018A452CD9CAE300B72B18 /* AttributeDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */; };
@@ -323,7 +324,6 @@
 		B9B193C72B1A42980016948C /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C62B1A42980016948C /* TranscriptionService.swift */; };
 		B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193C82B1A42A20016948C /* PlaybackService.swift */; };
 		B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B193CA2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift */; };
-		B9B732662DD2B66100B27C97 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B9B732652DD2B66100B27C97 /* Networking */; };
 		B9B764122D4EE6980091FFE0 /* AVAudioApplicationDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
@@ -1500,10 +1500,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B900BE152E09DD7900F4FA8D /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
-				B9B732662DD2B66100B27C97 /* Networking in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
 				B9BE3DD02DFD45350010B463 /* InputBarAccessoryView in Frameworks */,
 			);
@@ -3360,8 +3360,8 @@
 				B9E2E6132C72E7AF004022FE /* MessageKit */,
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
-				B9B732652DD2B66100B27C97 /* Networking */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
+				B900BE142E09DD7900F4FA8D /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3487,9 +3487,9 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				B9B732642DD2B66100B27C97 /* XCRemoteSwiftPackageReference "networking" */,
+				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
+				B900BE132E09DD7900F4FA8D /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3801,13 +3801,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4687,20 +4683,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.4.0;
-			};
-		};
-		B9B732642DD2B66100B27C97 /* XCRemoteSwiftPackageReference "networking" */ = {
+		B900BE132E09DD7900F4FA8D /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
 				branch = main;
 				kind = branch;
+			};
+		};
+		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.4.0;
 			};
 		};
 		B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
@@ -4722,20 +4718,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B900BE142E09DD7900F4FA8D /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B900BE132E09DD7900F4FA8D /* XCRemoteSwiftPackageReference "networking" */;
+			productName = Networking;
+		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
 			productName = FirebaseAnalytics;
 		};
 		B921F4052CCB6F34006BB149 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
 			productName = FirebaseMessaging;
-		};
-		B9B732652DD2B66100B27C97 /* Networking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B9B732642DD2B66100B27C97 /* XCRemoteSwiftPackageReference "networking" */;
-			productName = Networking;
 		};
 		B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -22,6 +22,7 @@ public final class UserSessionService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.networking) private var networking: NetworkServices
 
@@ -153,6 +154,41 @@ public final class UserSessionService {
 
         currentUser = offlineCurrentUser
         return nil
+    }
+
+    // MARK: - Resolve & Set Language Code
+
+    @discardableResult
+    public func resolveAndSetLanguageCode() async -> Exception? {
+        guard let currentUserID else {
+            return .init(
+                "Current user ID has not been set.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
+
+        let getValuesResult = await networking.database.getValues(
+            at: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKey.languageCode.rawValue)"
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let string = values as? String else {
+                return .Networking.typecastFailed("string", metadata: [self, #file, #function, #line])
+            }
+
+            Logger.log(
+                "Setting language code to \(string.englishLanguageName ?? string.uppercased()).",
+                domain: .userSession,
+                metadata: [self, #file, #function, #line]
+            )
+
+            coreUtilities.setLanguageCode(string)
+            return nil
+
+        case let .failure(exception):
+            return exception
+        }
     }
 
     // MARK: - Current User Observation

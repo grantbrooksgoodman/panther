@@ -57,7 +57,8 @@ public extension FileManager {
         if path.absoluteString.contains(documentsDirectoryURL.absoluteString),
            let documentsIndex = pathComponents.firstIndex(of: "Documents"),
            pathComponents.count > documentsIndex + 1,
-           pathComponents.count - 2 > 0 {
+           pathComponents.count - 2 > 0,
+           (documentsIndex + 1) < (pathComponents.count - 2) {
             let directoryComponents = pathComponents[documentsIndex + 1 ... pathComponents.count - 2]
             let newDirectories = directoryComponents.joined(separator: "/")
             if let exception = createDirectoryIfNeeded(newDirectories.removingPercentEncoding ?? newDirectories) {

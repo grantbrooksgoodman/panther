@@ -39,6 +39,7 @@ public enum Application {
             cacheDomainListDelegate: CacheDomain.List(),
             devModeAppActionDelegate: DevModeAction.AppActions(),
             exceptionMetadataDelegate: AppException.ExceptionMetadataDelegate(),
+            forcedUpdateModalDelegate: UpdateService.shared,
             localizedStringsDelegate: LocalizedStringKey.LocalizedStringsDelegate(),
             loggerDomainSubscriptionDelegate: LoggerDomain.SubscriptionDelegate(),
             permanentUserDefaultsKeyDelegate: UserDefaultsKey.PermanentKeyDelegate(),

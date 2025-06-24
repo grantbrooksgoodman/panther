@@ -495,7 +495,7 @@ public final class SettingsPageViewService {
 
     private func exitGracefully() {
         Task { @MainActor in
-            StatusBar.toggleVisibility()
+            StatusBar.setIsHidden(true)
             uiApplication.mainWindow?.addOverlay(activityIndicator: .largeWhite)
 
             navigation.navigate(to: .userContent(.sheet(.none)))
