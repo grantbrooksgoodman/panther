@@ -54,6 +54,7 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(.init(hex: 0xF8F8F8), variant: .init(hex: 0x2A2A2C)))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.black, variant: .white))
+        let navigationBarButton = Item(.navigationBarButton, set: accent.set)
 
         let senderBubble = Item(.senderBubble, set: .init(.systemBlue))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0xE5E5EA), variant: .init(hex: 0x27252A)))
@@ -67,6 +68,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,
@@ -86,6 +88,7 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(backgroundColor))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.white))
+        let navigationBarButton = Item(.navigationBarButton, set: .init(accentColor))
 
         let senderBubble = Item(.senderBubble, set: .init(accentColor))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0x27252A)))
@@ -99,6 +102,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,
@@ -118,6 +122,7 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(backgroundColor))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.white))
+        let navigationBarButton = Item(.navigationBarButton, set: .init(accentColor))
 
         let senderBubble = Item(.senderBubble, set: .init(accentColor))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0x27252A)))
@@ -131,6 +136,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,
@@ -150,6 +156,7 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(backgroundColor))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.white))
+        let navigationBarButton = Item(.navigationBarButton, set: .init(accentColor))
 
         let senderBubble = Item(.senderBubble, set: .init(accentColor))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0x27252A)))
@@ -163,6 +170,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,
@@ -183,6 +191,10 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(accentColor))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.white))
+        let navigationBarButton = Item(
+            .navigationBarButton,
+            set: .init(UIApplication.isFullyV26Compatible ? .black : .white)
+        )
 
         let senderBubble = Item(.senderBubble, set: .init(senderBubbleColor))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0xF8F8F8)))
@@ -196,6 +208,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,
@@ -215,6 +228,7 @@ public extension UITheme {
 
         let navigationBarBackground = Item(.navigationBarBackground, set: .init(backgroundColor))
         let navigationBarTitle = Item(.navigationBarTitle, set: .init(.white))
+        let navigationBarButton = Item(.navigationBarButton, set: .init(accentColor))
 
         let senderBubble = Item(.senderBubble, set: .init(accentColor))
         let receiverBubble = Item(.receiverBubble, set: .init(.init(hex: 0x27252A)))
@@ -228,6 +242,7 @@ public extension UITheme {
             disabled,
             groupedContentBackground,
             navigationBarBackground,
+            navigationBarButton,
             navigationBarTitle,
             senderBubble,
             receiverBubble,

@@ -47,6 +47,30 @@ public extension NavigationBarAppearance {
         )
     }
 
+    static var conversationsPageView: NavigationBarAppearance {
+        guard Application.isInPrevaricationMode,
+              UIApplication.isFullyV26Compatible else { return .appDefault }
+
+        let defaultConfiguration: NavigationBarConfiguration = .init(
+            titleColor: .navigationBarTitle,
+            backgroundColor: .navigationBarBackground,
+            barButtonItemColor: .navigationBarTitle,
+            showsDivider: true
+        )
+
+        let scrollEdgeConfig: NavigationBarConfiguration = .init(
+            titleColor: .accent,
+            backgroundColor: .clear,
+            barButtonItemColor: .black,
+            showsDivider: false
+        )
+
+        return .custom(
+            defaultConfiguration,
+            scrollEdgeConfig: scrollEdgeConfig
+        )
+    }
+
     static var newChatPageView: NavigationBarAppearance {
         guard UIApplication.v26FeaturesEnabled else { return .appDefault }
         return .custom(

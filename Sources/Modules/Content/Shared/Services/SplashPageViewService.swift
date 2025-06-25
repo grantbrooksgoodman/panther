@@ -300,6 +300,9 @@ public final class SplashPageViewService: ObservableObject {
               Networking.config.environment == .production,
               services.metadata.isPrevaricationModeEnabled == true else { return }
 
+        @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
+        v26FeaturesEnabled = false
+
         Application.isInPrevaricationMode = true
         ThemeService.setTheme(
             UITheme.prevaricationMode,

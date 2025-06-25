@@ -72,7 +72,7 @@ public struct UserContentContainerView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Components.button(
                 symbolName: Strings.chatInfoButtonImageSystemName,
-                foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                foregroundColor: .navigationBarButton,
                 secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false
             ) {

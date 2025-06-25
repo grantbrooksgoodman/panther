@@ -161,20 +161,23 @@ public struct ConversationCellView: View {
                                     font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
                                     foregroundColor: .subtitleText
                                 )
-                                .padding(.trailing, Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing)
+                                .padding(
+                                    .trailing,
+                                    Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing
+                                )
+                                .if(Application.isInPrevaricationMode) { $0.offset(x: Floats.chevronImageFrameMaxWidth) }
 
-                                if !Application.isInPrevaricationMode {
-                                    Components.symbol(
-                                        Strings.chevronImageSystemName,
-                                        foregroundColor: viewModel.chevronImageForegroundColor,
-                                        weight: .semibold,
-                                        usesIntrinsicSize: false
-                                    )
-                                    .frame(
-                                        maxWidth: Floats.chevronImageFrameMaxWidth,
-                                        maxHeight: Floats.chevronImageFrameMaxHeight
-                                    )
-                                }
+                                Components.symbol(
+                                    Strings.chevronImageSystemName,
+                                    foregroundColor: viewModel.chevronImageForegroundColor,
+                                    weight: .semibold,
+                                    usesIntrinsicSize: false
+                                )
+                                .frame(
+                                    maxWidth: Floats.chevronImageFrameMaxWidth,
+                                    maxHeight: Floats.chevronImageFrameMaxHeight
+                                )
+                                .if(Application.isInPrevaricationMode) { $0.opacity(0) }
                             }
                         }
 

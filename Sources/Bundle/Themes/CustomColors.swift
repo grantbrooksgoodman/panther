@@ -18,6 +18,7 @@ import AppSubsystem
  Use this extension to define new colorable item types for specific UI elements.
  */
 public extension ColoredItemType {
+    static let navigationBarButton: ColoredItemType = .init("navigationBarButton")
     static let receiverBubble: ColoredItemType = .init("receiverBubble")
     static let senderBubble: ColoredItemType = .init("senderBubble")
 }
@@ -26,6 +27,7 @@ public extension ColoredItemType {
  Use this extension to create custom `UIColor` types based on the current theme.
  */
 public extension UIColor {
+    static var navigationBarButton: UIColor { ThemeService.currentTheme.color(for: .navigationBarButton) }
     static var receiverBubble: UIColor { ThemeService.currentTheme.color(for: .receiverBubble) }
     static var senderBubble: UIColor { ThemeService.currentTheme.color(for: .senderBubble) }
 }
@@ -34,6 +36,7 @@ public extension UIColor {
  Provided to create convenience initializers for custom `Color` types.
  */
 public extension Color {
+    static var navigationBarButton: Color { .init(uiColor: .navigationBarButton) }
     static var receiverBubble: Color { .init(uiColor: .receiverBubble) }
     static var senderBubble: Color { .init(uiColor: .senderBubble) }
 }

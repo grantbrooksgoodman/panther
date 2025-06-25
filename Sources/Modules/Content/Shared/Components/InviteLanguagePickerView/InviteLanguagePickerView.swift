@@ -57,12 +57,12 @@ public struct InviteLanguagePickerView: View {
             }
         }
         .v26Header(
-            leftItem: .cancelButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+            leftItem: .cancelButton(foregroundColor: .navigationBarButton) {
                 viewModel.send(.cancelHeaderItemTapped)
             },
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
             rightItem: .doneButton(
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) : .disabled,
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? .navigationBarButton : .disabled,
                 isEnabled: viewModel.isDoneHeaderItemEnabled
             ) {
                 viewModel.send(.doneHeaderItemTapped)

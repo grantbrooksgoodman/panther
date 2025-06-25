@@ -37,7 +37,7 @@ public extension AppConstants.CGFloats {
         public static let subtitleLabelLineLimit: CGFloat = 2
         public static let subtitleLabelSystemFontSize: CGFloat = 14
         public static let subtitleLabelXOffset: CGFloat = 1.5
-        public static let subtitleLabelYOffset: CGFloat = -2
+        public static let subtitleLabelYOffset: CGFloat = -3
 
         public static let titleLabelBottomPadding: CGFloat = 0.01
         public static let titleLabelMinimumScaleFactor: CGFloat = 0.01

@@ -27,17 +27,22 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ConversationsPageView {
-        public static let composeToolbarButtonForeground: Color = .init(uiColor: .systemBlue)
-        public static let settingsToolbarButtonForeground: Color = .init(uiColor: .systemBlue)
+        public static let composeToolbarButtonForeground: Color = .init(
+            uiColor: Application.isInPrevaricationMode ? .navigationBarButton : .systemBlue
+        )
+
+        public static let settingsToolbarButtonForeground: Color = .init(
+            uiColor: Application.isInPrevaricationMode ? .navigationBarButton : .systemBlue
+        )
     }
 }
 
 // MARK: - String
 
 public extension AppConstants.Strings {
-    enum ConversationsPageView {
-        public static let composeToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "plus.circle.fill" : "square.and.pencil"
-        // swiftlint:disable:next identifier_name
-        public static let settingsToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "gearshape.circle.fill" : "gearshape"
+    enum ConversationsPageView { // swiftlint:disable:next line_length
+        public static let composeToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
+        // swiftlint:disable:next identifier_name line_length
+        public static let settingsToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape"
     }
 }

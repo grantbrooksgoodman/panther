@@ -71,7 +71,7 @@ public struct ContactSelectorPageView: View {
             .init(
                 text: .init(
                     viewModel.inviteToolbarButtonText,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                    foregroundColor: .navigationBarButton
                 )
             ) { viewModel.send(.inviteToolbarButtonTapped) }
         )
@@ -80,7 +80,7 @@ public struct ContactSelectorPageView: View {
     private var headerRightItem: HeaderView.PeripheralButtonType {
         .cancelButton(
             font: .system(size: Floats.cancelToolbarButtonSystemFontSize),
-            foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+            foregroundColor: .navigationBarButton
         ) { viewModel.send(.cancelToolbarButtonTapped) }
     }
 

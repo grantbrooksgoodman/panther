@@ -17,7 +17,7 @@ public extension ComponentKit {
     func v26DoneButton(action: @escaping () -> Void) -> some View {
         Components.button(
             symbolName: "checkmark",
-            foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+            foregroundColor: .navigationBarButton,
             usesIntrinsicSize: false
         ) {
             action()

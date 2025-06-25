@@ -217,7 +217,7 @@ public struct SettingsPageReducer: Reducer {
         case .viewDisappeared:
             let traitCollectionChanged = state.traitCollectionChanged
             return .task { @MainActor in
-                NavigationBar.setAppearance(.appDefault)
+                NavigationBar.setAppearance(.conversationsPageView)
                 guard traitCollectionChanged else { return .none }
                 Observables.traitCollectionChanged.trigger()
                 return .none

@@ -18,7 +18,7 @@ public extension HeaderView.PeripheralButtonType {
         .image(
             .init(
                 image: .init(
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent,
+                    foregroundColor: .navigationBarButton,
                     image: .init(systemName: "checkmark"),
                     size: .init(width: 22, height: 22),
                     weight: .semibold

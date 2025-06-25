@@ -54,7 +54,7 @@ public struct InviteQRCodePageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .v26Header(
-                    rightItem: .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+                    rightItem: .doneButton(foregroundColor: .navigationBarButton) {
                         viewModel.send(.doneButtonTapped)
                     },
                     attributes: .init(sizeClass: .sheet)

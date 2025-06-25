@@ -259,7 +259,7 @@ public struct ChatInfoPageView: View {
                 Components.button(
                     viewModel.doneButtonText,
                     font: .systemSemibold,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                    foregroundColor: .navigationBarButton
                 ) {
                     viewModel.send(.doneToolbarButtonTapped)
                 }
@@ -275,7 +275,7 @@ public struct ChatInfoPageView: View {
                 viewModel.send(.doneHeaderItemTapped)
             }
         } else {
-            return .doneButton(foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent) {
+            return .doneButton(foregroundColor: .navigationBarButton) {
                 viewModel.send(.doneHeaderItemTapped)
             }
         }

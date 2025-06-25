@@ -56,7 +56,7 @@ public final class ConversationsPageViewService {
     // MARK: - Public
 
     public func viewAppeared() {
-        NavigationBar.setAppearance(.appDefault)
+        NavigationBar.setAppearance(.conversationsPageView)
         userSession.startObservingCurrentUserChanges()
 
         core.gcd.after(.milliseconds(500)) {
@@ -222,7 +222,7 @@ public final class ConversationsPageViewService {
         guard navigation.state.userContent.sheet == nil else { return }
 
         Task { @MainActor in
-            NavigationBar.setAppearance(.appDefault)
+            NavigationBar.setAppearance(.conversationsPageView)
             StatusBar.overrideStyle(.appAware)
         }
     }

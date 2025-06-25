@@ -164,7 +164,7 @@ public struct SettingsPageView: View {
                 Components.button(
                     viewModel.doneToolbarButtonText,
                     font: .systemSemibold,
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                    foregroundColor: .navigationBarButton
                 ) {
                     viewModel.send(.doneToolbarButtonTapped)
                 }

@@ -47,7 +47,7 @@ public struct ReactionDetailsPageView: View {
             .v26Header(
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: .doneButton(
-                    foregroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : .accent
+                    foregroundColor: .navigationBarButton
                 ) { viewModel.send(.doneHeaderItemTapped) },
                 attributes: .init(sizeClass: .sheet)
             )
