@@ -14,17 +14,20 @@ import SwiftUI
 import ComponentKit
 
 public extension ComponentKit {
-    func v26DoneButton(action: @escaping () -> Void) -> some View {
+    func v26DoneButton(
+        foregroundColor: Color = .navigationBarButton,
+        action: @escaping () -> Void
+    ) -> some View {
         Components.button(
             symbolName: "checkmark",
-            foregroundColor: .navigationBarButton,
+            foregroundColor: foregroundColor,
             usesIntrinsicSize: false
         ) {
             action()
         }
         .frame(
-            width: 30,
-            height: 30
+            width: 32,
+            height: 32
         )
     }
 }

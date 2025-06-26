@@ -27,5 +27,6 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum ContactSelectorPageView {
         public static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
+        public static let tintedGlassToolbarButtonForeground: Color = .white
     }
 }

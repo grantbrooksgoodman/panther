@@ -11,8 +11,8 @@ import Foundation
 import SwiftUI
 
 public enum NavigationTransition {
-    case pop
-    case push
+    case appear
+    case disappear
 }
 
 private struct OnNavigationTransitionViewModifier: ViewModifier {
@@ -128,8 +128,8 @@ public extension View {
     ) -> some View {
         modifier(
             OnNavigationTransitionViewModifier(
-                onViewWillAppear: transition == .pop ? nil : effect,
-                onViewWillDisappear: transition == .pop ? effect : nil
+                onViewWillAppear: transition == .appear ? effect : nil,
+                onViewWillDisappear: transition == .appear ? nil : effect
             )
         )
     }

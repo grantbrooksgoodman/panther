@@ -52,6 +52,7 @@ public struct NewChatPageReducer: Reducer {
         // Other
         public var conversation: Conversation = .empty
         public var penPalsToolbarButtonBackgroundColor: Color = .purple
+        public var v26NavigationBarProxyViewID = UUID()
 
         /* MARK: Computed Properties */
 
@@ -101,6 +102,9 @@ public struct NewChatPageReducer: Reducer {
             state.doneToolbarButtonText = Localized(.done).wrappedValue
             state.navigationTitle = cellViewData.titleLabelText
             state.shouldUseBoldDoneToolbarButton = true
+
+            guard UIApplication.v26FeaturesEnabled else { return .none }
+            state.v26NavigationBarProxyViewID = UUID()
 
         case .penPalsToolbarButtonTapped:
             Task { @MainActor in

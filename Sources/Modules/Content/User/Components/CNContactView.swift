@@ -42,7 +42,7 @@ public struct CNContactView: View {
                 .navigationTitle("\u{2800}")
                 .background(Color.groupedContentBackground)
         }
-        .onNavigationTransition(.push) { _ in
+        .onNavigationTransition(.appear) { _ in
             NavigationBar.setAppearance(navigationBarAppearance)
         }
     }

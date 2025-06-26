@@ -47,7 +47,11 @@ public extension UITheme {
     // MARK: - Colored Items
 
     private static var appDefaultColoredItems: [Item] {
-        let accent = Item(.accent, set: UIApplication.v26FeaturesEnabled ? .init(.black, variant: .white) : .init(.systemBlue))
+        let accent = Item(
+            .accent,
+            set: UIApplication.v26FeaturesEnabled ? .init(.black, variant: .white) : .init(.systemBlue)
+        )
+
         let background = Item(.background, set: .init(.white, variant: .black))
         let disabled = Item(.disabled, set: .init(.systemGray3))
         let groupedContentBackground = Item(.groupedContentBackground, set: .init(.init(hex: 0xF2F2F7), variant: .init(hex: 0x1C1C1E)))

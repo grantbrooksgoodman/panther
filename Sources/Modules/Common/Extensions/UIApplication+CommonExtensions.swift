@@ -14,6 +14,11 @@ import UIKit
 import AppSubsystem
 
 public extension UIApplication {
+    static var isGlassTintingEnabled: Bool {
+        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
+        return isGlassTintingEnabled == true
+    }
+
     static var v26FeaturesEnabled: Bool {
         @Persistent(.v26FeaturesEnabled) var persistedValue: Bool?
         if persistedValue == nil { persistedValue = true }

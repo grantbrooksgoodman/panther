@@ -61,6 +61,10 @@ public struct ContactSelectorPageView: View {
                 sizeClass: .sheet
             )
         )
+        .navigationBarItemGlassTint(
+            .init(uiColor: .systemBlue),
+            for: .leading
+        )
         .redrawsOnTraitCollectionChange()
     }
 
@@ -71,7 +75,7 @@ public struct ContactSelectorPageView: View {
             .init(
                 text: .init(
                     viewModel.inviteToolbarButtonText,
-                    foregroundColor: .navigationBarButton
+                    foregroundColor: UIApplication.isGlassTintingEnabled ? Colors.tintedGlassToolbarButtonForeground : .navigationBarButton
                 )
             ) { viewModel.send(.inviteToolbarButtonTapped) }
         )

@@ -1,0 +1,173 @@
+//
+//  NavigationBar+CommonExtensions.swift
+//  Panther
+//
+//  Created by Grant Brooks Goodman.
+//  Copyright © NEOTechnica Corporation. All rights reserved.
+//
+
+/* Native */
+import Foundation
+import UIKit
+
+/* Proprietary */
+import AppSubsystem
+
+public extension NavigationBar {
+    // MARK: - Types
+
+    enum ItemPlacement {
+        case leading
+        case trailing
+    }
+
+    // MARK: - Properties
+
+    private static var isObservingTraitCollectionChanges = false
+    private static var knownTintedItems = [Int: UIColor]()
+
+    // MARK: - Methods
+
+    static func removeAllItemGlassTint() {
+        Task { @MainActor in
+            @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+            let extantGlassViews = knownTintedItems.reduce(into: [Int: UIColor]()) { partialResult, keyPair in
+                if !uiApplication.presentedViews.filter({ $0.tag == keyPair.key }).isEmpty {
+                    partialResult[keyPair.key] = keyPair.value
+                }
+            }
+
+            extantGlassViews.forEach { glassView in
+                uiApplication
+                    .presentedViews
+                    .filter { $0.tag == glassView.key }
+                    .forEach { $0.backgroundColor = nil }
+            }
+
+            isObservingTraitCollectionChanges = false
+            knownTintedItems = [:]
+        }
+    }
+
+    static func setItemGlassTint(
+        _ color: UIColor,
+        for placement: ItemPlacement,
+        delay: Duration = .zero
+    ) {
+        guard UIApplication.isGlassTintingEnabled else { return }
+
+        guard delay > .zero else {
+            Task { @MainActor in
+                _setItemGlassTint(color, for: placement)
+            }
+
+            return
+        }
+
+        Task.delayed(by: delay) { @MainActor in
+            _setItemGlassTint(color, for: placement)
+        }
+    }
+
+    @MainActor
+    private static func startObservingTraitCollectionChanges() {
+        @Dependency(\.notificationCenter) var notificationCenter: NotificationCenter
+        @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+        guard !isObservingTraitCollectionChanges else { return }
+        isObservingTraitCollectionChanges = true
+
+        notificationCenter.addObserver(
+            UIApplication.shared,
+            name: .init("traitCollectionChangedNotification")
+        ) { _ in
+            guard isObservingTraitCollectionChanges else { return }
+            Task.delayed(by: .milliseconds(100)) { @MainActor in
+                let extantGlassViews = knownTintedItems.reduce(into: [Int: UIColor]()) { partialResult, keyPair in
+                    if !uiApplication.presentedViews.filter({ $0.tag == keyPair.key }).isEmpty {
+                        partialResult[keyPair.key] = keyPair.value
+                    }
+                }
+
+                knownTintedItems = extantGlassViews
+                guard !extantGlassViews.isEmpty else {
+                    notificationCenter.removeObserver(
+                        UIApplication.shared,
+                        name: .init("traitCollectionChangedNotification"),
+                        object: nil
+                    )
+                    return isObservingTraitCollectionChanges = false
+                }
+
+                extantGlassViews.forEach { glassView in
+                    uiApplication
+                        .presentedViews
+                        .filter { $0.tag == glassView.key }
+                        .forEach { $0.backgroundColor = glassView.value }
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private static func _setItemGlassTint(_ color: UIColor, for placement: ItemPlacement) {
+        @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
+        @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+        var platterContainerViews: [UIView] {
+            uiApplication
+                .presentedViews
+                .filter { String(type(of: $0)) == "NavigationBarPlatterContainer" }
+                .unique
+        }
+
+        var platterGlassViews: [UIView]? {
+            let containerView = uiApplication.isPresentingSheet ? platterContainerViews.last : platterContainerViews.first
+
+            return containerView?
+                .traversedSubviews
+                .filter { String(type(of: $0)) == "PlatterGlassView" }
+        }
+
+        let mainScreen = uiApplication.mainScreen ?? .main
+
+        var leadingItem: UIView? {
+            guard let firstItem = platterGlassViews?.first,
+                  let lastSuperview = firstItem.traversedSuperviews.last,
+                  let frameInLastSuperview = firstItem.frame(in: lastSuperview),
+                  frameInLastSuperview.origin.x <= mainScreen.bounds.midX else { return nil }
+            return firstItem
+        }
+
+        var trailingItem: UIView? {
+            guard let lastItem = platterGlassViews?.last,
+                  let lastSuperview = lastItem.traversedSuperviews.last,
+                  let frameInLastSuperview = lastItem.frame(in: lastSuperview),
+                  frameInLastSuperview.origin.x >= mainScreen.bounds.midX else { return nil }
+            return lastItem
+        }
+
+        switch placement {
+        case .leading:
+            guard let leadingItem else { return }
+            UIView.animate(withDuration: 0.2) {
+                leadingItem.backgroundColor = color
+            } completion: { _ in
+                leadingItem.tag = coreUI.semTag(for: "LEADING_COLORED_GLASS_\(knownTintedItems.count)")
+                knownTintedItems[leadingItem.tag] = color
+            }
+
+        case .trailing:
+            guard let trailingItem else { return }
+            UIView.animate(withDuration: 0.2) {
+                trailingItem.backgroundColor = color
+            } completion: { _ in
+                trailingItem.tag = coreUI.semTag(for: "TRAILING_COLORED_GLASS_\(knownTintedItems.count)")
+                knownTintedItems[trailingItem.tag] = color
+            }
+        }
+
+        startObservingTraitCollectionChanges()
+    }
+}

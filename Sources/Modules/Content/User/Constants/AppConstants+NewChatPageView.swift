@@ -31,8 +31,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum NewChatPageView {
-        public static let cancelToolbarButtonForeground: Color = .red
-        public static let doneToolbarButtonForeground: Color = .green
+        public static let tintedGlassToolbarButtonForeground: Color = .white
     }
 }
 

@@ -17,6 +17,7 @@ import ComponentKit
 public struct InviteQRCodePageView: View {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.InviteQRCodePageView
     private typealias Floats = AppConstants.CGFloats.InviteQRCodePageView
 
     // MARK: - Properties
@@ -54,13 +55,19 @@ public struct InviteQRCodePageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .v26Header(
-                    rightItem: .doneButton(foregroundColor: .navigationBarButton) {
+                    rightItem: .doneButton(
+                        foregroundColor: UIApplication.isGlassTintingEnabled ? Colors.tintedGlassToolbarButtonForeground : .navigationBarButton
+                    ) {
                         viewModel.send(.doneButtonTapped)
                     },
                     attributes: .init(sizeClass: .sheet)
                 )
             }
         }
+        .navigationBarItemGlassTint(
+            .init(uiColor: .systemBlue),
+            for: .trailing
+        )
         .preferredStatusBarStyle(
             .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode

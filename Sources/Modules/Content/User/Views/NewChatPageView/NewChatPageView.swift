@@ -86,9 +86,9 @@ public struct NewChatPageView: View {
                 symbolName: viewModel.shouldUseBoldDoneToolbarButton ?
                     Strings.doneToolbarButtonImageSystemName :
                     Strings.cancelToolbarButtonImageSystemName,
-                foregroundColor: viewModel.shouldUseBoldDoneToolbarButton ?
-                    Colors.doneToolbarButtonForeground :
-                    (viewModel.shouldShowPenPalsToolbarButton ? .accent : Colors.cancelToolbarButtonForeground),
+                foregroundColor: (UIApplication.isGlassTintingEnabled && viewModel.shouldUseBoldDoneToolbarButton) ?
+                    Colors.tintedGlassToolbarButtonForeground :
+                    .navigationBarButton,
                 weight: viewModel.shouldUseBoldDoneToolbarButton ? .bold : .semibold,
                 usesIntrinsicSize: false
             ) {
@@ -145,8 +145,15 @@ public struct NewChatPageView: View {
             ZStack(alignment: .top) {
                 Color.clear
                     .frame(width: .zero, height: .zero)
+                    .id(viewModel.v26NavigationBarProxyViewID)
                     .ignoresSafeArea(edges: .top)
                     .navigationBarAppearance(.newChatPageView)
+                    .if(viewModel.shouldUseBoldDoneToolbarButton) {
+                        $0.navigationBarItemGlassTint(
+                            .init(uiColor: .systemBlue),
+                            for: .trailing
+                        )
+                    }
 
                 content
                     .toolbar {

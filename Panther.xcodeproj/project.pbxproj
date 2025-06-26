@@ -640,6 +640,8 @@
 		B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */; };
 		B9E2E6112C72E64F004022FE /* CacheDomains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E2E6102C72E64F004022FE /* CacheDomains.swift */; };
 		B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */ = {isa = PBXBuildFile; productRef = B9E2E6132C72E7AF004022FE /* MessageKit */; };
+		B9E5C0172E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E5C0162E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift */; };
+		B9E5C0192E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E5C0182E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift */; };
 		B9E6D7A42B125BB0000BC88D /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7A32B125BB0000BC88D /* UserService.swift */; };
 		B9E6D7AD2B125E17000BC88D /* ConversationID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AC2B125E17000BC88D /* ConversationID.swift */; };
 		B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E6D7AE2B125FC0000BC88D /* User.swift */; };
@@ -1434,6 +1436,8 @@
 		B9E0E1072B2102B700C14274 /* LocalAudioFilePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAudioFilePath.swift; sourceTree = "<group>"; };
 		B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSessionService.swift; sourceTree = "<group>"; };
 		B9E2E6102C72E64F004022FE /* CacheDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheDomains.swift; sourceTree = "<group>"; };
+		B9E5C0162E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationBar+CommonExtensions.swift"; sourceTree = "<group>"; };
+		B9E5C0182E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarItemGlassTintViewModifier.swift; sourceTree = "<group>"; };
 		B9E6D7A32B125BB0000BC88D /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		B9E6D7AC2B125E17000BC88D /* ConversationID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationID.swift; sourceTree = "<group>"; };
 		B9E6D7AE2B125FC0000BC88D /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -2175,6 +2179,7 @@
 			isa = PBXGroup;
 			children = (
 				B964AFE02DFBA662004D64F9 /* GlassEffectViewModifier.swift */,
+				B9E5C0182E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift */,
 			);
 			path = "View Modifiers";
 			sourceTree = "<group>";
@@ -3011,6 +3016,7 @@
 				B900B53F2B1AC96000BA2F1D /* Array+CommonExtensions.swift */,
 				B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */,
 				B99E48DD2CDEEDDA006D6AFC /* Logger+CommonExtensions.swift */,
+				B9E5C0162E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift */,
 				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
 				B92942462DFCA46E00983643 /* UIApplication+CommonExtensions.swift */,
 				B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */,
@@ -4189,6 +4195,7 @@
 				B99CC5512C19274000319F02 /* RootNavigationService.swift in Sources */,
 				B9223D492CD58F2600C05BC6 /* ContextMenuInteractor+Extensions.swift in Sources */,
 				B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */,
+				B9E5C0192E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
 				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
@@ -4291,6 +4298,7 @@
 				B9AD41212B6B0966005BF8F0 /* ChatPageViewService.swift in Sources */,
 				B91822282B6DE5570068BDAB /* RecordingUIService.swift in Sources */,
 				B90071EF2B7C0DC600BE8654 /* ContactPair+UserContentExtensions.swift in Sources */,
+				B9E5C0172E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift in Sources */,
 				B90285ED2DB70E9A006DD790 /* MessageRecipientConsentAcknowledgementData+Serializable.swift in Sources */,
 				B9627C692B6F2353004EE9DA /* InputBarConfigServiceDependency.swift in Sources */,
 				B988BF9F2C2A1E5B0078F6FA /* RemoteCacheService.swift in Sources */,

@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -18,5 +19,13 @@ public extension AppConstants.CGFloats {
     enum InviteQRCodePageView {
         public static let imageBottomPadding: CGFloat = 50
         public static let imageHorizontalPadding: CGFloat = 10
+    }
+}
+
+// MARK: - Color
+
+public extension AppConstants.Colors {
+    enum InviteQRCodePageView {
+        public static let tintedGlassToolbarButtonForeground: Color = .white
     }
 }

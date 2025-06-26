@@ -6,6 +6,8 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable type_body_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -36,6 +38,10 @@ public extension DevModeAction {
 
             if UIApplication.isFullyV26Compatible {
                 actions.insert(DevModeAction.AppActions.toggleV26FeaturesAction, at: 1)
+            }
+
+            if UIApplication.v26FeaturesEnabled {
+                actions.insert(DevModeAction.AppActions.toggleGlassTintingAction, at: 1)
             }
 
             return actions
@@ -138,6 +144,30 @@ public extension DevModeAction {
             }
 
             return .init(title: "Set Current User ID", perform: setCurrentUserID)
+        }
+
+        private static var toggleGlassTintingAction: DevModeAction {
+            func toggleGlassTintingAction() {
+                @Dependency(\.coreKit) var core: CoreKit
+
+                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool?
+                let isGlassTintingEnabled = persistedValue == true
+
+                persistedValue = !isGlassTintingEnabled
+                UserDefaults.standard.synchronize() // NIT: Trying to force sync.
+
+                NavigationBar.removeAllItemGlassTint()
+                RootWindowScene.traitCollectionChanged()
+
+                core.hud.showSuccess(
+                    text: "Glass Tinting \(persistedValue == true ? "Enabled" : "Disabled")"
+                )
+            }
+
+            return .init(
+                title: "Toggle Glass Tinting",
+                perform: toggleGlassTintingAction
+            )
         }
 
         private static var toggleV26FeaturesAction: DevModeAction {
@@ -331,3 +361,5 @@ public extension DevModeAction {
         }
     }
 }
+
+// swiftlint:enable type_body_length

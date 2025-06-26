@@ -62,7 +62,8 @@ public struct InviteLanguagePickerView: View {
             },
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
             rightItem: .doneButton(
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? .navigationBarButton : .disabled,
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? Colors.doneHeaderItemForeground :
+                    .disabled,
                 isEnabled: viewModel.isDoneHeaderItemEnabled
             ) {
                 viewModel.send(.doneHeaderItemTapped)
@@ -72,6 +73,12 @@ public struct InviteLanguagePickerView: View {
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
         .interactiveDismissDisabled(true)
+        .if(viewModel.isDoneHeaderItemEnabled) {
+            $0.navigationBarItemGlassTint(
+                .init(uiColor: .systemBlue),
+                for: .trailing
+            )
+        }
         .preferredStatusBarStyle(
             .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
