@@ -14,6 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+// swiftlint:disable:next type_body_length
 public struct MessageSessionService {
     // MARK: - Constants Accessors
 
@@ -22,7 +23,9 @@ public struct MessageSessionService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -168,6 +171,23 @@ public struct MessageSessionService {
 
         let users = users.filter { $0 != currentUser }
         var translations = [Translation]()
+
+        var text = text
+        if build.isDeveloperModeEnabled,
+           await languageRecognitionService.matchConfidence(
+               for: text,
+               inLanguage: currentUser.languageCode
+           ) < Floats.languageRecognitionServiceMatchConfidenceThreshold {
+            let translateResult = await networking.hostedTranslation.translate(
+                .init(text),
+                with: .init(from: "en", to: currentUser.languageCode),
+            )
+
+            switch translateResult {
+            case let .success(translation): text = translation.output
+            case let .failure(exception): Logger.log(exception)
+            }
+        }
 
         for languageCode in users.map(\.languageCode).unique {
             let translateResult = await networking.hostedTranslation.translate(

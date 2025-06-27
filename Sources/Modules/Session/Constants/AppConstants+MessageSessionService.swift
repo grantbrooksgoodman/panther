@@ -18,7 +18,8 @@ public extension AppConstants.CGFloats {
     enum MessageSessionService {
         public static let addMessageDeliveryProgressIncrement: Float = 0.2 // swiftlint:disable:next identifier_name
         public static let createConversationDeliveryProgressIncrement: Float = 0.2
-        public static let createMessageDeliveryProgressIncrement: Float = 0.2
+        public static let createMessageDeliveryProgressIncrement: Float = 0.2 // swiftlint:disable:next identifier_name
+        public static let languageRecognitionServiceMatchConfidenceThreshold: Float = 0.8
         public static let notifyDeliveryProgressIncrement: Float = 0.2
         public static let readToFileDeliveryProgressIncrement: Float = 0.05
         public static let translationDeliveryProgressIncrement: Float = 0.05

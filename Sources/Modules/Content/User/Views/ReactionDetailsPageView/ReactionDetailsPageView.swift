@@ -16,6 +16,7 @@ import AppSubsystem
 public struct ReactionDetailsPageView: View {
     // MARK: - Constants Accessors
 
+    private typealias Colors = AppConstants.Colors.ReactionDetailsPageView
     private typealias Floats = AppConstants.CGFloats.ReactionDetailsPageView
 
     // MARK: - Properties
@@ -47,9 +48,13 @@ public struct ReactionDetailsPageView: View {
             .v26Header(
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: .doneButton(
-                    foregroundColor: .navigationBarButton
+                    foregroundColor: Colors.doneHeaderItemForeground
                 ) { viewModel.send(.doneHeaderItemTapped) },
                 attributes: .init(sizeClass: .sheet)
+            )
+            .navigationBarItemGlassTint(
+                Colors.navigationBarItemGlassTint,
+                for: .trailing
             )
             .preferredStatusBarStyle(
                 .conditionalLightContent,

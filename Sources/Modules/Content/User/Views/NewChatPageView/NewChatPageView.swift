@@ -150,7 +150,7 @@ public struct NewChatPageView: View {
                     .navigationBarAppearance(.newChatPageView)
                     .if(viewModel.shouldUseBoldDoneToolbarButton) {
                         $0.navigationBarItemGlassTint(
-                            .init(uiColor: .systemBlue),
+                            Colors.navigationBarItemGlassTint,
                             for: .trailing
                         )
                     }

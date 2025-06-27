@@ -105,6 +105,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case viewTranslation
 
     case wednesday
+    case welcomeToHello
 
     case yesterday
     case you

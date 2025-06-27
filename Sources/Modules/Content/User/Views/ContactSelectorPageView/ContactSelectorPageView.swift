@@ -62,7 +62,7 @@ public struct ContactSelectorPageView: View {
             )
         )
         .navigationBarItemGlassTint(
-            .init(uiColor: .systemBlue),
+            Colors.navigationBarItemGlassTint,
             for: .leading
         )
         .redrawsOnTraitCollectionChange()

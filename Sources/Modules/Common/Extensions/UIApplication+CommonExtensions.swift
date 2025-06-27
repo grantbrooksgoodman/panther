@@ -16,7 +16,7 @@ import AppSubsystem
 public extension UIApplication {
     static var isGlassTintingEnabled: Bool {
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
-        return isGlassTintingEnabled == true
+        return !Application.isInPrevaricationMode && isGlassTintingEnabled == true
     }
 
     static var v26FeaturesEnabled: Bool {

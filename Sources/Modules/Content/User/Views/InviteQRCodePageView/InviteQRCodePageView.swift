@@ -65,7 +65,7 @@ public struct InviteQRCodePageView: View {
             }
         }
         .navigationBarItemGlassTint(
-            .init(uiColor: .systemBlue),
+            Colors.navigationBarItemGlassTint,
             for: .trailing
         )
         .preferredStatusBarStyle(

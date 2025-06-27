@@ -75,7 +75,7 @@ public struct InviteLanguagePickerView: View {
         .interactiveDismissDisabled(true)
         .if(viewModel.isDoneHeaderItemEnabled) {
             $0.navigationBarItemGlassTint(
-                .init(uiColor: .systemBlue),
+                Colors.navigationBarItemGlassTint,
                 for: .trailing
             )
         }

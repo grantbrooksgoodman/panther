@@ -81,7 +81,10 @@ public enum PLISTGenerator {
                     line: #line
                 )
 
-                resolvedTranslations[languageCode] = translation.output
+                resolvedTranslations[languageCode] = translation
+                    .output
+                    .sanitized
+                    .trimmingBorderedWhitespace
 
             case let .failure(exception):
                 Logger.logToStream(
@@ -91,6 +94,8 @@ public enum PLISTGenerator {
 
                 Logger.log(exception)
                 resolvedTranslations[languageCode] = text
+                    .sanitized
+                    .trimmingBorderedWhitespace
             }
         }
 

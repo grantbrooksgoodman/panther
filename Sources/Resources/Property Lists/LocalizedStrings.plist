@@ -11452,6 +11452,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>周三</string>
 	</dict>
+	<key>welcome_to_hello</key>
+	<dict>
+		<key>af</key>
+		<string>Welcome to Hello</string>
+		<key>ar</key>
+		<string>مرحباً بكم في Hello</string>
+		<key>az</key>
+		<string>Xoş gəlmisiniz Hello</string>
+		<key>be</key>
+		<string>Сардэчна запрашаем у Hello</string>
+		<key>bg</key>
+		<string>Добре дошли в Hello</string>
+		<key>bn</key>
+		<string>Hello এ স্বাগতম</string>
+		<key>bs</key>
+		<string>Dobrodošli u Hello</string>
+		<key>ca</key>
+		<string>Benvingut/da a Hello</string>
+		<key>cs</key>
+		<string>Vítejte v Hello</string>
+		<key>cy</key>
+		<string>Welcome to Hello</string>
+		<key>da</key>
+		<string>Velkommen til Hello.</string>
+		<key>de</key>
+		<string>Willkommen bei Hello</string>
+		<key>el</key>
+		<string>Καλώς ορίσατε στο Hello</string>
+		<key>en</key>
+		<string>Welcome to Hello</string>
+		<key>eo</key>
+		<string>Bonvenon al Hello</string>
+		<key>es</key>
+		<string>Bienvenido a Hello</string>
+		<key>et</key>
+		<string>Tere tulemast Hello-sse</string>
+		<key>eu</key>
+		<string>Ongi etorri Hello-ra</string>
+		<key>fa</key>
+		<string>به Hello خوش آمدید</string>
+		<key>fi</key>
+		<string>Tervetuloa Hello:een</string>
+		<key>fr</key>
+		<string>Bienvenue à Hello</string>
+		<key>ga</key>
+		<string>Welcome to Hello</string>
+		<key>gd</key>
+		<string>Welcome to Hello</string>
+		<key>gl</key>
+		<string>Benvido/a a Hello</string>
+		<key>gu</key>
+		<string>Hello માં આપનું સ્વાગત છે</string>
+		<key>he</key>
+		<string>ברוכים הבאים Hello</string>
+		<key>hi</key>
+		<string>आपका स्वागत है Hello</string>
+		<key>hr</key>
+		<string>Dobrodošli u Hello</string>
+		<key>ht</key>
+		<string>Byenveni nan Hello</string>
+		<key>hu</key>
+		<string>Üdvözöljük a Hello-ban</string>
+		<key>hy</key>
+		<string>Բարի գալուստ Hello</string>
+		<key>id</key>
+		<string>Selamat Datang di Hello</string>
+		<key>is</key>
+		<string>Welcome to Hello</string>
+		<key>it</key>
+		<string>Benvenuti a Hello</string>
+		<key>ja</key>
+		<string>ようこそHello</string>
+		<key>ka</key>
+		<string>Კეთილი იყოს თქვენი მობრძანება Hello-ში</string>
+		<key>kk</key>
+		<string>Қош келдіңіз Hello</string>
+		<key>kn</key>
+		<string>Hello ಗೆ ಸುಸ್ವಾಗತ</string>
+		<key>ko</key>
+		<string>Hello에 오신 것을 환영합니다</string>
+		<key>ky</key>
+		<string>Кош келиңиз Hello</string>
+		<key>lt</key>
+		<string>Sveiki atvykę į Hello</string>
+		<key>mg</key>
+		<string>Tongasoa eto amin&apos;ny Hello</string>
+		<key>mi</key>
+		<string>Nau mai ki Hello</string>
+		<key>mk</key>
+		<string>Добредојдовте во Hello</string>
+		<key>ml</key>
+		<string>സ്വാഗതം Hello</string>
+		<key>mn</key>
+		<string>Тавтай морил Hello</string>
+		<key>mt</key>
+		<string>Merħba f&apos;Hello</string>
+		<key>ne</key>
+		<string>Hello मा स्वागत छ</string>
+		<key>nl</key>
+		<string>Welkom bij Hello</string>
+		<key>no</key>
+		<string>Welcome to Hello</string>
+		<key>pa</key>
+		<string>Hello ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ</string>
+		<key>pl</key>
+		<string>Witamy w Hello</string>
+		<key>pt</key>
+		<string>Bem-vindo ao Hello</string>
+		<key>ro</key>
+		<string>Bun venit la Hello</string>
+		<key>ru</key>
+		<string>Добро пожаловать в Hello</string>
+		<key>si</key>
+		<string>Hello වෙත සාදරයෙන් පිළිගනිමු</string>
+		<key>sk</key>
+		<string>Vitajte v Hello</string>
+		<key>sl</key>
+		<string>Dobrodošli v Hello</string>
+		<key>sq</key>
+		<string>Mirë se vini në Hello</string>
+		<key>sr</key>
+		<string>Добродошли у Hello</string>
+		<key>su</key>
+		<string>Wilujeng sumping di Hello</string>
+		<key>sv</key>
+		<string>Välkommen till Hello</string>
+		<key>sw</key>
+		<string>Karibu Hello</string>
+		<key>ta</key>
+		<string>வரவேற்கிறோம் Hello</string>
+		<key>te</key>
+		<string>Hello కు స్వాగతం</string>
+		<key>tg</key>
+		<string>Хуш омадед ба Hello</string>
+		<key>th</key>
+		<string>ยินดีต้อนรับสู่Hello</string>
+		<key>tl</key>
+		<string>Maligayang pagdating sa Hello</string>
+		<key>tr</key>
+		<string>Hoş geldiniz Hello</string>
+		<key>tt</key>
+		<string>Welcome to Hello</string>
+		<key>uk</key>
+		<string>Ласкаво просимо до Hello</string>
+		<key>ur</key>
+		<string>میں خوش آمدید Hello</string>
+		<key>uz</key>
+		<string>Hello ga xush kelibsiz</string>
+		<key>vi</key>
+		<string>Chào mừng đến với Hello</string>
+		<key>yi</key>
+		<string>Welcome to Hello</string>
+		<key>zh</key>
+		<string>欢迎来到Hello</string>
+	</dict>
 	<key>yesterday</key>
 	<dict>
 		<key>af</key>
