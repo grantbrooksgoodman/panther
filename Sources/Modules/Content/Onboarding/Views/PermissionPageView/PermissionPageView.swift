@@ -56,10 +56,10 @@ public struct PermissionPageView: View {
                 .padding(.bottom, Floats.buttonVStackBottomPadding)
                 .padding(.top, Floats.buttonVStackTopPadding)
 
-                Components.button(
+                Components.capsuleButton(
                     viewModel.strings.value(for: .finishButtonText),
                     font: .systemSemibold,
-                    foregroundColor: viewModel.isFinishButtonEnabled ? .accent : .disabled
+                    foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled
                 ) {
                     viewModel.send(.finishButtonTapped)
                 }

@@ -16,13 +16,17 @@ public extension TranslatedLabelStringCollection {
     enum WelcomePageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
-        case instructionLabelText = "Welcome to ⌘Hello⌘. Follow the short instructions to get started."
-        case continueButtonText = "Continue"
-        case signInButtonText = "I already use this app"
+        case continueButtonText = "Get Started"
+        case signInButtonText = "Sign In"
 
         // MARK: - Properties
 
-        public var alternate: String? { nil }
+        public var alternate: String? {
+            switch self {
+            case .continueButtonText: "Create an Account"
+            default: nil
+            }
+        }
     }
 }
 

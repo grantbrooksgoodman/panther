@@ -96,10 +96,10 @@ public struct SignInPageView: View {
                         .padding(.vertical, Floats.textFieldVerticalPadding)
                     }
 
-                    Components.button(
+                    Components.capsuleButton(
                         viewModel.continueButtonText,
                         font: .systemSemibold,
-                        foregroundColor: viewModel.isContinueButtonEnabled ? .accent : .disabled
+                        foregroundColor: viewModel.isContinueButtonEnabled ? .background : .disabled
                     ) {
                         viewModel.send(.continueButtonTapped)
                     }

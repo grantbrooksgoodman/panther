@@ -29,17 +29,35 @@ public struct WelcomePageReducer: Reducer {
 
         case continueButtonTapped
         case signInButtonTapped
+        case welcomeLabelTapped
 
+        case cycleWelcomeLabelText
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
     // MARK: - State
 
     public struct State: Equatable {
+        /* MARK: Types */
+
+        fileprivate enum TaskID {
+            case cycleWelcomeLabelText
+        }
+
         /* MARK: Properties */
 
         public var strings: [TranslationOutputMap] = WelcomePageViewStrings.defaultOutputMap
         public var viewState: StatefulView.ViewState = .loading
+        public var welcomeLabelText = Localized(.welcomeToHello).wrappedValue
+
+        fileprivate var cycledLanguageCodes = [String: String]()
+
+        /* MARK: Computed Properties */
+
+        fileprivate var supportedLanguageCodes: [String] {
+            guard let languageCodeDictionary = RuntimeStorage.languageCodeDictionary else { return [] }
+            return Array(languageCodeDictionary.keys)
+        }
 
         /* MARK: Init */
 
@@ -62,10 +80,36 @@ public struct WelcomePageReducer: Reducer {
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)
                 return .resolveReturned(result)
-            }
+            }.merge(with: cycleWelcomeLabelTextEffect(delay: .seconds(5)))
 
         case .continueButtonTapped:
             navigation.navigate(to: .onboarding(.push(.selectLanguage)))
+
+        case .cycleWelcomeLabelText:
+            guard state.cycledLanguageCodes.count < state.supportedLanguageCodes.count else {
+                state.cycledLanguageCodes = [:]
+                return cycleWelcomeLabelTextEffect()
+            }
+
+            guard let randomLanguageCode = state.supportedLanguageCodes.randomElement() else {
+                return cycleWelcomeLabelTextEffect()
+            }
+
+            let localizedString = Localized(
+                .welcomeToHello,
+                languageCode: randomLanguageCode
+            ).wrappedValue
+
+            guard state.cycledLanguageCodes[randomLanguageCode] == nil,
+                  !state.cycledLanguageCodes.values.contains(localizedString),
+                  state.welcomeLabelText != localizedString else {
+                return cycleWelcomeLabelTextEffect()
+            }
+
+            state.cycledLanguageCodes[randomLanguageCode] = localizedString
+            state.welcomeLabelText = localizedString
+
+            return cycleWelcomeLabelTextEffect(delay: .seconds(3))
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
@@ -77,8 +121,27 @@ public struct WelcomePageReducer: Reducer {
 
         case .signInButtonTapped:
             navigation.navigate(to: .onboarding(.push(.signIn)))
+
+        case .welcomeLabelTapped:
+            state.welcomeLabelText = Localized(.welcomeToHello).wrappedValue
+            return .cancel(id: State.TaskID.cycleWelcomeLabelText)
+                .merge(with: cycleWelcomeLabelTextEffect(delay: .seconds(5)))
         }
 
         return .none
+    }
+
+    // MARK: - Auxiliary
+
+    private func cycleWelcomeLabelTextEffect(delay: Duration = .zero) -> Effect<Action> {
+        guard delay == .zero else {
+            return .task(delay: delay) {
+                .cycleWelcomeLabelText
+            }.cancellable(id: State.TaskID.cycleWelcomeLabelText)
+        }
+
+        return .task {
+            .cycleWelcomeLabelText
+        }.cancellable(id: State.TaskID.cycleWelcomeLabelText)
     }
 }

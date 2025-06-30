@@ -18,14 +18,14 @@ import AppSubsystem
 public extension AppConstants.CGFloats {
     enum WelcomePageView {
         public static let continueButtonVerticalPadding: CGFloat = 5
-        public static let signInButtonVerticalPadding: CGFloat = 5
 
         public static let imageBottomPadding: CGFloat = 5
         public static let imageFrameHeight: CGFloat = 70
         public static let imageFrameWidth: CGFloat = 150
-
         public static let instructionLabelHorizontalPadding: CGFloat = 30
         public static let instructionLabelVerticalPadding: CGFloat = 5
+
+        public static let signInButtonLabelFontSize: CGFloat = 15
     }
 }
 

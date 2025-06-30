@@ -64,7 +64,7 @@ public struct SelectLanguagePageView: View {
                         .padding(.horizontal, Floats.pickerHorizontalPadding)
                     }
 
-                    Components.button(
+                    Components.capsuleButton(
                         viewModel.strings.value(for: .continueButtonText),
                         font: .systemSemibold
                     ) {

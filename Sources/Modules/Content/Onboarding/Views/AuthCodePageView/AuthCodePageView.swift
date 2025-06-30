@@ -65,10 +65,10 @@ public struct AuthCodePageView: View {
                     .padding(.horizontal, Floats.textFieldHorizontalPadding)
                     .padding(.vertical, Floats.textFieldVerticalPadding)
 
-                    Components.button(
+                    Components.capsuleButton(
                         viewModel.strings.value(for: .continueButtonText),
                         font: .systemSemibold,
-                        foregroundColor: viewModel.isContinueButtonEnabled ? .accent : .disabled
+                        foregroundColor: viewModel.isContinueButtonEnabled ? .background : .disabled
                     ) {
                         viewModel.send(.continueButtonTapped)
                     }

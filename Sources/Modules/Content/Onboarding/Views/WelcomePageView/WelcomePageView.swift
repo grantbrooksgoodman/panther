@@ -43,12 +43,20 @@ public struct WelcomePageView: View {
                         .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
                         .padding(.bottom, Floats.imageBottomPadding)
 
-                    Components.text(viewModel.strings.value(for: .instructionLabelText))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
-                        .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                    Components.text(
+                        viewModel.welcomeLabelText,
+                        font: .systemBold(scale: .large)
+                    )
+                    .animation(.easeIn, value: viewModel.welcomeLabelText)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                    .onTapGesture {
+                        viewModel.send(.welcomeLabelTapped)
+                    }
 
-                    Components.button(
+                    Components.capsuleButton(
                         viewModel.strings.value(for: .continueButtonText),
                         font: .systemSemibold
                     ) {
@@ -56,20 +64,22 @@ public struct WelcomePageView: View {
                     }
                     .padding(.vertical, Floats.continueButtonVerticalPadding)
 
-                    Components.button(viewModel.strings.value(for: .signInButtonText)) {
+                    Components.button(
+                        viewModel.strings.value(for: .signInButtonText),
+                        font: .system(scale: .custom(Floats.signInButtonLabelFontSize)),
+                    ) {
                         viewModel.send(.signInButtonTapped)
                     }
-                    .padding(.vertical, Floats.signInButtonVerticalPadding)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onFirstAppear {
-            viewModel.send(.viewFirstAppeared)
-        }
         .onAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onFirstAppear {
+            viewModel.send(.viewFirstAppeared)
         }
     }
 }
