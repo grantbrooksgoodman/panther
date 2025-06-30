@@ -42,18 +42,29 @@ public struct InviteLanguagePickerView: View {
     // MARK: - View
 
     public var body: some View {
-        ScrollViewReader { _ in
-            SearchBar.inView(withQuery: searchQueryBinding) {
-                VStack {
-                    if viewModel.queriedLanguageNames.isEmpty,
-                       !viewModel.searchQuery.isBlank {
-                        noResultsView
-                    } else {
-                        listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
-                    }
+        ZStack {
+            Color.clear
+                .frame(width: .zero, height: .zero)
+                .if(viewModel.isDoneHeaderItemEnabled) {
+                    $0.navigationBarItemGlassTint(
+                        Colors.navigationBarItemGlassTint,
+                        for: .trailing
+                    )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.groupedContentBackground)
+
+            ScrollViewReader { _ in
+                SearchBar.inView(withQuery: searchQueryBinding) {
+                    VStack {
+                        if viewModel.queriedLanguageNames.isEmpty,
+                           !viewModel.searchQuery.isBlank {
+                            noResultsView
+                        } else {
+                            listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.groupedContentBackground)
+                }
             }
         }
         .v26Header(
@@ -73,12 +84,6 @@ public struct InviteLanguagePickerView: View {
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
         .interactiveDismissDisabled(true)
-        .if(viewModel.isDoneHeaderItemEnabled) {
-            $0.navigationBarItemGlassTint(
-                Colors.navigationBarItemGlassTint,
-                for: .trailing
-            )
-        }
         .preferredStatusBarStyle(
             .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode

@@ -147,6 +147,7 @@ public final class IntegrityService {
             }
 
         case let .failure(exception):
+            guard !exception.isEqual(to: .Networking.Database.noValueExists) else { return nil }
             return exception
         }
 
