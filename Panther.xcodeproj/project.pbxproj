@@ -328,6 +328,7 @@
 		B9B764122D4EE6980091FFE0 /* AVAudioApplicationDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */; };
 		B9B799622B7325D30033AA85 /* MessageDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */; };
 		B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */; };
+		B9BD04522E14939100B68246 /* Application+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD04512E14939100B68246 /* Application+CommonExtensions.swift */; };
 		B9BD95292B72D01B009C1CB8 /* AudioMessagePlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */; };
 		B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */; };
 		B9BE3DD02DFD45350010B463 /* InputBarAccessoryView in Frameworks */ = {isa = PBXBuildFile; productRef = B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */; };
@@ -1126,6 +1127,7 @@
 		B9B764112D4EE6980091FFE0 /* AVAudioApplicationDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioApplicationDependency.swift; sourceTree = "<group>"; };
 		B9B799612B7325D30033AA85 /* MessageDeliveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDeliveryService.swift; sourceTree = "<group>"; };
 		B9BB3CF22AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatedLabelStringCollection.swift; sourceTree = "<group>"; };
+		B9BD04512E14939100B68246 /* Application+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Application+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B9BD95282B72D01B009C1CB8 /* AudioMessagePlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessagePlaybackService.swift; sourceTree = "<group>"; };
 		B9BD952D2B72E412009C1CB8 /* AppConstants+AudioFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+AudioFile.swift"; sourceTree = "<group>"; };
 		B9BF37F52B6DAEB800024548 /* DeliveryProgressIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryProgressIndicatorService.swift; sourceTree = "<group>"; };
@@ -3013,6 +3015,7 @@
 		B9E6D7C02B126385000BC88D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B9BD04512E14939100B68246 /* Application+CommonExtensions.swift */,
 				B900B53F2B1AC96000BA2F1D /* Array+CommonExtensions.swift */,
 				B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */,
 				B99E48DD2CDEEDDA006D6AFC /* Logger+CommonExtensions.swift */,
@@ -4114,6 +4117,7 @@
 				B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */,
 				B991957D2B47CB2F00BD5BBC /* AppConstants+InstructionView.swift in Sources */,
 				B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */,
+				B9BD04522E14939100B68246 /* Application+CommonExtensions.swift in Sources */,
 				B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
 				B90071F12B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift in Sources */,

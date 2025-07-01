@@ -130,13 +130,11 @@ public extension NavigationBar {
                 .filter { String(type(of: $0)) == "PlatterGlassView" }
         }
 
-        let mainScreen = uiApplication.mainScreen ?? .main
-
         var leadingItem: UIView? {
             guard let firstItem = platterGlassViews?.first,
                   let lastSuperview = firstItem.traversedSuperviews.last,
                   let frameInLastSuperview = firstItem.frame(in: lastSuperview),
-                  frameInLastSuperview.origin.x <= mainScreen.bounds.midX else { return nil }
+                  frameInLastSuperview.origin.x <= uiApplication.mainScreen.bounds.midX else { return nil }
             return firstItem
         }
 
@@ -144,7 +142,7 @@ public extension NavigationBar {
             guard let lastItem = platterGlassViews?.last,
                   let lastSuperview = lastItem.traversedSuperviews.last,
                   let frameInLastSuperview = lastItem.frame(in: lastSuperview),
-                  frameInLastSuperview.origin.x >= mainScreen.bounds.midX else { return nil }
+                  frameInLastSuperview.origin.x >= uiApplication.mainScreen.bounds.midX else { return nil }
             return lastItem
         }
 

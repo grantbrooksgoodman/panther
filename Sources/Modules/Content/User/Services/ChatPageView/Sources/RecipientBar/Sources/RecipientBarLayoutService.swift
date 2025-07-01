@@ -45,7 +45,7 @@ public final class RecipientBarLayoutService {
     public var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
     public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
-    private var screenWidth: CGFloat { getScreenWidth() }
+    private var screenWidth: CGFloat { uiApplication.mainScreen.bounds.width }
 
     // MARK: - Init
 
@@ -212,12 +212,6 @@ public final class RecipientBarLayoutService {
               let toLabel = buildToLabel() else { return }
         toLabel.tag = core.ui.semTag(for: Strings.toLabelSemanticTag)
         recipientBarView.addSubview(toLabel)
-    }
-
-    // MARK: - Auxiliary
-
-    private func getScreenWidth() -> CGFloat {
-        uiApplication.mainScreen?.bounds.width ?? UIScreen.main.bounds.width
     }
 
     // MARK: - View Builders

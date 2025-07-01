@@ -176,7 +176,7 @@ public extension AppConstants.Strings {
     enum ChatPageViewService {
         public static let barButtonItemViewID = "_UIModernBarButton" // swiftlint:disable:next line_length
         public static let chatPageViewPreviewHostingControllerID = "UIHostingController<IDView<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>, ConversationID>>"
-        public static let frontmostViewControllerID = "ChatPageViewController"
+        public static let leafViewControllerID = "ChatPageViewController"
 
         enum AudioMessagePlayback {
             public static let cellDefaultDurationLabelText = "0:00"

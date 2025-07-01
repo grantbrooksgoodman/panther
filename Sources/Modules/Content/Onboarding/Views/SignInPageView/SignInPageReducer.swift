@@ -17,6 +17,7 @@ import Networking
 public struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
@@ -135,7 +136,7 @@ public struct SignInPageReducer: Reducer {
                 }.cancellable(id: State.TaskID.verifyPhoneNumber)
                 return .cancel(id: State.TaskID.authenticateUser).merge(with: verifyPhoneNumberTask)
             } else {
-                uiApplication.mainWindow?.removeOverlay()
+                coreUI.removeOverlay()
                 return .task {
                     let result = await onboardingService.presentAccountDoesNotExistAlert()
                     return .accountDoesNotExistAlertDismissed(cancelled: result)
@@ -154,7 +155,7 @@ public struct SignInPageReducer: Reducer {
             navigation.navigate(to: .onboarding(.stack([.selectLanguage])))
 
         case let .authenticateUserReturned(.success(userID)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = userID
@@ -162,7 +163,7 @@ public struct SignInPageReducer: Reducer {
             navigation.navigate(to: .root(.modal(.splash)))
 
         case let .authenticateUserReturned(.failure(exception)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.verificationCode.count == 6
@@ -220,7 +221,7 @@ public struct SignInPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
+            coreUI.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             switch state.configuration {
             case .phoneNumber:
@@ -257,7 +258,7 @@ public struct SignInPageReducer: Reducer {
             state.isContinueButtonEnabled = verificationCode.count == 6
 
         case let .verifyPhoneNumberReturned(.success(authID)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = false
@@ -266,7 +267,7 @@ public struct SignInPageReducer: Reducer {
             state.configuration = .verificationCode
 
         case let .verifyPhoneNumberReturned(.failure(exception)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength

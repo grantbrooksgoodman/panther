@@ -24,7 +24,6 @@ public final class SplashPageViewService: ObservableObject {
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
@@ -137,12 +136,7 @@ public final class SplashPageViewService: ObservableObject {
             switch cacheStatusResult {
             case let .success(cacheStatus):
                 if cacheStatus == .invalid {
-                    core.utils.clearCaches()
-                    core.utils.eraseDocumentsDirectory()
-                    core.utils.eraseTemporaryDirectory()
-
-                    defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-
+                    Application.reset(preserveCurrentUserID: true)
                     if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
                         Logger.log(exception)
                     }
@@ -256,11 +250,7 @@ public final class SplashPageViewService: ObservableObject {
         } else if !didAttemptDatabaseRepair {
             return await attemptDatabaseRepair()
         } else {
-            core.utils.clearCaches()
-            core.utils.eraseDocumentsDirectory()
-            core.utils.eraseTemporaryDirectory()
-
-            defaults.reset()
+            Application.reset()
             didAttemptDatabaseRepair = false
         }
 

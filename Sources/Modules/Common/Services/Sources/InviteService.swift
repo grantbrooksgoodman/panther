@@ -20,7 +20,6 @@ public struct InviteService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
-    @Dependency(\.uiApplication.mainWindow?.rootViewController) private var keyViewController: UIViewController?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
@@ -38,7 +37,7 @@ public struct InviteService {
             return nil
         }
 
-        keyViewController?.dismiss(animated: true)
+        Application.dismissSheets()
         coreGCD.after(.seconds(2)) {
             RootSheets.present(.inviteLanguagePicker)
         }

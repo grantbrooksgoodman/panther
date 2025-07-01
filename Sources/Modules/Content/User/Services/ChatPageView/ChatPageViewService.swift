@@ -328,8 +328,8 @@ public final class ChatPageViewService {
     private func startSettingNavigationBarButtonItemAppearance() {
         Task { @MainActor in
             guard chatPageState.isPresented else { return }
-            guard let frontmostViewController = uiApplication.keyViewController?.frontmostViewController,
-                  String(type(of: frontmostViewController)) == Strings.frontmostViewControllerID else {
+            guard let leafViewController = uiApplication.keyViewController?.leafViewController,
+                  String(type(of: leafViewController)) == Strings.leafViewControllerID else {
                 Task.delayed(by: .seconds(1)) { startSettingNavigationBarButtonItemAppearance() }
                 return
             }

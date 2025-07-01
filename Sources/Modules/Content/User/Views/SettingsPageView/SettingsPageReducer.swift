@@ -9,7 +9,7 @@
 /* Native */
 import Contacts
 import Foundation
-import SwiftUI
+import UIKit
 
 /* Proprietary */
 import AppSubsystem

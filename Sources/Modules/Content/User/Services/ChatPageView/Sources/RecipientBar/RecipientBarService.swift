@@ -16,7 +16,7 @@ import AppSubsystem
 public struct RecipientBarService {
     // MARK: - Dependencies
 
-    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
+    @Dependency(\.uiApplication.keyViewController?.leafViewController) private var leafViewController: UIViewController?
 
     // MARK: - Properties
 
@@ -43,8 +43,8 @@ public struct RecipientBarService {
 
     public func onLayoutSubviews() {
         defer { tableView.reloadData() }
-        if let frontmostViewController {
-            guard String(type(of: frontmostViewController)) == AppConstants.Strings.ChatPageViewService.frontmostViewControllerID else { return }
+        if let leafViewController {
+            guard String(type(of: leafViewController)) == AppConstants.Strings.ChatPageViewService.leafViewControllerID else { return }
         }
 
         layout.textField?.becomeFirstResponder()

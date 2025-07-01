@@ -17,8 +17,6 @@ public struct ConversationCellViewService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
@@ -60,16 +58,12 @@ public struct ConversationCellViewService {
             var actions: [AKAction] = [.cancelAction(title: Localized(.dismiss).wrappedValue)]
             if build.isDeveloperModeEnabled {
                 let setToCurrentUserAction: AKAction = .init("Set to Current User", style: .preferred) {
-                    coreUtilities.clearCaches()
-                    coreUtilities.eraseDocumentsDirectory()
-                    coreUtilities.eraseTemporaryDirectory()
-
-                    defaults.reset()
+                    Application.reset()
+                    Application.dismissSheets()
 
                     @Persistent(.currentUserID) var currentUserID: String?
                     currentUserID = user.id
 
-                    RootSheets.dismiss()
                     navigation.navigate(to: .userContent(.stack([])))
                     navigation.navigate(to: .root(.modal(.splash)))
                 }

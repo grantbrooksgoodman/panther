@@ -114,10 +114,7 @@ public extension DevModeAction {
         private static var setCurrentUserIDAction: DevModeAction {
             func setCurrentUserID() {
                 Task {
-                    @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-                    @Dependency(\.userDefaults) var defaults: UserDefaults
                     @Dependency(\.navigation) var navigation: Navigation
-
                     @Persistent(.currentUserID) var currentUserID: String?
 
                     let input = await AKTextInputAlert(
@@ -131,11 +128,7 @@ public extension DevModeAction {
 
                     guard let input else { return }
                     if input != currentUserID {
-                        coreUtilities.clearCaches()
-                        coreUtilities.eraseDocumentsDirectory()
-                        coreUtilities.eraseTemporaryDirectory()
-
-                        defaults.reset()
+                        Application.reset()
                     }
 
                     currentUserID = input
@@ -176,7 +169,6 @@ public extension DevModeAction {
 
             func toggleV26Features() {
                 @Dependency(\.coreKit) var core: CoreKit
-                @Dependency(\.uiApplication.mainWindow) var mainWindow: UIWindow?
 
                 persistedValue = !v26FeaturesEnabled
                 UserDefaults.standard.synchronize() // NIT: Trying to force sync.
@@ -186,7 +178,7 @@ public extension DevModeAction {
 
                 core.gcd.after(.seconds(1)) {
                     StatusBar.setIsHidden(true)
-                    mainWindow?.addOverlay(activityIndicator: .largeWhite)
+                    core.ui.addOverlay(activityIndicator: .largeWhite)
                     core.gcd.after(.seconds(1)) { core.utils.exitGracefully() }
                 }
             }
@@ -228,8 +220,6 @@ public extension DevModeAction {
             func deleteCurrentUserConversations() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.userDefaults) var defaults: UserDefaults
-                    @Dependency(\.navigation) var navigation: Navigation
                     @Dependency(\.clientSession.user) var userSession: UserSessionService
 
                     guard await AKConfirmationAlert(
@@ -245,12 +235,10 @@ public extension DevModeAction {
                     } else {
                         core.hud.flash(image: .success)
                         core.gcd.after(.seconds(1)) {
-                            core.utils.clearCaches()
-                            core.utils.eraseDocumentsDirectory()
-                            core.utils.eraseTemporaryDirectory()
-
-                            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-                            navigation.navigate(to: .root(.modal(.splash)))
+                            Application.reset(
+                                preserveCurrentUserID: true,
+                                onCompletion: .navigateToSplash
+                            )
                         }
                     }
                 }
@@ -267,8 +255,6 @@ public extension DevModeAction {
             func deleteMRCConversations() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.userDefaults) var defaults: UserDefaults
-                    @Dependency(\.navigation) var navigation: Navigation
                     @Dependency(\.clientSession.user) var userSession: UserSessionService
 
                     guard await AKConfirmationAlert(
@@ -284,12 +270,10 @@ public extension DevModeAction {
                     } else {
                         core.hud.flash(image: .success)
                         core.gcd.after(.seconds(1)) {
-                            core.utils.clearCaches()
-                            core.utils.eraseDocumentsDirectory()
-                            core.utils.eraseTemporaryDirectory()
-
-                            defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-                            navigation.navigate(to: .root(.modal(.splash)))
+                            Application.reset(
+                                preserveCurrentUserID: true,
+                                onCompletion: .navigateToSplash
+                            )
                         }
                     }
                 }
@@ -306,25 +290,32 @@ public extension DevModeAction {
             func destroyConversationDatabase() {
                 Task {
                     @Dependency(\.coreKit) var core: CoreKit
+                    @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-                    let confirmed = await AKConfirmationAlert(
+                    guard await AKConfirmationAlert(
                         title: "Destroy Database", // swiftlint:disable:next line_length
                         message: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
                         confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
+                    ).present(translating: []) else { return }
 
-                    guard confirmed else { return }
-                    let doubleConfirmed = await AKConfirmationAlert(
+                    guard await AKConfirmationAlert(
                         title: "Are you sure?",
                         message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
                         confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
+                    ).present(translating: []) else { return }
 
-                    guard doubleConfirmed else { return }
+                    userSession.stopObservingCurrentUserChanges()
+
                     if let exception = await core.utils.destroyConversationDatabase() {
                         Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash(image: .success)
+                        core.gcd.after(.seconds(1)) {
+                            Application.reset(
+                                preserveCurrentUserID: true,
+                                onCompletion: .navigateToSplash
+                            )
+                        }
                     }
                 }
             }

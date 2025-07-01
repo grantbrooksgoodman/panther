@@ -22,7 +22,7 @@ public struct AnalyticsService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
-    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
+    @Dependency(\.uiApplication.keyViewController?.leafViewController) private var leafViewController: UIViewController?
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Types
@@ -99,8 +99,8 @@ public struct AnalyticsService {
             parameters["current_user_id"] = currentUserID
         }
 
-        if let frontmostViewController {
-            parameters["view_id"] = String(type(of: frontmostViewController))
+        if let leafViewController {
+            parameters["view_id"] = String(type(of: leafViewController))
         }
 
         return parameters

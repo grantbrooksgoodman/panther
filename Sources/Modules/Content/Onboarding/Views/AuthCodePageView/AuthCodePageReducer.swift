@@ -17,6 +17,7 @@ import Networking
 public struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
@@ -70,7 +71,7 @@ public struct AuthCodePageReducer: Reducer {
             }
 
         case let .authenticateUserReturned(.success(userID)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = true
@@ -79,7 +80,7 @@ public struct AuthCodePageReducer: Reducer {
             navigation.navigate(to: .onboarding(.push(.permission)))
 
         case let .authenticateUserReturned(.failure(exception)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.verificationCode.count == 6
@@ -134,7 +135,7 @@ public struct AuthCodePageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
+            coreUI.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             let verificationCode = state.verificationCode
             return .task {

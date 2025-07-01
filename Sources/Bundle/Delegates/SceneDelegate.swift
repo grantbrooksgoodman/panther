@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import SwiftUI
 import UIKit
 
 /* Proprietary */

@@ -41,7 +41,7 @@ public final class InputBarService {
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
-    @Dependency(\.uiApplication.mainScreen) private var mainScreen: UIScreen?
+    @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
 
@@ -414,7 +414,7 @@ public final class InputBarService {
             .boldSystemFont(ofSize: Floats.consentButtonFontSize)
 
         consentButton.frame.size = consentButton.intrinsicContentSize
-        while consentButton.frame.width > (mainScreen ?? .main).bounds.width { consentButton.frame.size.width -= 1 }
+        while consentButton.frame.width > screenWidth { consentButton.frame.size.width -= 1 }
         consentButton.frame.size.width -= Floats.consentButtonFrameWidthDecrement
 
         consentButton.titleLabel?.adjustsFontSizeToFitWidth = true

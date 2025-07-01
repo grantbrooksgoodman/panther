@@ -17,6 +17,7 @@ import Networking
 public struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
@@ -112,7 +113,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
         case let .accountExistsReturned(accountExists):
             if accountExists {
-                uiApplication.mainWindow?.removeOverlay()
+                coreUI.removeOverlay()
                 return .task {
                     let result = await onboardingService.presentAccountExistsAlert()
                     return .accountExistsAlertDismissed(cancelled: result)
@@ -161,7 +162,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isContinueButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
+            coreUI.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             let phoneNumber = state.phoneNumber
             return .task {
@@ -179,7 +180,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.regionMenuViewID = UUID()
 
         case let .verifyPhoneNumberReturned(.success(authID)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = true
@@ -191,7 +192,7 @@ public struct VerifyNumberPageReducer: Reducer {
             navigation.navigate(to: .onboarding(.push(.authCode)))
 
         case let .verifyPhoneNumberReturned(.failure(exception)):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
             state.isContinueButtonEnabled = state.numberIsValidLength

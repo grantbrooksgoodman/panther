@@ -22,7 +22,7 @@ public struct InstructionView: View {
 
     // MARK: - Dependencies
 
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
 
@@ -30,8 +30,7 @@ public struct InstructionView: View {
 
     // MARK: - Computed Properties
 
-    private var halfOfScreenWidth: CGFloat { mainWindowSize.width / Floats.mainWindowSizeWidthDivisor }
-    private var mainWindowSize: CGSize { uiApplication.mainScreen?.bounds.size ?? UIScreen.main.bounds.size }
+    private var halfOfScreenWidth: CGFloat { screenWidth / Floats.screenWidthDivisor }
 
     // MARK: - Init
 

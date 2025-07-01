@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -32,8 +31,8 @@ public extension CoreKit.Utilities {
     @MainActor
     func deleteCurrentUserConversations() async -> Exception? {
         @Dependency(\.clientSession.user.currentUser?.conversationIDs) var conversationIDs: [ConversationID]?
+        @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.uiApplication) var uiApplication: UIApplication
 
         guard let conversationIDs,
               !conversationIDs.isEmpty else {
@@ -43,7 +42,7 @@ public extension CoreKit.Utilities {
             )
         }
 
-        uiApplication.mainWindow?.addOverlay(
+        coreUI.addOverlay(
             alpha: 0.5,
             activityIndicator: .largeWhite
         )
@@ -51,7 +50,7 @@ public extension CoreKit.Utilities {
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
         }
 
         networking.database.setGlobalCacheStrategy(.disregardCache)
@@ -74,8 +73,8 @@ public extension CoreKit.Utilities {
     @MainActor
     func deleteMRCConversations() async -> Exception? {
         @Dependency(\.clientSession.user.currentUser?.conversations) var conversations: [Conversation]?
+        @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.uiApplication) var uiApplication: UIApplication
 
         guard let conversationIDKeys = conversations?.filter({
             $0.didSendConsentMessage ||
@@ -83,7 +82,7 @@ public extension CoreKit.Utilities {
                 $0.metadata.requiresConsentFromInitiator != nil
         }).map(\.id.key) else { return nil }
 
-        uiApplication.mainWindow?.addOverlay(
+        coreUI.addOverlay(
             alpha: 0.5,
             activityIndicator: .largeWhite
         )
@@ -91,7 +90,7 @@ public extension CoreKit.Utilities {
         defer {
             networking.database.setGlobalCacheStrategy(nil)
             networking.storage.setGlobalCacheStrategy(nil)
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
         }
 
         networking.database.setGlobalCacheStrategy(.disregardCache)
@@ -141,45 +140,15 @@ public extension CoreKit.Utilities {
                 }
             }
 
-            // TODO: Rewrite to delete all audio message inputs.
-//            if let exception = await networking.storage.deleteItem(at: NetworkPath.audioMessageInputs) {
-//                return exception
-//            }
+            if let exception = await networking.storage.deleteAllItems(
+                at: NetworkPath.audioMessageInputs.rawValue,
+                includeItemsInSubdirectories: true
+            ) {
+                return exception
+            }
 
         case let .failure(exception):
             return exception
-        }
-
-        return nil
-    }
-
-    @discardableResult
-    func eraseDocumentsDirectory() -> Exception? {
-        @Dependency(\.fileManager) var fileManager: FileManager
-
-        do {
-            let filePaths = try fileManager.contentsOfDirectory(at: fileManager.documentsDirectoryURL, includingPropertiesForKeys: nil)
-            for path in filePaths {
-                try fileManager.removeItem(at: path)
-            }
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
-        }
-
-        return nil
-    }
-
-    @discardableResult
-    func eraseTemporaryDirectory() -> Exception? {
-        @Dependency(\.fileManager) var fileManager: FileManager
-
-        do {
-            let filePaths = try fileManager.contentsOfDirectory(at: fileManager.temporaryDirectory, includingPropertiesForKeys: nil)
-            for path in filePaths {
-                try fileManager.removeItem(at: path)
-            }
-        } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
         }
 
         return nil

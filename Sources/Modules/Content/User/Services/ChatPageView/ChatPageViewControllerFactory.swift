@@ -23,7 +23,7 @@ public struct ChatPageViewControllerFactory {
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Build View Controller
 
@@ -119,7 +119,7 @@ public struct ChatPageViewControllerFactory {
             frame: .init(
                 x: 0,
                 y: 0,
-                width: (uiApplication.mainScreen ?? .main).bounds.width,
+                width: screenWidth,
                 height: Floats.viewFrameHeight
             )
         )

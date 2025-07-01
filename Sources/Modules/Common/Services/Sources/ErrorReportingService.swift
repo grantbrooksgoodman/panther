@@ -21,7 +21,6 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     @Dependency(\.build) private var build: Build
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.fileManager) private var fileManager: FileManager
-    @Dependency(\.uiApplication.keyViewController?.frontmostViewController) private var frontmostViewController: UIViewController?
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -55,8 +54,8 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             parameters["Current User ID"] = currentUserID
         }
 
-        if let frontmostViewController {
-            parameters["View ID"] = String(type(of: frontmostViewController))
+        if let leafViewController = uiApplication.keyViewController?.leafViewController {
+            parameters["View ID"] = String(type(of: leafViewController))
         }
 
         return parameters

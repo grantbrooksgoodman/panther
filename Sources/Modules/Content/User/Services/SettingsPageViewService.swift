@@ -34,7 +34,6 @@ public final class SettingsPageViewService {
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.userDefaults) private var defaults: UserDefaults
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
@@ -98,7 +97,8 @@ public final class SettingsPageViewService {
     public func clearCachesButtonTapped() {
         @Sendable
         func clearCaches() async {
-            self.clearCaches(preserveCurrentUserID: true)
+            services.analytics.logEvent(.clearCaches)
+            Application.reset(preserveCurrentUserID: true)
 
             var actions = [AKAction("Exit", style: .destructivePreferred, effect: exitGracefully)]
             if build.isDeveloperModeEnabled {
@@ -137,8 +137,11 @@ public final class SettingsPageViewService {
                     Logger.log(exception)
                 }
 
-                clearCaches(preserveCurrentUserID: false)
-                exitGracefully()
+                services.analytics.logEvent(.deleteAccount)
+                Application.reset(
+                    preserveCurrentUserID: false,
+                    onCompletion: .exitGracefully
+                )
             }
 
             let confirmed = await AKConfirmationAlert(
@@ -151,7 +154,7 @@ public final class SettingsPageViewService {
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
                 Task {
-                    await self.uiApplication.mainWindow?.addOverlay(
+                    self.core.ui.addOverlay(
                         alpha: Floats.deleteAccountOverlayAlpha,
                         activityIndicator: .largeWhite
                     )
@@ -161,12 +164,12 @@ public final class SettingsPageViewService {
                     }
 
                     if let exception = await self.userSession.deleteAccount() {
-                        await self.uiApplication.mainWindow?.removeOverlay()
+                        self.core.ui.removeOverlay()
                         Logger.log(exception, with: .toast)
                         return
                     }
 
-                    await self.uiApplication.mainWindow?.removeOverlay()
+                    self.core.ui.removeOverlay()
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
                         Task { await clearCachesAndExit() }
@@ -323,10 +326,7 @@ public final class SettingsPageViewService {
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task {
                     self.userSession.stopObservingCurrentUserChanges()
-
-                    self.core.utils.clearCaches()
-                    self.core.utils.eraseDocumentsDirectory()
-                    self.core.utils.eraseTemporaryDirectory()
+                    Application.reset()
 
                     if let exception = await self.services.notification.setBadgeNumber(0, updateHostedValue: false) {
                         Logger.log(exception)
@@ -348,10 +348,9 @@ public final class SettingsPageViewService {
                         }
                     }
 
+                    Application.dismissSheets()
                     self.services.analytics.logEvent(.logOut)
-                    self.defaults.reset()
 
-                    self.navigation.navigate(to: .userContent(.sheet(.none)))
                     self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
                         self.navigation.navigate(to: .onboarding(.stack([])))
                         self.navigation.navigate(to: .root(.modal(.onboarding)))
@@ -384,14 +383,14 @@ public final class SettingsPageViewService {
                 alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
                 RuntimeStorage.remove(.overriddenLanguageCode)
                 core.hud.showSuccess(text: "Set to \(languageName)")
-                uiApplication.mainWindow?.rootViewController?.dismiss(animated: true)
+                Application.dismissSheets()
                 return
             }
 
             alertKitConfig.overrideTargetLanguageCode("en")
             RuntimeStorage.store("en", as: .overriddenLanguageCode)
             core.hud.showSuccess(text: "Set to English")
-            uiApplication.mainWindow?.rootViewController?.dismiss(animated: true)
+            Application.dismissSheets()
         }
 
         typealias Colors = AppConstants.Colors.SettingsPageView
@@ -480,25 +479,12 @@ public final class SettingsPageViewService {
 
     // MARK: - Auxiliary
 
-    private func clearCaches(preserveCurrentUserID: Bool) {
-        core.utils.clearCaches()
-        core.utils.eraseDocumentsDirectory()
-        core.utils.eraseTemporaryDirectory()
-
-        defaults.reset(preserving: .permanentAndSubsystemKeys(
-            plus: preserveCurrentUserID ? [.userSessionService(.currentUserID)] : nil
-        ))
-
-        defaults.synchronize()
-        services.analytics.logEvent(preserveCurrentUserID ? .clearCaches : .deleteAccount)
-    }
-
     private func exitGracefully() {
         Task { @MainActor in
             StatusBar.setIsHidden(true)
-            uiApplication.mainWindow?.addOverlay(activityIndicator: .largeWhite)
+            core.ui.addOverlay(activityIndicator: .largeWhite)
 
-            navigation.navigate(to: .userContent(.sheet(.none)))
+            Application.dismissSheets()
             navigation.navigate(to: .root(.modal(.splash)))
 
             core.gcd.after(.seconds(1)) { self.core.utils.exitGracefully() }

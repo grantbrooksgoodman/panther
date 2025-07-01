@@ -22,7 +22,7 @@ public protocol ContentPicker<Content> {
 
 public extension ContentPicker {
     func dismiss(_ exception: Exception? = nil) {
-        @Dependency(\.uiApplication.mainWindow?.rootViewController) var keyViewController: UIViewController?
+        @Dependency(\.uiApplication.keyViewController) var keyViewController: UIViewController?
         keyViewController?.dismiss(animated: true)
         onDismiss(exception)
     }

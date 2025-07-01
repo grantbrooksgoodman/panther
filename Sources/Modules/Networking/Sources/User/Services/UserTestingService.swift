@@ -19,8 +19,6 @@ public struct UserTestingService {
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.userDefaults) private var defaults: UserDefaults
-    @Dependency(\.uiApplication.keyViewController) private var keyViewController: UIViewController?
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
 
@@ -54,7 +52,7 @@ public struct UserTestingService {
 
     @MainActor
     public func createRandomMessages(count: Int = 1) async -> Exception? {
-        keyViewController?.view.addOverlay(
+        core.ui.addOverlay(
             alpha: 0.5,
             activityIndicator: .largeWhite
         )
@@ -65,7 +63,7 @@ public struct UserTestingService {
         clientSession.user.stopObservingCurrentUserChanges()
         while count > 0 {
             if let exception = await createRandomMessage() {
-                keyViewController?.view.removeOverlay()
+                core.ui.removeOverlay()
                 return exception
             }
 
@@ -73,7 +71,7 @@ public struct UserTestingService {
         }
 
         navigation.navigate(to: .root(.modal(.splash)))
-        keyViewController?.view.removeOverlay()
+        core.ui.removeOverlay()
         core.gcd.after(.seconds(1)) {
             core.hud.showSuccess(
                 text: "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
@@ -166,7 +164,7 @@ public struct UserTestingService {
         switch resolveCurrentUserResult {
         case let .success(currentUser):
             guard randomBool, randomBool, randomBool else {
-                clearCaches()
+                Application.reset(preserveCurrentUserID: true)
                 if let exception = await networking.database.populateTemporaryCaches() {
                     return exception
                 }
@@ -214,14 +212,6 @@ public struct UserTestingService {
     }
 
     // MARK: - Auxiliary
-
-    private func clearCaches() {
-        core.utils.clearCaches()
-        core.utils.eraseDocumentsDirectory()
-        core.utils.eraseTemporaryDirectory()
-
-        defaults.reset(preserving: .permanentAndSubsystemKeys(plus: [.userSessionService(.currentUserID)]))
-    }
 
     private func getRandomUsers(
         _ count: Int,

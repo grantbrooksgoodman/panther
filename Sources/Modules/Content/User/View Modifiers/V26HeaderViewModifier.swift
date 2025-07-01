@@ -18,7 +18,7 @@ import ComponentKit
 private struct V26HeaderViewModifier: ViewModifier {
     // MARK: - Dependencies
 
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
+    @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
 
@@ -34,7 +34,7 @@ private struct V26HeaderViewModifier: ViewModifier {
 
     // MARK: - Computed Properties
 
-    private var imageMaxWidth: CGFloat { (uiApplication.mainScreen ?? .main).bounds.size.width / 3 }
+    private var imageMaxWidth: CGFloat { screenWidth / 3 }
     private var isThemed: Bool { attributes.appearance == .themed }
     private var navigationBarAppearance: NavigationBarAppearance {
         let configuration: NavigationBarConfiguration = .init(

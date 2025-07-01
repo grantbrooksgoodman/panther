@@ -17,6 +17,7 @@ import Networking
 public struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
@@ -85,7 +86,7 @@ public struct PermissionPageReducer: Reducer {
             }
 
         case let .createUserReturned(exception):
-            uiApplication.mainWindow?.removeOverlay()
+            coreUI.removeOverlay()
 
             if let exception {
                 state.isBackButtonEnabled = true
@@ -98,7 +99,7 @@ public struct PermissionPageReducer: Reducer {
 
         case let .eulaAlertDismissed(cancelled: cancelled):
             guard !cancelled else {
-                uiApplication.mainWindow?.removeOverlay()
+                coreUI.removeOverlay()
                 state.isBackButtonEnabled = true
                 state.isFinishButtonEnabled = true
                 return .none
@@ -113,7 +114,7 @@ public struct PermissionPageReducer: Reducer {
             state.isBackButtonEnabled = false
             state.isFinishButtonEnabled = false
 
-            uiApplication.mainWindow?.addOverlay(
+            coreUI.addOverlay(
                 alpha: 0.5,
                 activityIndicator: .largeWhite,
                 isModal: false

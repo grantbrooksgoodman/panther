@@ -17,7 +17,7 @@ public struct InviteQRCodePageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.metadata.appShareLink) private var appShareLink: URL?
-    @Dependency(\.uiApplication.mainScreen) private var mainScreen: UIScreen?
+    @Dependency(\.uiApplication.mainScreen.scale) private var screenScale: CGFloat
 
     // MARK: - Properties
 
@@ -40,7 +40,7 @@ public struct InviteQRCodePageViewService {
         guard let outputImage = filter.outputImage else { return nil }
 
         let imageRendererFormat = UIGraphicsImageRendererFormat()
-        imageRendererFormat.scale = (mainScreen ?? .main).scale
+        imageRendererFormat.scale = screenScale
         let imageRenderer = UIGraphicsImageRenderer(size: outputSize, format: imageRendererFormat)
 
         return imageRenderer
