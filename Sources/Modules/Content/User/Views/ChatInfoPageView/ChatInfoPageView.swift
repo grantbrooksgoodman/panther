@@ -159,16 +159,10 @@ public struct ChatInfoPageView: View {
                     .disabled(viewModel.isPenPalsSharingDataSwitchToggled)
                 } else {
                     if viewModel.showsChangeMetadataButton {
-                        Components.button(
-                            viewModel.strings.value(for: .changeMetadataButtonText),
-                            font: .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)),
-                            foregroundColor: viewModel.isChangeMetadataButtonEnabled ? .accent : .disabled
-                        ) {
-                            viewModel.send(.changeMetadataButtonTapped)
-                        }
-                        .disabled(!viewModel.isChangeMetadataButtonEnabled)
-                        .padding(.bottom, 1)
-                        .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
+                        changeMetadataButton
+                            .disabled(!viewModel.isChangeMetadataButtonEnabled)
+                            .padding(.bottom, 1)
+                            .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
                     }
 
                     listView
@@ -176,6 +170,27 @@ public struct ChatInfoPageView: View {
 
                 Spacer()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var changeMetadataButton: some View {
+        let text = viewModel.strings.value(for: .changeMetadataButtonText) // swiftlint:disable:next line_length
+        let font: ComponentKit.Font = UIApplication.v26FeaturesEnabled ? .systemSemibold(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) : .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) // swiftlint:disable:next line_length
+        let foregroundColor = viewModel.isChangeMetadataButtonEnabled ? (UIApplication.v26FeaturesEnabled ? Color.background : Colors.changeMetadataButtonForeground) : .disabled
+
+        if UIApplication.v26FeaturesEnabled {
+            Components.capsuleButton(
+                text,
+                font: font,
+                usesShadow: false
+            ) { viewModel.send(.changeMetadataButtonTapped) }
+        } else {
+            Components.button(
+                text,
+                font: font,
+                foregroundColor: foregroundColor
+            ) { viewModel.send(.changeMetadataButtonTapped) }
         }
     }
 
@@ -243,6 +258,7 @@ public struct ChatInfoPageView: View {
                     )
                 }
             }
+            .id(viewModel.chatInfoCellViewID)
         }
         .foregroundStyle(Color.titleText)
     }
@@ -314,7 +330,6 @@ public struct ChatInfoPageView: View {
             }
         }
         .animation(.default, value: viewModel.visibleParticipants)
-        .id(viewModel.viewID)
         .offset(y: Floats.listViewYOffset)
     }
 

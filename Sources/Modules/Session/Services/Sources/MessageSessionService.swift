@@ -80,31 +80,42 @@ public struct MessageSessionService {
                 case let .success(translation):
                     translations.append(translation)
 
-                    let readToFileResult = await services.audio.textToSpeech.readToFile(
-                        text: translation.output,
-                        languageCode: languageCode
-                    )
-
-                    incrementDeliveryProgress(in: conversation.value, by: Floats.readToFileDeliveryProgressIncrement / .init(users.count))
-
-                    switch readToFileResult {
-                    case let .success(url):
-                        guard let outputFile = AudioFile(url) else {
-                            return .failure(.init(
-                                "Failed to generate output audio file.",
-                                metadata: [self, #file, #function, #line]
-                            ))
-                        }
+                    if await networking.messageService.audio.preRecordedOutputExists(for: translation) {
+                        incrementDeliveryProgress(in: conversation.value, by: Floats.readToFileDeliveryProgressIncrement / .init(users.count))
 
                         audioComponents.append(.init(
                             translation: translation,
                             original: inputFile,
-                            translated: outputFile,
+                            translated: inputFile,
                             translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
                         ))
+                    } else {
+                        let readToFileResult = await services.audio.textToSpeech.readToFile(
+                            text: translation.output,
+                            languageCode: languageCode
+                        )
 
-                    case let .failure(exception):
-                        return .failure(exception)
+                        incrementDeliveryProgress(in: conversation.value, by: Floats.readToFileDeliveryProgressIncrement / .init(users.count))
+
+                        switch readToFileResult {
+                        case let .success(url):
+                            guard let outputFile = AudioFile(url) else {
+                                return .failure(.init(
+                                    "Failed to generate output audio file.",
+                                    metadata: [self, #file, #function, #line]
+                                ))
+                            }
+
+                            audioComponents.append(.init(
+                                translation: translation,
+                                original: inputFile,
+                                translated: outputFile,
+                                translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+                            ))
+
+                        case let .failure(exception):
+                            return .failure(exception)
+                        }
                     }
 
                 case let .failure(exception):

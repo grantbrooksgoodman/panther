@@ -44,7 +44,11 @@ public struct LegacyUserService {
             dictionary[User.SerializationKeys.id.rawValue] = id
 
             guard !User.canDecode(from: dictionary) else {
-                let exception = Exception("User does not need conversion to new schema.", metadata: [self, #file, #function, #line])
+                let exception = Exception(
+                    "User does not need conversion to new schema.",
+                    isReportable: false,
+                    metadata: [self, #file, #function, #line]
+                )
                 return exception.appending(extraParams: commonParams)
             }
 

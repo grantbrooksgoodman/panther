@@ -56,6 +56,8 @@ public extension AppConstants.Colors {
         public static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
         public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
+        public static let changeMetadataButtonForeground: Color = .init(uiColor: .systemBlue)
+
         // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconIncompleteForeground: Color = .orange

@@ -123,7 +123,9 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: Logger Setup */
 
-        Logger.setReportsErrorsAutomatically(true)
+        Logger.setReportsErrorsAutomatically(
+            !UIDevice.isSimulator && !build.isDeveloperModeEnabled
+        )
 
         /* MARK: Cache Setup */
 
@@ -143,7 +145,9 @@ public final class SplashPageViewService: ObservableObject {
                 }
 
             case let .failure(exception):
-                Logger.log(exception)
+                if !exception.isEqual(to: .Networking.Database.noValueExists) {
+                    Logger.log(exception)
+                }
             }
         }
 
@@ -188,7 +192,8 @@ public final class SplashPageViewService: ObservableObject {
                 // Allow temporary cache population to settle before moving on.
                 try? await Task.sleep(for: .milliseconds(500))
 
-                if let exception = await services.pushToken.prunePushTokensForCurrentUser() {
+                if Networking.config.environment != .staging,
+                   let exception = await services.pushToken.prunePushTokensForCurrentUser() {
                     Logger.log(exception)
                 }
             }

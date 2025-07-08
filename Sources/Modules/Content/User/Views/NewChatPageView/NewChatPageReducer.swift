@@ -17,8 +17,8 @@ public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
-    @Dependency(\.navigation) private var navigation: Navigation // swiftlint:disable:next line_length
-    @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) private var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
+    @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.chatPageViewService.recipientBar) private var recipientBarService: RecipientBarService?
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Actions
@@ -112,12 +112,15 @@ public struct NewChatPageReducer: Reducer {
 
                 switch getRandomPenPalsParticipantResult {
                 case let .success(user):
-                    recipientBarContactSelectionUIService?.selectContactPair(
+                    recipientBarService?.contactSelectionUI.selectContactPair(
                         .withUser(
                             user,
                             name: user.penPalsName
                         )
                     )
+
+                    guard recipientBarService?.layout.textField?.isFirstResponder == false else { return }
+                    recipientBarService?.layout.textField?.becomeFirstResponder()
 
                 case let .failure(exception):
                     Logger.log(

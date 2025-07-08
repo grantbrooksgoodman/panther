@@ -234,12 +234,8 @@ public struct PermissionService {
         }
 
         // FIXME: iOS 26 – May be a bug only applicable to the beta.
-        #if targetEnvironment(simulator)
-        guard !UIApplication.iOS26IsAvailable else { return .denied }
+        guard !(UIApplication.iOS26IsAvailable && UIDevice.isSimulator) else { return .denied }
         return status
-        #else
-        return status
-        #endif
     }
 
     private func getTranscribePermissionStatus() -> PermissionStatus {

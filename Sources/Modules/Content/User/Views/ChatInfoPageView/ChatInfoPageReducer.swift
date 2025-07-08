@@ -72,10 +72,13 @@ public struct ChatInfoPageReducer: Reducer {
         public var isPresentingCameraPickerSheet = false
         public var isPresentingImagePickerSheet = false
 
+        // UUID
+        public var chatInfoCellViewID = UUID()
+        public var viewID = UUID()
+
         // Other
         @Localized(.done) public var doneButtonText: String
         public var viewState: StatefulView.ViewState = .loading
-        public var viewID = UUID()
 
         /* MARK: Computed Properties */
 
@@ -221,6 +224,7 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
         case .chatInfoCellTapped:
+            state.chatInfoCellViewID = UUID()
             state.visibleParticipants = state.visibleParticipants.isEmpty ? state.chatParticipants : []
 
         case .currentConversationMetadataChanged:

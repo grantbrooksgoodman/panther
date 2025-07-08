@@ -97,7 +97,9 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 metadata: .init(
                     "reports/\(bundleVersionString)/\(errorCode)/\(build.bundleRevision) | \(buildNumberString)/log_\(shortDateHash).txt",
                     contentType: "text/plain",
-                    customValues: commonParams
+                    customValues: commonParams.plus(keys: [
+                        "Error Description": error.description,
+                    ])
                 )
             ) {
                 guard Logger.reportsErrorsAutomatically else {
@@ -137,6 +139,12 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 onTap: toastAction
             )
         }
+    }
+}
+
+private extension Dictionary {
+    func plus(keys other: [Key: Value]) -> Dictionary {
+        merging(other) { _, new in new }
     }
 }
 
