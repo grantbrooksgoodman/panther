@@ -45,11 +45,9 @@ public final class SettingsPageViewService {
 
     // MARK: - Properties
 
+    @LockIsolated public var isMainPagePresented = true
+
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
-
-    // MARK: - Init
-
-    public init() {}
 
     // MARK: - Reducer Action Handlers
 
@@ -481,12 +479,12 @@ public final class SettingsPageViewService {
 
     private func exitGracefully() {
         Task { @MainActor in
+            Application.dismissSheets()
+
             StatusBar.setIsHidden(true)
             core.ui.addOverlay(activityIndicator: .largeWhite)
 
-            Application.dismissSheets()
             navigation.navigate(to: .root(.modal(.splash)))
-
             core.gcd.after(.seconds(1)) { self.core.utils.exitGracefully() }
         }
     }

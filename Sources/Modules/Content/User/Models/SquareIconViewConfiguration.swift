@@ -19,6 +19,13 @@ public extension SquareIconView {
         // MARK: - Types
 
         public enum OverlayConfiguration {
+            case resource(
+                _ resource: ImageResource,
+                foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
+                framePercentOfTotalSize: CGFloat = AppConstants.CGFloats.SquareIconView.overlayFrameHeightMultiplier,
+                weight: Font.Weight? = nil
+            )
+
             case symbol(
                 name: String,
                 foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
@@ -51,8 +58,8 @@ public extension SquareIconView {
                 includesShadow.description,
                 overlay.foregroundColor.description,
                 overlay.rawValue,
-                overlay.symbolFramePercentOfTotalSize?.description ?? "",
-                .init(overlay.symbolWeight?.hashValue ?? 0),
+                overlay.framePercentOfTotalSize?.description ?? "",
+                .init(overlay.weight?.hashValue ?? 0),
                 String(overlay.textFont?.scale.points ?? 0),
                 String(overlay.textFont?.type),
                 String(overlay.textFont?.type.name),
@@ -82,36 +89,41 @@ public extension SquareIconView {
 private extension SquareIconView.Configuration.OverlayConfiguration {
     var foregroundColor: Color {
         switch self {
-        case let .symbol(name: _, foregroundColor, _, _): return foregroundColor
-        case let .text(string: _, _, foregroundColor): return foregroundColor
+        case let .resource(_, foregroundColor, _, _): foregroundColor
+        case let .symbol(name: _, foregroundColor, _, _): foregroundColor
+        case let .text(string: _, _, foregroundColor): foregroundColor
+        }
+    }
+
+    var framePercentOfTotalSize: CGFloat? {
+        switch self {
+        case let .resource(_, _, framePercentOfTotalSize, _): framePercentOfTotalSize
+        case let .symbol(name: _, _, framePercentOfTotalSize, _): framePercentOfTotalSize
+        case .text: nil
         }
     }
 
     var rawValue: String {
         switch self {
-        case let .symbol(name: name, _, _, _): return name
-        case let .text(string: string, _, _): return string
-        }
-    }
-
-    var symbolFramePercentOfTotalSize: CGFloat? {
-        switch self {
-        case let .symbol(name: _, _, framePercentOfTotalSize, _): return framePercentOfTotalSize
-        case .text: return nil
-        }
-    }
-
-    var symbolWeight: Font.Weight? {
-        switch self {
-        case let .symbol(name: _, _, _, weight): return weight
-        case .text: return nil
+        case let .resource(resource, _, _, _): resource.hashValue.description
+        case let .symbol(name: name, _, _, _): name
+        case let .text(string: string, _, _): string
         }
     }
 
     var textFont: ComponentKit.Font? {
         switch self {
-        case .symbol: return nil
-        case let .text(_, font, _): return font
+        case .resource,
+             .symbol: nil
+        case let .text(_, font, _): font
+        }
+    }
+
+    var weight: Font.Weight? {
+        switch self {
+        case let .resource(_, _, _, weight): weight
+        case let .symbol(name: _, _, _, weight): weight
+        case .text: nil
         }
     }
 }

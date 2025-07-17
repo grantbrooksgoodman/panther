@@ -76,5 +76,9 @@ public enum Application {
             guard ThemeService.currentTheme == UITheme.default else { return }
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
+
+        guard UIApplication.v26FeaturesEnabled else { return }
+        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
+        if isGlassTintingEnabled == nil { isGlassTintingEnabled = true }
     }
 }

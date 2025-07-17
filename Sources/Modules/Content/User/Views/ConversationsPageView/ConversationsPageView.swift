@@ -92,7 +92,8 @@ public struct ConversationsPageView: View {
                         .searchable(
                             text: searchQueryBinding,
                             isPresented: isSearchingBinding,
-                            placement: .navigationBarDrawer(displayMode: .automatic)
+                            placement: .navigationBarDrawer(displayMode: .automatic),
+                            prompt: Localized(.search).wrappedValue
                         )
                         .toolbar { composeToolbarButton }
                     }

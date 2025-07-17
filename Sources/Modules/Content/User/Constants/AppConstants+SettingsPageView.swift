@@ -35,6 +35,7 @@ public extension AppConstants.CGFloats {
         public static let groupedListViewHorizontalPadding: CGFloat = UIApplication.v26FeaturesEnabled ? 25 : 20
 
         // swiftlint:disable identifier_name
+        public static let changeLanguageButtonOverlayFramePercentOfTotalSize: CGFloat = 0.7
         public static let changeThemeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.75
         public static let clearCachesButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
         public static let toggleDeveloperModeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
@@ -47,7 +48,9 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum SettingsPageView {
         public static let blockedUsersButtonImageBackground: Color = .init(uiColor: .systemGray)
-        public static let changeThemeButtonImageBackground: Color = .purple
+        public static let changeLanguageButtonImageBackground: Color = .pink
+        public static let changeLanguageButtonImageForeground: Color = .white
+        public static let changeThemeButtonImageBackground: Color = .indigo
         public static let clearCachesButtonImageBackground: Color = .mint
         public static let deleteAccountButtonImageBackground: Color = .orange
         public static let inviteFriendsButtonImageBackground: Color = .blue

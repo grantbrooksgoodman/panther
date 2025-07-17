@@ -55,6 +55,27 @@ public struct SquareIconView: View {
     private var overlayView: some View {
         Group {
             switch configuration.overlay {
+            case let .resource(
+                resource,
+                foregroundColor: foregroundColor,
+                framePercentOfTotalSize: framePercentOfTotalSize,
+                weight: weight
+            ):
+                Image(resource)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .fontWeight(weight)
+                    .foregroundStyle(foregroundColor)
+                    .frame(
+                        width: (
+                            configuration.size.width * framePercentOfTotalSize
+                        ).rounded(.toNearestOrEven),
+                        height: (
+                            configuration.size.height * framePercentOfTotalSize
+                        ).rounded(.toNearestOrEven)
+                    )
+
             case let .symbol(
                 name: name,
                 foregroundColor: foregroundColor,

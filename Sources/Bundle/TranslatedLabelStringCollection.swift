@@ -16,6 +16,7 @@ public extension TranslatedLabelStringCollection {
     /* Add methods here to expose new strings for on-the-fly translation. */
 
     static func authCodePageView(_ key: AuthCodePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
+    static func changeLanguagePageView(_ key: ChangeLanguagePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func chatInfoPageView(_ key: ChatInfoPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func conversationsPageView(_ key: ConversationsPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func inviteQRCodePageView(_ key: InviteQRCodePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }

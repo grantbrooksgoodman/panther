@@ -72,8 +72,8 @@ public struct SettingsPageView: View {
 
                         ScrollView {
                             groupedListViews
+                                .id(viewModel.groupedListViewsID)
                                 .padding(.horizontal, Floats.groupedListViewHorizontalPadding)
-                                .redrawsOnTraitCollectionChange()
                         }
                         .scrollBounceBehavior(
                             .basedOnSize,
@@ -87,9 +87,9 @@ public struct SettingsPageView: View {
                     .background(Color.groupedContentBackground)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .interactiveDismissDisabled(true)
             }
         }
+        .interactiveDismissDisabled(true)
         .preferredStatusBarStyle(
             .conditionalLightContent,
             restoreOnDisappear: !Application.isInPrevaricationMode
@@ -105,6 +105,8 @@ public struct SettingsPageView: View {
             viewModel.send(.traitCollectionChanged)
         }
     }
+
+    // MARK: - Build Info Button
 
     private var buildInfoButton: some View {
         Group {
@@ -142,6 +144,8 @@ public struct SettingsPageView: View {
         )
     }
 
+    // MARK: - Contact Detail View
+
     private var contactDetailView: some View {
         ContactDetailView(
             titleLabelText: viewModel.contactDetailViewTitleLabelText,
@@ -153,6 +157,8 @@ public struct SettingsPageView: View {
         .padding(.top, Floats.contactDetailViewTopPadding)
         .redrawsOnTraitCollectionChange()
     }
+
+    // MARK: - Done Toolbar Button
 
     private var doneToolbarButton: NavigationWindow.Toolbar.Item {
         .init(placement: .topBarTrailing) {
@@ -172,11 +178,14 @@ public struct SettingsPageView: View {
         }
     }
 
+    // MARK: - Grouped List Views
+
     @ViewBuilder
     private var groupedListViews: some View {
         GroupedListView([
             inviteFriendsListItem,
             leaveReviewListItem,
+            changeLanguageListItem,
         ])
         .padding(.bottom, Floats.groupedListViewBottomPadding)
 
@@ -214,6 +223,8 @@ public struct SettingsPageView: View {
             GroupedListView(developerModeListItems)
         }
     }
+
+    // MARK: - Auxiliary
 
     @ViewBuilder
     private func sheetView(for path: SettingsNavigatorState.SheetPaths) -> some View {

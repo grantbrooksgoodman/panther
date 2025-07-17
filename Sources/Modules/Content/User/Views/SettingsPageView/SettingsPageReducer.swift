@@ -77,11 +77,14 @@ public struct SettingsPageReducer: Reducer {
         public var contactDetailViewSubtitleLabelText: String?
         public var contactDetailViewTitleLabelText = ""
 
+        // UUID
+        public var groupedListViewsID = UUID()
+        public var viewID = UUID()
+
         // Other
         public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
         public var contactDetailViewImage: UIImage?
         public var cnContact: CNContact?
-        public var viewID = UUID()
         public var viewState: StatefulView.ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0
@@ -213,6 +216,8 @@ public struct SettingsPageReducer: Reducer {
         case .traitCollectionChanged:
             state.traitCollectionChanged = true
             state.viewID = UUID()
+            guard viewService.isMainPagePresented else { return .none }
+            state.groupedListViewsID = UUID()
 
         case .viewDisappeared:
             let traitCollectionChanged = state.traitCollectionChanged

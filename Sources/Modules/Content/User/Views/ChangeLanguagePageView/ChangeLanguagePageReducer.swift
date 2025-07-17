@@ -1,9 +1,9 @@
 //
-//  SelectLanguagePageReducer.swift
+//  ChangeLanguagePageReducer.swift
 //  Panther
 //
-//  Created by Grant Brooks Goodman on 04/01/2024.
-//  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
+//  Created by Grant Brooks Goodman on 17/07/2025.
+//  Copyright © 2013-2025 NEOTechnica Corporation. All rights reserved.
 //
 
 /* Native */
@@ -14,22 +14,21 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct SelectLanguagePageReducer: Reducer {
+public struct ChangeLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.navigation) private var navigation: Navigation
-    @Dependency(\.onboardingService) private var onboardingService: OnboardingService
+    @Dependency(\.settingsPageViewService) private var settingsPageViewService: SettingsPageViewService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
+    @Dependency(\.changeLanguagePageViewService) private var viewService: ChangeLanguagePageViewService
 
     // MARK: - Actions
 
     public enum Action {
         case viewAppeared
+        case viewDisappeared
 
-        case backButtonTapped
-        case continueButtonTapped
-
+        case confirmButtonTapped
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case selectedLanguageNameChanged(String)
     }
@@ -41,10 +40,11 @@ public struct SelectLanguagePageReducer: Reducer {
 
         // Array
         public var languages: [String] = []
-        public var strings: [TranslationOutputMap] = SelectLanguagePageViewStrings.defaultOutputMap
+        public var strings: [TranslationOutputMap] = ChangeLanguagePageViewStrings.defaultOutputMap
 
         // Other
         public var instructionViewStrings: InstructionViewStrings = .empty
+        public var isConfirmButtonEnabled = false
         public var selectedLanguageName = ""
         public var viewState: StatefulView.ViewState = .loading
 
@@ -52,9 +52,8 @@ public struct SelectLanguagePageReducer: Reducer {
 
         fileprivate var selectedLanguageCode: String {
             @Dependency(\.coreKit.utils.localizedLanguageCodeDictionary) var localizedLanguageCodeDictionary: [String: String]?
-            guard let selectedLanguageCode = localizedLanguageCodeDictionary?
-                .keys(for: selectedLanguageName)
-                .first else { return RuntimeStorage.languageCode }
+            guard let localizedLanguageCodeDictionary,
+                  let selectedLanguageCode = localizedLanguageCodeDictionary.keys(for: selectedLanguageName).first else { return RuntimeStorage.languageCode }
             return selectedLanguageCode
         }
 
@@ -69,34 +68,20 @@ public struct SelectLanguagePageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
-            coreUtilities.restoreDeviceLanguageCode()
+            settingsPageViewService.isMainPagePresented = false
 
-            guard let localizedLanguageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else {
-                state.viewState = .error(.init(
-                    "No localized language code dictionary.",
-                    metadata: [self, #file, #function, #line]
-                ))
-                return .none
-            }
+            guard let languageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else { return .none }
 
-            state.languages = Array(localizedLanguageCodeDictionary.values).sorted()
-            state.selectedLanguageName = localizedLanguageCodeDictionary[RuntimeStorage.languageCode] ?? localizedLanguageCodeDictionary.values.first ?? ""
+            state.languages = Array(languageCodeDictionary.values).sorted()
+            state.selectedLanguageName = languageCodeDictionary[RuntimeStorage.languageCode] ?? languageCodeDictionary.values.first ?? ""
 
             return .task {
-                let result = await translator.resolve(SelectLanguagePageViewStrings.self)
+                let result = await translator.resolve(ChangeLanguagePageViewStrings.self)
                 return .resolveReturned(result)
             }
 
-        case .backButtonTapped:
-            navigation.navigate(to: .onboarding(.pop))
-
-        case .continueButtonTapped:
-            coreUtilities.restoreDeviceLanguageCode()
-            coreUtilities.clearCaches([.localization, .regionDetailService])
-            coreUtilities.setLanguageCode(state.selectedLanguageCode)
-
-            navigation.navigate(to: .onboarding(.push(.verifyNumber)))
-            onboardingService.setLanguageCode(state.selectedLanguageCode)
+        case .confirmButtonTapped:
+            viewService.confirmButtonTapped(state.selectedLanguageCode)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
@@ -116,6 +101,11 @@ public struct SelectLanguagePageReducer: Reducer {
 
         case let .selectedLanguageNameChanged(selectedLanguageName):
             state.selectedLanguageName = selectedLanguageName
+            state.isConfirmButtonEnabled = state.selectedLanguageCode != RuntimeStorage.languageCode
+
+        case .viewDisappeared:
+            settingsPageViewService.isMainPagePresented = true
+            Observables.traitCollectionChanged.trigger()
         }
 
         return .none
@@ -123,7 +113,7 @@ public struct SelectLanguagePageReducer: Reducer {
 }
 
 private extension Array where Element == TranslationOutputMap {
-    func value(for key: TranslatedLabelStringCollection.SelectLanguagePageViewStringKey) -> String {
-        (first(where: { $0.key == .selectLanguagePageView(key) })?.value ?? key.rawValue).sanitized
+    func value(for key: TranslatedLabelStringCollection.ChangeLanguagePageViewStringKey) -> String {
+        (first(where: { $0.key == .changeLanguagePageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

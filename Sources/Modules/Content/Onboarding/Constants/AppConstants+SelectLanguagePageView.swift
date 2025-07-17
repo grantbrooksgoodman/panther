@@ -21,10 +21,11 @@ public extension AppConstants.CGFloats {
         public static let backButtonTopPadding: CGFloat = 2
 
         public static let continueButtonTopPadding: CGFloat = 5
+
+        public static let innerVStackTopPadding: CGFloat = 50
         public static let instructionLabelVerticalPadding: CGFloat = 5
 
         public static let pickerHorizontalPadding: CGFloat = 30
-        public static let topPadding: CGFloat = 50
     }
 }
 

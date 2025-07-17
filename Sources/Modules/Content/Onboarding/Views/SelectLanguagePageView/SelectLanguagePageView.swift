@@ -26,10 +26,10 @@ public struct SelectLanguagePageView: View {
 
     // MARK: - Bindings
 
-    private var selectedLanguageBinding: Binding<String> {
+    private var selectedLanguageNameBinding: Binding<String> {
         viewModel.binding(
-            for: \.selectedLanguage,
-            sendAction: { .selectedLanguageChanged($0) }
+            for: \.selectedLanguageName,
+            sendAction: { .selectedLanguageNameChanged($0) }
         )
     }
 
@@ -54,15 +54,14 @@ public struct SelectLanguagePageView: View {
                     )
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                    ThemedView(redrawsOnAppearanceChange: true) {
-                        Picker("", selection: selectedLanguageBinding) {
-                            ForEach(viewModel.languages, id: \.self) {
-                                Components.text($0)
-                            }
+                    Picker("", selection: selectedLanguageNameBinding) {
+                        ForEach(viewModel.languages, id: \.self) {
+                            Components.text($0)
                         }
-                        .pickerStyle(.wheel)
-                        .padding(.horizontal, Floats.pickerHorizontalPadding)
+                        .redrawsOnTraitCollectionChange()
                     }
+                    .pickerStyle(.wheel)
+                    .padding(.horizontal, Floats.pickerHorizontalPadding)
 
                     Components.capsuleButton(
                         viewModel.strings.value(for: .continueButtonText),
@@ -80,7 +79,7 @@ public struct SelectLanguagePageView: View {
                     }
                     .padding(.top, Floats.backButtonTopPadding)
                 }
-                .padding(.top, Floats.topPadding)
+                .padding(.top, Floats.innerVStackTopPadding)
 
                 Spacer()
             }

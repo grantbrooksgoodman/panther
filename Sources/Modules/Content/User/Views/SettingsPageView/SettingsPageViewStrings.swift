@@ -17,6 +17,7 @@ public extension TranslatedLabelStringCollection {
         // MARK: - Cases
 
         case blockedUsersButtonText = "Blocked Users"
+        case changeLanguage = "Change Language"
         case changeThemeButtonText = "Change Theme"
         case clearCachesButtonText = "Clear Caches"
         case deleteAccountButtonText = "Delete Account"

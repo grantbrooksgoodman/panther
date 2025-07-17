@@ -38,6 +38,33 @@ public extension SettingsPageView {
         )
     }
 
+    var changeLanguageListItem: ListRowView.Configuration {
+        .init(
+            .destination(
+                ChangeLanguagePageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: ChangeLanguagePageReducer()
+                    )
+                )
+            ),
+            innerText: viewModel.strings.value(for: .changeLanguage),
+            imageView: {
+                SquareIconView.image(
+                    .init(
+                        backgroundColor: Colors.changeLanguageButtonImageBackground,
+                        overlay: .resource(
+                            .viewAlternate,
+                            foregroundColor: Colors.changeLanguageButtonImageForeground,
+                            framePercentOfTotalSize: Floats.changeLanguageButtonOverlayFramePercentOfTotalSize,
+                            weight: .bold
+                        )
+                    )
+                ).swiftUIImage
+            }
+        )
+    }
+
     var changeThemeListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.changeThemeButtonTapped) },

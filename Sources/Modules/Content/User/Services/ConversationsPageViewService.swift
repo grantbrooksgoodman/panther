@@ -10,6 +10,7 @@
 import Foundation
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 import Networking
 
@@ -137,12 +138,27 @@ public final class ConversationsPageViewService {
                 }
             }
 
-            guard await self.services.permission.notificationPermissionStatus == .unknown else {
-                self.services.review.promptToReview()
-                return
-            }
+            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+            if await services.permission.notificationPermissionStatus == .unknown {
+                _ = await services.permission.requestPermission(for: .notifications)
+            } else if (contactPairArchive ?? []).isEmpty {
+                typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ActionHandler
 
-            _ = await self.services.permission.requestPermission(for: .notifications)
+                let inviteAction: AKAction = .init(Strings.inviteAlertActionTitle, style: .preferred) {
+                    Task {
+                        if let exception = await self.services.invite.presentInvitationPrompt() {
+                            Logger.log(exception, with: .toast)
+                        }
+                    }
+                }
+
+                await AKAlert(
+                    message: Strings.inviteAlertMessage,
+                    actions: [inviteAction, .cancelAction]
+                ).present(translating: [.actions([inviteAction]), .message])
+            } else {
+                services.review.promptToReview()
+            }
         }
 
         services.connectionStatus.addEffectUponConnectionChanged(id: .checkForUpdates) {

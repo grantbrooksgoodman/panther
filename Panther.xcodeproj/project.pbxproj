@@ -293,6 +293,12 @@
 		B99880A12E2974E3002742A8 /* QueriedConversationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */; };
 		B99880A32E297851002742A8 /* SearchInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A22E297851002742A8 /* SearchInteractionService.swift */; };
 		B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A42E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift */; };
+		B99880A82E299B6B002742A8 /* ChangeLanguagePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A72E299B6B002742A8 /* ChangeLanguagePageView.swift */; };
+		B99880AA2E299B9A002742A8 /* ChangeLanguagePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A92E299B9A002742A8 /* ChangeLanguagePageReducer.swift */; };
+		B99880AC2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880AB2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift */; };
+		B99880AE2E29A87A002742A8 /* ChangeLanguagePageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880AD2E29A87A002742A8 /* ChangeLanguagePageViewService.swift */; };
+		B99880B02E29A8A7002742A8 /* ChangeLanguagePageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880AF2E29A8A7002742A8 /* ChangeLanguagePageViewServiceDependency.swift */; };
+		B99880B22E29B0F0002742A8 /* AppConstants+ChangeLanguagePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880B12E29B0F0002742A8 /* AppConstants+ChangeLanguagePageView.swift */; };
 		B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */; };
 		B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */; };
 		B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */; };
@@ -1095,6 +1101,12 @@
 		B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueriedConversationCache.swift; sourceTree = "<group>"; };
 		B99880A22E297851002742A8 /* SearchInteractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchInteractionService.swift; sourceTree = "<group>"; };
 		B99880A42E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessagesCollectionView+UserContentExtensions.swift"; sourceTree = "<group>"; };
+		B99880A72E299B6B002742A8 /* ChangeLanguagePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLanguagePageView.swift; sourceTree = "<group>"; };
+		B99880A92E299B9A002742A8 /* ChangeLanguagePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLanguagePageReducer.swift; sourceTree = "<group>"; };
+		B99880AB2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLanguagePageViewStrings.swift; sourceTree = "<group>"; };
+		B99880AD2E29A87A002742A8 /* ChangeLanguagePageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLanguagePageViewService.swift; sourceTree = "<group>"; };
+		B99880AF2E29A8A7002742A8 /* ChangeLanguagePageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLanguagePageViewServiceDependency.swift; sourceTree = "<group>"; };
+		B99880B12E29B0F0002742A8 /* AppConstants+ChangeLanguagePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChangeLanguagePageView.swift"; sourceTree = "<group>"; };
 		B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITheme+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerView.swift; sourceTree = "<group>"; };
 		B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerReducer.swift; sourceTree = "<group>"; };
@@ -2360,6 +2372,16 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		B99880A62E299B5E002742A8 /* ChangeLanguagePageView */ = {
+			isa = PBXGroup;
+			children = (
+				B99880A92E299B9A002742A8 /* ChangeLanguagePageReducer.swift */,
+				B99880A72E299B6B002742A8 /* ChangeLanguagePageView.swift */,
+				B99880AB2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift */,
+			);
+			path = ChangeLanguagePageView;
+			sourceTree = "<group>";
+		};
 		B998B3BF2B68A66B0048241B /* InviteLanguagePickerView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3183,6 +3205,7 @@
 		B9F47AE22B576E3800D86C67 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B99880A62E299B5E002742A8 /* ChangeLanguagePageView */,
 				B9C696492B895B94005F0BFE /* ChatInfoPageView */,
 				B90C91062B69C9E4008DFE59 /* ChatPageView */,
 				B990F5A42B81C5F600C7BE00 /* ContactSelectorPageView */,
@@ -3242,6 +3265,7 @@
 			isa = PBXGroup;
 			children = (
 				B9F47AF52B585FE400D86C67 /* AppConstants+AvatarImageView.swift */,
+				B99880B12E29B0F0002742A8 /* AppConstants+ChangeLanguagePageView.swift */,
 				B9A907392BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift */,
 				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
 				B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */,
@@ -3314,6 +3338,7 @@
 			isa = PBXGroup;
 			children = (
 				B9BF37F72B6DAF8D00024548 /* ChatPageView */,
+				B99880AD2E29A87A002742A8 /* ChangeLanguagePageViewService.swift */,
 				B9C696512B896319005F0BFE /* ChatInfoPageViewService.swift */,
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
@@ -3328,6 +3353,7 @@
 		B9F47B2B2B5A072F00D86C67 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				B99880AF2E29A8A7002742A8 /* ChangeLanguagePageViewServiceDependency.swift */,
 				B9C696532B89632A005F0BFE /* ChatInfoPageViewServiceDependency.swift */,
 				B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */,
 				B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */,
@@ -4020,6 +4046,7 @@
 				B9223D472CD58DD100C05BC6 /* MenuView+Extensions.swift in Sources */,
 				B9A5D8222D1C9BC400B03908 /* PenPalsSharingData+Serializable.swift in Sources */,
 				B9E0E1062B20FE8600C14274 /* MessageService.swift in Sources */,
+				B99880A82E299B6B002742A8 /* ChangeLanguagePageView.swift in Sources */,
 				B9223D3F2CD5882300C05BC6 /* ContextMenuViewControllerDelegate.swift in Sources */,
 				B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */,
 				B900B5442B1ACC6100BA2F1D /* Contact.swift in Sources */,
@@ -4078,6 +4105,7 @@
 				B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */,
 				B9E6D7C92B1274D8000BC88D /* LegacyUserService.swift in Sources */,
 				B9EC04CD2B79673400A16700 /* SettingsPageReducer.swift in Sources */,
+				B99880AA2E299B9A002742A8 /* ChangeLanguagePageReducer.swift in Sources */,
 				B99195952B47E89800BD5BBC /* VerifyNumberPageReducer.swift in Sources */,
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
 				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
@@ -4123,6 +4151,7 @@
 				B986C4B12CD42E6E00414E57 /* Reaction+Serializable.swift in Sources */,
 				B990F5A82B81C60B00C7BE00 /* ContactSelectorPageReducer.swift in Sources */,
 				B9CF639E2C6F244E00A6208F /* ContactNameServiceDependency.swift in Sources */,
+				B99880B22E29B0F0002742A8 /* AppConstants+ChangeLanguagePageView.swift in Sources */,
 				B90C91202B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift in Sources */,
 				B9EC04CF2B79674800A16700 /* SettingsPageViewStrings.swift in Sources */,
 				B998B3C52B68A6900048241B /* AppConstants+InviteLanguagePickerView.swift in Sources */,
@@ -4167,6 +4196,7 @@
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
 				B99880A32E297851002742A8 /* SearchInteractionService.swift in Sources */,
+				B99880AE2E29A87A002742A8 /* ChangeLanguagePageViewService.swift in Sources */,
 				B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */,
 				B9EC04D12B79675100A16700 /* SettingsPageView+GroupedListItems.swift in Sources */,
 				B9E00A562C2B8D35004E350E /* LocalMediaFilePath.swift in Sources */,
@@ -4201,6 +4231,7 @@
 				B9E6D7DC2B1288B2000BC88D /* WelcomePageView.swift in Sources */,
 				B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */,
 				B963F1C82B23D7110087DB83 /* Participant.swift in Sources */,
+				B99880AC2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
 				B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */,
 				B91E93942C2B23760099FBA4 /* IntegrityService+CommonNetworkingExtensions.swift in Sources */,
@@ -4213,6 +4244,7 @@
 				B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */,
 				B9E5C0192E0C7B5E00D0FF0F /* NavigationBarItemGlassTintViewModifier.swift in Sources */,
 				B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */,
+				B99880B02E29A8A7002742A8 /* ChangeLanguagePageViewServiceDependency.swift in Sources */,
 				B9BD952E2B72E412009C1CB8 /* AppConstants+AudioFile.swift in Sources */,
 				B9BB3CF32AC0C6B50077D1BC /* TranslatedLabelStringCollection.swift in Sources */,
 				B9C6964F2B8961FC005F0BFE /* ChatInfoPageView.swift in Sources */,
