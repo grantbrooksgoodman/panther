@@ -82,10 +82,13 @@ public struct UserContentContainerView: View {
     }
 
     @ViewBuilder
-    private func chatPageView(_ conversation: Conversation) -> some View {
+    private func chatPageView(
+        _ conversation: Conversation,
+        focusedMessageID: String?
+    ) -> some View {
         let baseView = ChatPageView(
             conversation,
-            configuration: .default
+            configuration: .default(focusedMessageID: focusedMessageID)
         )
         .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
         .ignoresSafeArea(.keyboard)
@@ -116,8 +119,11 @@ public struct UserContentContainerView: View {
     @ViewBuilder
     private func destinationView(for path: UserContentNavigatorState.SeguePaths) -> some View {
         switch path {
-        case let .chat(conversation):
-            chatPageView(conversation)
+        case let .chat(conversation, focusedMessageID: focusedMessageID):
+            chatPageView(
+                conversation,
+                focusedMessageID: focusedMessageID
+            )
         }
     }
 

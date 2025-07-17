@@ -86,6 +86,17 @@ public final class ConversationSessionService {
         currentConversation = withMessagesOffset(fullConversation)
     }
 
+    public func incrementMessageOffset(to messageID: String) {
+        guard let fullConversation,
+              fullConversation.messageIDs.contains(messageID),
+              fullConversation.messages?.map(\.id).contains(messageID) == true else { return }
+
+        while currentConversation?.messages?.map(\.id).contains(messageID) == false {
+            messageOffset += 1
+            currentConversation = withMessagesOffset(fullConversation)
+        }
+    }
+
     public func resetMessageOffset() {
         messageOffset = Floats.defaultMessageOffset
     }

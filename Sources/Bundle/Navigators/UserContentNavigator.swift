@@ -18,7 +18,7 @@ public struct UserContentNavigatorState: NavigatorState {
     public enum ModalPaths: Paths {}
 
     public enum SeguePaths: Paths {
-        case chat(Conversation)
+        case chat(Conversation, focusedMessageID: String? = nil)
     }
 
     public enum SheetPaths: Paths {

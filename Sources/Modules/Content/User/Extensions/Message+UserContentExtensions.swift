@@ -95,6 +95,8 @@ extension Message: MessageType {
 // swiftformat:enable acronyms
 
 public extension Message {
+    // MARK: - Properties
+
     var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
 
     static var consentRequestMessageID: String?
@@ -145,5 +147,13 @@ public extension Message {
         @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) var speakingMessage: Message?
         guard let speakingMessage else { return false }
         return speakingMessage.id == id
+    }
+
+    // MARK: - Methods
+
+    func textContains(_ searchTerm: String) -> Bool {
+        guard let translation else { return false }
+        let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
+        return isFromCurrentUser ? translation.input.value.contains(searchTerm) : translation.output.contains(searchTerm)
     }
 }

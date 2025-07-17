@@ -63,9 +63,37 @@ public extension Array where Element == ContactPair {
 }
 
 public extension Array where Element == Conversation {
+    // MARK: - Properties
+
     /// The unique conversations among the array which are visible for the current user, sorted by latest message sent date.
     var filteredAndSorted: [Conversation] {
         visibleForCurrentUser.sortedByLatestMessageSentDate.unique
+    }
+
+    // MARK: - Methods
+
+    func queried(by searchTerm: String) -> [Conversation] {
+        let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
+        guard !searchTerm.isBlank else { return self }
+
+        if let cachedValue = QueriedConversationCache.cachedConversationsForSearchTerms?[searchTerm] {
+            return cachedValue.visibleForCurrentUser
+        }
+
+        func satisfiesConstraints(_ conversation: Conversation) -> Bool {
+            let metadataContainsSearchTerm = conversation.metadata.name.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
+            guard let messages = conversation.messages else { return metadataContainsSearchTerm }
+            let messagesContainsSearchTerm = messages.contains(where: { $0.textContains(searchTerm) })
+            return messagesContainsSearchTerm || metadataContainsSearchTerm
+        }
+
+        let queriedConversations = filter { satisfiesConstraints($0) }
+
+        var cachedConversationsForSearchTerms = QueriedConversationCache.cachedConversationsForSearchTerms ?? [:]
+        cachedConversationsForSearchTerms[searchTerm] = queriedConversations
+        QueriedConversationCache.cachedConversationsForSearchTerms = cachedConversationsForSearchTerms
+
+        return queriedConversations
     }
 }
 

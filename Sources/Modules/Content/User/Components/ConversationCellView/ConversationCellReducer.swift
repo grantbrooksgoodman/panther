@@ -41,14 +41,13 @@ public struct ConversationCellReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        // String
         @Localized(.blockUser) public var blockUsersButtonText: String
+        public var cellViewData: ConversationCellViewData = .empty
+        public var conversation: Conversation
         @Localized(.delete) public var deleteConversationButtonText: String
         @Localized(.reportUser) public var reportUsersButtonText: String
 
-        // Other
-        public var cellViewData: ConversationCellViewData = .empty
-        public var conversation: Conversation
+        fileprivate var searchQuery: String
 
         /* MARK: Computed Properties */
 
@@ -72,8 +71,12 @@ public struct ConversationCellReducer: Reducer {
 
         /* MARK: Init */
 
-        public init(_ conversation: Conversation) {
+        public init(
+            _ conversation: Conversation,
+            searchQuery: String
+        ) {
             self.conversation = conversation
+            self.searchQuery = searchQuery
         }
     }
 
@@ -82,7 +85,11 @@ public struct ConversationCellReducer: Reducer {
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
-            guard let cellViewData = ConversationCellViewData(state.conversation) else { return .none }
+            guard let cellViewData = ConversationCellViewData(
+                state.conversation,
+                searchQuery: state.searchQuery
+            ) else { return .none }
+
             state.cellViewData = cellViewData
 
         case .blockUsersButtonTapped:
@@ -93,7 +100,20 @@ public struct ConversationCellReducer: Reducer {
             }
 
         case .cellTapped:
-            navigation.navigate(to: .userContent(.push(.chat(state.conversation))))
+            guard !state.searchQuery.isBlank,
+                  let focusedMessageID = state
+                  .conversation
+                  .messages?
+                  .last(where: { $0.textContains(state.searchQuery) })?
+                  .id else {
+                navigation.navigate(to: .userContent(.push(.chat(state.conversation))))
+                return .none
+            }
+
+            navigation.navigate(to: .userContent(.push(.chat(
+                state.conversation,
+                focusedMessageID: focusedMessageID
+            ))))
 
         case .deleteConversationButtonTapped:
             let title = state.cellViewData.titleLabelText

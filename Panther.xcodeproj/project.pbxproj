@@ -290,6 +290,9 @@
 		B996C3242B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */; };
 		B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */; };
 		B9975C8B2B201AA4008CE353 /* CommonServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9975C8A2B201AA4008CE353 /* CommonServices.swift */; };
+		B99880A12E2974E3002742A8 /* QueriedConversationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */; };
+		B99880A32E297851002742A8 /* SearchInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A22E297851002742A8 /* SearchInteractionService.swift */; };
+		B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99880A42E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift */; };
 		B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */; };
 		B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */; };
 		B998B3C32B68A6810048241B /* InviteLanguagePickerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */; };
@@ -1089,6 +1092,9 @@
 		B996C3232B76F245004C91F6 /* NSAttributedString+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B9975C872B201A5E008CE353 /* CommonServicesDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServicesDependency.swift; sourceTree = "<group>"; };
 		B9975C8A2B201AA4008CE353 /* CommonServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonServices.swift; sourceTree = "<group>"; };
+		B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueriedConversationCache.swift; sourceTree = "<group>"; };
+		B99880A22E297851002742A8 /* SearchInteractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchInteractionService.swift; sourceTree = "<group>"; };
+		B99880A42E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessagesCollectionView+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B998B3BD2B68A2540048241B /* UITheme+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITheme+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		B998B3C02B68A67A0048241B /* InviteLanguagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerView.swift; sourceTree = "<group>"; };
 		B998B3C22B68A6810048241B /* InviteLanguagePickerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLanguagePickerReducer.swift; sourceTree = "<group>"; };
@@ -2242,6 +2248,7 @@
 				B98589B42B60515D00E549C0 /* ConversationCellViewData.swift */,
 				B9EC04C42B784C0000A16700 /* MessageDeliveryServiceEffectID.swift */,
 				B9464F642CAF89FE00A11842 /* QueriedContactPairCache.swift */,
+				B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */,
 				B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */,
 				B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */,
 			);
@@ -2448,6 +2455,7 @@
 				B943F2472C41EA610047EDD5 /* MediaMessagePreviewService.swift */,
 				B947F2DC2CAC8AD9004CD880 /* ReadReceiptService.swift */,
 				B91822272B6DE5570068BDAB /* RecordingUIService.swift */,
+				B99880A22E297851002742A8 /* SearchInteractionService.swift */,
 				B91822252B6DDE030068BDAB /* TypingIndicatorService.swift */,
 			);
 			path = Sources;
@@ -3284,6 +3292,7 @@
 				B90C91232B6AF2A9008DFE59 /* Locale+UserContentExtensions.swift */,
 				B92277602C2BA3A100C18B13 /* MediaFile+UserContentExtensions.swift */,
 				B90C910D2B69CD95008DFE59 /* Message+UserContentExtensions.swift */,
+				B99880A42E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift */,
 				B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */,
 				B9855F9D2E0299B300FE4086 /* NavigationBar+UserContentExtensions.swift */,
 				B98982492BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift */,
@@ -3957,6 +3966,7 @@
 				B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
 				B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */,
+				B99880A12E2974E3002742A8 /* QueriedConversationCache.swift in Sources */,
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
@@ -4085,6 +4095,7 @@
 				B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */,
 				B99195932B47E88400BD5BBC /* VerifyNumberPageView.swift in Sources */,
 				B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */,
+				B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */,
 				B95DCE512D8CC968003730F9 /* AppConstants+NewChatPageView.swift in Sources */,
 				B9EC04C52B784C0000A16700 /* MessageDeliveryServiceEffectID.swift in Sources */,
 				B9A409262B71D333005F2489 /* HapticsService.swift in Sources */,
@@ -4155,6 +4166,7 @@
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
+				B99880A32E297851002742A8 /* SearchInteractionService.swift in Sources */,
 				B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */,
 				B9EC04D12B79675100A16700 /* SettingsPageView+GroupedListItems.swift in Sources */,
 				B9E00A562C2B8D35004E350E /* LocalMediaFilePath.swift in Sources */,

@@ -23,10 +23,35 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
     // MARK: - Types
 
-    public enum Configuration {
-        case `default`
+    public enum Configuration: Equatable {
+        /* MARK: Cases */
+
+        case `default`(focusedMessageID: String?)
         case newChat
         case preview
+
+        /* MARK: Properties */
+
+        public static let `default`: Configuration = .default(focusedMessageID: nil)
+
+        public var focusedMessageID: String? {
+            switch self {
+            case let .default(focusedMessageID): return focusedMessageID
+            default: return nil
+            }
+        }
+
+        /* MARK: Equatable Conformance */
+
+        public static func == (left: Configuration, right: Configuration) -> Bool {
+            switch (left, right) {
+            case(.default, .default),
+                 (.newChat, .newChat),
+                 (.preview, .preview): true
+
+            default: false
+            }
+        }
     }
 
     // MARK: - Dependencies

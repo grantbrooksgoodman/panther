@@ -35,7 +35,6 @@ public struct ChatPageViewControllerFactory {
         viewController.messagesCollectionView.messagesLayoutDelegate = viewController
         viewController.messageInputBar.delegate = viewController
 
-        viewController.scrollsToLastItemOnKeyboardBeginsEditing = true
         viewController.showMessageTimestampOnSwipeLeft = true
 
         configureCollectionViewLayout(viewController)

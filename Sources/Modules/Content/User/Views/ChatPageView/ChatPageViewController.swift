@@ -62,6 +62,10 @@ public final class ChatPageViewController: MessagesViewController {
         viewService.onScrollViewDidEndDecelerating(scrollView)
     }
 
+    override public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        viewService.onScrollViewDidEndScrollingAnimation()
+    }
+
     override public func scrollViewDidScrollToTop(_: UIScrollView) {
         viewService.onScrollViewDidScrollToTop()
     }

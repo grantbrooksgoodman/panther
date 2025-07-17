@@ -62,7 +62,10 @@ public struct ConversationCellViewData: Equatable {
         thumbnailImage = nil
     }
 
-    public init?(_ conversation: Conversation) {
+    public init?(
+        _ conversation: Conversation,
+        searchQuery: String? = nil
+    ) {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
 
         let conversation = conversation.withMessagesSortedByAscendingSentDate
@@ -119,7 +122,15 @@ public struct ConversationCellViewData: Equatable {
 
         // Set date & subtitle label text
 
-        if let lastMessage = conversation.messages?.last {
+        var lastMessage = conversation.messages?.last
+        if let searchQuery,
+           !searchQuery.isBlank {
+            lastMessage = conversation
+                .messages?
+                .last(where: { $0.textContains(searchQuery) }) ?? lastMessage
+        }
+
+        if let lastMessage {
             dateLabelText = lastMessage.sentDate.formattedShortString
 
             if lastMessage.audioComponent != nil {

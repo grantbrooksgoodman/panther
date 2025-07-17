@@ -29,6 +29,8 @@ final class ContextMenuInteractor {
     var contextMenuViewController: ContextMenuViewController?
     weak var viewOriginalWindow: UIWindow?
 
+    private var isShowing = false
+
     // MARK: - Computed Properties
 
     let window: UIWindow = {
@@ -132,6 +134,9 @@ final class ContextMenuInteractor {
     }
 
     private func showContextMenu(on view: UIView, interaction: Interaction) {
+        guard !isShowing else { return }
+        isShowing = true
+
         interaction.gesture.isEnabled = false
         viewOriginalWindow = view.window
 
@@ -155,5 +160,9 @@ final class ContextMenuInteractor {
 
         window.makeKeyAndVisible()
         contextMenuController.appearAnimation()
+
+        Task.delayed(by: .milliseconds(
+            contextMenuController.style.appearAnimationParameters.duration
+        )) { isShowing = false }
     }
 }

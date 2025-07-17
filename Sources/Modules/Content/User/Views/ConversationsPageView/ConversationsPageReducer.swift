@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -17,7 +18,7 @@ public struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
@@ -38,6 +39,9 @@ public struct ConversationsPageReducer: Reducer {
         case traitCollectionChanged
         case updatedCurrentUser
 
+        case isSearchingChanged(Bool)
+        case searchQueryChanged(String)
+
         case composeToolbarButtonAnimationAmountSet(CGFloat)
         case reloadDataReturned(Callback<[Conversation], Exception>)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
@@ -54,9 +58,12 @@ public struct ConversationsPageReducer: Reducer {
 
         // Bool
         public var isRefreshing = false
+        public var isSearching = false
 
         // Other
         public var animationAmount: CGFloat = 1
+        public var conversationCellViewID = UUID()
+        public var searchQuery = ""
         public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
@@ -91,6 +98,9 @@ public struct ConversationsPageReducer: Reducer {
         case .composeToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.newChat)))
 
+        case let .isSearchingChanged(isSearching):
+            state.isSearching = isSearching
+
         case .pulledToRefresh:
             state.isRefreshing = true
             return .task {
@@ -118,6 +128,13 @@ public struct ConversationsPageReducer: Reducer {
             state.viewState = .loaded
             viewService.viewLoaded(state.conversations.isEmpty)
 
+        case let .searchQueryChanged(searchQuery):
+            guard state.searchQuery != searchQuery else { return .none }
+
+            state.conversations = conversations?.queried(by: searchQuery) ?? state.conversations
+            state.conversationCellViewID = UUID()
+            state.searchQuery = searchQuery
+
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))
 
@@ -137,7 +154,7 @@ public struct ConversationsPageReducer: Reducer {
                         metadata: [self, #file, #function, #line]
                     )
 
-                    coreGCD.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }
+                    core.gcd.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }
                     return true
                 }
 
@@ -145,7 +162,12 @@ public struct ConversationsPageReducer: Reducer {
             }
 
             guard !refreshUsersIfNeeded() else { return .none }
+
             state.conversations = conversations ?? state.conversations
+            state.isSearching = false
+            state.searchQuery = ""
+            core.utils.clearCaches([.queriedConversations])
+
             return .task {
                 .composeToolbarButtonAnimationAmountSet(1)
             }

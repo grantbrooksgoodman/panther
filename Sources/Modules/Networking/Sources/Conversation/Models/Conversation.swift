@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class Conversation: Codable, EncodedHashable, Equatable, Hashable {
+public final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // Array

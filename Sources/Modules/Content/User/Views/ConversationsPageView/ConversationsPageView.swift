@@ -26,6 +26,22 @@ public struct ConversationsPageView: View {
     @StateObject private var observer: ViewObserver<ConversationsPageObserver>
     @StateObject private var viewModel: ViewModel<ConversationsPageReducer>
 
+    // MARK: - Bindings
+
+    private var isSearchingBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isSearching,
+            sendAction: { .isSearchingChanged($0) }
+        )
+    }
+
+    private var searchQueryBinding: Binding<String> {
+        viewModel.binding(
+            for: \.searchQuery,
+            sendAction: { .searchQueryChanged($0) }
+        )
+    }
+
     // MARK: - Init
 
     public init(_ viewModel: ViewModel<ConversationsPageReducer>) {
@@ -52,18 +68,32 @@ public struct ConversationsPageView: View {
                             ForEach(viewModel.conversations, id: \.self) { conversation in
                                 ConversationCellView(
                                     .init(
-                                        initialState: .init(conversation),
+                                        initialState: .init(
+                                            conversation,
+                                            searchQuery: viewModel.searchQuery
+                                        ),
                                         reducer: ConversationCellReducer()
                                     )
                                 )
+                                .if(UIApplication.v26FeaturesEnabled) {
+                                    $0.id(viewModel.conversationCellViewID)
+                                }
                                 .redrawsOnTraitCollectionChange()
                             }
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
+                        .if(!UIApplication.v26FeaturesEnabled) {
+                            $0.id(viewModel.conversationCellViewID)
+                        }
                         .listStyle(.plain)
                         .refreshable {
                             await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
                         }
+                        .searchable(
+                            text: searchQueryBinding,
+                            isPresented: isSearchingBinding,
+                            placement: .navigationBarDrawer(displayMode: .automatic)
+                        )
                         .toolbar { composeToolbarButton }
                     }
                 }

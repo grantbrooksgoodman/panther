@@ -50,6 +50,7 @@ public final class ChatPageViewService {
     public private(set) var readReceipts: ReadReceiptService?
     public private(set) var recipientBar: RecipientBarService?
     public private(set) var recordingUI: RecordingUIService?
+    public private(set) var searchInteraction: SearchInteractionService?
     public private(set) var tapGestureRecognizer: TapGestureRecognizerService?
     public private(set) var typingIndicator: TypingIndicatorService?
 
@@ -61,6 +62,10 @@ public final class ChatPageViewService {
     public func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
+
+        if let focusedMessageID = configuration.focusedMessageID {
+            clientSession.conversation.incrementMessageOffset(to: focusedMessageID)
+        }
 
         // NIT: Could store [ConversationID: ViewController] and allow for multiple presentations (i.e., "Add Contact" button) that way?
 
@@ -81,9 +86,11 @@ public final class ChatPageViewService {
         mediaMessagePreview = .init(viewController)
         readReceipts = .init(viewController)
         recordingUI = .init(viewController)
+        searchInteraction = .init(viewController, focusedMessageID: configuration.focusedMessageID)
         tapGestureRecognizer = .init(viewController)
         typingIndicator = .init(viewController)
 
+        viewController.scrollsToLastItemOnKeyboardBeginsEditing = configuration.focusedMessageID == nil
         guard configuration == .newChat else { return viewController }
 
         let recipientBarService = RecipientBarService(viewController)
@@ -145,8 +152,11 @@ public final class ChatPageViewService {
 
         if configuration == .default {
             services.analytics.logEvent(.accessChat)
-            inputBar?.becomeFirstResponder()
-            uiApplication.resignFirstResponders()
+            if let focusedMessageID = configuration.focusedMessageID {
+                viewController?.messagesCollectionView.scrollTo(messageID: focusedMessageID)
+            } else {
+                viewController?.messagesCollectionView.scrollToLastItem()
+            }
 
             UIView.animate(
                 withDuration: Floats.inputBarAppearanceAnimationDuration,
@@ -219,6 +229,11 @@ public final class ChatPageViewService {
     public func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
         loadMoreMessages(fromScrollToTop: false)
+    }
+
+    @MainActor
+    public func onScrollViewDidEndScrollingAnimation() {
+        searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
 
     public func onScrollViewDidScrollToTop() {
