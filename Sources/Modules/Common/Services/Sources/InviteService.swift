@@ -20,29 +20,24 @@ public struct InviteService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
-    // MARK: - Present Invitation Prompt
+    // MARK: - Properties
 
-    @MainActor
-    public func presentInvitationPrompt() async -> Exception? {
-        guard let presentInviteLanguagePicker = await promptToTranslate() else { return nil }
+    @Persistent(.appOpenCount) private var appOpenCount: Int?
+    @Persistent(.contactPairArchive) private var contactPairArchive: [ContactPair]?
 
-        guard presentInviteLanguagePicker else {
-            if let exception = await composeInvitation(languageCode: nil) {
-                return exception
-            }
+    // MARK: - Computed Properties
 
-            return nil
-        }
-
-        Application.dismissSheets()
-        coreGCD.after(.seconds(2)) {
-            RootSheets.present(.inviteLanguagePicker)
-        }
-
-        return nil
+    private var canSuggestInvitation: Bool {
+        guard services.permission.contactPermissionStatus == .granted,
+              (contactPairArchive ?? []).isEmpty,
+              currentUser?.conversations == nil || currentUser?.conversations?.isEmpty == true,
+              currentUser?.conversationIDs == nil || currentUser?.conversationIDs?.isEmpty == true,
+              (appOpenCount ?? 0) == 0 || appOpenCount == 1 || (appOpenCount ?? 0) % 2 == 0 else { return false }
+        return true
     }
 
     // MARK: - Compose Invitation
@@ -84,6 +79,63 @@ public struct InviteService {
         }
 
         return nil
+    }
+
+    // MARK: - Present Invitation Prompt
+
+    @MainActor
+    public func presentInvitationPrompt() async -> Exception? {
+        guard let presentInviteLanguagePicker = await promptToTranslate() else { return nil }
+        guard presentInviteLanguagePicker else {
+            if let exception = await composeInvitation(languageCode: nil) {
+                return exception
+            }
+
+            return nil
+        }
+
+        Application.dismissSheets()
+        coreGCD.after(.seconds(2)) {
+            RootSheets.present(.inviteLanguagePicker)
+        }
+
+        return nil
+    }
+
+    // MARK: - Present Invitation Suggestion Prompt
+
+    public func presentInvitationSuggestionPrompt() async {
+        let inviteAction: AKAction = .init(
+            "Send Invite",
+            style: .preferred
+        ) {
+            Task {
+                if let exception = await self.presentInvitationPrompt() {
+                    Logger.log(exception, with: .toast)
+                }
+            }
+        }
+
+        await AKAlert( // swiftlint:disable:next line_length
+            message: "It doesn't appear that any of your contacts have an account on ⌘\(build.finalName)⌘ yet.\n\nWould you like to send them an invite to sign up?",
+            actions: [inviteAction, .cancelAction]
+        ).present(translating: [.actions([inviteAction]), .message])
+    }
+
+    // MARK: - Suggest Invitation If Needed
+
+    /// - Returns: `true` if the necessary conditions to suggest invitation were met.
+    public func suggestInvitationIfNeeded() async -> Bool {
+        guard canSuggestInvitation else { return false }
+
+        if let exception = await services.contact.syncContactPairArchive() {
+            Logger.log(exception, with: .toast)
+            return false
+        }
+
+        guard (contactPairArchive ?? []).isEmpty else { return false }
+        await presentInvitationSuggestionPrompt()
+        return true
     }
 
     // MARK: - Prompt to Translate

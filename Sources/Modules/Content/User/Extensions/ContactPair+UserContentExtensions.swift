@@ -74,6 +74,7 @@ public extension ContactPair {
                             languageCode: "",
                             messageRecipientConsentRequired: false,
                             phoneNumber: .init(""),
+                            previousLanguageCodes: nil,
                             pushTokens: nil
                         ),
                     ]

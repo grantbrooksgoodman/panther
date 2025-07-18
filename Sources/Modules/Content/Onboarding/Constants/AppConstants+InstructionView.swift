@@ -17,7 +17,7 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum InstructionView {
-        public static let frameHeight: CGFloat = 200
+        public static let frameHeight: CGFloat = 220
         public static let leadingPadding: CGFloat = 20
         public static let screenWidthDivisor: CGFloat = 2
 

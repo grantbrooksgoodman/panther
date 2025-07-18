@@ -27,6 +27,7 @@ extension User: Updatable {
             .conversationIDs,
             .isPenPalsParticipant,
             .messageRecipientConsentRequired,
+            .previousLanguageCodes,
             .pushTokens,
         ]
     }
@@ -51,6 +52,7 @@ extension User: Updatable {
                 languageCode: languageCode,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
                 pushTokens: pushTokens
             )
 
@@ -65,6 +67,7 @@ extension User: Updatable {
                 languageCode: languageCode,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
                 pushTokens: pushTokens
             )
 
@@ -78,6 +81,7 @@ extension User: Updatable {
                 languageCode: languageCode,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
                 pushTokens: pushTokens
             )
 
@@ -91,6 +95,21 @@ extension User: Updatable {
                 languageCode: languageCode,
                 messageRecipientConsentRequired: value,
                 phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
+                pushTokens: pushTokens
+            )
+
+        case .previousLanguageCodes:
+            guard let value = value as? [String] else { return nil }
+            return .init(
+                id,
+                blockedUserIDs: blockedUserIDs,
+                conversationIDs: conversationIDs,
+                isPenPalsParticipant: isPenPalsParticipant,
+                languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
+                phoneNumber: phoneNumber,
+                previousLanguageCodes: value.isBangQualifiedEmpty ? nil : value,
                 pushTokens: pushTokens
             )
 
@@ -104,6 +123,7 @@ extension User: Updatable {
                 languageCode: languageCode,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
                 pushTokens: value.isBangQualifiedEmpty ? nil : value
             )
         }

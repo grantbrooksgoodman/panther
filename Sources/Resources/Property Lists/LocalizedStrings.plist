@@ -8197,6 +8197,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>发送反馈</string>
 	</dict>
+	<key>setting_language</key>
+	<dict>
+		<key>af</key>
+		<string>Taalinstelling...</string>
+		<key>ar</key>
+		<string>ضبط اللغة...</string>
+		<key>az</key>
+		<string>Quraşdırma Dili...</string>
+		<key>be</key>
+		<string>Налада мовы...</string>
+		<key>bg</key>
+		<string>Настройка на езика...</string>
+		<key>bn</key>
+		<string>ভাষা নির্ধারণ...</string>
+		<key>bs</key>
+		<string>Postavljanje jezika...</string>
+		<key>ca</key>
+		<string>Configuració de l&apos;idioma...</string>
+		<key>cs</key>
+		<string>Nastavení jazyka...</string>
+		<key>cy</key>
+		<string>Gosod Iaith...</string>
+		<key>da</key>
+		<string>Indstilling af sprog...</string>
+		<key>de</key>
+		<string>Spracheinstellung...</string>
+		<key>el</key>
+		<string>Ρύθμιση γλώσσας...</string>
+		<key>en</key>
+		<string>Setting Language...</string>
+		<key>eo</key>
+		<string>Agordo de lingvo...</string>
+		<key>es</key>
+		<string>Cambiando idioma...</string>
+		<key>et</key>
+		<string>Keele seadistamine...</string>
+		<key>eu</key>
+		<string>Hizkuntza ezartzea...</string>
+		<key>fa</key>
+		<string>تنظیم زبان...</string>
+		<key>fi</key>
+		<string>Kielen asettaminen...</string>
+		<key>fr</key>
+		<string>Paramètre de langue...</string>
+		<key>ga</key>
+		<string>Socrú Teanga...</string>
+		<key>gd</key>
+		<string>A’ suidheachadh cànain...</string>
+		<key>gl</key>
+		<string>Configuración do idioma...</string>
+		<key>gu</key>
+		<string>ભાષા સેટ કરી રહ્યા છીએ...</string>
+		<key>he</key>
+		<string>הגדרת שפה...</string>
+		<key>hi</key>
+		<string>भाषा सेटिंग...</string>
+		<key>hr</key>
+		<string>Postavljanje jezika...</string>
+		<key>ht</key>
+		<string>Anviwònman Lang...</string>
+		<key>hu</key>
+		<string>Nyelv beállítása...</string>
+		<key>hy</key>
+		<string>Լեզվի կարգավորում...</string>
+		<key>id</key>
+		<string>Pengaturan Bahasa...</string>
+		<key>is</key>
+		<string>Stilla tungumál...</string>
+		<key>it</key>
+		<string>Impostazione della lingua...</string>
+		<key>ja</key>
+		<string>言語の設定...</string>
+		<key>ka</key>
+		<string>Ენის დაყენება...</string>
+		<key>kk</key>
+		<string>Тілді орнату...</string>
+		<key>kn</key>
+		<string>ಭಾಷೆಯನ್ನು ಹೊಂದಿಸಲಾಗುತ್ತಿದೆ...</string>
+		<key>ko</key>
+		<string>언어 설정...</string>
+		<key>ky</key>
+		<string>Орнотуу тили...</string>
+		<key>lt</key>
+		<string>Kalbos nustatymas...</string>
+		<key>mg</key>
+		<string>Fametrahana fiteny...</string>
+		<key>mi</key>
+		<string>Tautuhi Reo...</string>
+		<key>mk</key>
+		<string>Поставување јазик...</string>
+		<key>ml</key>
+		<string>ഭാഷ സജ്ജീകരിക്കുന്നു...</string>
+		<key>mn</key>
+		<string>Хэл тохируулах...</string>
+		<key>mt</key>
+		<string>Issettjar tal-Lingwa...</string>
+		<key>ne</key>
+		<string>भाषा सेट गर्दै...</string>
+		<key>nl</key>
+		<string>Taal instellen...</string>
+		<key>no</key>
+		<string>Innstilling av språk...</string>
+		<key>pa</key>
+		<string>ਭਾਸ਼ਾ ਸੈੱਟ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...</string>
+		<key>pl</key>
+		<string>Ustawianie języka...</string>
+		<key>pt</key>
+		<string>Configuração de idioma...</string>
+		<key>ro</key>
+		<string>Setarea limbii...</string>
+		<key>ru</key>
+		<string>Настройка языка...</string>
+		<key>si</key>
+		<string>භාෂාව සැකසීම...</string>
+		<key>sk</key>
+		<string>Nastavenie jazyka...</string>
+		<key>sl</key>
+		<string>Nastavitev jezika...</string>
+		<key>sq</key>
+		<string>Vendosja e gjuhës...</string>
+		<key>sr</key>
+		<string>Подешавање језика...</string>
+		<key>su</key>
+		<string>Setélan Basa...</string>
+		<key>sv</key>
+		<string>Inställning av språk...</string>
+		<key>sw</key>
+		<string>Kuweka Lugha...</string>
+		<key>ta</key>
+		<string>மொழியை அமைத்தல்...</string>
+		<key>te</key>
+		<string>భాషను సెట్ చేస్తోంది...</string>
+		<key>tg</key>
+		<string>Танзими забон...</string>
+		<key>th</key>
+		<string>การตั้งค่าภาษา...</string>
+		<key>tl</key>
+		<string>Pagtatakda ng Wika...</string>
+		<key>tr</key>
+		<string>Dil Ayarı...</string>
+		<key>tt</key>
+		<string>Тел көйләү...</string>
+		<key>uk</key>
+		<string>Налаштування мови...</string>
+		<key>ur</key>
+		<string>زبان کی ترتیب...</string>
+		<key>uz</key>
+		<string>Tilni sozlash...</string>
+		<key>vi</key>
+		<string>Cài đặt ngôn ngữ...</string>
+		<key>yi</key>
+		<string>שטעל-שפראך...</string>
+		<key>zh</key>
+		<string>设置语言...</string>
+	</dict>
 	<key>settings</key>
 	<dict>
 		<key>af</key>

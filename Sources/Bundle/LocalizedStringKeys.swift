@@ -81,6 +81,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case selectCallingCode
     case selectLanguage
     case sendFeedback
+    case settingLanguage
     case settings
     case slideToCancel
     case somethingWentWrong

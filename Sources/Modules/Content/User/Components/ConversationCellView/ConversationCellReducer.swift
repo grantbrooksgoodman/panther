@@ -41,6 +41,12 @@ public struct ConversationCellReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
+        public let subtitleLabelTextForegroundColor: Color = .init(
+            uiColor: .subtitleText.lighter(
+                by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
+            ) ?? .subtitleText
+        )
+
         @Localized(.blockUser) public var blockUsersButtonText: String
         public var cellViewData: ConversationCellViewData = .empty
         public var conversation: Conversation
@@ -63,11 +69,9 @@ public struct ConversationCellReducer: Reducer {
             )
         }
 
-        public var subtitleLabelTextForegroundColor: Color = .init(
-            uiColor: .subtitleText.lighter(
-                by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
-            ) ?? .subtitleText
-        )
+        public var focusedMessageID: String? {
+            conversation.messages?.last(where: { $0.textContains(searchQuery) })?.id
+        }
 
         /* MARK: Init */
 
@@ -101,11 +105,7 @@ public struct ConversationCellReducer: Reducer {
 
         case .cellTapped:
             guard !state.searchQuery.isBlank,
-                  let focusedMessageID = state
-                  .conversation
-                  .messages?
-                  .last(where: { $0.textContains(state.searchQuery) })?
-                  .id else {
+                  let focusedMessageID = state.focusedMessageID else {
                 navigation.navigate(to: .userContent(.push(.chat(state.conversation))))
                 return .none
             }

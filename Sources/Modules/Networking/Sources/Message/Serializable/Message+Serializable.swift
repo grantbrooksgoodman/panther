@@ -110,6 +110,14 @@ extension Message: Serializable {
 
             if let firstMatchingTarget = references.first(where: { $0.languagePair.to == languageCode }) {
                 references = [firstMatchingTarget]
+            } else if let firstMatchingPreviousLanguageCodeTarget = references.first(where: {
+                currentUser?.previousLanguageCodes?.contains($0.languagePair.to) == true
+            }) {
+                references = [firstMatchingPreviousLanguageCodeTarget]
+            } else if let firstMatchingPreviousLanguageCodeSource = references.first(where: {
+                currentUser?.previousLanguageCodes?.contains($0.languagePair.from) == true
+            }) {
+                references = [firstMatchingPreviousLanguageCodeSource]
             } else if let firstMatchingSource = references.first(where: { $0.languagePair.from == languageCode }) {
                 references = [firstMatchingSource]
             }

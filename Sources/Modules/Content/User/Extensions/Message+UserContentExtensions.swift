@@ -154,6 +154,7 @@ public extension Message {
     func textContains(_ searchTerm: String) -> Bool {
         guard let translation else { return false }
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
-        return isFromCurrentUser ? translation.input.value.contains(searchTerm) : translation.output.contains(searchTerm)
+        let comparator = isFromCurrentUser ? translation.input.value : translation.output
+        return comparator.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
     }
 }

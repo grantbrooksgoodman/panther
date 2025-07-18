@@ -30,6 +30,7 @@ extension User: Serializable {
         case languageCode
         case messageRecipientConsentRequired
         case phoneNumber
+        case previousLanguageCodes
         case pushTokens
     }
 
@@ -45,6 +46,7 @@ extension User: Serializable {
             Keys.languageCode.rawValue: languageCode,
             Keys.messageRecipientConsentRequired.rawValue: messageRecipientConsentRequired,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
+            Keys.previousLanguageCodes.rawValue: previousLanguageCodes ?? .bangQualifiedEmpty,
             Keys.pushTokens.rawValue: pushTokens ?? .bangQualifiedEmpty,
         ]
     }
@@ -61,6 +63,7 @@ extension User: Serializable {
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] is String,
+              data[Keys.previousLanguageCodes.rawValue] is [String],
               data[Keys.pushTokens.rawValue] is [String] else { return false }
 
         return true
@@ -74,6 +77,7 @@ extension User: Serializable {
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
               let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
+              let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
             return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
         }
@@ -114,6 +118,7 @@ extension User: Serializable {
             languageCode: languageCode,
             messageRecipientConsentRequired: messageRecipientConsentRequired,
             phoneNumber: phoneNumber,
+            previousLanguageCodes: previousLanguageCodes.isBangQualifiedEmpty ? nil : previousLanguageCodes,
             pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens
         ))
     }

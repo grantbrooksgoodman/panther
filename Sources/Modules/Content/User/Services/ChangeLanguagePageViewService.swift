@@ -13,20 +13,20 @@ import Foundation
 import AlertKit
 import AppSubsystem
 import Networking
+import Translator
 
 public struct ChangeLanguagePageViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.user.currentUser?.id) private var clientSessionCurrentUserID: String?
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.networking.database) private var database: DatabaseDelegate
-    @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
     private var currentUserID: String? {
-        @Persistent(.currentUserID) var persistedCurrentUserID: String?
-        return clientSessionCurrentUserID ?? persistedCurrentUserID
+        @Persistent(.currentUserID) var currentUserID: String?
+        return userSession.currentUser?.id ?? currentUserID
     }
 
     // MARK: - Reducer Action Handlers
@@ -58,25 +58,104 @@ public struct ChangeLanguagePageViewService {
     // MARK: - Auxiliary
 
     private func changeLanguage(to languageCode: String) async -> Exception? {
-        guard let currentUserID else {
+        guard let currentUserID,
+              let currentUser = userSession.currentUser else {
             return .init(
-                "Current user ID has not been set.",
+                "Failed to resolve required values.",
                 metadata: [self, #file, #function, #line]
             )
         }
 
-        if let exception = await database.setValue(
-            languageCode,
-            forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.languageCode.rawValue)"
-        ) {
+        defer { coreHUD.hide() }
+
+        var loadedData = false
+        let timeout = Timeout(after: .seconds(1)) {
+            guard !loadedData else { return }
+            coreHUD.showProgress(
+                text: Localized(.settingLanguage).wrappedValue,
+                isModal: true
+            )
+        }
+
+        if let exception = await currentUser.setConversations() {
             return exception
         }
 
-        Application.reset(
-            preserveCurrentUserID: true,
-            onCompletion: .exitGracefully
+        for conversation in (currentUser.conversations ?? [])
+            .visibleForCurrentUser
+            .filter({
+                !$0.messageIDs.isBangQualifiedEmpty && ($0.messages == nil || $0.messages?.isEmpty == true)
+            }) {
+            if let exception = await conversation.setMessages() {
+                return exception
+            }
+        }
+
+        if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
+            return exception
+        }
+
+        loadedData = true
+        timeout.cancel()
+
+        let conversations = (currentUser.conversations?.visibleForCurrentUser ?? [])
+
+        let hasIncomingMessagesInCurrentLanguage = conversations
+            .filter { !($0.users ?? []).compactMap(\.languageCode).contains(RuntimeStorage.languageCode) }
+            .messageTranslations(fromCurrentUser: false)
+            .compactMap(\.languagePair.to)
+            .contains(RuntimeStorage.languageCode)
+
+        let hasOutgoingMessagesInCurrentLanguage = conversations
+            .messageTranslations(fromCurrentUser: true)
+            .compactMap(\.languagePair.from)
+            .contains(RuntimeStorage.languageCode)
+
+        var newPreviousLanguageCodes = (currentUser.previousLanguageCodes ?? []).filter { $0 != languageCode }
+        if hasIncomingMessagesInCurrentLanguage || hasOutgoingMessagesInCurrentLanguage {
+            newPreviousLanguageCodes += [RuntimeStorage.languageCode]
+        }
+
+        let updateValueResult = await currentUser.updateValue(
+            newPreviousLanguageCodes.sorted().unique,
+            forKey: .previousLanguageCodes
         )
 
+        switch updateValueResult {
+        case let .success(user):
+            if let exception = userSession.setCurrentUser(user) {
+                return exception
+            }
+
+            if let exception = await database.setValue(
+                languageCode,
+                forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.languageCode.rawValue)"
+            ) {
+                return exception
+            }
+
+            Application.reset(
+                preserveCurrentUserID: true,
+                onCompletion: .exitGracefully
+            )
+
+        case let .failure(exception):
+            return exception
+        }
+
         return nil
+    }
+}
+
+private extension Array where Element == Conversation {
+    func messageTranslations(
+        fromCurrentUser: Bool
+    ) -> [Translation] {
+        compactMap(\.messages)
+            .reduce([], +)
+            .filter { fromCurrentUser ? $0.isFromCurrentUser : !$0.isFromCurrentUser }
+            .compactMap(\.translations)
+            .reduce([], +)
+            .unique
     }
 }

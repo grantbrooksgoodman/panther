@@ -44,7 +44,7 @@ public struct ConversationCellView: View {
         } preview: { // Modify with caution – ChatPageViewService relies on this specific stack to detect misconfigured previews.
             ChatPageView(
                 viewModel.conversation,
-                configuration: .preview
+                configuration: .preview(focusedMessageID: viewModel.focusedMessageID)
             )
             .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
             .id(viewModel.conversation.id)

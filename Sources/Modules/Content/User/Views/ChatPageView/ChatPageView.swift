@@ -28,15 +28,17 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
         case `default`(focusedMessageID: String?)
         case newChat
-        case preview
+        case preview(focusedMessageID: String?)
 
         /* MARK: Properties */
 
         public static let `default`: Configuration = .default(focusedMessageID: nil)
+        public static let preview: Configuration = .preview(focusedMessageID: nil)
 
         public var focusedMessageID: String? {
             switch self {
             case let .default(focusedMessageID): return focusedMessageID
+            case let .preview(focusedMessageID): return focusedMessageID
             default: return nil
             }
         }

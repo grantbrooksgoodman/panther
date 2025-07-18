@@ -162,7 +162,7 @@ final class ContextMenuInteractor {
         contextMenuController.appearAnimation()
 
         Task.delayed(by: .milliseconds(
-            contextMenuController.style.appearAnimationParameters.duration
+            contextMenuController.style.appearAnimationParameters.duration + 50
         )) { isShowing = false }
     }
 }

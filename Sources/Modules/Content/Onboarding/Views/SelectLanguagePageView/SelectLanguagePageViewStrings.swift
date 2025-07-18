@@ -20,8 +20,8 @@ public extension TranslatedLabelStringCollection {
         case backButtonText = "Back"
         case continueButtonText = "Continue"
 
-        case instructionLabelText = "I speak:"
-        case instructionViewSubtitleLabelText = "To begin, please select your language.\n\nNote that this setting cannot be changed later."
+        case instructionLabelText = "I speak:" // swiftlint:disable:next line_length
+        case instructionViewSubtitleLabelText = "To begin, please select your language.\n\nThis will be the language you send and receive messages in, as well as that of system dialogues. Your selection can be changed later in Settings."
         case instructionViewTitleLabelText = "Select Language"
 
         // MARK: - Properties

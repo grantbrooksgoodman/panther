@@ -133,8 +133,16 @@ public final class ChatPageViewService {
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(Floats.scrollToLastItemDelayMilliseconds)) {
-                self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+            core.gcd.after(.milliseconds(Floats.scrollDelayMilliseconds)) {
+                if let focusedMessageID = self.configuration.focusedMessageID {
+                    self.viewController?.messagesCollectionView.scrollTo(
+                        messageID: focusedMessageID,
+                        at: .centeredVertically,
+                        animated: false
+                    )
+                } else {
+                    self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+                }
             }
             return
         }
@@ -182,6 +190,12 @@ public final class ChatPageViewService {
 
         viewController?.becomeFirstResponder()
         viewController?.view.isUserInteractionEnabled = true
+
+        Task.delayed(by: .milliseconds(
+            Floats.triggerFocusedMessageCellInteractionDelayMilliseconds
+        )) { @MainActor in
+            searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
+        }
     }
 
     public func onViewWillDisappear() {

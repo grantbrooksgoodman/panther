@@ -50,14 +50,14 @@ public extension AppConstants.Colors {
         public static let blockedUsersButtonImageBackground: Color = .init(uiColor: .systemGray)
         public static let changeLanguageButtonImageBackground: Color = .pink
         public static let changeLanguageButtonImageForeground: Color = .white
-        public static let changeThemeButtonImageBackground: Color = .indigo
+        public static let changeThemeButtonImageBackground: Color = .green
         public static let clearCachesButtonImageBackground: Color = .mint
         public static let deleteAccountButtonImageBackground: Color = .orange
         public static let inviteFriendsButtonImageBackground: Color = .blue
         public static let leaveReviewButtonImageBackground: Color = .yellow // swiftlint:disable:next identifier_name
         public static let messageRecipientConsentButtonImageBackground: Color = .green // swiftlint:disable:next identifier_name
         public static let overrideLanguageCodeButtonImageBackground: Color = .mint
-        public static let sendFeedbackButtonImageBackground: Color = .green
+        public static let sendFeedbackButtonImageBackground: Color = .indigo
         public static let signOutButtonImageBackground: Color = .red
         public static let toggleDeveloperModeButtonImageBackground: Color = .yellow
     }

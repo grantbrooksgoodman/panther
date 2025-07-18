@@ -77,6 +77,8 @@ public enum Application {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
+        // MARK: - Glass Tinting Setup
+
         guard UIApplication.v26FeaturesEnabled else { return }
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
         if isGlassTintingEnabled == nil { isGlassTintingEnabled = true }

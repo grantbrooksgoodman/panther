@@ -18,6 +18,7 @@ public final class User: Codable, Equatable {
 
     // Array
     public let blockedUserIDs: [String]?
+    public let previousLanguageCodes: [String]?
     public let pushTokens: [String]?
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
@@ -81,6 +82,7 @@ public final class User: Codable, Equatable {
         languageCode: String,
         messageRecipientConsentRequired: Bool,
         phoneNumber: PhoneNumber,
+        previousLanguageCodes: [String]?,
         pushTokens: [String]?
     ) {
         self.id = id
@@ -90,6 +92,7 @@ public final class User: Codable, Equatable {
         self.languageCode = languageCode
         self.messageRecipientConsentRequired = messageRecipientConsentRequired
         self.phoneNumber = phoneNumber
+        self.previousLanguageCodes = previousLanguageCodes
         self.pushTokens = pushTokens
     }
 
@@ -256,6 +259,7 @@ public final class User: Codable, Equatable {
         let sameLanguageCode = left.languageCode == right.languageCode
         let sameMessageRecipientConsentRequired = left.messageRecipientConsentRequired == right.messageRecipientConsentRequired
         let samePhoneNumber = left.phoneNumber == right.phoneNumber
+        let samePreviousLanguageCodes = left.previousLanguageCodes == right.previousLanguageCodes
         let samePushTokens = left.pushTokens == right.pushTokens
 
         guard sameBlockedUserIDs,
@@ -266,6 +270,7 @@ public final class User: Codable, Equatable {
               sameLanguageCode,
               sameMessageRecipientConsentRequired,
               samePhoneNumber,
+              samePreviousLanguageCodes,
               samePushTokens else { return false }
 
         return true

@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AlertKit
@@ -47,6 +48,7 @@ public final class ConversationsPageViewService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.uiApplication.presentedViewControllers) private var presentedViewControllers: [UIViewController]
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
@@ -130,6 +132,10 @@ public final class ConversationsPageViewService {
 
         Task.delayed(by: .seconds(1)) { @MainActor in
             defer {
+                presentedViewControllers
+                    .compactMap(\.navigationItem.searchController)
+                    .forEach { $0.searchBar.searchTextField.clearButtonMode = .never }
+
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
                 if !(presentedPenPalsPermissionPageAtStartup ?? false),
                    userSession.currentUser?.isPenPalsParticipant == false {
@@ -141,22 +147,7 @@ public final class ConversationsPageViewService {
             @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
             if await services.permission.notificationPermissionStatus == .unknown {
                 _ = await services.permission.requestPermission(for: .notifications)
-            } else if (contactPairArchive ?? []).isEmpty {
-                typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ActionHandler
-
-                let inviteAction: AKAction = .init(Strings.inviteAlertActionTitle, style: .preferred) {
-                    Task {
-                        if let exception = await self.services.invite.presentInvitationPrompt() {
-                            Logger.log(exception, with: .toast)
-                        }
-                    }
-                }
-
-                await AKAlert(
-                    message: Strings.inviteAlertMessage,
-                    actions: [inviteAction, .cancelAction]
-                ).present(translating: [.actions([inviteAction]), .message])
-            } else {
+            } else if !(await services.invite.suggestInvitationIfNeeded()) {
                 services.review.promptToReview()
             }
         }

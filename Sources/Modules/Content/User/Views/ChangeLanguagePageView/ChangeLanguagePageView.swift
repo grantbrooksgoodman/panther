@@ -73,7 +73,9 @@ public struct ChangeLanguagePageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.groupedContentBackground)
-                .navigationTitle(viewModel.strings.value(for: .navigationTitle))
+                .if(UIApplication.v26FeaturesEnabled) {
+                    $0.navigationTitle(viewModel.strings.value(for: .navigationTitle))
+                }
             }
         }
         .onFirstAppear {

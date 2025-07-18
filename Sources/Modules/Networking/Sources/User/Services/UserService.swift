@@ -67,6 +67,7 @@ public final class UserService {
             languageCode: languageCode,
             messageRecipientConsentRequired: false,
             phoneNumber: phoneNumber,
+            previousLanguageCodes: nil,
             pushTokens: pushTokens
         )
 

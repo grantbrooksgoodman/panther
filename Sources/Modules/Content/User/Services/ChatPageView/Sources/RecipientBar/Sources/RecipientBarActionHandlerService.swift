@@ -18,7 +18,6 @@ public final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ActionHandler
-    private typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ActionHandler
 
     // MARK: - Dependencies
 
@@ -127,19 +126,7 @@ public final class RecipientBarActionHandlerService {
                     return
                 }
 
-                let inviteAction: AKAction = .init(Strings.inviteAlertActionTitle, style: .preferred) {
-                    Task {
-                        if let exception = await self.services.invite.presentInvitationPrompt() {
-                            Logger.log(exception, with: .toast)
-                        }
-                    }
-                }
-
-                await AKAlert(
-                    message: Strings.inviteAlertMessage,
-                    actions: [inviteAction, .cancelAction]
-                ).present(translating: [.actions([inviteAction]), .message])
-
+                await services.invite.presentInvitationSuggestionPrompt()
                 selectContactButton?.isEnabled = true
                 return
             }
