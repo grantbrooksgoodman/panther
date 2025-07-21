@@ -173,7 +173,7 @@ public final class RecipientBarActionHandlerService {
 
             switch getUserResult {
             case let .success(user):
-                guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: phoneNumber) else {
+                guard let contactPair = user.contactPair else {
                     contactSelectionUIService.selectContactPair(.withUser(user))
                     return
                 }

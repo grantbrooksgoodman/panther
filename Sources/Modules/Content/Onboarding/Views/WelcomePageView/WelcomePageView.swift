@@ -34,45 +34,43 @@ public struct WelcomePageView: View {
 
     public var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
-            ThemedView {
-                VStack {
-                    Image(.hello)
-                        .resizable()
-                        .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
-                        .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
-                        .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                        .padding(.bottom, Floats.imageBottomPadding)
+            VStack {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                    .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.imageBottomPadding)
 
-                    Components.text(
-                        viewModel.welcomeLabelText,
-                        font: .systemBold(scale: .large)
-                    )
-                    .animation(.easeIn, value: viewModel.welcomeLabelText)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
-                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
-                    .onTapGesture {
-                        viewModel.send(.welcomeLabelTapped)
-                    }
-
-                    Components.capsuleButton(
-                        viewModel.strings.value(for: .continueButtonText),
-                        font: .systemSemibold
-                    ) {
-                        viewModel.send(.continueButtonTapped)
-                    }
-                    .padding(.vertical, Floats.continueButtonVerticalPadding)
-
-                    Components.button(
-                        viewModel.strings.value(for: .signInButtonText),
-                        font: .system(scale: .custom(Floats.signInButtonLabelFontSize)),
-                    ) {
-                        viewModel.send(.signInButtonTapped)
-                    }
+                Components.text(
+                    viewModel.welcomeLabelText,
+                    font: .systemBold(scale: .large)
+                )
+                .animation(.easeIn, value: viewModel.welcomeLabelText)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                .onTapGesture {
+                    viewModel.send(.welcomeLabelTapped)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                Components.capsuleButton(
+                    viewModel.strings.value(for: .continueButtonText),
+                    font: .systemSemibold
+                ) {
+                    viewModel.send(.continueButtonTapped)
+                }
+                .padding(.vertical, Floats.continueButtonVerticalPadding)
+
+                Components.button(
+                    viewModel.strings.value(for: .signInButtonText),
+                    font: .system(scale: .custom(Floats.signInButtonLabelFontSize)),
+                ) {
+                    viewModel.send(.signInButtonTapped)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {

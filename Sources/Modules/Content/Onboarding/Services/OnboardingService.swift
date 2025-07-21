@@ -21,14 +21,15 @@ public final class OnboardingService {
 
     // MARK: - Properties
 
-    // PhoneNumber
-    public private(set) var phoneNumber: PhoneNumber?
-
     // String
     public private(set) var authID: String?
     public private(set) var languageCode: String?
     public private(set) var regionCode: String?
     public private(set) var userID: String?
+
+    // Other
+    public private(set) var createdUserInCurrentAppSession = false
+    public private(set) var phoneNumber: PhoneNumber?
 
     // MARK: - Setters
 
@@ -75,6 +76,7 @@ public final class OnboardingService {
         case let .success(user):
             @Persistent(.currentUserID) var currentUserID: String?
             currentUserID = user.id
+            createdUserInCurrentAppSession = true
             services.analytics.logEvent(.signUp)
             return nil
 

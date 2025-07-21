@@ -28,6 +28,7 @@ public final class UserSessionService {
 
     // MARK: - Properties
 
+    // NIT: Should probably be actor-isolated.
     public private(set) var currentUser: User?
 
     @Persistent(.currentUserID) private var currentUserID: String?
@@ -346,5 +347,21 @@ public final class UserSessionService {
             isUpdatingCurrentUser = false
             return exception
         }
+    }
+}
+
+private extension User {
+    static var empty: User {
+        .init(
+            "",
+            blockedUserIDs: nil,
+            conversationIDs: nil,
+            isPenPalsParticipant: false,
+            languageCode: "",
+            messageRecipientConsentRequired: false,
+            phoneNumber: .init(""),
+            previousLanguageCodes: nil,
+            pushTokens: nil
+        )
     }
 }

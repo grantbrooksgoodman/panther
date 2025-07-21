@@ -128,10 +128,7 @@ public extension Message {
         return isConsentMessage
     }
 
-    var isFromCurrentUser: Bool {
-        @Persistent(.currentUserID) var currentUserID: String?
-        return fromAccountID == currentUserID
-    }
+    var isFromCurrentUser: Bool { fromAccountID == User.currentUserID }
 
     var isMock: Bool { id == CommonConstants.newMessageID }
 

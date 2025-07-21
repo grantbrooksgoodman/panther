@@ -18,16 +18,9 @@ import Translator
 public struct ChangeLanguagePageViewService {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking.database) private var database: DatabaseDelegate
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
-
-    // MARK: - Properties
-
-    private var currentUserID: String? {
-        @Persistent(.currentUserID) var currentUserID: String?
-        return userSession.currentUser?.id ?? currentUserID
-    }
 
     // MARK: - Reducer Action Handlers
 
@@ -58,7 +51,7 @@ public struct ChangeLanguagePageViewService {
     // MARK: - Auxiliary
 
     private func changeLanguage(to languageCode: String) async -> Exception? {
-        guard let currentUserID,
+        guard let currentUserID = User.currentUserID,
               let currentUser = userSession.currentUser else {
             return .init(
                 "Failed to resolve required values.",
@@ -66,15 +59,26 @@ public struct ChangeLanguagePageViewService {
             )
         }
 
-        defer { coreHUD.hide() }
+        defer { core.hud.hide() }
 
         var loadedData = false
         let timeout = Timeout(after: .seconds(1)) {
-            guard !loadedData else { return }
-            coreHUD.showProgress(
-                text: Localized(.settingLanguage).wrappedValue,
-                isModal: true
-            )
+            Task { @MainActor in
+                guard !loadedData else { return }
+                core.ui.addOverlay(
+                    alpha: 0.5,
+                    activityIndicator: nil,
+                    isModal: false
+                )
+
+                core.hud.showProgress(
+                    text: Localized(
+                        .settingLanguage,
+                        languageCode: languageCode
+                    ).wrappedValue,
+                    isModal: true
+                )
+            }
         }
 
         if let exception = await currentUser.setConversations() {
@@ -95,9 +99,6 @@ public struct ChangeLanguagePageViewService {
             return exception
         }
 
-        loadedData = true
-        timeout.cancel()
-
         let conversations = (currentUser.conversations?.visibleForCurrentUser ?? [])
 
         let hasIncomingMessagesInCurrentLanguage = conversations
@@ -116,10 +117,14 @@ public struct ChangeLanguagePageViewService {
             newPreviousLanguageCodes += [RuntimeStorage.languageCode]
         }
 
+        newPreviousLanguageCodes = newPreviousLanguageCodes.sorted().unique
         let updateValueResult = await currentUser.updateValue(
-            newPreviousLanguageCodes.sorted().unique,
+            newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes,
             forKey: .previousLanguageCodes
         )
+
+        loadedData = true
+        timeout.cancel()
 
         switch updateValueResult {
         case let .success(user):

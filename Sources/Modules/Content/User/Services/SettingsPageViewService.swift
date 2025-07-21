@@ -154,7 +154,13 @@ public final class SettingsPageViewService {
                 Task {
                     self.core.ui.addOverlay(
                         alpha: Floats.deleteAccountOverlayAlpha,
-                        activityIndicator: .largeWhite
+                        activityIndicator: nil,
+                        isModal: false
+                    )
+
+                    self.core.hud.showProgress(
+                        text: Localized(.deletingData).wrappedValue,
+                        isModal: true
                     )
 
                     if let exception = self.userSession.stopObservingCurrentUserChanges() {
@@ -162,12 +168,12 @@ public final class SettingsPageViewService {
                     }
 
                     if let exception = await self.userSession.deleteAccount() {
-                        self.core.ui.removeOverlay()
+                        self.core.hud.hide()
                         Logger.log(exception, with: .toast)
                         return
                     }
 
-                    self.core.ui.removeOverlay()
+                    self.core.hud.hide()
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
                         Task { await clearCachesAndExit() }

@@ -54,7 +54,7 @@ public struct RegionMenu: View {
 
                     Components.text(
                         "+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")",
-                        foregroundColor: Colors.buttonLabelTextForeground
+                        foregroundColor: UIApplication.v26FeaturesEnabled ? .titleText : Colors.buttonLabelTextForeground
                     )
                     .multilineTextAlignment(.center)
                 }
@@ -62,13 +62,27 @@ public struct RegionMenu: View {
                     minWidth: Floats.buttonLabelVStackFrameMinWidth,
                     minHeight: Floats.buttonLabelVStackFrameMinHeight
                 )
-                .background(
-                    RoundedRectangle(
-                        cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
-                    )
+                .if(
+                    UIApplication.v26FeaturesEnabled,
+                    { body in
+                        body.glassEffect(
+                            padding: Floats.buttonLabelGlassEffectPadding,
+                            tint: ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
+                        )
+                    },
+                    else: { body in
+                        body
+                            .background(
+                                RoundedRectangle(
+                                    cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
+                                )
+                            )
+                            .foregroundStyle(
+                                ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
+                            )
+                            .shadow(radius: Floats.buttonLabelVStackShadowRadius)
+                    }
                 )
-                .foregroundStyle(ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground)
-                .shadow(radius: Floats.buttonLabelVStackShadowRadius)
             }
             .redrawsOnTraitCollectionChange()
         }

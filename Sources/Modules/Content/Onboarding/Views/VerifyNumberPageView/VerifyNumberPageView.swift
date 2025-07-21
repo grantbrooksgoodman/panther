@@ -69,14 +69,12 @@ public struct VerifyNumberPageView: View {
                             .padding(.trailing, Floats.regionMenuTrailingPadding)
                             .id(viewModel.regionMenuViewID)
 
-                        ThemedView {
-                            PhoneNumberTextField(
-                                phoneNumberStringBinding,
-                                regionCode: selectedRegionCodeBinding
-                            )
-                            .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
-                            .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
-                        }
+                        PhoneNumberTextField(
+                            phoneNumberStringBinding,
+                            regionCode: selectedRegionCodeBinding
+                        )
+                        .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
+                        .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
                     }
 
                     Components.capsuleButton(

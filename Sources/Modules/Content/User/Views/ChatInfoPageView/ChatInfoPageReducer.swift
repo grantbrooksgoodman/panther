@@ -280,10 +280,9 @@ public struct ChatInfoPageReducer: Reducer {
             state.isChangeMetadataButtonEnabled = true
 
         case let .penPalsSharingDataConfirmationActionSheetDismissed(userID):
-            @Persistent(.currentUserID) var currentUserID: String?
             guard let userID,
                   let conversation = state.conversation,
-                  let currentUserID,
+                  let currentUserID = User.currentUserID,
                   let currentUserPenPalsSharingData = conversation.currentUserPenPalsSharingData else { return .none }
 
             let newCurrentUserPenPalsSharingData: PenPalsSharingData = .init(

@@ -402,8 +402,7 @@ public struct NotificationService {
     }
 
     private func updateHostedBadgeNumber(_ badgeNumber: Int? = nil, user: User) async -> Exception? {
-        @Persistent(.currentUserID) var currentUserID: String?
-        switch user.id == currentUserID {
+        switch user.id == User.currentUserID {
         case true:
             var newBadgeNumber = badgeNumber
             if newBadgeNumber == nil {

@@ -59,14 +59,19 @@ public struct ConversationCellViewData: Equatable {
         dateLabelText = ConversationCellViewData.empty.dateLabelText
         isShowingUnreadIndicator = ConversationCellViewData.empty.isShowingUnreadIndicator
         otherUser = user
-        thumbnailImage = nil
+        thumbnailImage = ConversationCellViewData.empty.thumbnailImage
     }
 
     public init?(
         _ conversation: Conversation,
         searchQuery: String? = nil
     ) {
-        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        let cacheQuery = (searchQuery == nil || searchQuery?.isBlank == true) ? String.bangQualifiedEmpty : searchQuery!
+        if let cachedValue = _ConversationCellViewDataCache
+            .cachedDataByConversationIDForSearchQueries?[cacheQuery]?[conversation.id] {
+            self = cachedValue
+            return
+        }
 
         let conversation = conversation.withMessagesSortedByAscendingSentDate
         guard let users = conversation.users,
@@ -84,7 +89,7 @@ public struct ConversationCellViewData: Equatable {
         if !conversation.metadata.name.isBangQualifiedEmpty {
             titleLabelText = conversation.metadata.name
         } else if let contactPair = users
-            .compactMap({ contactPairArchive.getValue(phoneNumber: $0.phoneNumber) })
+            .compactMap(\.contactPair)
             .sorted(by: { $0.contact.fullName < $1.contact.fullName })
             .first {
             titleLabelText = contactPair.contact.fullName
@@ -168,5 +173,41 @@ public struct ConversationCellViewData: Equatable {
             otherUser: otherUser,
             thumbnailImage: thumbnailImage
         )
+
+        // swiftlint:disable:next identifier_name
+        var cachedDataByConversationIDForSearchQueries = _ConversationCellViewDataCache.cachedDataByConversationIDForSearchQueries ?? [:]
+
+        if cachedDataByConversationIDForSearchQueries[cacheQuery] != nil {
+            cachedDataByConversationIDForSearchQueries[cacheQuery]?[conversation.id] = self
+        } else {
+            cachedDataByConversationIDForSearchQueries[cacheQuery] = [conversation.id: self]
+        }
+
+        _ConversationCellViewDataCache.cachedDataByConversationIDForSearchQueries = cachedDataByConversationIDForSearchQueries
+    }
+}
+
+public enum ConversationCellViewDataCache {
+    public static func clearCache() {
+        _ConversationCellViewDataCache.clearCache()
+    }
+}
+
+private enum _ConversationCellViewDataCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case dataByConversationIDForSearchQueries
+    }
+
+    // MARK: - Properties
+
+    // swiftlint:disable:next identifier_name line_length
+    @Cached(CacheKey.dataByConversationIDForSearchQueries) fileprivate static var cachedDataByConversationIDForSearchQueries: [String: [ConversationID: ConversationCellViewData]]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedDataByConversationIDForSearchQueries = nil
     }
 }

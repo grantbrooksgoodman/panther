@@ -129,9 +129,7 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: Cache Setup */
 
-        @Persistent(.currentUserID) var currentUserID: String?
-
-        if let currentUserID {
+        if let currentUserID = User.currentUserID {
             let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
             initializationProgress += 0.01
 
@@ -153,7 +151,7 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: HostedTranslationArchiver Setup */
 
-        if currentUserID == nil {
+        if User.currentUserID == nil {
             if let exception = await networking.hostedTranslation.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
                 Logger.log(exception)
             } else {
@@ -184,7 +182,8 @@ public final class SplashPageViewService: ObservableObject {
             core.utils.setLanguageCode(currentUser.languageCode)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-            if ((currentUser.conversationIDs ?? []).count > 3 && (conversationArchive ?? []).isEmpty) || (translationArchive ?? []).isEmpty {
+            if (currentUser.conversationIDs ?? []).count > 3,
+               (conversationArchive ?? []).isEmpty {
                 if let exception = await networking.database.populateTemporaryCaches() {
                     Logger.log(exception)
                 }
@@ -243,9 +242,7 @@ public final class SplashPageViewService: ObservableObject {
             return await networking.integrityService.repairDatabase()
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-
-        if let currentUserID,
+        if let currentUserID = User.currentUserID,
            !didAttemptUserConversion {
             didAttemptUserConversion = true
             if let exception = await networking.userService.legacy.convertUser(id: currentUserID) {

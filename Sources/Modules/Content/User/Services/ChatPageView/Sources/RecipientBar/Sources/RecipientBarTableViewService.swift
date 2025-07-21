@@ -75,7 +75,8 @@ public final class RecipientBarTableViewService {
         currentQuery = query.isBlank ? nil : query
         guard !query.isBlank else {
             tableView.alpha = 0
-            if UIApplication.v26FeaturesEnabled { viewController.messagesCollectionView.alpha = 1 }
+            viewController.messageInputBar.alpha = 1
+            viewController.messagesCollectionView.alpha = 1
             reloadData()
             return
         }
@@ -87,7 +88,7 @@ public final class RecipientBarTableViewService {
         tableView.alpha = 1
         tableView.reloadData()
 
-        guard UIApplication.v26FeaturesEnabled else { return }
+        viewController.messageInputBar.alpha = 0
         viewController.messagesCollectionView.alpha = 0
     }
 

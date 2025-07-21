@@ -27,7 +27,6 @@ public final class ConversationSessionService {
     public private(set) var currentConversation: Conversation?
 
     private var completeMessageArray: [Message]?
-    @Persistent(.currentUserID) private var currentUserID: String?
     private var messageOffset = Floats.defaultMessageOffset
 
     // MARK: - Computed Properties
@@ -106,10 +105,13 @@ public final class ConversationSessionService {
     public func deleteConversation(_ conversation: Conversation, forced: Bool = false) async -> Exception? {
         if !forced {
             guard conversation.participants
-                .filter({ $0.userID != currentUserID })
+                .filter({ $0.userID != User.currentUserID })
                 .allSatisfy(\.hasDeletedConversation) else {
-                guard let currentUserID else {
-                    return .init("No current user ID.", metadata: [self, #file, #function, #line])
+                guard let currentUserID = User.currentUserID else {
+                    return .init(
+                        "Current user ID has not been set.",
+                        metadata: [self, #file, #function, #line]
+                    )
                 }
 
                 return await hideConversation(conversation, forUser: currentUserID)

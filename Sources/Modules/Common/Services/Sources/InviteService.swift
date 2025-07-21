@@ -20,6 +20,7 @@ public struct InviteService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
@@ -32,11 +33,12 @@ public struct InviteService {
     // MARK: - Computed Properties
 
     private var canSuggestInvitation: Bool {
+        let sufficientAppOpenCount = (appOpenCount ?? 0) == 0 || appOpenCount == 1 || (appOpenCount ?? 0) % 2 == 0
         guard services.permission.contactPermissionStatus == .granted,
               (contactPairArchive ?? []).isEmpty,
               currentUser?.conversations == nil || currentUser?.conversations?.isEmpty == true,
               currentUser?.conversationIDs == nil || currentUser?.conversationIDs?.isEmpty == true,
-              (appOpenCount ?? 0) == 0 || appOpenCount == 1 || (appOpenCount ?? 0) % 2 == 0 else { return false }
+              createdUserInCurrentAppSession || sufficientAppOpenCount else { return false }
         return true
     }
 

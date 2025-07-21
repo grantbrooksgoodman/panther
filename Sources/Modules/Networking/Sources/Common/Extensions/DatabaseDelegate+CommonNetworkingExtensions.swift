@@ -43,18 +43,6 @@ public extension DatabaseDelegate {
                 )
             }
 
-            for (key, value) in session.translationData {
-                for (translationKey, translationValue) in value {
-                    CoreDatabaseStore.addValue(
-                        .init(
-                            data: translationValue,
-                            expiresAfter: .seconds(600)
-                        ),
-                        forKey: "\(Networking.config.environment.shortString)/\(NetworkPath.translations.rawValue)/\(key)/\(translationKey)"
-                    )
-                }
-            }
-
             for (key, value) in session.userData {
                 CoreDatabaseStore.addValue(
                     .init(

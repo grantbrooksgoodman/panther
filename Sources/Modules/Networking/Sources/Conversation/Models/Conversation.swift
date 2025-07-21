@@ -129,8 +129,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
             guard users == nil else { return nil }
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        let userIDs = participants.map(\.userID).filter { $0 != currentUserID }
+        let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {
             let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
             return exception.appending(extraParams: commonParams)
@@ -178,8 +177,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
             ))
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else {
+        guard let currentUserID = User.currentUserID else {
             return .failure(.init(
                 "Current user ID has not been set.",
                 metadata: [self, #file, #function, #line]

@@ -68,7 +68,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         in messagesCollectionView: MessagesCollectionView
     ) {
         @Dependency(\.clientSession) var clientSession: ClientSession
-        @Dependency(\.commonServices) var services: CommonServices
+        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         guard let message = message as? Message,
               Application.isInPrevaricationMode || !message.isFromCurrentUser else { return }
@@ -99,13 +99,11 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         }
 
         guard clientSession.conversation.currentConversation?.mutuallySharedPenPalsDataBetweenCurrentUserAnd(matchingUser) == true ||
-            services.penPals.isKnownToCurrentUser(matchingUser.id) else {
+            penPalsService.isKnownToCurrentUser(matchingUser.id) else {
             return configurePenPalsAvatar()
         }
 
-        guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: matchingUser.phoneNumber) else {
-            return configureGenericAvatar()
-        }
+        guard let contactPair = matchingUser.contactPair else { return configureGenericAvatar() }
 
         guard let image = contactPair.contact.image else {
             if let cachedInitialsImage = _ContactInitialsImageCache.cachedInitialsImagesForContactIDs?[contactPair.contact.id] {

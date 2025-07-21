@@ -38,13 +38,17 @@ public struct OnboardingContainerView: View {
                 .redrawsOnTraitCollectionChange()
 
             NavigationStack(path: navigationPathBinding) {
-                WelcomePageView(
-                    .init(
-                        initialState: .init(),
-                        reducer: WelcomePageReducer()
+                ThemedView {
+                    WelcomePageView(
+                        .init(
+                            initialState: .init(),
+                            reducer: WelcomePageReducer()
+                        )
                     )
-                )
-                .navigationDestination(for: OnboardingNavigatorState.SeguePaths.self) { destinationView(for: $0) }
+                    .navigationDestination(for: OnboardingNavigatorState.SeguePaths.self) {
+                        destinationView(for: $0)
+                    }
+                }
             }
         }
     }
@@ -55,44 +59,54 @@ public struct OnboardingContainerView: View {
     private func destinationView(for path: OnboardingNavigatorState.SeguePaths) -> some View {
         switch path {
         case .authCode:
-            AuthCodePageView(
-                .init(
-                    initialState: .init(),
-                    reducer: AuthCodePageReducer()
+            ThemedView {
+                AuthCodePageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: AuthCodePageReducer()
+                    )
                 )
-            )
+            }
 
         case .permission:
-            PermissionPageView(
-                .init(
-                    initialState: .init(),
-                    reducer: PermissionPageReducer()
+            ThemedView {
+                PermissionPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: PermissionPageReducer()
+                    )
                 )
-            )
+            }
 
         case .selectLanguage:
-            SelectLanguagePageView(
-                .init(
-                    initialState: .init(),
-                    reducer: SelectLanguagePageReducer()
+            ThemedView {
+                SelectLanguagePageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: SelectLanguagePageReducer()
+                    )
                 )
-            )
+            }
 
         case .signIn:
-            SignInPageView(
-                .init(
-                    initialState: .init(),
-                    reducer: SignInPageReducer()
+            ThemedView {
+                SignInPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: SignInPageReducer()
+                    )
                 )
-            )
+            }
 
         case .verifyNumber:
-            VerifyNumberPageView(
-                .init(
-                    initialState: .init(),
-                    reducer: VerifyNumberPageReducer()
+            ThemedView {
+                VerifyNumberPageView(
+                    .init(
+                        initialState: .init(),
+                        reducer: VerifyNumberPageReducer()
+                    )
                 )
-            )
+            }
         }
     }
 }

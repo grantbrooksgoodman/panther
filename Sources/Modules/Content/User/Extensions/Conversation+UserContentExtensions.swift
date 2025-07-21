@@ -25,12 +25,7 @@ public extension Conversation {
     }
 
     // swiftlint:disable:next identifier_name
-    var currentUserInitiatorRequiresMessageReceiptConsent: Bool {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else { return false }
-        return metadata.requiresConsentFromInitiator == currentUserID
-    }
-
+    var currentUserInitiatorRequiresMessageReceiptConsent: Bool { metadata.requiresConsentFromInitiator == User.currentUserID }
     var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
     var currentUserPenPalsSharingData: PenPalsSharingData? { metadata.penPalsSharingData.firstWithCurrentUserID }
     var currentUserSharesPenPalsDataWithAllUsers: Bool {

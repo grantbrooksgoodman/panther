@@ -94,8 +94,7 @@ public struct AnalyticsService {
             "timestamp": dateFormatter.string(from: .now),
         ]
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        if let currentUserID {
+        if let currentUserID = User.currentUserID {
             parameters["current_user_id"] = currentUserID
         }
 

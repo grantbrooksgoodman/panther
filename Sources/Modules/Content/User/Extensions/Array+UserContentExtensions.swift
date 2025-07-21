@@ -82,9 +82,16 @@ public extension Array where Element == Conversation {
 
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
             let metadataContainsSearchTerm = conversation.metadata.name.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
-            guard let messages = conversation.messages else { return metadataContainsSearchTerm }
+
+            // swiftlint:disable:next identifier_name
+            let cellViewDataTitleLabelTextContainsSearchTerm = ConversationCellViewData(conversation)?
+                .titleLabelText
+                .lowercasedTrimmingWhitespaceAndNewlines
+                .contains(searchTerm) == true
+
+            guard let messages = conversation.messages else { return cellViewDataTitleLabelTextContainsSearchTerm || metadataContainsSearchTerm }
             let messagesContainsSearchTerm = messages.contains(where: { $0.textContains(searchTerm) })
-            return messagesContainsSearchTerm || metadataContainsSearchTerm
+            return cellViewDataTitleLabelTextContainsSearchTerm || messagesContainsSearchTerm || metadataContainsSearchTerm
         }
 
         let queriedConversations = filter { satisfiesConstraints($0) }
@@ -103,19 +110,13 @@ public extension Array where Element == Message {
 
 public extension Array where Element == MessageRecipientConsentAcknowledgementData {
     var firstWithCurrentUserID: MessageRecipientConsentAcknowledgementData? {
-        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
-        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
-        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID else { return nil }
-        return first(where: { $0.userID == resolvedCurrentUserID })
+        first(where: { $0.userID == User.currentUserID })
     }
 }
 
 public extension Array where Element == Participant {
     var firstWithCurrentUserID: Participant? {
-        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
-        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
-        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID else { return nil }
-        return first(where: { $0.userID == resolvedCurrentUserID })
+        first(where: { $0.userID == User.currentUserID })
     }
 }
 
@@ -135,10 +136,7 @@ public extension Array where Element == PenPalsSharingData {
     }
 
     var firstWithCurrentUserID: PenPalsSharingData? {
-        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
-        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
-        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID else { return nil }
-        return first(where: { $0.userID == resolvedCurrentUserID })
+        first(where: { $0.userID == User.currentUserID })
     }
 }
 

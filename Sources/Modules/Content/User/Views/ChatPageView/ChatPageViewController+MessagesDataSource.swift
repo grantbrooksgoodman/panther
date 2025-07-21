@@ -26,9 +26,8 @@ extension ChatPageViewController: MessagesDataSource {
     // MARK: - Properties
 
     public var currentSender: MessageKit.SenderType {
-        @Persistent(.currentUserID) var currentUserID: String?
         // swiftformat:disable acronyms
-        return Message.Sender(displayName: "", senderId: currentUserID ?? "")
+        Message.Sender(displayName: "", senderId: User.currentUserID ?? "")
         // swiftformat:enable acronyms
     }
 
@@ -113,13 +112,12 @@ extension ChatPageViewController: MessagesDataSource {
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser,
               !reactionsString.contains("|") else {
-            guard reactionsString.contains(where: { $0.isLetter }) else { return reactionsString.attributed(.init(emojiAttributes)) }
+            guard reactionsString.contains(where: \.isLetter) else { return reactionsString.attributed(.init(emojiAttributes)) }
             return reactionsString.attributed(attributedStringConfig)
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
         let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
-        guard let readDate = message.readReceipts?.first(where: { $0.userID != currentUserID })?.readDate else {
+        guard let readDate = message.readReceipts?.first(where: { $0.userID != User.currentUserID })?.readDate else {
             return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(attributedStringConfig)
         }
 
@@ -184,7 +182,7 @@ extension ChatPageViewController: MessagesDataSource {
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
-        @Dependency(\.commonServices) var services: CommonServices
+        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         guard let currentConversation,
               currentConversation.participants.count > 2,
@@ -215,14 +213,12 @@ extension ChatPageViewController: MessagesDataSource {
 
         let prefix = "\((!Application.isInPrevaricationMode && ThemeService.isAppDefaultThemeApplied) ? "   " : "")"
         guard currentConversation.userSharesPenPalsDataWithCurrentUser(matchingUser) ||
-            services.penPals.isKnownToCurrentUser(matchingUser.id) else {
+            penPalsService.isKnownToCurrentUser(matchingUser.id) else {
             return .init(string: "\(prefix)\(matchingUser.penPalsName)", attributes: attributes)
         }
 
-        let contactName = services
-            .contact
-            .contactPairArchive
-            .getValue(phoneNumber: matchingUser.phoneNumber)?
+        let contactName = matchingUser
+            .contactPair?
             .contact
             .fullName ?? matchingUser.phoneNumber.formattedString()
 

@@ -41,10 +41,7 @@ public struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        public var shouldShowProgressBar: Bool {
-            @Persistent(.currentUserID) var currentUserID: String?
-            return currentUserID != nil
-        }
+        public var shouldShowProgressBar: Bool { User.currentUserID != nil }
 
         /* MARK: Init */
 
@@ -81,7 +78,6 @@ public struct SplashPageReducer: Reducer {
             }
 
         case let .initializedBundle(exception):
-            @Persistent(.currentUserID) var currentUserID: String?
             state.exception = exception
 
             if let exception {
@@ -99,7 +95,7 @@ public struct SplashPageReducer: Reducer {
                     await viewService.presentErrorAlert(exception)
                     return .errorAlertDismissed
                 }
-            } else if currentUserID != nil,
+            } else if User.currentUserID != nil,
                       userSession.currentUser != nil {
                 navigation.navigate(to: .root(.modal(.userContent)))
             } else {

@@ -21,10 +21,9 @@ public extension ContactPair {
         return (currentUser.blockedUserIDs ?? []).containsAnyString(in: users.map(\.id))
     }
 
+    // TODO: Audit this – contains(where:) might be better.
     var containsCurrentUser: Bool {
-        @Persistent(.currentUserID) var currentUserID: String?
-        // TODO: Audit this – contains(where:) might be better.
-        return users.map(\.id).allSatisfy { $0 == currentUserID }
+        users.map(\.id).allSatisfy { $0 == User.currentUserID }
     }
 
     var isMock: Bool {

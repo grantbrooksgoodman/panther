@@ -113,82 +113,80 @@ public struct ConversationCellView: View {
     // MARK: - Cell View
 
     private var cellView: some View {
-        Group {
-            HStack {
-                Circle()
-                    .foregroundStyle(Colors.unreadIndicatorViewForeground)
-                    .frame(
-                        width: Floats.unreadIndicatorViewFrameWidth,
-                        height: Floats.unreadIndicatorViewFrameHeight,
-                        alignment: .center
-                    )
-                    .offset(
-                        x: Floats.unreadIndicatorViewXOffset,
-                        y: Floats.unreadIndicatorViewYOffset
-                    )
-                    .opacity(viewModel.cellViewData.isShowingUnreadIndicator ? 1 : 0)
-                    .padding(.trailing, Floats.unreadIndicatorViewTrailingPadding)
-
-                AvatarImageView(
-                    viewModel.cellViewData.thumbnailImage,
-                    badgeCount: viewModel.conversation.participants.count - 1
+        HStack {
+            Circle()
+                .foregroundStyle(Colors.unreadIndicatorViewForeground)
+                .frame(
+                    width: Floats.unreadIndicatorViewFrameWidth,
+                    height: Floats.unreadIndicatorViewFrameHeight,
+                    alignment: .center
                 )
-                .padding(.top, Floats.avatarImageViewTopPadding)
+                .offset(
+                    x: Floats.unreadIndicatorViewXOffset,
+                    y: Floats.unreadIndicatorViewYOffset
+                )
+                .opacity(viewModel.cellViewData.isShowingUnreadIndicator ? 1 : 0)
+                .padding(.trailing, Floats.unreadIndicatorViewTrailingPadding)
 
-                ZStack {
-                    VStack(alignment: .leading) {
+            AvatarImageView(
+                viewModel.cellViewData.thumbnailImage,
+                badgeCount: viewModel.conversation.participants.count - 1
+            )
+            .padding(.top, Floats.avatarImageViewTopPadding)
+
+            ZStack {
+                VStack(alignment: .leading) {
+                    HStack {
                         HStack {
-                            HStack {
-                                Components.text(
-                                    viewModel.cellViewData.titleLabelText,
-                                    font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
-                                )
-                                .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
-                                .padding(.bottom, Floats.titleLabelBottomPadding)
+                            Components.text(
+                                viewModel.cellViewData.titleLabelText,
+                                font: .systemSemibold(scale: .custom(Floats.titleLabelSystemFontSize))
+                            )
+                            .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
+                            .padding(.bottom, Floats.titleLabelBottomPadding)
 
-                                if let otherUser = viewModel.cellViewData.otherUser {
-                                    UserInfoBadgeView(otherUser) {
-                                        viewModel.send(.userInfoBadgeTapped)
-                                    }
+                            if let otherUser = viewModel.cellViewData.otherUser {
+                                UserInfoBadgeView(otherUser) {
+                                    viewModel.send(.userInfoBadgeTapped)
                                 }
-                            }
-
-                            Spacer()
-
-                            HStack(alignment: .center, spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
-                                Components.text(
-                                    viewModel.cellViewData.dateLabelText,
-                                    font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
-                                    foregroundColor: .subtitleText
-                                )
-                                .padding(
-                                    .trailing,
-                                    Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing
-                                )
-                                .if(Application.isInPrevaricationMode) { $0.offset(x: Floats.chevronImageFrameMaxWidth) }
-
-                                Components.symbol(
-                                    Strings.chevronImageSystemName,
-                                    foregroundColor: viewModel.chevronImageForegroundColor,
-                                    weight: .semibold,
-                                    usesIntrinsicSize: false
-                                )
-                                .frame(
-                                    maxWidth: Floats.chevronImageFrameMaxWidth,
-                                    maxHeight: Floats.chevronImageFrameMaxHeight
-                                )
-                                .if(Application.isInPrevaricationMode) { $0.opacity(0) }
                             }
                         }
 
-                        Components.text(
-                            viewModel.cellViewData.subtitleLabelText,
-                            font: .system(scale: .custom(Floats.subtitleLabelSystemFontSize)),
-                            foregroundColor: viewModel.subtitleLabelTextForegroundColor
-                        )
-                        .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)
-                        .offset(x: Floats.subtitleLabelXOffset, y: Floats.subtitleLabelYOffset)
+                        Spacer()
+
+                        HStack(alignment: .center, spacing: Floats.chevronImageAndDateLabelHStackSpacing) {
+                            Components.text(
+                                viewModel.cellViewData.dateLabelText,
+                                font: .system(scale: .custom(Floats.dateLabelSystemFontSize)),
+                                foregroundColor: .subtitleText
+                            )
+                            .padding(
+                                .trailing,
+                                Application.isInPrevaricationMode ? 0 : Floats.dateLabelPaddingTrailing
+                            )
+                            .if(Application.isInPrevaricationMode) { $0.offset(x: Floats.chevronImageFrameMaxWidth) }
+
+                            Components.symbol(
+                                Strings.chevronImageSystemName,
+                                foregroundColor: viewModel.chevronImageForegroundColor,
+                                weight: .semibold,
+                                usesIntrinsicSize: false
+                            )
+                            .frame(
+                                maxWidth: Floats.chevronImageFrameMaxWidth,
+                                maxHeight: Floats.chevronImageFrameMaxHeight
+                            )
+                            .if(Application.isInPrevaricationMode) { $0.opacity(0) }
+                        }
                     }
+
+                    Components.text(
+                        viewModel.cellViewData.subtitleLabelText,
+                        font: .system(scale: .custom(Floats.subtitleLabelSystemFontSize)),
+                        foregroundColor: viewModel.subtitleLabelTextForegroundColor
+                    )
+                    .lineLimit(.init(Floats.subtitleLabelLineLimit), reservesSpace: true)
+                    .offset(x: Floats.subtitleLabelXOffset, y: Floats.subtitleLabelYOffset)
                 }
             }
         }

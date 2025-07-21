@@ -89,11 +89,13 @@ public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWi
     // MARK: - UIGestureRecognizer
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        guard let currentUser,
-              ["15555555555", "18888888888"].contains(currentUser.phoneNumber.compiledNumberString),
-              build.milestone == .generalRelease,
+        guard build.milestone == .generalRelease,
               Networking.config.environment == .production,
-              let view = touch.view else { return false }
+              let view = touch.view,
+              let currentUser,
+              ["15555555555", "18888888888"].contains(
+                  currentUser.phoneNumber.compiledNumberString
+              ) else { return false }
         services.analytics.logEvent(.touchUiElement, extraParams: ["ui_element": String(type(of: view))])
         return false
     }

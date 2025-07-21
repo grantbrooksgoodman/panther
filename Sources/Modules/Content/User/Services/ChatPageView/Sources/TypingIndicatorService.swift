@@ -147,9 +147,11 @@ public final class TypingIndicatorService {
 
         // FIXME: Still encounter crashing bugs with this. Seems to be a MessageKit issue.
         // https://github.com/MessageKit/MessageKit/issues/1788
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let conversation = viewController.currentConversation,
-              conversation.participants.filter({ $0.userID != currentUserID }).contains(where: { $0.isTyping }) else {
+        guard viewController
+            .currentConversation?
+            .participants
+            .filter({ $0.userID != User.currentUserID })
+            .contains(where: \.isTyping) == true else {
             guard !viewController.isTypingIndicatorHidden else { return }
             viewController.setTypingIndicatorViewHidden(true, animated: true)
             return

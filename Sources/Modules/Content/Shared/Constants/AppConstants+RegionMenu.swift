@@ -17,6 +17,8 @@ import AppSubsystem
 
 public extension AppConstants.CGFloats {
     enum RegionMenu {
+        public static let buttonLabelGlassEffectPadding: CGFloat = 3
+
         public static let buttonLabelImageCornerRadius: CGFloat = 3
         public static let buttonLabelImageFrameHeight: CGFloat = 25
         public static let buttonLabelImageFrameWidth: CGFloat = 40

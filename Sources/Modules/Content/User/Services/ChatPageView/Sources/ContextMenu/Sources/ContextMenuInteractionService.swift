@@ -366,10 +366,9 @@ public final class ContextMenuInteractionService {
 
     @MainActor
     private func triggerExistingSelection(_ viewController: ReactionsViewController) {
-        @Persistent(.currentUserID) var currentUserID: String?
         guard let messages = self.viewController.currentConversation?.messages,
               let reactions = messages.first(where: { $0.id == selectedMessageID })?.reactions,
-              let reactionStyle = reactions.first(where: { $0.userID == currentUserID })?.style else { return }
+              let reactionStyle = reactions.first(where: { $0.userID == User.currentUserID })?.style else { return }
         viewController.markSelected(reactionStyle)
     }
 }

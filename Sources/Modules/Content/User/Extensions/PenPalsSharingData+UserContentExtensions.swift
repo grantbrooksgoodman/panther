@@ -16,10 +16,8 @@ import AppSubsystem
 public extension PenPalsSharingData {
     /// - Note: Returns `nil` if accessed on the current user.
     var sharesDataWithCurrentUser: Bool? {
-        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
-        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
-        guard let resolvedCurrentUserID = currentUserID ?? fallbackCurrentUserID,
-              userID != resolvedCurrentUserID else { return nil }
-        return (sharesDataWithUserIDs ?? []).contains(resolvedCurrentUserID)
+        guard let currentUserID = User.currentUserID,
+              userID != currentUserID else { return nil }
+        return (sharesDataWithUserIDs ?? []).contains(currentUserID)
     }
 }

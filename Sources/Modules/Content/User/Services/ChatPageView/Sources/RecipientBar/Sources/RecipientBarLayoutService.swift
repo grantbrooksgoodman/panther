@@ -281,6 +281,7 @@ public final class RecipientBarLayoutService {
         let tableView: UITableView = .init(frame: viewController.view.frame)
 
         tableView.alpha = 0
+        tableView.backgroundColor = .clear
         tableView.contentInset.bottom = Floats.frameHeight
         tableView.frame.origin.y += Floats.frameHeight
         tableView.maximumContentSizeCategory = .large

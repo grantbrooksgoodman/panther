@@ -115,7 +115,13 @@ public final class ConversationsPageViewService {
         }
 
         if build.milestone != .generalRelease {
-            let numberOfConversations = userSession.currentUser?.conversations?.visibleForCurrentUser.count ?? 1
+            let currentUser = userSession.currentUser
+            let numberOfConversations = currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .count ?? currentUser?
+                .conversationIDs?
+                .count ?? 1
             let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
 
             let secondsPerConversation = String(format: "%.2f", Float(secondsToLoad) / Float(numberOfConversations))

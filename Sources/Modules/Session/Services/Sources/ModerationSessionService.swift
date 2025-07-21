@@ -121,9 +121,11 @@ public struct ModerationSessionService {
     }
 
     private func getBlockedUsers() async -> Callback<[User], Exception> {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else {
-            return .failure(.init("Current user ID has not been set.", metadata: [self, #file, #function, #line]))
+        guard let currentUserID = User.currentUserID else {
+            return .failure(.init(
+                "Current user ID has not been set.",
+                metadata: [self, #file, #function, #line]
+            ))
         }
 
         let path = "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
@@ -174,7 +176,7 @@ public struct ModerationSessionService {
             Logger.log(exception)
         }
 
-        var contactPairs = users.map { services.contact.contactPairArchive.getValue(phoneNumber: $0.phoneNumber) ?? .withUser($0) }
+        var contactPairs = users.map { $0.contactPair ?? .withUser($0) }
         if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil,
            let currentUserConversations = userSession.currentUser?.conversations?.filter({ !($0.currentUserParticipant?.hasDeletedConversation ?? true) }) {
             for user in users where currentUserConversations.contains(where: {

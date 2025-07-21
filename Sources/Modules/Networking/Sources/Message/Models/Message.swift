@@ -88,8 +88,7 @@ public struct Message: Codable, EncodedHashable, Equatable {
     // MARK: - Computed Property Getters
 
     private func getCurrentUserReadReceipt() -> ReadReceipt? {
-        @Persistent(.currentUserID) var currentUserID: String?
-        return readReceipts?.first(where: { $0.userID == currentUserID })
+        readReceipts?.first(where: { $0.userID == User.currentUserID })
     }
 
     private func getHashFactors() -> [String] {

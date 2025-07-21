@@ -16,7 +16,7 @@ import AppSubsystem
 public struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.conversation.currentConversation) private var currentConversation: Conversation?
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.chatPageViewService.recipientBar) private var recipientBarService: RecipientBarService?
     @Dependency(\.commonServices) private var services: CommonServices
@@ -43,6 +43,7 @@ public struct NewChatPageReducer: Reducer {
         // Bool
         public var isDoneToolbarButtonEnabled = true
         public var isPresentingContactSelectorSheet = false
+        public var shouldShowPenPalsToolbarButton = false
         public var shouldUseBoldDoneToolbarButton = false
 
         // String
@@ -66,11 +67,6 @@ public struct NewChatPageReducer: Reducer {
                 .y ?? 0) > 0 ? 0.8 : 0
         }
 
-        public var shouldShowPenPalsToolbarButton: Bool {
-            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
-            return (currentUser?.isPenPalsParticipant ?? false) && !shouldUseBoldDoneToolbarButton
-        }
-
         /* MARK: Init */
 
         public init() {}
@@ -85,6 +81,7 @@ public struct NewChatPageReducer: Reducer {
 
             state.doneToolbarButtonText = Localized(.cancel).wrappedValue
             state.navigationTitle = Application.isInPrevaricationMode ? "Create chat" : Localized(.newMessage).wrappedValue
+            state.shouldShowPenPalsToolbarButton = clientSession.user.currentUser?.isPenPalsParticipant ?? false
 
             Observables.newChatPagePenPalsToolbarButtonAnimation.trigger()
 
@@ -96,11 +93,12 @@ public struct NewChatPageReducer: Reducer {
             navigation.navigate(to: .userContent(.sheet(.none)))
 
         case .firstMessageSent:
-            guard let currentConversation,
+            guard let currentConversation = clientSession.conversation.currentConversation,
                   let cellViewData = ConversationCellViewData(currentConversation) else { return .none }
 
             state.doneToolbarButtonText = Localized(.done).wrappedValue
             state.navigationTitle = cellViewData.titleLabelText
+            state.shouldShowPenPalsToolbarButton = false
             state.shouldUseBoldDoneToolbarButton = true
 
             guard UIApplication.v26FeaturesEnabled else { return .none }

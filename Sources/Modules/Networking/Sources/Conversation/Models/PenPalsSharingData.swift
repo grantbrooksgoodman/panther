@@ -42,9 +42,7 @@ public struct PenPalsSharingData: Codable, Equatable {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         let userIDs = userIDs.unique
-        @Persistent(.currentUserID) var currentUserID: String?
-
-        guard let currentUserID,
+        guard let currentUserID = User.currentUserID,
               userIDs.contains(currentUserID) else { return empty(userIDs: userIDs) }
 
         let knownToCurrentUser = userIDs.filter { $0 != currentUserID && penPalsService.isKnownToCurrentUser($0) }

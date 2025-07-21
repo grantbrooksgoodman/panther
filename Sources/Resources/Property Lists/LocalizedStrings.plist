@@ -1707,6 +1707,161 @@
 		<key>zh</key>
 		<string>删除</string>
 	</dict>
+	<key>deleting_data</key>
+	<dict>
+		<key>af</key>
+		<string>Data uit te vee...</string>
+		<key>ar</key>
+		<string>حذف البيانات...</string>
+		<key>az</key>
+		<string>Data silinir...</string>
+		<key>be</key>
+		<string>Выдаленне дадзеных...</string>
+		<key>bg</key>
+		<string>Изтриване на данни...</string>
+		<key>bn</key>
+		<string>ডেটা মুছে ফেলা হচ্ছে...</string>
+		<key>bs</key>
+		<string>Brisanje podataka...</string>
+		<key>ca</key>
+		<string>S&apos;estan suprimint les dades...</string>
+		<key>cs</key>
+		<string>Mazání dat...</string>
+		<key>cy</key>
+		<string>Dileu data...</string>
+		<key>da</key>
+		<string>Sletning af data...</string>
+		<key>de</key>
+		<string>Daten werden gelöscht...</string>
+		<key>el</key>
+		<string>Διαγραφή δεδομένων...</string>
+		<key>en</key>
+		<string>Deleting data...</string>
+		<key>eo</key>
+		<string>Forigante datumojn...</string>
+		<key>es</key>
+		<string>Borrando datos...</string>
+		<key>et</key>
+		<string>Andmete kustutamine...</string>
+		<key>eu</key>
+		<string>Datuak ezabatzen...</string>
+		<key>fa</key>
+		<string>حذف داده‌ها...</string>
+		<key>fi</key>
+		<string>Tietoja poistetaan...</string>
+		<key>fr</key>
+		<string>Suppression des données...</string>
+		<key>ga</key>
+		<string>Ag scriosadh sonraí...</string>
+		<key>gd</key>
+		<string>A &apos;cuir às do dhàta...</string>
+		<key>gl</key>
+		<string>Eliminando datos...</string>
+		<key>gu</key>
+		<string>ડેટા કાઢી નાખી રહ્યું છે...</string>
+		<key>he</key>
+		<string>מוחק נתונים...</string>
+		<key>hi</key>
+		<string>डेटा हटा रहा है...</string>
+		<key>hr</key>
+		<string>Brisanje podataka...</string>
+		<key>ht</key>
+		<string>Ap efase done yo...</string>
+		<key>hu</key>
+		<string>Az adatok törlése...</string>
+		<key>hy</key>
+		<string>Տվյալների ջնջում...</string>
+		<key>id</key>
+		<string>Menghapus data...</string>
+		<key>is</key>
+		<string>Eyðir gögnum...</string>
+		<key>it</key>
+		<string>Eliminazione dei dati...</string>
+		<key>ja</key>
+		<string>データを削除しています...</string>
+		<key>ka</key>
+		<string>Მონაცემების წაშლა...</string>
+		<key>kk</key>
+		<string>Деректерді жою...</string>
+		<key>kn</key>
+		<string>ಡೇಟಾವನ್ನು ಅಳಿಸಲಾಗುತ್ತಿದೆ...</string>
+		<key>ko</key>
+		<string>데이터를 삭제하는 중...</string>
+		<key>ky</key>
+		<string>Дайындар жок кылынууда...</string>
+		<key>lt</key>
+		<string>Trinami duomenys...</string>
+		<key>mg</key>
+		<string>Famafana angona...</string>
+		<key>mi</key>
+		<string>Muku raraunga...</string>
+		<key>mk</key>
+		<string>Бришење на податоци...</string>
+		<key>ml</key>
+		<string>ഡാറ്റ ഇല്ലാതാക്കുന്നു...</string>
+		<key>mn</key>
+		<string>Өгөгдлийг устгаж байна...</string>
+		<key>mt</key>
+		<string>Qed tħassar id-dejta...</string>
+		<key>ne</key>
+		<string>डेटा मेटाउँदै...</string>
+		<key>nl</key>
+		<string>Gegevens verwijderen...</string>
+		<key>no</key>
+		<string>Slette data...</string>
+		<key>pa</key>
+		<string>ਡਾਟਾ ਮਿਟਾਇਆ ਜਾ ਰਿਹਾ ਹੈ...</string>
+		<key>pl</key>
+		<string>Usuwanie danych...</string>
+		<key>pt</key>
+		<string>Excluindo dados...</string>
+		<key>ro</key>
+		<string>Ștergerea datelor...</string>
+		<key>ru</key>
+		<string>Удаление данных...</string>
+		<key>si</key>
+		<string>දත්ත මකා දමමින්...</string>
+		<key>sk</key>
+		<string>Mazanie údajov...</string>
+		<key>sl</key>
+		<string>Brisanje podatkov...</string>
+		<key>sq</key>
+		<string>Fshirja e të dhënave...</string>
+		<key>sr</key>
+		<string>Брисање података...</string>
+		<key>su</key>
+		<string>Ngahapus data...</string>
+		<key>sv</key>
+		<string>Radera data...</string>
+		<key>sw</key>
+		<string>Inafuta data...</string>
+		<key>ta</key>
+		<string>தரவை நீக்குதல்...</string>
+		<key>te</key>
+		<string>డేటాను తొలగిస్తోంది...</string>
+		<key>tg</key>
+		<string>Нест кардани маълумот...</string>
+		<key>th</key>
+		<string>กำลังลบข้อมูล...</string>
+		<key>tl</key>
+		<string>Tinatanggal ang data...</string>
+		<key>tr</key>
+		<string>Verileri Silme...</string>
+		<key>tt</key>
+		<string>Мәгълүматны бетерү...</string>
+		<key>uk</key>
+		<string>Видалення даних...</string>
+		<key>ur</key>
+		<string>ڈیٹا حذف ہو رہا ہے...</string>
+		<key>uz</key>
+		<string>Maʼlumotlar oʻchirilmoqda...</string>
+		<key>vi</key>
+		<string>Đang xóa dữ liệu...</string>
+		<key>yi</key>
+		<string>אויסמעקן דאַטן...</string>
+		<key>zh</key>
+		<string>正在删除数据...</string>
+	</dict>
 	<key>delivered</key>
 	<dict>
 		<key>af</key>

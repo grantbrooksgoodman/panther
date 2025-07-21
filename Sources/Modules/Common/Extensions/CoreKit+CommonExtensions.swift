@@ -78,7 +78,7 @@ public extension CoreKit.Utilities {
 
         guard let conversationIDKeys = conversations?.filter({
             $0.didSendConsentMessage ||
-                $0.messages?.contains(where: { $0.isConsentMessage }) == true ||
+                $0.messages?.contains(where: \.isConsentMessage) == true ||
                 $0.metadata.requiresConsentFromInitiator != nil
         }).map(\.id.key) else { return nil }
 

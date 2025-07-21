@@ -30,6 +30,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case copy
 
     case delete
+    case deletingData
     case delivered
     case dismiss
     case done

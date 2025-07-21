@@ -34,8 +34,6 @@ public final class ReactionSessionService {
         didSet { didSetIsReactingToMessage() }
     }
 
-    @Persistent(.currentUserID) private var currentUserID: String?
-
     // MARK: - Add Effect
 
     /// Adds an effect to be run once, upon a change in value of `isReactingToMessage`.
@@ -58,7 +56,7 @@ public final class ReactionSessionService {
     public func react(_ reaction: Reaction, to message: Message) async -> Exception? {
         guard !message.isMock else { return nil }
         guard let conversation = conversationSession.fullConversation,
-              let currentUserID,
+              let currentUserID = User.currentUserID,
               let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }) else {
             return .init(
                 "Failed to resolve required values.",
@@ -169,7 +167,7 @@ public final class ReactionSessionService {
 
     private func notifyUsers(ofReaction reaction: Reaction, to message: Message) async -> Exception? {
         guard let conversation = conversationSession.currentConversation,
-              let currentUserID,
+              let currentUserID = User.currentUserID,
               let user = conversation
               .users?
               .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })

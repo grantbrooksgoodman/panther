@@ -100,8 +100,7 @@ public final class User: Codable, Equatable {
 
     /// - Note: Will return `0` for users other than the current user.
     public func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard id == currentUserID else { return 0 }
+        guard id == User.currentUserID else { return 0 }
 
         if conversationIDs?.isEmpty == false,
            conversations == nil || conversations?.isEmpty == true {
@@ -153,8 +152,7 @@ public final class User: Codable, Equatable {
             return nil
         }
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard id == currentUserID,
+        guard id == User.currentUserID,
               let conversationIDs else { return nil }
 
         isSettingConversations = true

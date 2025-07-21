@@ -49,8 +49,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             "Timestamp": dateFormatter.string(from: .now),
         ]
 
-        @Persistent(.currentUserID) var currentUserID: String?
-        if let currentUserID {
+        if let currentUserID = User.currentUserID {
             parameters["Current User ID"] = currentUserID
         }
 

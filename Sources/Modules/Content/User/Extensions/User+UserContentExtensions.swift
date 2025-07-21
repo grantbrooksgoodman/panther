@@ -14,6 +14,28 @@ import UIKit
 import AppSubsystem
 
 public extension User {
+    var contactPair: ContactPair? {
+        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+        return contactPairArchive.getValue(phoneNumber: phoneNumber)
+    }
+
+    var displayName: String {
+        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
+
+        if penPalsService.isObfuscatedPenPalWithCurrentUser(self),
+           !penPalsService.isKnownToCurrentUser(id) {
+            return penPalsName
+        }
+
+        return contactPair?.contact.fullName ?? phoneNumber.formattedString()
+    }
+
+    static var currentUserID: String? {
+        @Persistent(.currentUserID) var persistedValue: String?
+        @Dependency(\.clientSession.user.currentUser?.id) var sessionValue: String?
+        return sessionValue ?? persistedValue
+    }
+
     var penPalsIconColor: UIColor? {
         (
             UIImage(

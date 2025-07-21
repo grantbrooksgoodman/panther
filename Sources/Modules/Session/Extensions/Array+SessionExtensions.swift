@@ -14,10 +14,9 @@ import AppSubsystem
 
 public extension Array where Element == ReactionMetadata {
     func filteringCurrentUserReactions(to messageID: String) -> [ReactionMetadata] {
-        @Persistent(.currentUserID) var currentUserID: String?
         func satisfiesConstraints(_ metadata: ReactionMetadata) -> Bool {
             guard metadata.messageID == messageID,
-                  metadata.reactions.map(\.userID).contains(currentUserID) else { return false }
+                  metadata.reactions.map(\.userID).contains(User.currentUserID) else { return false }
             return true
         }
 
@@ -25,7 +24,7 @@ public extension Array where Element == ReactionMetadata {
         for (index, metadata) in array.enumerated() where satisfiesConstraints(metadata) {
             let newMetadata = ReactionMetadata(
                 messageID: metadata.messageID,
-                reactions: metadata.reactions.filter { $0.userID != currentUserID }
+                reactions: metadata.reactions.filter { $0.userID != User.currentUserID }
             )
 
             array.remove(at: index)

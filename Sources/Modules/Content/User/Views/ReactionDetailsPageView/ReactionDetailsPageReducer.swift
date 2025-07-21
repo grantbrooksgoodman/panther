@@ -65,7 +65,7 @@ public struct ReactionDetailsPageReducer: Reducer {
 
             let userMap = Dictionary(
                 uniqueKeysWithValues: ((clientSession.conversation.currentConversation?.users ?? []) + [currentUser])
-                    .map { ($0.id, $0.displayName) }
+                    .map { ($0.id, $0.reactionDisplayName) }
             )
 
             return Dictionary(grouping: reactions, by: \.style)
@@ -125,20 +125,7 @@ public struct ReactionDetailsPageReducer: Reducer {
 }
 
 private extension User {
-    var displayName: String {
-        @Dependency(\.clientSession.conversation.currentConversation) var currentConversation: Conversation?
-        @Dependency(\.commonServices) var services: CommonServices
-
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard id != currentUserID else { return Localized(.you).wrappedValue }
-
-        if let currentConversation,
-           !currentConversation.userSharesPenPalsDataWithCurrentUser(self),
-           !services.penPals.isKnownToCurrentUser(id) || currentConversation.participants.count == 2 {
-            return penPalsName
-        }
-
-        guard let contactPair = services.contact.contactPairArchive.getValue(phoneNumber: phoneNumber) else { return phoneNumber.formattedString() }
-        return contactPair.contact.fullName
+    var reactionDisplayName: String {
+        id == User.currentUserID ? Localized(.you).wrappedValue : displayName
     }
 }

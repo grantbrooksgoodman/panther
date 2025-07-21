@@ -58,70 +58,68 @@ public struct SignInPageView: View {
 
     public var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
-            ThemedView {
-                VStack {
-                    Image(.hello)
-                        .resizable()
-                        .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
-                        .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
-                        .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
-                        .padding(.bottom, Floats.imageBottomPadding)
+            VStack {
+                Image(.hello)
+                    .resizable()
+                    .renderingMode(ThemeService.isDarkModeActive ? .template : .original)
+                    .foregroundColor(ThemeService.isDarkModeActive ? Colors.imageDarkForeground : .none)
+                    .frame(width: Floats.imageFrameWidth, height: Floats.imageFrameHeight)
+                    .padding(.bottom, Floats.imageBottomPadding)
 
-                    Components.text(viewModel.instructionLabelText)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
-                        .padding(.vertical, Floats.instructionLabelVerticalPadding)
+                Components.text(viewModel.instructionLabelText)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Floats.instructionLabelHorizontalPadding)
+                    .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                    if viewModel.configuration == .phoneNumber {
-                        HStack(alignment: .center) {
-                            RegionMenu(selectedRegionCodeBinding)
-                                .padding(.leading, Floats.regionMenuLeadingPadding)
-                                .padding(.trailing, Floats.regionMenuTrailingPadding)
-                                .id(viewModel.regionMenuViewID)
+                if viewModel.configuration == .phoneNumber {
+                    HStack(alignment: .center) {
+                        RegionMenu(selectedRegionCodeBinding)
+                            .padding(.leading, Floats.regionMenuLeadingPadding)
+                            .padding(.trailing, Floats.regionMenuTrailingPadding)
+                            .id(viewModel.regionMenuViewID)
 
-                            PhoneNumberTextField(
-                                phoneNumberStringBinding,
-                                regionCode: selectedRegionCodeBinding
-                            )
-                            .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
-                            .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
-                        }
-                    } else {
-                        GenericTextField(
-                            verificationCodeBinding,
-                            keyboardType: .numberPad,
-                            placeholderText: (Strings.textFieldPlaceholder, nil)
+                        PhoneNumberTextField(
+                            phoneNumberStringBinding,
+                            regionCode: selectedRegionCodeBinding
                         )
-                        .padding(.horizontal, Floats.textFieldHorizontalPadding)
-                        .padding(.vertical, Floats.textFieldVerticalPadding)
+                        .padding(.trailing, Floats.phoneNumberTextFieldTrailingPadding)
+                        .padding(.vertical, Floats.phoneNumberTextFieldVerticalPadding)
                     }
-
-                    Components.capsuleButton(
-                        viewModel.continueButtonText,
-                        font: .systemSemibold,
-                        foregroundColor: viewModel.isContinueButtonEnabled ? .background : .disabled
-                    ) {
-                        viewModel.send(.continueButtonTapped)
-                    }
-                    .disabled(!viewModel.isContinueButtonEnabled)
-                    .padding(.top, Floats.continueButtonTopPadding)
-
-                    Components.button(
-                        viewModel.strings.value(for: .backButtonText),
-                        font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
-                        foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
-                    ) {
-                        viewModel.send(.backButtonTapped)
-                    }
-                    .disabled(!viewModel.isBackButtonEnabled)
-                    .padding(.top, Floats.backButtonTopPadding)
+                } else {
+                    GenericTextField(
+                        verificationCodeBinding,
+                        keyboardType: .numberPad,
+                        placeholderText: (Strings.textFieldPlaceholder, nil)
+                    )
+                    .padding(.horizontal, Floats.textFieldHorizontalPadding)
+                    .padding(.vertical, Floats.textFieldVerticalPadding)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .interactivePopGestureRecognizerDisabled(viewModel.configuration == .verificationCode)
-                .contentShape(Rectangle())
-                .onSwipe(.down) {
-                    viewModel.send(.didSwipeDown)
+
+                Components.capsuleButton(
+                    viewModel.continueButtonText,
+                    font: .systemSemibold,
+                    foregroundColor: viewModel.isContinueButtonEnabled ? .background : .disabled
+                ) {
+                    viewModel.send(.continueButtonTapped)
                 }
+                .disabled(!viewModel.isContinueButtonEnabled)
+                .padding(.top, Floats.continueButtonTopPadding)
+
+                Components.button(
+                    viewModel.strings.value(for: .backButtonText),
+                    font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
+                    foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
+                ) {
+                    viewModel.send(.backButtonTapped)
+                }
+                .disabled(!viewModel.isBackButtonEnabled)
+                .padding(.top, Floats.backButtonTopPadding)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .interactivePopGestureRecognizerDisabled(viewModel.configuration == .verificationCode)
+            .contentShape(Rectangle())
+            .onSwipe(.down) {
+                viewModel.send(.didSwipeDown)
             }
         }
         .toolbar(.hidden, for: .navigationBar)

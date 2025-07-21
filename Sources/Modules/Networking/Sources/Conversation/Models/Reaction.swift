@@ -100,8 +100,7 @@ public struct Reaction: Codable, Hashable {
     }
 
     public init?(_ style: Style) {
-        @Persistent(.currentUserID) var currentUserID: String?
-        guard let currentUserID else { return nil }
+        guard let currentUserID = User.currentUserID else { return nil }
         self = .init(style, userID: currentUserID)
     }
 }

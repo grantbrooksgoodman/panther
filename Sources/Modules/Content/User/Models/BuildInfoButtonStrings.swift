@@ -55,9 +55,7 @@ public struct BuildInfoButtonStrings: Equatable {
     public init(_ key: BuildInfoButtonStringKey) {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar
-        @Dependency(\.clientSession.user.currentUser?.id) var currentUserID: String?
 
-        @Persistent(.currentUserID) var fallbackCurrentUserID: String?
         @Localized(.version) var localizedVersionString: String
 
         self.key = key
@@ -73,7 +71,7 @@ public struct BuildInfoButtonStrings: Equatable {
             labelText = "7B0U3X1V | \(build.projectID)"
 
         case .userIDAndNetworkEnvironment:
-            labelText = "\(currentUserID ?? fallbackCurrentUserID ?? "�") | \(Networking.config.environment.shortString)"
+            labelText = "\(User.currentUserID ?? "�") | \(Networking.config.environment.shortString)"
 
         case .copyright:
             labelText = "Copyright © \(calendar.component(.year, from: Date.now)) NEOTechnica Corp."
