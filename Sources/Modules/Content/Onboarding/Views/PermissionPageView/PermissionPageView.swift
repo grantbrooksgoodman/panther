@@ -38,43 +38,45 @@ public struct PermissionPageView: View {
 
                 Spacer()
 
-                VStack(alignment: .center) {
-                    StatusIndicatorButton(
-                        viewModel.strings.value(for: .contactPermissionCapsuleButtonText),
-                        isCompleted: viewModel.isContactPermissionGranted
-                    ) {
-                        viewModel.send(.contactPermissionCapsuleButtonTapped)
+                VStack {
+                    VStack {
+                        StatusIndicatorButton(
+                            viewModel.strings.value(for: .contactPermissionCapsuleButtonText),
+                            isCompleted: viewModel.isContactPermissionGranted
+                        ) {
+                            viewModel.send(.contactPermissionCapsuleButtonTapped)
+                        }
+
+                        StatusIndicatorButton(
+                            viewModel.strings.value(for: .notificationPermissionCapsuleButtonText),
+                            isCompleted: viewModel.isNotificationPermissionGranted
+                        ) {
+                            viewModel.send(.notificationPermissionCapsuleButtonTapped)
+                        }
                     }
+                    .padding(.bottom, Floats.buttonVStackBottomPadding)
 
-                    StatusIndicatorButton(
-                        viewModel.strings.value(for: .notificationPermissionCapsuleButtonText),
-                        isCompleted: viewModel.isNotificationPermissionGranted
+                    Components.capsuleButton(
+                        viewModel.strings.value(for: .finishButtonText),
+                        font: .systemSemibold,
+                        foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled
                     ) {
-                        viewModel.send(.notificationPermissionCapsuleButtonTapped)
+                        viewModel.send(.finishButtonTapped)
                     }
-                }
-                .padding(.bottom, Floats.buttonVStackBottomPadding)
-                .padding(.top, Floats.buttonVStackTopPadding)
+                    .disabled(!viewModel.isFinishButtonEnabled)
+                    .padding(.top, Floats.finishButtonTopPadding)
 
-                Components.capsuleButton(
-                    viewModel.strings.value(for: .finishButtonText),
-                    font: .systemSemibold,
-                    foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled
-                ) {
-                    viewModel.send(.finishButtonTapped)
+                    Components.button(
+                        viewModel.strings.value(for: .backButtonText),
+                        font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
+                        foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
+                    ) {
+                        viewModel.send(.backButtonTapped)
+                    }
+                    .disabled(!viewModel.isBackButtonEnabled)
+                    .padding(.top, Floats.backButtonTopPadding)
                 }
-                .disabled(!viewModel.isFinishButtonEnabled)
-                .padding(.top, Floats.finishButtonTopPadding)
-
-                Components.button(
-                    viewModel.strings.value(for: .backButtonText),
-                    font: .system(scale: .custom(Floats.backButtonLabelFontSize)),
-                    foregroundColor: viewModel.isBackButtonEnabled ? .accent : .disabled
-                ) {
-                    viewModel.send(.backButtonTapped)
-                }
-                .disabled(!viewModel.isBackButtonEnabled)
-                .padding(.top, Floats.backButtonTopPadding)
+                .padding(.bottom, Floats.innerVStackBottomPadding)
 
                 Spacer()
             }

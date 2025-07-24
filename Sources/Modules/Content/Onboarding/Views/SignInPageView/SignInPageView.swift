@@ -72,7 +72,7 @@ public struct SignInPageView: View {
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
                 if viewModel.configuration == .phoneNumber {
-                    HStack(alignment: .center) {
+                    HStack {
                         RegionMenu(selectedRegionCodeBinding)
                             .padding(.leading, Floats.regionMenuLeadingPadding)
                             .padding(.trailing, Floats.regionMenuTrailingPadding)

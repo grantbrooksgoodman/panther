@@ -10,7 +10,7 @@
 
 /* Native */
 import Foundation
-import UIKit
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -26,6 +26,15 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
+    // MARK: - Properties
+
+    private var uiSegmentBackgroundViews: [UIView] {
+        uiApplication
+            .presentedViews
+            .filter { String(type(of: $0)) == "UISegment" }
+            .compactMap(\.superview?.superview)
+    }
+
     // MARK: - Actions
 
     public enum Action {
@@ -36,19 +45,21 @@ public struct ChatInfoPageReducer: Reducer {
         case changeMetadataButtonTapped
         case chatInfoCellTapped
         case currentConversationMetadataChanged
+        case mediaItemViewTapped(MediaItemView.Metadata)
         case penPalsSharingDataSwitchToggledOn
-        case userInfoBadgeTapped(User)
+        case userInfoBadgeTapped(User?)
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
         case penPalParticipantViewTapped(ChatParticipant)
+        case segmentedControlSelectionIndexChanged(Int)
         case traitCollectionChanged
 
         case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
         case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
         case isPresentingCameraPickerSheetChanged(Bool, Exception?)
         case isPresentingImagePickerSheetChanged(Bool, Exception?) // swiftlint:disable:next identifier_name
-        case penPalsSharingDataConfirmationActionSheetDismissed(userID: String?)
+        case penPalsSharingDataConfirmationActionSheetDismissed(ConversationMetadata?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case selectedImageChanged(UIImage)
         case updateValueReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
@@ -58,6 +69,8 @@ public struct ChatInfoPageReducer: Reducer {
 
     public struct State: Equatable {
         /* MARK: Properties */
+
+        public var segmentedControlSelectionIndex = 0
 
         // Array
         public var chatParticipants = [ChatParticipant]()
@@ -74,6 +87,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         // UUID
         public var chatInfoCellViewID = UUID()
+        public var segmentedControlViewID = UUID()
         public var viewID = UUID()
 
         // Other
@@ -83,12 +97,6 @@ public struct ChatInfoPageReducer: Reducer {
         /* MARK: Computed Properties */
 
         public var avatarImage: UIImage? { cellViewData?.thumbnailImage }
-
-        public var cellViewData: ConversationCellViewData? {
-            guard let conversation,
-                  let cellViewData: ConversationCellViewData = .init(conversation) else { return nil }
-            return cellViewData
-        }
 
         public var chatInfoCellImageSystemName: String {
             "chevron.\(visibleParticipants.isEmpty ? "right" : "down").circle"
@@ -107,14 +115,29 @@ public struct ChatInfoPageReducer: Reducer {
             return cellViewData.titleLabelText
         }
 
-        public var conversation: Conversation? {
-            @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
-            return currentConversation
-        }
-
         public var isDeveloperModeEnabled: Bool {
             @Dependency(\.build) var build: Build
             return build.isDeveloperModeEnabled
+        }
+
+        public var mediaItemMetadata: [MediaItemView.Metadata] {
+            conversation?.mediaItemMetadata ?? []
+        }
+
+        public var segmentedControlMaxWidth: CGFloat {
+            Dependency(\.uiApplication.mainScreen.bounds.width).wrappedValue * (2 / 3)
+        }
+
+        public var segmentedControlOptionTitles: [String] {
+            [
+                strings.value(for: .segmentedControlParticipantsOptionText),
+                strings.value(for: .segmentedControlMediaOptionText),
+            ]
+        }
+
+        public var shouldElongateSegmentedControl: Bool {
+            RuntimeStorage.languageCode != "en" && segmentedControlOptionTitles
+                .contains(where: { $0.count >= 25 || $0.components(separatedBy: " ").count > 2 })
         }
 
         public var showsChangeMetadataButton: Bool {
@@ -129,6 +152,17 @@ public struct ChatInfoPageReducer: Reducer {
             guard chatParticipants.count == 1,
                   conversation?.metadata.isPenPalsConversation == false else { return nil }
             return chatParticipants.first?.cnContactContainer
+        }
+
+        fileprivate var cellViewData: ConversationCellViewData? {
+            guard let conversation,
+                  let cellViewData: ConversationCellViewData = .init(conversation) else { return nil }
+            return cellViewData
+        }
+
+        fileprivate var conversation: Conversation? {
+            @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
+            return currentConversation
         }
 
         /* MARK: Init */
@@ -146,7 +180,10 @@ public struct ChatInfoPageReducer: Reducer {
             state.inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder == true
             state.isChangeMetadataButtonEnabled = state.conversation?.metadata.requiresConsentFromInitiator == nil
             state.isPenPalsSharingDataSwitchToggled = state.conversation?.currentUserSharesPenPalsDataWithAllUsers == true
+            state.segmentedControlSelectionIndex = 0
+
             uiApplication.resignFirstResponders()
+            UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
 
             let getChatParticipantsTask: Effect<Action> = .task {
                 let result = await viewService.getChatParticipants()
@@ -161,45 +198,22 @@ public struct ChatInfoPageReducer: Reducer {
         case .addContactButtonTapped:
             break
 
-        case let .changeMetadataActionSheetDismissed(.name(name)):
-            guard let conversation = state.conversation,
-                  name != conversation.metadata.name,
-                  !(name.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else {
+        case let .changeMetadataActionSheetDismissed(.name(newMetadata)):
+            guard let conversation = state.conversation else {
                 state.isChangeMetadataButtonEnabled = true
                 return .none
             }
-
-            let sanitizedName = name.isBangQualifiedEmpty ? .bangQualifiedEmpty : name
-            let newMetadata: ConversationMetadata = .init(
-                name: sanitizedName.trimmingBorderedWhitespace,
-                imageData: conversation.metadata.imageData,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: conversation.metadata.penPalsSharingData,
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-            )
 
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result)
             }
 
-        case .changeMetadataActionSheetDismissed(.removePhoto):
+        case let .changeMetadataActionSheetDismissed(.removePhoto(newMetadata)):
             guard let conversation = state.conversation else {
                 state.isChangeMetadataButtonEnabled = true
                 return .none
             }
-
-            let newMetadata: ConversationMetadata = .init(
-                name: conversation.metadata.name,
-                imageData: nil,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: conversation.metadata.penPalsSharingData,
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-            )
 
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
@@ -248,6 +262,10 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
             state.viewState = .loaded
+            return .task(delay: .seconds(1)) { @MainActor in
+                uiSegmentBackgroundViews.forEach { $0.backgroundColor = .groupedContentBackground }
+                return .none
+            }
 
         case let .getChatParticipantsReturned(.failure(exception)):
             Logger.log(exception)
@@ -279,38 +297,16 @@ public struct ChatInfoPageReducer: Reducer {
             }
             state.isChangeMetadataButtonEnabled = true
 
-        case let .penPalsSharingDataConfirmationActionSheetDismissed(userID):
-            guard let userID,
-                  let conversation = state.conversation,
-                  let currentUserID = User.currentUserID,
-                  let currentUserPenPalsSharingData = conversation.currentUserPenPalsSharingData else { return .none }
-
-            let newCurrentUserPenPalsSharingData: PenPalsSharingData = .init(
-                userID: currentUserID,
-                sharesDataWithUserIDs: ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + [userID]).unique
+        case let .mediaItemViewTapped(metadata):
+            viewService.mediaItemViewTapped(
+                metadata,
+                filePaths: state.mediaItemMetadata.map(\.file.localPathURL.path),
+                startingIndex: state.mediaItemMetadata.map(\.file).firstIndex(of: metadata.file) ?? 0
             )
 
-            var newPenPalsSharingData = conversation.metadata.penPalsSharingData.filter { $0.userID != currentUserID }
-            newPenPalsSharingData.append(newCurrentUserPenPalsSharingData)
-
-            let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? .init(
-                name: conversation.metadata.name,
-                imageData: conversation.metadata.imageData,
-                isPenPalsConversation: false,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID)),
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-            ) : .init(
-                name: conversation.metadata.name,
-                imageData: conversation.metadata.imageData,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: newPenPalsSharingData,
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-            )
-
+        case let .penPalsSharingDataConfirmationActionSheetDismissed(newMetadata):
+            guard let conversation = state.conversation,
+                  let newMetadata else { return .none }
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
                 return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
@@ -319,8 +315,8 @@ public struct ChatInfoPageReducer: Reducer {
         case let .penPalParticipantViewTapped(chatParticipant):
             guard let user = chatParticipant.firstUser else { return .none }
 
-            if chatParticipant.isPenPal,
-               state.conversation?.currentUserSharesPenPalsData(with: user) == true {
+            if let penPalsStatus = chatParticipant.penPalsStatus,
+               penPalsStatus == .currentUserSharesData {
                 return .task {
                     await viewService.showPenPalsSharingStatusToast(
                         user.id,
@@ -335,7 +331,7 @@ public struct ChatInfoPageReducer: Reducer {
                     user.id,
                     displayName: chatParticipant.displayName
                 )
-                return .penPalsSharingDataConfirmationActionSheetDismissed(userID: result)
+                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
             }
 
         case .penPalsSharingDataSwitchToggledOn:
@@ -345,14 +341,18 @@ public struct ChatInfoPageReducer: Reducer {
                     otherUser.id,
                     displayName: otherUser.penPalsName
                 )
-                return .penPalsSharingDataConfirmationActionSheetDismissed(userID: result)
+                return .penPalsSharingDataConfirmationActionSheetDismissed(result)
             }
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
+            state.segmentedControlViewID = UUID()
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
+
+        case let .segmentedControlSelectionIndexChanged(segmentedControlSelectionIndex):
+            state.segmentedControlSelectionIndex = segmentedControlSelectionIndex
 
         case let .selectedImageChanged(image):
             guard let conversation = state.conversation,
@@ -383,6 +383,7 @@ public struct ChatInfoPageReducer: Reducer {
         case .traitCollectionChanged:
             return .task(delay: .milliseconds(100)) { @MainActor in
                 NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
+                uiSegmentBackgroundViews.forEach { $0.backgroundColor = .groupedContentBackground }
                 return .none
             }
 
@@ -408,6 +409,7 @@ public struct ChatInfoPageReducer: Reducer {
             state.isChangeMetadataButtonEnabled = true
 
         case let .userInfoBadgeTapped(user):
+            guard let user else { return .none }
             conversationCellViewService.presentUserInfoAlert(.init(user: user))
 
         case .viewDisappeared:

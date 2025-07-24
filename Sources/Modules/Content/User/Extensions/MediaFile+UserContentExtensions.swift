@@ -17,41 +17,64 @@ import AppSubsystem
 import MessageKit
 
 extension MediaFile: MediaItem {
-    public var image: UIImage? {
+    public var image: UIImage? { image(.thumbnail) }
+    public var placeholderImage: UIImage { .missing }
+    public var size: CGSize { image?.size ?? .zero }
+    public var url: URL? { localPathURL }
+}
+
+public extension MediaFile {
+    // MARK: - Types
+
+    enum ImageQuality {
+        case full
+        case thumbnail
+    }
+
+    // MARK: - Properties
+
+    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)" }
+
+    // MARK: - Methods
+
+    func image(_ quality: ImageQuality) -> UIImage? {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
 
-        if let cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails,
-           let thumbnailPath = localPathURL.thumbnailPath,
-           let cachedThumbnail = cachedThumbnails[thumbnailPath] {
-            return cachedThumbnail
-        } else if let cachedImage = mediaMessagePreviewService?.cachedImages?[localPathURL] {
-            return cachedImage
-        }
+        var cachedFullQualityImage: UIImage? { mediaMessagePreviewService?.cachedImages?[localPathURL] }
+        var fullQualityImage: UIImage? {
+            if let cachedFullQualityImage {
+                return cachedFullQualityImage
+            }
 
-        guard let thumbnailPath = localPathURL.thumbnailPath,
-              fileManager.fileExists(atPath: thumbnailPath.path()) else {
             guard let image = UIImage(contentsOfFile: localPathURL.path()) else { return .missing }
             if var cachedImages = mediaMessagePreviewService?.cachedImages {
                 cachedImages[localPathURL] = image
                 mediaMessagePreviewService?.cachedImages = cachedImages
             }
+
             return image
         }
+
+        guard quality == .thumbnail else { return fullQualityImage }
+
+        if let cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails,
+           let thumbnailPath = localPathURL.thumbnailPath,
+           let cachedThumbnail = cachedThumbnails[thumbnailPath] {
+            return cachedThumbnail
+        } else if let cachedFullQualityImage {
+            return cachedFullQualityImage
+        }
+
+        guard let thumbnailPath = localPathURL.thumbnailPath,
+              fileManager.fileExists(atPath: thumbnailPath.path()) else { return fullQualityImage }
 
         guard let image = UIImage(contentsOfFile: thumbnailPath.path()) else { return nil }
         if var cachedThumbnails = mediaMessagePreviewService?.cachedThumbnails {
             cachedThumbnails[thumbnailPath] = image
             mediaMessagePreviewService?.cachedThumbnails = cachedThumbnails
         }
+
         return image
     }
-
-    public var placeholderImage: UIImage { .init() }
-    public var size: CGSize { image?.size ?? .zero }
-    public var url: URL? { localPathURL }
-}
-
-public extension MediaFile {
-    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)" }
 }

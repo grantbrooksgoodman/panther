@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct Message: Codable, EncodedHashable, Equatable {
+public struct Message: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // Array
@@ -83,6 +83,12 @@ public struct Message: Codable, EncodedHashable, Equatable {
         self.translations = translations
         self.readReceipts = readReceipts
         self.sentDate = sentDate
+    }
+
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hashFactors)
     }
 
     // MARK: - Computed Property Getters

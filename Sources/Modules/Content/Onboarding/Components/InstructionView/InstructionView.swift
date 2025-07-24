@@ -61,11 +61,12 @@ public struct InstructionView: View {
                 }
                 .frame(
                     width: halfOfScreenWidth,
-                    height: Floats.frameHeight,
                     alignment: .topLeading
                 )
+                .frame(maxHeight: Floats.frameMaxHeight)
                 .padding(.leading, Floats.leadingPadding)
                 .padding(.top, Floats.topPadding)
+                .fixedSize()
 
                 Spacer()
             }

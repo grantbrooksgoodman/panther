@@ -20,9 +20,9 @@ public extension AppConstants.CGFloats {
         public static let backButtonLabelFontSize: CGFloat = 15
         public static let backButtonTopPadding: CGFloat = 2
 
-        public static let bottomPadding: CGFloat = 30
         public static let continueButtonTopPadding: CGFloat = 10
 
+        public static let innerVStackBottomPadding: CGFloat = 50
         public static let instructionLabelVerticalPadding: CGFloat = 5
 
         public static let textFieldHorizontalPadding: CGFloat = 20

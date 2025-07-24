@@ -25,6 +25,8 @@ public extension AppConstants.CGFloats {
         public static let addContactButtonImageWidth: CGFloat = 15
 
         public static let avatarImageViewHorizontalPadding: CGFloat = 10
+        public static let avatarImageViewSizeHeight: CGFloat = 100
+        public static let avatarImageViewSizeWidth: CGFloat = 100
         public static let avatarImageViewTopPadding: CGFloat = 20
 
         public static let changeMetadataButtonHorizontalPadding: CGFloat = 10
@@ -33,18 +35,16 @@ public extension AppConstants.CGFloats {
         public static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15
         public static let chatTitleLabelHorizontalPadding: CGFloat = 10
 
-        public static let largeAvatarImageViewSizeHeight: CGFloat = 100
-        public static let largeAvatarImageViewSizeWidth: CGFloat = 100
-
+        public static let listTransitionAnimationDuration: CGFloat = 0.2
         public static let listViewYOffset: CGFloat = -8
+        public static let listViewAlternateYOffset: CGFloat = -30
 
         public static let penPalsListRowViewHorizontalPadding: CGFloat = 30
         public static let penPalsListRowViewTopPadding: CGFloat = 5
 
-        public static let smallAvatarImageViewSizeHeight: CGFloat = 40
-        public static let smallAvatarImageViewSizeWidth: CGFloat = 40
-        public static let smallAvatarImageViewTrailingPadding: CGFloat = 2
-
+        // swiftlint:disable:next identifier_name
+        public static let segmentedControlHorizontalOrLeadingPadding: CGFloat = 20
+        public static let segmentedControlTopPadding: CGFloat = 20
         public static let singleCNContactViewYOffset: CGFloat = -7.5
     }
 }
@@ -57,10 +57,6 @@ public extension AppConstants.Colors {
         public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
         public static let changeMetadataButtonForeground: Color = .init(uiColor: .systemBlue)
-
-        // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
     }
 }
 
@@ -69,8 +65,6 @@ public extension AppConstants.Colors {
 public extension AppConstants.Strings {
     enum ChatInfoPageView {
         public static let addContactButtonImageSystemName = "plus"
-        public static let doneButtonImageSystemName = "checkmark" // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
+        public static let doneButtonImageSystemName = "checkmark"
     }
 }

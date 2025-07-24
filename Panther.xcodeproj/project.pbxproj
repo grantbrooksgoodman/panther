@@ -637,6 +637,12 @@
 		B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */; };
 		B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */; };
 		B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */; };
+		B9DD42C02E2F0B7C009A318B /* ChatParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */; };
+		B9DD42C22E2F103A009A318B /* AppConstants+ChatParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42C12E2F103A009A318B /* AppConstants+ChatParticipantView.swift */; };
+		B9DD42C42E2F12FB009A318B /* MediaItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42C32E2F12FB009A318B /* MediaItemView.swift */; };
+		B9DD42C82E2F143C009A318B /* AppConstants+MediaItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42C72E2F143C009A318B /* AppConstants+MediaItemView.swift */; };
+		B9DD42CB2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42CA2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift */; };
+		B9DD42CD2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42CC2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift */; };
 		B9DEB7B22C1CDD970098DAAB /* ConnectionStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */; };
 		B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DEB7B32C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift */; };
 		B9E00A522C2B85BC004E350E /* MediaFileExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E00A512C2B85BC004E350E /* MediaFileExtensions.swift */; };
@@ -1445,6 +1451,12 @@
 		B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+SessionExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+Updatable.swift"; sourceTree = "<group>"; };
 		B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+Updatable.swift"; sourceTree = "<group>"; };
+		B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipantView.swift; sourceTree = "<group>"; };
+		B9DD42C12E2F103A009A318B /* AppConstants+ChatParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatParticipantView.swift"; sourceTree = "<group>"; };
+		B9DD42C32E2F12FB009A318B /* MediaItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItemView.swift; sourceTree = "<group>"; };
+		B9DD42C72E2F143C009A318B /* AppConstants+MediaItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+MediaItemView.swift"; sourceTree = "<group>"; };
+		B9DD42CA2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatInfoPageViewService+ChangeMetadata.swift"; sourceTree = "<group>"; };
+		B9DD42CC2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatInfoPageViewService+PenPals.swift"; sourceTree = "<group>"; };
 		B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusService.swift; sourceTree = "<group>"; };
 		B9DEB7B32C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatusServiceEffectID.swift; sourceTree = "<group>"; };
 		B9E00A512C2B85BC004E350E /* MediaFileExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFileExtensions.swift; sourceTree = "<group>"; };
@@ -2947,6 +2959,16 @@
 			path = Updatable;
 			sourceTree = "<group>";
 		};
+		B9DD42C92E2F1892009A318B /* ChatInfoPageView */ = {
+			isa = PBXGroup;
+			children = (
+				B9C696512B896319005F0BFE /* ChatInfoPageViewService.swift */,
+				B9DD42CA2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift */,
+				B9DD42CC2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift */,
+			);
+			path = ChatInfoPageView;
+			sourceTree = "<group>";
+		};
 		B9E0E0EE2B20E87F00C14274 /* Message */ = {
 			isa = PBXGroup;
 			children = (
@@ -3252,8 +3274,10 @@
 				B9C0D2592B796AAC00119B85 /* RecipientBar */,
 				B9F47AF22B585FBF00D86C67 /* AvatarImageView.swift */,
 				B96EDD902B6360C500CB925B /* CNContactView.swift */,
+				B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
+				B9DD42C32E2F12FB009A318B /* MediaItemView.swift */,
 				B947210F2E0B4506008A76E5 /* NavigationWindow.swift */,
 				B986C46F2CD3235500414E57 /* ReactionsView.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
@@ -3271,12 +3295,14 @@
 				B9A907392BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift */,
 				B90C911F2B6ADCBF008DFE59 /* AppConstants+ChatPageView.swift */,
 				B923CAA02B7567910042D3E4 /* AppConstants+ChatPageViewService.swift */,
+				B9DD42C12E2F103A009A318B /* AppConstants+ChatParticipantView.swift */,
 				B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */,
 				B90071EC2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift */,
 				B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
 				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
+				B9DD42C72E2F143C009A318B /* AppConstants+MediaItemView.swift */,
 				B95DCE502D8CC968003730F9 /* AppConstants+NewChatPageView.swift */,
 				B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */,
 				B9CFA8042D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift */,
@@ -3340,9 +3366,9 @@
 		B9F47B282B5A070700D86C67 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B9DD42C92E2F1892009A318B /* ChatInfoPageView */,
 				B9BF37F72B6DAF8D00024548 /* ChatPageView */,
 				B99880AD2E29A87A002742A8 /* ChangeLanguagePageViewService.swift */,
-				B9C696512B896319005F0BFE /* ChatInfoPageViewService.swift */,
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
@@ -3986,6 +4012,7 @@
 				B99E48DE2CDEEDDA006D6AFC /* Logger+CommonExtensions.swift in Sources */,
 				B9AD41232B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift in Sources */,
 				B918222A2B6DEA450068BDAB /* UIView+UserContentExtensions.swift in Sources */,
+				B9DD42C02E2F0B7C009A318B /* ChatParticipantView.swift in Sources */,
 				B947F2DB2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift in Sources */,
 				B96EDD912B6360C500CB925B /* CNContactView.swift in Sources */,
 				B95DCE4F2D8CC8BE003730F9 /* Image+UserContentExtensions.swift in Sources */,
@@ -4081,6 +4108,7 @@
 				B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */,
 				B9D0D93F2B03019E00078A93 /* String+CommonNetworkingExtensions.swift in Sources */,
 				B98C3B9D2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift in Sources */,
+				B9DD42C82E2F143C009A318B /* AppConstants+MediaItemView.swift in Sources */,
 				B9F5D1EB2B48987C00059B44 /* GenericTextField.swift in Sources */,
 				B9F47AFA2B5861C800D86C67 /* RoundedCornersViewModifier.swift in Sources */,
 				B94D767E2BBB5A2E002B4BC6 /* SignInPageView.swift in Sources */,
@@ -4181,8 +4209,10 @@
 				B99CC5562C1927FA00319F02 /* RootNavigator.swift in Sources */,
 				B903CA6C2B6C269900A238A4 /* ChatPageStateServiceEffectID.swift in Sources */,
 				B9CFA8052D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift in Sources */,
+				B9DD42CD2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift in Sources */,
 				B9C696522B896319005F0BFE /* ChatInfoPageViewService.swift in Sources */,
 				B96EDD8D2B635A6000CB925B /* SettingsPageViewService.swift in Sources */,
+				B9DD42C22E2F103A009A318B /* AppConstants+ChatParticipantView.swift in Sources */,
 				B9C61C922CD9469E00E0F0D1 /* ContextMenuInteractionService.swift in Sources */,
 				B99195812B47CB6F00BD5BBC /* InstructionViewStrings.swift in Sources */,
 				B92617722CD8990900877ECE /* ReactionSessionServiceEffectID.swift in Sources */,
@@ -4296,6 +4326,7 @@
 				B903CA742B6C2F3500A238A4 /* InputBarService.swift in Sources */,
 				B99469742E00AB7F00353D18 /* V26HeaderViewModifier.swift in Sources */,
 				B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */,
+				B9DD42CB2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift in Sources */,
 				B9D312592D20A2C60007572A /* SquareIconViewConfiguration.swift in Sources */,
 				B978B1992B87C84200AA007A /* RootSheet.swift in Sources */,
 				B969165F2BAE1DB400441472 /* ConversationMetadata+Serializable.swift in Sources */,
@@ -4358,6 +4389,7 @@
 				B989824A2BC7C4A900E9ED9E /* NavigationBarAppearance+UserContentExtensions.swift in Sources */,
 				B99195A22B488DC300BD5BBC /* AppConstants+RegionMenu.swift in Sources */,
 				B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */,
+				B9DD42C42E2F12FB009A318B /* MediaItemView.swift in Sources */,
 				B9223D412CD58C4E00C05BC6 /* MenuElementViewDelegate.swift in Sources */,
 				B9E00A542C2B8C7F004E350E /* MediaMessageService.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,

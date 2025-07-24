@@ -29,6 +29,7 @@ public final class ChatPageViewService {
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.build) private var build: Build
+    @Dependency(\.chatInfoPageViewService) private var chatInfoPageViewService: ChatInfoPageViewService
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -56,6 +57,16 @@ public final class ChatPageViewService {
 
     private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
+
+    // MARK: - Computed Properties
+
+    private var shouldRespondToViewLifecycleEvent: Bool {
+        guard !chatInfoPageViewService.isPreviewingMedia,
+              mediaActionHandler?.isPresentingPickerController != true,
+              mediaMessagePreview?.isPreviewingMedia != true else { return false }
+
+        return true
+    }
 
     // MARK: - Instantiate View Controller
 
@@ -103,8 +114,7 @@ public final class ChatPageViewService {
     // MARK: - View Controller Lifecycle Handlers
 
     public func onViewWillAppear() {
-        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
-              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard shouldRespondToViewLifecycleEvent else { return }
 
         Message.consentRequestMessageID = nil
         viewController?.view.isUserInteractionEnabled = false
@@ -125,8 +135,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidAppear() {
-        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
-              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard shouldRespondToViewLifecycleEvent else { return }
 
         typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
@@ -199,8 +208,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewWillDisappear() {
-        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
-              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard shouldRespondToViewLifecycleEvent else { return }
 
         Message.consentRequestMessageID = nil
         NavigationBar.setAppearance(.conversationsPageView)
@@ -209,8 +217,7 @@ public final class ChatPageViewService {
     }
 
     public func onViewDidDisappear() {
-        guard !(mediaActionHandler?.isPresentingPickerController ?? false),
-              !(mediaMessagePreview?.isPreviewingMedia ?? false) else { return }
+        guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
         contextMenu?.interaction.removeKeyboardWillShowObserver()

@@ -46,6 +46,8 @@ public struct SelectLanguagePageView: View {
             VStack {
                 InstructionView(viewModel.instructionViewStrings)
 
+                Spacer()
+
                 VStack {
                     Components.text(
                         viewModel.strings.value(for: .instructionLabelText),
@@ -79,7 +81,7 @@ public struct SelectLanguagePageView: View {
                     }
                     .padding(.top, Floats.backButtonTopPadding)
                 }
-                .padding(.top, Floats.innerVStackTopPadding)
+                .padding(.bottom, Floats.innerVStackBottomPadding)
 
                 Spacer()
             }

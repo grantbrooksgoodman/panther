@@ -13,7 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct MediaFile: Codable, EncodedHashable, Equatable {
+public struct MediaFile: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     public let fileExtension: MediaFileExtension
@@ -74,6 +74,12 @@ public struct MediaFile: Codable, EncodedHashable, Equatable {
             name: components[0],
             fileExtension: fileExtension
         )
+    }
+
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hashFactors)
     }
 }
 

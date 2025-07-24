@@ -39,6 +39,8 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case errorReportedSuccessfully
 
     case friday
+    case fromUser
+    case fromYou
 
     case holdDownToRecord
 

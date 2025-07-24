@@ -65,7 +65,7 @@ public struct ContactPairCellView: View {
     private var labelView: some View {
         let foregroundColor = isSelectionEnabled ? .titleText : Color.disabled
 
-        return HStack(alignment: .center) {
+        return HStack {
             HStack(alignment: .firstTextBaseline, spacing: Floats.hStackSpacing) {
                 if !contactPair.contact.firstName.isBlank {
                     Components.text(

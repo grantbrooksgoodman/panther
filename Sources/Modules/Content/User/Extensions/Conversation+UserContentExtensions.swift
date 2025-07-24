@@ -50,6 +50,46 @@ public extension Conversation {
         return userSharesPenPalsDataWithCurrentUser(otherUser)
     }
 
+    var mediaItemMetadata: [MediaItemView.Metadata] {
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+
+        var users = users ?? []
+        if let currentUser { users += [currentUser] }
+        let messages = (messages?.filter { $0.richContent?.mediaComponent != nil } ?? []).sortedByDescendingSentDate
+
+        var mediaMetadata = [MediaItemView.Metadata]()
+        for mediaMessage in messages {
+            guard let mediaFile = mediaMessage.richContent?.mediaComponent,
+                  let user = users.first(where: { $0.id == mediaMessage.fromAccountID }) else { continue }
+
+            var senderLabelText = Localized(.fromYou).wrappedValue.firstLowercase
+            if user.id != User.currentUserID {
+                senderLabelText = Localized(.fromUser).wrappedValue.replacingOccurrences(
+                    of: "⌘",
+                    with: user.displayName
+                )
+            }
+
+            var mediaTypeLabelText = Localized(.attachment).wrappedValue
+            if mediaFile.fileExtension.isImage {
+                mediaTypeLabelText = Localized(.image).wrappedValue
+            } else if mediaFile.fileExtension.isVideo {
+                mediaTypeLabelText = Localized(.video).wrappedValue
+            }
+
+            mediaMetadata.append(
+                .init(
+                    mediaFile,
+                    mediaTypeLabelText: mediaTypeLabelText,
+                    senderLabelText: senderLabelText,
+                    timestampLabelText: mediaMessage.sentDate.formattedShortString
+                )
+            )
+        }
+
+        return mediaMetadata
+    }
+
     // swiftlint:disable:next identifier_name
     var participantsSharingPenPalsDataWithCurrentUser: [Participant]? {
         guard metadata.isPenPalsConversation else { return participants }

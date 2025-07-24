@@ -19,17 +19,17 @@ public extension TranslatedLabelStringCollection {
         case addContactButtonText = "Add contact"
         case changeMetadataButtonText = "Change name and photo"
         case participantCountLabelText = "people"
+        case segmentedControlMediaOptionText = "Attachments"
+        case segmentedControlParticipantsOptionText = "Participants"
         case sharePhoneNumberListRowText = "Share Phone Number"
 
         // MARK: - Properties
 
         public var alternate: String? {
             switch self {
-            case .participantCountLabelText:
-                return "persons"
-
-            default:
-                return nil
+            case .participantCountLabelText: "persons"
+            case .segmentedControlMediaOptionText: "Shared Media"
+            default: nil
             }
         }
     }

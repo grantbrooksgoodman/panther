@@ -49,7 +49,7 @@ public struct AuthCodePageView: View {
 
                 Spacer()
 
-                VStack(alignment: .center) {
+                VStack {
                     Components.text(
                         viewModel.strings.value(for: .instructionLabelText),
                         font: .systemSemibold,
@@ -85,7 +85,7 @@ public struct AuthCodePageView: View {
                     .disabled(!viewModel.isBackButtonEnabled)
                     .padding(.top, Floats.backButtonTopPadding)
                 }
-                .padding(.bottom, Floats.bottomPadding)
+                .padding(.bottom, Floats.innerVStackBottomPadding)
 
                 Spacer()
             }

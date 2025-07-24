@@ -153,15 +153,19 @@ public final class ContextMenuActionHandlerService {
     }
 
     private func handleSaveAction() {
-        if let image = selectedMessage?.imageComponent?.image {
+        if let image = selectedMessage?.imageComponent?.image(.full) {
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
             coreHUD.showSuccess()
         } else if let videoPathString = selectedMessage?.videoComponent?.localPathURL.path() {
             UISaveVideoAtPathToSavedPhotosAlbum(videoPathString, nil, nil, nil)
             coreHUD.showSuccess()
-        } else if let documentPathURL = selectedMessage?.documentComponent?.localPathURL,
-                  let exception = services.documentExport.presentExportController(forFileAt: documentPathURL) {
-            Logger.log(exception, with: .toast)
+        } else if let documentPathURL = selectedMessage?.documentComponent?.localPathURL {
+            let exception = services.documentExport.presentExportController(forFileAt: documentPathURL)
+            services.documentExport.onDismiss { cancelled in
+                guard !cancelled else { return }
+                guard let exception else { return self.coreHUD.showSuccess() }
+                Logger.log(exception, with: .toast)
+            }
         }
     }
 

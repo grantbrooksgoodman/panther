@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 import SwiftUI
@@ -14,7 +16,6 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-// swiftlint:disable:next type_body_length
 public struct ChatInfoPageView: View {
     // MARK: - Constants Accessors
 
@@ -47,6 +48,13 @@ public struct ChatInfoPageView: View {
         viewModel.binding(
             for: \.isPenPalsSharingDataSwitchToggled,
             sendAction: { _ in .penPalsSharingDataSwitchToggledOn }
+        )
+    }
+
+    private var segmentedControlSelectionIndexBinding: Binding<Int> {
+        viewModel.binding(
+            for: \.segmentedControlSelectionIndex,
+            sendAction: { .segmentedControlSelectionIndexChanged($0) }
         )
     }
 
@@ -133,8 +141,8 @@ public struct ChatInfoPageView: View {
                     viewModel.avatarImage,
                     badgeCount: -1,
                     size: .init(
-                        width: Floats.largeAvatarImageViewSizeWidth,
-                        height: Floats.largeAvatarImageViewSizeHeight
+                        width: Floats.avatarImageViewSizeWidth,
+                        height: Floats.avatarImageViewSizeHeight
                     )
                 )
                 .padding(.bottom, 1)
@@ -165,32 +173,32 @@ public struct ChatInfoPageView: View {
                             .padding(.horizontal, Floats.changeMetadataButtonHorizontalPadding)
                     }
 
-                    listView
+                    ZStack {
+                        VStack {
+                            segmentedControlView
+
+                            Group {
+                                if viewModel.segmentedControlSelectionIndex == 0 {
+                                    chatParticipantsList
+                                } else {
+                                    mediaItemList
+                                }
+                            }
+                            .transition(
+                                .opacity.animation(
+                                    .easeIn(duration: Floats.listTransitionAnimationDuration)
+                                )
+                            )
+                            .offset(
+                                y: viewModel.mediaItemMetadata.isEmpty ? Floats.listViewYOffset : Floats.listViewAlternateYOffset
+                            )
+                            .zIndex(-1)
+                        }
+                    }
                 }
 
                 Spacer()
             }
-        }
-    }
-
-    @ViewBuilder
-    private var changeMetadataButton: some View {
-        let text = viewModel.strings.value(for: .changeMetadataButtonText) // swiftlint:disable:next line_length
-        let font: ComponentKit.Font = UIApplication.v26FeaturesEnabled ? .systemSemibold(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) : .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) // swiftlint:disable:next line_length
-        let foregroundColor = viewModel.isChangeMetadataButtonEnabled ? (UIApplication.v26FeaturesEnabled ? Color.background : Colors.changeMetadataButtonForeground) : .disabled
-
-        if UIApplication.v26FeaturesEnabled {
-            Components.capsuleButton(
-                text,
-                font: font,
-                usesShadow: false
-            ) { viewModel.send(.changeMetadataButtonTapped) }
-        } else {
-            Components.button(
-                text,
-                font: font,
-                foregroundColor: foregroundColor
-            ) { viewModel.send(.changeMetadataButtonTapped) }
         }
     }
 
@@ -224,6 +232,29 @@ public struct ChatInfoPageView: View {
                     foregroundColor: viewModel.isAddContactButtonEnabled ? .accent : .disabled
                 )
             }
+        }
+    }
+
+    // MARK: - Change Metadata Button
+
+    @ViewBuilder
+    private var changeMetadataButton: some View {
+        let text = viewModel.strings.value(for: .changeMetadataButtonText) // swiftlint:disable:next line_length
+        let font: ComponentKit.Font = UIApplication.v26FeaturesEnabled ? .systemSemibold(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) : .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) // swiftlint:disable:next line_length
+        let foregroundColor = viewModel.isChangeMetadataButtonEnabled ? (UIApplication.v26FeaturesEnabled ? Color.background : Colors.changeMetadataButtonForeground) : .disabled
+
+        if UIApplication.v26FeaturesEnabled {
+            Components.capsuleButton(
+                text,
+                font: font,
+                usesShadow: false
+            ) { viewModel.send(.changeMetadataButtonTapped) }
+        } else {
+            Components.button(
+                text,
+                font: font,
+                foregroundColor: foregroundColor
+            ) { viewModel.send(.changeMetadataButtonTapped) }
         }
     }
 
@@ -297,9 +328,9 @@ public struct ChatInfoPageView: View {
         }
     }
 
-    // MARK: - List View
+    // MARK: - List Views
 
-    private var listView: some View {
+    private var chatParticipantsList: some View {
         List {
             ForEach(-1 ..< viewModel.visibleParticipants.count, id: \.self) { index in
                 if index == -1 {
@@ -316,67 +347,71 @@ public struct ChatInfoPageView: View {
                                 isUnknown: cnContactContainer.isUnknown
                             )
                         ) {
-                            participantView(participant)
+                            ChatParticipantView(
+                                participant,
+                                userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
+                                    viewModel.send(.userInfoBadgeTapped(participant.firstUser))
+                                } : nil
+                            )
                         }
                         .dynamicTypeSize(.large)
                     } else {
                         Button {
                             viewModel.send(.penPalParticipantViewTapped(participant))
                         } label: {
-                            participantView(participant)
+                            ChatParticipantView(
+                                participant,
+                                userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
+                                    viewModel.send(.userInfoBadgeTapped(participant.firstUser))
+                                } : nil
+                            )
                         }
                     }
                 }
             }
         }
         .animation(.default, value: viewModel.visibleParticipants)
-        .offset(y: Floats.listViewYOffset)
     }
 
-    // MARK: - Participant View
-
-    private func participantView(_ participant: ChatParticipant) -> some View {
-        HStack(alignment: .center) {
-            AvatarImageView(
-                participant.thumbnailImage,
-                size: .init(
-                    width: Floats.smallAvatarImageViewSizeWidth,
-                    height: Floats.smallAvatarImageViewSizeHeight
-                )
-            )
-            .padding(.trailing, Floats.smallAvatarImageViewTrailingPadding)
-
-            ThemedView {
-                Group {
-                    Components.text(
-                        participant.displayName,
-                        font: .systemSemibold
-                    )
-
-                    if let firstUser = participant.firstUser {
-                        UserInfoBadgeView(
-                            firstUser,
-                            action: viewModel.isDeveloperModeEnabled ? { viewModel.send(.userInfoBadgeTapped(firstUser)) } : nil
-                        )
+    private var mediaItemList: some View {
+        List {
+            ForEach(0 ..< viewModel.mediaItemMetadata.count, id: \.self) { index in
+                if let mediaItemMetadata = viewModel.mediaItemMetadata.itemAt(index) {
+                    MediaItemView(mediaItemMetadata) {
+                        viewModel.send(.mediaItemViewTapped(mediaItemMetadata))
                     }
                 }
             }
+        }
+    }
 
-            if participant.isPenPal {
-                Spacer()
+    // MARK: - Segmented Control View
 
-                if let firstUser = participant.firstUser,
-                   viewModel.conversation?.currentUserSharesPenPalsData(with: firstUser) == true {
-                    Components.symbol(
-                        Strings.penPalsSharingStatusIconCompleteImageSystemName,
-                        foregroundColor: Colors.penPalsSharingStatusIconCompleteForeground
-                    )
-                } else {
-                    Components.symbol(
-                        Strings.penPalsSharingStatusIconIncompleteImageSystemName,
-                        foregroundColor: Colors.penPalsSharingStatusIconIncompleteForeground
-                    )
+    @ViewBuilder
+    private var segmentedControlView: some View {
+        if !viewModel.mediaItemMetadata.isEmpty {
+            HStack {
+                Picker("", selection: segmentedControlSelectionIndexBinding) {
+                    ForEach(0 ..< viewModel.segmentedControlOptionTitles.count, id: \.self) { index in
+                        if let segmentedControlOptionTitle = viewModel.segmentedControlOptionTitles.itemAt(index) {
+                            Components.text(segmentedControlOptionTitle)
+                        }
+                    }
                 }
+                .id(viewModel.segmentedControlViewID)
+                .pickerStyle(.segmented)
+                .if(!viewModel.shouldElongateSegmentedControl) {
+                    $0
+                        .frame(maxWidth: viewModel.segmentedControlMaxWidth)
+                        .fixedSize()
+                }
+                .padding(
+                    viewModel.shouldElongateSegmentedControl ? .horizontal : .leading,
+                    Floats.segmentedControlHorizontalOrLeadingPadding
+                )
+                .padding(.top, Floats.segmentedControlTopPadding)
+
+                Spacer()
             }
         }
     }
@@ -387,3 +422,5 @@ private extension Array where Element == TranslationOutputMap {
         (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }
+
+// swiftlint:enable file_length type_body_length

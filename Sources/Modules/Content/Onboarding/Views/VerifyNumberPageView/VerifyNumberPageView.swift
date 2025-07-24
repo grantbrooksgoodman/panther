@@ -55,7 +55,7 @@ public struct VerifyNumberPageView: View {
 
                 Spacer()
 
-                VStack(alignment: .center) {
+                VStack {
                     Components.text(
                         viewModel.strings.value(for: .instructionLabelText),
                         font: .systemSemibold,
@@ -63,7 +63,7 @@ public struct VerifyNumberPageView: View {
                     )
                     .padding(.vertical, Floats.instructionLabelVerticalPadding)
 
-                    HStack(alignment: .center) {
+                    HStack {
                         RegionMenu(selectedRegionCodeBinding)
                             .padding(.leading, Floats.regionMenuLeadingPadding)
                             .padding(.trailing, Floats.regionMenuTrailingPadding)
@@ -97,7 +97,7 @@ public struct VerifyNumberPageView: View {
                     .disabled(!viewModel.isBackButtonEnabled)
                     .padding(.top, Floats.backButtonTopPadding)
                 }
-                .padding(.bottom, Floats.bottomPadding)
+                .padding(.bottom, Floats.innerVStackBottomPadding)
 
                 Spacer()
             }

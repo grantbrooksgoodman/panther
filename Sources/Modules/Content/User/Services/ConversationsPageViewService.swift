@@ -78,7 +78,7 @@ public final class ConversationsPageViewService {
     }
 
     /// `.resolveReturned`
-    public func viewLoaded(_ isConversationsListEmpty: Bool) {
+    public func viewLoaded() {
         func showOfflineModeToast() {
             Toast.show(.init(
                 .capsule(style: .warning),
@@ -89,8 +89,9 @@ public final class ConversationsPageViewService {
 
         /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
         func reloadIfNeeded() {
-            guard isConversationsListEmpty,
-                  (userSession.currentUser?.conversationIDs?.count) ?? 0 > 0 else { return }
+            guard let currentUser = userSession.currentUser,
+                  currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
+                  currentUser.conversationIDs?.isEmpty == false else { return }
 
             Logger.log(
                 "Intercepted empty initial conversations list bug.",

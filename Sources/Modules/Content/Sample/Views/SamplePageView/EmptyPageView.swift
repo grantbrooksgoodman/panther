@@ -28,9 +28,7 @@ public struct EmptyPageView: View {
 
     public var body: some View {
         VStack {
-            VStack(alignment: .center) {
-                Text("Hello world")
-            }
+            Text("Hello world")
         }
         .onFirstAppear {
             viewModel.send(.viewAppeared)

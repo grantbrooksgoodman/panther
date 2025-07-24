@@ -11,18 +11,25 @@ import Foundation
 import UIKit
 
 public struct ChatParticipant: Equatable {
+    // MARK: - Types
+
+    public enum PenPalsStatus {
+        case currentUserSharesData
+        case currentUserDoesNotShareData
+    }
+
     // MARK: - Properties
 
     public let cnContactContainer: CNContactContainer?
     public let contactPair: ContactPair?
     public let displayName: String
-    public let isPenPal: Bool
+    public let penPalsStatus: PenPalsStatus?
 
     // MARK: - Computed Properties
 
     public var firstUser: User? { contactPair?.users.first }
     public var thumbnailImage: UIImage? {
-        isPenPal ? SquareIconView.image(
+        penPalsStatus != nil ? SquareIconView.image(
             .penPalsIcon(
                 backgroundColor: .init(uiColor: firstUser?.penPalsIconColor ?? .purple)
             )
@@ -35,11 +42,11 @@ public struct ChatParticipant: Equatable {
         displayName: String,
         cnContactContainer: CNContactContainer?,
         contactPair: ContactPair?,
-        isPenPal: Bool
+        penPalsStatus: PenPalsStatus?
     ) {
         self.displayName = displayName
         self.cnContactContainer = cnContactContainer
         self.contactPair = contactPair
-        self.isPenPal = isPenPal
+        self.penPalsStatus = penPalsStatus
     }
 }

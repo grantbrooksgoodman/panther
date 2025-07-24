@@ -75,16 +75,11 @@ public struct ConversationsPageView: View {
                                         reducer: ConversationCellReducer()
                                     )
                                 )
-                                .if(UIApplication.v26FeaturesEnabled) {
-                                    $0.id(viewModel.conversationCellViewID)
-                                }
                                 .redrawsOnTraitCollectionChange()
                             }
                         }
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
-                        .if(!UIApplication.v26FeaturesEnabled) {
-                            $0.id(viewModel.conversationCellViewID)
-                        }
+                        .id(viewModel.conversationCellViewID)
                         .listStyle(.plain)
                         .refreshable {
                             await viewModel.send(.pulledToRefresh, while: \.isRefreshing)

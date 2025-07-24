@@ -22,6 +22,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Properties
 
     private var temporaryFilePath: URL?
+    private var _onDismiss: ((Bool) -> Void)?
 
     // MARK: - Present Export Controller
 
@@ -54,6 +55,12 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         return nil
     }
 
+    // MARK: - On Dismiss
+
+    public func onDismiss(_ perform: @escaping (Bool) -> Void) {
+        _onDismiss = perform
+    }
+
     // MARK: - UIDocumentPickerDelegate Conformance
 
     public func documentPicker(
@@ -61,19 +68,24 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         didPickDocumentsAt urls: [URL]
     ) {
         controller.dismiss(animated: true)
-        onDismiss()
+        onDismiss(cancelled: false)
     }
 
     public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         controller.dismiss(animated: true) {
             StatusBar.overrideStyle(.appAware)
-            self.onDismiss()
+            self.onDismiss(cancelled: true)
         }
     }
 
     // MARK: - Auxiliary
 
-    private func onDismiss() {
+    private func onDismiss(cancelled: Bool) {
+        defer {
+            _onDismiss?(cancelled)
+            _onDismiss = nil
+        }
+
         guard let temporaryFilePath else { return }
         try? fileManager.removeItem(at: temporaryFilePath)
         self.temporaryFilePath = nil

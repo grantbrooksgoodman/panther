@@ -2792,6 +2792,316 @@
 		<key>zh</key>
 		<string>星期五</string>
 	</dict>
+	<key>from_user</key>
+	<dict>
+		<key>af</key>
+		<string>van ⌘</string>
+		<key>ar</key>
+		<string>من ⌘</string>
+		<key>az</key>
+		<string>⌘-dən</string>
+		<key>be</key>
+		<string>ад ⌘</string>
+		<key>bg</key>
+		<string>от ⌘</string>
+		<key>bn</key>
+		<string>থেকে ⌘</string>
+		<key>bs</key>
+		<string>od ⌘</string>
+		<key>ca</key>
+		<string>de ⌘</string>
+		<key>cs</key>
+		<string>od ⌘</string>
+		<key>cy</key>
+		<string>o ⌘</string>
+		<key>da</key>
+		<string>fra ⌘</string>
+		<key>de</key>
+		<string>aus ⌘</string>
+		<key>el</key>
+		<string>από ⌘</string>
+		<key>en</key>
+		<string>from ⌘</string>
+		<key>eo</key>
+		<string>de ⌘</string>
+		<key>es</key>
+		<string>de ⌘</string>
+		<key>et</key>
+		<string>alates ⌘</string>
+		<key>eu</key>
+		<string>-tik ⌘</string>
+		<key>fa</key>
+		<string>از ⌘</string>
+		<key>fi</key>
+		<string>alkaen ⌘</string>
+		<key>fr</key>
+		<string>depuis ⌘</string>
+		<key>ga</key>
+		<string>ó ⌘</string>
+		<key>gd</key>
+		<string>bho ⌘</string>
+		<key>gl</key>
+		<string>de ⌘</string>
+		<key>gu</key>
+		<string>થી ⌘</string>
+		<key>he</key>
+		<string>⌘</string>
+		<key>hi</key>
+		<string>से ⌘</string>
+		<key>hr</key>
+		<string>od ⌘</string>
+		<key>ht</key>
+		<string>soti nan ⌘</string>
+		<key>hu</key>
+		<string>⌘-tól</string>
+		<key>hy</key>
+		<string>⌘-ից</string>
+		<key>id</key>
+		<string>dari ⌘</string>
+		<key>is</key>
+		<string>frá ⌘</string>
+		<key>it</key>
+		<string>da ⌘</string>
+		<key>ja</key>
+		<string>から ⌘</string>
+		<key>ka</key>
+		<string>⌘-დან</string>
+		<key>kk</key>
+		<string>бастап ⌘</string>
+		<key>kn</key>
+		<string>⌘ ರಿಂದ</string>
+		<key>ko</key>
+		<string>에서 ⌘</string>
+		<key>ky</key>
+		<string>from ⌘</string>
+		<key>lt</key>
+		<string>nuo ⌘</string>
+		<key>mg</key>
+		<string>avy amin&apos;ny ⌘</string>
+		<key>mi</key>
+		<string>mai i ⌘</string>
+		<key>mk</key>
+		<string>од ⌘</string>
+		<key>ml</key>
+		<string>മുതൽ ⌘</string>
+		<key>mn</key>
+		<string>-аас ⌘</string>
+		<key>mt</key>
+		<string>minn ⌘</string>
+		<key>ne</key>
+		<string>बाट ⌘</string>
+		<key>nl</key>
+		<string>van ⌘</string>
+		<key>no</key>
+		<string>fra ⌘</string>
+		<key>pa</key>
+		<string>ਤੋਂ ⌘</string>
+		<key>pl</key>
+		<string>z ⌘</string>
+		<key>pt</key>
+		<string>de ⌘</string>
+		<key>ro</key>
+		<string>de la ⌘</string>
+		<key>ru</key>
+		<string>от ⌘</string>
+		<key>si</key>
+		<string>සිට ⌘</string>
+		<key>sk</key>
+		<string>od ⌘</string>
+		<key>sl</key>
+		<string>od ⌘</string>
+		<key>sq</key>
+		<string>nga ⌘</string>
+		<key>sr</key>
+		<string>од ⌘</string>
+		<key>su</key>
+		<string>ti ⌘</string>
+		<key>sv</key>
+		<string>från ⌘</string>
+		<key>sw</key>
+		<string>kutoka ⌘</string>
+		<key>ta</key>
+		<string>⌘ இலிருந்து</string>
+		<key>te</key>
+		<string>నుండి ⌘</string>
+		<key>tg</key>
+		<string>аз ⌘</string>
+		<key>th</key>
+		<string>จาก ⌘</string>
+		<key>tl</key>
+		<string>mula sa ⌘</string>
+		<key>tr</key>
+		<string>itibaren ⌘</string>
+		<key>tt</key>
+		<string>дан ⌘</string>
+		<key>uk</key>
+		<string>від ⌘</string>
+		<key>ur</key>
+		<string>سے ⌘</string>
+		<key>uz</key>
+		<string>dan ⌘</string>
+		<key>vi</key>
+		<string>từ ⌘</string>
+		<key>yi</key>
+		<string>פון ⌘</string>
+		<key>zh</key>
+		<string>从 ⌘</string>
+	</dict>
+	<key>from_you</key>
+	<dict>
+		<key>af</key>
+		<string>van jou</string>
+		<key>ar</key>
+		<string>منك</string>
+		<key>az</key>
+		<string>sizdən</string>
+		<key>be</key>
+		<string>ад цябе</string>
+		<key>bg</key>
+		<string>от вас</string>
+		<key>bn</key>
+		<string>তোমার কাছ থেকে</string>
+		<key>bs</key>
+		<string>od tebe</string>
+		<key>ca</key>
+		<string>de tu</string>
+		<key>cs</key>
+		<string>od tebe</string>
+		<key>cy</key>
+		<string>oddi wrthych chi</string>
+		<key>da</key>
+		<string>fra dig</string>
+		<key>de</key>
+		<string>von dir</string>
+		<key>el</key>
+		<string>από εσένα</string>
+		<key>en</key>
+		<string>from you</string>
+		<key>eo</key>
+		<string>de vi</string>
+		<key>es</key>
+		<string>de ti</string>
+		<key>et</key>
+		<string>sinult</string>
+		<key>eu</key>
+		<string>zugandik</string>
+		<key>fa</key>
+		<string>از تو</string>
+		<key>fi</key>
+		<string>sinulta</string>
+		<key>fr</key>
+		<string>de toi</string>
+		<key>ga</key>
+		<string>ó TÚ</string>
+		<key>gd</key>
+		<string>bhuat</string>
+		<key>gl</key>
+		<string>de ti</string>
+		<key>gu</key>
+		<string>તમારી પાસેથી</string>
+		<key>he</key>
+		<string>ממך</string>
+		<key>hi</key>
+		<string>अप से</string>
+		<key>hr</key>
+		<string>od tebe</string>
+		<key>ht</key>
+		<string>nan men ou</string>
+		<key>hu</key>
+		<string>tőled</string>
+		<key>hy</key>
+		<string>քեզանից</string>
+		<key>id</key>
+		<string>dari kamu</string>
+		<key>is</key>
+		<string>frá þér</string>
+		<key>it</key>
+		<string>da te</string>
+		<key>ja</key>
+		<string>あなたから</string>
+		<key>ka</key>
+		<string>შენგან</string>
+		<key>kk</key>
+		<string>сізден</string>
+		<key>kn</key>
+		<string>ನಿಮ್ಮಿಂದ</string>
+		<key>ko</key>
+		<string>당신에게서</string>
+		<key>ky</key>
+		<string>сенден</string>
+		<key>lt</key>
+		<string>iš tavęs</string>
+		<key>mg</key>
+		<string>avy aminao</string>
+		<key>mi</key>
+		<string>mai i a koe</string>
+		<key>mk</key>
+		<string>од тебе</string>
+		<key>ml</key>
+		<string>നിങ്ങളിൽ നിന്ന്</string>
+		<key>mn</key>
+		<string>чамаас</string>
+		<key>mt</key>
+		<string>mingħandek</string>
+		<key>ne</key>
+		<string>तिमीबाट</string>
+		<key>nl</key>
+		<string>van jou</string>
+		<key>no</key>
+		<string>fra deg</string>
+		<key>pa</key>
+		<string>ਤੁਹਾਡੇ ਤੋਂ</string>
+		<key>pl</key>
+		<string>od ciebie</string>
+		<key>pt</key>
+		<string>de você</string>
+		<key>ro</key>
+		<string>de la tine</string>
+		<key>ru</key>
+		<string>от тебя</string>
+		<key>si</key>
+		<string>ඔබෙන්</string>
+		<key>sk</key>
+		<string>od teba</string>
+		<key>sl</key>
+		<string>od tebe</string>
+		<key>sq</key>
+		<string>nga ti</string>
+		<key>sr</key>
+		<string>од тебе</string>
+		<key>su</key>
+		<string>ti anjeun</string>
+		<key>sv</key>
+		<string>från dig</string>
+		<key>sw</key>
+		<string>kutoka kwako</string>
+		<key>ta</key>
+		<string>உங்களிடமிருந்து</string>
+		<key>te</key>
+		<string>మీ నుండి</string>
+		<key>tg</key>
+		<string>аз шумо</string>
+		<key>th</key>
+		<string>จากคุณ</string>
+		<key>tl</key>
+		<string>mula sa iyo</string>
+		<key>tr</key>
+		<string>senden</string>
+		<key>tt</key>
+		<string>синнән</string>
+		<key>uk</key>
+		<string>від вас</string>
+		<key>ur</key>
+		<string>تم سے</string>
+		<key>uz</key>
+		<string>sizdan</string>
+		<key>vi</key>
+		<string>từ bạn</string>
+		<key>yi</key>
+		<string>פֿון דיר</string>
+		<key>zh</key>
+		<string>来自你</string>
+	</dict>
 	<key>hold_down_to_record</key>
 	<dict>
 		<key>af</key>

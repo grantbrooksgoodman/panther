@@ -23,6 +23,7 @@ public extension AppConstants.CGFloats {
         public static let bottomPadding: CGFloat = 30
         public static let continueButtonTopPadding: CGFloat = 5
 
+        public static let innerVStackBottomPadding: CGFloat = 50
         public static let instructionLabelVerticalPadding: CGFloat = 5
 
         public static let phoneNumberTextFieldTrailingPadding: CGFloat = 20

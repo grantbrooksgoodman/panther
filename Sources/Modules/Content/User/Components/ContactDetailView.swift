@@ -45,7 +45,7 @@ public struct ContactDetailView: View {
     // MARK: - View
 
     public var body: some View {
-        HStack(alignment: .center) {
+        HStack {
             AvatarImageView(image)
                 .padding(.trailing, Floats.avatarImageViewTrailingPadding)
 

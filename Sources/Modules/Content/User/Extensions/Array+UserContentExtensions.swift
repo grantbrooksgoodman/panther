@@ -106,6 +106,7 @@ public extension Array where Element == Conversation {
 
 public extension Array where Element == Message {
     var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
+    var sortedByDescendingSentDate: [Message] { sorted(by: { $0.sentDate > $1.sentDate }) }
 }
 
 public extension Array where Element == MessageRecipientConsentAcknowledgementData {

@@ -120,26 +120,25 @@ public struct ConversationsPageReducer: Reducer {
             state.strings = strings
 
             state.viewState = .loaded
-            viewService.viewLoaded(state.conversations.isEmpty)
+            viewService.viewLoaded()
 
         case let .resolveReturned(.failure(exception)):
             Logger.log(exception)
 
             state.viewState = .loaded
-            viewService.viewLoaded(state.conversations.isEmpty)
+            viewService.viewLoaded()
 
         case let .searchQueryChanged(searchQuery):
             guard state.searchQuery != searchQuery else { return .none }
             state.searchQuery = searchQuery
 
+            defer { state.conversationCellViewID = UUID() }
             guard !searchQuery.isEmpty else {
                 state.conversations = conversations ?? state.conversations
-                if !UIApplication.v26FeaturesEnabled { state.conversationCellViewID = UUID() }
                 return .task { .isSearchingChanged(false) }
             }
 
             state.conversations = conversations?.queried(by: searchQuery) ?? state.conversations
-            state.conversationCellViewID = UUID()
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))
