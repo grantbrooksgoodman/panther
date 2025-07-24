@@ -140,6 +140,8 @@ public struct ConversationCellViewData: Equatable {
 
             if lastMessage.audioComponent != nil {
                 subtitleLabelText = "🔊 \(Localized(.audioMessage).wrappedValue)"
+            } else if lastMessage.documentComponent != nil {
+                subtitleLabelText = "📄 \(Localized(.document).wrappedValue)"
             } else if lastMessage.imageComponent != nil {
                 subtitleLabelText = "🏞️ \(Localized(.image).wrappedValue)"
             } else if lastMessage.videoComponent != nil {

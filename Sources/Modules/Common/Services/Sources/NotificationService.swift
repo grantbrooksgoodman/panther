@@ -255,7 +255,9 @@ public struct NotificationService {
             body = "🔊 \(Localized(.audioMessage, languageCode: user.languageCode).wrappedValue)"
 
         case .media:
-            if message.imageComponent != nil {
+            if message.documentComponent != nil {
+                body = "📄 \(Localized(.document, languageCode: user.languageCode).wrappedValue)"
+            } else if message.imageComponent != nil {
                 body = "🏞️ \(Localized(.image, languageCode: user.languageCode).wrappedValue)"
             } else if message.videoComponent != nil {
                 body = "🎥 \(Localized(.video, languageCode: user.languageCode).wrappedValue)"

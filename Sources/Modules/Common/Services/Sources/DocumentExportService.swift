@@ -36,7 +36,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
         let temporaryFilePath = fileManager
             .temporaryDirectory
-            .appending(path: "\(Localized(.attachment).wrappedValue.lowercased()).\(fileExtension)")
+            .appending(path: "\(Localized(.document).wrappedValue.lowercased()).\(fileExtension)")
 
         if let exception = fileManager.copy(
             fileAt: url,

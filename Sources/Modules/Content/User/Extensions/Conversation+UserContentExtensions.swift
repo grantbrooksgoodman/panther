@@ -71,7 +71,9 @@ public extension Conversation {
             }
 
             var mediaTypeLabelText = Localized(.attachment).wrappedValue
-            if mediaFile.fileExtension.isImage {
+            if mediaFile.fileExtension.isDocument {
+                mediaTypeLabelText = Localized(.document).wrappedValue
+            } else if mediaFile.fileExtension.isImage {
                 mediaTypeLabelText = Localized(.image).wrappedValue
             } else if mediaFile.fileExtension.isVideo {
                 mediaTypeLabelText = Localized(.video).wrappedValue

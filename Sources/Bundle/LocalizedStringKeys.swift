@@ -33,6 +33,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case deletingData
     case delivered
     case dismiss
+    case document
     case done
 
     case errorReported
