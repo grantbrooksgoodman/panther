@@ -108,26 +108,33 @@ extension Message: Serializable {
             let languageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
             var references = translationReferenceStrings.compactMap { TranslationReference($0) }
 
-            if let firstMatchingTarget = references.first(where: { $0.languagePair.to == languageCode }) {
-                references = [firstMatchingTarget]
-            } else if let firstMatchingPreviousLanguageCodeTarget = references.first(where: {
-                currentUser?.previousLanguageCodes?.contains($0.languagePair.to) == true
-            }) {
-                references = [firstMatchingPreviousLanguageCodeTarget]
-            } else if let firstMatchingPreviousLanguageCodeSource = references.first(where: {
-                currentUser?.previousLanguageCodes?.contains($0.languagePair.from) == true
-            }) {
-                references = [firstMatchingPreviousLanguageCodeSource]
-            } else if let firstMatchingSource = references.first(where: { $0.languagePair.from == languageCode }) {
-                references = [firstMatchingSource]
-            }
+            let firstMatchingSource = references.first(where: {
+                $0.languagePair.from == languageCode
+            }) ?? references.first(where: \.languagePair.from.isUserReadableLanguageCode)
+
+            let firstMatchingTarget = references.first(where: {
+                $0.languagePair.to == languageCode
+            }) ?? references.first(where: { firstMatchingSource == nil ? $0.languagePair.to.isUserReadableLanguageCode : false })
+
+            let reference = firstMatchingTarget ?? firstMatchingSource
+            references = reference == nil ? references : [reference!]
 
             let getTranslationsResult = await getTranslations(references: references)
 
             switch getTranslationsResult {
             case let .success(translations):
-                let matchingLanguage = translations.filter { $0.languagePair.to == languageCode }
-                let notMatchingLanguage = translations.filter { $0.languagePair.to != languageCode }
+                guard firstMatchingTarget != nil || firstMatchingSource == nil else {
+                    return .success(decodedMessage(translations.map {
+                        Translation(
+                            input: $0.input,
+                            output: $0.input.value,
+                            languagePair: .init(from: $0.languagePair.from, to: $0.languagePair.from)
+                        )
+                    }))
+                }
+
+                let matchingLanguage = translations.filter { $0.languagePair.to.isUserReadableLanguageCode }
+                let notMatchingLanguage = translations.filter { !$0.languagePair.to.isUserReadableLanguageCode }
                 let sortedTranslations = matchingLanguage + notMatchingLanguage
 
                 return .success(decodedMessage(sortedTranslations))
@@ -212,5 +219,13 @@ extension Message: Serializable {
         }
 
         return .success(translations)
+    }
+}
+
+private extension String {
+    var isUserReadableLanguageCode: Bool {
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        let currentUserLanguageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
+        return self == currentUserLanguageCode || currentUser?.previousLanguageCodes?.contains(self) == true
     }
 }

@@ -130,15 +130,19 @@ public extension NavigationWindow.Toolbar {
         // MARK: - Types
 
         public enum Placement {
+            /* MARK: Cases */
+
             case principal
             case topBarLeading
             case topBarTrailing
 
+            /* MARK: Properties */
+
             public var toolbarItemPlacement: ToolbarItemPlacement {
                 switch self {
-                case .principal: return .principal
-                case .topBarLeading: return .topBarLeading
-                case .topBarTrailing: return .topBarTrailing
+                case .principal: .principal
+                case .topBarLeading: .topBarLeading
+                case .topBarTrailing: .topBarTrailing
                 }
             }
         }

@@ -50,6 +50,7 @@ public final class ConversationsPageViewService {
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.uiApplication.presentedViewControllers) private var presentedViewControllers: [UIViewController]
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
@@ -142,6 +143,8 @@ public final class ConversationsPageViewService {
                 presentedViewControllers
                     .compactMap(\.navigationItem.searchController)
                     .forEach { $0.searchBar.searchTextField.clearButtonMode = .never }
+
+                startSettingSearchBarAppearance()
 
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
                 if !(presentedPenPalsPermissionPageAtStartup ?? false),
@@ -264,5 +267,25 @@ public final class ConversationsPageViewService {
         )
 
         networking.conversationService.archive.addValue(newConversation)
+    }
+
+    private func startSettingSearchBarAppearance() {
+        guard Application.isInPrevaricationMode,
+              !UIApplication.v26FeaturesEnabled else { return }
+
+        var misconfiguredSearchFieldBackgroundViews: [UIView] {
+            uiApplication.presentedViews
+                .compactMap { $0 as? UISearchBar }
+                .flatMap(\.traversedSubviews)
+                .filter { String(type(of: $0)) == "_UISearchBarSearchFieldBackgroundView" }
+                .filter { $0.backgroundColor != .init(hex: 0xE7E7E9) }
+        }
+
+        if !chatPageState.isPresented,
+           !uiApplication.isPresentingSheet {
+            misconfiguredSearchFieldBackgroundViews.forEach { $0.backgroundColor = .init(hex: 0xE7E7E9) }
+        }
+
+        core.gcd.after(.milliseconds(10)) { self.startSettingSearchBarAppearance() }
     }
 }

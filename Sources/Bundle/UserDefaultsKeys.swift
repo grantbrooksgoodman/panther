@@ -20,6 +20,7 @@ public extension UserDefaultsKey {
         public let permanentKeys: [UserDefaultsKey] = [
             .application(.buildMilestoneString),
             .application(.hasRunOnce),
+            .application(.isGlassTintingEnabled),
             .application(.v26FeaturesEnabled),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),

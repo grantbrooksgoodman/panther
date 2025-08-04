@@ -83,15 +83,6 @@ public struct MediaFile: Codable, EncodedHashable, Hashable {
     }
 }
 
-extension URL {
-    var fileExtension: String? {
-        guard let fileName = absoluteString.components(separatedBy: "/").last,
-              let fileExtension = fileName.components(separatedBy: ".").itemAt(1),
-              MediaFileExtension(fileExtension) != nil else { return nil }
-        return fileExtension
-    }
-}
-
 private extension Data {
     var hash: String {
         .init(

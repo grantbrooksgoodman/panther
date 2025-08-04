@@ -47,7 +47,7 @@ public enum Application {
         )
 
         AppSubsystem.initialize(
-            appStoreBuildNumber: 28941,
+            appStoreBuildNumber: 29733,
             buildMilestone: buildMilestone,
             codeName: "Panther",
             dmyFirstCompileDateString: "11112023",
@@ -64,7 +64,7 @@ public enum Application {
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,
            hasRunOnce == nil {
-            hasRunOnce = true
+            if !UIApplication.isFullyV26Compatible { hasRunOnce = true }
             Networking.config.setEnvironment(.development)
         } else if buildMilestone == .generalRelease { // TODO: Fix to make Production default.
             Networking.config.setEnvironment(.production)
@@ -77,10 +77,16 @@ public enum Application {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
-        // MARK: - Glass Tinting Setup
+        // MARK: - v26 Features Setup
 
-        guard UIApplication.v26FeaturesEnabled else { return }
+        guard UIApplication.isFullyV26Compatible,
+              hasRunOnce == nil else { return }
+
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
+        @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
+
         if isGlassTintingEnabled == nil { isGlassTintingEnabled = true }
+        if v26FeaturesEnabled == nil { v26FeaturesEnabled = true }
+        hasRunOnce = true
     }
 }
