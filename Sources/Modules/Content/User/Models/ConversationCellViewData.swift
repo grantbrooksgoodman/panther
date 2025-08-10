@@ -67,8 +67,9 @@ public struct ConversationCellViewData: Equatable {
         searchQuery: String? = nil
     ) {
         let cacheQuery = (searchQuery == nil || searchQuery?.isBlank == true) ? String.bangQualifiedEmpty : searchQuery!
-        if let cachedValue = _ConversationCellViewDataCache
-            .cachedDataByConversationIDForSearchQueries?[cacheQuery]?[conversation.id] {
+        if !conversation.isMock,
+           let cachedValue = _ConversationCellViewDataCache
+           .cachedDataByConversationIDForSearchQueries?[cacheQuery]?[conversation.id] {
             self = cachedValue
             return
         }

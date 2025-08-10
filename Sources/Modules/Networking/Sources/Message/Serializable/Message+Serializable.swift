@@ -105,39 +105,48 @@ extension Message: Serializable {
         }
 
         func getAndApplyTranslations() async -> Callback<Message, Exception> {
+            let isFromCurrentUser = fromAccountID == User.currentUserID
             let languageCode = currentUser?.languageCode ?? RuntimeStorage.languageCode
             var references = translationReferenceStrings.compactMap { TranslationReference($0) }
 
-            let firstMatchingSource = references.first(where: {
-                $0.languagePair.from == languageCode
-            }) ?? references.first(where: \.languagePair.from.isUserReadableLanguageCode)
+            let firstMatchingSource = references.first(where: { $0.languagePair.from == languageCode })
+            let firstNearlyMatchingSource = references.first(where: \.languagePair.from.isUserReadableLanguageCode)
 
-            let firstMatchingTarget = references.first(where: {
-                $0.languagePair.to == languageCode
-            }) ?? references.first(where: { firstMatchingSource == nil ? $0.languagePair.to.isUserReadableLanguageCode : false })
+            let firstMatchingTarget = references.first(where: { $0.languagePair.to == languageCode })
+            let firstNearlyMatchingTarget = references.first(where: \.languagePair.to.isUserReadableLanguageCode)
 
-            let reference = firstMatchingTarget ?? firstMatchingSource
+            var reference = firstMatchingTarget ?? firstMatchingSource ?? firstNearlyMatchingTarget ?? firstNearlyMatchingSource
+            if isFromCurrentUser {
+                reference = firstMatchingSource ?? firstNearlyMatchingSource ?? firstMatchingTarget ?? firstNearlyMatchingTarget
+            }
+
             references = reference == nil ? references : [reference!]
-
             let getTranslationsResult = await getTranslations(references: references)
 
             switch getTranslationsResult {
             case let .success(translations):
-                guard firstMatchingTarget != nil || firstMatchingSource == nil else {
-                    return .success(decodedMessage(translations.map {
-                        Translation(
-                            input: $0.input,
-                            output: $0.input.value,
-                            languagePair: .init(from: $0.languagePair.from, to: $0.languagePair.from)
-                        )
-                    }))
+                switch isFromCurrentUser {
+                case true:
+                    let matchingLanguage = translations.filter(\.languagePair.from.isUserReadableLanguageCode)
+                    let notMatchingLanguage = translations.filter { !$0.languagePair.from.isUserReadableLanguageCode }
+                    return .success(decodedMessage(matchingLanguage + notMatchingLanguage))
+
+                case false:
+                    if firstMatchingTarget == nil,
+                       (firstMatchingSource ?? firstNearlyMatchingSource) != nil {
+                        return .success(decodedMessage(translations.map {
+                            Translation(
+                                input: $0.input,
+                                output: $0.input.value,
+                                languagePair: .init(from: $0.languagePair.from, to: $0.languagePair.from)
+                            )
+                        }))
+                    }
+
+                    let matchingLanguage = translations.filter(\.languagePair.to.isUserReadableLanguageCode)
+                    let notMatchingLanguage = translations.filter { !$0.languagePair.to.isUserReadableLanguageCode }
+                    return .success(decodedMessage(matchingLanguage + notMatchingLanguage))
                 }
-
-                let matchingLanguage = translations.filter { $0.languagePair.to.isUserReadableLanguageCode }
-                let notMatchingLanguage = translations.filter { !$0.languagePair.to.isUserReadableLanguageCode }
-                let sortedTranslations = matchingLanguage + notMatchingLanguage
-
-                return .success(decodedMessage(sortedTranslations))
 
             case let .failure(exception):
                 return .failure(exception)

@@ -271,6 +271,7 @@ public final class ContextMenuActionHandlerService {
 
     private func getViewAlternateAction(for message: Message) -> MenuElement? {
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
+              message.translation?.languagePair.isIdempotent == false,
               message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
               let languageCode = message.isFromCurrentUser ? message.translation?.languagePair.to : message.translation?.languagePair.from,
               languageCode != currentUser?.languageCode,

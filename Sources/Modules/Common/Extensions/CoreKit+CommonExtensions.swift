@@ -26,61 +26,62 @@ public extension CoreKit.GCD {
 }
 
 public extension CoreKit.Utilities {
+    // MARK: - Types
+
+    enum ConversationDeletionGranularity {
+        case allForCurrentUser
+        case messageRecipientConsentEnabled
+        case penPals
+    }
+
     // MARK: - Methods
 
-    @MainActor
-    func deleteCurrentUserConversations() async -> Exception? {
-        @Dependency(\.clientSession.user.currentUser?.conversationIDs) var conversationIDs: [ConversationID]?
-        @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
-        @Dependency(\.networking) var networking: NetworkServices
-
-        guard let conversationIDs,
-              !conversationIDs.isEmpty else {
+    func clearPreviousLanguageCodes() async -> Exception? {
+        @Dependency(\.networking.database) var database: DatabaseDelegate
+        guard let currentUserID = User.currentUserID else {
             return .init(
-                "Current user has no open conversations.",
+                "Current user ID has not been set.",
                 metadata: [self, #file, #function, #line]
             )
         }
 
-        coreUI.addOverlay(
-            alpha: 0.5,
-            activityIndicator: .largeWhite
+        return await database.setValue(
+            Array.bangQualifiedEmpty,
+            forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.previousLanguageCodes.rawValue)",
         )
-
-        defer {
-            networking.database.setGlobalCacheStrategy(nil)
-            networking.storage.setGlobalCacheStrategy(nil)
-            coreUI.removeOverlay()
-        }
-
-        networking.database.setGlobalCacheStrategy(.disregardCache)
-        networking.storage.setGlobalCacheStrategy(.disregardCache)
-
-        for conversationIDKey in conversationIDs.map(\.key) {
-            CoreDatabaseStore.clearStore()
-            if let exception = await networking.integrityService.resolveSession() {
-                return exception
-            }
-
-            if let exception = await networking.integrityService.repairMalformedConversations([conversationIDKey]).exception {
-                return exception
-            }
-        }
-
-        return nil
     }
 
     @MainActor
-    func deleteMRCConversations() async -> Exception? {
-        @Dependency(\.clientSession.user.currentUser?.conversations) var conversations: [Conversation]?
+    func deleteConversations(_ granularity: ConversationDeletionGranularity) async -> Exception? {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.networking) var networking: NetworkServices
 
-        guard let conversationIDKeys = conversations?.filter({
-            $0.didSendConsentMessage ||
-                $0.messages?.contains(where: \.isConsentMessage) == true ||
-                $0.metadata.requiresConsentFromInitiator != nil
-        }).map(\.id.key) else { return nil }
+        var conversationIDKeys: [String]?
+
+        switch granularity {
+        case .allForCurrentUser:
+            conversationIDKeys = currentUser?.conversationIDs?.map(\.key)
+
+        case .messageRecipientConsentEnabled:
+            conversationIDKeys = currentUser?.conversations?.filter {
+                $0.didSendConsentMessage ||
+                    $0.messages?.contains(where: \.isConsentMessage) == true ||
+                    $0.metadata.requiresConsentFromInitiator != nil
+            }.map(\.id.key)
+
+        case .penPals:
+            conversationIDKeys = currentUser?.conversations?
+                .filter(\.metadata.isPenPalsConversation)
+                .map(\.id.key)
+        }
+
+        guard let conversationIDKeys else {
+            return .init(
+                "Failed to resolve conversation ID keys.",
+                metadata: [self, #file, #function, #line]
+            )
+        }
 
         coreUI.addOverlay(
             alpha: 0.5,
@@ -111,7 +112,22 @@ public extension CoreKit.Utilities {
     }
 
     func destroyConversationDatabase() async -> Exception? {
+        @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
+
+        coreUI.addOverlay(
+            alpha: 0.5,
+            activityIndicator: .largeWhite
+        )
+
+        defer {
+            networking.database.setGlobalCacheStrategy(nil)
+            networking.storage.setGlobalCacheStrategy(nil)
+            coreUI.removeOverlay()
+        }
+
+        networking.database.setGlobalCacheStrategy(.disregardCache)
+        networking.storage.setGlobalCacheStrategy(.disregardCache)
 
         let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 

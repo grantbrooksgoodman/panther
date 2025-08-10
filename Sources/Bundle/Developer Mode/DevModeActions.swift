@@ -6,8 +6,6 @@
 //  Copyright © 2013-2023 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
-
 /* Native */
 import Foundation
 import UIKit
@@ -78,19 +76,21 @@ public extension DevModeAction {
                     @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
                     var actions: [DevModeAction] = [
-                        DevModeAction.AppActions.destroyConversationDatabaseAction,
-                        DevModeAction.AppActions.resetPushTokensAction,
+                        DevModeAction.AppActions.DangerZone.destroyConversationDatabaseAction,
+                        DevModeAction.AppActions.DangerZone.resetPushTokensAction,
                     ]
+
+                    if currentUser?.previousLanguageCodes?.isEmpty == false {
+                        actions.insert(
+                            DevModeAction.AppActions.DangerZone.clearPreviousLanguageCodesAction,
+                            at: 0
+                        )
+                    }
 
                     if currentUser?.conversations != nil {
                         actions.insert(
-                            DevModeAction.AppActions.deleteCurrentUserConversationsAction,
-                            at: 2
-                        )
-
-                        actions.insert(
-                            DevModeAction.AppActions.deleteMRCConversationsAction,
-                            at: 3
+                            DevModeAction.AppActions.DangerZone.deleteConversationsAction,
+                            at: 1
                         )
                     }
 
@@ -213,144 +213,5 @@ public extension DevModeAction {
 
             return .init(title: "Validate Database Integrity", perform: validateDatabaseIntegrity)
         }
-
-        // MARK: - Danger Zone Actions
-
-        private static var deleteCurrentUserConversationsAction: DevModeAction {
-            func deleteCurrentUserConversations() {
-                Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.clientSession.user) var userSession: UserSessionService
-
-                    guard await AKConfirmationAlert(
-                        title: "Delete Current User Conversations",
-                        message: "This will delete all conversations for the current user.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: []) else { return }
-
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteCurrentUserConversations() {
-                        Logger.log(exception, with: .toast)
-                    } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
-                    }
-                }
-            }
-
-            return .init(
-                title: "Delete Current User Conversations",
-                isDestructive: true,
-                perform: deleteCurrentUserConversations
-            )
-        }
-
-        private static var deleteMRCConversationsAction: DevModeAction {
-            func deleteMRCConversations() {
-                Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.clientSession.user) var userSession: UserSessionService
-
-                    guard await AKConfirmationAlert(
-                        title: "Delete MRC Conversations",
-                        message: "This will delete all Message Recipient Consent conversations for the current user.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: []) else { return }
-
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteMRCConversations() {
-                        Logger.log(exception, with: .toast)
-                    } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
-                    }
-                }
-            }
-
-            return .init(
-                title: "Delete MRC Conversations",
-                isDestructive: true,
-                perform: deleteMRCConversations
-            )
-        }
-
-        private static var destroyConversationDatabaseAction: DevModeAction {
-            func destroyConversationDatabase() {
-                Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-                    @Dependency(\.clientSession.user) var userSession: UserSessionService
-
-                    guard await AKConfirmationAlert(
-                        title: "Destroy Database", // swiftlint:disable:next line_length
-                        message: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: []) else { return }
-
-                    guard await AKConfirmationAlert(
-                        title: "Are you sure?",
-                        message: "ALL CONVERSATIONS FOR ALL USERS WILL BE DELETED!",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: []) else { return }
-
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.destroyConversationDatabase() {
-                        Logger.log(exception, with: .toast)
-                    } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
-                    }
-                }
-            }
-
-            return .init(title: "Destroy Conversation Database", isDestructive: true, perform: destroyConversationDatabase)
-        }
-
-        private static var resetPushTokensAction: DevModeAction {
-            func resetPushTokens() {
-                Task {
-                    @Dependency(\.coreKit) var core: CoreKit
-
-                    let confirmed = await AKConfirmationAlert(
-                        title: "Reset Push Tokens", // swiftlint:disable:next line_length
-                        message: "This will remove all push tokens for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone.",
-                        confirmButtonStyle: .destructivePreferred
-                    ).present(translating: [])
-
-                    guard confirmed else { return }
-
-                    if let exception = await core.utils.resetPushTokens() {
-                        Logger.log(exception, with: .toast)
-                    } else {
-                        core.hud.flash("Reset Push Tokens", image: .success)
-                    }
-                }
-            }
-
-            return .init(
-                title: "Reset Push Tokens",
-                isDestructive: true,
-                perform: resetPushTokens
-            )
-        }
     }
 }
-
-// swiftlint:enable type_body_length

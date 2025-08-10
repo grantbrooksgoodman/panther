@@ -126,6 +126,34 @@ public final class IntegrityService {
         }
     }
 
+    // MARK: - Prune Deleted Users
+
+    public func pruneDeletedUsers() async -> Exception? {
+        let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
+
+        switch getValuesResult {
+        case let .success(values):
+            guard var array = values as? [String] else {
+                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+            }
+
+            array = array.filter { !session.userData.keys.contains($0) }
+
+            if let exception = await networking.database.setValue(
+                array.isBangQualifiedEmpty ? NSNull() : array,
+                forKey: NetworkPath.deletedUsers.rawValue
+            ) {
+                return exception
+            }
+
+        case let .failure(exception):
+            guard !exception.isEqual(to: .Networking.Database.noValueExists) else { return nil }
+            return exception
+        }
+
+        return nil
+    }
+
     // MARK: - Prune Invalidated Caches
 
     public func pruneInvalidatedCaches() async -> Exception? {

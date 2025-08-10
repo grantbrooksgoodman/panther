@@ -117,7 +117,7 @@ public struct ChangeLanguagePageViewService {
             newPreviousLanguageCodes += [RuntimeStorage.languageCode]
         }
 
-        newPreviousLanguageCodes = newPreviousLanguageCodes.unique
+        newPreviousLanguageCodes = newPreviousLanguageCodes.unique.reversed()
         let updateValueResult = await currentUser.updateValue(
             newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes,
             forKey: .previousLanguageCodes

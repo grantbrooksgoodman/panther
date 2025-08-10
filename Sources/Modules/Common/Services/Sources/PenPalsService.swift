@@ -49,7 +49,7 @@ public struct PenPalsService {
               let penPalsConversations = currentUser
               .conversations?
               .visibleForCurrentUser
-              .filter({ $0.metadata.isPenPalsConversation }) else { return false }
+              .filter(\.metadata.isPenPalsConversation) else { return false }
         return penPalsConversations.contains(where: { !$0.userSharesPenPalsDataWithCurrentUser(user) })
     }
 
