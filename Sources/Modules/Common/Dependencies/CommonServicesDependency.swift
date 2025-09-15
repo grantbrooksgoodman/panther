@@ -23,6 +23,7 @@ public enum CommonServicesDependency: DependencyKey {
                 textToSpeech: .init(),
                 transcription: .init()
             ),
+            breadcrumbsCapture: .shared,
             connectionStatus: .init(),
             contact: .init(contactPairArchive: .init()),
             contentPicker: .init(

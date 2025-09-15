@@ -18,6 +18,7 @@ public struct CommonServices {
     public let analytics: AnalyticsService
     public let attributeDetection: AttributeDetectionService
     public let audio: AudioService
+    public let breadcrumbsCapture: BreadcrumbsCaptureService
     public let connectionStatus: ConnectionStatusService
     public let contact: ContactService
     public let contentPicker: ContentPickerService
@@ -45,6 +46,7 @@ public struct CommonServices {
         analytics: AnalyticsService,
         attributeDetection: AttributeDetectionService,
         audio: AudioService,
+        breadcrumbsCapture: BreadcrumbsCaptureService,
         connectionStatus: ConnectionStatusService,
         contact: ContactService,
         contentPicker: ContentPickerService,
@@ -69,6 +71,7 @@ public struct CommonServices {
         self.analytics = analytics
         self.attributeDetection = attributeDetection
         self.audio = audio
+        self.breadcrumbsCapture = breadcrumbsCapture
         self.connectionStatus = connectionStatus
         self.contact = contact
         self.contentPicker = contentPicker

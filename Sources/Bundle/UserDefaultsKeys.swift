@@ -33,6 +33,7 @@ public extension UserDefaultsKey {
 
     static func application(_ key: ApplicationDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func audioService(_ key: AudioServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
+    static func breadcrumbsCaptureService(_ key: BreadcrumbsCaptureServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func penPalsService(_ key: PenPalsServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

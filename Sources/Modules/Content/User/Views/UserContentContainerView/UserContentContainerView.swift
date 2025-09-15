@@ -18,6 +18,7 @@ public struct UserContentContainerView: View {
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.UserContentContainerView
+    private typealias Floats = AppConstants.CGFloats.UserContentContainerView
 
     // MARK: - Dependencies
 
@@ -78,6 +79,10 @@ public struct UserContentContainerView: View {
             ) {
                 viewModel.send(.chatInfoToolbarButtonTapped)
             }
+            .frame(
+                minWidth: Floats.chatInfoToolbarButtonFrameMinWidth,
+                minHeight: Floats.chatInfoToolbarButtonFrameMinHeight
+            )
         }
     }
 

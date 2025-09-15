@@ -35,6 +35,7 @@ public enum Application {
         // MARK: - App Subsystem Setup
 
         AppSubsystem.delegates.register(
+            breadcrumbsCaptureDelegate: BreadcrumbsCaptureService.shared,
             buildInfoOverlayDotIndicatorColorDelegate: Networking.BuildInfoOverlayDotIndicatorColorDelegate.shared,
             cacheDomainListDelegate: CacheDomain.List(),
             devModeAppActionDelegate: DevModeAction.AppActions(),

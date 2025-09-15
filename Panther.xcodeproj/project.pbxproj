@@ -157,6 +157,7 @@
 		B934570B2AABFC7100944602 /* LocalizedStringKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */; };
 		B93904272DCC781600E82C03 /* RichMessageContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93904262DCC781600E82C03 /* RichMessageContent.swift */; };
 		B93904BA2DD2977200E82C03 /* DocumentExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93904B92DD2977200E82C03 /* DocumentExportService.swift */; };
+		B93B9FF82E49697F005D01EF /* BreadcrumbsCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93B9FF72E49697F005D01EF /* BreadcrumbsCaptureService.swift */; };
 		B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93BCDE42AAD9A1A00AA16FE /* SamplePageViewStrings.swift */; };
 		B93BD4F62C90399F00E8D242 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93BD4F52C90399F00E8D242 /* Application.swift */; };
 		B93DF6D42CE19A4000F992DF /* ConversationSyncData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93DF6D32CE19A4000F992DF /* ConversationSyncData.swift */; };
@@ -974,6 +975,7 @@
 		B934570A2AABFC7100944602 /* LocalizedStringKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStringKeys.swift; sourceTree = "<group>"; };
 		B93904262DCC781600E82C03 /* RichMessageContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichMessageContent.swift; sourceTree = "<group>"; };
 		B93904B92DD2977200E82C03 /* DocumentExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExportService.swift; sourceTree = "<group>"; };
+		B93B9FF72E49697F005D01EF /* BreadcrumbsCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbsCaptureService.swift; sourceTree = "<group>"; };
 		B93BCDE42AAD9A1A00AA16FE /* SamplePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SamplePageViewStrings.swift; sourceTree = "<group>"; };
 		B93BD4F52C90399F00E8D242 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		B93DF6D32CE19A4000F992DF /* ConversationSyncData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationSyncData.swift; sourceTree = "<group>"; };
@@ -2374,8 +2376,9 @@
 				B98C40572C40BC0500C72B0F /* ContentPicker */,
 				B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */,
 				B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */,
-				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
+				B93B9FF72E49697F005D01EF /* BreadcrumbsCaptureService.swift */,
 				B9DEB7B12C1CDD970098DAAB /* ConnectionStatusService.swift */,
+				B9E6D7B72B12626F000BC88D /* CommonPropertyLists.swift */,
 				B93904B92DD2977200E82C03 /* DocumentExportService.swift */,
 				B90BE4452BCE5FCC00966C9E /* ErrorReportingService.swift */,
 				B9A409252B71D333005F2489 /* HapticsService.swift */,
@@ -3574,7 +3577,7 @@
 			mainGroup = A2DF2C4828199B660089DEA1;
 			packageReferences = (
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
-				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
+				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 				B949DB7B2E1D5E4300795467 /* XCRemoteSwiftPackageReference "networking" */,
 			);
@@ -3888,9 +3891,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4032,6 +4039,7 @@
 				B99880A12E2974E3002742A8 /* QueriedConversationCache.swift in Sources */,
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
 				B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */,
+				B93B9FF82E49697F005D01EF /* BreadcrumbsCaptureService.swift in Sources */,
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
 				B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */,
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,
@@ -4791,7 +4799,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -4828,12 +4836,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
 		B921F4052CCB6F34006BB149 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
 		B949DB7C2E1D5E4300795467 /* Networking */ = {

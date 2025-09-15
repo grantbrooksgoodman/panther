@@ -15,6 +15,7 @@ import Networking
 public extension NetworkPath {
     static let audioMessageInputs: NetworkPath = .init("audioMessageInputs")
     static let audioTranslations: NetworkPath = .init("audioTranslations")
+    static let breadcrumbs: NetworkPath = .init("breadcrumbs")
     static let conversations: NetworkPath = .init("conversations")
     static let deletedUsers: NetworkPath = .init("deletedUsers")
     static let invalidatedCaches: NetworkPath = .init("invalidatedCaches")

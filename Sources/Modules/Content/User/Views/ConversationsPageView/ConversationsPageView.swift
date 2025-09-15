@@ -116,6 +116,10 @@ public struct ConversationsPageView: View {
             ) {
                 viewModel.send(.composeToolbarButtonTapped)
             }
+            .frame(
+                minWidth: Floats.toolbarButtonFrameMinWidth,
+                minHeight: Floats.toolbarButtonFrameMinHeight
+            )
             .if(viewModel.conversations.isEmpty) {
                 $0
                     .scaleEffect(viewModel.animationAmount)
@@ -142,6 +146,10 @@ public struct ConversationsPageView: View {
             ) {
                 viewModel.send(.settingsToolbarButtonTapped)
             }
+            .frame(
+                minWidth: Floats.toolbarButtonFrameMinWidth,
+                minHeight: Floats.toolbarButtonFrameMinHeight
+            )
         }
     }
 }

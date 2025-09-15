@@ -82,6 +82,10 @@ public final class SplashPageViewService: ObservableObject {
         alertKitConfig.registerReportDelegate(ErrorReportingService())
         alertKitConfig.registerTranslationDelegate(networking.hostedTranslation)
 
+        /* MARK: Breadcrumbs Capture Setup */
+
+        BreadcrumbsCaptureService.shared.setCaptureGranularity(.narrow)
+
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {

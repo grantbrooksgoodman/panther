@@ -18,12 +18,13 @@ import Networking
 /**
  Use this extension to add new actions to the Developer Mode menu.
  */
-public extension DevModeAction {
+public extension DevModeAction { // swiftlint:disable:next type_body_length
     struct AppActions: AppSubsystem.Delegates.DevModeAppActionDelegate {
         // MARK: - Properties
 
         public var appActions: [DevModeAction] {
             var actions = [
+                DevModeAction.AppActions.manageBreadcrumbsCaptureAction,
                 DevModeAction.AppActions.setCurrentUserIDAction,
                 DevModeAction.AppActions.triggerForcedUpdateModalAction,
                 DevModeAction.AppActions.validateDatabaseIntegrityAction,
@@ -109,6 +110,42 @@ public extension DevModeAction {
             }
 
             return .init(title: "Danger Zone", isDestructive: true, perform: dangerZone)
+        }
+
+        private static var manageBreadcrumbsCaptureAction: DevModeAction {
+            func manageBreadcrumbsCapture() {
+                Task { @MainActor in
+                    @Dependency(\.build) var build: Build
+
+                    @Dependency(\.commonServices.metadata) var metadataService: MetadataService
+                    @Dependency(\.uiApplication) var uiApplication: UIApplication
+                    @Dependency(\.uiPasteboard) var uiPasteboard: UIPasteboard
+
+                    let clearBreadcrumbsCaptureHistoryAction: AKAction = .init(
+                        "Clear Capture History",
+                        style: .destructive,
+                        effect: AppActions.presentClearBreadcrumbsCaptureHistoryActionSheet
+                    )
+
+                    let openHostedBreadcrumbsDirectoryAction: AKAction = .init(
+                        "Open Hosted Directory",
+                        effect: AppActions.openHostedBreadcrumbsDirectory
+                    )
+
+                    await AKActionSheet(
+                        title: "Manage Hosted Breadcrumbs Capture",
+                        actions: [
+                            openHostedBreadcrumbsDirectoryAction,
+                            clearBreadcrumbsCaptureHistoryAction,
+                        ]
+                    ).present(translating: [])
+                }
+            }
+
+            return .init(
+                title: "Manage Breadcrumbs Capture",
+                perform: manageBreadcrumbsCapture
+            )
         }
 
         private static var setCurrentUserIDAction: DevModeAction {
@@ -212,6 +249,88 @@ public extension DevModeAction {
             }
 
             return .init(title: "Validate Database Integrity", perform: validateDatabaseIntegrity)
+        }
+
+        // MARK: - Auxiliary
+
+        private static func openHostedBreadcrumbsDirectory() {
+            Task { @MainActor in
+                @Dependency(\.build) var build: Build
+                @Dependency(\.commonServices.metadata) var metadataService: MetadataService
+                @Dependency(\.uiApplication) var uiApplication: UIApplication
+
+                guard let storageReferenceURLString = metadataService.storageReferenceURL?.absoluteString,
+                      let url = URL(string: [
+                          storageReferenceURLString,
+                          Networking.config.environment.shortString,
+                          NetworkPath.breadcrumbs.rawValue,
+                          build.bundleVersion,
+                          build.bundleRevision,
+                          "\(build.buildNumber)\(build.milestone.shortString)",
+                      ].joined(separator: "~2F")) else { return }
+
+                uiApplication.open(url)
+            }
+        }
+
+        private static func presentClearBreadcrumbsCaptureHistoryActionSheet() {
+            Task {
+                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.networking.storage) var storage: StorageDelegate
+
+                func clearRemoteCaptureHistory() {
+                    Task {
+                        let isCapturing = AppSubsystem.delegates.breadcrumbsCapture.isCapturing
+                        AppSubsystem.delegates.breadcrumbsCapture.stopCapture()
+
+                        core.hud.showProgress(isModal: true)
+                        defer {
+                            core.hud.hide()
+                            if isCapturing { AppSubsystem.delegates.breadcrumbsCapture.startCapture() }
+                        }
+
+                        if let exception = await storage.deleteAllItems(
+                            at: NetworkPath.breadcrumbs.rawValue,
+                            includeItemsInSubdirectories: true,
+                            timeout: .seconds(300)
+                        ) {
+                            Logger.log(exception, with: .toast)
+                        } else {
+                            core.gcd.after(.seconds(1)) { core.hud.showSuccess() }
+                        }
+                    }
+                }
+
+                @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
+
+                let hostedOnlyAction: AKAction = .init(
+                    "Hosted Only",
+                    style: .destructive,
+                ) { clearRemoteCaptureHistory() }
+
+                let localAndHostedAction: AKAction = .init(
+                    "Local and Hosted",
+                    style: .destructivePreferred,
+                ) {
+                    breadcrumbsCaptureHistory = nil
+                    clearRemoteCaptureHistory()
+                }
+
+                let localOnlyAction: AKAction = .init("Local Only") {
+                    breadcrumbsCaptureHistory = nil
+                    core.hud.showSuccess()
+                }
+
+                await AKActionSheet(
+                    title: "Clear Breadcrumbs Capture History",
+                    message: "Select the type of history to clear.",
+                    actions: [
+                        hostedOnlyAction,
+                        localOnlyAction,
+                        localAndHostedAction,
+                    ],
+                ).present(translating: [])
+            }
         }
     }
 }

@@ -24,6 +24,10 @@ public extension UserDefaultsKey {
         case acknowledgedAudioMessagesUnsupported
     }
 
+    enum BreadcrumbsCaptureServiceDefaultsKey: String {
+        case breadcrumbsCaptureHistory
+    }
+
     enum ContactPairArchiveServiceDefaultsKey: String {
         case contactPairArchive
     }

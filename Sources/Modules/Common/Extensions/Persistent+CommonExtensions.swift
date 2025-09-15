@@ -21,6 +21,10 @@ public extension Persistent {
         self.init(.audioService(audioServiceKey))
     }
 
+    convenience init(_ breadcrumbsCaptureServiceKey: UserDefaultsKey.BreadcrumbsCaptureServiceDefaultsKey) {
+        self.init(.breadcrumbsCaptureService(breadcrumbsCaptureServiceKey))
+    }
+
     convenience init(_ contactPairArchiveServiceKey: UserDefaultsKey.ContactPairArchiveServiceDefaultsKey) {
         self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
