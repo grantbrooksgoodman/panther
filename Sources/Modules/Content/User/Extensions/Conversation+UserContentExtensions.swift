@@ -50,6 +50,14 @@ public extension Conversation {
         return userSharesPenPalsDataWithCurrentUser(otherUser)
     }
 
+    var isVisibleForCurrentUser: Bool {
+        @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+        guard let currentUserParticipant,
+              !currentUserParticipant.hasDeletedConversation,
+              !(blockedUserIDs ?? []).containsAnyString(in: participants.map(\.userID)) else { return false }
+        return true
+    }
+
     var mediaItemMetadata: [MediaItemView.Metadata] {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 

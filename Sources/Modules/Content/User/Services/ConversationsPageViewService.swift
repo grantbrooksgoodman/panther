@@ -65,6 +65,7 @@ public final class ConversationsPageViewService {
 
         core.gcd.after(.milliseconds(500)) {
             StatusBar.overrideStyle(.appAware)
+            self.fixInitialSearchBarAppearance()
         }
 
         Task {
@@ -245,6 +246,19 @@ public final class ConversationsPageViewService {
     }
 
     // MARK: - Auxiliary
+
+    /// - NOTE: Fixes a bug in which upon the initial appearance of the view (in iOS 26 GM), the search bar background would not render properly.
+    private func fixInitialSearchBarAppearance() {
+        guard UIApplication.v26FeaturesEnabled else { return }
+        var searchBarTextFieldBackgroundColor: UIColor { .init(hex: ThemeService.isDarkModeActive ? 0x1F1F1F : 0xF5F5F5) }
+        uiApplication.presentedViews
+            .filter {
+                $0.descriptor == "UISearchBarTextField" &&
+                    $0.backgroundColor != searchBarTextFieldBackgroundColor
+            }
+            .unique
+            .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
+    }
 
     private func markStale(conversation: Conversation) {
         var newConversationMessageIDs = conversation.messageIDs

@@ -92,6 +92,12 @@ public struct ConversationsPageView: View {
                         )
                         .toolbar { composeToolbarButton }
                     }
+                    .if(!ThemeService.isAppDefaultThemeApplied) {
+                        $0.navigationBarItemGlassTint(
+                            .accent,
+                            for: .leading, .trailing
+                        )
+                    }
                 }
             }
         }

@@ -15,7 +15,6 @@ import AppSubsystem
 
 public extension View {
     func glassEffect(
-        isEnabled: Bool = true,
         padding edgePadding: CGFloat? = nil,
         shape: some Shape = .capsule,
         tint: Color? = nil
@@ -26,15 +25,13 @@ public extension View {
                 padding(.all, edgePadding)
                     .glassEffect(
                         .regular.tint(tint),
-                        in: shape,
-                        isEnabled: isEnabled
+                        in: shape
                     )
                     .eraseToAnyView()
             } else {
                 glassEffect(
                     .regular.tint(tint),
-                    in: shape,
-                    isEnabled: isEnabled
+                    in: shape
                 )
                 .eraseToAnyView()
             }

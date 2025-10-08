@@ -51,8 +51,9 @@ public struct SelectLanguagePageReducer: Reducer {
         /* MARK: Computed Properties */
 
         fileprivate var selectedLanguageCode: String {
-            @Dependency(\.coreKit.utils.localizedLanguageCodeDictionary) var localizedLanguageCodeDictionary: [String: String]?
-            guard let selectedLanguageCode = localizedLanguageCodeDictionary?
+            @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+            guard let selectedLanguageCode = coreUtilities
+                .localizedLanguageCodeDictionary(for: Locale.systemLanguageCode)?
                 .keys(for: selectedLanguageName)
                 .first else { return RuntimeStorage.languageCode }
             return selectedLanguageCode
@@ -69,13 +70,15 @@ public struct SelectLanguagePageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
-            coreUtilities.restoreDeviceLanguageCode()
 
             guard let localizedLanguageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else {
-                state.viewState = .error(.init(
+                let exception = Exception(
                     "No localized language code dictionary.",
                     metadata: [self, #file, #function, #line]
-                ))
+                )
+
+                Logger.log(exception)
+                state.viewState = .error(exception)
                 return .none
             }
 
@@ -91,7 +94,6 @@ public struct SelectLanguagePageReducer: Reducer {
             navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
-            coreUtilities.restoreDeviceLanguageCode()
             coreUtilities.clearCaches([.localization, .regionDetailService])
             coreUtilities.setLanguageCode(state.selectedLanguageCode)
 

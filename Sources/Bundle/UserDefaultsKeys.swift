@@ -22,6 +22,7 @@ public extension UserDefaultsKey {
             .application(.hasRunOnce),
             .application(.isGlassTintingEnabled),
             .application(.v26FeaturesEnabled),
+            .breadcrumbsCaptureService(.breadcrumbsCaptureHistory),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),
         ]

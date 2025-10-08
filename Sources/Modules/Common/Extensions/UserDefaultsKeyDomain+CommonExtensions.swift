@@ -26,6 +26,7 @@ public extension UserDefaultsKey {
 
     enum BreadcrumbsCaptureServiceDefaultsKey: String {
         case breadcrumbsCaptureHistory
+        case breadcrumbsCaptureFrequency
     }
 
     enum ContactPairArchiveServiceDefaultsKey: String {

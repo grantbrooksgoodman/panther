@@ -16,7 +16,7 @@ import AppSubsystem
 public extension NavigationBar {
     // MARK: - Types
 
-    enum ItemPlacement {
+    enum ItemPlacement: CaseIterable {
         case leading
         case trailing
     }
@@ -118,7 +118,7 @@ public extension NavigationBar {
         var platterContainerViews: [UIView] {
             uiApplication
                 .presentedViews
-                .filter { String(type(of: $0)) == "NavigationBarPlatterContainer" }
+                .filter { $0.descriptor == "NavigationBarPlatterContainer" }
                 .unique
         }
 
@@ -127,7 +127,7 @@ public extension NavigationBar {
 
             return containerView?
                 .traversedSubviews
-                .filter { String(type(of: $0)) == "PlatterGlassView" }
+                .filter { $0.descriptor == "PlatterGlassView" }
         }
 
         var leadingItem: UIView? {

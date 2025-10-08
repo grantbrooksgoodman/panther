@@ -22,7 +22,6 @@ public final class UserService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
@@ -153,13 +152,6 @@ public final class UserService {
             }
 
             data[Keys.id.rawValue] = id
-
-            #warning("Not a fan of having this here.")
-            if let languageCode = data[Keys.languageCode.rawValue] as? String,
-               languageCode != RuntimeStorage.languageCode,
-               id == User.currentUserID {
-                coreUtilities.setLanguageCode(languageCode)
-            }
 
             var cachedValues = cachedUserDataSnapshots ?? []
             cachedValues.append(

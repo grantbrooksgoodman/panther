@@ -127,13 +127,27 @@ public struct ChatInfoPageView: View {
                 cnContactContainer.cnContact,
                 isUnknown: cnContactContainer.isUnknown
             )
-            .offset(y: Floats.singleCNContactViewYOffset)
-            .header(
-                rightItem: headerRightItem,
-                attributes: .init(
-                    appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
-                    sizeClass: .sheet
-                )
+            .if(
+                UIApplication.v26FeaturesEnabled,
+                { contentView in
+                    NavigationWindow(
+                        displayMode: .inline,
+                        isBackButtonHidden: true,
+                        toolbarBackgroundColor: nil,
+                        toolbarItems: nil,
+                        toolbarTitle: nil
+                    ) { contentView }
+                },
+                else: { contentView in
+                    contentView
+                        .header(
+                            rightItem: headerRightItem,
+                            attributes: .init(
+                                appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
+                                sizeClass: .sheet
+                            )
+                        )
+                }
             )
         } else {
             VStack {

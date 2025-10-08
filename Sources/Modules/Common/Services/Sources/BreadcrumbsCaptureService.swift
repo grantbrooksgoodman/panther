@@ -34,7 +34,6 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
 
     public nonisolated static let shared = BreadcrumbsCaptureService()
 
-    public private(set) var captureFrequency: Duration = .seconds(10)
     public private(set) var captureGranularity: CaptureGranularity = .broad
     public private(set) var savesToPhotos = true
 
@@ -43,6 +42,11 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
     private var recordedViews = Set<String>()
 
     // MARK: - Computed Properties
+
+    public private(set) var captureFrequency: Duration {
+        get { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; return persistedValue ?? .seconds(10) }
+        set { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; persistedValue = newValue }
+    }
 
     public var isCapturing: Bool { captureTask != nil }
 

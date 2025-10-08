@@ -64,7 +64,7 @@ public final class SplashPageViewService: ObservableObject {
 
         if UIApplication.isBeingDebugged,
            UIApplication.isCompiledForV26OrLater {
-            try? await Task.sleep(for: .seconds(5))
+            try? await Task.sleep(for: .seconds(1))
         }
 
         didSurpassQuickLoadTimeoutDuration = false
@@ -183,7 +183,6 @@ public final class SplashPageViewService: ObservableObject {
             }
 
             checkPrevaricationMode(currentUser.phoneNumber)
-            core.utils.setLanguageCode(currentUser.languageCode)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
             if (currentUser.conversationIDs ?? []).count > 3,
@@ -296,10 +295,17 @@ public final class SplashPageViewService: ObservableObject {
               Networking.config.environment == .production,
               services.metadata.isPrevaricationModeEnabled == true else { return }
 
+        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
         @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
+
+        isGlassTintingEnabled = false
         v26FeaturesEnabled = false
 
         Application.isInPrevaricationMode = true
+        Toast.overrideDefaultColorPalette(.init(
+            background: .init(uiColor: .init(hex: 0xF8F8F8)),
+        ))
+
         ThemeService.setTheme(
             UITheme.prevaricationMode,
             checkStyle: false

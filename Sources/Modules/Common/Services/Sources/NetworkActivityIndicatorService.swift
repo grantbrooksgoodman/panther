@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -17,6 +18,18 @@ public struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate 
     // MARK: - Properties
 
     private let defaultNetworkActivityIndicatorDelegate = DefaultNetworkActivityIndicatorDelegate()
+
+    // MARK: - Computed Properties
+
+    public var backgroundColor: Color {
+        Application.isInPrevaricationMode ? .init(uiColor: .systemBlue) : .accent
+    }
+
+    public var progressViewTintColor: Color {
+        ThemeService.isAppDefaultThemeApplied &&
+            ThemeService.isDarkModeActive &&
+            UIApplication.v26FeaturesEnabled ? .black : .white
+    }
 
     // MARK: - Methods
 

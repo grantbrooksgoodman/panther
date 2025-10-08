@@ -23,17 +23,7 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
-    @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
-
-    // MARK: - Properties
-
-    private var uiSegmentBackgroundViews: [UIView] {
-        uiApplication
-            .presentedViews
-            .filter { String(type(of: $0)) == "UISegment" }
-            .compactMap(\.superview?.superview)
-    }
 
     // MARK: - Actions
 
@@ -182,9 +172,7 @@ public struct ChatInfoPageReducer: Reducer {
             state.isPenPalsSharingDataSwitchToggled = state.conversation?.currentUserSharesPenPalsDataWithAllUsers == true
             state.segmentedControlSelectionIndex = 0
 
-            uiApplication.resignFirstResponders()
-            UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
-
+            viewService.viewAppeared()
             let getChatParticipantsTask: Effect<Action> = .task {
                 let result = await viewService.getChatParticipants()
                 return .getChatParticipantsReturned(result)
@@ -262,10 +250,9 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
             state.viewState = .loaded
-            return .task(delay: .seconds(1)) { @MainActor in
-                uiSegmentBackgroundViews.forEach { $0.backgroundColor = .groupedContentBackground }
-                return .none
-            }
+            viewService.viewLoaded(
+                withSingleCNContactContainer: state.singleCNContactContainer != nil
+            )
 
         case let .getChatParticipantsReturned(.failure(exception)):
             Logger.log(exception)
@@ -381,11 +368,7 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
         case .traitCollectionChanged:
-            return .task(delay: .milliseconds(100)) { @MainActor in
-                NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
-                uiSegmentBackgroundViews.forEach { $0.backgroundColor = .groupedContentBackground }
-                return .none
-            }
+            viewService.traitCollectionChanged()
 
         case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true

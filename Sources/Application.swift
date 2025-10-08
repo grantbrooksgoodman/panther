@@ -32,7 +32,11 @@ public enum Application {
 
     @MainActor
     public static func initialize() {
-        // MARK: - App Subsystem Setup
+        /* MARK: Dependencies */
+
+        @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
+
+        /* MARK: App Subsystem Setup */
 
         AppSubsystem.delegates.register(
             breadcrumbsCaptureDelegate: BreadcrumbsCaptureService.shared,
@@ -57,7 +61,7 @@ public enum Application {
             loggingEnabled: buildMilestone != .generalRelease
         )
 
-        // MARK: - Networking Setup
+        /* MARK: Networking Setup */
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
@@ -65,29 +69,37 @@ public enum Application {
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,
            hasRunOnce == nil {
-            if !UIApplication.isFullyV26Compatible { hasRunOnce = true }
             Networking.config.setEnvironment(.development)
-        } else if buildMilestone == .generalRelease { // TODO: Fix to make Production default.
+            hasRunOnce = true
+        } else if buildMilestone == .generalRelease {
             Networking.config.setEnvironment(.production)
         }
 
-        // MARK: - Theme Setup
+        /* MARK: Theme Setup */
 
         Task.delayed(by: .seconds(1)) {
             guard ThemeService.currentTheme == UITheme.default else { return }
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
-        // MARK: - v26 Features Setup
-
-        guard UIApplication.isFullyV26Compatible,
-              hasRunOnce == nil else { return }
+        /* MARK: v26 Features Setup */
 
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
         @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
 
-        if isGlassTintingEnabled == nil { isGlassTintingEnabled = true }
-        if v26FeaturesEnabled == nil { v26FeaturesEnabled = true }
-        hasRunOnce = true
+        guard UIApplication.isFullyV26Compatible else {
+            isGlassTintingEnabled = false
+            v26FeaturesEnabled = false
+            return
+        }
+
+        guard isDeveloperModeEnabled else {
+            isGlassTintingEnabled = true
+            v26FeaturesEnabled = true
+            return
+        }
+
+        isGlassTintingEnabled = isGlassTintingEnabled ?? true
+        v26FeaturesEnabled = v26FeaturesEnabled ?? true
     }
 }

@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import AVFAudio
 import Foundation
@@ -17,7 +19,6 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-// swiftlint:disable:next type_body_length
 public final class ChatPageViewService {
     // MARK: - Constants Accessors
 
@@ -235,6 +236,7 @@ public final class ChatPageViewService {
         alternateMessage?.restoreAllAlternateTextMessageIDs()
         alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
 
+        ConversationsPageView.reapplyNavigationBarItemGlassTintIfNeeded()
         services.connectionStatus.removeEffect(.configureInputBar)
 
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
@@ -396,3 +398,5 @@ public final class ChatPageViewService {
         viewController?.view.backgroundColor = backgroundColor
     }
 }
+
+// swiftlint:enable file_length type_body_length

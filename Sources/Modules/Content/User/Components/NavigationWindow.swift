@@ -150,7 +150,7 @@ public extension NavigationWindow.Toolbar {
         // MARK: - Properties
 
         public let content: () -> any View
-        public let id = UUID()
+        public let id: AnyHashable
         public let placement: Placement
 
         // MARK: - Init
@@ -159,6 +159,7 @@ public extension NavigationWindow.Toolbar {
             placement: Placement,
             content: @escaping () -> any View
         ) {
+            id = placement.hashValue
             self.placement = placement
             self.content = content
         }

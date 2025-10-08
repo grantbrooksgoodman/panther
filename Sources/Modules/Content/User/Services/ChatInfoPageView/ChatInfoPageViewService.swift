@@ -32,15 +32,36 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.commonServices.contact) private var contactService: ContactService
+    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
+    @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
     public private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
+
+    // MARK: - Computed Properties
+
+    private var uiSegmentBackgroundViewBackgroundColor: UIColor {
+        if UIApplication.v26FeaturesEnabled ||
+            Application.isInPrevaricationMode && UIApplication.isFullyV26Compatible {
+            return .init(hex: ThemeService.isDarkModeActive ? 0x313136 : 0xE2E2E6)
+        }
+
+        return .groupedContentBackground
+    }
+
+    private var uiSegmentBackgroundViews: [UIView] {
+        uiApplication
+            .presentedViews
+            .filter { $0.descriptor == "UISegment" }
+            .compactMap(\.superview?.superview)
+    }
 
     // MARK: - Get Chat Participants
 
@@ -156,15 +177,13 @@ public final class ChatInfoPageViewService {
         return .success(sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix))
     }
 
-    // MARK: - Media Item View Tapped
+    // MARK: - Reducer Action Handlers
 
     public func mediaItemViewTapped(
         _ metadata: MediaItemView.Metadata,
         filePaths: [String],
         startingIndex: Int
     ) {
-        guard !(UIApplication.isFullyV26Compatible && UIDevice.isSimulator) else { return }
-
         isPreviewingMedia = true
         quickViewer.preview(
             filesAtPaths: filePaths,
@@ -179,9 +198,53 @@ public final class ChatInfoPageViewService {
         }
     }
 
+    public func traitCollectionChanged() {
+        coreGCD.after(.milliseconds(100)) {
+            self.uiSegmentBackgroundViews.forEach {
+                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
+            }
+        }
+    }
+
+    public func viewAppeared() {
+        uiApplication.resignFirstResponders()
+        UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
+    }
+
+    /// `.getChatParticipantsReturned(.success)`
+    public func viewLoaded(withSingleCNContactContainer isPresentingSingleUserContactInfo: Bool) {
+        defer {
+            coreGCD.after(.seconds(1)) {
+                self.uiSegmentBackgroundViews.forEach {
+                    $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
+                }
+            }
+        }
+
+        guard isPresentingSingleUserContactInfo else { return }
+        hideAdditionalNavigationBarIfNeeded()
+    }
+
     // MARK: - Clear Cache
 
     public func clearCache() {
         cachedChatParticipantsForUserIDs = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func hideAdditionalNavigationBarIfNeeded() {
+        guard UIApplication.v26FeaturesEnabled,
+              chatPageState.isPresented,
+              uiApplication.isPresentingSheet else { return }
+
+        uiApplication
+            .presentedViewControllers
+            .filter { $0.activePresentationController is UISheetPresentationController }
+            .compactMap(\.navigationController)
+            .last?
+            .isNavigationBarHidden = true
+
+        coreGCD.after(.seconds(1)) { self.hideAdditionalNavigationBarIfNeeded() }
     }
 }

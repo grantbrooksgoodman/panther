@@ -69,8 +69,7 @@ public final class MediaMessagePreviewService {
     // MARK: - Did Tap Image
 
     public func didTapImage(in cell: MessageCollectionViewCell) {
-        guard !(UIApplication.isFullyV26Compatible && UIDevice.isSimulator),
-              let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
+        guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
               message.contentType.isMedia,
               let filePath = message.richContent?.mediaComponent?.localPathURL.path(),

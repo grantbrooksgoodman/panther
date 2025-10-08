@@ -16,12 +16,14 @@ import AppSubsystem
 public extension UIApplication {
     static var isGlassTintingEnabled: Bool {
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
-        return !Application.isInPrevaricationMode && isGlassTintingEnabled == true
+        guard !Application.isInPrevaricationMode,
+              UIApplication.v26FeaturesEnabled,
+              isGlassTintingEnabled == true else { return false }
+        return true
     }
 
     static var v26FeaturesEnabled: Bool {
         @Persistent(.v26FeaturesEnabled) var persistedValue: Bool?
-        if persistedValue == nil { persistedValue = true }
-        return UIApplication.isFullyV26Compatible && persistedValue == true
+        return UIApplication.isFullyV26Compatible && (persistedValue ?? true)
     }
 }

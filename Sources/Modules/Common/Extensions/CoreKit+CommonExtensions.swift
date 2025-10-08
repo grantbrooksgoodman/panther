@@ -30,7 +30,10 @@ public extension CoreKit.Utilities {
 
     enum ConversationDeletionGranularity {
         case allForCurrentUser
+        case groupChatsWithoutNameOrPhoto
         case messageRecipientConsentEnabled
+        case notVisibleForCurrentUser
+        case oneToOneAndFewerThanTenMessages
         case penPals
     }
 
@@ -57,17 +60,43 @@ public extension CoreKit.Utilities {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.networking) var networking: NetworkServices
 
+        if let exception = await currentUser?.setConversations() {
+            return exception
+        }
+
         var conversationIDKeys: [String]?
 
         switch granularity {
         case .allForCurrentUser:
             conversationIDKeys = currentUser?.conversationIDs?.map(\.key)
 
+        case .groupChatsWithoutNameOrPhoto:
+            conversationIDKeys = currentUser?.conversations?.filter {
+                $0.metadata.name.isBangQualifiedEmpty &&
+                    $0.metadata.imageData == nil &&
+                    !$0.metadata.isPenPalsConversation &&
+                    $0.participants.count > 2
+            }.map(\.id.key)
+
         case .messageRecipientConsentEnabled:
             conversationIDKeys = currentUser?.conversations?.filter {
                 $0.didSendConsentMessage ||
                     $0.messages?.contains(where: \.isConsentMessage) == true ||
                     $0.metadata.requiresConsentFromInitiator != nil
+            }.map(\.id.key)
+
+        case .notVisibleForCurrentUser:
+            guard let invisibleConversationIDKeys = currentUser?
+                .conversations?
+                .filter({ !$0.isVisibleForCurrentUser })
+                .map(\.id.key) else { return nil }
+
+            conversationIDKeys = invisibleConversationIDKeys
+
+        case .oneToOneAndFewerThanTenMessages:
+            conversationIDKeys = currentUser?.conversations?.filter {
+                $0.messageIDs.count < 10 &&
+                    $0.participants.count == 2
             }.map(\.id.key)
 
         case .penPals:

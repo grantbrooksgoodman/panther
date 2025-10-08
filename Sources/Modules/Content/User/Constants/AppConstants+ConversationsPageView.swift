@@ -30,11 +30,11 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum ConversationsPageView {
         public static let composeToolbarButtonForeground: Color = .init(
-            uiColor: Application.isInPrevaricationMode ? .black : .systemBlue
+            uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
 
         public static let settingsToolbarButtonForeground: Color = .init(
-            uiColor: Application.isInPrevaricationMode ? .black : .systemBlue
+            uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
     }
 }

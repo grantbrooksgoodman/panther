@@ -16,12 +16,6 @@ import Translator
 public extension Array where Element == Conversation {
     // MARK: - Properties
 
-    var filteringBlockedUsers: [Conversation] {
-        @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
-        guard let blockedUserIDs else { return self }
-        return filter { !blockedUserIDs.containsAnyString(in: $0.participants.map(\.userID)) }
-    }
-
     var sortedByLatestMessageSentDate: [Conversation] {
         let filtered = filter { $0.messages?.isEmpty == false }
         var sorted = filtered.map { conversation in
@@ -43,7 +37,7 @@ public extension Array where Element == Conversation {
 
     /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants the user has blocked.
     var visibleForCurrentUser: [Conversation] {
-        filter { !($0.currentUserParticipant?.hasDeletedConversation ?? true) }.filteringBlockedUsers
+        filter(\.isVisibleForCurrentUser)
     }
 
     // MARK: - Methods

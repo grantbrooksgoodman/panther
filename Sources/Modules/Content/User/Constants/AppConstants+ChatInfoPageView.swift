@@ -45,7 +45,6 @@ public extension AppConstants.CGFloats {
         // swiftlint:disable:next identifier_name
         public static let segmentedControlHorizontalOrLeadingPadding: CGFloat = 20
         public static let segmentedControlTopPadding: CGFloat = 20
-        public static let singleCNContactViewYOffset: CGFloat = -7.5
     }
 }
 

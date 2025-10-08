@@ -38,9 +38,10 @@ public struct CNContactView: View {
     public var body: some View {
         ThemedView {
             _CNContactView(cnContact, isUnknown: isUnknown)
-                .if(!UIApplication.v26FeaturesEnabled) { $0.navigationBarBackButtonHidden() }
+                .navigationBarBackButtonHidden()
                 .navigationTitle("\u{2800}")
                 .background(Color.groupedContentBackground)
+                .ignoresSafeArea(.container, edges: .bottom)
         }
         .onNavigationTransition(.appear) { _ in
             NavigationBar.setAppearance(navigationBarAppearance)
@@ -72,13 +73,15 @@ private struct _CNContactView: UIViewControllerRepresentable {
     // MARK: - Make UIViewController
 
     public func makeUIViewController(context: Context) -> CNContactViewController {
+        let viewController: CNContactViewController = isUnknown ? .init(forUnknownContact: cnContact) : .init(for: cnContact)
+        viewController.allowsEditing = false
+
         if isUnknown {
-            let viewController: CNContactViewController = .init(forUnknownContact: cnContact)
             viewController.contactStore = cnContactStore
             return viewController
         }
 
-        return .init(for: cnContact)
+        return viewController
     }
 
     // MARK: - Update UIViewController
