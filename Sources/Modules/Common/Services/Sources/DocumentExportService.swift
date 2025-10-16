@@ -30,7 +30,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         guard let fileExtension = url.path().components(separatedBy: "/").last?.components(separatedBy: ".").last else {
             return .init(
                 "Failed to determine file type.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

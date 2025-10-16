@@ -36,9 +36,9 @@ public struct LegacyUserService {
             guard var dictionary = values as? [String: Any] else {
                 let exception: Exception = .Networking.typecastFailed(
                     "dictionary",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             dictionary[User.SerializationKeys.id.rawValue] = id
@@ -47,16 +47,16 @@ public struct LegacyUserService {
                 let exception = Exception(
                     "User does not need conversion to new schema.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             guard let callingCode = dictionary["callingCode"] as? String,
                   let nationalNumberString = dictionary["phoneNumber"] as? String,
                   let regionCode = dictionary["region"] as? String else {
-                let exception = Exception("Failed to decode number information.", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
+                let exception = Exception("Failed to decode number information.", metadata: .init(sender: self))
+                return exception.appending(userInfo: commonParams)
             }
 
             let newDictionary = [
@@ -66,43 +66,43 @@ public struct LegacyUserService {
             ]
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             if let exception = await networking.database.setValue(
                 Array.bangQualifiedEmpty,
                 forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
             ) {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             if let exception = await networking.database.setValue(
                 Array.bangQualifiedEmpty,
                 forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             Logger.log(
                 "Successfully converted user with ID «\(id)» to new schema.",
                 domain: .user,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
         case let .failure(exception):
-            return exception.appending(extraParams: commonParams)
+            return exception.appending(userInfo: commonParams)
         }
 
         return nil

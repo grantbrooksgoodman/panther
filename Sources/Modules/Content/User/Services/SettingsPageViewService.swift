@@ -459,7 +459,7 @@ public final class SettingsPageViewService {
         guard let currentUser = userSession.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

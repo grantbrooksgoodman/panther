@@ -47,7 +47,7 @@ public final class ReadReceiptService {
             Logger.log(
                 "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
                 domain: .conversation,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             if let currentUser = clientSession.user.currentUser,

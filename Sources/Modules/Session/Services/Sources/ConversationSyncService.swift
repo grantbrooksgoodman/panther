@@ -46,8 +46,8 @@ public final class ConversationSyncService {
             guard let conversation = syncData?.conversation else {
                 return .failure(.init(
                     "Failed to resolve updated conversation.",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams))
+                    metadata: .init(sender: self)
+                ).appending(userInfo: commonParams))
             }
 
             return .success(conversation)
@@ -62,22 +62,22 @@ public final class ConversationSyncService {
                 guard let newData = values as? [String: Any] else {
                     return .Networking.typecastFailed(
                         "dictionary",
-                        metadata: [self, #file, #function, #line]
-                    ).appending(extraParams: commonParams)
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: commonParams)
                 }
 
                 syncData = .init(conversation, newData: newData)
                 return nil
 
             case let .failure(exception):
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
         }
 
         Logger.log(
             "Synchronizing conversation with ID \(conversation.id.key).",
             domain: .conversation,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         guard let currentUserParticipant = conversation.currentUserParticipant,
@@ -86,18 +86,18 @@ public final class ConversationSyncService {
                 .init(
                     "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
                     isReportable: false,
-                    extraParams: commonParams,
-                    metadata: [self, #file, #function, #line]
+                    userInfo: commonParams,
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation
             )
 
             if let exception = await getConversationData() {
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             if let exception = await synchronizeData() {
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             return resolveConversation()
@@ -105,30 +105,30 @@ public final class ConversationSyncService {
 
         guard let currentMessages = conversation.messages?.uniquedByID else {
             if let exception = await conversation.setMessages() {
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             return await synchronizeConversation(conversation)
         }
 
         if let exception = await getConversationData() {
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         guard let syncData else {
             self.syncData = nil
             return .failure(.init(
                 "Failed to resolve current sync data.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         guard let messageIDs = syncData.newData[Conversation.SerializationKeys.messages.rawValue] as? [String] else {
             self.syncData = nil
             return .failure(.Networking.decodingFailed(
                 data: syncData.newData,
-                [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         var filteredMessageIDs = messageIDs.filter { !currentMessages.map(\.id).contains($0) }
@@ -140,7 +140,7 @@ public final class ConversationSyncService {
         guard !filteredMessageIDs.isEmpty else {
             if let exception = await synchronizeData() {
                 self.syncData = nil
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             // If metadata ostensibly didn't need an update, reload select or all messages.
@@ -148,7 +148,7 @@ public final class ConversationSyncService {
                   syncData.conversation.encodedHash != conversation.encodedHash else {
                 if let exception = await synchronizeMessages(messageIDs, lastTenOnly: true) {
                     self.syncData = nil
-                    return .failure(exception.appending(extraParams: commonParams))
+                    return .failure(exception.appending(userInfo: commonParams))
                 }
 
                 guard let syncData = self.syncData,
@@ -157,15 +157,15 @@ public final class ConversationSyncService {
                         .init(
                             "Resolving all messages to fully synchronize conversation.",
                             isReportable: false,
-                            extraParams: commonParams,
-                            metadata: [self, #file, #function, #line]
+                            userInfo: commonParams,
+                            metadata: .init(sender: self)
                         ),
                         domain: .conversation
                     )
 
                     if let exception = await synchronizeMessages(messageIDs) {
                         self.syncData = nil
-                        return .failure(exception.appending(extraParams: commonParams))
+                        return .failure(exception.appending(userInfo: commonParams))
                     }
 
                     return resolveConversation()
@@ -179,12 +179,12 @@ public final class ConversationSyncService {
 
         if let exception = await synchronizeMessages(filteredMessageIDs) {
             self.syncData = nil
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         if let exception = await synchronizeData() {
             self.syncData = nil
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         return resolveConversation()
@@ -209,7 +209,7 @@ public final class ConversationSyncService {
     private func synchronizeHash() -> Exception? {
         guard let syncData,
               let newHash = syncData.newData[Conversation.SerializationKeys.encodedHash.rawValue] as? String else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
         }
 
         self.syncData = .init(.init(
@@ -226,7 +226,7 @@ public final class ConversationSyncService {
 
     private func synchronizeMessages(_ messageIDs: [String], lastTenOnly: Bool = false) async -> Exception? {
         guard let conversation = syncData?.conversation else {
-            return .init("Failed to resolve conversation in sync data.", metadata: [self, #file, #function, #line])
+            return .init("Failed to resolve conversation in sync data.", metadata: .init(sender: self))
         }
 
         var messageIDs = messageIDs
@@ -241,7 +241,7 @@ public final class ConversationSyncService {
         case let .success(messages):
             let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
             guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
-                return .Networking.typeMismatch(key: Conversation.SerializationKeys.messages, [self, #file, #function, #line])
+                return .Networking.typeMismatch(key: Conversation.SerializationKeys.messages, .init(sender: self))
             }
 
             let updateHashResult = await updateHash(conversation)
@@ -262,7 +262,7 @@ public final class ConversationSyncService {
 
     private func synchronizeMetadata() async -> Exception? {
         guard let newMetadata = syncData?.newData[Conversation.SerializationKeys.metadata.rawValue] as? [String: Any] else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
         }
 
         let decodeResult = await ConversationMetadata.decode(from: newMetadata)
@@ -272,7 +272,7 @@ public final class ConversationSyncService {
             guard let conversation = syncData?.conversation.modifyKey(.metadata, withValue: decodedMetadata) else {
                 return .Networking.typeMismatch(
                     key: Conversation.SerializationKeys.metadata.rawValue,
-                    [self, #file, #function, #line]
+                    .init(sender: self)
                 )
             }
 
@@ -286,7 +286,7 @@ public final class ConversationSyncService {
 
     private func synchronizeParticipants() async -> Exception? {
         guard let newParticipants = syncData?.newData[Conversation.SerializationKeys.participants.rawValue] as? [String] else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
         }
 
         var updatedParticipants = [Participant]()
@@ -307,14 +307,14 @@ public final class ConversationSyncService {
               updatedParticipants.count == newParticipants.count else {
             return .init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
         guard let conversation = syncData?.conversation.modifyKey(.participants, withValue: updatedParticipants) else {
             return .Networking.typeMismatch(
                 key: Conversation.SerializationKeys.participants.rawValue,
-                [self, #file, #function, #line]
+                .init(sender: self)
             )
         }
 
@@ -324,7 +324,7 @@ public final class ConversationSyncService {
 
     private func synchronizeReactionMetadata() async -> Exception? {
         guard let newReactionMetadata = syncData?.newData[Conversation.SerializationKeys.reactionMetadata.rawValue] as? [[String: Any]] else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], [self, #file, #function, #line])
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
         }
 
         var updatedReactionMetadata = [ReactionMetadata]()
@@ -345,14 +345,14 @@ public final class ConversationSyncService {
               updatedReactionMetadata.count == newReactionMetadata.count else {
             return .init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
         guard let conversation = syncData?.conversation.modifyKey(.reactionMetadata, withValue: updatedReactionMetadata) else {
             return .Networking.typeMismatch(
                 key: Conversation.SerializationKeys.reactionMetadata.rawValue,
-                [self, #file, #function, #line]
+                .init(sender: self)
             )
         }
 
@@ -370,7 +370,7 @@ public final class ConversationSyncService {
         guard var users = conversation.users else {
             return .failure(.init(
                 "Failed to set users on conversation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

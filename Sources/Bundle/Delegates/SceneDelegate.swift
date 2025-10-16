@@ -96,7 +96,7 @@ public final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWi
               ["15555555555", "18888888888"].contains(
                   currentUser.phoneNumber.compiledNumberString
               ) else { return false }
-        services.analytics.logEvent(.touchUiElement, extraParams: ["ui_element": String(type(of: view))])
+        services.analytics.logEvent(.touchUiElement, userInfo: ["ui_element": String(type(of: view))])
         return false
     }
 }

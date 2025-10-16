@@ -27,8 +27,8 @@ public enum PLISTGenerator {
         guard !fileManager.fileExists(atPath: path) else {
             Logger.log(.init(
                 "File already exists.",
-                extraParams: ["FilePath": path],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["FilePath": path],
+                metadata: .init(sender: self)
             ))
             return nil
         }
@@ -64,7 +64,7 @@ public enum PLISTGenerator {
         coreUtilities.clearCaches([.localTranslationArchive])
         var resolvedTranslations = [String: String]()
 
-        Logger.openStream(metadata: [self, #file, #function, #line])
+        Logger.openStream(sender: self)
 
         for (index, languageCode) in toLanguages.enumerated() {
             let translateResult = await translator.translate(
@@ -110,7 +110,7 @@ public enum PLISTGenerator {
         ) else {
             return .failure(.init(
                 "Failed to generate PLIST.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

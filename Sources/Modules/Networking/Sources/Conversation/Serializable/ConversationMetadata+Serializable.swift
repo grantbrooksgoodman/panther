@@ -77,7 +77,7 @@ extension ConversationMetadata: Serializable {
               let encodedMessageRecipientConsentAcknowledgementData = data[Keys.messageRecipientConsentAcknowledgementData.rawValue] as? [String],
               let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String],
               let requiesConsentFromInitiator = data[Keys.requiresConsentFromInitiator.rawValue] as? String else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         var messageRecipientConsentAcknowledgementData = [MessageRecipientConsentAcknowledgementData]()
@@ -113,7 +113,7 @@ extension ConversationMetadata: Serializable {
               !penPalsSharingData.isEmpty,
               messageRecipientConsentAcknowledgementData.count == encodedMessageRecipientConsentAcknowledgementData.count,
               penPalsSharingData.count == encodedPenPalsSharingData.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
         }
 
         guard !imageDataString.isBangQualifiedEmpty else {
@@ -129,7 +129,7 @@ extension ConversationMetadata: Serializable {
         }
 
         guard let imageData = Data(base64Encoded: imageDataString) else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         return .success(.init(

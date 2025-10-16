@@ -107,13 +107,13 @@ public struct AnalyticsService {
 
     // MARK: - Log Event
 
-    public func logEvent(_ event: AnalyticsEvent, extraParams: [String: String]? = nil) {
+    public func logEvent(_ event: AnalyticsEvent, userInfo: [String: String]? = nil) {
         Task { @MainActor in
             guard AnalyticsService.shouldEnableDataCollection else { return }
 
             var parameters = commonParams
-            if let extraParams {
-                extraParams.forEach { parameters[$0] = $1 }
+            if let userInfo {
+                userInfo.forEach { parameters[$0] = $1 }
             }
 
             for (key, value) in parameters {
@@ -127,8 +127,8 @@ public struct AnalyticsService {
                 .init(
                     "Logging analytics event \"\(event.name)\".",
                     isReportable: false,
-                    extraParams: parameters,
-                    metadata: [self, #file, #function, #line]
+                    userInfo: parameters,
+                    metadata: .init(sender: self)
                 ),
                 domain: .analytics
             )

@@ -62,7 +62,7 @@ public final class IntegrityService {
                 Logger.log(
                     "Resolved\(failureStrategy == .continueOnFailure ? " POTENTIALLY INCOMPLETE" : "") integrity service session.",
                     domain: .dataIntegrity,
-                    metadata: [self, #file, #function, #line]
+                    sender: self
                 )
                 _session = session
                 completion(nil)
@@ -134,7 +134,7 @@ public final class IntegrityService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             array = array.filter { !session.userData.keys.contains($0) }
@@ -162,7 +162,7 @@ public final class IntegrityService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             array = array.filter { session.userData.keys.contains($0) }
@@ -663,7 +663,7 @@ public final class IntegrityService {
         guard let _session else {
             Logger.log(.init(
                 "Referencing unresolved IntegrityServiceSession.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
 
             return .empty

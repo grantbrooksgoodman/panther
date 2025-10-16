@@ -54,7 +54,7 @@ public final class IntegrityServiceSession {
 
         let typecastFailedException = Exception.Networking.typecastFailed(
             "dictionary",
-            metadata: [self, #file, #function, #line]
+            metadata: .init(sender: self)
         )
 
         // Get Conversation Values
@@ -165,7 +165,7 @@ public final class IntegrityServiceSession {
               let messageData,
               let translationData,
               let userData else {
-            return .failure(.init(metadata: [self, #file, #function, #line]))
+            return .failure(.init(metadata: .init(sender: self)))
         }
 
         return .success(.init(

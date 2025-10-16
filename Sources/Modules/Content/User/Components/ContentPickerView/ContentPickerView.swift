@@ -39,7 +39,7 @@ public struct ContentPickerView<Content>: View {
         case .camera:
             CameraPickerView { image in
                 guard let content = image as? Content else {
-                    onDismiss(.contentPickerContentTypeMismatch([self, #file, #function, #line]))
+                    onDismiss(.contentPickerContentTypeMismatch(.init(sender: self)))
                     return
                 }
 
@@ -51,7 +51,7 @@ public struct ContentPickerView<Content>: View {
         case .photoLibrary:
             PhotoPickerView { image in
                 guard let content = image as? Content else {
-                    onDismiss(.contentPickerContentTypeMismatch([self, #file, #function, #line]))
+                    onDismiss(.contentPickerContentTypeMismatch(.init(sender: self)))
                     return
                 }
 

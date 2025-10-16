@@ -103,7 +103,7 @@ public final class AudioFile: Codable, Equatable {
             let duration: Float = try .init(await assetReader.asset.load(.duration).seconds)
             contentDuration = duration
         } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
 
         return nil

@@ -48,7 +48,7 @@ extension ReactionMetadata: Serializable {
     public static func decode(from data: [String: Any]) async -> Callback<ReactionMetadata, Exception> {
         guard let messageID = data[Keys.messageID.rawValue] as? String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]] else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         var reactions = [Reaction]()
@@ -67,7 +67,7 @@ extension ReactionMetadata: Serializable {
 
         guard !reactions.isEmpty,
               reactions.count == encodedReactions.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
         }
 
         let decoded: ReactionMetadata = .init(messageID: messageID, reactions: reactions)

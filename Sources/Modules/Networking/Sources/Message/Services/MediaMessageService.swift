@@ -26,8 +26,8 @@ public struct MediaMessageService {
         guard let localMediaFilePath = message.localMediaFilePath else {
             return .failure(.init(
                 "Message does not have a media component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         switch cachedMediaFile(for: message, localPath: localMediaFilePath) {
@@ -42,7 +42,7 @@ public struct MediaMessageService {
                 return .success(appendMediaComponent(mediaFile, to: message))
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: ["MessageID": message.id]))
+                return .failure(exception.appending(userInfo: ["MessageID": message.id]))
             }
         }
     }
@@ -181,8 +181,8 @@ public struct MediaMessageService {
             return .failure(.init(
                 "Media message reference has no local copy.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(mediaFile)
@@ -198,7 +198,7 @@ public struct MediaMessageService {
             at: localPath.relativePathString,
             to: localPath.localPathURL
         ) {
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         if let thumbnailPathString = localPath.relativeThumbnailPathString,
@@ -207,14 +207,14 @@ public struct MediaMessageService {
                at: thumbnailPathString,
                to: thumbnailPathURL
            ) {
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Failed to generate media file.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(mediaFile)

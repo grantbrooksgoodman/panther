@@ -27,9 +27,9 @@ public extension HostedTranslationDelegate {
 
         if let exception = TranslationValidator.validate(
             languagePair: languagePair,
-            metadata: [self, #file, #function, #line]
+            metadata: .init(sender: self)
         ) {
-            return exception.appending(extraParams: commonParams)
+            return exception.appending(userInfo: commonParams)
         }
 
         let queryValuesResult = await networking.database.queryValues(
@@ -40,16 +40,16 @@ public extension HostedTranslationDelegate {
         switch queryValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: String] else {
-                let exception: Exception = .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
+                let exception: Exception = .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
+                return exception.appending(userInfo: commonParams)
             }
 
             for value in dictionary.values {
                 guard let components = value.decodedTranslationComponents else {
                     return .Networking.decodingFailed(
                         data: value,
-                        [self, #file, #function, #line]
-                    ).appending(extraParams: commonParams)
+                        .init(sender: self)
+                    ).appending(userInfo: commonParams)
                 }
 
                 let decoded: Translation = .init(
@@ -63,8 +63,8 @@ public extension HostedTranslationDelegate {
                     .init(
                         "Added hosted translation to local archive.",
                         isReportable: false,
-                        extraParams: ["ReferenceHostingKey": decoded.reference.hostingKey],
-                        metadata: [self, #file, #function, #line]
+                        userInfo: ["ReferenceHostingKey": decoded.reference.hostingKey],
+                        metadata: .init(sender: self)
                     ),
                     domain: .Networking.hostedTranslation
                 )
@@ -73,7 +73,7 @@ public extension HostedTranslationDelegate {
             return nil
 
         case let .failure(exception):
-            return exception.appending(extraParams: commonParams)
+            return exception.appending(userInfo: commonParams)
         }
     }
 }

@@ -74,7 +74,7 @@ public struct SelectLanguagePageReducer: Reducer {
             guard let localizedLanguageCodeDictionary = coreUtilities.localizedLanguageCodeDictionary else {
                 let exception = Exception(
                     "No localized language code dictionary.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
 
                 Logger.log(exception)

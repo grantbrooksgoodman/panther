@@ -62,7 +62,7 @@ public struct AudioService {
 
             try avAudioSession.setActive(true)
         } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
 
         return nil

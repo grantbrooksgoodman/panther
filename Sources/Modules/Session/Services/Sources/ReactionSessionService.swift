@@ -60,7 +60,7 @@ public final class ReactionSessionService {
               let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }) else {
             return .init(
                 "Failed to resolve required values.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -142,8 +142,8 @@ public final class ReactionSessionService {
             Logger.log(.init(
                 "Running effects for change of \"isReactingToMessage\" to TRUE.",
                 isReportable: false,
-                extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToTrue.keys.map(\.rawValue)],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToTrue.keys.map(\.rawValue)],
+                metadata: .init(sender: self)
             ))
 
             uponIsReactingToMessageChangedToTrue.values.forEach { $0() }
@@ -156,8 +156,8 @@ public final class ReactionSessionService {
             Logger.log(.init(
                 "Running effects for change of \"isReactingToMessage\" to FALSE.",
                 isReportable: false,
-                extraParams: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToFalse.keys.map(\.rawValue)],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["EnqueuedEffectIDs": uponIsReactingToMessageChangedToFalse.keys.map(\.rawValue)],
+                metadata: .init(sender: self)
             ))
 
             uponIsReactingToMessageChangedToFalse.values.forEach { $0() }
@@ -175,7 +175,7 @@ public final class ReactionSessionService {
               !message.isMock else {
             return .init(
                 "Failed to resolve required values.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -200,7 +200,7 @@ public final class ReactionSessionService {
               let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
             return .init(
                 "Failed to resolve required values.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

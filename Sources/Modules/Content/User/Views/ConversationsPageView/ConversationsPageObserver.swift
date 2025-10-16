@@ -53,7 +53,7 @@ public struct ConversationsPageObserver: Observer {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         switch observable.key {
@@ -87,7 +87,7 @@ public struct ConversationsPageObserver: Observer {
             Logger.log(
                 "Awaiting message send completion before updating conversations...",
                 domain: .conversation,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             return messageDeliveryService.addEffectUponIsSendingMessage(

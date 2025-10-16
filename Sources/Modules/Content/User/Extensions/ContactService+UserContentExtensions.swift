@@ -27,12 +27,12 @@ public extension ContactService {
                 return .failure(.init(
                     "Empty contact list.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams))
+                    metadata: .init(sender: self)
+                ).appending(userInfo: commonParams))
             }
 
             if let exception = await syncContactPairArchive() {
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             return await firstCNContact(for: phoneNumber, returnForEmptyCachedCNContacts: true)
@@ -51,8 +51,8 @@ public extension ContactService {
             return .failure(.init(
                 "No contacts found for provided phone number.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(match)

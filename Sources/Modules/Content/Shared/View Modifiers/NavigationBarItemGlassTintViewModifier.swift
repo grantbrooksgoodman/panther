@@ -33,7 +33,7 @@ private struct NavigationBarItemGlassTintViewModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .onNavigationTransition(.appear) { _ in
+            .onNavigationTransition(.didAppear) { _ in
                 let color = UIColor(color)
                 placement.forEach {
                     NavigationBar.setItemGlassTint(

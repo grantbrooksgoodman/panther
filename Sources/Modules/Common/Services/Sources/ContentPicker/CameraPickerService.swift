@@ -46,7 +46,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
         picker.dismiss(animated: true)
 
         guard let image = info[.originalImage] as? UIImage else {
-            _onDismiss?(.failure(.init("Failed to get image data.", metadata: [self, #file, #function, #line])))
+            _onDismiss?(.failure(.init("Failed to get image data.", metadata: .init(sender: self))))
             _onDismiss = nil
             return
         }

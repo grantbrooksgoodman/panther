@@ -41,7 +41,7 @@ public extension PhotoPickerView {
 
             itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                 guard let image = object as? UIImage else {
-                    exception = .init(error, metadata: [self, #file, #function, #line])
+                    exception = .init(error, metadata: .init(sender: self))
                     return
                 }
 

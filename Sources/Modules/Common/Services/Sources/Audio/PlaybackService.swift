@@ -56,8 +56,8 @@ public final class PlaybackService {
         guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
             return .init(
                 "File does not exist.",
-                extraParams: ["FilePath": url.path()],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["FilePath": url.path()],
+                metadata: .init(sender: self)
             )
         }
 

@@ -84,7 +84,7 @@ public struct ModerationSessionService {
 
     private func blockUsers(ids userIDs: [String]) async -> Exception? {
         guard let currentUser = userSession.currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Current user has not been set.", metadata: .init(sender: self))
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
@@ -124,7 +124,7 @@ public struct ModerationSessionService {
         guard let currentUserID = User.currentUserID else {
             return .failure(.init(
                 "Current user ID has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -134,7 +134,7 @@ public struct ModerationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
             }
 
             return await networking.userService.getUsers(ids: array)
@@ -150,7 +150,7 @@ public struct ModerationSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Int] else {
-                return .failure(.Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("dictionary", metadata: .init(sender: self)))
             }
 
             return .success(dictionary)
@@ -168,7 +168,7 @@ public struct ModerationSessionService {
               let users = dataSource.conversation?.users ?? dataSource.users else {
             return .init(
                 "No data source provided.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -214,7 +214,7 @@ public struct ModerationSessionService {
         guard !userIDs.isBangQualifiedEmpty else {
             return .init(
                 "No user IDs provided.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -299,7 +299,7 @@ public struct ModerationSessionService {
 
     private func unblockUsers(ids userIDs: [String]) async -> Exception? {
         guard let currentUser = userSession.currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Current user has not been set.", metadata: .init(sender: self))
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()

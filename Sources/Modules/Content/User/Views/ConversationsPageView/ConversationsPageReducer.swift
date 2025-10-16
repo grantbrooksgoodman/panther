@@ -156,7 +156,7 @@ public struct ConversationsPageReducer: Reducer {
                         "Intercepted badly set users on conversations bug.",
                         domain: .bugPrevention,
                         with: isDeveloperModeEnabled ? .toast : nil,
-                        metadata: [self, #file, #function, #line]
+                        sender: self
                     )
 
                     core.gcd.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }

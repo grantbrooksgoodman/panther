@@ -179,7 +179,7 @@ public final class SplashPageViewService: ObservableObject {
             initializationProgress += 0.1
 
             guard let currentUser = userSession.currentUser else {
-                return .init("Failed to set current user.", metadata: [self, #file, #function, #line])
+                return .init("Failed to set current user.", metadata: .init(sender: self))
             }
 
             checkPrevaricationMode(currentUser.phoneNumber)
@@ -264,8 +264,8 @@ public final class SplashPageViewService: ObservableObject {
 
     /// `.initializedBundle`
     public func presentErrorAlert(_ exception: Exception) async {
-        let mockGenericException: Exception = .init(metadata: [self, #file, #function, #line])
-        let mockTimedOutException: Exception = .timedOut([self, #file, #function, #line])
+        let mockGenericException: Exception = .init(metadata: .init(sender: self))
+        let mockTimedOutException: Exception = .timedOut(metadata: .init(sender: self))
 
         let notGenericDescriptor = exception.userFacingDescriptor != mockGenericException.userFacingDescriptor
         let notTimedOutDescriptor = exception.userFacingDescriptor != mockTimedOutException.userFacingDescriptor

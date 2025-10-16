@@ -39,7 +39,7 @@ public struct MessageSessionService {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -102,7 +102,7 @@ public struct MessageSessionService {
                             guard let outputFile = AudioFile(url) else {
                                 return .failure(.init(
                                     "Failed to generate output audio file.",
-                                    metadata: [self, #file, #function, #line]
+                                    metadata: .init(sender: self)
                                 ))
                             }
 
@@ -126,7 +126,7 @@ public struct MessageSessionService {
             guard translations.isWellFormed else {
                 return .failure(.init(
                     "Translations fail validation.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ))
             }
 
@@ -153,7 +153,7 @@ public struct MessageSessionService {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -176,7 +176,7 @@ public struct MessageSessionService {
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -220,7 +220,7 @@ public struct MessageSessionService {
         guard translations.isWellFormed else {
             return .failure(.init(
                 "Translations fail validation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

@@ -38,7 +38,7 @@ extension Participant: Serializable {
         guard components.count == 3,
               components[1] == "true" || components[1] == "false",
               components[2] == "true" || components[2] == "false" else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         let userID = components[0]

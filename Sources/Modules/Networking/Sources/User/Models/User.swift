@@ -57,7 +57,7 @@ public final class User: Codable, Equatable {
             case let .success(values):
                 guard let integer = values as? Int else {
                     Logger.log(
-                        .Networking.typecastFailed("integer", metadata: [self, #file, #function, #line]),
+                        .Networking.typecastFailed("integer", metadata: .init(sender: self)),
                         domain: .user
                     )
                     return 0
@@ -147,7 +147,7 @@ public final class User: Codable, Equatable {
             Logger.log(.init(
                 "Detected extraneous call to User.setConversations().",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
             return nil
         }
@@ -175,7 +175,7 @@ public final class User: Codable, Equatable {
             // swiftlint:disable:next line_length
             "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nDecoded conversations: \(decodedConversations.count)",
             domain: .user,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         if conversationsNeedingFetch.isEmpty,
@@ -207,7 +207,7 @@ public final class User: Codable, Equatable {
         guard !conversationsNeedingFetch.isEmpty else {
             guard decodedConversations.count == conversationIDs.count else {
                 isSettingConversations = false
-                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
             // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
@@ -228,7 +228,7 @@ public final class User: Codable, Equatable {
 
             guard decodedConversations.count == conversationIDs.count else {
                 isSettingConversations = false
-                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
             // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.

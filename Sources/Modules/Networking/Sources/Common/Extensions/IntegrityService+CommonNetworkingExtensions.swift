@@ -147,15 +147,15 @@ public extension IntegrityService {
                 "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)",
                 domain: .dataIntegrity,
                 with: .toastInPrerelease,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             guard let reportDelegate = reportDelegate as? ErrorReportingService else { return exceptions.compiledException }
             reportDelegate.fileReport(
                 Exception(
                     "Hosted data needed repair.",
-                    extraParams: ["MethodsUsedForRepair": methodsUsedForRepair],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["MethodsUsedForRepair": methodsUsedForRepair],
+                    metadata: .init(sender: self)
                 ), showsToastOnSuccess: false
             )
         } else {
@@ -163,7 +163,7 @@ public extension IntegrityService {
                 "Hosted data integrity was validated.",
                 domain: .dataIntegrity,
                 with: .toastInPrerelease,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
         }
 

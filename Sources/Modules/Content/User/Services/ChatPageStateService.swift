@@ -90,8 +90,8 @@ public final class ChatPageStateService {
                 .init(
                     "Running effects for change of \"isPresented\" to TRUE.",
                     isReportable: false,
-                    extraParams: ["EnqueuedEffectIDs": uponIsPresentedChangedToTrue.keys.map(\.rawValue)],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["EnqueuedEffectIDs": uponIsPresentedChangedToTrue.keys.map(\.rawValue)],
+                    metadata: .init(sender: self)
                 ),
                 domain: .chatPageState
             )
@@ -106,8 +106,8 @@ public final class ChatPageStateService {
                 .init(
                     "Running effects for change of \"isPresented\" to FALSE.",
                     isReportable: false,
-                    extraParams: ["EnqueuedEffectIDs": uponIsPresentedChangedToFalse.keys.map(\.rawValue)],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["EnqueuedEffectIDs": uponIsPresentedChangedToFalse.keys.map(\.rawValue)],
+                    metadata: .init(sender: self)
                 ),
                 domain: .chatPageState
             )
@@ -126,8 +126,8 @@ public final class ChatPageStateService {
                 .init(
                     "Running effects for change of \"isWaitingToUpdateConversations\" to TRUE.",
                     isReportable: false,
-                    extraParams: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToTrue.keys.map(\.rawValue)],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToTrue.keys.map(\.rawValue)],
+                    metadata: .init(sender: self)
                 ),
                 domain: .chatPageState
             )
@@ -142,8 +142,8 @@ public final class ChatPageStateService {
                 .init(
                     "Running effects for change of \"isWaitingToUpdateConversations\" to FALSE.",
                     isReportable: false,
-                    extraParams: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToFalse.keys.map(\.rawValue)],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["EnqueuedEffectIDs": uponIsWaitingToUpdateConversationsChangedToFalse.keys.map(\.rawValue)],
+                    metadata: .init(sender: self)
                 ),
                 domain: .chatPageState
             )

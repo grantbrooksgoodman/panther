@@ -121,7 +121,7 @@ public final class MediaMessagePreviewService {
         Logger.log(
             "Intercepted QuickViewer dismissal user interaction bug.",
             domain: .bugPrevention,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         InteractivePopGestureRecognizer.setIsEnabled(true)

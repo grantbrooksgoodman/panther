@@ -78,7 +78,7 @@ public final class UserSessionService {
 
     public func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
         guard let currentUserID else {
-            return .failure(.init("Current user ID has not been set.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Current user ID has not been set.", metadata: .init(sender: self)))
         }
 
         if cacheStrategy == .returnCacheFirst,
@@ -121,7 +121,7 @@ public final class UserSessionService {
               user.id == currentUserID else {
             return .init(
                 "Either current user ID has not been set, or provided user's ID does not match its value.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -141,7 +141,7 @@ public final class UserSessionService {
             return .init(
                 "Internet connection is not offline.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -149,7 +149,7 @@ public final class UserSessionService {
             return .init(
                 "No persisted user exists.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -164,7 +164,7 @@ public final class UserSessionService {
         guard let currentUserID else {
             return .init(
                 "Current user ID has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -175,13 +175,13 @@ public final class UserSessionService {
         switch getValuesResult {
         case let .success(values):
             guard let string = values as? String else {
-                return .Networking.typecastFailed("string", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("string", metadata: .init(sender: self))
             }
 
             Logger.log(
                 "Setting language code to \(string.englishLanguageName ?? string.uppercased()).",
                 domain: .userSession,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             coreUtilities.setLanguageCode(string)
@@ -201,14 +201,14 @@ public final class UserSessionService {
         Logger.log(
             "Started observing current user changes.",
             domain: .userSession,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         currentUserDatabaseReference.observe(.value) { snapshot in
             guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {
                 Logger.log(
-                    .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]),
+                    .Networking.typecastFailed("dictionary", metadata: .init(sender: self)),
                     domain: .userSession
                 )
                 return
@@ -235,7 +235,7 @@ public final class UserSessionService {
                     Logger.log(
                         "Skipping current user update as conversation ID values do not appear to have changed.",
                         domain: .user,
-                        metadata: [self, #file, #function, #line]
+                        sender: self
                     )
                     return
                 }
@@ -251,20 +251,20 @@ public final class UserSessionService {
 
             updateCurrentUser()
         } withCancel: { error in
-            Logger.log(.init(error, metadata: [self, #file, #function, #line]), domain: .userSession)
+            Logger.log(.init(error, metadata: .init(sender: self)), domain: .userSession)
         }
     }
 
     @discardableResult
     public func stopObservingCurrentUserChanges() -> Exception? {
         guard let currentUserDatabaseReference else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Current user has not been set.", metadata: .init(sender: self))
         }
 
         Logger.log(
             "Stopped observing current user changes.",
             domain: .userSession,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         currentUserDatabaseReference.removeAllObservers()
@@ -275,7 +275,7 @@ public final class UserSessionService {
 
     public func deleteAccount() async -> Exception? {
         guard let currentUserID else {
-            return .init("Current user ID has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Current user ID has not been set.", metadata: .init(sender: self))
         }
 
         let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
@@ -283,7 +283,7 @@ public final class UserSessionService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             array.append(currentUserID)
@@ -321,7 +321,7 @@ public final class UserSessionService {
             Logger.log(
                 "Skipping current user update because an update is already occurring.",
                 domain: .userSession,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
             return nil
         }
@@ -334,7 +334,7 @@ public final class UserSessionService {
             Logger.log(
                 "Updated current user.",
                 domain: .userSession,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             Observables.updatedCurrentUser.trigger()

@@ -43,7 +43,7 @@ public struct CNContactView: View {
                 .background(Color.groupedContentBackground)
                 .ignoresSafeArea(.container, edges: .bottom)
         }
-        .onNavigationTransition(.appear) { _ in
+        .onNavigationTransition(.willAppear) { _ in
             NavigationBar.setAppearance(navigationBarAppearance)
         }
     }

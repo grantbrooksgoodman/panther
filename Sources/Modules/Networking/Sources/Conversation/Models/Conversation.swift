@@ -95,7 +95,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         case let .success(messages):
             guard !messages.isEmpty,
                   messages.count == messageIDs.count else {
-                return .init("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
+                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
             self.messages = messages
@@ -104,8 +104,8 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
                 .init(
                     "Set messages on conversation.",
                     isReportable: false,
-                    extraParams: ["ConversationID": id.encoded],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["ConversationID": id.encoded],
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation
             )
@@ -131,8 +131,8 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {
-            let exception = Exception("No participants for this conversation.", metadata: [self, #file, #function, #line])
-            return exception.appending(extraParams: commonParams)
+            let exception = Exception("No participants for this conversation.", metadata: .init(sender: self))
+            return exception.appending(userInfo: commonParams)
         }
 
         let getUsersResult = await networking.userService.getUsers(ids: userIDs)
@@ -141,8 +141,8 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         case let .success(users):
             guard !users.isEmpty,
                   users.count == userIDs.count else {
-                let exception = Exception("Mismatched ratio returned.", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
+                let exception = Exception("Mismatched ratio returned.", metadata: .init(sender: self))
+                return exception.appending(userInfo: commonParams)
             }
 
             // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
@@ -152,8 +152,8 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
                 .init(
                     "Set users on conversation.",
                     isReportable: false,
-                    extraParams: ["ConversationID": id.encoded],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["ConversationID": id.encoded],
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation
             )
@@ -161,7 +161,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
             return nil
 
         case let .failure(exception):
-            return exception.appending(extraParams: commonParams)
+            return exception.appending(userInfo: commonParams)
         }
     }
 
@@ -173,14 +173,14 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         guard !messages.isEmpty else {
             return .failure(.init(
                 "No messages provided.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
         guard let currentUserID = User.currentUserID else {
             return .failure(.init(
                 "Current user ID has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -211,7 +211,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         guard modifiedMessages.count == (self.messages ?? []).count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

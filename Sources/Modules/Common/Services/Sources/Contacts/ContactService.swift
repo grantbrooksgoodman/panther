@@ -61,7 +61,7 @@ public final class ContactService {
                 Logger.log(
                     "Successfully updated contact pair archive.",
                     domain: .contacts,
-                    metadata: [self, #file, #function, #line]
+                    sender: self
                 )
                 return nil
 
@@ -104,7 +104,7 @@ public final class ContactService {
 
         guard services.permission.contactPermissionStatus == .granted else {
             guard canComplete else { return }
-            completion(.failure(.init("Not authorized for contacts.", metadata: [self, #file, #function, #line])))
+            completion(.failure(.init("Not authorized for contacts.", metadata: .init(sender: self))))
             return
         }
 
@@ -120,7 +120,7 @@ public final class ContactService {
             CNContactViewController.descriptorForRequiredKeys(),
         ] as? [CNKeyDescriptor] else {
             guard canComplete else { return }
-            completion(.failure(.init("Failed to synthesize query keys.", metadata: [self, #file, #function, #line])))
+            completion(.failure(.init("Failed to synthesize query keys.", metadata: .init(sender: self))))
             return
         }
 
@@ -167,7 +167,7 @@ public final class ContactService {
                 })
             } catch {
                 guard canComplete else { return }
-                completion(.failure(.init(error, metadata: [self, #file, #function, #line])))
+                completion(.failure(.init(error, metadata: .init(sender: self))))
             }
         }
 
@@ -176,7 +176,7 @@ public final class ContactService {
             completion(.failure(.init(
                 "Empty contact list.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )))
             return
         }

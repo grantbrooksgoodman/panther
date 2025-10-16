@@ -117,8 +117,8 @@ public struct PenPalsService {
                     .init(
                         "Updated PenPals sharing data.",
                         isReportable: false,
-                        extraParams: ["ConversationIDKey": penPalsConversation.id.key],
-                        metadata: [self, #file, #function, #line]
+                        userInfo: ["ConversationIDKey": penPalsConversation.id.key],
+                        metadata: .init(sender: self)
                     ),
                     domain: .penPals
                 )
@@ -153,7 +153,7 @@ public struct PenPalsService {
                 return .failure(.init(
                     "Failed to resolve random PenPals participant.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ))
             }
 
@@ -170,7 +170,7 @@ public struct PenPalsService {
         guard let currentUser = userSession.currentUser else {
             return .init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

@@ -29,7 +29,9 @@ public extension ContentPicker {
 }
 
 public extension Exception {
-    static func contentPickerContentTypeMismatch(_ metadata: [Any]) -> Exception {
+    static func contentPickerContentTypeMismatch(
+        _ metadata: ExceptionMetadata
+    ) -> Exception {
         .init("Failed to typecast result to specified content.", metadata: metadata)
     }
 }

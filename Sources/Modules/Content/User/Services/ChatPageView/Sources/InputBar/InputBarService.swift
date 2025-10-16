@@ -206,7 +206,7 @@ public final class InputBarService {
         Logger.log(
             "Intercepted input bar disappearance bug.",
             domain: .bugPrevention,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         becomeFirstResponder()

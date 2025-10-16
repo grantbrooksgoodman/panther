@@ -57,7 +57,7 @@ public extension DatabaseDelegate {
                 "Established database snapshot.",
                 domain: .Networking.database,
                 with: .toastInPrerelease,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
         case let .failure(exception):

@@ -35,7 +35,7 @@ public struct AudioMessageService {
                 return .success(appendAudioComponent(audioMessageReference, to: message))
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: ["MessageID": message.id]))
+                return .failure(exception.appending(userInfo: ["MessageID": message.id]))
             }
         }
     }
@@ -104,7 +104,7 @@ public struct AudioMessageService {
                 do { // swiftlint:disable:next line_length
                     try fileManager.removeItem(at: fileManager.documentsDirectoryURL.appending(path: "\(audioComponent.translated.name).\(AudioFileExtension.caf.rawValue)"))
                 } catch {
-                    Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+                    Logger.log(.init(error, metadata: .init(sender: self)))
                 }
             }
 
@@ -164,8 +164,8 @@ public struct AudioMessageService {
         guard let localAudioFilePath = message.localAudioFilePath else {
             return .failure(.init(
                 "Message does not have an audio component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
@@ -173,15 +173,15 @@ public struct AudioMessageService {
             return .failure(.init(
                 "Audio message reference has no local copy.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         guard let translation = message.translation else {
             return .failure(.init(
                 "Message has no translation.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(.init(
@@ -198,8 +198,8 @@ public struct AudioMessageService {
         guard let localAudioFilePath = message.localAudioFilePath else {
             return .failure(.init(
                 "Message does not have an audio component.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         let sourceFileURL = message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
@@ -209,7 +209,7 @@ public struct AudioMessageService {
             at: message.isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
             to: sourceFileURL
         ) {
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         let dataFromURLResult = Data.fromURL(sourceFileURL)
@@ -220,11 +220,11 @@ public struct AudioMessageService {
                 atPath: destinationFileURL,
                 data: data
             ) {
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
@@ -232,8 +232,8 @@ public struct AudioMessageService {
               let translation = message.translation else {
             return .failure(.init(
                 "Failed to generate audio files or message has no translation.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(.init(

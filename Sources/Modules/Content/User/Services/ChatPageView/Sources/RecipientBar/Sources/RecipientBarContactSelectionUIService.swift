@@ -84,7 +84,7 @@ public final class RecipientBarContactSelectionUIService {
                 .init(
                     "Attempted to select contact pair containing blocked user.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ),
                 with: .toast(style: nil, isPersistent: false)
             )
@@ -97,7 +97,7 @@ public final class RecipientBarContactSelectionUIService {
                 .init(
                     "Attempted to select contact pair containing current user.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ),
                 with: .toast(style: nil, isPersistent: false)
             )

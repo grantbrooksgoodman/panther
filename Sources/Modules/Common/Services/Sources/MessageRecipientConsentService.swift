@@ -28,7 +28,7 @@ public final class MessageRecipientConsentService {
               let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Failed to resolve either conversation or current user.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -74,7 +74,7 @@ public final class MessageRecipientConsentService {
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

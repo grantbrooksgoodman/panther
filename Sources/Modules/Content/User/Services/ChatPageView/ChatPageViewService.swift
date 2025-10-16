@@ -357,7 +357,7 @@ public final class ChatPageViewService {
         Logger.log(
             "Intercepted misconfigured preview bug.",
             domain: .bugPrevention,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         configuration = .preview

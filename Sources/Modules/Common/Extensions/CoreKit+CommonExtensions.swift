@@ -19,7 +19,7 @@ public extension CoreKit.GCD {
         Logger.log(
             "Instantiating new queue with label «\(label)».",
             domain: .queue,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
         return .init(label: label, qos: .userInteractive)
     }
@@ -44,7 +44,7 @@ public extension CoreKit.Utilities {
         guard let currentUserID = User.currentUserID else {
             return .init(
                 "Current user ID has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -108,7 +108,7 @@ public extension CoreKit.Utilities {
         guard let conversationIDKeys else {
             return .init(
                 "Failed to resolve conversation ID keys.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -163,7 +163,7 @@ public extension CoreKit.Utilities {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
             }
 
             let userIDs = Array(dictionary.keys)
@@ -207,7 +207,7 @@ public extension CoreKit.Utilities {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
             }
 
             let userIDs = Array(dictionary.keys)

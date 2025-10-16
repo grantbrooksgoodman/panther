@@ -75,7 +75,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
         guard let fileExtension = url.path().components(separatedBy: "/").last?.components(separatedBy: ".").last else {
             dismiss(.failure(.init(
                 "Failed to determine file type.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )))
             return
         }
@@ -88,7 +88,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
         guard url.startAccessingSecurityScopedResource() else {
             dismiss(.failure(.init(
                 "Failed to access security-scoped URL.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )))
             return
         }
@@ -108,7 +108,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
                 dismiss(.success(.document(temporaryFilePath)))
             }
         } catch {
-            dismiss(.failure(.init(error, metadata: [self, #file, #function, #line])))
+            dismiss(.failure(.init(error, metadata: .init(sender: self))))
             url.stopAccessingSecurityScopedResource()
         }
     }

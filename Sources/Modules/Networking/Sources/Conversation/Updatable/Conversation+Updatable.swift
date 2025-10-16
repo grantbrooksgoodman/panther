@@ -97,7 +97,7 @@ extension Conversation: Updatable {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard updatableKeys.contains(key) else {
-            return .failure(.Networking.notUpdatable(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.notUpdatable(key: key, .init(sender: self)))
         }
 
         if let exception = await setUsers(forceUpdate: true) {
@@ -107,12 +107,12 @@ extension Conversation: Updatable {
         guard var users else {
             return .failure(.init(
                 "Failed to set users on conversation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
         guard var updated = modifyKey(key, withValue: value) else {
-            return .failure(.Networking.typeMismatch(key: key, [self, #file, #function, #line]))
+            return .failure(.Networking.typeMismatch(key: key, .init(sender: self)))
         }
 
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/"
@@ -142,7 +142,7 @@ extension Conversation: Updatable {
                 return .failure(exception)
             }
         } else {
-            return .failure(.Networking.notSerialized(data: [key.rawValue: value], [self, #file, #function, #line]))
+            return .failure(.Networking.notSerialized(data: [key.rawValue: value], .init(sender: self)))
         }
 
         guard updated.encodedHash != encodedHash else {
@@ -195,7 +195,7 @@ extension Conversation: Updatable {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             newMessageIDs += array
@@ -233,7 +233,7 @@ extension Conversation: Updatable {
         guard let currentUserParticipant = conversation.currentUserParticipant else {
             return .failure(.init(
                 "Failed to resolve current user participant.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

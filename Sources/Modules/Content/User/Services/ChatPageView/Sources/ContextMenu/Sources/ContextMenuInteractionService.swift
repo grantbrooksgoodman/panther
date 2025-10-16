@@ -303,7 +303,7 @@ public final class ContextMenuInteractionService {
                             Logger.log(
                                 "Intercepted scroll view content offset bug.",
                                 domain: .bugPrevention,
-                                metadata: [self, #file, #function, #line]
+                                sender: self
                             )
 
                             self.coreGCD.after(.milliseconds(Floats.interactionScrollToLastItemDelayMilliseconds)) {

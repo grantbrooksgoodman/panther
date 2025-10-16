@@ -87,7 +87,7 @@ public struct UserTestingService {
             guard let currentUser = clientSession.user.currentUser else {
                 return .init(
                     "Current user has not been set.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 
@@ -187,7 +187,7 @@ public struct UserTestingService {
                   userData.count > 1 else {
                 return .init(
                     "Failed to resolve user data or not enough users on server.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 
@@ -221,7 +221,7 @@ public struct UserTestingService {
               count >= 1 else {
             return .failure(.init(
                 "Requested user count is invalid.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

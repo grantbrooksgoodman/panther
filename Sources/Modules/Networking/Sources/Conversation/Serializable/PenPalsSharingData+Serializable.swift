@@ -39,7 +39,7 @@ extension PenPalsSharingData: Serializable {
 
     public static func decode(from data: String) async -> Callback<PenPalsSharingData, Exception> {
         guard canDecode(from: data) else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         let components = data.components(separatedBy: ": ")

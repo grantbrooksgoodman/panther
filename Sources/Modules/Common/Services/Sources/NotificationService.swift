@@ -33,7 +33,7 @@ public struct NotificationService {
         do {
             try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
         } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
 
         guard updateHostedValue,
@@ -53,7 +53,7 @@ public struct NotificationService {
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -114,7 +114,7 @@ public struct NotificationService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
             }
 
             let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in
@@ -132,7 +132,7 @@ public struct NotificationService {
                     body: body,
                     badgeNumber: 0,
                     pushToken: pushToken,
-                    extraParams: [:]
+                    userInfo: [:]
                 ) {
                     exceptions.append(exception)
                 }
@@ -151,14 +151,14 @@ public struct NotificationService {
         Logger.log(
             "Received notification.\n\"\(notification.request.content.body)\"",
             domain: .notifications,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "No current user – will not respond to notification.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -168,7 +168,7 @@ public struct NotificationService {
                 let exception: Exception = .init(
                     "Notification not intended for current user – ignoring.",
                     isReportable: false,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
 
                 return .failure(exception)
@@ -193,7 +193,7 @@ public struct NotificationService {
             return .failure(.init(
                 "Current user is not participating in the conversation associated with this notification.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -225,7 +225,7 @@ public struct NotificationService {
         guard let url = URL(string: "https://us-central1-jaguar-5d735.cloudfunctions.net/generateAccessToken") else {
             return .failure(.init(
                 "Failed to generate URL.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -237,13 +237,13 @@ public struct NotificationService {
                   urlResponse.statusCode == 200 else {
                 return .failure(.init(
                     "Failed to decode URL response or status did not indicate success.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ))
             }
 
             return .success(accessToken)
         } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+            return .failure(.init(error, metadata: .init(sender: self)))
         }
     }
 
@@ -296,15 +296,15 @@ public struct NotificationService {
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Current user has not been set.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams)
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams)
         }
 
         guard let pushTokens = user.pushTokens else {
             return .init(
                 "The specified user has not registered for push notifications.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams)
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams)
         }
 
         let newBadgeNumber = await user.hostedBadgeNumber + 1
@@ -319,14 +319,14 @@ public struct NotificationService {
                 body: body ?? .bangQualifiedEmpty,
                 badgeNumber: newBadgeNumber,
                 pushToken: pushToken,
-                extraParams: [
+                userInfo: [
                     "conversationIDKey": conversationIDKey,
                     "isReaction": isReaction ? "true" : "false",
                     "recipientUserID": user.id,
                     "userNumberHash": userNumberHash,
                 ]
             ) {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
         }
 
@@ -347,7 +347,7 @@ public struct NotificationService {
         body: String,
         badgeNumber: Int,
         pushToken: String,
-        extraParams: [String: String]
+        userInfo: [String: String]
     ) async -> Exception? {
         let generateAccessTokenResult = await generateAccessToken()
 
@@ -356,7 +356,7 @@ public struct NotificationService {
             guard let url = URL(string: "https://fcm.googleapis.com/v1/projects/jaguar-5d735/messages:send") else {
                 return .init(
                     "Failed to generate URL.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 
@@ -375,7 +375,7 @@ public struct NotificationService {
                         "badge": badgeNumber,
                         "mutable-content": 1,
                     ]]],
-                    "data": extraParams,
+                    "data": userInfo,
                     "notification": notificationParameters,
                     "token": pushToken,
                 ],
@@ -389,13 +389,13 @@ public struct NotificationService {
                       urlResponse.statusCode == 200 else {
                     return .init(
                         "Failed to decode URL response or status did not indicate success.",
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )
                 }
 
                 return nil
             } catch {
-                return .init(error, metadata: [self, #file, #function, #line])
+                return .init(error, metadata: .init(sender: self))
             }
 
         case let .failure(exception):
@@ -414,7 +414,7 @@ public struct NotificationService {
             guard let newBadgeNumber else {
                 return .init(
                     "Failed to resolve badge number.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 
@@ -427,7 +427,7 @@ public struct NotificationService {
             guard let badgeNumber else {
                 return .init(
                     "Must supply badge number for users other than current user.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 

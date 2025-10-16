@@ -70,7 +70,7 @@ extension Conversation: Serializable {
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               let messageIDs = data[Keys.messages.rawValue] as? [String] else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         var conversationID: ConversationID?
@@ -85,7 +85,7 @@ extension Conversation: Serializable {
         }
 
         guard let conversationID else {
-            return .failure(.init("Failed to decode conversation ID.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Failed to decode conversation ID.", metadata: .init(sender: self)))
         }
 
         var metadata: ConversationMetadata?
@@ -100,7 +100,7 @@ extension Conversation: Serializable {
         }
 
         guard let metadata else {
-            return .failure(.init("Failed to decode conversation metadata.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Failed to decode conversation metadata.", metadata: .init(sender: self)))
         }
 
         var participants = [Participant]()
@@ -119,7 +119,7 @@ extension Conversation: Serializable {
 
         guard !participants.isEmpty,
               participants.count == encodedParticipants.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
         }
 
         var reactionMetadata = [ReactionMetadata]()
@@ -138,7 +138,7 @@ extension Conversation: Serializable {
 
         guard !reactionMetadata.isEmpty,
               reactionMetadata.count == encodedReactionMetadata.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
         }
 
         guard let currentUserParticipant = participants.firstWithCurrentUserID,
@@ -157,9 +157,9 @@ extension Conversation: Serializable {
                 .init(
                     "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
                     isReportable: false,
-                    extraParams: ["ConversationIDKey": conversationID.key,
-                                  "ConversationIDHash": conversationID.hash],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["ConversationIDKey": conversationID.key,
+                               "ConversationIDHash": conversationID.hash],
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation
             )
@@ -187,7 +187,7 @@ extension Conversation: Serializable {
         case let .success(messages):
             guard !messages.isEmpty,
                   messages.count == messageIDs.count else {
-                return .failure(.init("Mismatched ratio returned.", metadata: [self, #file, #function, #line]))
+                return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
             }
 
             let decoded: Conversation = .init(

@@ -190,7 +190,7 @@ public final class RecordingUIService {
         Logger.log(
             "Intercepted typing while recording bug.",
             domain: .bugPrevention,
-            metadata: [self, #file, #function, #line]
+            sender: self
         )
 
         Task { @MainActor in

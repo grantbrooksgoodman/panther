@@ -21,8 +21,8 @@ public extension Data {
             guard !data.isEmpty else {
                 return .failure(.init(
                     "Found empty data at path.",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams))
+                    metadata: .init(sender: self)
+                ).appending(userInfo: commonParams))
             }
 
             return .success(data)
@@ -30,8 +30,8 @@ public extension Data {
             return .failure(
                 .init(
                     error,
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams)
+                    metadata: .init(sender: self)
+                ).appending(userInfo: commonParams)
             )
         }
     }

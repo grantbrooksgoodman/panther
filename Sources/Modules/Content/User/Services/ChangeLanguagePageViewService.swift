@@ -55,7 +55,7 @@ public struct ChangeLanguagePageViewService {
               let currentUser = userSession.currentUser else {
             return .init(
                 "Failed to resolve required values.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

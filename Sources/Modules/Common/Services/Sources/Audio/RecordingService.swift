@@ -53,7 +53,7 @@ public final class RecordingService: NSObject {
             do {
                 try fileManager.removeItem(at: url)
             } catch {
-                return .init(error, metadata: [self, #file, #function, #line])
+                return .init(error, metadata: .init(sender: self))
             }
 
             return nil
@@ -83,7 +83,7 @@ public final class RecordingService: NSObject {
             audioRecorder?.record()
         } catch {
             audioRecorder?.stop()
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
 
         startObservingInterruptions()
@@ -98,7 +98,7 @@ public final class RecordingService: NSObject {
             return .failure(.init(
                 "No audio recorder to stop.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -162,7 +162,7 @@ extension RecordingService: AVAudioRecorderDelegate {
     public func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
         switch stopRecording() {
         case .success:
-            Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+            Logger.log(.init(error, metadata: .init(sender: self)))
 
         case let .failure(exception):
             Logger.log(exception)

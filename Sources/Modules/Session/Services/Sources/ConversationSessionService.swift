@@ -53,7 +53,7 @@ public final class ConversationSessionService {
         guard !messages.isEmpty else {
             return .failure(.init(
                 "No messages provided.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -110,7 +110,7 @@ public final class ConversationSessionService {
                 guard let currentUserID = User.currentUserID else {
                     return .init(
                         "Current user ID has not been set.",
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )
                 }
 
@@ -148,8 +148,8 @@ public final class ConversationSessionService {
         guard let currentParticipant = conversation.participants.first(where: { $0.userID == userID }) else {
             return .init(
                 "This conversation does not contain the specified participant.",
-                extraParams: ["UserID": userID],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["UserID": userID],
+                metadata: .init(sender: self)
             )
         }
 

@@ -198,7 +198,7 @@ public struct VerifyNumberPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             var exception = exception
-            if let networkErrorDescriptor = exception.extraParams?["FIRAuthErrorUserInfoNameKey"] as? String,
+            if let networkErrorDescriptor = exception.userInfo?["FIRAuthErrorUserInfoNameKey"] as? String,
                [
                    "ERROR_INVALID_PHONE_NUMBER",
                    "ERROR_SESSION_EXPIRED",
@@ -207,7 +207,7 @@ public struct VerifyNumberPageReducer: Reducer {
                 exception = .init(
                     exception.descriptor,
                     isReportable: false,
-                    extraParams: exception.extraParams,
+                    userInfo: exception.userInfo,
                     underlyingExceptions: exception.underlyingExceptions,
                     metadata: exception.metadata
                 )

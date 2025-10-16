@@ -62,7 +62,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
                 } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
                     self.loadVideo(itemProvider)
                 } else {
-                    self.dismissReturningFailure(.init("Failed to process media.", metadata: [self, #file, #function, #line]))
+                    self.dismissReturningFailure(.init("Failed to process media.", metadata: .init(sender: self)))
                 }
             }
         }
@@ -91,7 +91,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
             self.core.hud.hide()
 
             guard let image = object as? UIImage else {
-                return self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+                return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
             }
 
             self._onDismiss?(.success(.image(image)))
@@ -105,7 +105,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
             self.core.hud.hide()
 
             guard let url else {
-                return self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+                return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
             }
 
             typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
@@ -118,7 +118,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
                 self._onDismiss?(.success(.video(temporaryFilePath)))
                 self._onDismiss = nil
             } catch {
-                self.dismissReturningFailure(.init(error, metadata: [self, #file, #function, #line]))
+                self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
             }
         }
     }

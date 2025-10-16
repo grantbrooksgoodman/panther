@@ -29,7 +29,7 @@ public final class TextMessageService: NSObject, MFMessageComposeViewControllerD
             return .init(
                 "Device is unable to send text messages.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

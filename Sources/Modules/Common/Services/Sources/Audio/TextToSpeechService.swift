@@ -30,8 +30,8 @@ public struct TextToSpeechService {
         guard isTextToSpeechSupported(for: languageCode) else {
             return .failure(.init(
                 "Text to speech is not supported for the specified language code.",
-                extraParams: ["LanguageCode": languageCode],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["LanguageCode": languageCode],
+                metadata: .init(sender: self)
             ))
         }
 
@@ -109,8 +109,8 @@ public struct TextToSpeechService {
         ) else {
             return .failure(.init(
                 "Failed to create export session.",
-                extraParams: commonParams,
-                metadata: [self, #file, #function, #line]
+                userInfo: commonParams,
+                metadata: .init(sender: self)
             ))
         }
 
@@ -118,8 +118,8 @@ public struct TextToSpeechService {
             do {
                 try fileManager.removeItem(at: outputURL)
             } catch {
-                let exception = Exception(error, metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
+                let exception = Exception(error, metadata: .init(sender: self))
+                return .failure(exception.appending(userInfo: commonParams))
             }
         }
 
@@ -129,8 +129,8 @@ public struct TextToSpeechService {
         do {
             exportSession.metadata = try await asset.load(.metadata)
         } catch {
-            let exception = Exception(error, metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception(error, metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         return await withCheckedContinuation { continuation in
@@ -140,8 +140,8 @@ public struct TextToSpeechService {
                     return
                 }
 
-                let exception = Exception(error, metadata: [self, #file, #function, #line])
-                continuation.resume(returning: .failure(exception.appending(extraParams: commonParams)))
+                let exception = Exception(error, metadata: .init(sender: self))
+                continuation.resume(returning: .failure(exception.appending(userInfo: commonParams)))
             }
         }
     }
@@ -166,7 +166,7 @@ public struct TextToSpeechService {
                 guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
                     continuation.resume(returning: .failure(.init(
                         "Failed to typecast buffer to AVAudioPCMBuffer.",
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )))
                     return
                 }
@@ -189,7 +189,7 @@ public struct TextToSpeechService {
                         guard let output else {
                             continuation.resume(returning: .failure(.init(
                                 "Failed to generate output.",
-                                metadata: [self, #file, #function, #line]
+                                metadata: .init(sender: self)
                             )))
                             return
                         }
@@ -199,7 +199,7 @@ public struct TextToSpeechService {
                         }
                     } catch {
                         guard canComplete else { return }
-                        continuation.resume(returning: .failure(.init(error, metadata: [self, #file, #function, #line])))
+                        continuation.resume(returning: .failure(.init(error, metadata: .init(sender: self))))
                     }
 
                     return

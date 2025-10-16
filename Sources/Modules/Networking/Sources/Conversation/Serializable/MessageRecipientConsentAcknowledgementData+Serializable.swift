@@ -31,7 +31,7 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
     public static func decode(from data: String) async -> Callback<MessageRecipientConsentAcknowledgementData, Exception> {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2 else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         let decoded: MessageRecipientConsentAcknowledgementData = .init(

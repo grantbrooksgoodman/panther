@@ -40,7 +40,7 @@ public extension FileManager {
             do {
                 try createDirectory(at: directory, withIntermediateDirectories: true)
             } catch {
-                return .init(error, metadata: [self, #file, #function, #line])
+                return .init(error, metadata: .init(sender: self))
             }
             return nil
         }
@@ -50,7 +50,7 @@ public extension FileManager {
               lastComponent.contains(".") else {
             return .init(
                 "Cannot create file with no extension.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -74,7 +74,7 @@ public extension FileManager {
         do {
             try data.write(to: path)
         } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
 
         return nil
@@ -95,7 +95,7 @@ public extension FileManager {
             try removeItem(at: url)
             return nil
         } catch {
-            return .init(error, metadata: [self, #file, #function, #line])
+            return .init(error, metadata: .init(sender: self))
         }
     }
 }

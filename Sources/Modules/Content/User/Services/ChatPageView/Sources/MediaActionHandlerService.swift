@@ -79,7 +79,7 @@ public final class MediaActionHandlerService {
             let mediaFileExtension = MediaFileExtension(fileExtension) else {
             return .init(
                 "Failed to determine file type.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -97,7 +97,7 @@ public final class MediaActionHandlerService {
 
                 return .init(
                     "Failed to process image data.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
             }
 
@@ -117,7 +117,7 @@ public final class MediaActionHandlerService {
             case let .success(image):
                 guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
                       let thumbnailPath = localPathURL.thumbnailPath else {
-                    return .init("Failed to process thumbnail data.", metadata: [self, #file, #function, #line])
+                    return .init("Failed to process thumbnail data.", metadata: .init(sender: self))
                 }
 
                 if let exception = fileManager.createFile(
@@ -150,7 +150,7 @@ public final class MediaActionHandlerService {
 
     private func processAndSendImage(_ image: UIImage) async -> Exception? {
         guard let data = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)) else {
-            return .init("Failed to compress image.", metadata: [self, #file, #function, #line])
+            return .init("Failed to compress image.", metadata: .init(sender: self))
         }
 
         let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
@@ -191,7 +191,7 @@ public final class MediaActionHandlerService {
         case let .success(image):
             guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
                   let thumbnailPath = localPathURL.thumbnailPath else {
-                return .init("Failed to process thumbnail data.", metadata: [self, #file, #function, #line])
+                return .init("Failed to process thumbnail data.", metadata: .init(sender: self))
             }
 
             if let exception = fileManager.createFile(
@@ -230,7 +230,7 @@ public final class MediaActionHandlerService {
         ) else {
             return .init(
                 "Failed to create export session.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -238,7 +238,7 @@ public final class MediaActionHandlerService {
             do {
                 try fileManager.removeItem(at: outputURL)
             } catch {
-                return .init(error, metadata: [self, #file, #function, #line])
+                return .init(error, metadata: .init(sender: self))
             }
         }
 
@@ -252,7 +252,7 @@ public final class MediaActionHandlerService {
                     return
                 }
 
-                continuation.resume(returning: .init(error, metadata: [self, #file, #function, #line]))
+                continuation.resume(returning: .init(error, metadata: .init(sender: self)))
             }
         }
     }
@@ -277,7 +277,7 @@ public final class MediaActionHandlerService {
                 let image = try await qlThumbnailGenerator.generateBestRepresentation(for: request)
                 return .success(image.uiImage)
             } catch {
-                return .failure(.init(error, metadata: [self, #file, #function, #line]))
+                return .failure(.init(error, metadata: .init(sender: self)))
             }
 
         case .video:
@@ -294,14 +294,14 @@ public final class MediaActionHandlerService {
                 )
                 return .success(.init(cgImage: cgImage))
             } catch {
-                return .failure(.init(error, metadata: [self, #file, #function, #line]))
+                return .failure(.init(error, metadata: .init(sender: self)))
             }
 
         default:
             return .failure(.init(
                 "Cannot generate thumbnail for specified media file extension.",
-                extraParams: ["MediaFileExtensionRawValue": contentType.rawValue],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["MediaFileExtensionRawValue": contentType.rawValue],
+                metadata: .init(sender: self)
             ))
         }
     }

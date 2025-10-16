@@ -33,7 +33,7 @@ public final class ConnectionStatusService {
             try reachability = .init()
             try reachability?.startNotifier()
         } catch {
-            Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+            Logger.log(.init(error, metadata: .init(sender: self)))
         }
 
         notificationCenter.addObserver(self, name: .reachabilityChanged) { _ in

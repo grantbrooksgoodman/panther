@@ -39,7 +39,7 @@ public struct ConversationService {
         guard participants.map(\.isWellFormed).allSatisfy({ $0 == true }) else {
             return .failure(.init(
                 "Passed arguments fail validation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -47,7 +47,7 @@ public struct ConversationService {
         guard let id = networking.database.generateKey(for: path) else {
             return .failure(.init(
                 "Failed to generate key for new conversation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -100,8 +100,8 @@ public struct ConversationService {
         let commonParams = ["ConversationIDs": idKeys]
 
         guard !idKeys.isBangQualifiedEmpty else {
-            let exception = Exception("No IDs provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception("No IDs provided.", metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         var conversations = [Conversation]()
@@ -114,7 +114,7 @@ public struct ConversationService {
                 conversations.append(conversation)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
         }
 
@@ -122,8 +122,8 @@ public struct ConversationService {
               conversations.count == idKeys.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(conversations)
@@ -133,8 +133,8 @@ public struct ConversationService {
         let commonParams = ["ConversationIDKey": idKey]
 
         guard !idKey.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception("No ID provided.", metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         let path = NetworkPath.conversations.rawValue
@@ -145,15 +145,15 @@ public struct ConversationService {
             guard var data = values as? [String: Any] else {
                 let exception: Exception = .Networking.typecastFailed(
                     "dictionary",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             typealias Keys = Conversation.SerializationKeys
             guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
-                let exception = Exception("Failed to decode conversation ID.", metadata: [self, #file, #function, #line])
-                return .failure(exception.appending(extraParams: commonParams))
+                let exception = Exception("Failed to decode conversation ID.", metadata: .init(sender: self))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             data[Keys.id.rawValue] = ConversationID(key: idKey, hash: conversationIDHash).encoded
@@ -164,11 +164,11 @@ public struct ConversationService {
                 return .success(conversation)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
     }
 
@@ -180,7 +180,7 @@ public struct ConversationService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
             }
 
             return .success(array)
@@ -202,8 +202,8 @@ public struct ConversationService {
 
             guard !userID.isBangQualifiedEmpty,
                   !conversationIDKey.isBangQualifiedEmpty else {
-                let exception = Exception("Passed arguments fail validation.", metadata: [self, #file, #function, #line])
-                return exception.appending(extraParams: commonParams)
+                let exception = Exception("Passed arguments fail validation.", metadata: .init(sender: self))
+                return exception.appending(userInfo: commonParams)
             }
 
             let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
@@ -218,11 +218,11 @@ public struct ConversationService {
                     conversationIDStrings,
                     forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
                 ) {
-                    return exception.appending(extraParams: commonParams)
+                    return exception.appending(userInfo: commonParams)
                 }
 
             case let .failure(exception):
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
             return nil
@@ -264,11 +264,11 @@ public struct ConversationService {
                 conversationIDStrings,
                 forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
-                return exception.appending(extraParams: commonParams)
+                return exception.appending(userInfo: commonParams)
             }
 
         case let .failure(exception):
-            return exception.appending(extraParams: commonParams)
+            return exception.appending(userInfo: commonParams)
         }
 
         return nil

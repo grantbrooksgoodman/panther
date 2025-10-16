@@ -50,7 +50,7 @@ public final class TypingIndicatorService {
     public static func resetTypingIndicatorStatusForCurrentUser() async -> Exception? {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else {
-            return .init("Current user has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Current user has not been set.", metadata: .init(sender: self))
         }
 
         guard let conversations = currentUser
@@ -170,7 +170,7 @@ public final class TypingIndicatorService {
         guard let currentUserParticipant = conversation.currentUserParticipant else {
             return .init(
                 "Failed to resolve current user participant.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

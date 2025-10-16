@@ -11,22 +11,30 @@ import Foundation
 import SwiftUI
 
 public enum NavigationTransition {
-    case appear
-    case disappear
+    case didAppear
+    case didDisappear
+    case willAppear
+    case willDisappear
 }
 
 private struct OnNavigationTransitionViewModifier: ViewModifier {
     // MARK: - Properties
 
+    private let onViewDidAppear: ((Duration) -> Void)?
+    private let onViewDidDisappear: ((Duration) -> Void)?
     private let onViewWillAppear: ((Duration) -> Void)?
     private let onViewWillDisappear: ((Duration) -> Void)?
 
     // MARK: - Init
 
     public init(
+        onViewDidAppear: ((Duration) -> Void)?,
+        onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
         onViewWillDisappear: ((Duration) -> Void)?
     ) {
+        self.onViewDidAppear = onViewDidAppear
+        self.onViewDidDisappear = onViewDidDisappear
         self.onViewWillAppear = onViewWillAppear
         self.onViewWillDisappear = onViewWillDisappear
     }
@@ -37,6 +45,8 @@ private struct OnNavigationTransitionViewModifier: ViewModifier {
         content
             .background(
                 TransitionDurationReader(
+                    onViewDidAppear: onViewDidAppear,
+                    onViewDidDisappear: onViewDidDisappear,
                     onViewWillAppear: onViewWillAppear,
                     onViewWillDisappear: onViewWillDisappear
                 )
@@ -48,15 +58,21 @@ private struct OnNavigationTransitionViewModifier: ViewModifier {
 private struct TransitionDurationReader: UIViewControllerRepresentable {
     // MARK: - Properties
 
+    private let onViewDidAppear: ((Duration) -> Void)?
+    private let onViewDidDisappear: ((Duration) -> Void)?
     private let onViewWillAppear: ((Duration) -> Void)?
     private let onViewWillDisappear: ((Duration) -> Void)?
 
     // MARK: - Init
 
     public init(
+        onViewDidAppear: ((Duration) -> Void)?,
+        onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
         onViewWillDisappear: ((Duration) -> Void)?
     ) {
+        self.onViewDidAppear = onViewDidAppear
+        self.onViewDidDisappear = onViewDidDisappear
         self.onViewWillAppear = onViewWillAppear
         self.onViewWillDisappear = onViewWillDisappear
     }
@@ -65,6 +81,8 @@ private struct TransitionDurationReader: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> TransitionTrackingViewController {
         .init(
+            onViewDidAppear: onViewDidAppear,
+            onViewDidDisappear: onViewDidDisappear,
             onViewWillAppear: onViewWillAppear,
             onViewWillDisappear: onViewWillDisappear
         )
@@ -78,21 +96,27 @@ private struct TransitionDurationReader: UIViewControllerRepresentable {
 private final class TransitionTrackingViewController: UIViewController {
     // MARK: - Properties
 
+    private var onViewDidAppear: ((Duration) -> Void)?
+    private var onViewDidDisappear: ((Duration) -> Void)?
     private var onViewWillAppear: ((Duration) -> Void)?
     private var onViewWillDisappear: ((Duration) -> Void)?
 
     // MARK: - Init
 
     public convenience init(
+        onViewDidAppear: ((Duration) -> Void)?,
+        onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
         onViewWillDisappear: ((Duration) -> Void)?
     ) {
         self.init()
+        self.onViewDidAppear = onViewDidAppear
+        self.onViewDidDisappear = onViewDidDisappear
         self.onViewWillAppear = onViewWillAppear
         self.onViewWillDisappear = onViewWillDisappear
     }
 
-    // MARK: - View Lifecycle
+    // MARK: - Appearance
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -107,6 +131,21 @@ private final class TransitionTrackingViewController: UIViewController {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        guard let transitionCoordinator else {
+            onViewDidAppear?(.zero)
+            return
+        }
+
+        transitionCoordinator.animate(alongsideTransition: nil) { _ in
+            self.onViewDidAppear?(.seconds(transitionCoordinator.transitionDuration))
+        }
+    }
+
+    // MARK: - Disappearance
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
@@ -119,6 +158,19 @@ private final class TransitionTrackingViewController: UIViewController {
             self.onViewWillDisappear?(.seconds(transitionCoordinator.transitionDuration))
         }
     }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        guard let transitionCoordinator else {
+            onViewDidDisappear?(.zero)
+            return
+        }
+
+        transitionCoordinator.animate(alongsideTransition: nil) { _ in
+            self.onViewDidDisappear?(.seconds(transitionCoordinator.transitionDuration))
+        }
+    }
 }
 
 public extension View {
@@ -128,8 +180,10 @@ public extension View {
     ) -> some View {
         modifier(
             OnNavigationTransitionViewModifier(
-                onViewWillAppear: transition == .appear ? effect : nil,
-                onViewWillDisappear: transition == .appear ? nil : effect
+                onViewDidAppear: transition == .didAppear ? effect : nil,
+                onViewDidDisappear: transition == .didDisappear ? effect : nil,
+                onViewWillAppear: transition == .willAppear ? effect : nil,
+                onViewWillDisappear: transition == .willDisappear ? effect : nil
             )
         )
     }

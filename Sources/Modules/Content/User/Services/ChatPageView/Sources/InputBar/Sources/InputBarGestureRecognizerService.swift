@@ -117,7 +117,7 @@ public final class InputBarGestureRecognizerService {
                         Logger.log(
                             "Intercepted failure to stop recording bug.",
                             domain: .bugPrevention,
-                            metadata: [self, #file, #function, #line]
+                            sender: self
                         )
                         guard let exception = await self.chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) else { return }
                         self.showError(exception)

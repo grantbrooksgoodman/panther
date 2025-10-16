@@ -53,8 +53,8 @@ public final class UserService {
         if await accountExists(for: phoneNumber) {
             return .failure(.init(
                 "User already exists for this phone number.",
-                extraParams: ["PhoneNumber": phoneNumber.encoded],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["PhoneNumber": phoneNumber.encoded],
+                metadata: .init(sender: self)
             ))
         }
 
@@ -102,7 +102,7 @@ public final class UserService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .failure(.Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("dictionary", metadata: .init(sender: self)))
             }
 
             return await getUsers(ids: Array(dictionary.keys))
@@ -118,8 +118,8 @@ public final class UserService {
         let commonParams = ["UserID": id]
 
         guard !id.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception("No ID provided.", metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         typealias Keys = User.SerializationKeys
@@ -131,8 +131,8 @@ public final class UserService {
                 .init(
                     "Returning cached user data snapshot.",
                     isReportable: false,
-                    extraParams: ["UserID": id],
-                    metadata: [self, #file, #function, #line]
+                    userInfo: ["UserID": id],
+                    metadata: .init(sender: self)
                 ),
                 domain: .caches
             )
@@ -146,9 +146,9 @@ public final class UserService {
             guard var data = values as? [String: Any] else {
                 let exception: Exception = .Networking.typecastFailed(
                     "dictionary",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             data[Keys.id.rawValue] = id
@@ -164,7 +164,7 @@ public final class UserService {
             return await User.decode(from: data)
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
     }
 
@@ -174,8 +174,8 @@ public final class UserService {
         guard !ids.isBangQualifiedEmpty else {
             return .failure(.init(
                 "No ID keys provided.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         var users = [User]()
@@ -188,7 +188,7 @@ public final class UserService {
                 users.append(user)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
         }
 
@@ -196,8 +196,8 @@ public final class UserService {
               users.count == ids.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(users)
@@ -214,8 +214,8 @@ public final class UserService {
             guard let dictionary = values as? [String: Any] else {
                 return .failure(.Networking.typecastFailed(
                     "dictionary",
-                    metadata: [self, #file, #function, #line]
-                ).appending(extraParams: commonParams))
+                    metadata: .init(sender: self)
+                ).appending(userInfo: commonParams))
             }
 
             let getUsersResult = await networking.userService.getUsers(ids: Array(dictionary.keys))
@@ -226,18 +226,18 @@ public final class UserService {
                     return .failure(.init(
                         "No users with the provided phone number.",
                         isReportable: false,
-                        metadata: [self, #file, #function, #line]
-                    ).appending(extraParams: commonParams))
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: commonParams))
                 }
 
                 return .success(user)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
     }
 

@@ -106,7 +106,7 @@ public final class InputBarActionHandlerService {
                 guard let inputFile = AudioFile(url) else {
                     return .init(
                         "Failed to generate input audio file.",
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )
                 }
 
@@ -131,7 +131,7 @@ public final class InputBarActionHandlerService {
                 Logger.log(
                     "Intercepted invalid send button press bug.",
                     domain: .bugPrevention,
-                    metadata: [self, #file, #function, #line]
+                    sender: self
                 )
 
                 return true

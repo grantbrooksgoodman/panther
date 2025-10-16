@@ -36,7 +36,7 @@ public final class AppIconService {
         lastIconSet = icon
         uiApplication.setAlternateIconName("\(icon.rawValue) Icon") { error in
             guard let error else { return }
-            Logger.log(.init(error, metadata: [self, #file, #function, #line]))
+            Logger.log(.init(error, metadata: .init(sender: self)))
         }
     }
 
@@ -63,7 +63,10 @@ public final class AppIconService {
     private func dismissAlerts() {
         guard let alertDismissalTimer,
               alertDismissalTimer.isValid else {
-            Logger.log("Trying to call but timer is invalid!", metadata: [self, #file, #function, #line])
+            Logger.log(
+                "Trying to call but timer is invalid!",
+                sender: self
+            )
             return
         }
 

@@ -46,9 +46,9 @@ public final class ConversationArchiveService {
             .init(
                 "Added conversation to persisted archive.",
                 isReportable: false,
-                extraParams: ["ConversationIDKey": conversation.id.key,
-                              "ConversationIDHash": conversation.id.hash],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["ConversationIDKey": conversation.id.key,
+                           "ConversationIDHash": conversation.id.hash],
+                metadata: .init(sender: self)
             ),
             domain: .conversation
         )
@@ -68,8 +68,8 @@ public final class ConversationArchiveService {
             .init(
                 "Removed conversation from persisted archive.",
                 isReportable: false,
-                extraParams: ["ConversationIDKey": idKey],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["ConversationIDKey": idKey],
+                metadata: .init(sender: self)
             ),
             domain: .conversation
         )

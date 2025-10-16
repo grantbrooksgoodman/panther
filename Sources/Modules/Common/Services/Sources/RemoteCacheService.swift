@@ -26,7 +26,7 @@ public struct RemoteCacheService {
         switch getValuesResult {
         case let .success(values):
             guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: [self, #file, #function, #line]))
+                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
             }
 
             return .success(array.contains(userID) ? .invalid : .valid)

@@ -101,7 +101,7 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
         guard !isCapturing else {
             return .init(
                 "Breadcrumbs capture is already running.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -121,7 +121,7 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
         guard isCapturing else {
             return .init(
                 "Breadcrumbs capture is not running.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -212,7 +212,7 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
         guard let keyViewController = uiApplication.keyViewController else {
             return Logger.log(.init(
                 "Failed to resolve key view controller.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

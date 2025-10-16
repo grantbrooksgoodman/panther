@@ -62,7 +62,7 @@ public final class AudioMessagePlaybackService {
         guard let cell = sender.view?.traversedSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
             Logger.log(.init(
                 "Failed to locate audio message cell in view hierarchy.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
             return
         }

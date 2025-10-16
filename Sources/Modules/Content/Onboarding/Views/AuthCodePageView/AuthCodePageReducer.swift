@@ -86,7 +86,7 @@ public struct AuthCodePageReducer: Reducer {
             state.isContinueButtonEnabled = state.verificationCode.count == 6
 
             var exception = exception
-            if let networkErrorDescriptor = exception.extraParams?["FIRAuthErrorUserInfoNameKey"] as? String,
+            if let networkErrorDescriptor = exception.userInfo?["FIRAuthErrorUserInfoNameKey"] as? String,
                [
                    "ERROR_INVALID_VERIFICATION_CODE",
                    "ERROR_SESSION_EXPIRED",
@@ -95,7 +95,7 @@ public struct AuthCodePageReducer: Reducer {
                 exception = .init(
                     exception.descriptor,
                     isReportable: false,
-                    extraParams: exception.extraParams,
+                    userInfo: exception.userInfo,
                     underlyingExceptions: exception.underlyingExceptions,
                     metadata: exception.metadata
                 )

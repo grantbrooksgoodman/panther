@@ -61,7 +61,7 @@ public final class OnboardingService {
               let userID else {
             return .init(
                 "Insufficient data to create user.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 

@@ -79,7 +79,7 @@ extension User: Serializable {
               let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
               let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         var phoneNumber: PhoneNumber?
@@ -107,7 +107,7 @@ extension User: Serializable {
         }
 
         guard let phoneNumber else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         return .success(.init(

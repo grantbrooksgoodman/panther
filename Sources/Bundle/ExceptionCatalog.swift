@@ -14,17 +14,17 @@ import AlertKit
 import AppSubsystem
 
 /**
- Use this extension to catalog application-specific `Exception` types and their corresponding hashlet values.
+ Use this extension to catalog application-specific `Exception` types and their corresponding error code values.
  */
 public extension AppException {
     // MARK: - Types
 
     struct ExceptionMetadataDelegate: AppSubsystem.Delegates.ExceptionMetadataDelegate {
-        public func isReportable(_ hashlet: String) -> Bool {
+        public func isReportable(_ errorCode: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
-            guard hashlet != AppException.cannotSendTextMessages.hashletValue else { return false }
+            guard errorCode != AppException.cannotSendTextMessages.errorCode else { return false }
             guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
-            return !errorReportingService.reportedErrorCodes.contains(hashlet)
+            return !errorReportingService.reportedErrorCodes.contains(errorCode)
         }
 
         // swiftlint:disable line_length

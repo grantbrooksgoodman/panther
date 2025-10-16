@@ -70,7 +70,7 @@ public final class ChatInfoPageViewService {
         @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
 
         guard let conversation else {
-            return .failure(.init("No current conversation.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("No current conversation.", metadata: .init(sender: self)))
         }
 
         guard let users = conversation.users else {

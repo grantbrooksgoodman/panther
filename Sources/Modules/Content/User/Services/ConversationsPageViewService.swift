@@ -98,7 +98,7 @@ public final class ConversationsPageViewService {
             Logger.log(
                 "Intercepted empty initial conversations list bug.",
                 domain: .bugPrevention,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             Observables.updatedCurrentUser.trigger()
@@ -109,7 +109,7 @@ public final class ConversationsPageViewService {
             Logger.log(
                 "Intercepted offline startup navigation bar appearance bug.",
                 domain: .bugPrevention,
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
 
             core.gcd.after(.milliseconds(500)) {

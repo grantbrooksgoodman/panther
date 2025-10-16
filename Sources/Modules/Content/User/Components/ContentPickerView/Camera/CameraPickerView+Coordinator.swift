@@ -29,7 +29,7 @@ public extension CameraPickerView {
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
             guard let image = info[.originalImage] as? UIImage else {
-                delegate.dismiss(.init("Failed to get image data.", metadata: [self, #file, #function, #line]))
+                delegate.dismiss(.init("Failed to get image data.", metadata: .init(sender: self)))
                 return
             }
 

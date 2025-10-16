@@ -22,14 +22,14 @@ public struct TranscriptionService {
 
     public func transcribeAudioFile(at url: URL, languageCode: String) async -> Callback<String, Exception> {
         guard permissionService.transcribePermissionStatus == .granted else {
-            return .failure(.init("Not authorized for transcription.", metadata: [self, #file, #function, #line]))
+            return .failure(.init("Not authorized for transcription.", metadata: .init(sender: self)))
         }
 
         guard isTranscriptionSupported(for: languageCode) else {
             return .failure(.init(
                 "Transcription is not supported for the specified language code.",
-                extraParams: ["LanguageCode": languageCode],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["LanguageCode": languageCode],
+                metadata: .init(sender: self)
             ))
         }
 
@@ -42,8 +42,8 @@ public struct TranscriptionService {
         guard let recognizer = SFSpeechRecognizer(locale: locale) else {
             return .failure(.init(
                 "Unsupported locale for transcription.",
-                extraParams: ["LocaleIdentifier": locale.identifier],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["LocaleIdentifier": locale.identifier],
+                metadata: .init(sender: self)
             ))
         }
 
@@ -52,7 +52,7 @@ public struct TranscriptionService {
                 guard let result else {
                     continuation.resume(returning: .failure(.init(
                         error,
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )))
                     return
                 }
@@ -60,7 +60,7 @@ public struct TranscriptionService {
                 guard result.isFinal else {
                     continuation.resume(returning: .failure(.init(
                         "Returned transcription wasn't final.",
-                        metadata: [self, #file, #function, #line]
+                        metadata: .init(sender: self)
                     )))
                     return
                 }

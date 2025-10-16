@@ -60,8 +60,6 @@ public struct ChatInfoPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        public var segmentedControlSelectionIndex = 0
-
         // Array
         public var chatParticipants = [ChatParticipant]()
         public var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
@@ -82,6 +80,7 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Other
         @Localized(.done) public var doneButtonText: String
+        public var segmentedControlSelectionIndex = 0
         public var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
@@ -345,7 +344,7 @@ public struct ChatInfoPageReducer: Reducer {
             guard let conversation = state.conversation,
                   let imageData = image.dataCompressed(toKB: 100) else {
                 Logger.log(
-                    .init("Failed to compress image.", metadata: [self, #file, #function, #line]),
+                    .init("Failed to compress image.", metadata: .init(sender: self)),
                     with: .toast
                 )
                 state.isChangeMetadataButtonEnabled = true

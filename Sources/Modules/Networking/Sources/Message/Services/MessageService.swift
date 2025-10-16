@@ -51,14 +51,14 @@ public struct MessageService {
               translations?.isWellFormed ?? true else {
             return .failure(.init(
                 "Passed arguments fail validation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
         guard let id = networking.database.generateKey(for: NetworkPath.messages.rawValue) else {
             return .failure(.init(
                 "Failed to generate key for new message.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -95,7 +95,7 @@ public struct MessageService {
             guard let audioComponents = mockMessage.audioComponents else {
                 return .failure(.init(
                     "Failed to find audio components for audio message creation.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ))
             }
 
@@ -128,7 +128,7 @@ public struct MessageService {
             guard let mediaComponent = richContent?.mediaComponent else {
                 return .failure(.init(
                     "Failed to find media component for media message creation.",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ))
             }
 
@@ -157,8 +157,8 @@ public struct MessageService {
         let commonParams = ["MessageID": id]
 
         guard !id.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception("No ID provided.", metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.messages.rawValue)/\(id)")
@@ -168,9 +168,9 @@ public struct MessageService {
             guard var data = values as? [String: Any] else {
                 let exception: Exception = .Networking.typecastFailed(
                     "dictionary",
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 )
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
             data["id"] = id
@@ -181,11 +181,11 @@ public struct MessageService {
                 return .success(message)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(extraParams: commonParams))
+            return .failure(exception.appending(userInfo: commonParams))
         }
     }
 
@@ -193,8 +193,8 @@ public struct MessageService {
         let commonParams = ["MessageIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
-            let exception = Exception("No IDs provided.", metadata: [self, #file, #function, #line])
-            return .failure(exception.appending(extraParams: commonParams))
+            let exception = Exception("No IDs provided.", metadata: .init(sender: self))
+            return .failure(exception.appending(userInfo: commonParams))
         }
 
         var messages = [Message]()
@@ -207,7 +207,7 @@ public struct MessageService {
                 messages.append(message)
 
             case let .failure(exception):
-                return .failure(exception.appending(extraParams: commonParams))
+                return .failure(exception.appending(userInfo: commonParams))
             }
         }
 
@@ -215,8 +215,8 @@ public struct MessageService {
               messages.count == ids.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
-            ).appending(extraParams: commonParams))
+                metadata: .init(sender: self)
+            ).appending(userInfo: commonParams))
         }
 
         return .success(messages)
@@ -262,7 +262,7 @@ public struct MessageService {
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             array.removeAll(where: { $0 == messageID })

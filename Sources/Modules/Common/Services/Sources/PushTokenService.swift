@@ -34,7 +34,7 @@ public final class PushTokenService {
     public func updatePushTokensForCurrentUser() async -> Exception? {
         guard let currentUser = userSession.currentUser,
               let currentToken else {
-            return .init("Either current user or push token has not been set.", metadata: [self, #file, #function, #line])
+            return .init("Either current user or push token has not been set.", metadata: .init(sender: self))
         }
 
         var pushTokens = currentUser.pushTokens ?? []
@@ -42,7 +42,7 @@ public final class PushTokenService {
             return .init(
                 "Push tokens already up to date.",
                 isReportable: false,
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             )
         }
 
@@ -69,7 +69,7 @@ public final class PushTokenService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: [self, #file, #function, #line])
+                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
             }
 
             var tookAction = false
@@ -92,7 +92,7 @@ public final class PushTokenService {
             guard tookAction else { return nil }
             Logger.log(
                 "Pruned push tokens for current user.",
-                metadata: [self, #file, #function, #line]
+                sender: self
             )
             return nil
 

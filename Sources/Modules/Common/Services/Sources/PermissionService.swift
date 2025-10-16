@@ -78,7 +78,7 @@ public struct PermissionService {
             let requestAccessResult = try await contactStore.requestAccess(for: .contacts)
             return .success(requestAccessResult ? .granted : .denied)
         } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+            return .failure(.init(error, metadata: .init(sender: self)))
         }
     }
 
@@ -88,7 +88,7 @@ public struct PermissionService {
             let requestAuthorizationResult = try await userNotificationCenter.requestAuthorization(options: authOptions)
             return .success(requestAuthorizationResult ? .granted : .denied)
         } catch {
-            return .failure(.init(error, metadata: [self, #file, #function, #line]))
+            return .failure(.init(error, metadata: .init(sender: self)))
         }
     }
 
@@ -115,7 +115,7 @@ public struct PermissionService {
                     continuation.resume(returning: .success(.unknown))
 
                 @unknown default:
-                    continuation.resume(returning: .failure(.init("Failed to get transcription permission.", metadata: [self, #file, #function, #line])))
+                    continuation.resume(returning: .failure(.init("Failed to get transcription permission.", metadata: .init(sender: self))))
                 }
             }
         }

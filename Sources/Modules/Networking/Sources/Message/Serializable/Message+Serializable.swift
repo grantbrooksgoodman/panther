@@ -76,7 +76,7 @@ extension Message: Serializable {
               let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
               let sentDate = dateFormatter.date(from: sentDateString) else {
-            return .failure(.Networking.decodingFailed(data: data, [self, #file, #function, #line]))
+            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
         var readReceipts: [ReadReceipt]?
@@ -181,7 +181,7 @@ extension Message: Serializable {
             case let .success(translation):
                 if let exception = TranslationValidator.validate(
                     translation: translation,
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ) {
                     return .failure(exception)
                 }
@@ -196,7 +196,7 @@ extension Message: Serializable {
         guard !references.isEmpty else {
             return .failure(.init(
                 "No translation references provided.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
@@ -216,14 +216,14 @@ extension Message: Serializable {
         guard translations.count == references.count else {
             return .failure(.init(
                 "Mismatched ratio returned.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 
         guard translations.isWellFormed else {
             return .failure(.init(
                 "Translations fail validation.",
-                metadata: [self, #file, #function, #line]
+                metadata: .init(sender: self)
             ))
         }
 

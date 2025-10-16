@@ -337,8 +337,8 @@ public final class MessageDeliveryService {
             Logger.log(.init(
                 "Running effects for change of \"isSendingMessage\" to TRUE.",
                 isReportable: false,
-                extraParams: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToTrue.keys.map(\.rawValue)],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToTrue.keys.map(\.rawValue)],
+                metadata: .init(sender: self)
             ))
 
             uponIsSendingMessageChangedToTrue.values.forEach { $0() }
@@ -351,8 +351,8 @@ public final class MessageDeliveryService {
             Logger.log(.init(
                 "Running effects for change of \"isSendingMessage\" to FALSE.",
                 isReportable: false,
-                extraParams: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToFalse.keys.map(\.rawValue)],
-                metadata: [self, #file, #function, #line]
+                userInfo: ["EnqueuedEffectIDs": uponIsSendingMessageChangedToFalse.keys.map(\.rawValue)],
+                metadata: .init(sender: self)
             ))
 
             uponIsSendingMessageChangedToFalse.values.forEach { $0() }

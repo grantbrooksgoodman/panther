@@ -67,11 +67,11 @@ public final class ContactPairArchiveService {
                 .init(
                     "Added contact pair to persisted archive.",
                     isReportable: false,
-                    extraParams: [
+                    userInfo: [
                         "FullName": contactPair.contact.fullName,
                         "PhoneNumbers": contactPair.numberPairs.map { $0.phoneNumber.formattedString() }.description,
                     ],
-                    metadata: [self, #file, #function, #line]
+                    metadata: .init(sender: self)
                 ),
                 domain: .contacts
             )
