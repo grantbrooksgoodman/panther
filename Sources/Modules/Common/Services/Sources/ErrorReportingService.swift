@@ -19,10 +19,11 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.errorReportingDateFormatter) private var serviceDateFormatter: DateFormatter
+    @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
@@ -46,7 +47,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             "Language Code": RuntimeStorage.languageCode,
             "OS Version": SystemInformation.osVersion.lowercased(),
             "Project ID": build.projectID,
-            "Timestamp": dateFormatter.string(from: .now),
+            "Timestamp": timestampDateFormatter.string(from: .now),
         ]
 
         if let currentUserID = User.currentUserID {
@@ -78,26 +79,47 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         showsToastOnSuccess: Bool = true
     ) {
         Task { @MainActor in
-            let buildNumberString = "\(build.buildNumber)\(build.milestone.shortString)"
-            let bundleVersionString = build.bundleVersion
-            let loggerSessionRecordFilePathString = Logger.sessionRecordFilePath.path()
+            guard let loggerSessionRecordData = fileManager.contents(
+                atPath: Logger.sessionRecordFilePath.path()
+            ) else { return }
 
-            var shortDateHash = dateFormatter.string(from: Date.now).encodedHash
-            shortDateHash = shortDateHash.components[0 ... shortDateHash.components.count / 2].joined()
-
-            guard error.id.count > 3,
-                  let loggerSessionRecordData = fileManager.contents(atPath: loggerSessionRecordFilePathString) else { return }
-
-            let errorCode = error.id.components[0 ... 3].joined().uppercased()
+            let errorCode = error.id.components.prefix(4).joined().uppercased()
             guard !reportedErrorCodes.contains(errorCode) else { return }
+
+            let exceptionDescriptor = error.userInfo?["Descriptor"] as? String
+            var parentDirectoryName = "\(errorCode)"
+            if let exceptionDescriptor {
+                parentDirectoryName = "\(parentDirectoryName)_\(exceptionDescriptor.shorthandErrorDescriptor)"
+            }
+
+            let shortDateHash = timestampDateFormatter
+                .string(from: .now)
+                .encodedHash
+                .components
+                .prefix(5)
+                .joined()
+
+            let fileNameSuffix = [
+                build.milestone.shortString,
+                String(build.buildNumber),
+                build.bundleRevision,
+                "_\(shortDateHash)",
+            ].joined()
+
+            let filePath = [
+                "reports",
+                build.bundleVersion,
+                parentDirectoryName,
+                "\(serviceDateFormatter.string(from: .now))_\(fileNameSuffix).txt",
+            ].joined(separator: "/")
 
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
-                    "reports/\(bundleVersionString)/\(errorCode)/\(build.bundleRevision) | \(buildNumberString)/log_\(shortDateHash).txt",
+                    filePath,
                     contentType: "text/plain",
                     customValues: commonParams.plus(keys: [
-                        "Error Description": error.description,
+                        "Error Description": exceptionDescriptor ?? error.description,
                     ])
                 )
             ) {
@@ -118,11 +140,18 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
 
             var toastAction: (() -> Void)? {
                 guard self.build.isDeveloperModeEnabled,
-                      let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString, // swiftlint:disable:next line_length
-                      let encodedRevisionString = "\(build.bundleRevision) | \(buildNumberString)".addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else { return nil }
-                let environmentShortString = Networking.config.environment.shortString
-                let urlStringSuffix = "\(environmentShortString)~2Freports~2F\(bundleVersionString)~2F\(errorCode)~2F\(encodedRevisionString)"
-                guard let url = URL(string: "\(urlStringPrefix)~2F\(urlStringSuffix)") else { return nil }
+                      let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return nil }
+
+                let urlString = urlStringPrefix + [
+                    Networking.config.environment.shortString,
+                    "reports",
+                    build.bundleVersion,
+                    parentDirectoryName,
+                ].map {
+                    $0.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? $0
+                }.joined(separator: "~2F")
+
+                guard let url = URL(string: urlString) else { return nil }
                 return {
                     self.uiApplication.open(url)
                     self.uiPasteboard.string = url.absoluteString
@@ -141,6 +170,21 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
     }
 }
 
+private enum ErrorReportingDateFormatterDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyMMdd"
+        return formatter
+    }
+}
+
+private extension DependencyValues {
+    var errorReportingDateFormatter: DateFormatter {
+        get { self[ErrorReportingDateFormatterDependency.self] }
+        set { self[ErrorReportingDateFormatterDependency.self] = newValue }
+    }
+}
+
 private extension Dictionary {
     func plus(keys other: [Key: Value]) -> Dictionary {
         merging(other) { _, new in new }
@@ -148,9 +192,23 @@ private extension Dictionary {
 }
 
 private extension String {
-    var capitalizingWords: String {
-        let components = components(separatedBy: ": ")
-        guard components.count > 1 else { return firstUppercase }
-        return "\(components[0].firstUppercase): \(components[1].firstUppercase)"
+    var shorthandErrorDescriptor: String {
+        let excludedWords: Set<String> = [
+            "A",
+            "AN",
+            "BEEN",
+            "HAS",
+            "IS",
+            "THE",
+            "WAS",
+        ]
+
+        return trimmingCharacters(in: .punctuationCharacters)
+            .uppercased()
+            .components(separatedBy: .whitespaces)
+            .map(\.trimmingWhitespace)
+            .filter { !excludedWords.contains($0) }
+            .prefix(3)
+            .joined(separator: "_")
     }
 }

@@ -288,6 +288,8 @@ public struct SignInPageReducer: Reducer {
                 )
             }
 
+            Logger.log(exception, with: .toast)
+
         case .viewDisappeared:
             InteractivePopGestureRecognizer.setIsEnabled(true)
         }

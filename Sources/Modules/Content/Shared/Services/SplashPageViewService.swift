@@ -129,7 +129,7 @@ public final class SplashPageViewService: ObservableObject {
         /* MARK: Logger Setup */
 
         Logger.setReportsErrorsAutomatically(
-            !UIDevice.isSimulator && !build.isDeveloperModeEnabled
+            !UIDevice.isSimulator && build.milestone == .generalRelease
         )
 
         /* MARK: Cache Setup */
