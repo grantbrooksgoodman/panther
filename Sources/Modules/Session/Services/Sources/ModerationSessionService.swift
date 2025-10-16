@@ -240,6 +240,7 @@ public struct ModerationSessionService {
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+           services.permission.contactPermissionStatus == .granted,
            let exception = await services.contact.syncContactPairArchive() {
             exceptions.append(exception)
         }

@@ -211,10 +211,12 @@ public struct PenPalsService {
     }
 
     private func populateValuesIfNeeded() async -> Exception? {
+        @Dependency(\.commonServices.permission.contactPermissionStatus) var contactPermissionStatus: PermissionService.PermissionStatus
         var exceptions = [Exception]()
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+           contactPermissionStatus == .granted,
            let exception = await contactService.syncContactPairArchive() {
             exceptions.append(exception)
         }

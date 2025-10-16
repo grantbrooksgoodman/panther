@@ -73,7 +73,14 @@ public extension HostedTranslationDelegate {
             return nil
 
         case let .failure(exception):
-            return exception.appending(userInfo: commonParams)
+            let exception = exception.appending(userInfo: commonParams)
+            return .init(
+                exception.descriptor,
+                isReportable: false,
+                userInfo: exception.userInfo,
+                underlyingExceptions: exception.underlyingExceptions,
+                metadata: exception.metadata
+            )
         }
     }
 }

@@ -44,8 +44,19 @@ public final class IntegrityServiceSession {
 
     // MARK: - Resolve
 
+    // swiftlint:disable:next function_body_length
     public static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
+        @Dependency(\.commonServices.metadata.appStoreBuildNumber) var hostedAppStoreBuildNumber: Int?
+        @Dependency(\.build.appStoreBuildNumber) var localAppStoreBuildNumber: Int
         @Dependency(\.networking) var networking: NetworkServices
+
+        guard let hostedAppStoreBuildNumber,
+              hostedAppStoreBuildNumber <= localAppStoreBuildNumber else {
+            return .failure(.init(
+                "Cannot resolve integrity service session on outdated build.",
+                metadata: .init(sender: self)
+            ))
+        }
 
         var conversationData: [String: Any]?
         var messageData: [String: Any]?

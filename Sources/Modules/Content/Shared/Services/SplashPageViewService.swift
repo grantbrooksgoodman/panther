@@ -102,7 +102,8 @@ public final class SplashPageViewService: ObservableObject {
 
         /* MARK: Language Code Resolution */
 
-        if let exception = await userSession.resolveAndSetLanguageCode() {
+        if User.currentUserID != nil,
+           let exception = await userSession.resolveAndSetLanguageCode() {
             Logger.log(exception)
         }
 
