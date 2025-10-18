@@ -63,7 +63,12 @@ public extension DevModeAction {
                           let integer = Int(messageCount) else { return }
 
                     if let exception = await userTestingService.createRandomMessages(count: integer) {
-                        Logger.log(exception, with: .toast)
+                        Logger.log(
+                            exception,
+                            with: .errorAlert
+                        )
+
+                        Application.reset(onCompletion: .navigateToSplash)
                     }
                 }
             }

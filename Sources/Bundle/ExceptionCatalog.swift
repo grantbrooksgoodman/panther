@@ -72,6 +72,7 @@ public extension AppException {
     static let sameTranslationInputOutput: AppException = .init("6CEB")
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")
+    static let updateRequired: AppException = .init("B455")
 
     // TODO: All of the below need regeneration.
 

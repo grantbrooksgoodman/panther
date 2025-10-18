@@ -120,7 +120,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Set Users
 
     public func setUsers(forceUpdate: Bool = false) async -> Exception? {
-        @Dependency(\.mainQueue) var mainQueue: DispatchQueue
+        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -146,7 +146,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
             }
 
             // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            mainQueue.sync { self.users = users }
+            coreGCD.syncOnMain { self.users = users }
 
             Logger.log(
                 .init(

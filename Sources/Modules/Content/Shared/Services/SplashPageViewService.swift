@@ -243,7 +243,14 @@ public final class SplashPageViewService: ObservableObject {
         func attemptDatabaseRepair() async -> Exception? {
             didAttemptDatabaseRepair = true
             loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
-            return await networking.integrityService.repairDatabase()
+
+            guard let exception = await networking.integrityService.repairDatabase() else { return nil }
+            if exception.isEqual(to: .updateRequired) {
+                services.update.isForcedUpdateRequiredSubject.send(true)
+                return nil
+            }
+
+            return exception
         }
 
         if let currentUserID = User.currentUserID,

@@ -16,14 +16,14 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
+// swiftlint:disable:next type_body_length
 public final class UserSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -94,8 +94,8 @@ public final class UserSessionService {
         switch getUserResult {
         case let .success(user):
             // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            mainQueue.sync {
-                currentUser = user
+            core.gcd.syncOnMain {
+                self.currentUser = user
                 self.currentUserID = user.id
             }
             isUpdatingCurrentUser = false
@@ -116,16 +116,21 @@ public final class UserSessionService {
 
     // MARK: - Set Current User
 
-    public func setCurrentUser(_ user: User) -> Exception? {
-        guard let currentUserID,
-              user.id == currentUserID else {
-            return .init(
-                "Either current user ID has not been set, or provided user's ID does not match its value.",
-                metadata: .init(sender: self)
-            )
+    public func setCurrentUser(_ user: User?) -> Exception? {
+        if let user {
+            guard let currentUserID,
+                  user.id == currentUserID else {
+                return .init(
+                    "Either current user ID has not been set, or provided user's ID does not match its value.",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            core.gcd.syncOnMain { self.currentUser = user }
+            return nil
         }
 
-        mainQueue.sync { currentUser = user }
+        core.gcd.syncOnMain { self.currentUser = user }
         return nil
     }
 
@@ -184,7 +189,7 @@ public final class UserSessionService {
                 sender: self
             )
 
-            coreUtilities.setLanguageCode(string)
+            core.utils.setLanguageCode(string)
             return nil
 
         case let .failure(exception):

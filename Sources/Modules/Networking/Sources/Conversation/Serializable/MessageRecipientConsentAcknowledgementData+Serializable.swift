@@ -25,7 +25,13 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
     // MARK: - Methods
 
     public static func canDecode(from data: String) -> Bool {
-        data.components(separatedBy: ": ").count == 2
+        let components = data.components(separatedBy: ": ")
+        guard components.count == 2,
+              let booleanString = components.itemAt(1),
+              booleanString == "false" ||
+              booleanString == "true" ||
+              booleanString.isBangQualifiedEmpty else { return false }
+        return true
     }
 
     public static func decode(from data: String) async -> Callback<MessageRecipientConsentAcknowledgementData, Exception> {

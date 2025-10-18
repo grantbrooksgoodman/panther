@@ -21,9 +21,29 @@ public extension IntegrityService {
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil
     ) async -> Exception? {
+        @Dependency(\.build.appStoreBuildNumber) var localAppStoreBuildNumber: Int
+        @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        guard let hostedAppStoreBuildNumber = metadataService.appStoreBuildNumber else {
+            if let exception = await metadataService.resolveValues() {
+                return exception
+            }
+
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair
+            )
+        }
+
+        guard hostedAppStoreBuildNumber <= localAppStoreBuildNumber else {
+            return .init(
+                "Build must be updated before attempting database repair.",
+                metadata: .init(sender: self)
+            )
+        }
 
         userSession.stopObservingCurrentUserChanges()
 

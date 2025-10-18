@@ -53,12 +53,17 @@ extension Message: Serializable {
         guard data[Keys.id.rawValue] is String,
               data[Keys.fromAccountID.rawValue] is String,
               let contentTypeString = data[Keys.contentType.rawValue] as? String,
-              HostedContentType(hostedValue: contentTypeString) != nil,
-              data[Keys.translationReferences.rawValue] is [String],
+              let hostedContentType = HostedContentType(hostedValue: contentTypeString),
               let encodedReadReceipts = data[Keys.readReceipts.rawValue] as? [String],
               encodedReadReceipts.isBangQualifiedEmpty || encodedReadReceipts.allSatisfy({ ReadReceipt.canDecode(from: $0) }),
               let sentDateString = data[Keys.sentDate.rawValue] as? String,
-              dateFormatter.date(from: sentDateString) != nil else { return false }
+              dateFormatter.date(from: sentDateString) != nil,
+              let translationReferenceStrings = data[Keys.translationReferences.rawValue] as? [String] else { return false }
+
+        if hostedContentType == .text,
+           translationReferenceStrings.isBangQualifiedEmpty {
+            return false
+        }
 
         return true
     }

@@ -24,7 +24,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
             case deleteCurrentUserConversations
             case deleteGroupChatsWithoutNameOrPhoto
             case deleteMRCConversations
-            case deleteOneToOneConversationsWithFewerThanTenMessages
+            case deleteOneToOneConversationsWithFewerThanFiveMessages
             case deletePenPalsConversations // swiftlint:enable identifier_name
             case destroyConversationDatabase
             case resetPushTokens
@@ -38,7 +38,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                 case .deleteCurrentUserConversations: "Delete Current User Conversations"
                 case .deleteGroupChatsWithoutNameOrPhoto: "Delete Group Chats Without Name or Photo"
                 case .deleteMRCConversations: "Delete MRC Conversations"
-                case .deleteOneToOneConversationsWithFewerThanTenMessages: "Delete 1:1 Conversations with <10 Messages"
+                case .deleteOneToOneConversationsWithFewerThanFiveMessages: "Delete 1:1 Conversations with <5 Messages"
                 case .deletePenPalsConversations: "Delete PenPals Conversations"
                 case .destroyConversationDatabase: "Destroy Conversation Database"
                 case .resetPushTokens: "Reset Push Tokens"
@@ -52,7 +52,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                 case .deleteCurrentUserConversations: "This will delete all conversations for the current user.\n\nThis operation cannot be undone."
                 case .deleteGroupChatsWithoutNameOrPhoto: "This will delete all group chats without a name or photo attached to their metadata.\n\nThis operation cannot be undone."
                 case .deleteMRCConversations: "This will delete all Message Recipient Consent-enabled conversations for the current user.\n\nThis operation cannot be undone."
-                case .deleteOneToOneConversationsWithFewerThanTenMessages: "This will delete all 1:1 conversations with fewer than 10 messages.\n\nThis operation cannot be undone."
+                case .deleteOneToOneConversationsWithFewerThanFiveMessages: "This will delete all 1:1 conversations with fewer than 5 messages.\n\nThis operation cannot be undone."
                 case .deletePenPalsConversations: "This will delete all PenPals conversations for the current user.\n\nThis operation cannot be undone."
                 case .destroyConversationDatabase: "This will delete all conversations for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone."
                 case .resetPushTokens: "This will remove all push tokens for all users in the \(Networking.config.environment.description.uppercased()) environment.\n\nThis operation cannot be undone."
@@ -98,8 +98,8 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                             $0.metadata.requiresConsentFromInitiator != nil
                     }.count
 
-                    let oneToOneAndFewerThanTenMessagesCount = conversations.filter {
-                        $0.messageIDs.count < 10 &&
+                    let oneToOneAndFewerThanFiveMessagesCount = conversations.filter {
+                        $0.messageIDs.count < 5 &&
                             $0.participants.count == 2
                     }.count
 
@@ -132,12 +132,12 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                         )
                     }
 
-                    if oneToOneAndFewerThanTenMessagesCount > 0 {
+                    if oneToOneAndFewerThanFiveMessagesCount > 0 {
                         actions.append(
                             .init(
-                                title: "1:1 Conversations with <10 Messages (\(oneToOneAndFewerThanTenMessagesCount))",
+                                title: "1:1 Conversations with <3 Messages (\(oneToOneAndFewerThanFiveMessagesCount))",
                                 isDestructive: true
-                            ) { performAction(.deleteOneToOneConversationsWithFewerThanTenMessages) }
+                            ) { performAction(.deleteOneToOneConversationsWithFewerThanFiveMessages) }
                         )
                     }
 
@@ -267,10 +267,10 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                         }
                     }
 
-                case .deleteOneToOneConversationsWithFewerThanTenMessages:
+                case .deleteOneToOneConversationsWithFewerThanFiveMessages:
                     userSession.stopObservingCurrentUserChanges()
 
-                    if let exception = await core.utils.deleteConversations(.oneToOneAndFewerThanTenMessages) {
+                    if let exception = await core.utils.deleteConversations(.oneToOneAndFewerThanFiveMessages) {
                         Logger.log(exception, with: .toast)
                     } else {
                         core.hud.flash(image: .success)

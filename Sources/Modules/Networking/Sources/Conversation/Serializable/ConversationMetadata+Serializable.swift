@@ -52,7 +52,8 @@ extension ConversationMetadata: Serializable {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.name.rawValue] is String,
-              data[Keys.imageData.rawValue] is String,
+              let imageDataString = data[Keys.imageData.rawValue] as? String,
+              imageDataString.isBangQualifiedEmpty || Data(base64Encoded: imageDataString) != nil,
               data[Keys.isPenPalsConversation.rawValue] is Bool,
               let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
               dateFormatter.date(from: lastModifiedDateString) != nil, // swiftlint:disable:next identifier_name

@@ -33,7 +33,7 @@ public extension CoreKit.Utilities {
         case groupChatsWithoutNameOrPhoto
         case messageRecipientConsentEnabled
         case notVisibleForCurrentUser
-        case oneToOneAndFewerThanTenMessages
+        case oneToOneAndFewerThanFiveMessages
         case penPals
     }
 
@@ -93,9 +93,9 @@ public extension CoreKit.Utilities {
 
             conversationIDKeys = invisibleConversationIDKeys
 
-        case .oneToOneAndFewerThanTenMessages:
+        case .oneToOneAndFewerThanFiveMessages:
             conversationIDKeys = currentUser?.conversations?.filter {
-                $0.messageIDs.count < 10 &&
+                $0.messageIDs.count < 5 &&
                     $0.participants.count == 2
             }.map(\.id.key)
 
@@ -170,7 +170,7 @@ public extension CoreKit.Utilities {
             for userID in userIDs {
                 if let exception = await networking.database.setValue(
                     [String.bangQualifiedEmpty],
-                    forKey: "\(NetworkPath.users)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                    forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
                 ) {
                     return exception
                 }

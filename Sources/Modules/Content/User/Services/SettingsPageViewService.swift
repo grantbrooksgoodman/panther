@@ -329,7 +329,6 @@ public final class SettingsPageViewService {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task {
-                    self.userSession.stopObservingCurrentUserChanges()
                     Application.reset()
 
                     if let exception = await self.services.notification.setBadgeNumber(0, updateHostedValue: false) {

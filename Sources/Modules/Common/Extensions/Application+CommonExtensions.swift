@@ -41,6 +41,12 @@ public extension Application {
         @Dependency(\.coreKit) var core: CoreKit
         @Dependency(\.userDefaults) var defaults: UserDefaults
         @Dependency(\.navigation) var navigation: Navigation
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        if !preserveCurrentUserID {
+            userSession.stopObservingCurrentUserChanges()
+            _ = userSession.setCurrentUser(nil)
+        }
 
         core.utils.clearCaches()
         core.utils.eraseDocumentsDirectory()

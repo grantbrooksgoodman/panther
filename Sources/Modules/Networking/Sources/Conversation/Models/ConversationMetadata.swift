@@ -81,4 +81,26 @@ public struct ConversationMetadata: Codable, Equatable {
             requiresConsentFromInitiator: requiresConsentFromInitiatorString
         )
     }
+
+    // MARK: - Mutation
+
+    public func replacing(
+        name: String? = nil,
+        imageData: Data? = nil,
+        isPenPalsConversation: Bool? = nil,
+        lastModifiedDate: Date? = nil, // swiftlint:disable:next identifier_name
+        messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]? = nil,
+        penPalsSharingData: [PenPalsSharingData]? = nil,
+        requiresConsentFromInitiator: String? = nil
+    ) -> ConversationMetadata {
+        .init(
+            name: name ?? self.name,
+            imageData: imageData ?? self.imageData,
+            isPenPalsConversation: isPenPalsConversation ?? self.isPenPalsConversation,
+            lastModifiedDate: lastModifiedDate ?? self.lastModifiedDate,
+            messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData ?? self.messageRecipientConsentAcknowledgementData,
+            penPalsSharingData: penPalsSharingData ?? self.penPalsSharingData,
+            requiresConsentFromInitiator: requiresConsentFromInitiator ?? self.requiresConsentFromInitiator
+        )
+    }
 }
