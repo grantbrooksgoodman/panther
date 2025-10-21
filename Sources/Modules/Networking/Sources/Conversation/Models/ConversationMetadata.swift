@@ -84,23 +84,47 @@ public struct ConversationMetadata: Codable, Equatable {
 
     // MARK: - Mutation
 
-    public func replacing(
+    public func copyWith(
         name: String? = nil,
-        imageData: Data? = nil,
+        imageData: Data = .init(),
         isPenPalsConversation: Bool? = nil,
         lastModifiedDate: Date? = nil, // swiftlint:disable:next identifier_name
         messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]? = nil,
         penPalsSharingData: [PenPalsSharingData]? = nil,
-        requiresConsentFromInitiator: String? = nil
+        requiresConsentFromInitiator: String = "",
+        nilImageData: Bool = false,
+        nilRequiresConsentFromInitiator: Bool = false
     ) -> ConversationMetadata {
-        .init(
+        if name == nil,
+           imageData.isEmpty,
+           isPenPalsConversation == nil,
+           lastModifiedDate == nil,
+           messageRecipientConsentAcknowledgementData == nil,
+           penPalsSharingData == nil,
+           requiresConsentFromInitiator.isEmpty,
+           !nilImageData,
+           !nilRequiresConsentFromInitiator {
+            Logger.log(.init(
+                "No arguments passed to mutator method.",
+                metadata: .init(sender: self)
+            ))
+
+            return self
+        }
+
+        let imageData = nilImageData ? nil : (imageData.isEmpty ? self.imageData : imageData)
+        let requiresConsentFromInitiator = nilRequiresConsentFromInitiator ? nil : (
+            requiresConsentFromInitiator.isEmpty ? self.requiresConsentFromInitiator : requiresConsentFromInitiator
+        )
+
+        return .init(
             name: name ?? self.name,
-            imageData: imageData ?? self.imageData,
+            imageData: imageData,
             isPenPalsConversation: isPenPalsConversation ?? self.isPenPalsConversation,
             lastModifiedDate: lastModifiedDate ?? self.lastModifiedDate,
             messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData ?? self.messageRecipientConsentAcknowledgementData,
             penPalsSharingData: penPalsSharingData ?? self.penPalsSharingData,
-            requiresConsentFromInitiator: requiresConsentFromInitiator ?? self.requiresConsentFromInitiator
+            requiresConsentFromInitiator: requiresConsentFromInitiator
         )
     }
 }

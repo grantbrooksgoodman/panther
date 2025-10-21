@@ -48,17 +48,11 @@ public extension ChatInfoPageViewService {
                       !(name.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else { return nil }
 
                 let sanitizedName = name.isBangQualifiedEmpty ? .bangQualifiedEmpty : name
-                let newMetadata: ConversationMetadata = .init(
-                    name: sanitizedName.trimmingBorderedWhitespace,
-                    imageData: conversation.metadata.imageData,
-                    isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                    penPalsSharingData: conversation.metadata.penPalsSharingData,
-                    requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
+                return .name(
+                    conversation.metadata.copyWith(
+                        name: sanitizedName.trimmingBorderedWhitespace
+                    )
                 )
-
-                return .name(newMetadata)
             }
 
             func presentChangePhotoAlert() async -> MetadataChangeType? {
@@ -106,17 +100,11 @@ public extension ChatInfoPageViewService {
                 guard let conversation,
                       canComplete else { return }
 
-                let newMetadata: ConversationMetadata = .init(
-                    name: conversation.metadata.name,
-                    imageData: nil,
-                    isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                    penPalsSharingData: conversation.metadata.penPalsSharingData,
-                    requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
+                completion(
+                    .removePhoto(
+                        conversation.metadata.copyWith(nilImageData: true)
+                    )
                 )
-
-                completion(.removePhoto(newMetadata))
             }
 
             var actions: [AKAction] = [changeNameAction, changePhotoAction]

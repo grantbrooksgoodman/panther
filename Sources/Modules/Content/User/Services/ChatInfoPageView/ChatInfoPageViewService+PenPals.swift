@@ -49,22 +49,11 @@ public extension ChatInfoPageViewService {
                 var newPenPalsSharingData = conversation.metadata.penPalsSharingData.filter { $0.userID != currentUserID }
                 newPenPalsSharingData.append(newCurrentUserPenPalsSharingData)
 
-                let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? .init(
-                    name: conversation.metadata.name,
-                    imageData: conversation.metadata.imageData,
+                let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? conversation.metadata.copyWith(
                     isPenPalsConversation: false,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                    penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID)),
-                    requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-                ) : .init(
-                    name: conversation.metadata.name,
-                    imageData: conversation.metadata.imageData,
-                    isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                    lastModifiedDate: conversation.metadata.lastModifiedDate,
-                    messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                    penPalsSharingData: newPenPalsSharingData,
-                    requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
+                    penPalsSharingData: PenPalsSharingData.empty(userIDs: conversation.participants.map(\.userID))
+                ) : conversation.metadata.copyWith(
+                    penPalsSharingData: newPenPalsSharingData
                 )
 
                 completion(newMetadata)

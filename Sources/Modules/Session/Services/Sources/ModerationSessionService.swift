@@ -248,7 +248,7 @@ public struct ModerationSessionService {
         guard let currentUser = userSession.currentUser,
               currentUser.conversations == nil || currentUser.conversations?.isEmpty == true else { return exceptions.compiledException }
 
-        if let exception = await userSession.currentUser?.setConversations() {
+        if let exception = await currentUser.setConversations() {
             exceptions.append(exception)
         }
 

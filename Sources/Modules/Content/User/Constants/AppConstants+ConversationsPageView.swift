@@ -33,6 +33,11 @@ public extension AppConstants.Colors {
             uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
 
+        // swiftlint:disable identifier_name
+        public static let createRandomMessagesToolbarButtonForeground: Color = .purple
+        public static let deleteConversationsToolbarButtonForeground: Color = .red
+        // swiftlint:enable identifier_name
+
         public static let settingsToolbarButtonForeground: Color = .init(
             uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
@@ -42,9 +47,10 @@ public extension AppConstants.Colors {
 // MARK: - String
 
 public extension AppConstants.Strings {
-    enum ConversationsPageView { // swiftlint:disable:next line_length
-        public static let composeToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
-        // swiftlint:disable:next identifier_name line_length
-        public static let settingsToolbarButtonLabelImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape"
+    enum ConversationsPageView { // swiftlint:disable identifier_name line_length
+        public static let composeToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
+        public static let createRandomMessagesToolbarButtonImageSystemName = "sparkles.2"
+        public static let deleteConversationsToolbarButtonImageSystemName = "trash"
+        public static let settingsToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape" // swiftlint:enable identifier_name line_length
     }
 }

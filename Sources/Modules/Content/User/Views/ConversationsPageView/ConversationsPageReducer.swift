@@ -35,6 +35,9 @@ public struct ConversationsPageReducer: Reducer {
         case composeToolbarButtonTapped
         case settingsToolbarButtonTapped
 
+        case createRandomMessagesToolbarButtonTapped
+        case deleteConversationsToolbarButtonTapped
+
         case pulledToRefresh
         case traitCollectionChanged
         case updatedCurrentUser
@@ -65,6 +68,13 @@ public struct ConversationsPageReducer: Reducer {
         public var conversationCellViewID = UUID()
         public var searchQuery = ""
         public var viewState: StatefulView.ViewState = .loading
+
+        /* MARK: Computed Properties */
+
+        public var shouldShowExtraToolbarButtons: Bool {
+            @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
+            return Networking.config.environment == .staging && isDeveloperModeEnabled
+        }
 
         /* MARK: Init */
 
@@ -97,6 +107,12 @@ public struct ConversationsPageReducer: Reducer {
 
         case .composeToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.newChat)))
+
+        case .createRandomMessagesToolbarButtonTapped:
+            DevModeAction.AppActions.createNewMessagesAction.perform()
+
+        case .deleteConversationsToolbarButtonTapped:
+            viewService.deleteConversationsToolbarButtonTapped()
 
         case let .isSearchingChanged(isSearching):
             state.isSearching = isSearching

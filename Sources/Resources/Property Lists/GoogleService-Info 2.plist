@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>511991161200-q05hbmu7sjsnk14auqqfmcuf8v1v58gs.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.511991161200-q05hbmu7sjsnk14auqqfmcuf8v1v58gs</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDkylnwrrtQ8qPBe0ad6OKEAJneO6EHmDQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>511991161200</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>us.neotechnica.jaguar</string>
+	<key>PROJECT_ID</key>
+	<string>jaguar-5d735</string>
+	<key>STORAGE_BUCKET</key>
+	<string>jaguar-5d735.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:511991161200:ios:4df9e8211772006415efb5</string>
+	<key>DATABASE_URL</key>
+	<string>https://jaguar-5d735-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

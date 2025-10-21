@@ -351,18 +351,11 @@ public struct ChatInfoPageReducer: Reducer {
                 return .none
             }
 
-            let newMetadata: ConversationMetadata = .init(
-                name: conversation.metadata.name,
-                imageData: imageData,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: conversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: conversation.metadata.penPalsSharingData,
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-            )
-
             return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
+                let result = await conversation.updateValue(
+                    conversation.metadata.copyWith(imageData: imageData),
+                    forKey: .metadata
+                )
                 return .updateValueReturned(result)
             }
 

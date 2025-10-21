@@ -274,17 +274,12 @@ public struct MessageService {
 
             guard updateConversationHash else { return nil }
 
-            let newMetadata: ConversationMetadata = .init(
-                name: conversation.metadata.name,
-                imageData: conversation.metadata.imageData,
-                isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-                lastModifiedDate: Date.now,
-                messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: conversation.metadata.penPalsSharingData,
-                requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
+            let updateValueResult = await conversation.updateValue(
+                conversation.metadata.copyWith(
+                    lastModifiedDate: .now
+                ),
+                forKey: .metadata
             )
-
-            let updateValueResult = await conversation.updateValue(newMetadata, forKey: .metadata)
 
             switch updateValueResult {
             case .success:

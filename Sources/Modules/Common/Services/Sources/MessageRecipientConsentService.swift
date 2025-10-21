@@ -113,18 +113,11 @@ public final class MessageRecipientConsentService {
             newAcknowledgementData = emptyAcknowledgementData
         }
 
-        let newMetadata: ConversationMetadata = .init(
-            name: conversation.metadata.name,
-            imageData: conversation.metadata.imageData,
-            isPenPalsConversation: conversation.metadata.isPenPalsConversation,
-            lastModifiedDate: conversation.metadata.lastModifiedDate,
-            messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-            penPalsSharingData: conversation.metadata.penPalsSharingData,
-            requiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData ? nil : conversation.metadata.requiresConsentFromInitiator
-        )
-
         let updateValueResult = await conversation.updateValue(
-            newMetadata,
+            conversation.metadata.copyWith(
+                messageRecipientConsentAcknowledgementData: newAcknowledgementData,
+                nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
+            ),
             forKey: .metadata
         )
 

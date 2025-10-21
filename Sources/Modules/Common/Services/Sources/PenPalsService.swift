@@ -91,25 +91,17 @@ public struct PenPalsService {
                 )
             )
 
-            let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? .init(
-                name: penPalsConversation.metadata.name,
-                imageData: penPalsConversation.metadata.imageData,
+            let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
                 isPenPalsConversation: false,
-                lastModifiedDate: penPalsConversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: penPalsConversation.metadata.messageRecipientConsentAcknowledgementData,
                 penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID)),
-                requiresConsentFromInitiator: penPalsConversation.metadata.requiresConsentFromInitiator
-            ) : .init(
-                name: penPalsConversation.metadata.name,
-                imageData: penPalsConversation.metadata.imageData,
-                isPenPalsConversation: penPalsConversation.metadata.isPenPalsConversation,
-                lastModifiedDate: penPalsConversation.metadata.lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: penPalsConversation.metadata.messageRecipientConsentAcknowledgementData,
+            ) : penPalsConversation.metadata.copyWith(
                 penPalsSharingData: newPenPalsSharingData,
-                requiresConsentFromInitiator: penPalsConversation.metadata.requiresConsentFromInitiator
             )
 
-            let updateValueResult = await penPalsConversation.updateValue(newMetadata, forKey: .metadata)
+            let updateValueResult = await penPalsConversation.updateValue(
+                newMetadata,
+                forKey: .metadata
+            )
 
             switch updateValueResult {
             case .success: // NIT: We don't care about the result because updateValue adds the updated conversation to the archive for us.
@@ -224,7 +216,7 @@ public struct PenPalsService {
         guard let currentUser = userSession.currentUser,
               currentUser.conversations == nil || currentUser.conversations?.isEmpty == true else { return exceptions.compiledException }
 
-        if let exception = await userSession.currentUser?.setConversations() {
+        if let exception = await currentUser.setConversations() {
             exceptions.append(exception)
         }
 

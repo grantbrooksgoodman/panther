@@ -57,7 +57,7 @@ public final class ConversationsPageViewService {
 
     private var currentReloadType: ReloadType = .full
 
-    // MARK: - Public
+    // MARK: - View Lifecycle
 
     public func viewAppeared() {
         NavigationBar.setAppearance(.conversationsPageView)
@@ -182,6 +182,45 @@ public final class ConversationsPageViewService {
         showOfflineModeToast()
     }
 
+    public func traitCollectionChanged() {
+        guard !chatPageState.isPresented else {
+            return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
+        }
+
+        guard navigation.state.userContent.sheet == nil else { return }
+
+        Task { @MainActor in
+            NavigationBar.setAppearance(.conversationsPageView)
+            StatusBar.overrideStyle(.appAware)
+        }
+    }
+
+    // MARK: - Reducer Action Handlers
+
+    public func deleteConversationsToolbarButtonTapped() {
+        func populateValuesIfNeeded() async -> Exception? {
+            guard let currentUser = userSession.currentUser,
+                  currentUser.conversations == nil ||
+                  currentUser.conversations?.isEmpty == true else { return nil }
+            return await currentUser.setConversations()
+        }
+
+        Task { @MainActor in
+            if let exception = await populateValuesIfNeeded() {
+                Logger.log(
+                    exception,
+                    with: .toast
+                )
+            } else {
+                DevModeAction
+                    .AppActions
+                    .DangerZone
+                    .deleteConversationsAction
+                    .perform()
+            }
+        }
+    }
+
     /// `.pulledToRefresh`
     public func reloadData() async -> Callback<[Conversation], Exception> {
         func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
@@ -230,19 +269,6 @@ public final class ConversationsPageViewService {
         }
 
         return await reloadData(type: currentReloadType)
-    }
-
-    public func traitCollectionChanged() {
-        guard !chatPageState.isPresented else {
-            return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
-        }
-
-        guard navigation.state.userContent.sheet == nil else { return }
-
-        Task { @MainActor in
-            NavigationBar.setAppearance(.conversationsPageView)
-            StatusBar.overrideStyle(.appAware)
-        }
     }
 
     // MARK: - Auxiliary

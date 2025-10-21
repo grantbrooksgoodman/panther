@@ -174,7 +174,10 @@ public extension IntegrityService {
             reportDelegate.fileReport(
                 Exception(
                     "Hosted data needed repair.",
-                    userInfo: ["MethodsUsedForRepair": methodsUsedForRepair],
+                    userInfo: [
+                        "Descriptor": "Hosted data needed repair.",
+                        "MethodsUsedForRepair": methodsUsedForRepair,
+                    ],
                     metadata: .init(sender: self)
                 ), showsToastOnSuccess: false
             )

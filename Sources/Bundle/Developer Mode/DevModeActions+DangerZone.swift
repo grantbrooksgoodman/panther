@@ -135,7 +135,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if oneToOneAndFewerThanFiveMessagesCount > 0 {
                         actions.append(
                             .init(
-                                title: "1:1 Conversations with <3 Messages (\(oneToOneAndFewerThanFiveMessagesCount))",
+                                title: "1:1 Conversations with <5 Messages (\(oneToOneAndFewerThanFiveMessagesCount))",
                                 isDestructive: true
                             ) { performAction(.deleteOneToOneConversationsWithFewerThanFiveMessages) }
                         )

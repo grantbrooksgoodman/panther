@@ -90,7 +90,19 @@ public struct ConversationsPageView: View {
                             placement: .navigationBarDrawer(displayMode: .automatic),
                             prompt: Localized(.search).wrappedValue
                         )
-                        .toolbar { composeToolbarButton }
+                        .if(
+                            viewModel.shouldShowExtraToolbarButtons,
+                            {
+                                $0.toolbar {
+                                    deleteConversationsToolbarButton
+                                    createRandomMessagesToolbarButton
+                                    composeToolbarButton
+                                }
+                            },
+                            else: {
+                                $0.toolbar { composeToolbarButton }
+                            }
+                        )
                     }
                     .if(!ThemeService.isAppDefaultThemeApplied) {
                         $0.navigationBarItemGlassTint(
@@ -115,7 +127,7 @@ public struct ConversationsPageView: View {
     private var composeToolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Components.button(
-                symbolName: Strings.composeToolbarButtonLabelImageSystemName,
+                symbolName: Strings.composeToolbarButtonImageSystemName,
                 foregroundColor: Colors.composeToolbarButtonForeground,
                 secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false
@@ -142,10 +154,42 @@ public struct ConversationsPageView: View {
         }
     }
 
+    private var createRandomMessagesToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Components.button(
+                symbolName: Strings.createRandomMessagesToolbarButtonImageSystemName,
+                foregroundColor: Colors.createRandomMessagesToolbarButtonForeground,
+                usesIntrinsicSize: false
+            ) {
+                viewModel.send(.createRandomMessagesToolbarButtonTapped)
+            }
+            .frame(
+                minWidth: Floats.toolbarButtonFrameMinWidth,
+                minHeight: Floats.toolbarButtonFrameMinHeight
+            )
+        }
+    }
+
+    private var deleteConversationsToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Components.button(
+                symbolName: Strings.deleteConversationsToolbarButtonImageSystemName,
+                foregroundColor: Colors.deleteConversationsToolbarButtonForeground,
+                usesIntrinsicSize: false
+            ) {
+                viewModel.send(.deleteConversationsToolbarButtonTapped)
+            }
+            .frame(
+                minWidth: Floats.toolbarButtonFrameMinWidth,
+                minHeight: Floats.toolbarButtonFrameMinHeight
+            )
+        }
+    }
+
     private var settingsToolbarButton: NavigationWindow.Toolbar.Item {
         .init(placement: .topBarLeading) {
             Components.button(
-                symbolName: Strings.settingsToolbarButtonLabelImageSystemName,
+                symbolName: Strings.settingsToolbarButtonImageSystemName,
                 foregroundColor: Colors.settingsToolbarButtonForeground,
                 secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false

@@ -185,10 +185,14 @@ public extension CoreKit.Utilities {
                 }
             }
 
-            if let exception = await networking.storage.deleteAllItems(
+            if (try? await networking.storage.itemExists(
+                as: .directory,
                 at: NetworkPath.audioMessageInputs.rawValue,
-                includeItemsInSubdirectories: true
-            ) {
+            ).get()) == true,
+                let exception = await networking.storage.deleteAllItems(
+                    at: NetworkPath.audioMessageInputs.rawValue,
+                    includeItemsInSubdirectories: true
+                ) {
                 return exception
             }
 

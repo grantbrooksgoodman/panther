@@ -297,21 +297,13 @@ public final class MessageDeliveryService {
             ))
         }
 
-        let newMetadata: ConversationMetadata = .init(
-            name: conversation.metadata.name,
-            imageData: conversation.metadata.imageData,
-            isPenPalsConversation: isPenPalsConversation,
-            lastModifiedDate: conversation.metadata.lastModifiedDate,
-            messageRecipientConsentAcknowledgementData: conversation.metadata.messageRecipientConsentAcknowledgementData,
-            penPalsSharingData: conversation.metadata.penPalsSharingData,
-            requiresConsentFromInitiator: conversation.metadata.requiresConsentFromInitiator
-        )
-
         let newConversation: Conversation = .init(
             conversation.id,
             messageIDs: conversation.messageIDs,
             messages: messages,
-            metadata: newMetadata,
+            metadata: conversation.metadata.copyWith(
+                isPenPalsConversation: isPenPalsConversation
+            ),
             participants: conversation.participants,
             reactionMetadata: conversation.reactionMetadata,
             users: conversation.users

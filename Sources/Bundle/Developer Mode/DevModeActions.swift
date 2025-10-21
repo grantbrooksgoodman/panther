@@ -48,7 +48,7 @@ public extension DevModeAction {
 
         // MARK: - Top-level Actions
 
-        private static var createNewMessagesAction: DevModeAction {
+        static var createNewMessagesAction: DevModeAction {
             func createNewMessages() {
                 Task { @MainActor in
                     @Dependency(\.networking.userService.testing) var userTestingService: UserTestingService
