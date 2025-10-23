@@ -23,6 +23,7 @@ public struct ChatPageStateServiceEffectID: Hashable {
 
 public extension ChatPageStateServiceEffectID {
     static let deeplinkToOtherChat: ChatPageStateServiceEffectID = .init("deeplinkToOtherChat")
+    static let markConversationStale: ChatPageStateServiceEffectID = .init("markConversationStale")
     static let updateAppearance: ChatPageStateServiceEffectID = .init("updateAppearance")
     static let updateConversations: ChatPageStateServiceEffectID = .init("updateConversations")
     static let updateCurrentUser: ChatPageStateServiceEffectID = .init("updateCurrentUser")

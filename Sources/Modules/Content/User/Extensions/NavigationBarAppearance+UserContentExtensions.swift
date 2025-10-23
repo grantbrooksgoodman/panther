@@ -12,6 +12,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
@@ -48,6 +49,18 @@ public extension NavigationBarAppearance {
     }
 
     static var conversationsPageView: NavigationBarAppearance {
+        @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
+        if isDeveloperModeEnabled,
+           Networking.config.environment == .production {
+            let preV26BackgroundColor = (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98)
+            return .default(scrollEdgeConfig: .init(
+                titleColor: .red,
+                backgroundColor: UIApplication.v26FeaturesEnabled ? .clear : preV26BackgroundColor,
+                barButtonItemColor: UIApplication.v26FeaturesEnabled ? .black : .accent,
+                showsDivider: false
+            ))
+        }
+
         guard Application.isInPrevaricationMode,
               UIApplication.isFullyV26Compatible else { return .appDefault }
 

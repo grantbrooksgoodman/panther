@@ -196,6 +196,17 @@ public extension CoreKit.Utilities {
                 return exception
             }
 
+            if (try? await networking.storage.itemExists(
+                as: .directory,
+                at: NetworkPath.media.rawValue,
+            ).get()) == true,
+                let exception = await networking.storage.deleteAllItems(
+                    at: NetworkPath.media.rawValue,
+                    includeItemsInSubdirectories: true
+                ) {
+                return exception
+            }
+
         case let .failure(exception):
             return exception
         }

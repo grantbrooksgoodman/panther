@@ -82,6 +82,11 @@ public enum Application {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }
 
+        /* MARK: UIViewController Swizzling */
+
+        UIViewController.swizzlePresent
+        UIViewController.swizzleViewWillDisappear
+
         /* MARK: v26 Features Setup */
 
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?

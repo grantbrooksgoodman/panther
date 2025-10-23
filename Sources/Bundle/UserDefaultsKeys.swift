@@ -37,6 +37,7 @@ public extension UserDefaultsKey {
     static func breadcrumbsCaptureService(_ key: BreadcrumbsCaptureServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func conversationArchiveService(_ key: ConversationArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
+    static func messageRetranslationService(_ key: MessageRetranslationServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func penPalsService(_ key: PenPalsServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func reviewService(_ key: ReviewServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func updateService(_ key: UpdateServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

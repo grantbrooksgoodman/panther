@@ -87,7 +87,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             guard !reportedErrorCodes.contains(errorCode) else { return }
 
             let exceptionDescriptor = error.userInfo?["Descriptor"] as? String
-            var parentDirectoryName = "\(errorCode)"
+            var parentDirectoryName = "\((error.userInfo?["HostedOverrideErrorCode"] as? String) ?? errorCode)"
             if let exceptionDescriptor {
                 parentDirectoryName = "\(parentDirectoryName)_\(exceptionDescriptor.shorthandErrorDescriptor)"
             }
@@ -113,6 +113,9 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                 "\(serviceDateFormatter.string(from: .now))_\(fileNameSuffix).txt",
             ].joined(separator: "/")
 
+            let userInfo = (error.userInfo?.compactMapValues { $0 as? String } ?? [:])
+                .filter { $0.key != "Descriptor" }
+
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
@@ -120,7 +123,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
                     contentType: "text/plain",
                     customValues: commonParams.plus(keys: [
                         "Error Description": exceptionDescriptor ?? error.description,
-                    ])
+                    ]).plus(keys: userInfo)
                 )
             ) {
                 guard Logger.reportsErrorsAutomatically else {

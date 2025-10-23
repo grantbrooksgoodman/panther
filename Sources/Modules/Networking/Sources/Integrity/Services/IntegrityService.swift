@@ -571,13 +571,38 @@ public final class IntegrityService {
                   let translationReferenceStrings = dictionary[Message.SerializationKeys.translationReferences.rawValue] as? [String] else { continue }
 
             for translationReferenceString in translationReferenceStrings {
-                guard let reference: TranslationReference = .init(translationReferenceString),
-                      !reference.languagePair.isIdempotent,
-                      session.translationData[reference.languagePair.string]?[reference.type.key] == nil else { continue }
+                func takeAction() async {
+                    tookAction = true
+                    if let exception = await repairMalformedMessages([key]).exception {
+                        exceptions.append(exception)
+                    }
+                }
 
-                tookAction = true
-                if let exception = await repairMalformedMessages([key]).exception {
-                    exceptions.append(exception)
+                guard let reference = TranslationReference(translationReferenceString) else {
+                    await takeAction()
+                    continue
+                }
+
+                guard !reference.languagePair.isIdempotent else { continue }
+
+                if let encodedTranslationString = session.translationData[reference.languagePair.string]?[reference.type.key] as? String,
+                   !encodedTranslationString.canDecodeTranslationFromComponents {
+                    let keyPath = [
+                        NetworkPath.translations.rawValue,
+                        reference.languagePair.string,
+                        reference.type.key,
+                    ].joined(separator: "/")
+
+                    if let exception = await networking.database.setValue(
+                        NSNull(),
+                        forKey: keyPath
+                    ) {
+                        exceptions.append(exception)
+                    }
+
+                    await takeAction()
+                } else if (session.translationData[reference.languagePair.string]?[reference.type.key] as? String) == nil {
+                    await takeAction()
                 }
             }
         }
@@ -734,6 +759,16 @@ public final class IntegrityService {
         }
 
         return referencing
+    }
+}
+
+private extension String {
+    var canDecodeTranslationFromComponents: Bool {
+        let components = components(separatedBy: "–")
+        guard components.count == 2,
+              components[0].removingPercentEncoding?.isEmpty == false,
+              components[1].removingPercentEncoding?.isEmpty == false else { return false }
+        return true
     }
 }
 

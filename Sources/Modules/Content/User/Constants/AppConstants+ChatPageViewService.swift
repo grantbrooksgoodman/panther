@@ -183,7 +183,7 @@ public extension AppConstants.Strings {
             public static let cellDefaultDurationLabelText = "0:00"
         }
 
-        enum ContextMenu { // swiftlint:disable:next identifier_name
+        enum ContextMenu { // swiftlint:disable identifier_name
             public static let audioMessageActionAlternateImageSystemName = "text.bubble"
             public static let audioMessageActionIdentifierRawValue = "audio_message"
             public static let audioMessageActionImageSystemName = "speaker.wave.2.bubble"
@@ -194,6 +194,12 @@ public extension AppConstants.Strings {
             public static let reactionDetailsActionIdentifierRawValue = "reaction_details"
             public static let reactionDetailsActionImageSystemName = "info.circle"
 
+            public static let reportMistranslationActionIdentifierRawValue = "report_mistranslation"
+            public static let reportMistranslationActionImageSystemName = "flag"
+
+            public static let retryTranslationActionIdentifierRawValue = "retry_translation"
+            public static let retryTranslationActionImageSystemName = "arrow.counterclockwise"
+
             public static let saveActionIdentifierRawValue = "save"
             public static let saveActionImageSystemName = "square.and.arrow.down"
 
@@ -202,6 +208,7 @@ public extension AppConstants.Strings {
             public static let speakActionImageSystemName = "speaker.wave.2.circle"
 
             public static let viewAlterateActionIdentifierRawValue = "view_alternate"
+            // swiftlint:enable identifier_name
         }
 
         enum DeliveryProgressIndicator {

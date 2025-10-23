@@ -73,6 +73,7 @@ public final class MenuElementView: UIView {
         self.showsDivider = showsDivider
 
         super.init(frame: .zero)
+        label.adjustsFontSizeToFitWidth = true
 
         addSubview(button)
         addSubview(label)

@@ -6,12 +6,15 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import AVFAudio
 import Foundation
 import UIKit
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 import Translator
 
@@ -31,6 +34,7 @@ public final class ContextMenuActionHandlerService {
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
+    @Dependency(\.alertKitConfig.reportDelegate) private var reportDelegate: AlertKit.ReportDelegate?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
 
@@ -39,6 +43,8 @@ public final class ContextMenuActionHandlerService {
     public private(set) var speakingMessage: Message?
 
     private let viewController: ChatPageViewController
+
+    @Persistent(.retranslatedMessageIDs) private var retranslatedMessageIDs: [String: Set<TranslationPlatform>]?
 
     // MARK: - Computed Properties
 
@@ -52,35 +58,19 @@ public final class ContextMenuActionHandlerService {
     }
 
     private var selectedCell: UICollectionViewCell? {
+        guard let selectedCellIndexPath else { return nil }
+        return viewController.messagesCollectionView.cellForItem(at: selectedCellIndexPath)
+    }
+
+    private var selectedCellIndexPath: IndexPath? {
         guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID,
               let messageIndex = viewController.currentConversation?.messages?.firstIndex(where: { $0.id == selectedMessageID }) else { return nil }
-        return viewController.messagesCollectionView.cellForItem(at: .init(item: 0, section: messageIndex))
+        return .init(item: 0, section: messageIndex)
     }
 
     private var selectedMessage: Message? {
         guard let selectedMessageID = chatPageViewService.contextMenu?.interaction.selectedMessageID else { return nil }
         return viewController.currentConversation?.messages?.first(where: { $0.id == selectedMessageID })
-    }
-
-    private var textMessageMenuActions: [MenuElement] {
-        let speakActionImage = UIImage(
-            systemName: avSpeechSynthesizer.isSpeaking ? Strings.speakActionAlternateImageSystemName : Strings.speakActionImageSystemName
-        )
-
-        return [
-            .init(
-                title: Localized(.copy).wrappedValue,
-                image: .init(systemName: Strings.copyActionImageSystemName),
-                identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
-                handler: handleAction(_:)
-            ),
-            .init(
-                title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
-                image: speakActionImage,
-                identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
-                handler: handleAction(_:)
-            ),
-        ]
     }
 
     // MARK: - Init
@@ -117,11 +107,7 @@ public final class ContextMenuActionHandlerService {
 
         guard !message.contentType.isAudio else { return .init(children: actions + getAudioMessageActions(for: message)) }
 
-        actions.append(contentsOf: textMessageMenuActions)
-        if let viewAlternateAction = getViewAlternateAction(for: message) {
-            actions.append(viewAlternateAction)
-        }
-
+        actions.append(contentsOf: getTextMessageMenuActions(for: message))
         return .init(children: actions)
     }
 
@@ -149,6 +135,43 @@ public final class ContextMenuActionHandlerService {
         chatPageViewService.contextMenu?.dismissMenu()
         Task { @MainActor in
             RootSheets.present(.reactionDetailsPageView)
+        }
+    }
+
+    private func handleReportMistranslationAction() {
+        chatPageViewService.contextMenu?.dismissMenu()
+
+        guard let selectedMessage,
+              let translation = selectedMessage.translation,
+              let attemptedPlatforms = retranslatedMessageIDs?[selectedMessage.id],
+              let reportDelegate else { return }
+
+        let exception = Exception(
+            "A mistranslation has been reported (\(translation.reference.hostingKey.shortCode)).",
+            userInfo: [
+                "AttempedPlatforms": attemptedPlatforms.description,
+                "Descriptor": "A mistranslation has been reported.",
+                "HostedOverrideErrorCode": "CA45",
+                "ReferenceHostingKey": translation.reference.hostingKey,
+            ],
+            metadata: .init(sender: self)
+        )
+
+        reportDelegate.fileReport(exception)
+    }
+
+    private func handleRetryTranslationAction() {
+        chatPageViewService.contextMenu?.dismissMenu()
+        guard let selectedCellIndexPath,
+              let selectedMessage else { return }
+
+        Task { @MainActor in
+            if let exception = await services.messageRetranslation.retranslateMessageInCurrentConversation(
+                selectedMessage,
+                indexPath: selectedCellIndexPath
+            ) {
+                Logger.log(exception, with: .toast)
+            }
         }
     }
 
@@ -272,7 +295,7 @@ public final class ContextMenuActionHandlerService {
     private func getViewAlternateAction(for message: Message) -> MenuElement? {
         guard viewController.currentConversation?.participants.count == 2 || !message.isFromCurrentUser,
               message.translation?.languagePair.isIdempotent == false,
-              message.translation?.input.value.sanitized.rangeOfCharacter(from: .letters) != nil,
+              message.translation?.input.value.sanitized.containsLetters == true,
               let languageCode = message.isFromCurrentUser ? message.translation?.languagePair.to : message.translation?.languagePair.from,
               languageCode != currentUser?.languageCode,
               !avSpeechSynthesizer.isSpeaking else { return nil }
@@ -296,10 +319,86 @@ public final class ContextMenuActionHandlerService {
         case Strings.audioMessageActionIdentifierRawValue: handleAudioMessageAction()
         case Strings.copyActionIdentifierRawValue: handleCopyAction()
         case Strings.reactionDetailsActionIdentifierRawValue: handleReactionDetailsAction()
+        case Strings.reportMistranslationActionIdentifierRawValue: handleReportMistranslationAction()
+        case Strings.retryTranslationActionIdentifierRawValue: handleRetryTranslationAction()
         case Strings.saveActionIdentifierRawValue: handleSaveAction()
         case Strings.speakActionIdentifierRawValue: handleSpeakAction()
         case Strings.viewAlterateActionIdentifierRawValue: handleViewAlternateAction()
         default: ()
         }
     }
+
+    private func getTextMessageMenuActions(for message: Message) -> [MenuElement] {
+        let speakActionImage = UIImage(
+            systemName: avSpeechSynthesizer.isSpeaking ? Strings.speakActionAlternateImageSystemName : Strings.speakActionImageSystemName
+        )
+
+        var actions: [MenuElement] = [
+            .init(
+                title: Localized(.copy).wrappedValue,
+                image: .init(systemName: Strings.copyActionImageSystemName),
+                identifier: .init(rawValue: Strings.copyActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ),
+            .init(
+                title: Localized(avSpeechSynthesizer.isSpeaking ? .stopSpeaking : .speak).wrappedValue,
+                image: speakActionImage,
+                identifier: .init(rawValue: Strings.speakActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ),
+        ]
+
+        let translation = message.translation
+        let containsLetters = translation?.input.value.containsLetters == true || translation?.output.containsLetters == true
+        let isDisplayingAlternate = chatPageViewService
+            .alternateMessage?
+            .isDisplayingAlternateText(for: message) == true
+
+        guard !avSpeechSynthesizer.isSpeaking,
+              containsLetters == true,
+              let translationCode = translation?.reference.hostingKey.shortCode else { return actions }
+
+        let exceptionCode = Exception(
+            "A mistranslation has been reported (\(translationCode)).",
+            metadata: .init(sender: self)
+        ).code
+
+        if retranslatedMessageIDs?.hasTriedAllTranslationPlatforms(for: message.id) != true,
+           translation?.languagePair.isIdempotent == false,
+           (message.isFromCurrentUser && isDisplayingAlternate) ||
+           (!message.isFromCurrentUser && !isDisplayingAlternate) {
+            actions.append(.init(
+                title: Localized(.retryTranslation).wrappedValue,
+                image: .init(systemName: Strings.retryTranslationActionImageSystemName),
+                identifier: .init(rawValue: Strings.retryTranslationActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ))
+        } else if retranslatedMessageIDs?.hasTriedAllTranslationPlatforms(for: message.id) == true,
+                  (reportDelegate as? ErrorReportingService)?
+                  .reportedErrorCodes
+                  .contains(
+                      exceptionCode
+                  ) != true {
+            actions.append(.init(
+                title: Localized(.reportMistranslation).wrappedValue,
+                image: .init(systemName: Strings.reportMistranslationActionImageSystemName),
+                identifier: .init(rawValue: Strings.reportMistranslationActionIdentifierRawValue),
+                handler: handleAction(_:)
+            ))
+        }
+
+        if let viewAlternateAction = getViewAlternateAction(for: message) {
+            actions.append(viewAlternateAction)
+        }
+
+        return actions
+    }
 }
+
+private extension [String: Set<TranslationPlatform>] {
+    func hasTriedAllTranslationPlatforms(for messageID: String) -> Bool {
+        self[messageID] == Set(TranslationPlatform.allCases)
+    }
+}
+
+// swiftlint:enable file_length type_body_length

@@ -25,6 +25,8 @@
 		A2DF2CAA28199CE20089DEA1 /* San Francisco (Light).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */; };
 		A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */; };
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
+		A2E494942EA98398009A1D62 /* UIViewController+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */; };
+		A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FE37612EA7354000931829 /* MessageRetranslationService.swift */; };
 		B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */; };
 		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
 		B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */; };
@@ -771,6 +773,8 @@
 		A2DF2C9E28199CE20089DEA1 /* San Francisco (Light).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light).otf"; sourceTree = "<group>"; };
 		A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Bold).otf"; sourceTree = "<group>"; };
 		A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light Italic).otf"; sourceTree = "<group>"; };
+		A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+CommonExtensions.swift"; sourceTree = "<group>"; };
+		A2FE37612EA7354000931829 /* MessageRetranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRetranslationService.swift; sourceTree = "<group>"; };
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStatusBarStyle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
@@ -2388,6 +2392,7 @@
 				B900B5312B1AB3FA00BA2F1D /* InviteService.swift */,
 				B928F3CD2B17FE5700006BFD /* MetadataService.swift */,
 				B90285E82DB70442006DD790 /* MessageRecipientConsentService.swift */,
+				A2FE37612EA7354000931829 /* MessageRetranslationService.swift */,
 				B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */,
 				B99195872B47D76900BD5BBC /* NotificationService.swift */,
 				B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */,
@@ -3092,6 +3097,7 @@
 				B9E5C0162E0C7B1700D0FF0F /* NavigationBar+CommonExtensions.swift */,
 				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
 				B92942462DFCA46E00983643 /* UIApplication+CommonExtensions.swift */,
+				A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */,
 				B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */,
 				B96969202B18287E00ADA875 /* UserDefaultsKey+CommonExtensions.swift */,
 			);
@@ -4407,6 +4413,7 @@
 				B9975C882B201A5E008CE353 /* CommonServicesDependency.swift in Sources */,
 				B9DD42C42E2F12FB009A318B /* MediaItemView.swift in Sources */,
 				B9223D412CD58C4E00C05BC6 /* MenuElementViewDelegate.swift in Sources */,
+				A2E494942EA98398009A1D62 /* UIViewController+CommonExtensions.swift in Sources */,
 				B9E00A542C2B8C7F004E350E /* MediaMessageService.swift in Sources */,
 				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,
 				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
@@ -4417,6 +4424,7 @@
 				B99551A22D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,
 				B9E7F5732C658F4300938D22 /* SplashPageObserver.swift in Sources */,
+				A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */,
 				B92409852AB2DFC0004CF4C0 /* LoggerDomains.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -33,6 +33,10 @@ public extension UserDefaultsKey {
         case contactPairArchive
     }
 
+    enum MessageRetranslationServiceDefaultsKey: String {
+        case retranslatedMessageIDs
+    }
+
     enum PenPalsServiceDefaultsKey: String {
         case presentedPenPalsPermissionPageAtStartup
     }

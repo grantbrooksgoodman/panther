@@ -75,9 +75,11 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case region
     case repairingData
     case reportBug
+    case reportMistranslation
     case reportSent
     case reportUser
     case requestConsent
+    case retryTranslation
 
     case saturday
     case saveFile

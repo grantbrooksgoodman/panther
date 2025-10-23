@@ -29,6 +29,10 @@ public extension Persistent {
         self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
 
+    convenience init(_ messageRetranslationServiceKey: UserDefaultsKey.MessageRetranslationServiceDefaultsKey) {
+        self.init(.messageRetranslationService(messageRetranslationServiceKey))
+    }
+
     convenience init(_ penPalsServiceKey: UserDefaultsKey.PenPalsServiceDefaultsKey) {
         self.init(.penPalsService(penPalsServiceKey))
     }

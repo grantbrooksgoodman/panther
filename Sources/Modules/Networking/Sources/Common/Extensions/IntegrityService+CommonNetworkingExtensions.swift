@@ -19,13 +19,20 @@ import Networking
 public extension IntegrityService {
     func repairDatabase(
         _ exceptions: [Exception]? = nil,
-        _ methodsUsedForRepair: [String]? = nil
+        _ methodsUsedForRepair: [String]? = nil,
+        isFirstRun: Bool = true
     ) async -> Exception? {
+        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.build.appStoreBuildNumber) var localAppStoreBuildNumber: Int
         @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        if isFirstRun,
+           let exception = coreUtilities.eraseTemporaryDirectory() {
+            Logger.log(exception)
+        }
 
         guard let hostedAppStoreBuildNumber = metadataService.appStoreBuildNumber else {
             if let exception = await metadataService.resolveValues() {
@@ -34,7 +41,8 @@ public extension IntegrityService {
 
             return await repairDatabase(
                 exceptions,
-                methodsUsedForRepair
+                methodsUsedForRepair,
+                isFirstRun: false
             )
         }
 
@@ -81,21 +89,33 @@ public extension IntegrityService {
         if let exception = repairMalformedMessagesResult.exception { exceptions.append(exception) }
         if repairMalformedMessagesResult.tookAction {
             methodsUsedForRepair.append("repairMalformedMessages")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let repairMalformedConversationsResult = await repairMalformedConversations()
         if let exception = repairMalformedConversationsResult.exception { exceptions.append(exception) }
         if repairMalformedConversationsResult.tookAction {
             methodsUsedForRepair.append("repairMalformedConversations")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let repairMalformedUsersResult = await repairMalformedUsers()
         if let exception = repairMalformedUsersResult.exception { exceptions.append(exception) }
         if repairMalformedUsersResult.tookAction {
             methodsUsedForRepair.append("repairMalformedUsers")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         // Repair Broken Data
@@ -104,56 +124,88 @@ public extension IntegrityService {
         if let exception = resolveBrokenConversationChainResult.exception { exceptions.append(exception) }
         if resolveBrokenConversationChainResult.tookAction {
             methodsUsedForRepair.append("resolveBrokenConversationChain")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveBrokenMessageChainResult = await resolveBrokenMessageChain()
         if let exception = resolveBrokenMessageChainResult.exception { exceptions.append(exception) }
         if resolveBrokenMessageChainResult.tookAction {
             methodsUsedForRepair.append("resolveBrokenMessageChain")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveMismatchedParticipantsResult = await resolveMismatchedParticipants()
         if let exception = resolveMismatchedParticipantsResult.exception { exceptions.append(exception) }
         if resolveMismatchedParticipantsResult.tookAction {
             methodsUsedForRepair.append("resolveMismatchedParticipants")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveNoAudioComponentMessagesResult = await resolveNoAudioComponentMessages()
         if let exception = resolveNoAudioComponentMessagesResult.exception { exceptions.append(exception) }
         if resolveNoAudioComponentMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveNoAudioComponentMessages")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveNoMediaComponentMessagesResult = await resolveNoMediaComponentMessages()
         if let exception = resolveNoMediaComponentMessagesResult.exception { exceptions.append(exception) }
         if resolveNoMediaComponentMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveNoMediaComponentMessages")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveNonExistentParticipantsResult = await resolveNonExistentParticipants()
         if let exception = resolveNonExistentParticipantsResult.exception { exceptions.append(exception) }
         if resolveNonExistentParticipantsResult.tookAction {
             methodsUsedForRepair.append("resolveNonExistentParticipants")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveNonExistentTranslationsResult = await resolveNonExistentTranslations()
         if let exception = resolveNonExistentTranslationsResult.exception { exceptions.append(exception) }
         if resolveNonExistentTranslationsResult.tookAction {
             methodsUsedForRepair.append("resolveNonExistentTranslations")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         let resolveOrphanedMessagesResult = await resolveOrphanedMessages()
         if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
         if resolveOrphanedMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveOrphanedMessages")
-            return await repairDatabase(exceptions, methodsUsedForRepair)
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
         }
 
         defer {

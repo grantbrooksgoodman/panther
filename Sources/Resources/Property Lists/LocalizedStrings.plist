@@ -7422,6 +7422,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>报告错误</string>
 	</dict>
+	<key>report_mistranslation</key>
+	<dict>
+		<key>af</key>
+		<string>Rapporteer &apos;n verkeerde vertaling</string>
+		<key>ar</key>
+		<string>الإبلاغ عن خطأ في الترجمة</string>
+		<key>az</key>
+		<string>Bir ünzi bildirin</string>
+		<key>be</key>
+		<string>Паведаміць пра няправільны пераклад</string>
+		<key>bg</key>
+		<string>Докладвайте за неправилен превод</string>
+		<key>bn</key>
+		<string>একটি ভুল অনুবাদ রিপোর্ট করুন</string>
+		<key>bs</key>
+		<string>Prijavite pogrešan prevod</string>
+		<key>ca</key>
+		<string>Informar d&apos;una traducció incorrecta</string>
+		<key>cs</key>
+		<string>Nahlásit chybný překlad</string>
+		<key>cy</key>
+		<string>Adrodd am Gamgyfieithiad</string>
+		<key>da</key>
+		<string>Rapportér en fejloversættelse</string>
+		<key>de</key>
+		<string>Eine Fehlübersetzung melden</string>
+		<key>el</key>
+		<string>Αναφορά λάθος μετάφρασης</string>
+		<key>en</key>
+		<string>Report Mistranslation</string>
+		<key>eo</key>
+		<string>Raporti mistradukon</string>
+		<key>es</key>
+		<string>Informar de un error de traducción</string>
+		<key>et</key>
+		<string>Teata tõlkeveast</string>
+		<key>eu</key>
+		<string>Itzulpen oker baten berri eman</string>
+		<key>fa</key>
+		<string>گزارش ترجمه نادرست</string>
+		<key>fi</key>
+		<string>Ilmoita käännösvirheestä</string>
+		<key>fr</key>
+		<string>Signaler une erreur de traduction</string>
+		<key>ga</key>
+		<string>Tuairiscigh aistriúchán mícheart</string>
+		<key>gd</key>
+		<string>Dèan aithris air eadar-theangachadh ceàrr</string>
+		<key>gl</key>
+		<string>Informar dunha tradución incorrecta</string>
+		<key>gu</key>
+		<string>ખોટા અનુવાદની જાણ કરો</string>
+		<key>he</key>
+		<string>דווח על תרגום שגוי</string>
+		<key>hi</key>
+		<string>ग़लत अनुवाद की रिपोर्ट करें</string>
+		<key>hr</key>
+		<string>Prijavi pogrešan prijevod</string>
+		<key>ht</key>
+		<string>Rapòte yon Move Tradiksyon</string>
+		<key>hu</key>
+		<string>Fordítási hiba bejelentése</string>
+		<key>hy</key>
+		<string>Հաղորդել սխալ թարգմանության մասին</string>
+		<key>id</key>
+		<string>Laporkan Kesalahan Terjemahan</string>
+		<key>is</key>
+		<string>Tilkynna ranga þýðingu</string>
+		<key>it</key>
+		<string>Segnala una traduzione errata</string>
+		<key>ja</key>
+		<string>誤訳を報告する</string>
+		<key>ka</key>
+		<string>Არასწორი თარგმანის შესახებ შეტყობინება</string>
+		<key>kk</key>
+		<string>Кисслация туралы хабарлау</string>
+		<key>kn</key>
+		<string>ತಪ್ಪಾದ ಅನುವಾದವನ್ನು ವರದಿ ಮಾಡಿ</string>
+		<key>ko</key>
+		<string>잘못된 번역 신고</string>
+		<key>ky</key>
+		<string>Мисторланта жөнүндө кабарлаңыз</string>
+		<key>lt</key>
+		<string>Pranešti apie vertimo klaidą</string>
+		<key>mg</key>
+		<string>Mitatitra fandikan-teny diso</string>
+		<key>mi</key>
+		<string>Pūrongo he Whakamaoritanga</string>
+		<key>mk</key>
+		<string>Пријавете погрешен превод</string>
+		<key>ml</key>
+		<string>തെറ്റായ വിവർത്തനം റിപ്പോർട്ട് ചെയ്യുക</string>
+		<key>mn</key>
+		<string>Буруу орчуулгыг мэдээлэх</string>
+		<key>mt</key>
+		<string>Irrapporta Traduzzjoni Ħażina</string>
+		<key>ne</key>
+		<string>गलत अनुवाद रिपोर्ट गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Meld een vertaalfout</string>
+		<key>no</key>
+		<string>Rapporter en feiloversettelse</string>
+		<key>pa</key>
+		<string>ਗਲਤ ਅਨੁਵਾਦ ਦੀ ਰਿਪੋਰਟ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Zgłoś błędne tłumaczenie</string>
+		<key>pt</key>
+		<string>Relatar um erro de tradução</string>
+		<key>ro</key>
+		<string>Raportați o traducere greșită</string>
+		<key>ru</key>
+		<string>Сообщить о неправильном переводе</string>
+		<key>si</key>
+		<string>වැරදි පරිවර්තනයක් වාර්තා කරන්න</string>
+		<key>sk</key>
+		<string>Nahlásiť chybný preklad</string>
+		<key>sl</key>
+		<string>Prijavi napačen prevod</string>
+		<key>sq</key>
+		<string>Raportoni një përkthim të gabuar</string>
+		<key>sr</key>
+		<string>Пријавите погрешан превод</string>
+		<key>su</key>
+		<string>Laporkeun salah tarjamah</string>
+		<key>sv</key>
+		<string>Rapportera en felöversättning</string>
+		<key>sw</key>
+		<string>Ripoti misuli</string>
+		<key>ta</key>
+		<string>தவறான மொழிபெயர்ப்பைப் புகாரளிக்கவும்</string>
+		<key>te</key>
+		<string>తప్పు అనువాదాన్ని నివేదించండి</string>
+		<key>tg</key>
+		<string>Дар бораи тарҷумаи хато хабар диҳед</string>
+		<key>th</key>
+		<string>รายงานการแปลผิดพลาด</string>
+		<key>tl</key>
+		<string>Mag-ulat ng Maling Pagsasalin</string>
+		<key>tr</key>
+		<string>Yanlış Çeviriyi Bildirin</string>
+		<key>tt</key>
+		<string>Мистрансза белән хәбәр итегез</string>
+		<key>uk</key>
+		<string>Повідомити про неправильний переклад</string>
+		<key>ur</key>
+		<string>غلط ترجمہ کی اطلاع دیں۔</string>
+		<key>uz</key>
+		<string>Noto&apos;g&apos;ri tarjima haqida xabar bering</string>
+		<key>vi</key>
+		<string>Báo cáo bản dịch sai</string>
+		<key>yi</key>
+		<string>מעלדן אַ פאַלשע איבערזעצונג</string>
+		<key>zh</key>
+		<string>报告错误翻译</string>
+	</dict>
 	<key>report_sent</key>
 	<dict>
 		<key>af</key>
@@ -7886,6 +8041,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>בעטן צושטימען צו וועקסל אַרטיקלען</string>
 		<key>zh</key>
 		<string>请求同意交换信息</string>
+	</dict>
+	<key>retry_translation</key>
+	<dict>
+		<key>af</key>
+		<string>Probeer hierdie vertaling weer</string>
+		<key>ar</key>
+		<string>أعد محاولة هذه الترجمة</string>
+		<key>az</key>
+		<string>Bu Tərcüməni yenidən cəhd edin</string>
+		<key>be</key>
+		<string>Паўтарыце гэты пераклад</string>
+		<key>bg</key>
+		<string>Опитайте отново този превод</string>
+		<key>bn</key>
+		<string>এই অনুবাদটি আবার চেষ্টা করুন</string>
+		<key>bs</key>
+		<string>Ponovite ovaj prijevod</string>
+		<key>ca</key>
+		<string>Torna a intentar aquesta traducció</string>
+		<key>cs</key>
+		<string>Zkuste tento překlad znovu</string>
+		<key>cy</key>
+		<string>Ailgeisio y Cyfieithiad hwn</string>
+		<key>da</key>
+		<string>Prøv denne oversættelse igen</string>
+		<key>de</key>
+		<string>Diese Übersetzung wiederholen</string>
+		<key>el</key>
+		<string>Επαναλάβετε αυτήν τη μετάφραση</string>
+		<key>en</key>
+		<string>Retry Translation</string>
+		<key>eo</key>
+		<string>Reprovi ĉi tiun Tradukon</string>
+		<key>es</key>
+		<string>Reintentar esta traducción</string>
+		<key>et</key>
+		<string>Proovige seda tõlget uuesti</string>
+		<key>eu</key>
+		<string>Saiatu berriro itzulpen hau</string>
+		<key>fa</key>
+		<string>این ترجمه را دوباره امتحان کنید</string>
+		<key>fi</key>
+		<string>Yritä käännöstä uudelleen</string>
+		<key>fr</key>
+		<string>Réessayer cette traduction</string>
+		<key>ga</key>
+		<string>Déan iarracht eile ar an aistriúchán seo</string>
+		<key>gd</key>
+		<string>Feuch an t-eadar-theangachadh seo a-rithist</string>
+		<key>gl</key>
+		<string>Tenta de novo esta tradución</string>
+		<key>gu</key>
+		<string>આ અનુવાદ ફરી પ્રયાસ કરો</string>
+		<key>he</key>
+		<string>נסה שוב את התרגום הזה</string>
+		<key>hi</key>
+		<string>इस अनुवाद का पुनः प्रयास करें</string>
+		<key>hr</key>
+		<string>Pokušajte ponovo ovaj prijevod</string>
+		<key>ht</key>
+		<string>Eseye Tradiksyon sa a ankò</string>
+		<key>hu</key>
+		<string>Próbálja újra ezt a fordítást</string>
+		<key>hy</key>
+		<string>Կրկին փորձեք այս թարգմանությունը</string>
+		<key>id</key>
+		<string>Coba lagi terjemahan ini</string>
+		<key>is</key>
+		<string>Reyndu þessa þýðingu aftur</string>
+		<key>it</key>
+		<string>Riprova questa traduzione</string>
+		<key>ja</key>
+		<string>この翻訳を再試行してください</string>
+		<key>ka</key>
+		<string>Ხელახლა სცადეთ ეს თარგმანი</string>
+		<key>kk</key>
+		<string>Осы аударманы қайталаңыз</string>
+		<key>kn</key>
+		<string>ಈ ಅನುವಾದವನ್ನು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ</string>
+		<key>ko</key>
+		<string>이 번역을 다시 시도하세요</string>
+		<key>ky</key>
+		<string>Бул Котормону кайталап көрүңүз</string>
+		<key>lt</key>
+		<string>Bandyti dar kartą šį vertimą</string>
+		<key>mg</key>
+		<string>Andramo indray ity Dikanteny ity</string>
+		<key>mi</key>
+		<string>Whakahokia tenei whakamaoritanga</string>
+		<key>mk</key>
+		<string>Обидете се повторно со овој превод</string>
+		<key>ml</key>
+		<string>ഈ വിവർത്തനം വീണ്ടും ശ്രമിക്കുക</string>
+		<key>mn</key>
+		<string>Энэ орчуулгыг дахин оролдоно уу</string>
+		<key>mt</key>
+		<string>Erġa&apos; pprova din it-Traduzzjoni</string>
+		<key>ne</key>
+		<string>यो अनुवाद पुन: प्रयास गर्नुहोस्</string>
+		<key>nl</key>
+		<string>Probeer deze vertaling opnieuw</string>
+		<key>no</key>
+		<string>Prøv denne oversettelsen på nytt</string>
+		<key>pa</key>
+		<string>ਇਸ ਅਨੁਵਾਦ ਦੀ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
+		<key>pl</key>
+		<string>Spróbuj ponownie tego tłumaczenia</string>
+		<key>pt</key>
+		<string>Tentar novamente esta tradução</string>
+		<key>ro</key>
+		<string>Reîncercați această traducere</string>
+		<key>ru</key>
+		<string>Повторить этот перевод</string>
+		<key>si</key>
+		<string>මෙම පරිවර්තනය නැවත උත්සාහ කරන්න</string>
+		<key>sk</key>
+		<string>Skúste tento preklad znova</string>
+		<key>sl</key>
+		<string>Poskusite znova s ​​tem prevodom</string>
+		<key>sq</key>
+		<string>Riprovo këtë Përkthim</string>
+		<key>sr</key>
+		<string>Покушајте поново са овим преводом</string>
+		<key>su</key>
+		<string>Coba deui Tarjamahan ieu</string>
+		<key>sv</key>
+		<string>Försök igen med den här översättningen</string>
+		<key>sw</key>
+		<string>Jaribu tena Tafsiri hii</string>
+		<key>ta</key>
+		<string>இந்த மொழிபெயர்ப்பை மீண்டும் முயற்சிக்கவும்</string>
+		<key>te</key>
+		<string>ఈ అనువాదాన్ని మళ్ళీ ప్రయత్నించండి</string>
+		<key>tg</key>
+		<string>Ин Тарҷумаро дубора санҷед</string>
+		<key>th</key>
+		<string>ลองแปลนี้อีกครั้ง</string>
+		<key>tl</key>
+		<string>Subukan muli ang Pagsasalin na ito</string>
+		<key>tr</key>
+		<string>Bu Çeviriyi Yeniden Deneyin</string>
+		<key>tt</key>
+		<string>Бу тәрҗемәне кабатлап карагыз</string>
+		<key>uk</key>
+		<string>Повторіть цей переклад</string>
+		<key>ur</key>
+		<string>اس ترجمے کی دوبارہ کوشش کریں۔</string>
+		<key>uz</key>
+		<string>Ushbu tarjimani qaytadan sinab koʻring</string>
+		<key>vi</key>
+		<string>Thử lại bản dịch này</string>
+		<key>yi</key>
+		<string>פרובירט נאכאמאל די איבערזעצונג</string>
+		<key>zh</key>
+		<string>重试此翻译</string>
 	</dict>
 	<key>saturday</key>
 	<dict>

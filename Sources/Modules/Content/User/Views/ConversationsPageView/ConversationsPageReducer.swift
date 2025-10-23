@@ -134,6 +134,16 @@ public struct ConversationsPageReducer: Reducer {
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
+            if isDeveloperModeEnabled,
+               Networking.config.environment == .production,
+               let index = strings.firstIndex(where: {
+                   $0.key == .conversationsPageView(.navigationTitle)
+               }) {
+                state.strings[index] = .init(
+                    key: .conversationsPageView(.navigationTitle),
+                    value: "\(strings.value(for: .navigationTitle)) (\(Networking.config.environment.shortString.uppercased()))"
+                )
+            }
 
             state.viewState = .loaded
             viewService.viewLoaded()
@@ -198,5 +208,11 @@ public struct ConversationsPageReducer: Reducer {
         }
 
         return .none
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.ConversationsPageViewStringKey) -> String {
+        (first(where: { $0.key == .conversationsPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

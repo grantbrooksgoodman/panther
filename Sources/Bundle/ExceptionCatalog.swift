@@ -63,6 +63,7 @@ public extension AppException {
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
+    static let mistranslationReported: AppException = .init("CA45")
     static let noAudioRecorderToStop: AppException = .init("E44E")
     static let notAuthorizedForContacts: AppException = .init("B7FC")
     static let notRegisteredForPushNotifications: AppException = .init("FB09")
@@ -72,6 +73,7 @@ public extension AppException {
     static let sameTranslationInputOutput: AppException = .init("6CEB")
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")
+    static let translationPlatformNotSupported: AppException = .init("B04E")
     static let updateRequired: AppException = .init("B455")
 
     // TODO: All of the below need regeneration.
