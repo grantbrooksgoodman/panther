@@ -115,9 +115,7 @@ public struct Message: Codable, EncodedHashable, Hashable {
 
     private func getReactions() -> [Reaction]? {
         @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
-        guard let messages = conversation?.messages,
-              messages.contains(self),
-              let reactionMetadata = conversation?.reactionMetadata,
+        guard let reactionMetadata = conversation?.reactionMetadata,
               let reactions = reactionMetadata.first(where: { $0.messageID == id })?.reactions else { return nil }
         return reactions
     }

@@ -18,6 +18,7 @@ public struct WelcomePageReducer: Reducer {
 
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.commonServices.notification) private var notificationService: NotificationService
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
@@ -73,6 +74,7 @@ public struct WelcomePageReducer: Reducer {
                 .welcomeToHello,
                 languageCode: Locale.systemLanguageCode
             ).wrappedValue
+
             core.utils.restoreDeviceLanguageCode()
             onboardingService.flushValues()
 
@@ -81,10 +83,24 @@ public struct WelcomePageReducer: Reducer {
             core.ui.overrideUserInterfaceStyle(.unspecified)
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
 
+            let resetBadgeNumberEffect: Effect<Action> = .fireAndForget {
+                if let exception = await notificationService.setBadgeNumber(
+                    0,
+                    updateHostedValue: false
+                ) {
+                    Logger.log(exception)
+                }
+            }
+
             return .task {
                 let result = await translator.resolve(WelcomePageViewStrings.self)
                 return .resolveReturned(result)
-            }.merge(with: cycleWelcomeLabelTextEffect(delay: .seconds(5)))
+            }.merge(
+                with: resetBadgeNumberEffect
+            )
+            .merge(
+                with: cycleWelcomeLabelTextEffect(delay: .seconds(5))
+            )
 
         case .continueButtonTapped:
             navigation.navigate(to: .onboarding(.push(.selectLanguage)))

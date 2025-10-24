@@ -87,8 +87,9 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             guard !reportedErrorCodes.contains(errorCode) else { return }
 
             let exceptionDescriptor = error.userInfo?["Descriptor"] as? String
-            var parentDirectoryName = "\((error.userInfo?["HostedOverrideErrorCode"] as? String) ?? errorCode)"
-            if let exceptionDescriptor {
+            var parentDirectoryName = (error.userInfo?["HostedOverrideErrorCode"] as? String) ?? errorCode
+            if let exceptionDescriptor,
+               error.userInfo?["StaticErrorCode"] == nil {
                 parentDirectoryName = "\(parentDirectoryName)_\(exceptionDescriptor.shorthandErrorDescriptor)"
             }
 
@@ -114,7 +115,12 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
             ].joined(separator: "/")
 
             let userInfo = (error.userInfo?.compactMapValues { $0 as? String } ?? [:])
-                .filter { $0.key != "Descriptor" }
+                .filter {
+                    $0.key != "Descriptor" &&
+                        $0.key != "ErrorCode" &&
+                        $0.key != "HostedOverrideErrorCode" &&
+                        $0.key != "StaticErrorCode"
+                }
 
             if let exception = await networking.storage.upload(
                 loggerSessionRecordData,
@@ -177,6 +183,7 @@ private enum ErrorReportingDateFormatterDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyMMdd"
+        formatter.locale = .init(identifier: "en_US_POSIX")
         return formatter
     }
 }

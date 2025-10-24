@@ -305,6 +305,7 @@ private enum BreadcrumbsDateFormatterDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
+        formatter.locale = .init(identifier: "en_US_POSIX")
         return formatter
     }
 }

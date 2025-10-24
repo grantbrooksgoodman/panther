@@ -85,9 +85,19 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Set Messages
 
-    /// - Note: This method need only be called for conversations in which the current user is not participating.
-    public func setMessages() async -> Exception? {
+    /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
+    public func setMessages(ids: Set<String>? = nil) async -> Exception? {
         @Dependency(\.networking.messageService) var messageService: MessageService
+
+        if let ids {
+            var exceptions = [Exception]()
+            for id in ids {
+                if let exception = await updateMessage(id: id) {
+                    exceptions.append(exception)
+                }
+            }
+            return exceptions.compiledException
+        }
 
         let getMessagesResult = await messageService.getMessages(ids: messageIDs)
 
@@ -114,6 +124,42 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
         case let .failure(exception):
             return exception
+        }
+    }
+
+    private func updateMessage(id: String) async -> Exception? {
+        @Dependency(\.networking.messageService) var messageService: MessageService
+        let userInfo: [String: Any] = [
+            "ConversationIDKey": self.id.key,
+            "MessageID": id,
+        ]
+
+        guard let messageIndex = messages?.firstIndex(where: { $0.id == id }) else {
+            return .init(
+                "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
+                userInfo: userInfo,
+                metadata: .init(sender: self)
+            )
+        }
+
+        let getMessagesResult = await messageService.getMessage(id: id)
+
+        switch getMessagesResult {
+        case let .success(message):
+            guard var messages else {
+                return .init(
+                    "Failed to resolve messages.",
+                    userInfo: userInfo,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            messages[messageIndex] = message
+            self.messages = messages
+            return nil
+
+        case let .failure(exception):
+            return exception.appending(userInfo: userInfo)
         }
     }
 

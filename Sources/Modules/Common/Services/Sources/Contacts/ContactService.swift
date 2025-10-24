@@ -104,8 +104,11 @@ public final class ContactService {
 
         guard services.permission.contactPermissionStatus == .granted else {
             guard canComplete else { return }
-            completion(.failure(.init("Not authorized for contacts.", metadata: .init(sender: self))))
-            return
+            return completion(.failure(.init(
+                "Not authorized for contacts.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            )))
         }
 
         guard let queryKeys = [
@@ -120,8 +123,10 @@ public final class ContactService {
             CNContactViewController.descriptorForRequiredKeys(),
         ] as? [CNKeyDescriptor] else {
             guard canComplete else { return }
-            completion(.failure(.init("Failed to synthesize query keys.", metadata: .init(sender: self))))
-            return
+            return completion(.failure(.init(
+                "Failed to synthesize query keys.",
+                metadata: .init(sender: self)
+            )))
         }
 
         var contactPairs = [ContactPair]()

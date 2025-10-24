@@ -55,11 +55,10 @@ public struct MessageRetranslationService {
         }
 
         let targetLanguageCode = translation.languagePair.to
-        if !isDeveloperModeEnabled,
-           languageRecognitionService.matchConfidence(
-               for: translation.output,
-               inLanguage: targetLanguageCode
-           ) == 1 {
+        if languageRecognitionService.matchConfidence(
+            for: translation.output,
+            inLanguage: targetLanguageCode
+        ) == 1 {
             guard await confirmRetranslation(
                 targetLanguageCode: targetLanguageCode,
                 messageIsFromCurrentUser: message.isFromCurrentUser
@@ -117,7 +116,7 @@ public struct MessageRetranslationService {
                     return exception
                 }
 
-                if let exception = await conversation.setMessages() {
+                if let exception = await conversation.setMessages(ids: [message.id]) {
                     return exception
                 }
 

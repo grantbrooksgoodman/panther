@@ -121,6 +121,10 @@ public final class ReactionSessionService {
 
         switch updateValueResult {
         case let .success(updatedConversation):
+            if let exception = await updatedConversation.setMessages(ids: [message.id]) {
+                return exception
+            }
+
             conversationSession.setCurrentConversation(updatedConversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
             chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
@@ -209,8 +213,12 @@ public final class ReactionSessionService {
         isReactingToMessage = false
 
         switch updateValueResult {
-        case let .success(conversation):
-            conversationSession.setCurrentConversation(conversation)
+        case let .success(updatedConversation):
+            if let exception = await updatedConversation.setMessages(ids: [message.id]) {
+                return exception
+            }
+
+            conversationSession.setCurrentConversation(updatedConversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
             chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
             return nil

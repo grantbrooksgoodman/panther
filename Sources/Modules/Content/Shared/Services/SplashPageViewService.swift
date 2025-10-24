@@ -177,7 +177,7 @@ public final class SplashPageViewService: ObservableObject {
 
         switch resolveCurrentUserResult {
         case .success:
-            initializationProgress += 0.1
+            initializationProgress += 0.2
 
             guard let currentUser = userSession.currentUser else {
                 return .init("Failed to set current user.", metadata: .init(sender: self))
