@@ -61,6 +61,7 @@ extension ConversationMetadata: Serializable {
               encodedMessageRecipientConsentAcknowledgementData.allSatisfy({ MessageRecipientConsentAcknowledgementData.canDecode(from: $0) }),
               let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String],
               encodedPenPalsSharingData.allSatisfy({ PenPalsSharingData.canDecode(from: $0) }),
+              encodedMessageRecipientConsentAcknowledgementData.count == encodedPenPalsSharingData.count,
               data[Keys.requiresConsentFromInitiator.rawValue] is String else { return false }
 
         return true

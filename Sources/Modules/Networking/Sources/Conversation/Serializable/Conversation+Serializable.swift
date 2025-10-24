@@ -50,9 +50,23 @@ extension Conversation: Serializable {
     public static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] is String,
               let encodedMetadata = data[Keys.metadata.rawValue] as? [String: Any],
-              ConversationMetadata.canDecode(from: encodedMetadata),
+              ConversationMetadata.canDecode(from: encodedMetadata), // swiftlint:disable:next identifier_name
+              let encodedMessageRecipientConsentAcknowledgementData = encodedMetadata[
+                  ConversationMetadata
+                      .SerializationKeys
+                      .messageRecipientConsentAcknowledgementData
+                      .rawValue
+              ] as? [String],
+              let encodedPenPalsSharingData = encodedMetadata[
+                  ConversationMetadata
+                      .SerializationKeys
+                      .penPalsSharingData
+                      .rawValue
+              ] as? [String],
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
+              encodedMessageRecipientConsentAcknowledgementData.count == encodedPenPalsSharingData.count,
+              encodedPenPalsSharingData.count == encodedParticipants.count,
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],
               encodedReactionMetadata.allSatisfy({ ReactionMetadata.canDecode(from: $0) }),
               data[Keys.messages.rawValue] is [String] else { return false }
