@@ -14,6 +14,44 @@ import AppSubsystem
 import Networking
 
 public final class IntegrityServiceSession {
+    // MARK: - Types
+
+    public struct Indices {
+        /* MARK: Properties */
+
+        public let conversationsByMessageID: [String: Set<String>]
+        public let existingConversationIDs: Set<String>
+        public let existingMessageIDs: Set<String>
+        public let existingUserIDs: Set<String>
+        public let usersByConversationIDKey: [String: Set<String>]
+
+        /* MARK: Computed Properties */
+
+        public static let empty: Indices = .init(
+            conversationsByMessageID: [:],
+            existingConversationIDs: [],
+            existingMessageIDs: [],
+            existingUserIDs: [],
+            usersByConversationIDKey: [:]
+        )
+
+        /* MARK: Init */
+
+        fileprivate init(
+            conversationsByMessageID: [String: Set<String>],
+            existingConversationIDs: Set<String>,
+            existingMessageIDs: Set<String>,
+            existingUserIDs: Set<String>,
+            usersByConversationIDKey: [String: Set<String>]
+        ) {
+            self.conversationsByMessageID = conversationsByMessageID
+            self.existingConversationIDs = existingConversationIDs
+            self.existingMessageIDs = existingMessageIDs
+            self.existingUserIDs = existingUserIDs
+            self.usersByConversationIDKey = usersByConversationIDKey
+        }
+    }
+
     // MARK: - Properties
 
     public static let empty: IntegrityServiceSession = .init(
@@ -24,6 +62,7 @@ public final class IntegrityServiceSession {
     )
 
     public let conversationData: [String: Any]
+    public let indices: Indices
     public let messageData: [String: Any]
     public let translationData: [String: [String: Any]]
     public let userData: [String: Any]
@@ -40,6 +79,13 @@ public final class IntegrityServiceSession {
         self.messageData = messageData
         self.translationData = translationData
         self.userData = userData
+
+        indices = IntegrityServiceSession.resolveIndices(
+            conversationData: conversationData,
+            messageData: messageData,
+            translationData: translationData,
+            userData: userData
+        )
     }
 
     // MARK: - Resolve
@@ -174,5 +220,45 @@ public final class IntegrityServiceSession {
             translationData: translationData,
             userData: userData
         ))
+    }
+
+    // MARK: - Auxiliary
+
+    private static func resolveIndices(
+        conversationData: [String: Any],
+        messageData: [String: Any],
+        translationData: [String: [String: Any]],
+        userData: [String: Any]
+    ) -> Indices {
+        var conversationsByMessageID = [String: Set<String>]()
+        var usersByConversationIDKey = [String: Set<String>]()
+
+        for (conversationID, data) in conversationData {
+            guard let dictionary = data as? [String: Any],
+                  let messageIDs = dictionary[Conversation.SerializationKeys.messages.rawValue] as? [String] else { continue }
+
+            for messageID in messageIDs {
+                conversationsByMessageID[messageID, default: []].insert(conversationID)
+            }
+        }
+
+        for (userID, data) in userData {
+            guard let dictionary = data as? [String: Any],
+                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+
+            for idKey in conversationIDStrings.compactMap({
+                $0.components(separatedBy: " | ").first
+            }) {
+                usersByConversationIDKey[idKey, default: []].insert(userID)
+            }
+        }
+
+        return .init(
+            conversationsByMessageID: conversationsByMessageID,
+            existingConversationIDs: Set(conversationData.keys),
+            existingMessageIDs: Set(messageData.keys),
+            existingUserIDs: Set(userData.keys),
+            usersByConversationIDKey: usersByConversationIDKey
+        )
     }
 }

@@ -241,7 +241,10 @@ public final class ConversationSyncService {
         case let .success(messages):
             let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
             guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
-                return .Networking.typeMismatch(key: Conversation.SerializationKeys.messages, .init(sender: self))
+                return .Networking.typeMismatch(
+                    key: Conversation.SerializationKeys.messages,
+                    .init(sender: self)
+                )
             }
 
             let updateHashResult = await updateHash(conversation)
@@ -361,8 +364,6 @@ public final class ConversationSyncService {
     }
 
     private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        guard conversation.encodedHash != conversation.id.hash else { return .success(conversation) }
-
         if let exception = await conversation.setUsers(forceUpdate: true) {
             return .failure(exception)
         }
@@ -380,7 +381,10 @@ public final class ConversationSyncService {
 
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/"
         let hashPath = conversationKeyPath + Conversation.SerializationKeys.encodedHash.rawValue
-        if let exception = await networking.database.setValue(conversation.encodedHash, forKey: hashPath) {
+        if let exception = await networking.database.setValue(
+            conversation.encodedHash,
+            forKey: hashPath
+        ) {
             return .failure(exception)
         }
 
