@@ -177,7 +177,10 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {
-            let exception = Exception("No participants for this conversation.", metadata: .init(sender: self))
+            let exception = Exception(
+                "No participants for this conversation.",
+                metadata: .init(sender: self)
+            )
             return exception.appending(userInfo: commonParams)
         }
 

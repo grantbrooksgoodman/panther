@@ -168,9 +168,9 @@ public final class SettingsPageViewService {
                     }
 
                     if let exception = await self.userSession.deleteAccount() {
+                        self.core.ui.removeOverlay()
                         self.core.hud.hide()
-                        Logger.log(exception, with: .toast)
-                        return
+                        return Logger.log(exception, with: .toast)
                     }
 
                     self.core.hud.hide()

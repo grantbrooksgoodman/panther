@@ -197,6 +197,17 @@ public extension IntegrityService {
             )
         }
 
+        let resolveOrphanedMediaResult = await resolveOrphanedMedia()
+        if let exception = resolveOrphanedMediaResult.exception { exceptions.append(exception) }
+        if resolveOrphanedMediaResult.tookAction {
+            methodsUsedForRepair.append("resolveOrphanedMedia")
+            return await repairDatabase(
+                exceptions,
+                methodsUsedForRepair,
+                isFirstRun: false
+            )
+        }
+
         let resolveOrphanedMessagesResult = await resolveOrphanedMessages()
         if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
         if resolveOrphanedMessagesResult.tookAction {

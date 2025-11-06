@@ -224,28 +224,32 @@ public struct MessageService {
 
     // MARK: - Deletion
 
+    // TODO: Rewrite with Message as the argument for greater efficiency.
     public func deleteMessage(
         id messageID: String,
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true
     ) async -> Exception? {
         func deleteMessage() async -> Exception? {
+            var exceptions = [Exception]()
+
             if let exception = await networking.messageService.audio.deleteInputAudioComponent(for: messageID) {
-                return exception
+                exceptions.append(exception)
             }
 
-            if let exception = await networking.messageService.media.deleteMediaComponent(for: messageID) {
-                return exception
+            if let exception = await networking.messageService.media.deleteMediaComponent(for: messageID),
+               !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
+                exceptions.append(exception)
             }
 
             if let exception = await networking.database.setValue(
                 NSNull(),
                 forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
             ) {
-                return exception
+                exceptions.append(exception)
             }
 
-            return nil
+            return exceptions.compiledException
         }
 
         guard let conversation else {
@@ -294,6 +298,7 @@ public struct MessageService {
         }
     }
 
+    // TODO: Rewrite with Message as the argument for greater efficiency.
     public func deleteMessages(
         ids messageIDs: [String],
         in conversation: Conversation? = nil,

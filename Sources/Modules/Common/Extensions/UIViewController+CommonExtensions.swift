@@ -57,13 +57,15 @@ public extension UIViewController {
             .text?
             .digits
 
-        guard textFieldDigits != "5555555555",
-              textFieldDigits != "8888888888" else {
-            return _present(
-                viewControllerToPresent,
-                animated: animated,
-                completion: completion
-            )
+        if !isDeveloperModeEnabled {
+            guard textFieldDigits != "5555555555",
+                  textFieldDigits != "8888888888" else {
+                return _present(
+                    viewControllerToPresent,
+                    animated: animated,
+                    completion: completion
+                )
+            }
         }
 
         safariViewController.overrideUserInterfaceStyle = .light

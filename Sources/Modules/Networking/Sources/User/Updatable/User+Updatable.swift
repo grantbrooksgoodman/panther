@@ -150,7 +150,11 @@ extension User: Updatable {
                 return .failure(exception)
             }
         } else if let serializable = value as? [any Serializable] {
-            if let exception = await networking.database.setValue(serializable.map { $0.encoded }, forKey: valueKeyPath) {
+            let encoded = serializable.map { $0.encoded }
+            if let exception = await networking.database.setValue(
+                encoded.isEmpty ? Array.bangQualifiedEmpty : encoded,
+                forKey: valueKeyPath
+            ) {
                 return .failure(exception)
             }
         } else if networking.database.isEncodable(value) {

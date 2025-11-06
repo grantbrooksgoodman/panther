@@ -52,19 +52,42 @@ public struct MediaMessageService {
     public func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
-        for fileExtension in MediaFileExtension.hostedCases.map(\.rawValue) {
+        let getValuesResult = await networking.database.getValues(
+            at: "\(NetworkPath.messages.rawValue)/\(messageID)/\(Message.SerializationKeys.contentType.rawValue)"
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let string = values as? String,
+                  let hostedContentType = HostedContentType(hostedValue: string) else {
+                return .init(
+                    "Failed to resolve hosted content type.",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            guard hostedContentType.isMedia else { return nil }
+            guard let mediaFilePath = hostedContentType.mediaFilePath else {
+                return .init(
+                    "Failed to resolve media file path.",
+                    metadata: .init(sender: self)
+                )
+            }
+
             if let exception = await networking.storage.deleteItem(
-                at: "\(NetworkPath.media.rawValue)/\(messageID).\(fileExtension)"
+                at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
             ) {
-                guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { continue }
                 exceptions.append(exception)
             }
-        }
 
-        if let exception = await networking.storage.deleteItem(
-            at: "\(NetworkPath.media.rawValue)/\(messageID)\(MediaFile.thumbnailImageNameSuffix)"
-        ) {
-            guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { return exceptions.compiledException }
+            if let exception = await networking.storage.deleteItem(
+                at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)"
+            ),
+                !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
+                exceptions.append(exception)
+            }
+
+        case let .failure(exception):
             exceptions.append(exception)
         }
 

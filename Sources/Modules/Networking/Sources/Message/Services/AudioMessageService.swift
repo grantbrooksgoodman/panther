@@ -42,6 +42,7 @@ public struct AudioMessageService {
 
     // MARK: - Delete Input Audio Component
 
+    // TODO: This is inefficient. Rewrite with Message as the argument.
     public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
         if let exception = await networking.storage.deleteItem(
             at: "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"

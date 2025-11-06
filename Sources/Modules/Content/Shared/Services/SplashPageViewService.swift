@@ -62,11 +62,6 @@ public final class SplashPageViewService: ObservableObject {
     public func initializeBundle() async -> Exception? {
         /* MARK: Service Setup */
 
-        if UIApplication.isBeingDebugged,
-           UIApplication.isCompiledForV26OrLater {
-            try? await Task.sleep(for: .seconds(1))
-        }
-
         didSurpassQuickLoadTimeoutDuration = false
         initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
         initializationStartDate = .now
@@ -318,45 +313,6 @@ public final class SplashPageViewService: ObservableObject {
             UITheme.prevaricationMode,
             checkStyle: false
         )
-    }
-}
-
-private extension UIApplication {
-    static var isBeingDebugged: Bool {
-        let mib: [Int32] = [
-            CTL_KERN,
-            KERN_PROC,
-            KERN_PROC_PID,
-            getpid(),
-        ]
-
-        let mibCount = UInt32(mib.count)
-
-        var info = kinfo_proc()
-        var infoSize = MemoryLayout<kinfo_proc>.stride
-
-        let result: Int32 = mib.withUnsafeBufferPointer { bufPtr in
-            guard let base = bufPtr.baseAddress else { return -1 }
-            return sysctl(
-                UnsafeMutablePointer<Int32>(mutating: base),
-                mibCount,
-                &info,
-                &infoSize,
-                nil,
-                0
-            )
-        }
-
-        guard result == 0 else { return false }
-        return (info.kp_proc.p_flag & P_TRACED) != 0
-    }
-
-    static var isCompiledForV26OrLater: Bool {
-        #if compiler(>=6.2)
-        return true
-        #else
-        return false
-        #endif
     }
 }
 

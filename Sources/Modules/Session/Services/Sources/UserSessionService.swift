@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -16,7 +18,6 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
-// swiftlint:disable:next type_body_length
 public final class UserSessionService {
     // MARK: - Dependencies
 
@@ -278,45 +279,149 @@ public final class UserSessionService {
 
     // MARK: - Delete Account
 
+    // swiftlint:disable:next function_body_length
     public func deleteAccount() async -> Exception? {
+        var exceptions = [Exception]()
+
         guard let currentUserID else {
-            return .init("Current user ID has not been set.", metadata: .init(sender: self))
+            return .init(
+                "Current user ID has not been set.",
+                metadata: .init(sender: self)
+            )
         }
 
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
+        stopObservingCurrentUserChanges()
+
+        let getValuesResult = await networking.database.getValues(
+            at: NetworkPath.deletedUsers.rawValue
+        )
 
         switch getValuesResult {
         case let .success(values):
             guard var array = values as? [String] else {
+                startObservingCurrentUserChanges()
                 return .Networking.typecastFailed("array", metadata: .init(sender: self))
             }
 
             array.append(currentUserID)
             array = array.filter { $0 != .bangQualifiedEmpty }.unique
 
-            if let exception = await networking.database.setValue(array, forKey: NetworkPath.deletedUsers.rawValue) {
-                return exception
+            if let exception = await networking.database.setValue(
+                array,
+                forKey: NetworkPath.deletedUsers.rawValue
+            ) {
+                exceptions.append(exception)
             }
 
         case let .failure(exception):
-            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return exception }
-            if let exception = await networking.database.setValue([currentUserID], forKey: NetworkPath.deletedUsers.rawValue) {
+            guard exception.isEqual(to: .Networking.Database.noValueExists) else {
+                startObservingCurrentUserChanges()
                 return exception
+            }
+
+            if let exception = await networking.database.setValue(
+                [currentUserID],
+                forKey: NetworkPath.deletedUsers.rawValue
+            ) {
+                exceptions.append(exception)
             }
         }
 
-        if let exception = await networking.integrityService.resolveSession() {
-            return exception
+        let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
+
+        switch resolveResult {
+        case let .success(session):
+            let messagesSentByCurrentUser = Array(
+                session
+                    .messageData
+                    .compactMapValues {
+                        ($0 as? [String: Any])?[
+                            Message
+                                .SerializationKeys
+                                .fromAccountID
+                                .rawValue
+                        ] as? String
+                    }
+                    .filter { $0.value == currentUserID }
+                    .keys
+            )
+
+            if let currentUser,
+               let conversations = currentUser.conversations {
+                if let exception = await currentUser.setConversations() {
+                    exceptions.append(exception)
+                }
+
+                for conversation in conversations {
+                    let updateValueResult = await conversation.updateValue(
+                        conversation.participants.filter { $0.userID != currentUserID },
+                        forKey: .participants
+                    )
+
+                    switch updateValueResult {
+                    case let .success(conversation):
+                        let newMetadata = conversation.metadata.copyWith(
+                            messageRecipientConsentAcknowledgementData: conversation
+                                .metadata
+                                .messageRecipientConsentAcknowledgementData
+                                .filter { $0.userID != currentUserID },
+                            penPalsSharingData: conversation
+                                .metadata
+                                .penPalsSharingData
+                                .filter { $0.userID != currentUserID },
+                            nilRequiresConsentFromInitiator: conversation
+                                .metadata
+                                .requiresConsentFromInitiator == currentUserID
+                        )
+
+                        let updateValueResult = await conversation.updateValue(
+                            newMetadata,
+                            forKey: .metadata
+                        )
+
+                        switch updateValueResult {
+                        case let .failure(exception): exceptions.append(exception)
+                        default: continue
+                        }
+
+                    case let .failure(exception): exceptions.append(exception)
+                    }
+                }
+
+                do {
+                    _ = try (await currentUser.updateValue([], forKey: .conversationIDs)).get()
+                } catch {
+                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                }
+            }
+
+            if let exception = await networking.messageService.deleteMessages(
+                ids: messagesSentByCurrentUser
+            ) {
+                exceptions.append(exception)
+            }
+
+            if let exception = await networking.database.setValue(
+                NSNull(),
+                forKey: "\(NetworkPath.users.rawValue)/\(currentUserID))"
+            ) {
+                exceptions.append(exception)
+            }
+
+            if let exception = await networking.integrityService.repairDatabase() {
+                exceptions.append(exception)
+            }
+
+            currentUser = nil
+            self.currentUserID = nil
+
+        case let .failure(exception):
+            exceptions.append(exception)
         }
 
-        if let exception = await networking.integrityService.repairMalformedUsers([currentUserID]).exception {
-            return exception
-        }
-
-        currentUser = nil
-        self.currentUserID = nil
-
-        return nil
+        guard let exception = exceptions.compiledException else { return nil }
+        startObservingCurrentUserChanges()
+        return exception
     }
 
     // MARK: - Auxiliary
@@ -370,3 +475,5 @@ private extension User {
         )
     }
 }
+
+// swiftlint:enable file_length type_body_length

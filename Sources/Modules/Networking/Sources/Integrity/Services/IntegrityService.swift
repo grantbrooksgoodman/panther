@@ -189,8 +189,21 @@ public final class IntegrityService {
         var tookAction = false
 
         for conversationIDKey in (idKeys ?? malformedConversationIDKeys).filter({ $0 != .bangQualifiedEmpty }) {
-            tookAction = true
+            if idKeys != nil {
+                do {
+                    _ = try await networking.database.getValues(
+                        at: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
+                    ).get()
+                } catch let error as Exception {
+                    exceptions.append(error)
+                    continue
+                } catch {
+                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    continue
+                }
+            }
 
+            tookAction = true
             for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                 guard let dictionary = session.userData[userID] as? [String: Any],
                       var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
@@ -238,8 +251,21 @@ public final class IntegrityService {
         var tookAction = false
 
         for messageID in (messageIDs ?? malformedMessageIDs).filter({ $0 != .bangQualifiedEmpty }) {
-            tookAction = true
+            if messageIDs != nil {
+                do {
+                    _ = try await networking.database.getValues(
+                        at: "\(NetworkPath.messages.rawValue)/\(messageID)"
+                    ).get()
+                } catch let error as Exception {
+                    exceptions.append(error)
+                    continue
+                } catch {
+                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    continue
+                }
+            }
 
+            tookAction = true
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
                 if let exception = await resetHash(conversationIDKey: conversationIDKey) {
                     exceptions.append(exception)
@@ -283,6 +309,20 @@ public final class IntegrityService {
         for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
             guard await networking.userService.legacy.convertUser(id: userID) != nil else { continue }
+
+            if userIDs != nil {
+                do {
+                    _ = try await networking.database.getValues(
+                        at: "\(NetworkPath.users.rawValue)/\(userID)"
+                    ).get()
+                } catch let error as Exception {
+                    exceptions.append(error)
+                    continue
+                } catch {
+                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    continue
+                }
+            }
 
             defer {
                 Task {
@@ -609,6 +649,53 @@ public final class IntegrityService {
         }
 
         return (tookAction, exceptions.compiledException)
+    }
+
+    public func resolveOrphanedMedia() async -> (tookAction: Bool, exception: Exception?) {
+        var exceptions = [Exception]()
+        let referencedMediaFilePaths = Set(
+            session
+                .messageData
+                .values
+                .compactMap {
+                    HostedContentType(
+                        hostedValue: (($0 as? [String: Any])?[
+                            Message
+                                .SerializationKeys
+                                .contentType
+                                .rawValue
+                        ] as? String) ?? ""
+                    )
+                }
+                .compactMap(\.mediaFilePath)
+        )
+
+        let getDirectoryListingResult = await networking.storage.getDirectoryListing(
+            at: NetworkPath.media.rawValue
+        )
+
+        switch getDirectoryListingResult {
+        case let .success(directoryListing):
+            let orphanedMediaFilePaths = Set(
+                directoryListing
+                    .filePaths
+                    .compactMap { $0.components(separatedBy: "/").last }
+            ).subtracting(referencedMediaFilePaths)
+            guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
+
+            for mediaFilePath in orphanedMediaFilePaths {
+                if let exception = await networking.storage.deleteItem(
+                    at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
+                ) {
+                    exceptions.append(exception)
+                }
+            }
+
+            return (true, exceptions.compiledException)
+
+        case let .failure(exception):
+            return (false, exception)
+        }
     }
 
     public func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {

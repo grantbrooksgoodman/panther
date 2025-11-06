@@ -300,16 +300,16 @@ public struct NotificationService {
             ).appending(userInfo: commonParams)
         }
 
+        let newBadgeNumber = await user.hostedBadgeNumber + 1
+        if let exception = await updateHostedBadgeNumber(newBadgeNumber, user: user) {
+            return exception
+        }
+
         guard let pushTokens = user.pushTokens else {
             return .init(
                 "The specified user has not registered for push notifications.",
                 metadata: .init(sender: self)
             ).appending(userInfo: commonParams)
-        }
-
-        let newBadgeNumber = await user.hostedBadgeNumber + 1
-        if let exception = await updateHostedBadgeNumber(newBadgeNumber, user: user) {
-            return exception
         }
 
         let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
