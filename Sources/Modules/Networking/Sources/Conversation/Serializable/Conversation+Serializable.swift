@@ -65,6 +65,7 @@ extension Conversation: Serializable {
               ] as? [String],
               let encodedParticipants = data[Keys.participants.rawValue] as? [String],
               encodedParticipants.allSatisfy({ Participant.canDecode(from: $0) }),
+              encodedParticipants.count > 1,
               encodedMessageRecipientConsentAcknowledgementData.count == encodedPenPalsSharingData.count,
               encodedPenPalsSharingData.count == encodedParticipants.count,
               let encodedReactionMetadata = data[Keys.reactionMetadata.rawValue] as? [[String: Any]],

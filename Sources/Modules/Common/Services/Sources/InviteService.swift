@@ -19,9 +19,10 @@ public struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.uiApplication.keyViewController?.view) private var keyView: UIView?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
@@ -44,6 +45,7 @@ public struct InviteService {
 
     // MARK: - Compose Invitation
 
+    @MainActor
     public func composeInvitation(languageCode: String?) async -> Exception? {
         guard let appShareLink = services.metadata.appShareLink else {
             if let exception = await services.metadata.resolveValues() {
@@ -59,8 +61,12 @@ public struct InviteService {
         services.analytics.logEvent(.invite)
 
         guard languageCode != "en" else {
-            let textMessage = "\(promptMessage.sanitized)\n\n\(appShareLink.absoluteString)"
-            return services.textMessage.composeTextMessage(textMessage)
+            presentActivityViewController(
+                appShareLink: appShareLink,
+                text: promptMessage.sanitized
+            )
+
+            return nil
         }
 
         let translateResult = await translator.translate(
@@ -71,24 +77,24 @@ public struct InviteService {
 
         switch translateResult {
         case let .success(translation):
-            let textMessage = "\(translation.output)\n\n\(appShareLink.absoluteString)"
-            if let exception = services.textMessage.composeTextMessage(textMessage) {
-                return exception
-            }
+            presentActivityViewController(
+                appShareLink: appShareLink,
+                text: translation.output
+            )
+
+            return nil
 
         case let .failure(exception):
             return exception
         }
-
-        return nil
     }
 
     // MARK: - Present Invitation Prompt
 
     @MainActor
     public func presentInvitationPrompt() async -> Exception? {
-        guard let presentInviteLanguagePicker = await promptToTranslate() else { return nil }
-        guard presentInviteLanguagePicker else {
+        guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else { return nil }
+        guard shouldPresentInviteLanguagePicker else {
             if let exception = await composeInvitation(languageCode: nil) {
                 return exception
             }
@@ -97,7 +103,7 @@ public struct InviteService {
         }
 
         Application.dismissSheets()
-        coreGCD.after(.seconds(2)) {
+        core.gcd.after(.seconds(2)) {
             RootSheets.present(.inviteLanguagePicker)
         }
 
@@ -140,10 +146,24 @@ public struct InviteService {
         return true
     }
 
-    // MARK: - Prompt to Translate
+    // MARK: - Auxiliary
+
+    @MainActor
+    private func presentActivityViewController(
+        appShareLink: URL,
+        text: String
+    ) {
+        let activityVC = UIActivityViewController(
+            activityItems: [appShareLink, text],
+            applicationActivities: nil
+        )
+
+        activityVC.popoverPresentationController?.sourceView = keyView
+        core.ui.present(activityVC)
+    }
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
-    private func promptToTranslate() async -> Bool? {
+    private func presentTranslationAlert() async -> Bool? {
         var shouldTranslate: Bool?
 
         let acceptTranslationAction: AKAction = .init("Yes, translate", style: .preferred) {

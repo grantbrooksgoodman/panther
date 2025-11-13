@@ -15,6 +15,7 @@ import AppSubsystem
 public struct CommonServices {
     // MARK: - Properties
 
+    public let accountDeletion: AccountDeletionService
     public let analytics: AnalyticsService
     public let attributeDetection: AttributeDetectionService
     public let audio: AudioService
@@ -38,12 +39,12 @@ public struct CommonServices {
     public let regionDetail: RegionDetailService
     public let remoteCache: RemoteCacheService
     public let review: ReviewService
-    public let textMessage: TextMessageService
     public let update: UpdateService
 
     // MARK: - Init
 
     public init(
+        accountDeletion: AccountDeletionService,
         analytics: AnalyticsService,
         attributeDetection: AttributeDetectionService,
         audio: AudioService,
@@ -67,9 +68,9 @@ public struct CommonServices {
         regionDetail: RegionDetailService,
         remoteCache: RemoteCacheService,
         review: ReviewService,
-        textMessage: TextMessageService,
         update: UpdateService
     ) {
+        self.accountDeletion = accountDeletion
         self.analytics = analytics
         self.attributeDetection = attributeDetection
         self.audio = audio
@@ -93,7 +94,6 @@ public struct CommonServices {
         self.regionDetail = regionDetail
         self.remoteCache = remoteCache
         self.review = review
-        self.textMessage = textMessage
         self.update = update
     }
 }

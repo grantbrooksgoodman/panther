@@ -15,6 +15,7 @@ import AppSubsystem
 public enum CommonServicesDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> CommonServices {
         .init(
+            accountDeletion: .init(),
             analytics: .init(),
             attributeDetection: .shared,
             audio: .init(
@@ -54,7 +55,6 @@ public enum CommonServicesDependency: DependencyKey {
             regionDetail: .init(),
             remoteCache: .init(),
             review: .init(),
-            textMessage: .init(),
             update: .shared
         )
     }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A206F7DA28AC4FD7008FFE18 /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */; };
+		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
 		A2DF2C5B28199B670089DEA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C5A28199B670089DEA1 /* Assets.xcassets */; };
@@ -38,7 +39,6 @@
 		B900B5132B1A973C00BA2F1D /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */; };
 		B900B52B2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */; };
 		B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */; };
-		B900B5302B1AB10F00BA2F1D /* TextMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B52F2B1AB10F00BA2F1D /* TextMessageService.swift */; };
 		B900B5322B1AB3FA00BA2F1D /* InviteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5312B1AB3FA00BA2F1D /* InviteService.swift */; };
 		B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B5352B1ABA2300BA2F1D /* ReviewService.swift */; };
 		B900B53E2B1AC83D00BA2F1D /* PhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B900B53D2B1AC83D00BA2F1D /* PhoneNumber.swift */; };
@@ -754,6 +754,7 @@
 		49280089B6A43629733BA839 /* Pods_Hello.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hello.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		95968F0BC4006379933ED27E /* Pods-Panther.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Panther.debug.xcconfig"; path = "Target Support Files/Pods-Panther/Pods-Panther.debug.xcconfig"; sourceTree = "<group>"; };
 		A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
+		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2DF2C5428199B660089DEA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -787,7 +788,6 @@
 		B900B5122B1A973C00BA2F1D /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		B900B52A2B1AA47000BA2F1D /* AVQueuePlayerDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVQueuePlayerDependency.swift; sourceTree = "<group>"; };
 		B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
-		B900B52F2B1AB10F00BA2F1D /* TextMessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMessageService.swift; sourceTree = "<group>"; };
 		B900B5312B1AB3FA00BA2F1D /* InviteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteService.swift; sourceTree = "<group>"; };
 		B900B5352B1ABA2300BA2F1D /* ReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewService.swift; sourceTree = "<group>"; };
 		B900B53D2B1AC83D00BA2F1D /* PhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumber.swift; sourceTree = "<group>"; };
@@ -2381,6 +2381,7 @@
 				B9B193C32B1A42140016948C /* Audio */,
 				B900B53B2B1AC7D800BA2F1D /* Contacts */,
 				B98C40572C40BC0500C72B0F /* ContentPicker */,
+				A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */,
 				B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */,
 				B900B52D2B1AAB3000BA2F1D /* AnalyticsService.swift */,
 				B93B9FF72E49697F005D01EF /* BreadcrumbsCaptureService.swift */,
@@ -2402,7 +2403,6 @@
 				B9E6D7B32B126188000BC88D /* RegionDetailService.swift */,
 				B988BF9E2C2A1E5B0078F6FA /* RemoteCacheService.swift */,
 				B900B5352B1ABA2300BA2F1D /* ReviewService.swift */,
-				B900B52F2B1AB10F00BA2F1D /* TextMessageService.swift */,
 				B969691A2B18259400ADA875 /* UpdateService.swift */,
 			);
 			path = Sources;
@@ -4184,7 +4184,6 @@
 				B9A409262B71D333005F2489 /* HapticsService.swift in Sources */,
 				B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */,
 				B906C0102C4709B700F414DA /* ModerationSessionService.swift in Sources */,
-				B900B5302B1AB10F00BA2F1D /* TextMessageService.swift in Sources */,
 				B95887132B3234BE007FB37B /* SplashPageViewService.swift in Sources */,
 				B9E6D7E02B1288CD000BC88D /* WelcomePageReducer.swift in Sources */,
 				B923CAA32B758A870042D3E4 /* UIFont+UserContentExtensions.swift in Sources */,
@@ -4344,6 +4343,7 @@
 				B9F47AF82B58609300D86C67 /* UserInfoBadgeView.swift in Sources */,
 				B92CF00F28F4DF9800870B5C /* StoredItemKeys.swift in Sources */,
 				B9B193C52B1A425E0016948C /* RecordingService.swift in Sources */,
+				A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */,
 				B991958B2B47E03B00BD5BBC /* OnboardingServiceDependency.swift in Sources */,
 				B93904272DCC781600E82C03 /* RichMessageContent.swift in Sources */,
 				B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */,

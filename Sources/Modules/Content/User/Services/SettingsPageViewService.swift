@@ -152,28 +152,9 @@ public final class SettingsPageViewService {
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
                 Task {
-                    self.core.ui.addOverlay(
-                        alpha: Floats.deleteAccountOverlayAlpha,
-                        activityIndicator: nil,
-                        isModal: false
-                    )
-
-                    self.core.hud.showProgress(
-                        text: Localized(.deletingData).wrappedValue,
-                        isModal: true
-                    )
-
-                    if let exception = self.userSession.stopObservingCurrentUserChanges() {
+                    if let exception = await self.services.accountDeletion.deleteAccount() {
                         Logger.log(exception)
                     }
-
-                    if let exception = await self.userSession.deleteAccount() {
-                        self.core.ui.removeOverlay()
-                        self.core.hud.hide()
-                        return Logger.log(exception, with: .toast)
-                    }
-
-                    self.core.hud.hide()
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
                         Task { await clearCachesAndExit() }
@@ -195,7 +176,7 @@ public final class SettingsPageViewService {
 
     public func inviteFriendsButtonTapped() {
         Task {
-            let sendTextMessageAction: AKAction = .init("Send Text Message") {
+            let shareToOtherAppAction: AKAction = .init("Share to Another App") {
                 Task { @MainActor in
                     if let exception = await self.services.invite.presentInvitationPrompt() {
                         Logger.log(exception, with: .toast)
@@ -209,7 +190,7 @@ public final class SettingsPageViewService {
 
             await AKActionSheet(
                 title: "Invite Friends",
-                actions: [sendTextMessageAction, showQRCodeAction],
+                actions: [shareToOtherAppAction, showQRCodeAction],
                 cancelButtonTitle: Localized(.cancel).wrappedValue
             ).present(translating: [.actions([]), .title])
         }
