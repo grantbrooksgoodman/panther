@@ -44,7 +44,11 @@ public struct ChangeLanguagePageViewService {
                     applyAndExitAction,
                     .cancelAction,
                 ]
-            ).present()
+            ).present(translating: [
+                .actions([applyAndExitAction]),
+                .message,
+                .title,
+            ])
         }
     }
 
@@ -88,7 +92,7 @@ public struct ChangeLanguagePageViewService {
         for conversation in (currentUser.conversations ?? [])
             .visibleForCurrentUser
             .filter({
-                !$0.messageIDs.isBangQualifiedEmpty && ($0.messages == nil || $0.messages?.isEmpty == true)
+                !$0.messageIDs.isBangQualifiedEmpty && ($0.messages == nil || $0.messages?.isEmpty == true) || $0.messageIDs.count != $0.messages?.count
             }) {
             if let exception = await conversation.setMessages() {
                 return exception

@@ -72,7 +72,7 @@ public struct SettingsPageReducer: Reducer {
 
         // String
         public let doneToolbarButtonText = Localized(.done).wrappedValue
-        public let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["..."])
+        public let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["…"])
 
         public var contactDetailViewSubtitleLabelText: String?
         public var contactDetailViewTitleLabelText = ""

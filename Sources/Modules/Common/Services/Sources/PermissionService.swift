@@ -165,11 +165,12 @@ public struct PermissionService {
 
         @Localized(.settings) var settingsString: String
         let settingsURL = URL(string: UIApplication.openSettingsURLString)
+        let resolvedSettingsString = settingsString.replacingOccurrences(of: "…", with: "...")
 
         var actions: [AKAction] = [.cancelAction]
         if let settingsURL,
            uiApplication.canOpenURL(settingsURL) {
-            let settingsAction: AKAction = .init(settingsString) {
+            let settingsAction: AKAction = .init(resolvedSettingsString) {
                 cancelled = false
                 Task { @MainActor in
                     uiApplication.open(settingsURL)

@@ -34,8 +34,8 @@ public struct ReviewService {
     private var lastRequestedReviewForBuildNumber: Int {
         @Persistent(.lastRequestedReviewForBuildNumber) var defaultsValue: Int?
         guard let defaultsValue else {
-            let buildNumber = build.buildNumber
-            defaultsValue = buildNumber
+            let buildNumber = build.buildNumber - 1
+            defaultsValue = buildNumber < 0 ? 0 : buildNumber
             return buildNumber
         }
 

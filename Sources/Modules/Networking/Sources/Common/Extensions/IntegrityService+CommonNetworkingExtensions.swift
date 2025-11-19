@@ -23,7 +23,7 @@ public extension IntegrityService {
         isFirstRun: Bool = true
     ) async -> Exception? {
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-        @Dependency(\.build.appStoreBuildNumber) var localAppStoreBuildNumber: Int
+        @Dependency(\.build) var build: Build
         @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
@@ -46,7 +46,7 @@ public extension IntegrityService {
             )
         }
 
-        guard hostedAppStoreBuildNumber <= localAppStoreBuildNumber else {
+        guard hostedAppStoreBuildNumber <= build.appStoreBuildNumber else {
             return .init(
                 "Build must be updated before attempting database repair.",
                 metadata: .init(sender: self)
@@ -225,13 +225,22 @@ public extension IntegrityService {
             userSession.startObservingCurrentUserChanges()
         }
 
+        var logMessage = "Hosted data integrity was validated."
         if !methodsUsedForRepair.isEmpty {
+            logMessage = "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)"
+
             Logger.log(
-                "Hosted data needed repair. The following methods were employed:\n\(methodsUsedForRepair)",
+                logMessage,
                 domain: .dataIntegrity,
-                with: .toastInPrerelease,
                 sender: self
             )
+
+            if build.milestone != .generalRelease {
+                Toast.show(.init(
+                    .banner(style: .info),
+                    message: logMessage
+                ))
+            }
 
             guard let reportDelegate = reportDelegate as? ErrorReportingService else { return exceptions.compiledException }
             reportDelegate.fileReport(
@@ -246,11 +255,17 @@ public extension IntegrityService {
             )
         } else {
             Logger.log(
-                "Hosted data integrity was validated.",
+                logMessage,
                 domain: .dataIntegrity,
-                with: .toastInPrerelease,
                 sender: self
             )
+
+            if build.milestone != .generalRelease {
+                Toast.show(.init(
+                    .banner(style: .info),
+                    message: logMessage
+                ))
+            }
         }
 
         return exceptions.compiledException

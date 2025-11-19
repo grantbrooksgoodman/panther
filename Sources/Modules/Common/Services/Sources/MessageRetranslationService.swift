@@ -75,7 +75,7 @@ public struct MessageRetranslationService {
             .first(where: { !attemptedPlatforms.contains($0) }) {
             if isDeveloperModeEnabled {
                 core.hud.showProgress(
-                    text: "Trying \(platform.name)...",
+                    text: "Trying \(platform.name)…",
                     isModal: true
                 )
             }

@@ -143,7 +143,7 @@ public final class InputBarGestureRecognizerService {
             await AKAlert(
                 message: Strings.audioMessagesUnsupportedAlertMessage,
                 actions: [.cancelAction(title: Strings.audioMessagesUnsupportedAlertCancelButtonTitle)]
-            ).present()
+            ).present(translating: [.message])
 
             let isKeyboardFirstResponder = inputBar.inputTextView.isFirstResponder
 

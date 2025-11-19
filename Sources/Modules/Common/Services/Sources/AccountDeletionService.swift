@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -19,22 +20,13 @@ public final class AccountDeletionService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Properties
 
     private var completedUnits: Double = 0
     private var completionPercent: Double = 0 {
-        didSet {
-            // TODO: Set only label text once AppSubsystem updated.
-            let roundedValue = completionPercent.roundedString
-            guard let integer = Int(roundedValue),
-                  integer <= 100 else { return }
-
-            core.hud.showProgress(
-                text: integer == 100 ? nil : "\(Localized(.deletingData).wrappedValue) (\(roundedValue)%)",
-                isModal: true
-            )
-        }
+        didSet { updateHUDLabel() }
     }
 
     // MARK: - Delete Account
@@ -59,7 +51,7 @@ public final class AccountDeletionService {
         )
 
         core.hud.showProgress(
-            text: "\(Localized(.deletingData).wrappedValue) (0%)",
+            text: Localized(.deletingData).wrappedValue,
             isModal: true
         )
 
@@ -186,10 +178,7 @@ public final class AccountDeletionService {
 
         switch getValuesResult {
         case let .success(values):
-            guard var array = values as? [String] else {
-                clientSession.user.startObservingCurrentUserChanges()
-                return .Networking.typecastFailed("array", metadata: .init(sender: self))
-            }
+            guard var array = values as? [String] else { return .Networking.typecastFailed("array", metadata: .init(sender: self)) }
 
             array.append(userID)
             array = array.filter { $0 != .bangQualifiedEmpty }.unique
@@ -202,10 +191,7 @@ public final class AccountDeletionService {
             }
 
         case let .failure(exception):
-            guard exception.isEqual(to: .Networking.Database.noValueExists) else {
-                clientSession.user.startObservingCurrentUserChanges()
-                return exception
-            }
+            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return exception }
 
             if let exception = await networking.database.setValue(
                 [userID],
@@ -284,6 +270,22 @@ public final class AccountDeletionService {
             }
 
         case let .failure(exception): return exception
+        }
+    }
+
+    private func updateHUDLabel() {
+        Task { @MainActor in
+            let statusString = Localized(.deletingData).wrappedValue
+            let progressLabel = presentedViews
+                .compactMap { $0 as? UILabel }
+                .first(where: { $0.text?.contains(statusString) == true })
+
+            let roundedValue = completionPercent.roundedString
+            guard let integer = Int(roundedValue),
+                  integer < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
+
+            progressLabel?.text = "\(statusString) (\(roundedValue)%)"
+            progressLabel?.adjustsFontSizeToFitWidth = true
         }
     }
 }

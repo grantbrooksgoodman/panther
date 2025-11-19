@@ -98,6 +98,7 @@ public struct PenPalsService {
                 penPalsSharingData: newPenPalsSharingData,
             )
 
+            guard penPalsConversation.metadata != newMetadata else { continue }
             let updateValueResult = await penPalsConversation.updateValue(
                 newMetadata,
                 forKey: .metadata
