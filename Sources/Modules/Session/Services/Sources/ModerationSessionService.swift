@@ -14,6 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 public struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -115,9 +116,14 @@ public struct ModerationSessionService {
         return await AKConfirmationAlert(
             title: message == defaultTitle ? nil : defaultTitle,
             message: message,
+            cancelButtonTitle: Localized(.cancel).wrappedValue,
             confirmButtonTitle: type.rawValue.firstUppercase,
             confirmButtonStyle: .destructivePreferred
-        ).present()
+        ).present(translating: [
+            .confirmButtonTitle,
+            .message,
+            .title,
+        ])
     }
 
     private func getBlockedUsers() async -> Callback<[User], Exception> {

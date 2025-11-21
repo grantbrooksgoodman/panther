@@ -22,7 +22,9 @@ public struct ContactPairCellView: View {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
+    @Dependency(\.chatPageStateService) private var chatPageStateService: ChatPageStateService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
+    @Dependency(\.clientSession.conversation.fullConversation) private var fullConversation: Conversation?
 
     // MARK: - Properties
 
@@ -36,8 +38,15 @@ public struct ContactPairCellView: View {
 
     // MARK: - Computed Properties
 
+    private var isParticipantInCurrentConversation: Bool {
+        let contactPairUserIDs = contactPair.users.map(\.id)
+        guard chatPageStateService.isPresented,
+              let participantUserIDs = fullConversation?.participants.map(\.userID) else { return false }
+        return participantUserIDs.containsAnyString(in: contactPairUserIDs)
+    }
+
     private var isSelectionEnabled: Bool {
-        !(contactPair.containsBlockedUser || contactPair.containsCurrentUser || contactPair.isSelected)
+        !(contactPair.containsBlockedUser || contactPair.containsCurrentUser || contactPair.isSelected || isParticipantInCurrentConversation)
     }
 
     // MARK: - Init

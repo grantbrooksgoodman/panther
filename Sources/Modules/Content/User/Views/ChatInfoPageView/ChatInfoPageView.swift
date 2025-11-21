@@ -23,6 +23,10 @@ public struct ChatInfoPageView: View {
     private typealias Floats = AppConstants.CGFloats.ChatInfoPageView
     private typealias Strings = AppConstants.Strings.ChatInfoPageView
 
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.navigation) private var navigation: Navigation
+
     // MARK: - Properties
 
     @StateObject private var observer: ViewObserver<ChatInfoPageObserver>
@@ -55,6 +59,13 @@ public struct ChatInfoPageView: View {
         viewModel.binding(
             for: \.segmentedControlSelectionIndex,
             sendAction: { .segmentedControlSelectionIndexChanged($0) }
+        )
+    }
+
+    private var sheetBinding: Binding<ChatNavigatorState.SheetPaths?> {
+        navigation.navigable(
+            \.chat.sheet,
+            route: { .chat(.sheet($0)) }
         )
     }
 
@@ -101,6 +112,7 @@ public struct ChatInfoPageView: View {
                         viewModel.send(.isPresentingImagePickerSheetChanged(false, exception))
                     }
                 }
+                .sheet(item: sheetBinding) { sheetView(for: $0) }
             }
         }
         .preferredStatusBarStyle(
@@ -218,6 +230,7 @@ public struct ChatInfoPageView: View {
 
     // MARK: - Add Contact Button
 
+    // TODO: Color constants.
     private var addContactButton: some View {
         Button {
             viewModel.send(.addContactButtonTapped)
@@ -225,25 +238,29 @@ public struct ChatInfoPageView: View {
             HStack {
                 let imageView = Components.symbol(
                     Strings.addContactButtonImageSystemName,
-                    foregroundColor: viewModel.isAddContactButtonEnabled ? .accent : .disabled,
+                    foregroundColor: viewModel.isAddContactButtonEnabled ? Color(uiColor: .systemBlue) : .disabled,
                     usesIntrinsicSize: false
                 ).frame(
                     width: Floats.addContactButtonImageWidth,
                     height: Floats.addContactButtonImageHeight
                 )
 
-                Circle()
-                    .overlay(imageView, alignment: .center)
-                    .frame(
-                        maxWidth: Floats.addContactButtonCircleFrameMaxWidth,
-                        maxHeight: Floats.addContactButtonCircleFrameMaxHeight
-                    )
-                    .foregroundStyle(ThemeService.isDarkModeActive ? Colors.addContactButtonCircleDarkForeground : Colors.addContactButtonCircleLightForeground)
-                    .padding(.trailing, Floats.addContactButtonCircleTrailingPadding)
+                ThemedView {
+                    Circle()
+                        .overlay(imageView, alignment: .center)
+                        .frame(
+                            maxWidth: Floats.addContactButtonCircleFrameMaxWidth,
+                            maxHeight: Floats.addContactButtonCircleFrameMaxHeight
+                        )
+                        .foregroundStyle(
+                            ThemeService.isDarkModeActive ? Colors.addContactButtonCircleDarkForeground : Colors.addContactButtonCircleLightForeground
+                        )
+                        .padding(.trailing, Floats.addContactButtonCircleTrailingPadding)
+                }
 
                 Components.text(
                     viewModel.strings.value(for: .addContactButtonText),
-                    foregroundColor: viewModel.isAddContactButtonEnabled ? .accent : .disabled
+                    foregroundColor: viewModel.isAddContactButtonEnabled ? Color(uiColor: .systemBlue) : .disabled
                 )
             }
         }
@@ -346,13 +363,16 @@ public struct ChatInfoPageView: View {
 
     private var chatParticipantsList: some View {
         List {
-            ForEach(-1 ..< viewModel.visibleParticipants.count, id: \.self) { index in
+            ForEach(
+                -1 ..< (viewModel.visibleParticipants.count + viewModel.visibleParticipantsIncrement),
+                id: \.self
+            ) { index in
                 if index == -1 {
                     chatInfoCell
-                } /* else if index == viewModel.visibleParticipants.count - 1 {
-                     addContactButton
-                         .disabled(!viewModel.isAddContactButtonEnabled)
-                 } */ else if let participant = viewModel.visibleParticipants.itemAt(index) {
+                } else if index == viewModel.visibleParticipants.count {
+                    addContactButton
+                        .disabled(!viewModel.isAddContactButtonEnabled)
+                } else if let participant = viewModel.visibleParticipants.itemAt(index) {
                     if let cnContactContainer = participant.cnContactContainer {
                         NavigationLink(
                             destination:
@@ -427,6 +447,19 @@ public struct ChatInfoPageView: View {
 
                 Spacer()
             }
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    @ViewBuilder
+    private func sheetView(for path: ChatNavigatorState.SheetPaths) -> some View {
+        switch path {
+        case .contactSelector:
+            ContactSelectorPageView(.init(
+                initialState: .init(.chatInfoPageView),
+                reducer: ContactSelectorPageReducer()
+            ))
         }
     }
 }

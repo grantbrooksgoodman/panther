@@ -21,19 +21,19 @@ public struct ChatParticipant: Equatable {
     // MARK: - Properties
 
     public let cnContactContainer: CNContactContainer?
-    public let contactPair: ContactPair?
+    public let contactPair: ContactPair
     public let displayName: String
     public let penPalsStatus: PenPalsStatus?
 
     // MARK: - Computed Properties
 
-    public var firstUser: User? { contactPair?.users.first }
+    public var firstUser: User? { contactPair.users.first }
     public var thumbnailImage: UIImage? {
         penPalsStatus != nil ? SquareIconView.image(
             .penPalsIcon(
                 backgroundColor: .init(uiColor: firstUser?.penPalsIconColor ?? .purple)
             )
-        ) : contactPair?.contact.image
+        ) : contactPair.contact.image
     }
 
     // MARK: - Init
@@ -41,7 +41,7 @@ public struct ChatParticipant: Equatable {
     public init(
         displayName: String,
         cnContactContainer: CNContactContainer?,
-        contactPair: ContactPair?,
+        contactPair: ContactPair,
         penPalsStatus: PenPalsStatus?
     ) {
         self.displayName = displayName

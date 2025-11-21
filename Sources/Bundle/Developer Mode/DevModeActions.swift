@@ -149,14 +149,8 @@ public extension DevModeAction {
             func toggleGlassTintingAction() {
                 @Dependency(\.coreKit) var core: CoreKit
 
-                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool?
-                let isGlassTintingEnabled = persistedValue == true
-
-                persistedValue = !isGlassTintingEnabled
-                UserDefaults.standard.synchronize() // NIT: Trying to force sync.
-
-                NavigationBar.removeAllItemGlassTint()
-                RootWindowScene.traitCollectionChanged()
+                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool? // TODO: Audit this logic.
+                Application.toggleGlassTinting(on: !(persistedValue == true))
 
                 core.hud.showSuccess(
                     text: "Glass Tinting \(persistedValue == true ? "Enabled" : "Disabled")"
@@ -175,9 +169,10 @@ public extension DevModeAction {
 
             func toggleV26Features() {
                 @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.userDefaults) var defaults: UserDefaults
 
                 persistedValue = !v26FeaturesEnabled
-                UserDefaults.standard.synchronize() // NIT: Trying to force sync.
+                defaults.synchronize() // NIT: Trying to force sync.
                 core.hud.showSuccess(
                     text: "v26 Features \(persistedValue == true ? "Enabled" : "Disabled")"
                 )

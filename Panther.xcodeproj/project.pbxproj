@@ -8,7 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		A206F7DA28AC4FD7008FFE18 /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */; };
+		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
+		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
+		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
 		A2DF2C5B28199B670089DEA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C5A28199B670089DEA1 /* Assets.xcassets */; };
@@ -754,7 +757,10 @@
 		49280089B6A43629733BA839 /* Pods_Hello.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hello.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		95968F0BC4006379933ED27E /* Pods-Panther.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Panther.debug.xcconfig"; path = "Target Support Files/Pods-Panther/Pods-Panther.debug.xcconfig"; sourceTree = "<group>"; };
 		A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
+		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
+		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
+		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2DF2C5428199B660089DEA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -2439,6 +2445,7 @@
 		B99CC5522C1927AE00319F02 /* Navigators */ = {
 			isa = PBXGroup;
 			children = (
+				A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */,
 				B99CC5532C1927BC00319F02 /* OnboardingNavigator.swift */,
 				B900BB022C98DDE200EED8E4 /* SettingsNavigator.swift */,
 				B947F2D32CAC7C7A004CD880 /* UserContentNavigator.swift */,
@@ -3393,6 +3400,7 @@
 				B9BF37F72B6DAF8D00024548 /* ChatPageView */,
 				B99880AD2E29A87A002742A8 /* ChangeLanguagePageViewService.swift */,
 				B903CA672B6C189400A238A4 /* ChatPageStateService.swift */,
+				A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */,
 				B98589B12B60512C00E549C0 /* ConversationCellViewService.swift */,
 				B9F47B292B5A071200D86C67 /* ConversationsPageViewService.swift */,
 				B942625A2C46D5C20026CDE8 /* InviteQRCodePageViewService.swift */,
@@ -3410,6 +3418,7 @@
 				B903CA692B6C194900A238A4 /* ChatPageStateServiceDependency.swift */,
 				B91822232B6DD87E0068BDAB /* ChatPageViewControllerFactoryDependency.swift */,
 				B9AD41222B6B0972005BF8F0 /* ChatPageViewServiceDependency.swift */,
+				A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */,
 				B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */,
 				B9F47B2C2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift */,
 				B9627C682B6F2353004EE9DA /* InputBarConfigServiceDependency.swift */,
@@ -3900,9 +3909,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4048,6 +4061,7 @@
 				B9BF37FB2B6DB98B00024548 /* DeliveryProgressIndicatorProtocol.swift in Sources */,
 				B988BF9D2C2A172D0078F6FA /* RemoteCacheStatus.swift in Sources */,
 				B96EDD8F2B635A6C00CB925B /* SettingsPageViewServiceDependency.swift in Sources */,
+				A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */,
 				B9D0D9462B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift in Sources */,
 				B90071EB2B7C0CA800BE8654 /* ContactPairCellView.swift in Sources */,
 				B9B193CB2B1A56E60016948C /* AVSpeechSynthesizerDependency.swift in Sources */,
@@ -4114,6 +4128,7 @@
 				B9ADF4E42B00554B002D9211 /* AppIconService.swift in Sources */,
 				B9C0D25B2B796AC000119B85 /* RecipientBar.swift in Sources */,
 				B9C9560E2B64578B001C7E01 /* BuildInfoButtonStrings.swift in Sources */,
+				A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */,
 				B94721102E0B4506008A76E5 /* NavigationWindow.swift in Sources */,
 				A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */,
 				B94D76822BBB5A3F002B4BC6 /* SignInPageViewStrings.swift in Sources */,
@@ -4209,6 +4224,7 @@
 				B998B3C12B68A67A0048241B /* InviteLanguagePickerView.swift in Sources */,
 				B9BD04522E14939100B68246 /* Application+CommonExtensions.swift in Sources */,
 				B90C910A2B69CA72008DFE59 /* ChatPageViewController.swift in Sources */,
+				A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */,
 				B9E7D4202AAC1ED700FAF2A9 /* SamplePageView.swift in Sources */,
 				B90071F12B7C167200BE8654 /* RecipientBarContactSelectionUIService.swift in Sources */,
 				B9C6CAD62C2A0D430095B42C /* IntegrityService.swift in Sources */,

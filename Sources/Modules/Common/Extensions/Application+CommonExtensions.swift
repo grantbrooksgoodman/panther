@@ -75,4 +75,15 @@ public extension Application {
             navigation.navigate(to: .root(.modal(.splash)))
         }
     }
+
+    static func toggleGlassTinting(on isEnabled: Bool) {
+        @Dependency(\.userDefaults) var defaults: UserDefaults
+        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
+
+        isGlassTintingEnabled = isEnabled
+        defaults.synchronize() // NIT: Trying to force sync.
+
+        NavigationBar.removeAllItemGlassTint()
+        RootWindowScene.traitCollectionChanged()
+    }
 }

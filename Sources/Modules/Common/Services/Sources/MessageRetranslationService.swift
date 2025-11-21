@@ -235,7 +235,11 @@ public struct MessageRetranslationService {
         return await AKConfirmationAlert(
             title: "\(Localized(.retryTranslation).wrappedValue)?",
             message: alertMessage,
-        ).present(translating: [.message])
+            cancelButtonTitle: Localized(.cancel).wrappedValue
+        ).present(translating: [
+            .confirmButtonTitle,
+            .message,
+        ])
     }
 
     private func markStale(

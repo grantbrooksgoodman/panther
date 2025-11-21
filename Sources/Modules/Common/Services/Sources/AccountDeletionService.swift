@@ -234,6 +234,7 @@ public final class AccountDeletionService {
         completionPercent = completedUnits / max(total, 1)
     }
 
+    // TODO: Consolidate this into a method on Conversation.
     private func removeFromConversation(
         _ userID: String,
         conversation: Conversation

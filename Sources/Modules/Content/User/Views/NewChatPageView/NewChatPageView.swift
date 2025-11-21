@@ -21,6 +21,10 @@ public struct NewChatPageView: View {
     private typealias Floats = AppConstants.CGFloats.NewChatPageView
     private typealias Strings = AppConstants.Strings.NewChatPageView
 
+    // MARK: - Dependencies
+
+    @ObservedDependency(\.navigation) private var navigation: Navigation
+
     // MARK: - Properties
 
     @StateObject var viewModel: ViewModel<NewChatPageReducer>
@@ -29,10 +33,10 @@ public struct NewChatPageView: View {
 
     // MARK: - Bindings
 
-    private var contactSelectorSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingContactSelectorSheet,
-            sendAction: { .isPresentingContactSelectorSheetChanged($0) }
+    private var sheetBinding: Binding<ChatNavigatorState.SheetPaths?> {
+        navigation.navigable(
+            \.chat.sheet,
+            route: { .chat(.sheet($0)) }
         )
     }
 
@@ -66,14 +70,7 @@ public struct NewChatPageView: View {
                 .conditionalLightContent,
                 restoreOnDisappear: !Application.isInPrevaricationMode
             )
-            .sheet(isPresented: contactSelectorSheetBinding) {
-                ContactSelectorPageView(
-                    .init(
-                        initialState: .init(contactSelectorSheetBinding),
-                        reducer: ContactSelectorPageReducer()
-                    )
-                )
-            }
+            .sheet(item: sheetBinding) { sheetView(for: $0) }
             .onFirstAppear {
                 viewModel.send(.viewAppeared)
             }
@@ -170,5 +167,18 @@ public struct NewChatPageView: View {
             }
         }
         .background(ThemeService.isDarkModeActive ? Color.groupedContentBackground : .background)
+    }
+
+    // MARK: - Auxiliary
+
+    @ViewBuilder
+    private func sheetView(for path: ChatNavigatorState.SheetPaths) -> some View {
+        switch path {
+        case .contactSelector:
+            ContactSelectorPageView(.init(
+                initialState: .init(.newChatPageView),
+                reducer: ContactSelectorPageReducer()
+            ))
+        }
     }
 }

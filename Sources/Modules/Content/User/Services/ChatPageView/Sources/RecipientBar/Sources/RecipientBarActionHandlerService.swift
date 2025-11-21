@@ -23,6 +23,7 @@ public final class RecipientBarActionHandlerService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.userService) private var userService: UserService
 
@@ -131,7 +132,7 @@ public final class RecipientBarActionHandlerService {
                 return
             }
 
-            Observables.contactSelectorPresentationPending.trigger()
+            navigation.navigate(to: .chat(.sheet(.contactSelector)))
         }
     }
 

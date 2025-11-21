@@ -20,6 +20,13 @@ public struct ContactSelectorPageView: View {
     private typealias Colors = AppConstants.Colors.ContactSelectorPageView
     private typealias Floats = AppConstants.CGFloats.ContactSelectorPageView
 
+    // MARK: - Types
+
+    public enum EntryPoint {
+        case chatInfoPageView
+        case newChatPageView
+    }
+
     // MARK: - Properties
 
     @StateObject private var viewModel: ViewModel<ContactSelectorPageReducer>
@@ -52,7 +59,7 @@ public struct ContactSelectorPageView: View {
             }
         }
         .v26Header(
-            leftItem: headerLeftItem,
+            leftItem: viewModel.entryPoint == .chatInfoPageView ? nil : headerLeftItem,
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
             rightItem: headerRightItem,
             attributes: .init(
@@ -61,11 +68,27 @@ public struct ContactSelectorPageView: View {
                 sizeClass: .sheet
             )
         )
-        .navigationBarItemGlassTint(
-            Colors.navigationBarItemGlassTint,
-            for: .leading
+        .if(
+            viewModel.entryPoint == .newChatPageView,
+            { body in
+                body
+                    .navigationBarItemGlassTint(
+                        Colors.navigationBarItemGlassTint,
+                        for: .leading
+                    )
+                    .redrawsOnTraitCollectionChange()
+            },
+            else: { body in
+                body
+                    .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
+                    .onTraitCollectionChange {
+                        viewModel.send(.traitCollectionChanged)
+                    }
+                    .onDisappear {
+                        viewModel.send(.viewDisappeared)
+                    }
+            }
         )
-        .redrawsOnTraitCollectionChange()
     }
 
     // MARK: - Header Items
@@ -75,7 +98,9 @@ public struct ContactSelectorPageView: View {
             .init(
                 text: .init(
                     viewModel.inviteToolbarButtonText,
-                    foregroundColor: UIApplication.isGlassTintingEnabled ? Colors.tintedGlassToolbarButtonForeground : .navigationBarButton
+                    foregroundColor: UIApplication.isGlassTintingEnabled && viewModel.entryPoint == .newChatPageView ?
+                        Colors.tintedGlassToolbarButtonForeground
+                        : .navigationBarButton
                 )
             ) { viewModel.send(.inviteToolbarButtonTapped) }
         )

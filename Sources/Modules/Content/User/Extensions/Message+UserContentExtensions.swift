@@ -146,6 +146,11 @@ public extension Message {
         return speakingMessage.id == id
     }
 
+    // TODO: Support system messages.
+    var isSystemMessage: Bool {
+        id == CommonConstants.systemMessageID
+    }
+
     // MARK: - Methods
 
     func textContains(_ searchTerm: String) -> Bool {

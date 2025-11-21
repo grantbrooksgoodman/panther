@@ -22,12 +22,13 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
 
-    public enum Action {
+    public enum Action { // TODO: Make all models Sendable where possible. Good preparation for Swift 6 language mode.
         case viewAppeared
         case viewDisappeared
 
@@ -143,6 +144,12 @@ public struct ChatInfoPageReducer: Reducer {
             return chatParticipants.first?.cnContactContainer
         }
 
+        public var visibleParticipantsIncrement: Int {
+            guard !visibleParticipants.isEmpty,
+                  visibleParticipants.count < 10 else { return 0 }
+            return 1
+        }
+
         fileprivate var cellViewData: ConversationCellViewData? {
             guard let conversation,
                   let cellViewData: ConversationCellViewData = .init(conversation) else { return nil }
@@ -183,7 +190,7 @@ public struct ChatInfoPageReducer: Reducer {
             }.merge(with: getChatParticipantsTask)
 
         case .addContactButtonTapped:
-            break
+            navigation.navigate(to: .chat(.sheet(.contactSelector)))
 
         case let .changeMetadataActionSheetDismissed(.name(newMetadata)):
             guard let conversation = state.conversation else {

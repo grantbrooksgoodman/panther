@@ -21,7 +21,6 @@ public struct NewChatPageObserver: Observer {
 
     public let id = UUID()
     public let observedValues: [any ObservableProtocol] = [
-        Observables.contactSelectorPresentationPending,
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
         Observables.newChatPagePenPalsToolbarButtonAnimation,
@@ -48,9 +47,6 @@ public struct NewChatPageObserver: Observer {
         )
 
         switch observable.key {
-        case .contactSelectorPresentationPending:
-            send(.isPresentingContactSelectorSheetChanged(true))
-
         case .firstMessageSentInNewChat:
             send(.firstMessageSent)
 

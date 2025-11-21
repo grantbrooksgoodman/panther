@@ -15,7 +15,6 @@ import AppSubsystem
 public extension ObservableKey {
     /* Add keys here to define new values for Observer instances. */
 
-    static let contactSelectorPresentationPending: ObservableKey = .init("contactSelectorPresentationPending")
     static let currentConversationMetadataChanged: ObservableKey = .init("currentConversationMetadataChanged")
     static let didGrantPenPalsPermission: ObservableKey = .init("didGrantPenPalsPermission")
     static let firstMessageSentInNewChat: ObservableKey = .init("firstMessageSentInNewChat")
@@ -31,7 +30,6 @@ public extension ObservableKey {
 public extension Observables {
     /* Add new properties conforming to Observable here. */
 
-    static let contactSelectorPresentationPending: Observable<Nil> = .init(key: .contactSelectorPresentationPending)
     static let currentConversationMetadataChanged: Observable<Nil> = .init(key: .currentConversationMetadataChanged)
     static let didGrantPenPalsPermission: Observable<Bool> = .init(.didGrantPenPalsPermission, false)
     static let firstMessageSentInNewChat: Observable<Nil> = .init(key: .firstMessageSentInNewChat)

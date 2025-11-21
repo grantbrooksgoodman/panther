@@ -22,6 +22,7 @@ public struct RootNavigationService: Navigating {
     // MARK: - Types
 
     public enum Route {
+        case chat(ChatRoute)
         case onboarding(OnboardingRoute)
         case root(RootRoute)
         case settings(SettingsRoute)
@@ -32,6 +33,9 @@ public struct RootNavigationService: Navigating {
 
     public func navigate(to route: Route, on state: inout RootNavigatorState) {
         switch route {
+        case let .chat(chatRoute):
+            ChatNavigator.navigate(to: chatRoute, on: &state.chat)
+
         case let .onboarding(onboardingRoute):
             OnboardingNavigator.navigate(to: onboardingRoute, on: &state.onboarding)
 

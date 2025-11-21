@@ -32,7 +32,6 @@ public struct NewChatPageReducer: Reducer {
         case penPalsToolbarButtonTapped
 
         case isDoneToolbarButtonEnabledChanged(Bool)
-        case isPresentingContactSelectorSheetChanged(Bool)
     }
 
     // MARK: - State
@@ -42,7 +41,6 @@ public struct NewChatPageReducer: Reducer {
 
         // Bool
         public var isDoneToolbarButtonEnabled = true
-        public var isPresentingContactSelectorSheet = false
         public var shouldShowPenPalsToolbarButton = false
         public var shouldUseBoldDoneToolbarButton = false
 
@@ -130,9 +128,6 @@ public struct NewChatPageReducer: Reducer {
 
         case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
             state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
-
-        case let .isPresentingContactSelectorSheetChanged(isPresentingContactSelectorSheet):
-            state.isPresentingContactSelectorSheet = isPresentingContactSelectorSheet
         }
 
         return .none

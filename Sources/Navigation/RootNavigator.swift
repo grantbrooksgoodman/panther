@@ -27,6 +27,7 @@ public struct RootNavigatorState: NavigatorState {
 
     // MARK: - Properties
 
+    public var chat: ChatNavigatorState = .init()
     public var onboarding: OnboardingNavigatorState = .init()
     public var settings: SettingsNavigatorState = .init()
     public var userContent: UserContentNavigatorState = .init()
