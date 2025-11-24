@@ -56,6 +56,43 @@ public final class ChatPageViewController: MessagesViewController {
         viewService.onViewDidDisappear()
     }
 
+    // MARK: - UICollectionView
+
+    override public func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        guard let dataSource = messagesCollectionView.messagesDataSource else { return .init() }
+        guard !isSectionReservedForTypingIndicator(indexPath.section) else {
+            return super.collectionView(
+                collectionView,
+                cellForItemAt: indexPath
+            )
+        }
+
+        let message = dataSource.messageForItem(
+            at: indexPath,
+            in: messagesCollectionView
+        )
+
+        if case .custom = message.kind {
+            let systemMessageCell = messagesCollectionView.dequeueReusableCell(
+                SystemMessageCell.self,
+                for: indexPath
+            )
+
+            systemMessageCell.configure(
+                with: message,
+                at: indexPath,
+                and: messagesCollectionView
+            )
+
+            return systemMessageCell
+        }
+
+        return super.collectionView(collectionView, cellForItemAt: indexPath)
+    }
+
     // MARK: - UIScrollView
 
     override public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

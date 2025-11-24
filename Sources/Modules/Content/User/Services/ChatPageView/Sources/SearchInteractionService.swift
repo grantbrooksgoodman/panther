@@ -16,9 +16,9 @@ import AppSubsystem
 public final class SearchInteractionService {
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService.isPresented) private var chatPageIsPresented: Bool
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
+    @Dependency(\.chatPageStateService.isPresented) private var isChatPagePresented: Bool
     @Dependency(\.clientSession.conversation.currentConversation?.messages) private var messages: [Message]?
 
     // MARK: - Properties
@@ -56,7 +56,7 @@ public final class SearchInteractionService {
 
     @MainActor
     public func triggerFocusedMessageCellInteractionIfNeeded() {
-        guard chatPageIsPresented,
+        guard isChatPagePresented,
               !hasTriggeredInteractionOnce else { return }
 
         contextMenuInteractionService?.removeUIMenuLongPressGestureForVisibleCells()
@@ -67,7 +67,7 @@ public final class SearchInteractionService {
 
     @MainActor
     private func triggerCellInteraction(_ retryOnFailure: Bool = true) {
-        guard chatPageIsPresented,
+        guard isChatPagePresented,
               let focusedMessageCellGestureRecognizer else {
             guard retryOnFailure else { return }
             coreGCD.after(.milliseconds(500)) { self.triggerCellInteraction(false) }

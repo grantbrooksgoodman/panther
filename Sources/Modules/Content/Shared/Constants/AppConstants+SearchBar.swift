@@ -27,6 +27,7 @@ public extension AppConstants.CGFloats {
         public static let innerHStackHorizontalPadding: CGFloat = 8
 
         public static let textFieldFrameHeight: CGFloat = 36
+        public static let textFieldMinimumScaleFactor: CGFloat = 0.5
 
         public static let v26HorizontalPadding: CGFloat = 15
     }

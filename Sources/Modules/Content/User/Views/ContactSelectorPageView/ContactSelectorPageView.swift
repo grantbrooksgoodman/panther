@@ -49,46 +49,58 @@ public struct ContactSelectorPageView: View {
     // MARK: - Body
 
     public var body: some View {
-        SearchBar.inView(withQuery: searchQueryBinding) {
-            Group {
-                if !viewModel.queriedContactPairs.isEmpty {
-                    listView
-                } else {
-                    noResultsView
+        StatefulView(
+            viewModel.binding(for: \.viewState),
+            progressPageViewBackgroundColor: .groupedContentBackground
+        ) {
+            SearchBar.inView(
+                withQuery: searchQueryBinding,
+                keyboardType: viewModel.entryPoint == .chatInfoPageView ? .namePhonePad : nil,
+                placeholderText: viewModel.searchBarPlaceholderText
+            ) {
+                Group {
+                    if !viewModel.queriedContactPairs.isEmpty {
+                        listView
+                    } else {
+                        noResultsView
+                    }
                 }
             }
-        }
-        .v26Header(
-            leftItem: viewModel.entryPoint == .chatInfoPageView ? nil : headerLeftItem,
-            .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
-            rightItem: headerRightItem,
-            attributes: .init(
-                appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
-                showsDivider: false,
-                sizeClass: .sheet
+            .v26Header(
+                leftItem: viewModel.entryPoint == .chatInfoPageView ? nil : headerLeftItem,
+                .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
+                rightItem: headerRightItem,
+                attributes: .init(
+                    appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
+                    showsDivider: false,
+                    sizeClass: .sheet
+                )
             )
-        )
-        .if(
-            viewModel.entryPoint == .newChatPageView,
-            { body in
-                body
-                    .navigationBarItemGlassTint(
-                        Colors.navigationBarItemGlassTint,
-                        for: .leading
-                    )
-                    .redrawsOnTraitCollectionChange()
-            },
-            else: { body in
-                body
-                    .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
-                    .onTraitCollectionChange {
-                        viewModel.send(.traitCollectionChanged)
-                    }
-                    .onDisappear {
-                        viewModel.send(.viewDisappeared)
-                    }
-            }
-        )
+            .if(
+                viewModel.entryPoint == .newChatPageView,
+                { body in
+                    body
+                        .navigationBarItemGlassTint(
+                            Colors.navigationBarItemGlassTint,
+                            for: .leading
+                        )
+                        .redrawsOnTraitCollectionChange()
+                },
+                else: { body in
+                    body
+                        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
+                        .onTraitCollectionChange {
+                            viewModel.send(.traitCollectionChanged)
+                        }
+                }
+            )
+        }
+        .onFirstAppear {
+            viewModel.send(.viewAppeared)
+        }
+        .onDisappear {
+            viewModel.send(.viewDisappeared)
+        }
     }
 
     // MARK: - Header Items
@@ -139,12 +151,31 @@ public struct ContactSelectorPageView: View {
     // MARK: - No Results View
 
     private var noResultsView: some View {
-        Group {
+        VStack {
             Spacer()
-            Components.text(
-                viewModel.noResultsLabelText,
-                foregroundColor: Colors.noResultsLabelForeground
+
+            Group {
+                if viewModel.noResultsLabelText == Localized(.noResults).wrappedValue {
+                    Components.text(
+                        viewModel.noResultsLabelText,
+                        foregroundColor: Colors.noResultsLabelForeground
+                    )
+                } else {
+                    Components.button(
+                        viewModel.noResultsLabelText,
+                        font: .system,
+                        foregroundColor: Colors.noResultsLabelAlternateForeground,
+                    ) {
+                        viewModel.send(.findUserButtonTapped)
+                    }
+                    .multilineTextAlignment(.center)
+                }
+            }
+            .padding(
+                .horizontal,
+                Floats.noResultsLabelHorizontalPadding
             )
+
             Spacer()
         }
     }

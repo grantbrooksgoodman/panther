@@ -30,28 +30,28 @@ public struct ContactSelectorPageViewService {
     public func cancelToolbarButtonTapped(from entryPoint: ContactSelectorPageView.EntryPoint) {
         navigation.navigate(to: .chat(.sheet(.none)))
 
-        switch entryPoint {
-        case .chatInfoPageView:
-            break
+        guard entryPoint == .newChatPageView else { return }
+        Task.delayed(by: .milliseconds(100)) { @MainActor in
+            chatPageViewService.inputBar?.forceAppearance()
 
-        case .newChatPageView:
-            Task.delayed(by: .milliseconds(100)) { @MainActor in
-                chatPageViewService.inputBar?.forceAppearance()
+            Task.delayed(by: .milliseconds(200)) { @MainActor in
+                guard let recipientBarIsFirstResponder = chatPageViewService
+                    .recipientBar?
+                    .layout
+                    .textField?
+                    .isFirstResponder else { return }
 
-                Task.delayed(by: .milliseconds(200)) { @MainActor in
-                    guard let recipientBarIsFirstResponder = chatPageViewService
-                        .recipientBar?
-                        .layout
-                        .textField?
-                        .isFirstResponder else { return }
-
-                    chatPageViewService
-                        .recipientBar?
-                        .contactSelectionUI
-                        .toggleLabelRepresentation(on: !recipientBarIsFirstResponder)
-                }
+                chatPageViewService
+                    .recipientBar?
+                    .contactSelectionUI
+                    .toggleLabelRepresentation(on: !recipientBarIsFirstResponder)
             }
         }
+    }
+
+    /// `.searchQuerySubmitted`
+    public func findUser(with phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
+        await networking.userService.getUser(phoneNumber: phoneNumber)
     }
 
     public func inviteToolbarButtonTapped() {
@@ -62,6 +62,19 @@ public struct ContactSelectorPageViewService {
         }
     }
 
+    /// `.findUserReturned(.failure)`
+    public func presentInvitationPrompt(phoneNumber: PhoneNumber) async {
+        let inviteAction = AKAction("Send Invite", style: .preferred) { inviteToolbarButtonTapped() }
+        await AKAlert(
+            title: phoneNumber.formattedString(),
+            message: "Seems like there aren't any registered users with that phone number.\n\nWould you like to invite them to sign up?",
+            actions: [inviteAction, .cancelAction]
+        ).present(translating: [
+            .actions([inviteAction]),
+            .message,
+        ])
+    }
+
     @MainActor
     public func selectedContactPairChanged(
         _ selectedContactPair: ContactPair,
@@ -70,26 +83,14 @@ public struct ContactSelectorPageViewService {
         switch entryPoint {
         case .chatInfoPageView:
             guard let user = selectedContactPair.users.first,
-                  let conversation = clientSession.conversation.fullConversation else { return }
-
-            guard !conversation.participants.map(\.userID).contains(user.id) else {
-                return Toast.show(
-                    .init(
-                        .banner(style: .error),
-                        message: "⌘\(user.displayName)⌘ is already in this conversation.",
-                        perpetuation: .ephemeral(.seconds(5))
-                    ),
-                    translating: [.message]
-                )
-            }
+                  let conversation = clientSession.conversation.fullConversation,
+                  !conversation.participants.map(\.userID).contains(user.id) else { return }
 
             guard await AKConfirmationAlert(
-                message: "Add ⌘\(user.displayName)⌘ to conversation?",
-                cancelButtonTitle: Localized(.cancel).wrappedValue
-            ).present(translating: [
-                .confirmButtonTitle,
-                .message,
-            ]) else { return }
+                message: user.displayName,
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                confirmButtonTitle: "Add to Conversation"
+            ).present(translating: [.confirmButtonTitle]) else { return }
 
             navigation.navigate(to: .chat(.sheet(.none)))
             RootSheets.dismiss()
@@ -165,13 +166,51 @@ public struct ContactSelectorPageViewService {
                 penPalsSharingData: newPenPalsSharingData,
             )
 
-            return await conversation.updateValue(
+            let updateValueResult = await conversation.updateValue(
                 newMetadata,
                 forKey: .metadata
             )
 
+            switch updateValueResult {
+            case let .success(conversation):
+                if let exception = await addUserToConversation(
+                    userID: userID,
+                    conversationID: conversation.id
+                ) {
+                    return .failure(exception)
+                }
+
+                return .success(conversation)
+
+            case let .failure(exception):
+                return .failure(exception)
+            }
+
         case let .failure(exception):
             return .failure(exception)
+        }
+    }
+
+    private func addUserToConversation(
+        userID: String,
+        conversationID: ConversationID
+    ) async -> Exception? {
+        let getUserResult = await networking.userService.getUser(id: userID)
+
+        switch getUserResult {
+        case let .success(user):
+            let updateValueResult = await user.updateValue(
+                ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique,
+                forKey: .conversationIDs
+            )
+
+            switch updateValueResult {
+            case .success: return nil
+            case let .failure(exception): return exception
+            }
+
+        case let .failure(exception):
+            return exception
         }
     }
 }

@@ -68,6 +68,7 @@ public extension AppException {
     static let notAuthorizedForContacts: AppException = .init("B7FC")
     static let notRegisteredForPushNotifications: AppException = .init("FB09")
     static let noSpeechDetected: AppException = .init("24F2")
+    static let noUsersWithPhoneNumber: AppException = .init("4E4F")
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
     static let sameTranslationInputOutput: AppException = .init("6CEB")

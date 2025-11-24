@@ -162,7 +162,8 @@ public extension Conversation {
     }
 
     func userSharesPenPalsDataWithCurrentUser(_ user: User) -> Bool {
-        guard metadata.isPenPalsConversation else { return true }
+        guard metadata.isPenPalsConversation,
+              participants.map(\.userID).contains(user.id) else { return true }
         return (participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID).contains(user.id)
     }
 }

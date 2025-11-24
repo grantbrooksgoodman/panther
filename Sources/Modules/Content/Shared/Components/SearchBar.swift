@@ -23,21 +23,27 @@ public struct SearchBar: View {
 
     // MARK: - Properties
 
-    // CGFloat
     private let bottomPadding: CGFloat
+    private let keyboardType: UIKeyboardType?
+    private let onSubmit: ((String) -> Void)?
+    private let placeholderText: String
 
-    // String
     @Binding private var query: String
-    @Localized(.search) private var textFieldPlaceholderText: String
 
     // MARK: - Init
 
     public init(
         _ query: Binding<String>,
-        bottomPadding: CGFloat = AppConstants.CGFloats.SearchBar.defaultBottomPadding
+        bottomPadding: CGFloat = AppConstants.CGFloats.SearchBar.defaultBottomPadding,
+        keyboardType: UIKeyboardType? = nil,
+        placeholderText: String = Localized(.search).wrappedValue,
+        onSubmit: ((String) -> Void)? = nil
     ) {
         _query = query
         self.bottomPadding = bottomPadding
+        self.keyboardType = keyboardType
+        self.placeholderText = placeholderText
+        self.onSubmit = onSubmit
     }
 
     // MARK: - View
@@ -51,12 +57,18 @@ public struct SearchBar: View {
                 )
 
                 TextField(
-                    textFieldPlaceholderText,
+                    placeholderText,
                     text: $query
                 )
                 .dynamicTypeSize(.large)
                 .frame(height: Floats.textFieldFrameHeight)
+                .ifLet(keyboardType) { textField, keyboardType in
+                    textField
+                        .keyboardType(keyboardType)
+                }
+                .minimumScaleFactor(Floats.textFieldMinimumScaleFactor)
                 .submitLabel(.done)
+                .onSubmit { onSubmit?(query) }
 
                 Components.button(
                     symbolName: Strings.clearButtonImageSystemName,
@@ -90,6 +102,9 @@ public struct SearchBar: View {
     @ViewBuilder
     static func inView(
         withQuery query: Binding<String>,
+        keyboardType: UIKeyboardType? = nil,
+        placeholderText: String = Localized(.search).wrappedValue,
+        onSubmit: ((String) -> Void)? = nil,
         content: @escaping () -> some View
     ) -> some View {
         if UIApplication.v26FeaturesEnabled {
@@ -98,12 +113,23 @@ public struct SearchBar: View {
 
                 VStack {
                     Spacer()
-                    SearchBar(query)
+                    SearchBar(
+                        query,
+                        keyboardType: keyboardType,
+                        placeholderText: placeholderText,
+                        onSubmit: onSubmit
+                    )
                 }
             }
         } else {
             VStack(spacing: 0) {
-                SearchBar(query)
+                SearchBar(
+                    query,
+                    keyboardType: keyboardType,
+                    placeholderText: placeholderText,
+                    onSubmit: onSubmit
+                )
+
                 content()
             }
         }

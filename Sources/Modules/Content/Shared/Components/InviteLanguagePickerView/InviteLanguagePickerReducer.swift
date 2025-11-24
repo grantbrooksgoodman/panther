@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -35,19 +36,25 @@ public struct InviteLanguagePickerReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        // Bool
-        public var isDoneHeaderItemEnabled = false
-        public var traitCollectionChanged = false
-
-        // String
         @Localized(.cancel) public var cancelHeaderItemText: String
         @Localized(.done) public var doneHeaderItemText: String
+        public var isDoneHeaderItemEnabled = false
         @Localized(.selectLanguage) public var navigationTitle: String
         @Localized(.noResults) public var noResultsLabelText: String
         public var searchQuery = ""
         public var selectedLanguageCode = ""
 
         /* MARK: Computed Properties */
+
+        public var doneHeaderItemForegroundColor: Color {
+            guard UIApplication.isGlassTintingEnabled,
+                  !isChatPagePresented else { return .navigationBarButton }
+            return .white
+        }
+
+        public var isChatPagePresented: Bool {
+            Dependency(\.chatPageStateService.isPresented).wrappedValue
+        }
 
         public var localizedLanguageNames: [String: String] {
             @Dependency(\.coreKit.utils.localizedLanguageCodeDictionary) var localizedLanguageCodeDictionary: [String: String]?
@@ -71,7 +78,6 @@ public struct InviteLanguagePickerReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.isDoneHeaderItemEnabled = false
-            state.traitCollectionChanged = false
 
             state.searchQuery = ""
             state.selectedLanguageCode = ""

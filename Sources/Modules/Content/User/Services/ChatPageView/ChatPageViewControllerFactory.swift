@@ -29,6 +29,12 @@ public struct ChatPageViewControllerFactory {
 
     public func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
+        viewController.messagesCollectionView = MessagesCollectionView(
+            frame: .zero,
+            collectionViewLayout: MessageFlowLayout()
+        )
+
+        viewController.messagesCollectionView.register(SystemMessageCell.self)
 
         viewController.messagesCollectionView.messagesDataSource = viewController
         viewController.messagesCollectionView.messagesDisplayDelegate = viewController

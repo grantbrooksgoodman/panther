@@ -19,6 +19,7 @@ public extension AppConstants.CGFloats {
     enum ContactSelectorPageView {
         public static let cancelToolbarButtonSystemFontSize: CGFloat = 17
         public static let listViewDefaultMinListRowHeight: CGFloat = 44
+        public static let noResultsLabelHorizontalPadding: CGFloat = 10
     }
 }
 
@@ -27,6 +28,7 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum ContactSelectorPageView {
         public static let navigationBarItemGlassTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
+        public static let noResultsLabelAlternateForeground: Color = .init(uiColor: .systemBlue)
         public static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
         public static let tintedGlassToolbarButtonForeground: Color = .white
     }

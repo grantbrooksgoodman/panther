@@ -11,20 +11,27 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 public struct ContactSelectorPageReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.contactSelectorPageViewService) private var viewService: ContactSelectorPageViewService
 
     // MARK: - Actions
 
     public enum Action {
+        case viewAppeared
         case viewDisappeared
 
         case cancelToolbarButtonTapped
+        case findUserButtonTapped
         case inviteToolbarButtonTapped
 
+        case findUserReturned(Callback<User, Exception>)
+        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
 
@@ -36,17 +43,15 @@ public struct ContactSelectorPageReducer: Reducer {
     public struct State: Equatable {
         /* MARK: Properties */
 
-        // String
-        @Localized(.invite) public var inviteToolbarButtonText: String
-        @Localized(.contacts) public var navigationTitle: String
-        @Localized(.noResults) public var noResultsLabelText: String
-        public var searchQuery = ""
-
-        // Other
         public let entryPoint: ContactSelectorPageView.EntryPoint
 
+        @Localized(.invite) public var inviteToolbarButtonText: String
+        public var searchQuery = ""
         public var selectedContactPair: ContactPair?
+        public var strings: [TranslationOutputMap] = ContactSelectorPageViewStrings.defaultOutputMap
+        public var viewState: StatefulView.ViewState = .loading
 
+        fileprivate var foundContactPair: ContactPair?
         fileprivate var traitCollectionDidChange = false
 
         /* MARK: Computed Properties */
@@ -56,7 +61,28 @@ public struct ContactSelectorPageReducer: Reducer {
             return contactPairArchive ?? .init()
         }
 
-        public var queriedContactPairs: [ContactPair] { contactPairs.queried(by: searchQuery) }
+        public var navigationTitle: String {
+            entryPoint == .chatInfoPageView ? strings.value(for: .navigationTitle) : Localized(.contacts).wrappedValue
+        }
+
+        public var noResultsLabelText: String {
+            if entryPoint == .chatInfoPageView,
+               searchQuery == searchQuery.digits {
+                return strings.value(for: .noResultsLabelText)
+            }
+
+            return Localized(.noResults).wrappedValue
+        }
+
+        public var queriedContactPairs: [ContactPair] {
+            guard let foundContactPair else { return contactPairs.queried(by: searchQuery) }
+            return [foundContactPair]
+        }
+
+        public var searchBarPlaceholderText: String {
+            entryPoint == .chatInfoPageView ? strings.value(for: .searchBarPlaceholderText) : Localized(.search).wrappedValue
+        }
+
         public var sections: [String: [ContactPair]] { .init(grouping: queriedContactPairs, by: { $0.contact.tableViewSectionTitle }) }
 
         /* MARK: Init */
@@ -70,14 +96,64 @@ public struct ContactSelectorPageReducer: Reducer {
 
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
+        case .viewAppeared:
+            guard state.entryPoint == .chatInfoPageView else {
+                state.viewState = .loaded
+                return .none
+            }
+
+            state.viewState = .loading
+            return .task {
+                let result = await translator.resolve(ContactSelectorPageViewStrings.self)
+                return .resolveReturned(result)
+            }
+
         case .cancelToolbarButtonTapped:
             viewService.cancelToolbarButtonTapped(from: state.entryPoint)
+
+        case .findUserButtonTapped:
+            guard state.entryPoint == .chatInfoPageView,
+                  state.queriedContactPairs.isEmpty,
+                  state.searchQuery == state.searchQuery.digits else { return .none }
+            let phoneNumber = PhoneNumber(state.searchQuery.digits)
+            return .task {
+                let result = await viewService.findUser(with: phoneNumber)
+                return .findUserReturned(result)
+            }
+
+        case let .findUserReturned(.success(user)):
+            guard !penPalsService.isObfuscatedPenPalWithCurrentUser(user) else { return .none }
+            state.foundContactPair = user.contactPair ?? .withUser(
+                user,
+                name: user.displayName
+            )
+
+        case let .findUserReturned(.failure(exception)):
+            guard exception.isEqual(to: .noUsersWithPhoneNumber) else {
+                Logger.log(exception, with: .toast)
+                return .none
+            }
+
+            let phoneNumber = PhoneNumber(state.searchQuery.digits)
+            return .fireAndForget {
+                await viewService.presentInvitationPrompt(phoneNumber: phoneNumber)
+            }
 
         case .inviteToolbarButtonTapped:
             viewService.inviteToolbarButtonTapped()
 
+        case let .resolveReturned(.success(strings)):
+            state.strings = strings
+            state.viewState = .loaded
+
+        case let .resolveReturned(.failure(exception)):
+            Logger.log(exception, with: .toast)
+            state.viewState = .loaded
+
         case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
+            guard searchQuery.isBlank else { return .none }
+            state.foundContactPair = nil
 
         case let .selectedContactPairChanged(selectedContactPair):
             state.selectedContactPair = selectedContactPair
@@ -99,5 +175,11 @@ public struct ContactSelectorPageReducer: Reducer {
         }
 
         return .none
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.ContactSelectorPageViewStringKey) -> String {
+        (first(where: { $0.key == .contactSelectorPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

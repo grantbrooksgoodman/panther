@@ -31,6 +31,7 @@ extension Message: MessageType {
     public var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
 
+        guard id != CommonConstants.systemMessageID else { return .custom(nil) }
         typealias Colors = AppConstants.Colors.UserContentExtensions.Message
 
         // swiftlint:disable:next line_length
@@ -146,7 +147,6 @@ public extension Message {
         return speakingMessage.id == id
     }
 
-    // TODO: Support system messages.
     var isSystemMessage: Bool {
         id == CommonConstants.systemMessageID
     }
