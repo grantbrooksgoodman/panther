@@ -298,6 +298,7 @@ public final class ConversationsPageViewService {
 
         let newConversation: Conversation = .init(
             .init(key: conversation.id.key, hash: .bangQualifiedEmpty),
+            activities: conversation.activities,
             messageIDs: newConversationMessageIDs,
             messages: newConversationMessages,
             metadata: conversation.metadata,

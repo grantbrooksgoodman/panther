@@ -116,6 +116,7 @@ public extension Conversation {
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
             id,
+            activities: activities,
             messageIDs: messageIDs,
             messages: messages?.sortedByAscendingSentDate,
             metadata: metadata,
@@ -135,6 +136,7 @@ public extension Conversation {
     static func empty(withUsers users: [User]) -> Conversation {
         .init(
             .init(key: "", hash: ""),
+            activities: nil,
             messageIDs: [],
             messages: nil,
             metadata: .empty(userIDs: users.map(\.id)),
@@ -147,6 +149,7 @@ public extension Conversation {
     static func mock(withUsers users: [User]) -> Conversation {
         .init(
             .init(key: CommonConstants.newConversationID, hash: ""),
+            activities: nil,
             messageIDs: [],
             messages: nil,
             metadata: .empty(userIDs: users.map(\.id)),

@@ -156,8 +156,9 @@ extension ChatPageViewController: MessagesDataSource {
         at indexPath: IndexPath,
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
-        guard !isSectionReservedForTypingIndicator(indexPath.section) else { return Message.empty }
-        return currentConversation?.messages?.itemAt(indexPath.section) ?? Message.empty
+        guard !isSectionReservedForTypingIndicator(indexPath.section),
+              let message = currentConversation?.messages?.itemAt(indexPath.section) else { return Message.empty }
+        return message.systemLocalized
     }
 
     // MARK: - Message Timestamp Label Attributed Text

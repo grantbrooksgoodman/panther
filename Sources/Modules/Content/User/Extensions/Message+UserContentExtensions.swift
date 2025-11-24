@@ -31,7 +31,7 @@ extension Message: MessageType {
     public var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
 
-        guard id != CommonConstants.systemMessageID else { return .custom(nil) }
+        guard !isSystemMessage else { return .custom(nil) }
         typealias Colors = AppConstants.Colors.UserContentExtensions.Message
 
         // swiftlint:disable:next line_length
@@ -148,7 +148,37 @@ public extension Message {
     }
 
     var isSystemMessage: Bool {
-        id == CommonConstants.systemMessageID
+        fromAccountID == CommonConstants.systemMessageID
+    }
+
+    /// - Returns: The provided system message, hydrated with localized strings.
+    var systemLocalized: Message {
+        @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+        guard isSystemMessage,
+              let activity = conversation?
+              .activities?
+              .first(where: { $0.action.rawValue == translation?.output }) else { return self }
+        return .init(
+            "\(CommonConstants.systemMessageID)_\(activity.date.timeIntervalSince1970)",
+            fromAccountID: CommonConstants.systemMessageID,
+            contentType: .text,
+            richContent: nil,
+            translationReferences: [.init(
+                languagePair: .system,
+                type: .idempotent(
+                    activity.description.data(using: .utf8)?.base64EncodedString() ?? activity.description
+                )
+            )],
+            translations: [
+                .init(
+                    input: .init(activity.description),
+                    output: activity.description,
+                    languagePair: .system
+                ),
+            ],
+            readReceipts: nil,
+            sentDate: activity.date
+        )
     }
 
     // MARK: - Methods

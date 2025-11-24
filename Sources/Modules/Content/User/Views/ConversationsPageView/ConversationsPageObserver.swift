@@ -145,8 +145,9 @@ public struct ConversationsPageObserver: Observer {
 
             if let currentConversation = clientSession.conversation.fullConversation,
                let updatedConversation = clientSession.user.currentUser?.conversations?.first(where: { $0.id.key == currentConversation.id.key }) {
-                guard let currentMessages = currentConversation.messages,
+                guard let currentMessages = currentConversation.messages?.filteringSystemMessages,
                       let missingMessages = updatedConversation.messages?
+                      .filteringSystemMessages
                       .filter({ !currentMessages.contains($0) })
                       .filter({ !$0.isFromCurrentUser })
                       .filter({ $0.currentUserReadReceipt == nil }),

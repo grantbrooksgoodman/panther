@@ -128,11 +128,12 @@ public struct ConversationCellViewData: Equatable {
 
         // Set date & subtitle label text
 
-        var lastMessage = conversation.messages?.last
+        var lastMessage = conversation.messages?.filteringSystemMessages.last
         if let searchQuery,
            !searchQuery.isBlank {
             lastMessage = conversation
                 .messages?
+                .filteringSystemMessages
                 .last(where: { $0.textContains(searchQuery) }) ?? lastMessage
         }
 
@@ -164,7 +165,11 @@ public struct ConversationCellViewData: Equatable {
 
         // Set unread indicator status
 
-        if let lastMessageFromOtherUsers = conversation.messages?.filter({ !$0.isFromCurrentUser }).last {
+        if let lastMessageFromOtherUsers = conversation
+            .messages?
+            .filteringSystemMessages
+            .filter({ !$0.isFromCurrentUser })
+            .last {
             isShowingUnreadIndicator = lastMessageFromOtherUsers.currentUserReadReceipt == nil
         }
 

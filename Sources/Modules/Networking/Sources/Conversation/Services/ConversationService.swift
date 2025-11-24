@@ -53,6 +53,7 @@ public struct ConversationService {
 
         var mockConversation: Conversation = .init(
             .init(key: id, hash: ""),
+            activities: nil,
             messageIDs: [firstMessage.id],
             messages: [firstMessage],
             metadata: .empty(
@@ -83,6 +84,7 @@ public struct ConversationService {
 
         mockConversation = .init(
             conversationID,
+            activities: mockConversation.activities,
             messageIDs: mockConversation.messageIDs,
             messages: mockConversation.messages,
             metadata: mockConversation.metadata,

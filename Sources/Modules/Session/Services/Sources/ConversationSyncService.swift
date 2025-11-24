@@ -190,7 +190,51 @@ public final class ConversationSyncService {
         return resolveConversation()
     }
 
+    // MARK: - Auxiliary
+
+    private func synchronizeActivities() async -> Exception? {
+        guard let newActivities = syncData?.newData[Conversation.SerializationKeys.activities.rawValue] as? [[String: Any]] else {
+            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
+        }
+
+        var updatedActivities = [Activity]()
+
+        for activity in newActivities {
+            let decodeResult = await Activity.decode(from: activity)
+
+            switch decodeResult {
+            case let .success(decodedActivity):
+                updatedActivities.append(decodedActivity)
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        guard !updatedActivities.isEmpty,
+              updatedActivities.count == newActivities.count else {
+            return .init(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        guard let conversation = syncData?.conversation.modifyKey(.activities, withValue: updatedActivities) else {
+            return .Networking.typeMismatch(
+                key: Conversation.SerializationKeys.activities.rawValue,
+                .init(sender: self)
+            )
+        }
+
+        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        return nil
+    }
+
     private func synchronizeData() async -> Exception? {
+        if let exception = await synchronizeActivities() {
+            return exception
+        }
+
         if let exception = await synchronizeParticipants() {
             return exception
         }
@@ -214,6 +258,7 @@ public final class ConversationSyncService {
 
         self.syncData = .init(.init(
             .init(key: syncData.conversation.id.key, hash: newHash),
+            activities: syncData.conversation.activities,
             messageIDs: syncData.conversation.messageIDs,
             messages: syncData.conversation.messages,
             metadata: syncData.conversation.metadata,
@@ -239,8 +284,11 @@ public final class ConversationSyncService {
 
         switch getMessagesResult {
         case let .success(messages):
-            let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
-            guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
+            let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID
+            guard let conversation = conversation.modifyKey(
+                .messages,
+                withValue: updatedMessages.hydrated(with: conversation.activities)
+            ) else {
                 return .Networking.typeMismatch(
                     key: Conversation.SerializationKeys.messages,
                     .init(sender: self)

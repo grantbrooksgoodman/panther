@@ -23,6 +23,7 @@ extension Conversation: Updatable {
 
     public var updatableKeys: [SerializationKeys] {
         [
+            .activities,
             .messages,
             .metadata,
             .participants,
@@ -40,10 +41,24 @@ extension Conversation: Updatable {
              .id:
             return nil
 
+        case .activities:
+            guard let value = value as? [Activity] else { return nil }
+            return updateIDHash(.init(
+                id,
+                activities: value,
+                messageIDs: messageIDs,
+                messages: messages,
+                metadata: metadata,
+                participants: participants,
+                reactionMetadata: reactionMetadata,
+                users: users
+            ))
+
         case .messages:
             guard let value = value as? [Message] else { return nil }
             return updateIDHash(.init(
                 id,
+                activities: activities,
                 messageIDs: value.map(\.id).unique,
                 messages: value.uniquedByID,
                 metadata: metadata,
@@ -56,6 +71,7 @@ extension Conversation: Updatable {
             guard let value = value as? ConversationMetadata else { return nil }
             return updateIDHash(.init(
                 id,
+                activities: activities,
                 messageIDs: messageIDs,
                 messages: messages,
                 metadata: value,
@@ -68,6 +84,7 @@ extension Conversation: Updatable {
             guard let value = value as? [Participant] else { return nil }
             return updateIDHash(.init(
                 id,
+                activities: activities,
                 messageIDs: messageIDs,
                 messages: messages,
                 metadata: metadata,
@@ -80,6 +97,7 @@ extension Conversation: Updatable {
             guard let value = value as? [ReactionMetadata] else { return nil }
             return updateIDHash(.init(
                 id,
+                activities: activities,
                 messageIDs: messageIDs,
                 messages: messages,
                 metadata: metadata,
@@ -119,7 +137,7 @@ extension Conversation: Updatable {
         let valueKeyPath = conversationKeyPath + key.rawValue
 
         if key == .messages,
-           let messageIDs = (value as? [Message])?.map(\.id) {
+           let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id) {
             if let exception = await addMessageIDs(messageIDs) {
                 return .failure(exception)
             }
@@ -221,6 +239,7 @@ extension Conversation: Updatable {
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
         .init(
             .init(key: conversation.id.key, hash: conversation.encodedHash),
+            activities: conversation.activities,
             messageIDs: conversation.messageIDs,
             messages: conversation.messages,
             metadata: conversation.metadata,
@@ -252,6 +271,7 @@ extension Conversation: Updatable {
         // TODO: Audit whether or not it is necessary to update the ID hash here.
         let updatedConversation = updateIDHash(.init(
             conversation.id,
+            activities: conversation.activities,
             messageIDs: conversation.messageIDs,
             messages: conversation.messages,
             metadata: conversation.metadata,

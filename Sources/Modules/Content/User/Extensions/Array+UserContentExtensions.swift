@@ -105,8 +105,15 @@ public extension Array where Element == Conversation {
 }
 
 public extension Array where Element == Message {
+    var filteringSystemMessages: [Message] { filter { !$0.isSystemMessage } }
     var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
     var sortedByDescendingSentDate: [Message] { sorted(by: { $0.sentDate > $1.sentDate }) }
+
+    func hydrated(with activities: [Activity]?) -> [Message] {
+        guard let activities,
+              !activities.allSatisfy({ $0 == .empty }) else { return self }
+        return (self + activities.map(\.message)).sortedByAscendingSentDate
+    }
 }
 
 public extension Array where Element == MessageRecipientConsentAcknowledgementData {

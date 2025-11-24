@@ -17,6 +17,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // Array
+    public let activities: [Activity]?
     public let messageIDs: [String]
     public let participants: [Participant]
     public let reactionMetadata: [ReactionMetadata]?
@@ -29,6 +30,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
     // Other
     public static let empty: Conversation = .init(
         .init(key: "", hash: ""),
+        activities: nil,
         messageIDs: [],
         messages: nil,
         metadata: .empty(userIDs: []),
@@ -45,10 +47,11 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
     public var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
+        factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs)
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
-        factors.append(contentsOf: messages?.map(\.id) ?? messageIDs)
-        factors.append(contentsOf: messages?.map(\.encodedHash) ?? [])
+        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? messageIDs)
+        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.encodedHash) ?? [])
 
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
@@ -67,6 +70,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     public init(
         _ id: ConversationID,
+        activities: [Activity]?,
         messageIDs: [String],
         messages: [Message]?,
         metadata: ConversationMetadata,
@@ -75,6 +79,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         users: [User]?
     ) {
         self.id = id
+        self.activities = activities
         self.messageIDs = messageIDs
         self.messages = messages
         self.metadata = metadata
@@ -108,7 +113,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
                 return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
-            self.messages = messages
+            self.messages = messages.hydrated(with: activities)
 
             Logger.log(
                 .init(
@@ -271,6 +276,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     public static func == (left: Conversation, right: Conversation) -> Bool {
         let sameID = left.id == right.id
+        let sameActivities = left.activities == right.activities
         let sameMessageIDs = left.messageIDs == right.messageIDs
         let sameMessages = left.messages == right.messages
         let sameMetadata = left.metadata == right.metadata
@@ -279,6 +285,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         let sameUsers = left.users == right.users
 
         guard sameID,
+              sameActivities,
               sameMessageIDs,
               sameMessages,
               sameMetadata,

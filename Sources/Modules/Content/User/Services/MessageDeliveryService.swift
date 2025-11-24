@@ -299,6 +299,7 @@ public final class MessageDeliveryService {
 
         let newConversation: Conversation = .init(
             conversation.id,
+            activities: conversation.activities,
             messageIDs: conversation.messageIDs,
             messages: messages,
             metadata: conversation.metadata.copyWith(

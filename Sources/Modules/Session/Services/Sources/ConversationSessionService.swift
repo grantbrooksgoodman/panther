@@ -36,6 +36,7 @@ public final class ConversationSessionService {
         guard let currentConversation else { return nil }
         return .init(
             currentConversation.id,
+            activities: currentConversation.activities,
             messageIDs: currentConversation.messageIDs,
             messages: completeMessageArray,
             metadata: currentConversation.metadata,
@@ -68,6 +69,23 @@ public final class ConversationSessionService {
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    // MARK: - Log Activity
+
+    // TODO: Audit whether here is the best place for this.
+    public func logActivity(_ activity: Activity) async -> Callback<Conversation, Exception> {
+        guard let fullConversation else {
+            return .failure(.init(
+                "Failed to resolve current conversation.",
+                metadata: .init(sender: self)
+            ))
+        }
+
+        return await fullConversation.updateValue(
+            ((fullConversation.activities ?? []) + [activity]).filter { $0 != .empty },
+            forKey: .activities
+        )
     }
 
     // MARK: - Set Current Conversation
@@ -182,6 +200,7 @@ public final class ConversationSessionService {
 
         return .init(
             conversation.id,
+            activities: conversation.activities,
             messageIDs: conversation.messageIDs,
             messages: messages.reversed()[0 ... amountToGet].reversed(),
             metadata: conversation.metadata,

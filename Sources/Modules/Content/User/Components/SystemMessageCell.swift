@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
 import MessageKit
 
@@ -42,13 +45,26 @@ public final class SystemMessageCell: UICollectionViewCell {
         at indexPath: IndexPath,
         and messagesCollectionView: MessagesCollectionView
     ) {
-        guard let message = message as? Message else { return }
-        label.text = message.translation?.output
+        guard let message = message as? Message,
+              let text = message.translation?.output else { return }
+        // TODO: Create constants for this.
+        label.attributedText = text.sanitized.attributed(.init(
+            [
+                .font: UIFont.systemFont(ofSize: 12),
+                .foregroundColor: UIColor.lightGray,
+            ],
+            secondaryAttributes: [.init(
+                [
+                    .font: UIFont.boldSystemFont(ofSize: 12),
+                    .foregroundColor: UIColor.lightGray,
+                ],
+                stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
+            )]
+        ))
     }
 
     func setupSubviews() {
         contentView.addSubview(label)
         label.textAlignment = .center
-        label.font = UIFont.italicSystemFont(ofSize: 13)
     }
 }

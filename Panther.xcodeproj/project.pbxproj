@@ -10,6 +10,9 @@
 		A206F7DA28AC4FD7008FFE18 /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
+		A23CB3ED2ED3E5270060DFD7 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3EC2ED3E5270060DFD7 /* Activity.swift */; };
+		A23CB3F12ED3E6D40060DFD7 /* Activity+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */; };
+		A23CB3F52ED3EB300060DFD7 /* ActivityAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
@@ -762,6 +765,9 @@
 		A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
+		A23CB3EC2ED3E5270060DFD7 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
+		A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Activity+Serializable.swift"; sourceTree = "<group>"; };
+		A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityAction.swift; sourceTree = "<group>"; };
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
@@ -2195,6 +2201,8 @@
 		B963F1C02B23D6160087DB83 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				A23CB3EC2ED3E5270060DFD7 /* Activity.swift */,
+				A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */,
 				B963F1C32B23D62E0087DB83 /* Conversation.swift */,
 				B9E6D7AC2B125E17000BC88D /* ConversationID.swift */,
 				B969165C2BAE1D1A00441472 /* ConversationMetadata.swift */,
@@ -2219,6 +2227,7 @@
 		B963F1C22B23D6200087DB83 /* Serializable */ = {
 			isa = PBXGroup;
 			children = (
+				A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */,
 				B963F1C52B23D6480087DB83 /* Conversation+Serializable.swift */,
 				B980E8B12B225F310090F141 /* ConversationID+Serializable.swift */,
 				B969165E2BAE1DB400441472 /* ConversationMetadata+Serializable.swift */,
@@ -4021,6 +4030,7 @@
 				B9E1BB932B2F8F0100ADEA71 /* MessageSessionService.swift in Sources */,
 				B90071D22B7B41F300BE8654 /* RecipientBarTableViewService.swift in Sources */,
 				B900B5362B1ABA2300BA2F1D /* ReviewService.swift in Sources */,
+				A23CB3F12ED3E6D40060DFD7 /* Activity+Serializable.swift in Sources */,
 				B986C4AC2CD42C6C00414E57 /* ReactionMetadata.swift in Sources */,
 				B9D0D7112B02FFEA00078A93 /* PLISTGenerator.swift in Sources */,
 				B9AD84742C404CD9009C7468 /* HostedContentType.swift in Sources */,
@@ -4274,6 +4284,7 @@
 				B900B5422B1ACAA800BA2F1D /* NumberPair.swift in Sources */,
 				B9EFB9F82B268A3600624794 /* ClientSession.swift in Sources */,
 				B9A9073A2BAE11F2007AD2C2 /* AppConstants+ChatInfoPageView.swift in Sources */,
+				A23CB3F52ED3EB300060DFD7 /* ActivityAction.swift in Sources */,
 				B99880A32E297851002742A8 /* SearchInteractionService.swift in Sources */,
 				B99880AE2E29A87A002742A8 /* ChangeLanguagePageViewService.swift in Sources */,
 				B92FC6B72D1B94AA006E91C0 /* PenPalsService.swift in Sources */,
@@ -4371,6 +4382,7 @@
 				B93904272DCC781600E82C03 /* RichMessageContent.swift in Sources */,
 				B900B52E2B1AAB3000BA2F1D /* AnalyticsService.swift in Sources */,
 				B903CA742B6C2F3500A238A4 /* InputBarService.swift in Sources */,
+				A23CB3ED2ED3E5270060DFD7 /* Activity.swift in Sources */,
 				B99469742E00AB7F00353D18 /* V26HeaderViewModifier.swift in Sources */,
 				B979AA392C444E4A0082203C /* CameraPickerService.swift in Sources */,
 				B9DD42CB2E2F18F0009A318B /* ChatInfoPageViewService+ChangeMetadata.swift in Sources */,

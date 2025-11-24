@@ -252,6 +252,7 @@ public struct MessageRetranslationService {
                     key: conversation.id.key,
                     hash: .init(Int.random(in: 1 ... 1_000_000)).encodedHash
                 ),
+                activities: conversation.activities,
                 messageIDs: conversation.messageIDs.filter { $0 != messageID },
                 messages: conversation.messages?.filter { $0.id != messageID },
                 metadata: conversation.metadata,
