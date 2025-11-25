@@ -82,7 +82,13 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         func configurePenPalsAvatar() {
             avatarView.backgroundColor = UIColor(Colors.penPalsAvatarViewBackground)
 
-            guard let penPalsIconColor = currentConversation?.users?.first(where: { $0.id == message.fromAccountID })?.penPalsIconColor else {
+            guard let penPalsIconColor = (currentConversation?
+                .users?
+                .first(where: { $0.id == message.fromAccountID }) ??
+                UserCache
+                .knownUsers
+                .first(where: { $0.id == message.fromAccountID }))?
+                            .penPalsIconColor else {
                 avatarView.image = SquareIconView.image(.penPalsIcon())
                 avatarView.tintColor = UIColor(Colors.penPalsAvatarViewTint)
                 return
@@ -94,7 +100,11 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
         guard let users = currentConversation?.users,
               let currentUser = clientSession.user.currentUser,
-              let matchingUser = (users + [currentUser]).first(where: { $0.id == message.fromAccountID }) else {
+              let matchingUser = (users + [currentUser])
+              .first(where: { $0.id == message.fromAccountID }) ??
+              UserCache
+              .knownUsers
+              .first(where: { $0.id == message.fromAccountID }) else {
             return configureGenericAvatar()
         }
 

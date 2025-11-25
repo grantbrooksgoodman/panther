@@ -213,8 +213,10 @@ public struct ChatInfoPageView: View {
                                 ListRowView(.init(
                                     .button { viewModel.send(.leaveConversationButtonTapped) },
                                     innerText: viewModel.strings.value(for: .leaveConversation),
-                                    innerTextColor: Colors.leaveConversationListRowViewForeground
+                                    innerTextColor: Colors.leaveConversationListRowViewForeground,
+                                    isEnabled: viewModel.isLeaveConversationButtonEnabled
                                 ))
+                                .disabled(!viewModel.isLeaveConversationButtonEnabled)
                                 .padding(
                                     .horizontal,
                                     Floats.leaveConversationListRowViewHorizontalPadding
@@ -241,7 +243,6 @@ public struct ChatInfoPageView: View {
 
     // MARK: - Add Contact Button
 
-    // TODO: Color constants.
     private var addContactButton: some View {
         Button {
             viewModel.send(.addContactButtonTapped)
@@ -249,7 +250,7 @@ public struct ChatInfoPageView: View {
             HStack {
                 let imageView = Components.symbol(
                     Strings.addContactButtonImageSystemName,
-                    foregroundColor: viewModel.isAddContactButtonEnabled ? Color(uiColor: .systemBlue) : .disabled,
+                    foregroundColor: Colors.addContactButtonSymbolForeground,
                     usesIntrinsicSize: false
                 ).frame(
                     width: Floats.addContactButtonImageWidth,
@@ -271,7 +272,7 @@ public struct ChatInfoPageView: View {
 
                 Components.text(
                     viewModel.strings.value(for: .addContactButtonText),
-                    foregroundColor: viewModel.isAddContactButtonEnabled ? Color(uiColor: .systemBlue) : .disabled
+                    foregroundColor: Colors.addContactButtonLabelForeground
                 )
             }
         }
@@ -382,7 +383,6 @@ public struct ChatInfoPageView: View {
                     chatInfoCell
                 } else if index == viewModel.visibleParticipants.count {
                     addContactButton
-                        .disabled(!viewModel.isAddContactButtonEnabled)
                 } else if let participant = viewModel.visibleParticipants.itemAt(index) {
                     if let cnContactContainer = participant.cnContactContainer {
                         NavigationLink(
@@ -394,9 +394,12 @@ public struct ChatInfoPageView: View {
                         ) {
                             ChatParticipantView(
                                 participant,
+                                deleteAction: viewModel.visibleParticipants.count > Int(Floats.participantViewDeleteActionComparator) ? {
+                                    viewModel.send(.removeUserButtonTapped(participant))
+                                } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
-                                } : nil
+                                } : nil,
                             )
                         }
                         .dynamicTypeSize(.large)
@@ -406,6 +409,9 @@ public struct ChatInfoPageView: View {
                         } label: {
                             ChatParticipantView(
                                 participant,
+                                deleteAction: viewModel.visibleParticipants.count > Int(Floats.participantViewDeleteActionComparator) ? {
+                                    viewModel.send(.removeUserButtonTapped(participant))
+                                } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
                                 } : nil

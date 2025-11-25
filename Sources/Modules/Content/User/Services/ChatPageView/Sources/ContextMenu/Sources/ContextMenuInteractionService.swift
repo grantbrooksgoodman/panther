@@ -317,7 +317,6 @@ public final class ContextMenuInteractionService {
                 }
             )
 
-            // TODO: May not persist for new cell dequeues – audit this.
             if let audioMessagePlaybackService = chatPageViewService.audioMessagePlayback,
                let audioCell = cell as? AudioMessageCell {
                 let singleTapGesture = UITapGestureRecognizer(

@@ -162,30 +162,20 @@ public struct NotificationService {
             ))
         }
 
-        // TODO: Remove backwards compatibility after a few updates.
-        if let recipientUserID = notification.request.content.userInfo["recipientUserID"] as? String {
-            guard recipientUserID == currentUser.id else {
-                let exception: Exception = .init(
-                    "Notification not intended for current user – ignoring.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                )
-
-                return .failure(exception)
-            }
+        guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String,
+              let recipientUserID = notification.request.content.userInfo["recipientUserID"] as? String else {
+            return .failure(.init(
+                "Failed to resolve required values.",
+                metadata: .init(sender: self)
+            ))
         }
 
-        let toast: Toast = .init(
-            .capsule(),
-            title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
-            message: notification.request.content.body,
-            perpetuation: .ephemeral(.seconds(5))
-        )
-
-        // TODO: Remove backwards compatibility after a few updates.
-        guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String else {
-            Toast.show(toast)
-            return .success([.sound])
+        guard recipientUserID == currentUser.id else {
+            return .failure(.init(
+                "Notification not intended for current user – ignoring.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ))
         }
 
         guard let conversationIDKeys = currentUser.conversations?.visibleForCurrentUser.map({ $0.id.key }),
@@ -198,6 +188,13 @@ public struct NotificationService {
         }
 
         guard clientSession.conversation.currentConversation?.id.key != conversationIDKey else { return .success([.sound]) }
+
+        let toast: Toast = .init(
+            .capsule(),
+            title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
+            message: notification.request.content.body,
+            perpetuation: .ephemeral(.seconds(5))
+        )
 
         guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
             Toast.show(toast)

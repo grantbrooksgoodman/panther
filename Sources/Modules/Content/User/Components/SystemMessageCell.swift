@@ -17,6 +17,11 @@ import AppSubsystem
 import MessageKit
 
 public final class SystemMessageCell: UICollectionViewCell {
+    // MARK: - Constants Accessors
+
+    private typealias Colors = AppConstants.Colors.SystemMessageCell
+    private typealias Floats = AppConstants.CGFloats.SystemMessageCell
+
     // MARK: - Properties
 
     private let label = UILabel()
@@ -44,14 +49,14 @@ public final class SystemMessageCell: UICollectionViewCell {
         with message: MessageType,
         at indexPath: IndexPath,
         and messagesCollectionView: MessagesCollectionView
-    ) { // TODO: Create constants for this.
+    ) {
         guard let message = message as? Message,
               let text = message.translation?.output,
               let dateString = message.sentDate.chatPageMessageSeparatorAttributedDateString else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        paragraphStyle.lineSpacing = 4
+        paragraphStyle.lineSpacing = Floats.labelParagraphStyleLineSpacing
 
         let mutableDateString = NSMutableAttributedString(attributedString: dateString)
         mutableDateString.addAttributes(
@@ -64,13 +69,13 @@ public final class SystemMessageCell: UICollectionViewCell {
 
         let activityString = text.sanitized.attributed(.init(
             [
-                .font: UIFont.systemFont(ofSize: 12),
-                .foregroundColor: UIColor.lightGray,
+                .font: UIFont.systemFont(ofSize: Floats.activityStringSystemFontSize),
+                .foregroundColor: Colors.activityStringForeground,
             ],
             secondaryAttributes: [.init(
                 [
-                    .font: UIFont.boldSystemFont(ofSize: 12),
-                    .foregroundColor: UIColor.gray,
+                    .font: UIFont.boldSystemFont(ofSize: Floats.activityStringSystemFontSize),
+                    .foregroundColor: Colors.activityStringForeground,
                 ],
                 stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
             )]
@@ -80,13 +85,71 @@ public final class SystemMessageCell: UICollectionViewCell {
         combinedString.append(NSAttributedString(string: "\n"))
         combinedString.append(activityString)
 
-        label.attributedText = combinedString
-        label.numberOfLines = 2
+        label.attributedText = combinedString.scaledToFit(
+            label.bounds.size,
+            minimumScaleFactor: Floats.labelMinimumScaleFactor
+        )
+
+        label.numberOfLines = Int(Floats.labelNumberOfLines)
         label.textAlignment = .center
     }
 
     private func setupSubviews() {
         contentView.addSubview(label)
         label.textAlignment = .center
+    }
+}
+
+private extension NSAttributedString {
+    func scaledToFit(
+        _ targetSize: CGSize,
+        minimumScaleFactor: CGFloat = 0.5,
+        maximumScaleFactor: CGFloat = 1.0
+    ) -> NSAttributedString {
+        guard targetSize.height > 0,
+              targetSize.width > 0 else { return self }
+
+        let boundingRectangle = boundingRect(
+            with: .init(
+                width: targetSize.width,
+                height: .greatestFiniteMagnitude
+            ),
+            options: [
+                .usesFontLeading,
+                .usesLineFragmentOrigin,
+            ],
+            context: nil
+        )
+
+        guard boundingRectangle.height > 0,
+              boundingRectangle.width > 0 else { return self }
+
+        let heightScale = targetSize.height / boundingRectangle.height
+        let widthScale = targetSize.width / boundingRectangle.width
+
+        var scale = min(
+            heightScale,
+            widthScale,
+            maximumScaleFactor
+        )
+
+        scale = max(scale, minimumScaleFactor)
+        guard abs(scale - 1.0) >= 0.01 else { return self }
+
+        let scaledString = NSMutableAttributedString(attributedString: self)
+        scaledString.enumerateAttribute(
+            .font,
+            in: .init(location: 0, length: length),
+            options: []
+        ) { value, range, _ in
+            guard let font = value as? UIFont else { return }
+            scaledString.addAttribute(
+                .font,
+                value: font.withSize(font.pointSize * scale),
+                range: range
+            )
+        }
+
+        return scaledString
     }
 }

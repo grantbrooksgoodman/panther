@@ -24,15 +24,18 @@ public struct ChatParticipantView: View {
     // MARK: - Properties
 
     private let participant: ChatParticipant
+    private let deleteAction: (() -> Void)?
     private let userInfoBadgeViewAction: (() -> Void)?
 
     // MARK: - Init
 
     public init(
         _ participant: ChatParticipant,
+        deleteAction: (() -> Void)?,
         userInfoBadgeViewAction: (() -> Void)?
     ) {
         self.participant = participant
+        self.deleteAction = deleteAction
         self.userInfoBadgeViewAction = userInfoBadgeViewAction
     }
 
@@ -82,6 +85,20 @@ public struct ChatParticipantView: View {
                     )
                 }
             }
+        }
+        .ifLet(deleteAction) { body, deleteAction in
+            body
+                .swipeActions(
+                    edge: .trailing,
+                    allowsFullSwipe: false
+                ) {
+                    Button {
+                        deleteAction()
+                    } label: {
+                        Image(systemName: Strings.deleteButtonImageSystemName)
+                    }
+                    .tint(Colors.deleteButtonTint)
+                }
         }
     }
 }

@@ -10,6 +10,9 @@
 		A206F7DA28AC4FD7008FFE18 /* LocalizedStrings.plist in Resources */ = {isa = PBXBuildFile; fileRef = A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
+		A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */; };
+		A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */; };
+		A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */; };
 		A23CB3ED2ED3E5270060DFD7 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3EC2ED3E5270060DFD7 /* Activity.swift */; };
 		A23CB3F12ED3E6D40060DFD7 /* Activity+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */; };
 		A23CB3F52ED3EB300060DFD7 /* ActivityAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */; };
@@ -17,6 +20,7 @@
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
+		A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA982ED636FA00171C04 /* UserCache.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
@@ -256,7 +260,7 @@
 		B98589B72B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */; };
 		B986C46C2CD2F8A500414E57 /* ContextMenuService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */; };
 		B986C46E2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */; };
-		B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46F2CD3235500414E57 /* ReactionsView.swift */; };
+		B986C4702CD3235500414E57 /* ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C46F2CD3235500414E57 /* ReactionsViewController.swift */; };
 		B986C4AC2CD42C6C00414E57 /* ReactionMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */; };
 		B986C4AF2CD42DB700414E57 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4AE2CD42DB700414E57 /* Reaction.swift */; };
 		B986C4B12CD42E6E00414E57 /* Reaction+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */; };
@@ -766,6 +770,9 @@
 		A206F7D928AC4FD7008FFE18 /* LocalizedStrings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = LocalizedStrings.plist; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
+		A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ReactionsViewController.swift"; sourceTree = "<group>"; };
+		A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SystemMessageCell.swift"; sourceTree = "<group>"; };
+		A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+V26HeaderViewModifier.swift"; sourceTree = "<group>"; };
 		A23CB3EC2ED3E5270060DFD7 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Activity+Serializable.swift"; sourceTree = "<group>"; };
 		A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityAction.swift; sourceTree = "<group>"; };
@@ -773,6 +780,7 @@
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
 		A29DFA962ED5749800171C04 /* ActivitySessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySessionService.swift; sourceTree = "<group>"; };
+		A29DFA982ED636FA00171C04 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1086,7 +1094,7 @@
 		B98589B62B6053FE00E549C0 /* ConversationCellViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewServiceDependency.swift; sourceTree = "<group>"; };
 		B986C46B2CD2F8A500414E57 /* ContextMenuService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuService.swift; sourceTree = "<group>"; };
 		B986C46D2CD31C9B00414E57 /* MessageContentCell+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageContentCell+UserContentExtensions.swift"; sourceTree = "<group>"; };
-		B986C46F2CD3235500414E57 /* ReactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsView.swift; sourceTree = "<group>"; };
+		B986C46F2CD3235500414E57 /* ReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionsViewController.swift; sourceTree = "<group>"; };
 		B986C4AB2CD42C6C00414E57 /* ReactionMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionMetadata.swift; sourceTree = "<group>"; };
 		B986C4AE2CD42DB700414E57 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		B986C4B02CD42E6E00414E57 /* Reaction+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reaction+Serializable.swift"; sourceTree = "<group>"; };
@@ -2322,6 +2330,7 @@
 				B99880A02E2974E3002742A8 /* QueriedConversationCache.swift */,
 				B9627C642B6ED056004EE9DA /* RecordButtonCommand.swift */,
 				B9D312582D20A2C60007572A /* SquareIconViewConfiguration.swift */,
+				A29DFA982ED636FA00171C04 /* UserCache.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3328,7 +3337,7 @@
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
 				B9DD42C32E2F12FB009A318B /* MediaItemView.swift */,
 				B947210F2E0B4506008A76E5 /* NavigationWindow.swift */,
-				B986C46F2CD3235500414E57 /* ReactionsView.swift */,
+				B986C46F2CD3235500414E57 /* ReactionsViewController.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
 				B9D312562D2097F10007572A /* SquareIconView.swift */,
 				A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */,
@@ -3356,12 +3365,15 @@
 				B95DCE502D8CC968003730F9 /* AppConstants+NewChatPageView.swift */,
 				B99551A12D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift */,
 				B9CFA8042D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift */,
+				A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */,
 				B9D5C72B2B7D8A68003E9251 /* AppConstants+RecipientBarService.swift */,
 				B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */,
 				B92FC6BE2D1BB7EB006E91C0 /* AppConstants+SquareIconView.swift */,
+				A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */,
 				B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */,
 				B918222B2B6DEE540068BDAB /* AppConstants+UserContentExtensions.swift */,
 				B9F47AFD2B58639D00D86C67 /* AppConstants+UserInfoBadgeView.swift */,
+				A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -4076,7 +4088,7 @@
 				B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */,
 				B98D30A92E7DF6F700B36D1B /* DevModeActions+Breadcrumbs.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
-				B986C4702CD3235500414E57 /* ReactionsView.swift in Sources */,
+				B986C4702CD3235500414E57 /* ReactionsViewController.swift in Sources */,
 				B99880A12E2974E3002742A8 /* QueriedConversationCache.swift in Sources */,
 				A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */,
 				B921683A2C4350D400063978 /* FileManager+UserContentExtensions.swift in Sources */,
@@ -4100,6 +4112,7 @@
 				B9F47B2D2B5A073C00D86C67 /* ConversationsPageViewServiceDependency.swift in Sources */,
 				B9DCCAA12B34FB6C00532B12 /* Persistent+SessionExtensions.swift in Sources */,
 				B9F47AFC2B5862B300D86C67 /* HighPriorityButtonStyle.swift in Sources */,
+				A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */,
 				B91A10FA2AFF364700E3C1A0 /* EmptyPageView.swift in Sources */,
 				B9931B2F2B8D8D730042E07D /* Contact+UserContentExtensions.swift in Sources */,
 				B9F47B082B586D0100D86C67 /* AppConstants+ConversationCellView.swift in Sources */,
@@ -4216,6 +4229,7 @@
 				B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */,
 				B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */,
 				B95DCE512D8CC968003730F9 /* AppConstants+NewChatPageView.swift in Sources */,
+				A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */,
 				B9EC04C52B784C0000A16700 /* MessageDeliveryServiceEffectID.swift in Sources */,
 				B9A409262B71D333005F2489 /* HapticsService.swift in Sources */,
 				B998B3BE2B68A2540048241B /* UITheme+UserContentExtensions.swift in Sources */,
@@ -4326,6 +4340,7 @@
 				B9E6D7DC2B1288B2000BC88D /* WelcomePageView.swift in Sources */,
 				B93BCDE52AAD9A1A00AA16FE /* SamplePageViewStrings.swift in Sources */,
 				B963F1C82B23D7110087DB83 /* Participant.swift in Sources */,
+				A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */,
 				B99880AC2E299BBC002742A8 /* ChangeLanguagePageViewStrings.swift in Sources */,
 				B9F47B2A2B5A071200D86C67 /* ConversationsPageViewService.swift in Sources */,
 				B99F119E2D7B963900BB6FC0 /* ReadReceipt+Serializable.swift in Sources */,
@@ -4366,6 +4381,7 @@
 				B983872C2BBFCB0B008614AE /* CommonConstants.swift in Sources */,
 				B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */,
 				B9223D562CD6EB4F00C05BC6 /* ReactionSessionService.swift in Sources */,
+				A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */,
 				B9E6D7D32B12850D000BC88D /* AVAudioSessionDependency.swift in Sources */,
 				B986C4B32CD42E7800414E57 /* ReactionMetadata+Serializable.swift in Sources */,
 				B98792962B708B3C0032942C /* RecordingService+UserContentExtensions.swift in Sources */,

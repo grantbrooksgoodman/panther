@@ -32,8 +32,9 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.clientSession.activity) private var activitySession: ActivitySessionService
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
@@ -186,10 +187,15 @@ public final class ChatInfoPageViewService {
 
     public func leaveConversationButtonTapped(_ conversation: Conversation?) {
         Task {
-            guard let conversation,
-                  let currentUserID = User.currentUserID,
+            guard let conversation else { return }
+            var conversationName = "⌘\(conversation.metadata.name)⌘"
+            if conversationName.sanitized.isBangQualifiedEmpty {
+                conversationName = "Conversation"
+            }
+
+            guard let currentUserID = User.currentUserID,
                   await AKConfirmationAlert(
-                      title: "Leave Conversation",
+                      title: "Leave \(conversationName)",
                       message: "Are you sure you'd like to leave this conversation?",
                       cancelButtonTitle: Localized(.cancel).wrappedValue,
                       confirmButtonStyle: .destructivePreferred
@@ -199,17 +205,20 @@ public final class ChatInfoPageViewService {
                       .title,
                   ]) else { return }
 
-            if let exception = await activitySession.removeFromConversation(
+            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
                 currentUserID,
                 conversation: conversation
-            ) {
-                Logger.log(exception, with: .toast)
-                return
-            }
+            )
 
-            Application.dismissSheets()
-            conversationArchive.removeValue(idKey: conversation.id.key)
-            navigation.navigate(to: .userContent(.stack([])))
+            switch removeFromConversationResult {
+            case .success:
+                Application.dismissSheets()
+                conversationArchive.removeValue(idKey: conversation.id.key)
+                navigation.navigate(to: .userContent(.stack([])))
+
+            case let .failure(exception):
+                Logger.log(exception, with: .toast)
+            }
         }
     }
 
@@ -229,6 +238,44 @@ public final class ChatInfoPageViewService {
         quickViewer.onDismiss {
             NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
             self.isPreviewingMedia = false
+        }
+    }
+
+    public func removeUserButtonTapped(
+        _ chatParticipant: ChatParticipant,
+        conversation: Conversation?
+    ) {
+        Task {
+            guard let conversation,
+                  let user = chatParticipant.firstUser else { return }
+
+            guard await AKConfirmationAlert(
+                title: user.displayName,
+                message: "Are you sure you'd like to remove this person from the conversation?",
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                confirmButtonStyle: .destructivePreferred
+            ).present(translating: [
+                .confirmButtonTitle,
+                .message,
+            ]) else { return }
+
+            navigation.navigate(to: .chat(.sheet(.none)))
+            Observables.chatInfoPageLoadingStateUpdated.trigger()
+
+            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
+                user.id,
+                conversation: conversation
+            )
+
+            switch removeFromConversationResult {
+            case let .success(conversation):
+                clientSession.conversation.setCurrentConversation(conversation)
+                chatPageViewService.reloadCollectionView()
+                Observables.currentConversationActivityChanged.trigger()
+
+            case let .failure(exception):
+                Logger.log(exception, with: .toast)
+            }
         }
     }
 

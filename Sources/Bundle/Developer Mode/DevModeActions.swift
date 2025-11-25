@@ -149,7 +149,7 @@ public extension DevModeAction {
             func toggleGlassTintingAction() {
                 @Dependency(\.coreKit) var core: CoreKit
 
-                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool? // TODO: Audit this logic.
+                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool?
                 Application.toggleGlassTinting(on: !(persistedValue == true))
 
                 core.hud.showSuccess(

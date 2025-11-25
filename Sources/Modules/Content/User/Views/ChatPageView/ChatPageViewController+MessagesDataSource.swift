@@ -196,7 +196,11 @@ extension ChatPageViewController: MessagesDataSource {
         }
 
         guard let users = currentConversation.users,
-              let matchingUser = users.first(where: { $0.id == message.fromAccountID }) else { return nil }
+              let matchingUser = users
+              .first(where: { $0.id == message.fromAccountID }) ??
+              UserCache
+              .knownUsers
+              .first(where: { $0.id == message.fromAccountID }) else { return nil }
 
         let font: UIFont = .init(
             name: Strings.messageTopLabelAttributedTextAttributesFontName,

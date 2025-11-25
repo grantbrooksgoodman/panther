@@ -114,46 +114,9 @@ public struct Activity: Codable, EncodedHashable, Equatable {
     // MARK: - Auxiliary
 
     private func displayName(for userID: String) -> String {
-        @Dependency(\.clientSession) var clientSession: ClientSession
-
-        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
-        @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
-
-        let conversationUsers = clientSession
-            .conversation
-            .fullConversation?
-            .users ?? clientSession
-            .conversation
-            .currentConversation?
-            .users ?? []
-
-        let usersFromCurrentUserConversations = clientSession
-            .user
-            .currentUser?
-            .conversations?
-            .compactMap(\.users)
-            .reduce([], +) ?? []
-
-        let usersFromContactPairArchive = contactPairArchive?
-            .map(\.users)
-            .reduce([], +) ?? []
-
-        let usersFromConversationArchive = conversationArchive?
-            .compactMap(\.users)
-            .reduce([], +) ?? []
-
-        let usersFromUnknownContactPairArchive = unknownContactPairArchive?
-            .map(\.users)
-            .reduce([], +) ?? []
-
-        return (conversationUsers +
-            usersFromCurrentUserConversations +
-            usersFromContactPairArchive +
-            usersFromConversationArchive +
-            usersFromUnknownContactPairArchive)
-            .unique
+        return UserCache
+            .knownUsers
             .first(where: { $0.id == userID })?
             .displayName ?? Localized(.someone).wrappedValue
     }

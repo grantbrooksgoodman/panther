@@ -46,6 +46,7 @@ public struct ChatInfoPageReducer: Reducer {
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
         case penPalParticipantViewTapped(ChatParticipant)
+        case removeUserButtonTapped(ChatParticipant)
         case segmentedControlSelectionIndexChanged(Int)
         case traitCollectionChanged
 
@@ -71,8 +72,8 @@ public struct ChatInfoPageReducer: Reducer {
 
         // Bool
         public var inputBarWasFirstResponder = false
-        public var isAddContactButtonEnabled = true
         public var isChangeMetadataButtonEnabled = true
+        public var isLeaveConversationButtonEnabled = true
         public var isPenPalsSharingDataSwitchToggled = false
         public var isPresentingCameraPickerSheet = false
         public var isPresentingImagePickerSheet = false
@@ -252,7 +253,7 @@ public struct ChatInfoPageReducer: Reducer {
         case let .getChatParticipantsReturned(.success(chatParticipants)):
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
-            state.isAddContactButtonEnabled = chatParticipants.count <= 9
+            state.isLeaveConversationButtonEnabled = chatParticipants.count > 2
 
             guard state.viewState == .loading else {
                 state.viewID = UUID()
@@ -347,6 +348,12 @@ public struct ChatInfoPageReducer: Reducer {
                 )
                 return .penPalsSharingDataConfirmationActionSheetDismissed(result)
             }
+
+        case let .removeUserButtonTapped(chatParticipant):
+            viewService.removeUserButtonTapped(
+                chatParticipant,
+                conversation: state.conversation
+            )
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

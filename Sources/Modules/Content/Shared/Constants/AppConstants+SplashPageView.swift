@@ -40,6 +40,8 @@ public extension AppConstants.CGFloats {
 public extension AppConstants.Colors {
     enum SplashPageView {
         public static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+        public static let loadingLabelForeground: Color = .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
+        public static let progressBarActivityIndicatorTint: Color = .init(uiColor: .systemGray)
         public static let progressBarTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
     }
 }

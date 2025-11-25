@@ -86,12 +86,15 @@ public final class AccountDeletionService {
         // Remove user from existing group chats.
 
         for groupChat in groupChats {
-            if let exception = await clientSession.activity.removeFromConversation(
+            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
                 currentUserID,
                 conversation: groupChat,
                 removeFromUser: false
-            ) {
-                exceptions.append(exception)
+            )
+
+            switch removeFromConversationResult {
+            case .success: continue
+            case let .failure(exception): exceptions.append(exception)
             }
 
             incrementProgress(forTotal: totalUnits)

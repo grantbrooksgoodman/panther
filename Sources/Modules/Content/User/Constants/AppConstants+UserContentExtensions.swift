@@ -62,10 +62,10 @@ public extension AppConstants.CGFloats {
 // MARK: - Color
 
 public extension AppConstants.Colors {
-    enum UserContentExtensions {
-        enum Date {
-            public static let chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground: Color = .init(uiColor: .gray)
-            public static let chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+    enum UserContentExtensions { // NIT: Using UIColor here.
+        enum Date { // swiftlint:disable line_length
+            public static let chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .gray
+            public static let chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .gray // swiftlint:enable line_length
         }
 
         enum Message {

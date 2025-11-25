@@ -14,27 +14,28 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-// TODO: Canonize constants for this.
 private struct V26HeaderViewModifier: ViewModifier {
+    // MARK: - Constants Accessors
+
+    private typealias Floats = AppConstants.CGFloats.V26HeaderViewModifier
+    private typealias Strings = AppConstants.Strings.V26HeaderViewModifier
+
     // MARK: - Dependencies
 
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
 
-    // PeripheralButtonType
-    private let leftItem: HeaderView.PeripheralButtonType?
-    private let rightItem: HeaderView.PeripheralButtonType?
-
-    // Other
     private let attributes: HeaderView.Attributes
     private let centerItem: HeaderView.CenterItemType?
+    private let leftItem: HeaderView.PeripheralButtonType?
     private let popGestureAction: (() -> Void)?
+    private let rightItem: HeaderView.PeripheralButtonType?
     private let usesV26Attributes: Bool
 
     // MARK: - Computed Properties
 
-    private var imageMaxWidth: CGFloat { screenWidth / 3 }
+    private var imageMaxWidth: CGFloat { screenWidth / Floats.imageMaxWidthDivisor }
     private var isThemed: Bool { attributes.appearance == .themed }
     private var navigationBarAppearance: NavigationBarAppearance {
         let configuration: NavigationBarConfiguration = .init(
@@ -124,7 +125,9 @@ private struct V26HeaderViewModifier: ViewModifier {
 
                             Rectangle()
                                 .fill(Color(uiColor: attributes.appearance.backgroundColor))
-                                .frame(height: NavigationBar.height + 20)
+                                .frame(height:
+                                    NavigationBar.height + Floats.navigationBarHeightIncrement
+                                )
                                 .ignoresSafeArea(edges: .top)
                         }
                     }
@@ -192,12 +195,12 @@ private struct V26HeaderViewModifier: ViewModifier {
                             image
                                 .frame(
                                     width: size.width > imageMaxWidth ? nil : size.width,
-                                    height: size.height > 30 ? nil : size.height
+                                    height: size.height > Floats.toolbarButtonHeight ? nil : size.height
                                 )
                         }
                         .frame(
                             maxWidth: imageMaxWidth,
-                            maxHeight: 30,
+                            maxHeight: Floats.toolbarButtonHeight,
                             alignment: isLeadingItem ? .leading : .trailing
                         )
                 }
@@ -206,7 +209,9 @@ private struct V26HeaderViewModifier: ViewModifier {
             case let .text(attributes):
                 if attributes.text.string == Localized(.cancel).wrappedValue || attributes.text.string == Localized(.done).wrappedValue {
                     Components.button(
-                        symbolName: attributes.text.string == Localized(.cancel).wrappedValue ? "xmark" : "checkmark",
+                        symbolName: attributes.text.string == Localized(.cancel).wrappedValue ?
+                            Strings.cancelToolbarButtonImageSystemName :
+                            Strings.doneToolbarButtonImageSystemName,
                         foregroundColor: isThemed ? (attributes.isEnabled ? .accent : .disabled) : attributes.text.foregroundColor,
                         weight: .semibold,
                         usesIntrinsicSize: false
@@ -215,8 +220,8 @@ private struct V26HeaderViewModifier: ViewModifier {
                     }
                     .disabled(!attributes.isEnabled)
                     .frame(
-                        width: 30,
-                        height: 30
+                        width: Floats.toolbarButtonWidth,
+                        height: Floats.toolbarButtonHeight
                     )
                 } else {
                     Button {
@@ -226,8 +231,8 @@ private struct V26HeaderViewModifier: ViewModifier {
                             .font(attributes.text.font)
                             .foregroundStyle(isThemed ? (attributes.isEnabled ? .accent : .disabled) : attributes.text.foregroundColor)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                            .padding(.horizontal, 8)
+                            .minimumScaleFactor(Floats.toolbarButtonLabelMinimumScaleFactor)
+                            .padding(.horizontal, Floats.toolbarButtonLabelHorizontalPadding)
                     }
                     .disabled(!attributes.isEnabled)
                 }

@@ -191,7 +191,7 @@ public final class RecipientBarLayoutService {
     }
 
     private func configureTableView() {
-        guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty, // TODO: Audit this.
+        guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty,
               let tableView = buildTableView() else { return }
         tableView.tag = core.ui.semTag(for: Strings.tableViewSemanticTag)
         viewController.view.addSubview(tableView)

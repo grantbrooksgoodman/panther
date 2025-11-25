@@ -111,14 +111,14 @@ public struct ActivitySessionService {
         _ userID: String,
         conversation: Conversation,
         removeFromUser: Bool = true
-    ) async -> Exception? {
+    ) async -> Callback<Conversation, Exception> {
         guard let activity = Activity(
             userID == User.currentUserID ? .leftConversation : .removedFromConversation(userID: userID)
         ) else {
-            return .init(
+            return .failure(.init(
                 "Failed to synthesize activity.",
                 metadata: .init(sender: self)
-            )
+            ))
         }
 
         let updateValueResult = await conversation.updateValue(
@@ -154,21 +154,18 @@ public struct ActivitySessionService {
                         userIDs: [userID],
                         conversationIDKey: conversation.id.key
                     ) {
-                        return exception
+                        return .failure(exception)
                     }
                 }
 
-                let logActivityResult = await conversation.logActivity(activity)
-                switch logActivityResult {
-                case .success: return nil
-                case let .failure(exception): return exception
-                }
+                return await conversation.logActivity(activity)
 
             case let .failure(exception):
-                return exception
+                return .failure(exception)
             }
 
-        case let .failure(exception): return exception
+        case let .failure(exception):
+            return .failure(exception)
         }
     }
 }

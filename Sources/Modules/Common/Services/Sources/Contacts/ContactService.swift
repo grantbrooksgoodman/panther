@@ -55,6 +55,7 @@ public final class ContactService {
                 coreUtilities.clearCaches([
                     .contactPairArchive,
                     .queriedContactPairs,
+                    .user,
                 ])
 
                 @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?

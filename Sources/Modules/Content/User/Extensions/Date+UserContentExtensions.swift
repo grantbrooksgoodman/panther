@@ -25,12 +25,12 @@ public extension Date { // swiftlint:disable:next identifier_name
 
             let boldAttributes: [Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: Floats.chatPageMessageSeparatorAttributedDateStringBoldAttributesSystemFontSize),
-                .foregroundColor: UIColor(Colors.chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground),
+                .foregroundColor: Colors.chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground,
             ]
 
             let standardAttributes: [Key: Any] = [
                 .font: UIFont.systemFont(ofSize: Floats.chatPageMessageSeparatorAttributedDateStringStandardAttributesSystemFontSize),
-                .foregroundColor: UIColor(Colors.chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground),
+                .foregroundColor: Colors.chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground,
             ]
 
             let boldAttributeRange = NSRange(location: 0, length: separatorIndex)

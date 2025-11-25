@@ -16,9 +16,9 @@ public extension TranslatedLabelStringCollection {
     enum ChatInfoPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
-        case addContactButtonText = "Add contact"
+        case addContactButtonText = "Add Contact"
         case changeMetadataButtonText = "Change name and photo"
-        case leaveConversation = "Leave conversation"
+        case leaveConversation = "Leave this Conversation"
         case participantCountLabelText = "people"
         case segmentedControlMediaOptionText = "Attachments"
         case segmentedControlParticipantsOptionText = "Participants"

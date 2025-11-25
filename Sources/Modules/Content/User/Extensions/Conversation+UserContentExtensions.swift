@@ -68,7 +68,11 @@ public extension Conversation {
         var mediaMetadata = [MediaItemView.Metadata]()
         for mediaMessage in messages {
             guard let mediaFile = mediaMessage.richContent?.mediaComponent,
-                  let user = users.first(where: { $0.id == mediaMessage.fromAccountID }) else { continue }
+                  let user = users
+                  .first(where: { $0.id == mediaMessage.fromAccountID }) ??
+                  UserCache
+                  .knownUsers
+                  .first(where: { $0.id == mediaMessage.fromAccountID }) else { continue }
 
             var senderLabelText = Localized(.fromYou).wrappedValue.firstLowercase
             if user.id != User.currentUserID {

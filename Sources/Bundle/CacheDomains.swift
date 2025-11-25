@@ -38,6 +38,7 @@ public extension CacheDomain {
                 .squareIconImage,
                 .textToSpeechService,
                 .transcriptionService,
+                .user,
                 .userService,
             ]
         }
@@ -61,6 +62,7 @@ public extension CacheDomain {
     static let squareIconImage: CacheDomain = .init("squareIconImage") { clearSquareIconImageCache() }
     static let textToSpeechService: CacheDomain = .init("textToSpeechService") { clearTextToSpeechServiceCache() }
     static let transcriptionService: CacheDomain = .init("transcriptionService") { clearTranscriptionServiceCache() }
+    static let user: CacheDomain = .init("user") { clearUserCache() }
     static let userService: CacheDomain = .init("userService") { clearUserServiceCache() }
 
     // MARK: - Methods
@@ -135,6 +137,10 @@ public extension CacheDomain {
 
     private static func clearTranscriptionServiceCache() {
         TranscriptionServiceCache.clearCache()
+    }
+
+    private static func clearUserCache() {
+        UserCache.clearCache()
     }
 
     private static func clearUserServiceCache() {

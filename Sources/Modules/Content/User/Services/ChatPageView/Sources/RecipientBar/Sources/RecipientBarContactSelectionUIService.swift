@@ -186,7 +186,7 @@ public final class RecipientBarContactSelectionUIService {
         }
 
         guard configureContactView(forSublevels: Int(Floats.sublevelCount)) else {
-            configService.reconfigureRecipientBar(forSublevel: Int(Floats.recipientBarReconfigurationSublevel)) // TODO: Audit this.
+            configService.reconfigureRecipientBar(forSublevel: Int(Floats.recipientBarReconfigurationSublevel))
             contactView.frame.origin.y = furthestTrailingView.frame.maxY + Floats.adjacentViewSpacing
             return
         }

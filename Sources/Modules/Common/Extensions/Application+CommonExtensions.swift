@@ -27,6 +27,7 @@ public extension Application {
         @Dependency(\.navigation) var navigation: Navigation
         @Dependency(\.uiApplication) var uiApplication: UIApplication
 
+        navigation.navigate(to: .chat(.sheet(.none)))
         navigation.navigate(to: .settings(.sheet(.none)))
         navigation.navigate(to: .userContent(.sheet(.none)))
 

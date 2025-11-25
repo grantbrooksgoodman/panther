@@ -27,7 +27,7 @@ public extension AppConstants.CGFloats {
 
 public extension AppConstants.Colors {
     enum ChatParticipantView {
-        // swiftlint:disable:next identifier_name
+        public static let deleteButtonTint: Color = .red // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
     }
@@ -36,7 +36,8 @@ public extension AppConstants.Colors {
 // MARK: - String
 
 public extension AppConstants.Strings {
-    enum ChatParticipantView { // swiftlint:disable:next identifier_name
+    enum ChatParticipantView {
+        public static let deleteButtonImageSystemName = "trash" // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
         public static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
     }

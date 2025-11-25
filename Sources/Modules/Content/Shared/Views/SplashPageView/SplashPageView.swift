@@ -80,7 +80,7 @@ public struct SplashPageView: View {
         }
     }
 
-    @ViewBuilder // TODO: Create AppConstants for the colors here.
+    @ViewBuilder
     private var progressBar: some View {
         if viewService.shouldShowLoadingLabel {
             ProgressView(value: viewService.initializationProgress) {
@@ -92,12 +92,12 @@ public struct SplashPageView: View {
                             maxWidth: Floats.progressBarActivityIndicatorFrameMaxWidth,
                             maxHeight: Floats.progressBarActivityIndicatorFrameMaxHeight
                         )
-                        .tint(Color(uiColor: .systemGray))
+                        .tint(Colors.progressBarActivityIndicatorTint)
 
                     ThemedView {
                         Components.text(
                             viewService.loadingLabelText,
-                            foregroundColor: .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
+                            foregroundColor: Colors.loadingLabelForeground
                         )
                     }
                 }
