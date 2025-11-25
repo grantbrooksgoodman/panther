@@ -50,7 +50,7 @@ public final class ConversationSyncService {
                 ).appending(userInfo: commonParams))
             }
 
-            return .success(conversation)
+            return .success(conversation.withHydratedMessages)
         }
 
         func getConversationData() async -> Exception? {
@@ -284,11 +284,8 @@ public final class ConversationSyncService {
 
         switch getMessagesResult {
         case let .success(messages):
-            let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID
-            guard let conversation = conversation.modifyKey(
-                .messages,
-                withValue: updatedMessages.hydrated(with: conversation.activities)
-            ) else {
+            let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
+            guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
                 return .Networking.typeMismatch(
                     key: Conversation.SerializationKeys.messages,
                     .init(sender: self)

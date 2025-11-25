@@ -22,6 +22,7 @@ public struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
+    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
@@ -36,6 +37,7 @@ public struct ChatInfoPageReducer: Reducer {
         case changeMetadataButtonTapped
         case chatInfoCellTapped
         case currentConversationMetadataChanged
+        case loadingStateUpdated
         case mediaItemViewTapped(MediaItemView.Metadata)
         case penPalsSharingDataSwitchToggledOn
         case userInfoBadgeTapped(User?)
@@ -145,7 +147,9 @@ public struct ChatInfoPageReducer: Reducer {
         }
 
         public var visibleParticipantsIncrement: Int {
-            guard !visibleParticipants.isEmpty,
+            // FIXME: Remove the dependency on isDeveloperModeEnabled.
+            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+                  !visibleParticipants.isEmpty,
                   visibleParticipants.count < 10 else { return 0 }
             return 1
         }
@@ -289,6 +293,9 @@ public struct ChatInfoPageReducer: Reducer {
                 StatusBar.overrideStyle(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
+
+        case .loadingStateUpdated:
+            state.viewState = .loading
 
         case let .mediaItemViewTapped(metadata):
             viewService.mediaItemViewTapped(

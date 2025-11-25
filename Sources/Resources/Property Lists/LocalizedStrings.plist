@@ -312,6 +312,161 @@
 		<key>zh</key>
 		<string>授予同意</string>
 	</dict>
+	<key>added_to_conversation</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>ar</key>
+		<string>⌘ تمت الإضافة ⁂ إلى المحادثة.</string>
+		<key>az</key>
+		<string>⌘ söhbətə ⁂ əlavə etdi.</string>
+		<key>be</key>
+		<string>⌘ дадаў ⁂ да размовы.</string>
+		<key>bg</key>
+		<string>⌘ добави ⁂ към разговора.</string>
+		<key>bn</key>
+		<string>কথোপকথনে  যোগ করা হয়েছে।</string>
+		<key>bs</key>
+		<string>⌘ dodao/la ⁂ u razgovor.</string>
+		<key>ca</key>
+		<string>⌘ afegit ⁂ a la conversa.</string>
+		<key>cs</key>
+		<string>⌘ přidal/a ⁂ do konverzace.</string>
+		<key>cy</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>da</key>
+		<string>⌘ tilføjede ⁂ til samtalen.</string>
+		<key>de</key>
+		<string>⌘ hat ⁂ zur Unterhaltung hinzugefügt.</string>
+		<key>el</key>
+		<string>Ο χρήστης ⌘ πρόσθεσε τον χρήστη ⁂ στη συνομιλία.</string>
+		<key>en</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>eo</key>
+		<string>⌘ aldonis ⁂ al la konversacio.</string>
+		<key>es</key>
+		<string>⌘ ha(s) añadido ⁂ a la conversación.</string>
+		<key>et</key>
+		<string>⌘ lisati ⁂ vestlusele.</string>
+		<key>eu</key>
+		<string>⌘ gehitu da ⁂ elkarrizketara.</string>
+		<key>fa</key>
+		<string>⌘ ⁂ را به مکالمه اضافه کرد.</string>
+		<key>fi</key>
+		<string>⌘ lisäsi ⁂ keskusteluun.</string>
+		<key>fr</key>
+		<string>⌘ a ajouté ⁂ à la conversation.</string>
+		<key>ga</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>gd</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>gl</key>
+		<string>⌘ engadiuse ⁂ á conversa.</string>
+		<key>gu</key>
+		<string>વાતચીતમાં ⌘ ઉમેર્યું ⁂.</string>
+		<key>he</key>
+		<string>⌘ הוסיף ⁂ לשיחה.</string>
+		<key>hi</key>
+		<string>⌘ ने बातचीत में ⁂ जोड़ा।</string>
+		<key>hr</key>
+		<string>⌘ dodao/la je ⁂ u razgovor.</string>
+		<key>ht</key>
+		<string>⌘ ajoute ⁂ nan konvèsasyon an.</string>
+		<key>hu</key>
+		<string>⌘ hozzáadta ⁂ a beszélgetéshez.</string>
+		<key>hy</key>
+		<string>⌘-ը ավելացրեց ⁂-ը զրույցին։</string>
+		<key>id</key>
+		<string>⌘ menambahkan ⁂ ke percakapan.</string>
+		<key>is</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>it</key>
+		<string>⌘ aggiunto ⁂ alla conversazione.</string>
+		<key>ja</key>
+		<string>⌘ が会話に ⁂ を追加しました。</string>
+		<key>ka</key>
+		<string>⌘-მა ⁂ დაამატა საუბარში.</string>
+		<key>kk</key>
+		<string>⌘ әңгімеге ⁂ қосты.</string>
+		<key>kn</key>
+		<string>ಸಂಭಾಷಣೆಗೆ  ಸೇರಿಸಲಾಗಿದೆ.</string>
+		<key>ko</key>
+		<string>⌘ 대화에 ⁂을 추가했습니다.</string>
+		<key>ky</key>
+		<string>⌘ сүйлөшүүгө ⁂ кошту.</string>
+		<key>lt</key>
+		<string>⌘ pridėta ⁂ prie pokalbio.</string>
+		<key>mg</key>
+		<string>nanampy ⌘ ⁂ tamin&apos;ny resaka.</string>
+		<key>mi</key>
+		<string>⌘ tāpiri ⁂ ki te kōrero.</string>
+		<key>mk</key>
+		<string>⌘ додадено ⁂ во разговорот.</string>
+		<key>ml</key>
+		<string>സംഭാഷണത്തിലേക്ക്  ചേർത്തു.</string>
+		<key>mn</key>
+		<string>⌘ ярианд ⁂ нэмсэн.</string>
+		<key>mt</key>
+		<string>⌘ miżjud ⁂ mal-konverżazzjoni.</string>
+		<key>ne</key>
+		<string>कुराकानीमा  थपियो।</string>
+		<key>nl</key>
+		<string>⌘ heeft ⁂ aan het gesprek toegevoegd.</string>
+		<key>no</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>pa</key>
+		<string>ਗੱਲਬਾਤ ਵਿੱਚ  ਜੋੜਿਆ ਗਿਆ।</string>
+		<key>pl</key>
+		<string>⌘ dodano ⁂ do rozmowy.</string>
+		<key>pt</key>
+		<string>⌘ adicionado ⁂ à conversa.</string>
+		<key>ro</key>
+		<string>⌘ adăugat ⁂ la conversație.</string>
+		<key>ru</key>
+		<string>⌘ добавлен ⁂ в беседу.</string>
+		<key>si</key>
+		<string>සංවාදයට  එකතු කළා.</string>
+		<key>sk</key>
+		<string>⌘ pridal/a ⁂ do konverzácie.</string>
+		<key>sl</key>
+		<string>⌘ je dodal ⁂ v pogovor.</string>
+		<key>sq</key>
+		<string>⌘ shtoi ⁂ në bisedë.</string>
+		<key>sr</key>
+		<string>⌘ додао/ла ⁂ у разговор.</string>
+		<key>su</key>
+		<string>⌘ ditambahkeun ⁂ kana paguneman.</string>
+		<key>sv</key>
+		<string>⌘ tillade ⁂ till konversationen.</string>
+		<key>sw</key>
+		<string>⌘ imeongezwa ⁂ kwenye mazungumzo.</string>
+		<key>ta</key>
+		<string>உரையாடலில் ⌘ சேர்க்கப்பட்டது ⁂.</string>
+		<key>te</key>
+		<string>సంభాషణకు  జోడించబడింది.</string>
+		<key>tg</key>
+		<string>⌘ ба сӯҳбат ⁂ илова кард.</string>
+		<key>th</key>
+		<string>⌘ ได้เพิ่ม ⁂ เข้ามาในการสนทนาแล้ว</string>
+		<key>tl</key>
+		<string>⌘ idinagdag ⁂ sa usapan.</string>
+		<key>tr</key>
+		<string>⌘ konuşmaya ⁂ eklendi.</string>
+		<key>tt</key>
+		<string>⌘ сөйләшүгә ⁂ өстәде.</string>
+		<key>uk</key>
+		<string>⌘ додав ⁂ до розмови.</string>
+		<key>ur</key>
+		<string>گفتگو میں  شامل کیا گیا۔</string>
+		<key>uz</key>
+		<string>⌘ suhbatga ⁂ qo&apos;shdi.</string>
+		<key>vi</key>
+		<string>⌘ đã thêm ⁂ vào cuộc trò chuyện.</string>
+		<key>yi</key>
+		<string>⌘ added ⁂ to the conversation.</string>
+		<key>zh</key>
+		<string>⌘ 向对话中添加了 ⁂。</string>
+	</dict>
 	<key>attachment</key>
 	<dict>
 		<key>af</key>
@@ -4187,6 +4342,161 @@
 		<key>zh</key>
 		<string>语言</string>
 	</dict>
+	<key>left_conversation</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ left the conversation.</string>
+		<key>ar</key>
+		<string>⌘ ترك المحادثة.</string>
+		<key>az</key>
+		<string>⌘ söhbəti tərk etdi.</string>
+		<key>be</key>
+		<string>⌘ пакінуў размову.</string>
+		<key>bg</key>
+		<string>⌘ напусна разговора.</string>
+		<key>bn</key>
+		<string>⌘ left the conversation.</string>
+		<key>bs</key>
+		<string>⌘ je napustio/la razgovor.</string>
+		<key>ca</key>
+		<string>⌘ va abandonar la conversa.</string>
+		<key>cs</key>
+		<string>⌘ opustil(a) konverzaci.</string>
+		<key>cy</key>
+		<string>⌘ left the conversation.</string>
+		<key>da</key>
+		<string>⌘ forlod samtalen.</string>
+		<key>de</key>
+		<string>⌘ hat das Gespräch verlassen.</string>
+		<key>el</key>
+		<string>⌘ έφυγε από τη συζήτηση.</string>
+		<key>en</key>
+		<string>⌘ left the conversation.</string>
+		<key>eo</key>
+		<string>⌘ forlasis la konversacion.</string>
+		<key>es</key>
+		<string>⌘ ha(s) abandonado la conversación.</string>
+		<key>et</key>
+		<string>⌘ lahkus vestlusest.</string>
+		<key>eu</key>
+		<string>⌘ elkarrizketa utzi du.</string>
+		<key>fa</key>
+		<string>⌘ مکالمه را ترک کرد.</string>
+		<key>fi</key>
+		<string>⌘ poistui keskustelusta.</string>
+		<key>fr</key>
+		<string>⌘ a quitté la conversation.</string>
+		<key>ga</key>
+		<string>⌘ left the conversation.</string>
+		<key>gd</key>
+		<string>⌘ left the conversation.</string>
+		<key>gl</key>
+		<string>⌘ abandonou a conversa.</string>
+		<key>gu</key>
+		<string>⌘ વાતચીત છોડી દીધી.</string>
+		<key>he</key>
+		<string>⌘ עזב את השיחה.</string>
+		<key>hi</key>
+		<string>⌘ बातचीत छोड़ दी।</string>
+		<key>hr</key>
+		<string>⌘ napustio/la je razgovor.</string>
+		<key>ht</key>
+		<string>⌘ kite konvèsasyon an.</string>
+		<key>hu</key>
+		<string>⌘ kilépett a beszélgetésből.</string>
+		<key>hy</key>
+		<string>⌘-ը լքեց զրույցը։</string>
+		<key>id</key>
+		<string>⌘ meninggalkan percakapan.</string>
+		<key>is</key>
+		<string>⌘ left the conversation.</string>
+		<key>it</key>
+		<string>⌘ ha abbandonato la conversazione.</string>
+		<key>ja</key>
+		<string>⌘ は会話から退出しました。</string>
+		<key>ka</key>
+		<string>⌘-მ საუბარი დატოვა.</string>
+		<key>kk</key>
+		<string>⌘ әңгімеден шығып кетті.</string>
+		<key>kn</key>
+		<string>⌘ ಸಂಭಾಷಣೆಯನ್ನು ತೊರೆದರು.</string>
+		<key>ko</key>
+		<string>⌘ 대화를 종료했습니다.</string>
+		<key>ky</key>
+		<string>⌘ сүйлөшүүдөн чыгып кетти.</string>
+		<key>lt</key>
+		<string>⌘ paliko pokalbį.</string>
+		<key>mg</key>
+		<string>⌘ nandao ny resaka.</string>
+		<key>mi</key>
+		<string>⌘ i wehe atu i te kōrero.</string>
+		<key>mk</key>
+		<string>⌘ го напушти разговорот.</string>
+		<key>ml</key>
+		<string>⌘ സംഭാഷണം വിട്ടു.</string>
+		<key>mn</key>
+		<string>⌘ ярианаас гарлаа.</string>
+		<key>mt</key>
+		<string>⌘ ħallejt il-konverżazzjoni.</string>
+		<key>ne</key>
+		<string>⌘ कुराकानी छोडे।</string>
+		<key>nl</key>
+		<string>⌘ verliet het gesprek.</string>
+		<key>no</key>
+		<string>⌘ left the conversation.</string>
+		<key>pa</key>
+		<string>⌘ ਗੱਲਬਾਤ ਛੱਡ ਦਿੱਤੀ।</string>
+		<key>pl</key>
+		<string>⌘ opuścił(a) konwersację.</string>
+		<key>pt</key>
+		<string>⌘ saiu da conversa.</string>
+		<key>ro</key>
+		<string>⌘ a părăsit conversația.</string>
+		<key>ru</key>
+		<string>⌘ покинул разговор.</string>
+		<key>si</key>
+		<string>⌘ සංවාදයෙන් ඉවත් විය.</string>
+		<key>sk</key>
+		<string>⌘ opustil konverzáciu.</string>
+		<key>sl</key>
+		<string>⌘ je zapustil pogovor.</string>
+		<key>sq</key>
+		<string>⌘ e la bisedën.</string>
+		<key>sr</key>
+		<string>⌘ је напустио разговор.</string>
+		<key>su</key>
+		<string>⌘ ninggalkeun obrolan.</string>
+		<key>sv</key>
+		<string>⌘ lämnade konversationen.</string>
+		<key>sw</key>
+		<string>⌘ aliondoka kwenye mazungumzo.</string>
+		<key>ta</key>
+		<string>⌘ உரையாடலை விட்டு வெளியேறினார்.</string>
+		<key>te</key>
+		<string>⌘ సంభాషణ నుండి నిష్క్రమించారు.</string>
+		<key>tg</key>
+		<string>⌘ сӯҳбатро тарк кард.</string>
+		<key>th</key>
+		<string>⌘ ออกจากการสนทนาแล้ว</string>
+		<key>tl</key>
+		<string>Umalis si ⌘ sa usapan.</string>
+		<key>tr</key>
+		<string>⌘ sohbetten ayrıldı.</string>
+		<key>tt</key>
+		<string>⌘ сөйләшүдән чыгып китте.</string>
+		<key>uk</key>
+		<string>⌘ вийшов з розмови.</string>
+		<key>ur</key>
+		<string>⌘ left the conversation.</string>
+		<key>uz</key>
+		<string>⌘ suhbatni tark etdi.</string>
+		<key>vi</key>
+		<string>⌘ đã rời khỏi cuộc trò chuyện.</string>
+		<key>yi</key>
+		<string>⌘ left the conversation.</string>
+		<key>zh</key>
+		<string>⌘ 退出了对话。</string>
+	</dict>
 	<key>loading_data</key>
 	<dict>
 		<key>af</key>
@@ -7266,6 +7576,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>געגנט</string>
 		<key>zh</key>
 		<string>地区</string>
+	</dict>
+	<key>removed_from_conversation</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>ar</key>
+		<string>⌘ تمت إزالته ⁂ من المحادثة.</string>
+		<key>az</key>
+		<string>⌘ söhbətdən ⁂ silindi.</string>
+		<key>be</key>
+		<string>⌘ выдаліў ⁂ з размовы.</string>
+		<key>bg</key>
+		<string>⌘ премахна ⁂ от разговора.</string>
+		<key>bn</key>
+		<string>কথোপকথন থেকে  সরিয়ে দেওয়া হয়েছে।</string>
+		<key>bs</key>
+		<string>⌘ uklonjen/a ⁂ iz razgovora.</string>
+		<key>ca</key>
+		<string>⌘ eliminat ⁂ de la conversa.</string>
+		<key>cs</key>
+		<string>⌘ odstraněno ⁂ z konverzace.</string>
+		<key>cy</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>da</key>
+		<string>⌘ fjernet ⁂ fra samtalen.</string>
+		<key>de</key>
+		<string>⌘ entfernt ⁂ aus der Konversation.</string>
+		<key>el</key>
+		<string>⌘ αφαιρέθηκε ⁂ από τη συνομιλία.</string>
+		<key>en</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>eo</key>
+		<string>⌘ forigita ⁂ el la konversacio.</string>
+		<key>es</key>
+		<string>⌘ ha(s) eliminado ⁂ de la conversación.</string>
+		<key>et</key>
+		<string>⌘ eemaldati ⁂ vestlusest.</string>
+		<key>eu</key>
+		<string>⌘ kendu ⁂ elkarrizketatik.</string>
+		<key>fa</key>
+		<string>⌘ از مکالمه حذف شد ⁂.</string>
+		<key>fi</key>
+		<string>⌘ poistettu ⁂ keskustelusta.</string>
+		<key>fr</key>
+		<string>A été retiré de la conversation.</string>
+		<key>ga</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>gd</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>gl</key>
+		<string>⌘ eliminado ⁂ da conversa.</string>
+		<key>gu</key>
+		<string>વાતચીતમાંથી  દૂર કર્યું.</string>
+		<key>he</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>hi</key>
+		<string>⌘ को बातचीत से ⁂ हटा दिया गया।</string>
+		<key>hr</key>
+		<string>⌘ uklonjeno ⁂ iz razgovora.</string>
+		<key>ht</key>
+		<string>⌘ retire ⁂ nan konvèsasyon an.</string>
+		<key>hu</key>
+		<string>⌘ eltávolítva ⁂ a beszélgetésből.</string>
+		<key>hy</key>
+		<string>⌘ հեռացվել է ⁂ զրույցից։</string>
+		<key>id</key>
+		<string>⌘ dihapus ⁂ dari percakapan.</string>
+		<key>is</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>it</key>
+		<string>⌘ rimosso ⁂ dalla conversazione.</string>
+		<key>ja</key>
+		<string>会話から⌘ 削除されました ⁂。</string>
+		<key>ka</key>
+		<string>⌘ ამოღებულია ⁂ საუბრიდან.</string>
+		<key>kk</key>
+		<string>⌘ әңгімеден ⁂ алып тастады.</string>
+		<key>kn</key>
+		<string>ಸಂಭಾಷಣೆಯಿಂದ  ತೆಗೆದುಹಾಕಲಾಗಿದೆ.</string>
+		<key>ko</key>
+		<string>⌘ 대화에서 ⁂ 제거됨.</string>
+		<key>ky</key>
+		<string>⌘ сүйлөшүүдөн ⁂ алып салды.</string>
+		<key>lt</key>
+		<string>⌘ pašalintas ⁂ iš pokalbio.</string>
+		<key>mg</key>
+		<string>⌘ nesorina ⁂ avy amin&apos;ny resaka.</string>
+		<key>mi</key>
+		<string>⌘ tangohia ⁂ i te kōrero.</string>
+		<key>mk</key>
+		<string>⌘ отстрането ⁂ од разговорот.</string>
+		<key>ml</key>
+		<string>സംഭാഷണത്തിൽ നിന്ന്  നീക്കം ചെയ്തു.</string>
+		<key>mn</key>
+		<string>⌘ харилцан ярианаас ⁂-г хассан.</string>
+		<key>mt</key>
+		<string>⌘ imneħħi ⁂ mill-konverżazzjoni.</string>
+		<key>ne</key>
+		<string>कुराकानीबाट  हटाइयो।</string>
+		<key>nl</key>
+		<string>⌘ verwijderd ⁂ uit het gesprek.</string>
+		<key>no</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>pa</key>
+		<string>ਗੱਲਬਾਤ ਵਿੱਚੋਂ  ਹਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
+		<key>pl</key>
+		<string>⌘ usunięto ⁂ z konwersacji.</string>
+		<key>pt</key>
+		<string>⌘ removido ⁂ da conversa.</string>
+		<key>ro</key>
+		<string>⌘ eliminat ⁂ din conversație.</string>
+		<key>ru</key>
+		<string>⌘ удален ⁂ из беседы.</string>
+		<key>si</key>
+		<string>සංවාදයෙන්  ඉවත් කරන ලදී.</string>
+		<key>sk</key>
+		<string>⌘ odstránené ⁂ z konverzácie.</string>
+		<key>sl</key>
+		<string>⌘ odstranjen ⁂ iz pogovora.</string>
+		<key>sq</key>
+		<string>⌘ u hoq ⁂ nga biseda.</string>
+		<key>sr</key>
+		<string>⌘ уклоњено ⁂ из разговора.</string>
+		<key>su</key>
+		<string>⌘ dihapus ⁂ tina paguneman.</string>
+		<key>sv</key>
+		<string>⌘ borttagen ⁂ från konversationen.</string>
+		<key>sw</key>
+		<string>⌘ imeondolewa ⁂ kutoka kwenye mazungumzo.</string>
+		<key>ta</key>
+		<string>உரையாடலில் இருந்து ⌘ நீக்கப்பட்டது ⁂.</string>
+		<key>te</key>
+		<string>సంభాషణ నుండి  తొలగించబడింది.</string>
+		<key>tg</key>
+		<string>⌘ ⁂-ро аз сӯҳбат хориҷ кард.</string>
+		<key>th</key>
+		<string>⌘ ลบ ⁂ ออกจากการสนทนา</string>
+		<key>tl</key>
+		<string>⌘ inalis ⁂ sa usapan.</string>
+		<key>tr</key>
+		<string>⌘ konuşmadan ⁂ kaldırıldı.</string>
+		<key>tt</key>
+		<string>⌘ сөйләшүдән ⁂ ны алып ташлады.</string>
+		<key>uk</key>
+		<string>⌘ видалено ⁂ з розмови.</string>
+		<key>ur</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>uz</key>
+		<string>⌘ suhbatdan ⁂ olib tashlandi.</string>
+		<key>vi</key>
+		<string>⌘ đã xóa ⁂ khỏi cuộc trò chuyện.</string>
+		<key>yi</key>
+		<string>⌘ removed ⁂ from the conversation.</string>
+		<key>zh</key>
+		<string>⌘ 从对话中移除 ⁂。</string>
 	</dict>
 	<key>repairing_data</key>
 	<dict>

@@ -67,17 +67,19 @@ public final class ChatInfoPageViewService {
 
     /// `.viewAppeared`
     public func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
-        @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
 
-        guard let conversation else {
+        guard let conversation = conversationSession.fullConversation else {
             return .failure(.init("No current conversation.", metadata: .init(sender: self)))
         }
 
-        guard let users = conversation.users else {
-            if let exception = await conversation.setUsers() {
+        guard let users = conversation.users,
+              conversation.participants.count - 1 == users.count else {
+            if let exception = await conversation.setUsers(forceUpdate: true) {
                 return .failure(exception)
             }
 
+            conversationSession.setCurrentConversation(conversation)
             return await getChatParticipants()
         }
 

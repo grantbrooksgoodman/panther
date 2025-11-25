@@ -18,6 +18,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     /* Add cases here for newly pre-localized strings. */
 
     case acknowledgeConsent
+    case addedToConversation
     case attachment
     case audioMessage
     case awaitingConsent
@@ -51,6 +52,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case invite
 
     case language
+    case leftConversation
     case loadingData
 
     // swiftlint:disable:next identifier_name
@@ -74,6 +76,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case reactionDetails
     case read
     case region
+    case removedFromConversation
     case repairingData
     case reportBug
     case reportMistranslation

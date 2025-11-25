@@ -28,17 +28,34 @@ public struct Activity: Codable, EncodedHashable, Equatable {
 
     // MARK: - Computed Properties
 
-    // TODO: Get localized strings for these.
     public var description: String {
         switch action {
         case let .addedToConversation(userID: userID):
-            return "⌘\(displayName(for: self.userID))⌘ added ⌘\(displayName(for: userID))⌘ to the conversation."
+            var otherUserDisplayName = displayName(for: userID)
+            if otherUserDisplayName == Localized(.you).wrappedValue {
+                otherUserDisplayName = otherUserDisplayName.lowercased()
+            }
+
+            return Localized(.addedToConversation)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
+                .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
 
         case .leftConversation:
-            return "⌘\(displayName(for: userID))⌘ left the conversation."
+            return Localized(.leftConversation)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
 
         case let .removedFromConversation(userID: userID):
-            return "⌘\(displayName(for: self.userID))⌘ removed ⌘\(displayName(for: userID))⌘ from the conversation."
+            var otherUserDisplayName = displayName(for: userID)
+            if otherUserDisplayName == Localized(.you).wrappedValue {
+                otherUserDisplayName = otherUserDisplayName.lowercased()
+            }
+
+            return Localized(.removedFromConversation)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
+                .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
         }
     }
 
@@ -87,12 +104,45 @@ public struct Activity: Codable, EncodedHashable, Equatable {
         self.userID = userID
     }
 
+    public init?(_ action: Action) {
+        guard let currentUserID = User.currentUserID else { return nil }
+        self.init(
+            action,
+            date: .now,
+            userID: currentUserID
+        )
+    }
+
     // MARK: - Auxiliary
 
     private func displayName(for userID: String) -> String {
-        @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+        @Dependency(\.clientSession) var clientSession: ClientSession
+
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
-        guard let user = conversation?.users?.first(where: { $0.id == userID }) else { return "Someone" }
-        return user.displayName
+
+        let conversationUsers = clientSession
+            .conversation
+            .fullConversation?
+            .users ?? clientSession
+            .conversation
+            .currentConversation?
+            .users ?? []
+
+        let usersFromCurrentUserConversations = clientSession
+            .user
+            .currentUser?
+            .conversations?
+            .compactMap(\.users)
+            .reduce([], +) ?? []
+
+        let usersFromConversationArchive = conversationArchive?
+            .compactMap(\.users)
+            .reduce([], +) ?? []
+
+        return (conversationUsers + usersFromCurrentUserConversations + usersFromConversationArchive)
+            .unique
+            .first(where: { $0.id == userID })?
+            .displayName ?? "Someone"
     }
 }

@@ -71,28 +71,21 @@ public final class ConversationSessionService {
         }
     }
 
-    // MARK: - Log Activity
-
-    // TODO: Audit whether here is the best place for this.
-    public func logActivity(_ activity: Activity) async -> Callback<Conversation, Exception> {
-        guard let fullConversation else {
-            return .failure(.init(
-                "Failed to resolve current conversation.",
-                metadata: .init(sender: self)
-            ))
-        }
-
-        return await fullConversation.updateValue(
-            ((fullConversation.activities ?? []) + [activity]).filter { $0 != .empty },
-            forKey: .activities
-        )
-    }
-
     // MARK: - Set Current Conversation
 
     public func setCurrentConversation(_ currentConversation: Conversation?) {
-        completeMessageArray = currentConversation?.messages?.unique.sortedByAscendingSentDate
-        self.currentConversation = withMessagesOffset(currentConversation?.withMessagesSortedByAscendingSentDate)
+        // NIT: .unique and .sortedByAscendingSentDate should be unnecessary here.
+        completeMessageArray = currentConversation?
+            .messages?
+            .hydrated(with: currentConversation?.activities)
+            .unique
+            .sortedByAscendingSentDate
+
+        self.currentConversation = withMessagesOffset(
+            currentConversation?
+                .withHydratedMessages
+                .withMessagesSortedByAscendingSentDate
+        )
     }
 
     // MARK: - Message Offset

@@ -65,9 +65,13 @@ public extension Array where Element == ContactPair {
 public extension Array where Element == Conversation {
     // MARK: - Properties
 
-    /// The unique conversations among the array which are visible for the current user, sorted by latest message sent date.
+    /// The unique conversations among the array which are visible for the current user,
+    /// sorted by latest message sent date, and hydrated with system messages.
     var filteredAndSorted: [Conversation] {
-        visibleForCurrentUser.sortedByLatestMessageSentDate.unique
+        visibleForCurrentUser
+            .sortedByLatestMessageSentDate
+            .unique
+            .map(\.withHydratedMessages)
     }
 
     // MARK: - Methods
@@ -105,14 +109,20 @@ public extension Array where Element == Conversation {
 }
 
 public extension Array where Element == Message {
+    // MARK: - Properties
+
     var filteringSystemMessages: [Message] { filter { !$0.isSystemMessage } }
     var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
     var sortedByDescendingSentDate: [Message] { sorted(by: { $0.sentDate > $1.sentDate }) }
 
+    // MARK: - Methods
+
     func hydrated(with activities: [Activity]?) -> [Message] {
         guard let activities,
               !activities.allSatisfy({ $0 == .empty }) else { return self }
-        return (self + activities.map(\.message)).sortedByAscendingSentDate
+        return (filteringSystemMessages + activities.map(\.message))
+            .uniquedByID
+            .sortedByAscendingSentDate
     }
 }
 

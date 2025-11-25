@@ -197,6 +197,12 @@ extension Conversation: Updatable {
             }
         }
 
+        if key == .activities {
+            if let exception = await updated.setUsers(forceUpdate: true) {
+                return .failure(exception)
+            }
+        }
+
         // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
         networking.conversationService.archive.addValue(updated)
         return .success(updated)

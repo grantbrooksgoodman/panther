@@ -20,7 +20,11 @@ public struct ChatInfoPageObserver: Observer {
     // MARK: - Properties
 
     public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.currentConversationMetadataChanged]
+    public let observedValues: [any ObservableProtocol] = [
+        Observables.chatInfoPageLoadingStateUpdated,
+        Observables.currentConversationActivityChanged,
+        Observables.currentConversationMetadataChanged,
+    ]
     public let viewModel: ViewModel<ChatInfoPageReducer>
 
     // MARK: - Init
@@ -43,6 +47,12 @@ public struct ChatInfoPageObserver: Observer {
         )
 
         switch observable.key {
+        case .chatInfoPageLoadingStateUpdated:
+            send(.loadingStateUpdated)
+
+        case .currentConversationActivityChanged:
+            send(.viewAppeared)
+
         case .currentConversationMetadataChanged:
             send(.currentConversationMetadataChanged)
 

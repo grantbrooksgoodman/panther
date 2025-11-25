@@ -93,7 +93,7 @@ public struct ContactSelectorPageViewService {
             ).present(translating: [.confirmButtonTitle]) else { return }
 
             navigation.navigate(to: .chat(.sheet(.none)))
-            RootSheets.dismiss()
+            Observables.chatInfoPageLoadingStateUpdated.trigger()
 
             let addToConversationResult = await addToConversation(
                 user.id,
@@ -103,8 +103,8 @@ public struct ContactSelectorPageViewService {
             switch addToConversationResult {
             case let .success(conversation):
                 clientSession.conversation.setCurrentConversation(conversation)
-                coreUtilities.clearCaches([.chatInfoPageViewService])
-                RootSheets.present(.chatInfoPageView)
+                chatPageViewService.reloadCollectionView()
+                Observables.currentConversationActivityChanged.trigger()
 
             case let .failure(exception):
                 Logger.log(exception, with: .toast)
@@ -140,6 +140,13 @@ public struct ContactSelectorPageViewService {
         _ userID: String,
         conversation: Conversation
     ) async -> Callback<Conversation, Exception> {
+        guard let activity = Activity(.addedToConversation(userID: userID)) else {
+            return .failure(.init(
+                "Failed to synthesize activity.",
+                metadata: .init(sender: self)
+            ))
+        }
+
         // swiftlint:disable:next identifier_name
         let newMessageRecipientConsentAcknowledgementData = conversation
             .metadata
@@ -180,7 +187,7 @@ public struct ContactSelectorPageViewService {
                     return .failure(exception)
                 }
 
-                return .success(conversation)
+                return await conversation.logActivity(activity)
 
             case let .failure(exception):
                 return .failure(exception)

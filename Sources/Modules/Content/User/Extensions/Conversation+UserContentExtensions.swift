@@ -113,6 +113,20 @@ public extension Conversation {
             }
     }
 
+    var withHydratedMessages: Conversation {
+        guard let messages else { return self }
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages.hydrated(with: activities),
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
+    }
+
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
             id,
@@ -156,6 +170,13 @@ public extension Conversation {
             participants: [],
             reactionMetadata: nil,
             users: users
+        )
+    }
+
+    func logActivity(_ activity: Activity) async -> Callback<Conversation, Exception> {
+        await updateValue(
+            ((activities ?? []) + [activity]).filter { $0 != .empty },
+            forKey: .activities
         )
     }
 

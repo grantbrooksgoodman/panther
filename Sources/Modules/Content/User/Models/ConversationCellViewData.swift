@@ -62,6 +62,7 @@ public struct ConversationCellViewData: Equatable {
         thumbnailImage = ConversationCellViewData.empty.thumbnailImage
     }
 
+    // swiftlint:disable:next function_body_length
     public init?(
         _ conversation: Conversation,
         searchQuery: String? = nil

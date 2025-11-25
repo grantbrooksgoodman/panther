@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
+public extension DevModeAction.AppActions {
     enum DangerZone {
         private enum Action {
             /* MARK: Cases */
@@ -187,11 +187,20 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
 
         // MARK: - Auxiliary
 
-        // swiftlint:disable:next function_body_length
         private static func performAction(_ action: Action) {
             Task { @MainActor in
                 @Dependency(\.coreKit) var core: CoreKit
                 @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+                func showSuccessAndReset() {
+                    core.hud.flash(image: .success)
+                    core.gcd.after(.seconds(1)) {
+                        Application.reset(
+                            preserveCurrentUserID: true,
+                            onCompletion: .navigateToSplash
+                        )
+                    }
+                }
 
                 guard await AKConfirmationAlert(
                     title: action.confirmationAlertTitle,
@@ -204,7 +213,10 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.clearPreviousLanguageCodes() {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
+                        core.hud.flash(
+                            "Cleared Previous Language Codes",
+                            image: .success
+                        )
                     }
 
                 case .deleteConversationsInvisibleToCurrentUser:
@@ -213,13 +225,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.notVisibleForCurrentUser) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .deleteCurrentUserConversations:
@@ -228,13 +234,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.allForCurrentUser) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .deleteGroupChatsWithoutNameOrPhoto:
@@ -243,13 +243,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.groupChatsWithoutNameOrPhoto) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .deleteMRCConversations:
@@ -258,13 +252,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.messageRecipientConsentEnabled) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .deleteOneToOneConversationsWithFewerThanFiveMessages:
@@ -273,13 +261,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.oneToOneAndFewerThanFiveMessages) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .deletePenPalsConversations:
@@ -288,13 +270,7 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.deleteConversations(.penPals) {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .destroyConversationDatabase:
@@ -309,20 +285,17 @@ public extension DevModeAction.AppActions { // swiftlint:disable:next type_body_
                     if let exception = await core.utils.destroyConversationDatabase() {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash(image: .success)
-                        core.gcd.after(.seconds(1)) {
-                            Application.reset(
-                                preserveCurrentUserID: true,
-                                onCompletion: .navigateToSplash
-                            )
-                        }
+                        showSuccessAndReset()
                     }
 
                 case .resetPushTokens:
                     if let exception = await core.utils.resetPushTokens() {
                         Logger.log(exception, with: .toast)
                     } else {
-                        core.hud.flash("Reset Push Tokens", image: .success)
+                        core.hud.flash(
+                            "Reset Push Tokens",
+                            image: .success
+                        )
                     }
                 }
             }

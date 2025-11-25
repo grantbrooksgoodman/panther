@@ -44,11 +44,25 @@ public final class SystemMessageCell: UICollectionViewCell {
         with message: MessageType,
         at indexPath: IndexPath,
         and messagesCollectionView: MessagesCollectionView
-    ) {
+    ) { // TODO: Create constants for this.
         guard let message = message as? Message,
-              let text = message.translation?.output else { return }
-        // TODO: Create constants for this.
-        label.attributedText = text.sanitized.attributed(.init(
+              let text = message.translation?.output,
+              let dateString = message.sentDate.chatPageMessageSeparatorAttributedDateString else { return }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        paragraphStyle.lineSpacing = 4
+
+        let mutableDateString = NSMutableAttributedString(attributedString: dateString)
+        mutableDateString.addAttributes(
+            [.paragraphStyle: paragraphStyle],
+            range: .init(
+                location: 0,
+                length: mutableDateString.length
+            )
+        )
+
+        let activityString = text.sanitized.attributed(.init(
             [
                 .font: UIFont.systemFont(ofSize: 12),
                 .foregroundColor: UIColor.lightGray,
@@ -56,14 +70,22 @@ public final class SystemMessageCell: UICollectionViewCell {
             secondaryAttributes: [.init(
                 [
                     .font: UIFont.boldSystemFont(ofSize: 12),
-                    .foregroundColor: UIColor.lightGray,
+                    .foregroundColor: UIColor.gray,
                 ],
                 stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
             )]
         ))
+
+        let combinedString = NSMutableAttributedString(attributedString: mutableDateString)
+        combinedString.append(NSAttributedString(string: "\n"))
+        combinedString.append(activityString)
+
+        label.attributedText = combinedString
+        label.numberOfLines = 2
+        label.textAlignment = .center
     }
 
-    func setupSubviews() {
+    private func setupSubviews() {
         contentView.addSubview(label)
         label.textAlignment = .center
     }
