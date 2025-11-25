@@ -94,6 +94,7 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case settingLanguage
     case settings
     case slideToCancel
+    case someone
     case somethingWentWrong
     case speak
     case stopSpeaking

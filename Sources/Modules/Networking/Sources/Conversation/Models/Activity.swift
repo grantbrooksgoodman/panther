@@ -32,7 +32,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
         switch action {
         case let .addedToConversation(userID: userID):
             var otherUserDisplayName = displayName(for: userID)
-            if otherUserDisplayName == Localized(.you).wrappedValue {
+            if otherUserDisplayName.isSomeoneOrYou {
                 otherUserDisplayName = otherUserDisplayName.lowercased()
             }
 
@@ -48,7 +48,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
 
         case let .removedFromConversation(userID: userID):
             var otherUserDisplayName = displayName(for: userID)
-            if otherUserDisplayName == Localized(.you).wrappedValue {
+            if otherUserDisplayName.isSomeoneOrYou {
                 otherUserDisplayName = otherUserDisplayName.lowercased()
             }
 
@@ -118,6 +118,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
     private func displayName(for userID: String) -> String {
         @Dependency(\.clientSession) var clientSession: ClientSession
 
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
 
@@ -136,13 +137,26 @@ public struct Activity: Codable, EncodedHashable, Equatable {
             .compactMap(\.users)
             .reduce([], +) ?? []
 
+        let usersFromContactPairArchive = contactPairArchive?
+            .map(\.users)
+            .reduce([], +) ?? []
+
         let usersFromConversationArchive = conversationArchive?
             .compactMap(\.users)
             .reduce([], +) ?? []
 
-        return (conversationUsers + usersFromCurrentUserConversations + usersFromConversationArchive)
+        return (conversationUsers +
+            usersFromCurrentUserConversations +
+            usersFromContactPairArchive +
+            usersFromConversationArchive)
             .unique
             .first(where: { $0.id == userID })?
-            .displayName ?? "Someone"
+            .displayName ?? Localized(.someone).wrappedValue
+    }
+}
+
+private extension String {
+    var isSomeoneOrYou: Bool {
+        self == Localized(.someone).wrappedValue || self == Localized(.you).wrappedValue
     }
 }

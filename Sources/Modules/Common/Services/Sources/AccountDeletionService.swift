@@ -86,9 +86,10 @@ public final class AccountDeletionService {
         // Remove user from existing group chats.
 
         for groupChat in groupChats {
-            if let exception = await removeFromConversation(
+            if let exception = await clientSession.activity.removeFromConversation(
                 currentUserID,
-                conversation: groupChat
+                conversation: groupChat,
+                removeFromUser: false
             ) {
                 exceptions.append(exception)
             }
@@ -232,46 +233,6 @@ public final class AccountDeletionService {
     private func incrementProgress(forTotal total: Double) {
         completedUnits += 1
         completionPercent = completedUnits / max(total, 1)
-    }
-
-    // TODO: Consolidate this into a method on Conversation.
-    private func removeFromConversation(
-        _ userID: String,
-        conversation: Conversation
-    ) async -> Exception? {
-        let updateValueResult = await conversation.updateValue(
-            conversation.participants.filter { $0.userID != userID },
-            forKey: .participants
-        )
-
-        switch updateValueResult {
-        case let .success(conversation):
-            let newMetadata = conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: conversation
-                    .metadata
-                    .messageRecipientConsentAcknowledgementData
-                    .filter { $0.userID != userID },
-                penPalsSharingData: conversation
-                    .metadata
-                    .penPalsSharingData
-                    .filter { $0.userID != userID },
-                nilRequiresConsentFromInitiator: conversation
-                    .metadata
-                    .requiresConsentFromInitiator == userID
-            )
-
-            let updateValueResult = await conversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
-
-            switch updateValueResult {
-            case .success: return nil
-            case let .failure(exception): return exception
-            }
-
-        case let .failure(exception): return exception
-        }
     }
 
     private func updateHUDLabel() {

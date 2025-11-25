@@ -35,6 +35,8 @@ public extension AppConstants.CGFloats {
         public static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15
         public static let chatTitleLabelHorizontalPadding: CGFloat = 10
 
+        // swiftlint:disable:next identifier_name
+        public static let leaveConversationListRowViewHorizontalPadding: CGFloat = 30
         public static let listTransitionAnimationDuration: CGFloat = 0.2
         public static let listViewYOffset: CGFloat = -8
         public static let listViewAlternateYOffset: CGFloat = -30
@@ -56,6 +58,7 @@ public extension AppConstants.Colors {
         public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
         public static let changeMetadataButtonForeground: Color = .init(uiColor: .systemBlue)
+        public static let leaveConversationListRowViewForeground: Color = .red
     }
 }
 

@@ -15,6 +15,7 @@ import AppSubsystem
 public enum ClientSessionDependency: DependencyKey {
     public static func resolve(_: DependencyValues) -> ClientSession {
         .init(
+            activity: .init(),
             conversation: .init(),
             message: .init(),
             moderation: .init(),

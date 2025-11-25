@@ -95,7 +95,7 @@ public struct ContactSelectorPageViewService {
             navigation.navigate(to: .chat(.sheet(.none)))
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-            let addToConversationResult = await addToConversation(
+            let addToConversationResult = await clientSession.activity.addToConversation(
                 user.id,
                 conversation: conversation
             )
@@ -130,94 +130,6 @@ public struct ContactSelectorPageViewService {
                 .recipientBar?
                 .contactSelectionUI
                 .toggleLabelRepresentation(on: !recipientBarIsFirstResponder)
-        }
-    }
-
-    // MARK: - Auxiliary
-
-    // TODO: Consolidate this into a method on Conversation.
-    private func addToConversation(
-        _ userID: String,
-        conversation: Conversation
-    ) async -> Callback<Conversation, Exception> {
-        guard let activity = Activity(.addedToConversation(userID: userID)) else {
-            return .failure(.init(
-                "Failed to synthesize activity.",
-                metadata: .init(sender: self)
-            ))
-        }
-
-        // swiftlint:disable:next identifier_name
-        let newMessageRecipientConsentAcknowledgementData = conversation
-            .metadata
-            .messageRecipientConsentAcknowledgementData + [
-                .init(
-                    userID: userID,
-                    consentAcknowledged: conversation.metadata.requiresConsentFromInitiator != nil ? false : true
-                ),
-            ]
-
-        let newPenPalsSharingData = conversation
-            .metadata
-            .penPalsSharingData + [.init(userID: userID)]
-
-        let updateValueResult = await conversation.updateValue(
-            conversation.participants + [.init(userID: userID)],
-            forKey: .participants
-        )
-
-        switch updateValueResult {
-        case let .success(conversation):
-            let newMetadata = conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
-                penPalsSharingData: newPenPalsSharingData,
-            )
-
-            let updateValueResult = await conversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
-
-            switch updateValueResult {
-            case let .success(conversation):
-                if let exception = await addUserToConversation(
-                    userID: userID,
-                    conversationID: conversation.id
-                ) {
-                    return .failure(exception)
-                }
-
-                return await conversation.logActivity(activity)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func addUserToConversation(
-        userID: String,
-        conversationID: ConversationID
-    ) async -> Exception? {
-        let getUserResult = await networking.userService.getUser(id: userID)
-
-        switch getUserResult {
-        case let .success(user):
-            let updateValueResult = await user.updateValue(
-                ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique,
-                forKey: .conversationIDs
-            )
-
-            switch updateValueResult {
-            case .success: return nil
-            case let .failure(exception): return exception
-            }
-
-        case let .failure(exception):
-            return exception
         }
     }
 }

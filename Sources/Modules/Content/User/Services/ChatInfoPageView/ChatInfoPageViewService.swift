@@ -32,10 +32,13 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Dependencies
 
+    @Dependency(\.clientSession.activity) private var activitySession: ActivitySessionService
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.commonServices.contact) private var contactService: ContactService
+    @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
+    @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
@@ -180,6 +183,35 @@ public final class ChatInfoPageViewService {
     }
 
     // MARK: - Reducer Action Handlers
+
+    public func leaveConversationButtonTapped(_ conversation: Conversation?) {
+        Task {
+            guard let conversation,
+                  let currentUserID = User.currentUserID,
+                  await AKConfirmationAlert(
+                      title: "Leave Conversation",
+                      message: "Are you sure you'd like to leave this conversation?",
+                      cancelButtonTitle: Localized(.cancel).wrappedValue,
+                      confirmButtonStyle: .destructivePreferred
+                  ).present(translating: [
+                      .confirmButtonTitle,
+                      .message,
+                      .title,
+                  ]) else { return }
+
+            if let exception = await activitySession.removeFromConversation(
+                currentUserID,
+                conversation: conversation
+            ) {
+                Logger.log(exception, with: .toast)
+                return
+            }
+
+            Application.dismissSheets()
+            conversationArchive.removeValue(idKey: conversation.id.key)
+            navigation.navigate(to: .userContent(.stack([])))
+        }
+    }
 
     public func mediaItemViewTapped(
         _ metadata: MediaItemView.Metadata,

@@ -15,6 +15,7 @@ import AppSubsystem
 public final class ClientSession {
     // MARK: - Properties
 
+    public let activity: ActivitySessionService
     public let conversation: ConversationSessionService
     public let message: MessageSessionService
     public let moderation: ModerationSessionService
@@ -26,12 +27,14 @@ public final class ClientSession {
     // MARK: - Init
 
     public init(
+        activity: ActivitySessionService,
         conversation: ConversationSessionService,
         message: MessageSessionService,
         moderation: ModerationSessionService,
         reaction: ReactionSessionService,
         user: UserSessionService
     ) {
+        self.activity = activity
         self.conversation = conversation
         self.message = message
         self.moderation = moderation

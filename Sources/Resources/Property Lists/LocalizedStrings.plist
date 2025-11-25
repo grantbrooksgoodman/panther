@@ -10212,6 +10212,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>滑动取消</string>
 	</dict>
+	<key>someone</key>
+	<dict>
+		<key>af</key>
+		<string>Iemand</string>
+		<key>ar</key>
+		<string>شخص ما</string>
+		<key>az</key>
+		<string>Kimsə</string>
+		<key>be</key>
+		<string>Хтосьці</string>
+		<key>bg</key>
+		<string>Някой</string>
+		<key>bn</key>
+		<string>কেউ</string>
+		<key>bs</key>
+		<string>Neko</string>
+		<key>ca</key>
+		<string>Algú</string>
+		<key>cs</key>
+		<string>Někdo</string>
+		<key>cy</key>
+		<string>Rhywun</string>
+		<key>da</key>
+		<string>Nogen</string>
+		<key>de</key>
+		<string>Jemand</string>
+		<key>el</key>
+		<string>Κάποιος</string>
+		<key>en</key>
+		<string>Someone</string>
+		<key>eo</key>
+		<string>Iu</string>
+		<key>es</key>
+		<string>Alguien</string>
+		<key>et</key>
+		<string>Keegi</string>
+		<key>eu</key>
+		<string>Norbait</string>
+		<key>fa</key>
+		<string>کسی</string>
+		<key>fi</key>
+		<string>Joku</string>
+		<key>fr</key>
+		<string>Quelqu&apos;un</string>
+		<key>ga</key>
+		<string>Duine éigin</string>
+		<key>gd</key>
+		<string>Cuideigin</string>
+		<key>gl</key>
+		<string>Alguén</string>
+		<key>gu</key>
+		<string>કોઈ</string>
+		<key>he</key>
+		<string>מִישֶׁהוּ</string>
+		<key>hi</key>
+		<string>कोई</string>
+		<key>hr</key>
+		<string>Netko</string>
+		<key>ht</key>
+		<string>Yon moun</string>
+		<key>hu</key>
+		<string>Valaki</string>
+		<key>hy</key>
+		<string>Ինչ-որ մեկը</string>
+		<key>id</key>
+		<string>Seseorang</string>
+		<key>is</key>
+		<string>Einhver</string>
+		<key>it</key>
+		<string>Qualcuno</string>
+		<key>ja</key>
+		<string>誰か</string>
+		<key>ka</key>
+		<string>Ვიღაც</string>
+		<key>kk</key>
+		<string>Біреу</string>
+		<key>kn</key>
+		<string>ಯಾರೋ</string>
+		<key>ko</key>
+		<string>누구</string>
+		<key>ky</key>
+		<string>Кимдир бирөө</string>
+		<key>lt</key>
+		<string>Kažkas</string>
+		<key>mg</key>
+		<string>Nisy olona</string>
+		<key>mi</key>
+		<string>Tētahi</string>
+		<key>mk</key>
+		<string>Некој</string>
+		<key>ml</key>
+		<string>ആരെങ്കിലും</string>
+		<key>mn</key>
+		<string>Хэн нэгэн</string>
+		<key>mt</key>
+		<string>Xi ħadd</string>
+		<key>ne</key>
+		<string>कोही</string>
+		<key>nl</key>
+		<string>Iemand</string>
+		<key>no</key>
+		<string>Noen</string>
+		<key>pa</key>
+		<string>ਕੋਈ</string>
+		<key>pl</key>
+		<string>Ktoś</string>
+		<key>pt</key>
+		<string>Alguém</string>
+		<key>ro</key>
+		<string>Cineva</string>
+		<key>ru</key>
+		<string>Кто-то</string>
+		<key>si</key>
+		<string>කෙනෙක්</string>
+		<key>sk</key>
+		<string>Niekto</string>
+		<key>sl</key>
+		<string>Nekdo</string>
+		<key>sq</key>
+		<string>Dikush</string>
+		<key>sr</key>
+		<string>Неко</string>
+		<key>su</key>
+		<string>Batur</string>
+		<key>sv</key>
+		<string>Någon</string>
+		<key>sw</key>
+		<string>Mtu</string>
+		<key>ta</key>
+		<string>யாரோ ஒருவர்</string>
+		<key>te</key>
+		<string>ఎవరైనా</string>
+		<key>tg</key>
+		<string>Касе</string>
+		<key>th</key>
+		<string>บางคน</string>
+		<key>tl</key>
+		<string>May isang tao</string>
+		<key>tr</key>
+		<string>Birisi</string>
+		<key>tt</key>
+		<string>Кемдер</string>
+		<key>uk</key>
+		<string>Хтось</string>
+		<key>ur</key>
+		<string>کوئی</string>
+		<key>uz</key>
+		<string>Kimdir</string>
+		<key>vi</key>
+		<string>Người nào đó</string>
+		<key>yi</key>
+		<string>עמעצער</string>
+		<key>zh</key>
+		<string>某人</string>
+	</dict>
 	<key>something_went_wrong</key>
 	<dict>
 		<key>af</key>

@@ -37,6 +37,7 @@ public struct ChatInfoPageReducer: Reducer {
         case changeMetadataButtonTapped
         case chatInfoCellTapped
         case currentConversationMetadataChanged
+        case leaveConversationButtonTapped
         case loadingStateUpdated
         case mediaItemViewTapped(MediaItemView.Metadata)
         case penPalsSharingDataSwitchToggledOn
@@ -293,6 +294,9 @@ public struct ChatInfoPageReducer: Reducer {
                 StatusBar.overrideStyle(.darkContent)
             }
             state.isChangeMetadataButtonEnabled = true
+
+        case .leaveConversationButtonTapped:
+            viewService.leaveConversationButtonTapped(state.conversation)
 
         case .loadingStateUpdated:
             state.viewState = .loading

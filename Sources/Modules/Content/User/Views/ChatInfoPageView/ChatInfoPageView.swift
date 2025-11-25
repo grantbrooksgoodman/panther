@@ -209,6 +209,17 @@ public struct ChatInfoPageView: View {
                                 } else {
                                     mediaItemList
                                 }
+
+                                ListRowView(.init(
+                                    .button { viewModel.send(.leaveConversationButtonTapped) },
+                                    innerText: viewModel.strings.value(for: .leaveConversation),
+                                    innerTextColor: Colors.leaveConversationListRowViewForeground
+                                ))
+                                .padding(
+                                    .horizontal,
+                                    Floats.leaveConversationListRowViewHorizontalPadding
+                                )
+                                .redrawsOnTraitCollectionChange()
                             }
                             .transition(
                                 .opacity.animation(

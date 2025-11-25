@@ -56,7 +56,16 @@ public final class ContactService {
                     .contactPairArchive,
                     .queriedContactPairs,
                 ])
+
                 services.contact.contactPairArchive.addValues(contactPairs)
+                services.contact.contactPairArchive.addValues(users
+                    .filter { !contactPairs.users.map(\.id).contains($0.id) }
+                    .map {
+                        ContactPair.withUser(
+                            $0,
+                            name: $0.displayName
+                        )
+                    })
 
                 Logger.log(
                     "Successfully updated contact pair archive.",

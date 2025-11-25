@@ -18,6 +18,7 @@ public extension TranslatedLabelStringCollection {
 
         case addContactButtonText = "Add contact"
         case changeMetadataButtonText = "Change name and photo"
+        case leaveConversation = "Leave conversation"
         case participantCountLabelText = "people"
         case segmentedControlMediaOptionText = "Attachments"
         case segmentedControlParticipantsOptionText = "Participants"
