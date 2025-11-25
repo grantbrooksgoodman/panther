@@ -157,17 +157,15 @@ public extension Message {
         guard isSystemMessage,
               let activity = conversation?
               .activities?
-              .first(where: { $0.action.rawValue == translation?.output }) else { return self }
+              .first(where: { id == $0.encodedHash }) else { return self }
         return .init(
-            "\(CommonConstants.systemMessageID)_\(activity.date.timeIntervalSince1970)",
+            activity.encodedHash,
             fromAccountID: CommonConstants.systemMessageID,
             contentType: .text,
             richContent: nil,
             translationReferences: [.init(
                 languagePair: .system,
-                type: .idempotent(
-                    activity.description.data(using: .utf8)?.base64EncodedString() ?? activity.description
-                )
+                type: .idempotent(activity.encodedHash)
             )],
             translations: [
                 .init(

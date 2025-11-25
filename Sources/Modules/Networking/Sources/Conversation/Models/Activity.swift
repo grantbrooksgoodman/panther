@@ -70,20 +70,18 @@ public struct Activity: Codable, EncodedHashable, Equatable {
 
     public var message: Message {
         .init(
-            "\(CommonConstants.systemMessageID)_\(date.timeIntervalSince1970)",
+            encodedHash,
             fromAccountID: CommonConstants.systemMessageID,
             contentType: .text,
             richContent: nil,
             translationReferences: [.init(
                 languagePair: .system,
-                type: .idempotent(
-                    description.data(using: .utf8)?.base64EncodedString() ?? description
-                )
+                type: .idempotent(encodedHash)
             )],
             translations: [
                 .init(
-                    input: .init(action.rawValue),
-                    output: action.rawValue,
+                    input: .init(encodedHash),
+                    output: encodedHash,
                     languagePair: .system
                 ),
             ],
@@ -120,6 +118,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
 
         let conversationUsers = clientSession
@@ -145,10 +144,15 @@ public struct Activity: Codable, EncodedHashable, Equatable {
             .compactMap(\.users)
             .reduce([], +) ?? []
 
+        let usersFromUnknownContactPairArchive = unknownContactPairArchive?
+            .map(\.users)
+            .reduce([], +) ?? []
+
         return (conversationUsers +
             usersFromCurrentUserConversations +
             usersFromContactPairArchive +
-            usersFromConversationArchive)
+            usersFromConversationArchive +
+            usersFromUnknownContactPairArchive)
             .unique
             .first(where: { $0.id == userID })?
             .displayName ?? Localized(.someone).wrappedValue

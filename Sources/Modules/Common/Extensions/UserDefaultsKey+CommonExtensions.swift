@@ -31,6 +31,7 @@ public extension UserDefaultsKey {
 
     enum ContactPairArchiveServiceDefaultsKey: String {
         case contactPairArchive
+        case unknownContactPairArchive
     }
 
     enum MessageRetranslationServiceDefaultsKey: String {

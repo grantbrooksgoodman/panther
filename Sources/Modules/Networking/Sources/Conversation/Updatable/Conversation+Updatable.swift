@@ -137,7 +137,8 @@ extension Conversation: Updatable {
         let valueKeyPath = conversationKeyPath + key.rawValue
 
         if key == .messages,
-           let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id) {
+           let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id),
+           !messageIDs.isEmpty {
             if let exception = await addMessageIDs(messageIDs) {
                 return .failure(exception)
             }
