@@ -8,7 +8,6 @@
 
 /* Native */
 import Foundation
-import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -45,16 +44,6 @@ public struct InviteLanguagePickerReducer: Reducer {
         public var selectedLanguageCode = ""
 
         /* MARK: Computed Properties */
-
-        public var doneHeaderItemForegroundColor: Color {
-            guard UIApplication.isGlassTintingEnabled,
-                  !isChatPagePresented else { return .navigationBarButton }
-            return .white
-        }
-
-        public var isChatPagePresented: Bool {
-            Dependency(\.chatPageStateService.isPresented).wrappedValue
-        }
 
         public var localizedLanguageNames: [String: String] {
             @Dependency(\.coreKit.utils.localizedLanguageCodeDictionary) var localizedLanguageCodeDictionary: [String: String]?

@@ -57,7 +57,7 @@ public struct ChatInfoPageReducer: Reducer {
         case penPalsSharingDataConfirmationActionSheetDismissed(ConversationMetadata?)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case selectedImageChanged(UIImage)
-        case updateValueReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
+        case updateMetadataReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
     }
 
     // MARK: - State
@@ -204,9 +204,18 @@ public struct ChatInfoPageReducer: Reducer {
                 return .none
             }
 
+            let name = newMetadata.name
+            let action: Activity.Action = name.isBangQualifiedEmpty ? .removedName : .renamedConversation(
+                name: name.removingOccurrences(of: [":"])
+            )
+
             return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateValueReturned(result)
+                let result = await viewService.updateMetadata(
+                    conversation,
+                    action: action,
+                    newMetadata: newMetadata
+                )
+                return .updateMetadataReturned(result)
             }
 
         case let .changeMetadataActionSheetDismissed(.removePhoto(newMetadata)):
@@ -216,8 +225,12 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
             return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateValueReturned(result)
+                let result = await viewService.updateMetadata(
+                    conversation,
+                    action: .removedGroupPhoto,
+                    newMetadata: newMetadata
+                )
+                return .updateMetadataReturned(result)
             }
 
         case .changeMetadataActionSheetDismissed(.none):
@@ -314,7 +327,7 @@ public struct ChatInfoPageReducer: Reducer {
                   let newMetadata else { return .none }
             return .task {
                 let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateValueReturned(result, togglePenPalsSharingDataSwitch: true)
+                return .updateMetadataReturned(result, togglePenPalsSharingDataSwitch: true)
             }
 
         case let .penPalParticipantViewTapped(chatParticipant):
@@ -377,17 +390,18 @@ public struct ChatInfoPageReducer: Reducer {
             }
 
             return .task {
-                let result = await conversation.updateValue(
-                    conversation.metadata.copyWith(imageData: imageData),
-                    forKey: .metadata
+                let result = await viewService.updateMetadata(
+                    conversation,
+                    action: .changedGroupPhoto,
+                    newMetadata: conversation.metadata.copyWith(imageData: imageData)
                 )
-                return .updateValueReturned(result)
+                return .updateMetadataReturned(result)
             }
 
         case .traitCollectionChanged:
             viewService.traitCollectionChanged()
 
-        case let .updateValueReturned(.success(conversation), togglePenPalsDataSharingSwitch):
+        case let .updateMetadataReturned(.success(conversation), togglePenPalsDataSharingSwitch):
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             conversationSession.setCurrentConversation(conversation)
@@ -404,7 +418,7 @@ public struct ChatInfoPageReducer: Reducer {
                 return .getChatParticipantsReturned(result)
             }
 
-        case let .updateValueReturned(.failure(exception), _):
+        case let .updateMetadataReturned(.failure(exception), _):
             Logger.log(exception, with: .toast)
             state.isChangeMetadataButtonEnabled = true
 

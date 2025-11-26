@@ -45,7 +45,7 @@ public struct InviteLanguagePickerView: View {
         ZStack {
             Color.clear
                 .frame(width: .zero, height: .zero)
-                .if(!viewModel.isChatPagePresented && viewModel.isDoneHeaderItemEnabled) {
+                .if(viewModel.isDoneHeaderItemEnabled) {
                     $0.navigationBarItemGlassTint(
                         Colors.navigationBarItemGlassTint,
                         for: .trailing
@@ -73,7 +73,7 @@ public struct InviteLanguagePickerView: View {
             },
             .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
             rightItem: .doneButton(
-                foregroundColor: viewModel.isDoneHeaderItemEnabled ? viewModel.doneHeaderItemForegroundColor :
+                foregroundColor: viewModel.isDoneHeaderItemEnabled ? Colors.doneHeaderItemForeground :
                     .disabled,
                 isEnabled: viewModel.isDoneHeaderItemEnabled
             ) {

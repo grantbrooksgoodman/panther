@@ -41,6 +41,11 @@ public struct Activity: Codable, EncodedHashable, Equatable {
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
                 .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
 
+        case .changedGroupPhoto:
+            return Localized(.changedGroupPhoto)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
+
         case .leftConversation:
             return Localized(.leftConversation)
                 .wrappedValue
@@ -56,6 +61,22 @@ public struct Activity: Codable, EncodedHashable, Equatable {
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
                 .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
+
+        case .removedGroupPhoto:
+            return Localized(.removedGroupPhoto)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
+
+        case .removedName:
+            return Localized(.removedConversationName)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
+
+        case let .renamedConversation(name: name):
+            return Localized(.renamedConversation)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
+                .replacingOccurrences(of: "⁂", with: "⌘\(name)⌘")
         }
     }
 

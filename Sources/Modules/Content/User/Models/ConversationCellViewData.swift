@@ -62,7 +62,7 @@ public struct ConversationCellViewData: Equatable {
         thumbnailImage = ConversationCellViewData.empty.thumbnailImage
     }
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     public init?(
         _ conversation: Conversation,
         searchQuery: String? = nil
@@ -129,11 +129,15 @@ public struct ConversationCellViewData: Equatable {
 
         // Set date & subtitle label text
 
-        var lastMessage = conversation.messages?.filteringSystemMessages.last
+        let messages = conversation
+            .withMessagesOffsetFromCurrentUserAdditionDate
+            .messages?
+            .filteringSystemMessages
+
+        var lastMessage = messages?.filteringSystemMessages.last
         if let searchQuery,
            !searchQuery.isBlank {
-            lastMessage = conversation
-                .messages?
+            lastMessage = messages?
                 .filteringSystemMessages
                 .last(where: { $0.textContains(searchQuery) }) ?? lastMessage
         }
@@ -162,13 +166,19 @@ public struct ConversationCellViewData: Equatable {
 
                 subtitleLabelText = resolvedText
             }
+        } else if let activity = conversation
+            .activities?
+            .first(where: \.action.isCurrentUserAdded) {
+            dateLabelText = activity.date.formattedShortString
+            subtitleLabelText = activity.description.sanitized
+        } else {
+            dateLabelText = Date(timeIntervalSince1970: 0).formattedShortString
+            subtitleLabelText = Localized(.cannotDisplayMessage).wrappedValue
         }
 
         // Set unread indicator status
 
-        if let lastMessageFromOtherUsers = conversation
-            .messages?
-            .filteringSystemMessages
+        if let lastMessageFromOtherUsers = messages?
             .filter({ !$0.isFromCurrentUser })
             .last {
             isShowingUnreadIndicator = lastMessageFromOtherUsers.currentUserReadReceipt == nil

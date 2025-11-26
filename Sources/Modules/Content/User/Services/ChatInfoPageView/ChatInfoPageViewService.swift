@@ -16,6 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 public final class ChatInfoPageViewService {
     // MARK: - Types
 
@@ -235,6 +236,7 @@ public final class ChatInfoPageViewService {
             embedded: true
         )
 
+        StatusBar.overrideStyle(.appAware)
         quickViewer.onDismiss {
             NavigationBar.setAppearance(Application.isInPrevaricationMode ? .appDefault : .default())
             self.isPreviewingMedia = false
@@ -284,6 +286,35 @@ public final class ChatInfoPageViewService {
             self.uiSegmentBackgroundViews.forEach {
                 $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }
+        }
+    }
+
+    /// `.changeMetadataActionSheetDismissed(.name)`
+    /// `.changeMetadataActionSheetDismissed(.removePhoto)`
+    /// `.selectedImageChanged`
+    public func updateMetadata(
+        _ conversation: Conversation,
+        action: Activity.Action,
+        newMetadata: ConversationMetadata
+    ) async -> Callback<Conversation, Exception> {
+        guard let activity = Activity(action) else {
+            return .failure(.init(
+                "Failed to synthesize activity.",
+                metadata: .init(sender: self)
+            ))
+        }
+
+        let logActivityResult = await conversation.logActivity(activity)
+
+        switch logActivityResult {
+        case let .success(conversation):
+            return await conversation.updateValue(
+                newMetadata,
+                forKey: .metadata
+            )
+
+        case let .failure(exception):
+            return .failure(exception)
         }
     }
 

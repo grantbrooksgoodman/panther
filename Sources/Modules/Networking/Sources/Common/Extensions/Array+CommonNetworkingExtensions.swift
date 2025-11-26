@@ -32,16 +32,6 @@ public extension Array where Element == Conversation {
         return sorted
     }
 
-    var uniquedByIDKey: [Conversation] {
-        var conversations = [Conversation]()
-
-        for conversation in self where !conversations.contains(where: { $0.id.key == conversation.id.key }) {
-            conversations.append(conversation)
-        }
-
-        return conversations
-    }
-
     /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants the user has blocked.
     var visibleForCurrentUser: [Conversation] {
         filter(\.isVisibleForCurrentUser)

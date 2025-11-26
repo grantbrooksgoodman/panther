@@ -123,7 +123,9 @@ public extension NavigationBar {
         }
 
         var platterGlassViews: [UIView]? {
-            let containerView = uiApplication.isPresentingSheet ? platterContainerViews.last : platterContainerViews.first
+            let containerView = uiApplication.isPresentingSheet ? platterContainerViews
+                .filter(\.isInSheetPresentation)
+                .last : platterContainerViews.first
 
             return containerView?
                 .traversedSubviews
@@ -167,5 +169,22 @@ public extension NavigationBar {
         }
 
         startObservingTraitCollectionChanges()
+    }
+}
+
+private extension UIView {
+    var isInSheetPresentation: Bool { sheetPresentationController != nil }
+
+    private var owningViewController: UIViewController? {
+        sequence(first: next, next: { $0?.next })
+            .compactMap { $0 as? UIViewController }
+            .first
+    }
+
+    private var sheetPresentationController: UISheetPresentationController? {
+        guard let owningViewController else { return nil }
+        return ([owningViewController] + owningViewController.ancestors(type: UIViewController.self))
+            .compactMap { $0.activePresentationController as? UISheetPresentationController }
+            .first
     }
 }

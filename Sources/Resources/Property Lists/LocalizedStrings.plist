@@ -1397,6 +1397,316 @@
 		<key>zh</key>
 		<string>取消</string>
 	</dict>
+	<key>cannot_display_message</key>
+	<dict>
+		<key>af</key>
+		<string>Hierdie boodskap kan nie vertoon word nie.</string>
+		<key>ar</key>
+		<string>لا يمكن عرض هذه الرسالة.</string>
+		<key>az</key>
+		<string>Bu mesaj göstərilə bilməz.</string>
+		<key>be</key>
+		<string>Гэтае паведамленне не можа быць адлюстравана.</string>
+		<key>bg</key>
+		<string>Това съобщение не може да бъде показано.</string>
+		<key>bn</key>
+		<string>এই বার্তাটি দেখানো যাবে না।</string>
+		<key>bs</key>
+		<string>Ova poruka ne može biti prikazana.</string>
+		<key>ca</key>
+		<string>No es pot mostrar aquest missatge.</string>
+		<key>cs</key>
+		<string>Tuto zprávu nelze zobrazit.</string>
+		<key>cy</key>
+		<string>Ni ellir dangos y neges hon.</string>
+		<key>da</key>
+		<string>Denne besked kan ikke vises.</string>
+		<key>de</key>
+		<string>Diese Meldung kann nicht angezeigt werden.</string>
+		<key>el</key>
+		<string>Αυτό το μήνυμα δεν μπορεί να εμφανιστεί.</string>
+		<key>en</key>
+		<string>This message could not be displayed.</string>
+		<key>eo</key>
+		<string>Ĉi tiu mesaĝo ne povas esti montrata.</string>
+		<key>es</key>
+		<string>Este mensaje no se puede mostrar.</string>
+		<key>et</key>
+		<string>Seda teadet ei saa kuvada.</string>
+		<key>eu</key>
+		<string>Mezu hau ezin da bistaratu.</string>
+		<key>fa</key>
+		<string>این پیام قابل نمایش نیست.</string>
+		<key>fi</key>
+		<string>Tätä viestiä ei voida näyttää.</string>
+		<key>fr</key>
+		<string>Ce message ne peut pas être affiché.</string>
+		<key>ga</key>
+		<string>Ní féidir an teachtaireacht seo a thaispeáint.</string>
+		<key>gd</key>
+		<string>Chan urrainnear an teachdaireachd seo a thaisbeanadh.</string>
+		<key>gl</key>
+		<string>Non se pode mostrar esta mensaxe.</string>
+		<key>gu</key>
+		<string>આ સંદેશ પ્રદર્શિત કરી શકાતો નથી.</string>
+		<key>he</key>
+		<string>לא ניתן להציג הודעה זו.</string>
+		<key>hi</key>
+		<string>यह मैसेज दिखाया नहीं जा सकता।</string>
+		<key>hr</key>
+		<string>Ova se poruka ne može prikazati.</string>
+		<key>ht</key>
+		<string>Mesaj sa a pa ka parèt.</string>
+		<key>hu</key>
+		<string>Ez az üzenet nem jeleníthető meg.</string>
+		<key>hy</key>
+		<string>Այս հաղորդագրությունը չի կարող ցուցադրվել։</string>
+		<key>id</key>
+		<string>Pesan ini tidak dapat ditampilkan.</string>
+		<key>is</key>
+		<string>Ekki er hægt að birta þessi skilaboð.</string>
+		<key>it</key>
+		<string>Questo messaggio non può essere visualizzato.</string>
+		<key>ja</key>
+		<string>このメッセージは表示できません。</string>
+		<key>ka</key>
+		<string>Ამ შეტყობინების ჩვენება შეუძლებელია.</string>
+		<key>kk</key>
+		<string>Бұл хабарламаны көрсету мүмкін емес.</string>
+		<key>kn</key>
+		<string>ಈ ಸಂದೇಶವನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ.</string>
+		<key>ko</key>
+		<string>이 메시지를 표시할 수 없습니다.</string>
+		<key>ky</key>
+		<string>Бул билдирүүнү көрсөтүү мүмкүн эмес.</string>
+		<key>lt</key>
+		<string>Šio pranešimo negalima rodyti.</string>
+		<key>mg</key>
+		<string>Tsy azo aseho ity hafatra ity.</string>
+		<key>mi</key>
+		<string>Kaore e taea te whakaatu i tenei karere.</string>
+		<key>mk</key>
+		<string>Оваа порака не може да се прикаже.</string>
+		<key>ml</key>
+		<string>ഈ സന്ദേശം പ്രദർശിപ്പിക്കാൻ കഴിയില്ല.</string>
+		<key>mn</key>
+		<string>Энэ мессежийг харуулах боломжгүй.</string>
+		<key>mt</key>
+		<string>Dan il-messaġġ ma jistax jintwera.</string>
+		<key>ne</key>
+		<string>यो सन्देश प्रदर्शन गर्न सकिँदैन।</string>
+		<key>nl</key>
+		<string>Dit bericht kan niet worden weergegeven.</string>
+		<key>no</key>
+		<string>Denne meldingen kan ikke vises.</string>
+		<key>pa</key>
+		<string>ਇਹ ਸੁਨੇਹਾ ਪ੍ਰਦਰਸ਼ਿਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।</string>
+		<key>pl</key>
+		<string>Nie można wyświetlić tej wiadomości.</string>
+		<key>pt</key>
+		<string>Esta mensagem não pode ser exibida.</string>
+		<key>ro</key>
+		<string>Acest mesaj nu poate fi afișat.</string>
+		<key>ru</key>
+		<string>Это сообщение не может быть отображено.</string>
+		<key>si</key>
+		<string>මෙම පණිවිඩය පෙන්විය නොහැක.</string>
+		<key>sk</key>
+		<string>Túto správu nie je možné zobraziť.</string>
+		<key>sl</key>
+		<string>Tega sporočila ni mogoče prikazati.</string>
+		<key>sq</key>
+		<string>Ky mesazh nuk mund të shfaqet.</string>
+		<key>sr</key>
+		<string>Ова порука не може бити приказана.</string>
+		<key>su</key>
+		<string>Pesen ieu teu tiasa ditampilkeun.</string>
+		<key>sv</key>
+		<string>Detta meddelande kan inte visas.</string>
+		<key>sw</key>
+		<string>Ujumbe huu hauwezi kuonyeshwa.</string>
+		<key>ta</key>
+		<string>இந்த செய்தியைக் காட்ட முடியாது.</string>
+		<key>te</key>
+		<string>ఈ సందేశం ప్రదర్శించబడదు.</string>
+		<key>tg</key>
+		<string>Ин паёмро намоиш додан мумкин нест.</string>
+		<key>th</key>
+		<string>ไม่สามารถแสดงข้อความนี้ได้</string>
+		<key>tl</key>
+		<string>Hindi maipapakita ang mensaheng ito.</string>
+		<key>tr</key>
+		<string>Bu mesaj görüntülenemiyor.</string>
+		<key>tt</key>
+		<string>Бу хәбәрне күрсәтеп булмый.</string>
+		<key>uk</key>
+		<string>Це повідомлення не може бути відображено.</string>
+		<key>ur</key>
+		<string>یہ پیغام ظاہر نہیں کیا جا سکتا۔</string>
+		<key>uz</key>
+		<string>Bu xabarni ko&apos;rsatib bo&apos;lmaydi.</string>
+		<key>vi</key>
+		<string>Không thể hiển thị tin nhắn này.</string>
+		<key>yi</key>
+		<string>די מעסעדזש קען נישט ווערן געוויזן.</string>
+		<key>zh</key>
+		<string>此消息无法显示。</string>
+	</dict>
+	<key>changed_group_photo</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ changed the group photo.</string>
+		<key>ar</key>
+		<string>⌘ تم تغيير الصورة الجماعية.</string>
+		<key>az</key>
+		<string>⌘ qrup şəklini dəyişdirdi.</string>
+		<key>be</key>
+		<string>⌘ змяніў фота групы.</string>
+		<key>bg</key>
+		<string>⌘ промени груповата снимка.</string>
+		<key>bn</key>
+		<string>⌘ গ্রুপ ফটো পরিবর্তন করেছি।</string>
+		<key>bs</key>
+		<string>⌘ promijenio/la je grupnu fotografiju.</string>
+		<key>ca</key>
+		<string>⌘ ha canviat la foto de grup.</string>
+		<key>cs</key>
+		<string>⌘ změnil/a skupinovou fotografii.</string>
+		<key>cy</key>
+		<string>⌘ changed the group photo.</string>
+		<key>da</key>
+		<string>⌘ ændrede gruppebilledet.</string>
+		<key>de</key>
+		<string>⌘ Das Gruppenfoto wurde geändert.</string>
+		<key>el</key>
+		<string>⌘ άλλαξε την ομαδική φωτογραφία.</string>
+		<key>en</key>
+		<string>⌘ changed the group photo.</string>
+		<key>eo</key>
+		<string>⌘ ŝanĝis la grupan foton.</string>
+		<key>es</key>
+		<string>⌘ ha(s) cambiado la foto del grupo.</string>
+		<key>et</key>
+		<string>⌘ muutis grupifotot.</string>
+		<key>eu</key>
+		<string>⌘ Taldeko argazkia aldatu du.</string>
+		<key>fa</key>
+		<string>⌘ عکس گروه را عوض کردم.</string>
+		<key>fi</key>
+		<string>⌘ muutti ryhmäkuvaa.</string>
+		<key>fr</key>
+		<string>⌘ a changé la photo de groupe.</string>
+		<key>ga</key>
+		<string>⌘ changed the group photo.</string>
+		<key>gd</key>
+		<string>⌘ changed the group photo.</string>
+		<key>gl</key>
+		<string>⌘ cambiou a foto de grupo.</string>
+		<key>gu</key>
+		<string>⌘ એ ગ્રુપ ફોટો બદલ્યો.</string>
+		<key>he</key>
+		<string>⌘ שינו את תמונת הקבוצה.</string>
+		<key>hi</key>
+		<string>⌘ ग्रुप फ़ोटो बदल दी।</string>
+		<key>hr</key>
+		<string>⌘ promijenio/la je grupnu fotografiju.</string>
+		<key>ht</key>
+		<string>⌘ chanje foto gwoup la.</string>
+		<key>hu</key>
+		<string>⌘ megváltoztatta a csoportképet.</string>
+		<key>hy</key>
+		<string>⌘ փոխեց խմբային լուսանկարը։</string>
+		<key>id</key>
+		<string>⌘ mengubah foto grup.</string>
+		<key>is</key>
+		<string>⌘ changed the group photo.</string>
+		<key>it</key>
+		<string>⌘ ha cambiato la foto di gruppo.</string>
+		<key>ja</key>
+		<string>⌘ 集合写真を変更しました。</string>
+		<key>ka</key>
+		<string>⌘-მ ჯგუფური ფოტო შეცვალა.</string>
+		<key>kk</key>
+		<string>⌘ топтық фотосуретті өзгертті.</string>
+		<key>kn</key>
+		<string>⌘ ಗುಂಪಿನ ಫೋಟೋವನ್ನು ಬದಲಾಯಿಸಲಾಗಿದೆ.</string>
+		<key>ko</key>
+		<string>⌘ 단체사진을 바꾸었습니다.</string>
+		<key>ky</key>
+		<string>⌘ топтун сүрөтүн өзгөрттү.</string>
+		<key>lt</key>
+		<string>⌘ pakeitė grupės nuotrauką.</string>
+		<key>mg</key>
+		<string>⌘ nanova ny sarin&apos;ny vondrona.</string>
+		<key>mi</key>
+		<string>⌘ i whakarerekē i te whakaahua rōpū.</string>
+		<key>mk</key>
+		<string>⌘ ја промени групната фотографија.</string>
+		<key>ml</key>
+		<string>⌘ ഗ്രൂപ്പ് ഫോട്ടോ മാറ്റി.</string>
+		<key>mn</key>
+		<string>⌘ Бүлгийн зургийг өөрчилсөн.</string>
+		<key>mt</key>
+		<string>⌘ biddilt ir-ritratt tal-grupp.</string>
+		<key>ne</key>
+		<string>⌘ ले समूह फोटो परिवर्तन गर्नुभयो।</string>
+		<key>nl</key>
+		<string>⌘ heeft de groepsfoto gewijzigd.</string>
+		<key>no</key>
+		<string>⌘ changed the group photo.</string>
+		<key>pa</key>
+		<string>⌘ ਨੇ ਗਰੁੱਪ ਫੋਟੋ ਬਦਲ ਦਿੱਤੀ।</string>
+		<key>pl</key>
+		<string>⌘ Zmieniono zdjęcie grupowe.</string>
+		<key>pt</key>
+		<string>⌘ Mudou a foto do grupo.</string>
+		<key>ro</key>
+		<string>⌘ a schimbat fotografia de grup.</string>
+		<key>ru</key>
+		<string>⌘ изменил групповое фото.</string>
+		<key>si</key>
+		<string>⌘ සමූහ ඡායාරූපය වෙනස් කළා.</string>
+		<key>sk</key>
+		<string>⌘ zmenil fotku skupiny.</string>
+		<key>sl</key>
+		<string>⌘ spremenil/a skupinsko fotografijo.</string>
+		<key>sq</key>
+		<string>⌘ ndryshoi foton e grupit.</string>
+		<key>sr</key>
+		<string>⌘ променио/ла је групну фотографију.</string>
+		<key>su</key>
+		<string>⌘ ngarobah poto grup.</string>
+		<key>sv</key>
+		<string>⌘ ändrade gruppfotot.</string>
+		<key>sw</key>
+		<string>⌘ alibadilisha picha ya kikundi.</string>
+		<key>ta</key>
+		<string>⌘ குழு புகைப்படத்தை மாற்றினார்.</string>
+		<key>te</key>
+		<string>⌘ గ్రూప్ ఫోటోను మార్చారు.</string>
+		<key>tg</key>
+		<string>⌘ акси гурӯҳро иваз кард.</string>
+		<key>th</key>
+		<string>⌘ เปลี่ยนรูปถ่ายหมู่</string>
+		<key>tl</key>
+		<string>⌘ binago ang larawan ng grupo.</string>
+		<key>tr</key>
+		<string>⌘ Grup fotoğrafını değiştirdi.</string>
+		<key>tt</key>
+		<string>⌘ төркем фотосын үзгәртте.</string>
+		<key>uk</key>
+		<string>⌘ змінив групове фото.</string>
+		<key>ur</key>
+		<string>⌘ changed the group photo.</string>
+		<key>uz</key>
+		<string>⌘ guruh rasmini o&apos;zgartirdi.</string>
+		<key>vi</key>
+		<string>⌘ đã thay đổi ảnh nhóm.</string>
+		<key>yi</key>
+		<string>⌘ changed the group photo.</string>
+		<key>zh</key>
+		<string>⌘ 更换了合影。</string>
+	</dict>
 	<key>contacts</key>
 	<dict>
 		<key>af</key>
@@ -7577,6 +7887,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<key>zh</key>
 		<string>地区</string>
 	</dict>
+	<key>removed_conversation_name</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>ar</key>
+		<string>⌘ تمت إزالة اسم المحادثة.</string>
+		<key>az</key>
+		<string>⌘ söhbətin adını sildi.</string>
+		<key>be</key>
+		<string>⌘ выдаліў назву размовы.</string>
+		<key>bg</key>
+		<string>⌘ премахна името на разговора.</string>
+		<key>bn</key>
+		<string>⌘ কথোপকথনের নামটি সরিয়ে ফেলা হয়েছে।</string>
+		<key>bs</key>
+		<string>⌘ uklonjeno ime razgovora.</string>
+		<key>ca</key>
+		<string>⌘ ha eliminat el nom de la conversa.</string>
+		<key>cs</key>
+		<string>⌘ název konverzace byl odstraněn.</string>
+		<key>cy</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>da</key>
+		<string>⌘ fjernede navnet på samtalen.</string>
+		<key>de</key>
+		<string>⌘ Der Konversationsname wurde entfernt.</string>
+		<key>el</key>
+		<string>⌘ αφαίρεσε το όνομα της συνομιλίας.</string>
+		<key>en</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>eo</key>
+		<string>⌘ forigis la nomon de la konversacio.</string>
+		<key>es</key>
+		<string>⌘ ha(s) eliminado el nombre de la conversación.</string>
+		<key>et</key>
+		<string>⌘ eemaldas vestluse nime.</string>
+		<key>eu</key>
+		<string>⌘ Elkarrizketaren izena kendu da.</string>
+		<key>fa</key>
+		<string>⌘ نام مکالمه حذف شد.</string>
+		<key>fi</key>
+		<string>⌘ poisti keskustelun nimen.</string>
+		<key>fr</key>
+		<string>⌘ Le nom de la conversation a été supprimé.</string>
+		<key>ga</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>gd</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>gl</key>
+		<string>⌘ Eliminou o nome da conversa.</string>
+		<key>gu</key>
+		<string>⌘ વાતચીતનું નામ દૂર કર્યું.</string>
+		<key>he</key>
+		<string>⌘ הסיר את שם השיחה.</string>
+		<key>hi</key>
+		<string>⌘ बातचीत का नाम हटा दिया गया।</string>
+		<key>hr</key>
+		<string>⌘ uklonjen je naziv razgovora.</string>
+		<key>ht</key>
+		<string>⌘ retire non konvèsasyon an.</string>
+		<key>hu</key>
+		<string>⌘ eltávolította a beszélgetés nevét.</string>
+		<key>hy</key>
+		<string>⌘ հեռացվեց զրույցի անունը։</string>
+		<key>id</key>
+		<string>⌘ menghapus nama percakapan.</string>
+		<key>is</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>it</key>
+		<string>⌘ rimosso il nome della conversazione.</string>
+		<key>ja</key>
+		<string>⌘ 会話名を削除しました。</string>
+		<key>ka</key>
+		<string>⌘-მა წაშალა საუბრის სახელი.</string>
+		<key>kk</key>
+		<string>⌘ әңгіме атауын алып тастады.</string>
+		<key>kn</key>
+		<string>⌘ ಸಂಭಾಷಣೆಯ ಹೆಸರನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ.</string>
+		<key>ko</key>
+		<string>⌘ 대화 이름을 삭제했습니다.</string>
+		<key>ky</key>
+		<string>⌘ сүйлөшүү атын алып салды.</string>
+		<key>lt</key>
+		<string>⌘ pašalino pokalbio pavadinimą.</string>
+		<key>mg</key>
+		<string>⌘ nesoriny ny anaran&apos;ny resaka.</string>
+		<key>mi</key>
+		<string>⌘ i tangohia te ingoa korero.</string>
+		<key>mk</key>
+		<string>⌘ го отстрани името на разговорот.</string>
+		<key>ml</key>
+		<string>⌘ സംഭാഷണ നാമം നീക്കം ചെയ്തു.</string>
+		<key>mn</key>
+		<string>⌘ харилцан ярианы нэрийг арилгасан.</string>
+		<key>mt</key>
+		<string>⌘ neħħa l-isem tal-konverżazzjoni.</string>
+		<key>ne</key>
+		<string>⌘ कुराकानीको नाम हटाइयो।</string>
+		<key>nl</key>
+		<string>⌘ heeft de conversatienaam verwijderd.</string>
+		<key>no</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>pa</key>
+		<string>⌘ ਗੱਲਬਾਤ ਦਾ ਨਾਮ ਹਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
+		<key>pl</key>
+		<string>⌘ usunięto nazwę konwersacji.</string>
+		<key>pt</key>
+		<string>⌘ removeu o nome da conversa.</string>
+		<key>ro</key>
+		<string>⌘ a eliminat numele conversației.</string>
+		<key>ru</key>
+		<string>⌘ удалил название беседы.</string>
+		<key>si</key>
+		<string>⌘ සංවාද නම ඉවත් කළා.</string>
+		<key>sk</key>
+		<string>⌘ názov konverzácie bol odstránený.</string>
+		<key>sl</key>
+		<string>⌘ ime pogovora je bilo odstranjeno.</string>
+		<key>sq</key>
+		<string>⌘ e hoqi emrin e bisedës.</string>
+		<key>sr</key>
+		<string>⌘ је уклонио/ла назив разговора.</string>
+		<key>su</key>
+		<string>⌘ ngahapus nami paguneman.</string>
+		<key>sv</key>
+		<string>⌘ tog bort konversationens namn.</string>
+		<key>sw</key>
+		<string>⌘ ameondoa jina la mazungumzo.</string>
+		<key>ta</key>
+		<string>⌘ உரையாடல் பெயரை நீக்கிவிட்டார்.</string>
+		<key>te</key>
+		<string>⌘ సంభాషణ పేరును తొలగించారు.</string>
+		<key>tg</key>
+		<string>⌘ номи сӯҳбатро тоза кард.</string>
+		<key>th</key>
+		<string>⌘ ลบชื่อการสนทนา</string>
+		<key>tl</key>
+		<string>Inalis ni ⌘ ang pangalan ng pag-uusap.</string>
+		<key>tr</key>
+		<string>⌘ konuşmanın adı kaldırıldı.</string>
+		<key>tt</key>
+		<string>⌘ әңгәмә исемен алып ташлады.</string>
+		<key>uk</key>
+		<string>⌘ видалено назву розмови.</string>
+		<key>ur</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>uz</key>
+		<string>⌘ suhbat nomini olib tashladi.</string>
+		<key>vi</key>
+		<string>⌘ đã xóa tên cuộc trò chuyện.</string>
+		<key>yi</key>
+		<string>⌘ removed the conversation name.</string>
+		<key>zh</key>
+		<string>⌘ 删除了对话名称。</string>
+	</dict>
 	<key>removed_from_conversation</key>
 	<dict>
 		<key>af</key>
@@ -7731,6 +8196,316 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>⌘ removed ⁂ from the conversation.</string>
 		<key>zh</key>
 		<string>⌘ 从对话中移除 ⁂。</string>
+	</dict>
+	<key>removed_group_photo</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ removed the group photo.</string>
+		<key>ar</key>
+		<string>⌘ تم إزالة الصورة الجماعية.</string>
+		<key>az</key>
+		<string>⌘ qrup şəklini sildi.</string>
+		<key>be</key>
+		<string>⌘ выдаліў групавое фота.</string>
+		<key>bg</key>
+		<string>⌘ премахна груповата снимка.</string>
+		<key>bn</key>
+		<string>⌘ গ্রুপ ছবিটা সরিয়ে দিলাম।</string>
+		<key>bs</key>
+		<string>⌘ je uklonio/la grupnu fotografiju.</string>
+		<key>ca</key>
+		<string>⌘ ha eliminat la foto de grup.</string>
+		<key>cs</key>
+		<string>⌘ odstranil(a) skupinovou fotografii.</string>
+		<key>cy</key>
+		<string>⌘ removed the group photo.</string>
+		<key>da</key>
+		<string>⌘ fjernede gruppebilledet.</string>
+		<key>de</key>
+		<string>⌘ Das Gruppenfoto wurde entfernt.</string>
+		<key>el</key>
+		<string>⌘ αφαίρεσε την ομαδική φωτογραφία.</string>
+		<key>en</key>
+		<string>⌘ removed the group photo.</string>
+		<key>eo</key>
+		<string>⌘ forigis la grupan foton.</string>
+		<key>es</key>
+		<string>⌘ ha(s) eliminado la foto del grupo.</string>
+		<key>et</key>
+		<string>⌘ eemaldas grupifoto.</string>
+		<key>eu</key>
+		<string>⌘ Taldeko argazkia kendu du.</string>
+		<key>fa</key>
+		<string>⌘ عکس گروه را حذف کرد.</string>
+		<key>fi</key>
+		<string>⌘ poisti ryhmäkuvan.</string>
+		<key>fr</key>
+		<string>⌘ a supprimé la photo de groupe.</string>
+		<key>ga</key>
+		<string>⌘ removed the group photo.</string>
+		<key>gd</key>
+		<string>⌘ removed the group photo.</string>
+		<key>gl</key>
+		<string>⌘ Eliminou a foto de grupo.</string>
+		<key>gu</key>
+		<string>⌘ ગ્રુપ ફોટો દૂર કર્યો.</string>
+		<key>he</key>
+		<string>⌘ הסיר את תמונת הקבוצה.</string>
+		<key>hi</key>
+		<string>⌘ ग्रुप फ़ोटो हटा दी।</string>
+		<key>hr</key>
+		<string>⌘ uklonio/la je grupnu fotografiju.</string>
+		<key>ht</key>
+		<string>⌘ retire foto gwoup la.</string>
+		<key>hu</key>
+		<string>⌘ eltávolította a csoportképet.</string>
+		<key>hy</key>
+		<string>⌘ հեռացրեց խմբային լուսանկարը։</string>
+		<key>id</key>
+		<string>⌘ menghapus foto grup.</string>
+		<key>is</key>
+		<string>⌘ removed the group photo.</string>
+		<key>it</key>
+		<string>⌘ rimossa la foto di gruppo.</string>
+		<key>ja</key>
+		<string>⌘ 集合写真を削除しました。</string>
+		<key>ka</key>
+		<string>⌘-მ ჯგუფური ფოტო წაშალა.</string>
+		<key>kk</key>
+		<string>⌘ топтық суретті алып тастады.</string>
+		<key>kn</key>
+		<string>⌘ removed the group photo.</string>
+		<key>ko</key>
+		<string>⌘ 단체 사진을 삭제했습니다.</string>
+		<key>ky</key>
+		<string>⌘ топтук сүрөттү алып салды.</string>
+		<key>lt</key>
+		<string>⌘ pašalino grupės nuotrauką.</string>
+		<key>mg</key>
+		<string>⌘ nesoriny ny sarin&apos;ny vondrona.</string>
+		<key>mi</key>
+		<string>⌘ i tangohia te whakaahua rōpū.</string>
+		<key>mk</key>
+		<string>⌘ ја отстрани групната фотографија.</string>
+		<key>ml</key>
+		<string>⌘ ഗ്രൂപ്പ് ഫോട്ടോ നീക്കം ചെയ്തു.</string>
+		<key>mn</key>
+		<string>⌘ бүлгийн зургийг устгасан.</string>
+		<key>mt</key>
+		<string>⌘ neħħa r-ritratt tal-grupp.</string>
+		<key>ne</key>
+		<string>⌘ समूह फोटो हटाएँ।</string>
+		<key>nl</key>
+		<string>⌘ heeft de groepsfoto verwijderd.</string>
+		<key>no</key>
+		<string>⌘ removed the group photo.</string>
+		<key>pa</key>
+		<string>⌘ ਗਰੁੱਪ ਫੋਟੋ ਹਟਾ ਦਿੱਤੀ।</string>
+		<key>pl</key>
+		<string>⌘ usunięto zdjęcie grupowe.</string>
+		<key>pt</key>
+		<string>⌘ removeu a foto do grupo.</string>
+		<key>ro</key>
+		<string>⌘ a eliminat fotografia de grup.</string>
+		<key>ru</key>
+		<string>⌘ удалил групповое фото.</string>
+		<key>si</key>
+		<string>⌘ සමූහ ඡායාරූපය ඉවත් කළා.</string>
+		<key>sk</key>
+		<string>⌘ odstránil(a) skupinovú fotografiu.</string>
+		<key>sl</key>
+		<string>⌘ je odstranil/a skupinsko fotografijo.</string>
+		<key>sq</key>
+		<string>⌘ e hoqi foton e grupit.</string>
+		<key>sr</key>
+		<string>⌘ је уклонио/ла групну фотографију.</string>
+		<key>su</key>
+		<string>⌘ ngahapus poto grup.</string>
+		<key>sv</key>
+		<string>⌘ tog bort gruppfotot.</string>
+		<key>sw</key>
+		<string>⌘ aliondoa picha ya kikundi.</string>
+		<key>ta</key>
+		<string>⌘ குழு புகைப்படத்தை அகற்றினார்.</string>
+		<key>te</key>
+		<string>⌘ గ్రూప్ ఫోటోను తీసివేసారు.</string>
+		<key>tg</key>
+		<string>⌘ акси гурӯҳро нест кард.</string>
+		<key>th</key>
+		<string>⌘ ลบภาพหมู่ออก</string>
+		<key>tl</key>
+		<string>⌘ inalis ang larawan ng grupo.</string>
+		<key>tr</key>
+		<string>⌘ Grup fotoğrafını kaldırdı.</string>
+		<key>tt</key>
+		<string>⌘ төркем фотосын бетерде.</string>
+		<key>uk</key>
+		<string>⌘ видалив групове фото.</string>
+		<key>ur</key>
+		<string>⌘ removed the group photo.</string>
+		<key>uz</key>
+		<string>⌘ guruh rasmini olib tashladi.</string>
+		<key>vi</key>
+		<string>⌘ đã xóa ảnh nhóm.</string>
+		<key>yi</key>
+		<string>⌘ removed the group photo.</string>
+		<key>zh</key>
+		<string>⌘ 删除了合影。</string>
+	</dict>
+	<key>renamed_conversation</key>
+	<dict>
+		<key>af</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>ar</key>
+		<string>⌘ أطلق على المحادثة اسم “⁂“.</string>
+		<key>az</key>
+		<string>⌘ söhbətə “⁂“ ad verdi.</string>
+		<key>be</key>
+		<string>⌘ назваў размову “⁂“.</string>
+		<key>bg</key>
+		<string>⌘ даде име на разговора “⁂“.</string>
+		<key>bn</key>
+		<string>⌘ কথোপকথনের নাম দিয়েছেন “⁂“।</string>
+		<key>bs</key>
+		<string>⌘ nazvao razgovor “⁂“.</string>
+		<key>ca</key>
+		<string>⌘ ha anomenat la conversa “⁂“.</string>
+		<key>cs</key>
+		<string>⌘ pojmenoval konverzaci “⁂“.</string>
+		<key>cy</key>
+		<string>⌘ enwi&apos;r sgwrs “⁂“.</string>
+		<key>da</key>
+		<string>⌘ navngav samtalen “⁂“.</string>
+		<key>de</key>
+		<string>⌘ benannte das Gespräch “⁂“.</string>
+		<key>el</key>
+		<string>⌘ ονόμασε τη συζήτηση “⁂“.</string>
+		<key>en</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>eo</key>
+		<string>⌘ nomis la konversacion “⁂“.</string>
+		<key>es</key>
+		<string>⌘ ha(s) denominado la conversación “⁂“.</string>
+		<key>et</key>
+		<string>⌘ pani vestlusele nimeks “⁂“.</string>
+		<key>eu</key>
+		<string>⌘ elkarrizketari izena jarri dio “⁂“.</string>
+		<key>fa</key>
+		<string>⌘ این مکالمه را “⁂“ نامگذاری کرد.</string>
+		<key>fi</key>
+		<string>⌘ nimesi keskustelun “⁂“.</string>
+		<key>fr</key>
+		<string>⌘ a nommé la conversation “⁂“.</string>
+		<key>ga</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>gd</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>gl</key>
+		<string>⌘ nomeou a conversa “⁂“.</string>
+		<key>gu</key>
+		<string>⌘ વાતચીતનું નામ “⁂“ રાખ્યું.</string>
+		<key>he</key>
+		<string>⌘ שם השיחה “⁂“.</string>
+		<key>hi</key>
+		<string>⌘ ने बातचीत का नाम “⁂“ रखा।</string>
+		<key>hr</key>
+		<string>⌘ nazvao razgovor “⁂“.</string>
+		<key>ht</key>
+		<string>⌘ te bay konvèsasyon an yon non “⁂“.</string>
+		<key>hu</key>
+		<string>⌘ elnevezte a beszélgetést “⁂“.</string>
+		<key>hy</key>
+		<string>⌘-ը անվանեց զրույցը “⁂“:</string>
+		<key>id</key>
+		<string>⌘ menamai percakapan tersebut “⁂“.</string>
+		<key>is</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>it</key>
+		<string>⌘ ha nominato la conversazione “⁂“.</string>
+		<key>ja</key>
+		<string>⌘ は会話に “⁂“ という名前を付けました。</string>
+		<key>ka</key>
+		<string>⌘-მა საუბარს სახელი დაარქვა “⁂“.</string>
+		<key>kk</key>
+		<string>⌘ әңгімеге ат қойды “⁂“.</string>
+		<key>kn</key>
+		<string>⌘ ಸಂಭಾಷಣೆಗೆ “⁂“ ಎಂದು ಹೆಸರಿಟ್ಟರು.</string>
+		<key>ko</key>
+		<string>⌘ 대화의 이름을 “⁂“로 지정했습니다.</string>
+		<key>ky</key>
+		<string>⌘ сүйлөшүү “⁂“ деп аталды.</string>
+		<key>lt</key>
+		<string>⌘ pavadino pokalbį “⁂“.</string>
+		<key>mg</key>
+		<string>⌘ nanome anarana ny resaka “⁂“.</string>
+		<key>mi</key>
+		<string>⌘ i tapaina te kōrero “⁂“.</string>
+		<key>mk</key>
+		<string>⌘ го именуваше разговорот “⁂“.</string>
+		<key>ml</key>
+		<string>⌘ സംഭാഷണത്തിന് “⁂“ എന്ന് പേരിട്ടു.</string>
+		<key>mn</key>
+		<string>⌘ харилцан яриаг “⁂“ гэж нэрлэв.</string>
+		<key>mt</key>
+		<string>⌘ semmejt il-konverżazzjoni “⁂“.</string>
+		<key>ne</key>
+		<string>⌘ कुराकानीको नाम “⁂“ राखियो।</string>
+		<key>nl</key>
+		<string>⌘ noemde het gesprek “⁂“.</string>
+		<key>no</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>pa</key>
+		<string>⌘ ਗੱਲਬਾਤ ਦਾ ਨਾਮ “⁂“ ਰੱਖਿਆ।</string>
+		<key>pl</key>
+		<string>⌘ nazwał rozmowę “⁂“.</string>
+		<key>pt</key>
+		<string>⌘ nomeou a conversa “⁂“.</string>
+		<key>ro</key>
+		<string>⌘ a numit conversația “⁂“.</string>
+		<key>ru</key>
+		<string>⌘ назвал беседу “⁂“.</string>
+		<key>si</key>
+		<string>⌘ සංවාදය “⁂“ ලෙස නම් කළේය.</string>
+		<key>sk</key>
+		<string>⌘ pomenoval konverzáciu “⁂“.</string>
+		<key>sl</key>
+		<string>⌘ poimenoval pogovor “⁂“.</string>
+		<key>sq</key>
+		<string>⌘ e emërtoi bisedën “⁂“.</string>
+		<key>sr</key>
+		<string>⌘ назвао разговор “⁂“.</string>
+		<key>su</key>
+		<string>⌘ méré ngaran paguneman éta “⁂“.</string>
+		<key>sv</key>
+		<string>⌘ namngav konversationen “⁂“.</string>
+		<key>sw</key>
+		<string>Alitaja mazungumzo .</string>
+		<key>ta</key>
+		<string>⌘ உரையாடலுக்கு “⁂“ என்று பெயரிட்டார்.</string>
+		<key>te</key>
+		<string>⌘ సంభాషణకు “⁂“ అని పేరు పెట్టారు.</string>
+		<key>tg</key>
+		<string>⌘ ба сӯҳбат ном гузошт “⁂“.</string>
+		<key>th</key>
+		<string>⌘ ตั้งชื่อการสนทนาว่า “⁂“.</string>
+		<key>tl</key>
+		<string>⌘ pinangalanan ang usapan “⁂“.</string>
+		<key>tr</key>
+		<string>Konuşmaya adını verdi.</string>
+		<key>tt</key>
+		<string>⌘ сөйләшүгә исем кушты “⁂“.</string>
+		<key>uk</key>
+		<string>⌘ назвав розмову “⁂“.</string>
+		<key>ur</key>
+		<string>گفتگو کا نام  رکھا۔</string>
+		<key>uz</key>
+		<string>⌘ suhbatga “⁂“ nom berdi.</string>
+		<key>vi</key>
+		<string>⌘ đặt tên cho cuộc trò chuyện “⁂“.</string>
+		<key>yi</key>
+		<string>⌘ named the conversation “⁂“.</string>
+		<key>zh</key>
+		<string>⌘ 给对话命名 “⁂“。</string>
 	</dict>
 	<key>repairing_data</key>
 	<dict>

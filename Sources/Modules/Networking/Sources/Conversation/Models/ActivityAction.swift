@@ -17,36 +17,53 @@ public extension Activity {
         // MARK: - Cases
 
         case addedToConversation(userID: String)
+        case changedGroupPhoto
         case leftConversation
         case removedFromConversation(userID: String)
+        case removedGroupPhoto
+        case removedName
+        case renamedConversation(name: String)
 
         // MARK: - Properties
 
         public var rawValue: String {
             switch self {
             case let .addedToConversation(userID: userID): "ADDED:\(userID)"
+            case .changedGroupPhoto: "CHANGED_PHOTO"
             case .leftConversation: "LEFT"
             case let .removedFromConversation(userID: userID): "REMOVED:\(userID)"
+            case .removedGroupPhoto: "REMOVED_PHOTO"
+            case .removedName: "REMOVED_NAME"
+            case let .renamedConversation(name: name): "RENAMED:\(name)"
             }
         }
 
         // MARK: - Init
 
         public init?(rawValue: String) {
-            guard rawValue != "LEFT" else {
-                self = .leftConversation
+            let components = rawValue.components(separatedBy: ":")
+
+            guard components.count == 2,
+                  let action = components.first,
+                  let suffix = components.last else {
+                switch rawValue {
+                case "CHANGED_PHOTO": self = .changedGroupPhoto
+                case "LEFT": self = .leftConversation
+                case "REMOVED_NAME": self = .removedName
+                case "REMOVED_PHOTO": self = .removedGroupPhoto
+                default: return nil
+                }
                 return
             }
 
-            let components = rawValue.components(separatedBy: ":")
-            guard let action = components.first,
-                  let userID = components.last else { return nil }
-
             if action == "ADDED" {
-                self = .addedToConversation(userID: userID)
+                self = .addedToConversation(userID: suffix)
                 return
             } else if action == "REMOVED" {
-                self = .removedFromConversation(userID: userID)
+                self = .removedFromConversation(userID: suffix)
+                return
+            } else if action == "RENAMED" {
+                self = .renamedConversation(name: suffix)
                 return
             }
 

@@ -27,6 +27,8 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case blockUser
 
     case cancel
+    case cannotDisplayMessage
+    case changedGroupPhoto
     case contacts
     case copy
 
@@ -76,7 +78,10 @@ public enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case reactionDetails
     case read
     case region
+    case removedConversationName
     case removedFromConversation
+    case removedGroupPhoto
+    case renamedConversation
     case repairingData
     case reportBug
     case reportMistranslation

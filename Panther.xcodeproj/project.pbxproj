@@ -19,6 +19,7 @@
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
+		A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
 		A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA982ED636FA00171C04 /* UserCache.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
@@ -779,6 +780,7 @@
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
+		A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActivityAction+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A29DFA962ED5749800171C04 /* ActivitySessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySessionService.swift; sourceTree = "<group>"; };
 		A29DFA982ED636FA00171C04 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
@@ -3390,6 +3392,7 @@
 		B9F47B092B586E3500D86C67 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */,
 				B903CA6D2B6C2DA300A238A4 /* Array+UserContentExtensions.swift */,
 				B90C910F2B69CEAE008DFE59 /* AudioFile+UserContentExtensions.swift */,
 				B95DCE4C2D8CC658003730F9 /* Color+UserContentExtensions.swift */,
@@ -4214,6 +4217,7 @@
 				B90071ED2B7C0D6900BE8654 /* AppConstants+ContactPairCellView.swift in Sources */,
 				B98D9B1E2C500BD3004949E3 /* QLThumbnailGeneratorDependency.swift in Sources */,
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
+				A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */,
 				B9CFA8032D9B6DB10075E02D /* ReactionDetailsPageObserver.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
 				B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */,

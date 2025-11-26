@@ -64,7 +64,7 @@ public struct ReactionDetailsPageReducer: Reducer {
                   .reactions else { return [] }
 
             let userMap = Dictionary(
-                uniqueKeysWithValues: ((clientSession.conversation.currentConversation?.users ?? []) + [currentUser])
+                uniqueKeysWithValues: (UserCache.knownUsers + [currentUser]).uniquedByID
                     .map { ($0.id, $0.reactionDisplayName) }
             )
 
@@ -121,6 +121,13 @@ public struct ReactionDetailsPageReducer: Reducer {
         }
 
         return .none
+    }
+}
+
+private extension Array where Element == User {
+    var uniquedByID: [User] {
+        var set = Set<String>()
+        return filter { set.insert($0.id).inserted }
     }
 }
 

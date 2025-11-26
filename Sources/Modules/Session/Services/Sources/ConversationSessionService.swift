@@ -84,6 +84,7 @@ public final class ConversationSessionService {
         self.currentConversation = withMessagesOffset(
             currentConversation?
                 .withHydratedMessages
+                .withMessagesOffsetFromCurrentUserAdditionDate
                 .withMessagesSortedByAscendingSentDate
         )
     }
@@ -93,7 +94,10 @@ public final class ConversationSessionService {
     public func incrementMessageOffset() {
         guard let fullConversation else { return }
         messageOffset += Floats.messageOffsetIncrement
-        currentConversation = withMessagesOffset(fullConversation)
+        currentConversation = withMessagesOffset(
+            fullConversation
+                .withMessagesOffsetFromCurrentUserAdditionDate
+        )
     }
 
     public func incrementMessageOffset(to messageID: String) {
@@ -103,7 +107,10 @@ public final class ConversationSessionService {
 
         while currentConversation?.messages?.map(\.id).contains(messageID) == false {
             messageOffset += 1
-            currentConversation = withMessagesOffset(fullConversation)
+            currentConversation = withMessagesOffset(
+                fullConversation
+                    .withMessagesOffsetFromCurrentUserAdditionDate
+            )
         }
     }
 

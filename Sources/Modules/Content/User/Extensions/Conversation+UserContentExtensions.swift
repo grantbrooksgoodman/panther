@@ -131,6 +131,22 @@ public extension Conversation {
         )
     }
 
+    // swiftlint:disable:next identifier_name
+    var withMessagesOffsetFromCurrentUserAdditionDate: Conversation {
+        guard let currentUserAddedActivity = activities?
+            .first(where: \.action.isCurrentUserAdded) else { return self }
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages?.filter { $0.sentDate >= currentUserAddedActivity.date },
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
+    }
+
     var withMessagesSortedByAscendingSentDate: Conversation {
         .init(
             id,

@@ -13,28 +13,21 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class User: Codable, Equatable {
+public final class User: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Properties
-
-    // Array
-    public let blockedUserIDs: [String]?
-    public let previousLanguageCodes: [String]?
-    public let pushTokens: [String]?
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
     public private(set) var conversationIDs: [ConversationID]?
     public private(set) var conversations: [Conversation]?
 
-    // Bool
-    public let isPenPalsParticipant: Bool
-    public let messageRecipientConsentRequired: Bool
-
-    // String
+    public let blockedUserIDs: [String]?
     public let id: String
+    public let isPenPalsParticipant: Bool
     public let languageCode: String
-
-    // Other
+    public let messageRecipientConsentRequired: Bool
     public let phoneNumber: PhoneNumber
+    public let previousLanguageCodes: [String]?
+    public let pushTokens: [String]?
 
     private var isSettingConversations = false
 
@@ -43,6 +36,21 @@ public final class User: Codable, Equatable {
     public var canSendAudioMessages: Bool {
         @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
         return transcriptionService.isTranscriptionSupported(for: languageCode)
+    }
+
+    public var hashFactors: [String] {
+        var factors = [String]()
+        factors.append(contentsOf: blockedUserIDs ?? [])
+        factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
+        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? [])
+        factors.append(id)
+        factors.append(isPenPalsParticipant.description)
+        factors.append(languageCode)
+        factors.append(messageRecipientConsentRequired.description)
+        factors.append(phoneNumber.encodedHash)
+        factors.append(contentsOf: previousLanguageCodes ?? [])
+        factors.append(contentsOf: pushTokens ?? [])
+        return factors
     }
 
     public var hostedBadgeNumber: Int {
@@ -249,28 +257,12 @@ public final class User: Codable, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (left: User, right: User) -> Bool {
-        let sameBlockedUserIDs = left.blockedUserIDs == right.blockedUserIDs
-        let sameConversationIDs = left.conversationIDs == right.conversationIDs
-        let sameConversations = left.conversations == right.conversations
-        let sameID = left.id == right.id
-        let sameIsPenPalsParticipant = left.isPenPalsParticipant == right.isPenPalsParticipant
-        let sameLanguageCode = left.languageCode == right.languageCode
-        let sameMessageRecipientConsentRequired = left.messageRecipientConsentRequired == right.messageRecipientConsentRequired
-        let samePhoneNumber = left.phoneNumber == right.phoneNumber
-        let samePreviousLanguageCodes = left.previousLanguageCodes == right.previousLanguageCodes
-        let samePushTokens = left.pushTokens == right.pushTokens
+        left.encodedHash == right.encodedHash
+    }
 
-        guard sameBlockedUserIDs,
-              sameConversationIDs,
-              sameConversations,
-              sameID,
-              sameIsPenPalsParticipant,
-              sameLanguageCode,
-              sameMessageRecipientConsentRequired,
-              samePhoneNumber,
-              samePreviousLanguageCodes,
-              samePushTokens else { return false }
+    // MARK: - Hashable Conformance
 
-        return true
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(encodedHash)
     }
 }
