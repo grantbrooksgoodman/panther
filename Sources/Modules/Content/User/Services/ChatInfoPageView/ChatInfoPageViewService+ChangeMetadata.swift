@@ -68,7 +68,10 @@ public extension ChatInfoPageViewService {
 
                 await AKActionSheet(
                     actions: [takePhotoAction, chooseFromLibraryAction],
-                    cancelButtonTitle: Localized(.cancel).wrappedValue
+                    cancelButtonTitle: Localized(.cancel).wrappedValue,
+                    sourceItem: .custom(.string(
+                        "Change name and photo".localized
+                    ))
                 ).present(translating: [.actions()])
                 return photoChangeType
             }
@@ -114,7 +117,10 @@ public extension ChatInfoPageViewService {
 
             await AKActionSheet(
                 actions: actions,
-                cancelButtonTitle: Localized(.cancel).wrappedValue
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                sourceItem: .custom(.string(
+                    "Change name and photo".localized
+                ))
             ).present(translating: [.actions()])
 
             guard canComplete else { return }

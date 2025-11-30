@@ -298,8 +298,12 @@ public final class SettingsPageViewService {
             await AKActionSheet(
                 title: "File a Report",
                 actions: [
-                    .init("Send Feedback") { self.reportDelegate.sendFeedback() },
-                    .init("Report Bug") { self.reportDelegate.reportBug() },
+                    .init(Localized(.sendFeedback).wrappedValue) {
+                        self.reportDelegate.sendFeedback()
+                    },
+                    .init("Report Bug") {
+                        self.reportDelegate.reportBug()
+                    },
                 ],
                 cancelButtonTitle: Localized(.cancel).wrappedValue
             ).present(translating: [.actions([]), .title])

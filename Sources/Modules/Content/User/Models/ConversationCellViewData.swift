@@ -166,9 +166,7 @@ public struct ConversationCellViewData: Equatable {
 
                 subtitleLabelText = resolvedText
             }
-        } else if let activity = conversation
-            .activities?
-            .first(where: \.action.isCurrentUserAdded) {
+        } else if let activity = conversation.activities?.last {
             dateLabelText = activity.date.formattedShortString
             subtitleLabelText = activity.description.sanitized
         } else {

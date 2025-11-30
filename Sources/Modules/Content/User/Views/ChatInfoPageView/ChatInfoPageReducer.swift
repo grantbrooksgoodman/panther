@@ -151,6 +151,7 @@ public struct ChatInfoPageReducer: Reducer {
         public var visibleParticipantsIncrement: Int {
             // FIXME: Remove the dependency on isDeveloperModeEnabled.
             guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+                  conversation?.metadata.requiresConsentFromInitiator == nil,
                   !visibleParticipants.isEmpty,
                   visibleParticipants.count < 10 else { return 0 }
             return 1

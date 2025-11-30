@@ -69,7 +69,7 @@ public final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionS
         text: String,
         url: URL
     ) {
-        Task {
+        Task { // NIT: Can use sourceItem here.
             await AKActionSheet(
                 message: text,
                 actions: [.init(actionTitle) { self.openURL(url) }],

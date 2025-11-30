@@ -122,7 +122,9 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
                   !conversations.isEmpty else { return 0 }
 
             for conversation in conversations.visibleForCurrentUser.filter({ $0.messages == nil }) {
-                if let exception = await conversation.setMessages() { Logger.log(exception, domain: .user) }
+                if let exception = await conversation.setMessages() {
+                    Logger.log(exception, domain: .user)
+                }
             }
 
             return await calculateBadgeNumber(true)
@@ -133,7 +135,9 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
             .visibleForCurrentUser
             .compactMap(\.messages)
             .reduce([], +)
-            .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }.count
+            .filteringSystemMessages
+            .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }
+            .count
     }
 
     // MARK: - Capability Testing

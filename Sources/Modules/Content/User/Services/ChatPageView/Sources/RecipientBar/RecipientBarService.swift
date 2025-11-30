@@ -44,7 +44,7 @@ public struct RecipientBarService {
     public func onLayoutSubviews() {
         defer { tableView.reloadData() }
         if let leafViewController {
-            guard String(type(of: leafViewController)) == AppConstants.Strings.ChatPageViewService.leafViewControllerID else { return }
+            guard leafViewController.descriptor == AppConstants.Strings.ChatPageViewService.leafViewControllerID else { return }
         }
 
         layout.textField?.becomeFirstResponder()

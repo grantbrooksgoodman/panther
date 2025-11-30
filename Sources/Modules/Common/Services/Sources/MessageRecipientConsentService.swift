@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AlertKit
@@ -18,11 +19,14 @@ public final class MessageRecipientConsentService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
+    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Send Consent Message in Current Conversation
 
+    @MainActor
     public func sendConsentMessageInCurrentConversation() async -> Exception? {
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
@@ -63,7 +67,18 @@ public final class MessageRecipientConsentService {
         }
 
         await AKActionSheet(
-            actions: [acknowledgeAction, cancelAction]
+            actions: [acknowledgeAction, cancelAction],
+            sourceItem: .custom(.view(
+                presentedViews.first(where: {
+                    $0.tag == coreUI.semTag(
+                        for: AppConstants
+                            .Strings
+                            .ChatPageViewService
+                            .InputBar
+                            .consentButtonSemanticTag
+                    )
+                })
+            ))
         ).present(translating: [])
         return nil
     }

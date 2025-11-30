@@ -62,7 +62,10 @@ public final class MediaActionHandlerService {
                     selectDocumentAction,
                     selectPhotoOrVideoAction,
                 ],
-                cancelButtonTitle: Localized(.cancel).wrappedValue
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                sourceItem: .custom(.view(
+                    viewController.messageInputBar.leftStackView.attachMediaButton
+                ))
             ).present(translating: [.actions()])
         }
     }

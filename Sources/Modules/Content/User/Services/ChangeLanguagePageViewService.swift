@@ -43,7 +43,10 @@ public struct ChangeLanguagePageViewService {
                 actions: [
                     applyAndExitAction,
                     .cancelAction,
-                ]
+                ],
+                sourceItem: .custom(.string(
+                    "Confirm".localized
+                ))
             ).present(translating: [
                 .actions([applyAndExitAction]),
                 .message,

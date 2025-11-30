@@ -127,7 +127,10 @@ public final class OnboardingService {
         await AKActionSheet(
             message: "I agree to help maintain a community of respect towards others via my personal conduct on this app.",
             actions: [agreeAction],
-            cancelButtonTitle: "I Do Not Agree"
+            cancelButtonTitle: "I Do Not Agree",
+            sourceItem: .custom(.string(
+                "Finish".localized
+            ))
         ).present()
 
         return cancelled

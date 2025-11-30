@@ -98,6 +98,48 @@ extension Message: MessageType {
 public extension Message {
     // MARK: - Properties
 
+    var attributedSystemString: NSAttributedString? {
+        typealias Colors = AppConstants.Colors.SystemMessageCell
+        typealias Floats = AppConstants.CGFloats.SystemMessageCell
+
+        guard isSystemMessage,
+              let text = systemLocalized.translation?.output,
+              let dateString = sentDate.chatPageMessageSeparatorAttributedDateString else { return nil }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        paragraphStyle.lineSpacing = Floats.labelParagraphStyleLineSpacing
+
+        let mutableDateString = NSMutableAttributedString(attributedString: dateString)
+        mutableDateString.addAttributes(
+            [.paragraphStyle: paragraphStyle],
+            range: .init(
+                location: 0,
+                length: mutableDateString.length
+            )
+        )
+
+        let activityString = text.sanitized.attributed(.init(
+            [
+                .font: UIFont.systemFont(ofSize: Floats.activityStringSystemFontSize),
+                .foregroundColor: Colors.activityStringForeground,
+            ],
+            secondaryAttributes: [.init(
+                [
+                    .font: UIFont.boldSystemFont(ofSize: Floats.activityStringSystemFontSize),
+                    .foregroundColor: Colors.activityStringForeground,
+                ],
+                stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
+            )]
+        ))
+
+        let combinedString = NSMutableAttributedString(attributedString: mutableDateString)
+        combinedString.append(NSAttributedString(string: "\n"))
+        combinedString.append(activityString)
+
+        return combinedString
+    }
+
     var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
 
     static var consentRequestMessageID: String?
@@ -123,7 +165,14 @@ public extension Message {
         ).wrappedValue
 
         guard let fullConversation else { return inputMatches }
-        let firstMessageID = fullConversation.messages?.first?.id ?? fullConversation.messageIDs.first
+        let firstMessageID = fullConversation
+            .messages?
+            .filteringSystemMessages
+            .first?
+            .id ??
+            fullConversation
+            .messageIDs
+            .first
         let isConsentMessage = inputMatches && (id == CommonConstants.newMessageID || id == firstMessageID)
         Message.consentRequestMessageID = (isConsentMessage && id != CommonConstants.newMessageID) ? id : Message.consentRequestMessageID
         return isConsentMessage

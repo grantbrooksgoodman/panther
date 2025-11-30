@@ -61,7 +61,8 @@ public struct ChangeLanguagePageView: View {
 
                         Components.capsuleButton(
                             viewModel.strings.value(for: .confirmButtonText),
-                            font: .systemSemibold
+                            font: .systemSemibold,
+                            isInspectable: UIApplication.v26FeaturesEnabled
                         ) {
                             viewModel.send(.confirmButtonTapped)
                         }

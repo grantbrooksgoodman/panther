@@ -67,6 +67,7 @@ public struct ContactSelectorPageReducer: Reducer {
 
         public var noResultsLabelText: String {
             if entryPoint == .chatInfoPageView,
+               !searchQuery.isBlank,
                searchQuery == searchQuery.digits {
                 return strings.value(for: .noResultsLabelText)
             }
@@ -83,7 +84,16 @@ public struct ContactSelectorPageReducer: Reducer {
             entryPoint == .chatInfoPageView ? strings.value(for: .searchBarPlaceholderText) : Localized(.search).wrappedValue
         }
 
-        public var sections: [String: [ContactPair]] { .init(grouping: queriedContactPairs, by: { $0.contact.tableViewSectionTitle }) }
+        public var sections: [String: [ContactPair]] {
+            .init(
+                grouping: queriedContactPairs,
+                by: { $0.contact.tableViewSectionTitle }
+            )
+        }
+
+        public var shouldShowInviteButton: Bool {
+            contactPairs.isEmpty || entryPoint == .newChatPageView
+        }
 
         /* MARK: Init */
 

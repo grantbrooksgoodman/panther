@@ -19,30 +19,38 @@ import MessageKit
 public final class SystemMessageCell: UICollectionViewCell {
     // MARK: - Constants Accessors
 
-    private typealias Colors = AppConstants.Colors.SystemMessageCell
     private typealias Floats = AppConstants.CGFloats.SystemMessageCell
 
     // MARK: - Properties
 
     private let label = UILabel()
 
+    private var attributedString: NSAttributedString?
+
     // MARK: - Init
 
     override public init(frame: CGRect) {
         super.init(frame: frame)
-        setupSubviews()
+        contentView.addSubview(label)
     }
 
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        setupSubviews()
+        contentView.addSubview(label)
     }
 
     // MARK: - Methods
 
     override public func layoutSubviews() {
         super.layoutSubviews()
+
+        defer { setLabelProperties() }
         label.frame = contentView.bounds
+
+        guard let attributedString else { return }
+        label.attributedText = attributedString.scaledToFit(
+            width: label.bounds.width
+        )
     }
 
     func configure(
@@ -50,88 +58,46 @@ public final class SystemMessageCell: UICollectionViewCell {
         at indexPath: IndexPath,
         and messagesCollectionView: MessagesCollectionView
     ) {
-        guard let message = message as? Message,
-              let text = message.translation?.output,
-              let dateString = message.sentDate.chatPageMessageSeparatorAttributedDateString else { return }
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .center
-        paragraphStyle.lineSpacing = Floats.labelParagraphStyleLineSpacing
-
-        let mutableDateString = NSMutableAttributedString(attributedString: dateString)
-        mutableDateString.addAttributes(
-            [.paragraphStyle: paragraphStyle],
-            range: .init(
-                location: 0,
-                length: mutableDateString.length
-            )
-        )
-
-        let activityString = text.sanitized.attributed(.init(
-            [
-                .font: UIFont.systemFont(ofSize: Floats.activityStringSystemFontSize),
-                .foregroundColor: Colors.activityStringForeground,
-            ],
-            secondaryAttributes: [.init(
-                [
-                    .font: UIFont.boldSystemFont(ofSize: Floats.activityStringSystemFontSize),
-                    .foregroundColor: Colors.activityStringForeground,
-                ],
-                stringRanges: text.matches(of: /⌘(.*?)⌘/).map { String($0.1) }
-            )]
-        ))
-
-        let combinedString = NSMutableAttributedString(attributedString: mutableDateString)
-        combinedString.append(NSAttributedString(string: "\n"))
-        combinedString.append(activityString)
-
-        label.attributedText = combinedString.scaledToFit(
-            label.bounds.size,
-            minimumScaleFactor: Floats.labelMinimumScaleFactor
-        )
-
-        label.numberOfLines = Int(Floats.labelNumberOfLines)
-        label.textAlignment = .center
+        attributedString = (message as? Message)?.attributedSystemString
+        setNeedsLayout()
     }
 
-    private func setupSubviews() {
-        contentView.addSubview(label)
+    private func setLabelProperties() {
+        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = Int(Floats.labelNumberOfLines)
         label.textAlignment = .center
     }
 }
 
 private extension NSAttributedString {
     func scaledToFit(
-        _ targetSize: CGSize,
-        minimumScaleFactor: CGFloat = 0.5,
-        maximumScaleFactor: CGFloat = 1.0
+        font: UIFont = .systemFont(ofSize: AppConstants.CGFloats.SystemMessageCell.activityStringSystemFontSize),
+        lineSpacing: CGFloat = AppConstants.CGFloats.SystemMessageCell.labelParagraphStyleLineSpacing,
+        minimumScaleFactor: CGFloat = AppConstants.CGFloats.SystemMessageCell.labelMinimumScaleFactor,
+        maximumScaleFactor: CGFloat = 1,
+        numberOfLines: Int = Int(AppConstants.CGFloats.SystemMessageCell.labelNumberOfLines),
+        width: CGFloat,
     ) -> NSAttributedString {
-        guard targetSize.height > 0,
-              targetSize.width > 0 else { return self }
+        guard numberOfLines > 0,
+              width > 0 else { return self }
 
         let boundingRectangle = boundingRect(
             with: .init(
-                width: targetSize.width,
+                width: width,
                 height: .greatestFiniteMagnitude
             ),
-            options: [
-                .usesFontLeading,
-                .usesLineFragmentOrigin,
-            ],
+            options: [.usesFontLeading, .usesLineFragmentOrigin],
             context: nil
         )
 
-        guard boundingRectangle.height > 0,
-              boundingRectangle.width > 0 else { return self }
+        guard boundingRectangle.height > 0 else { return self }
 
-        let heightScale = targetSize.height / boundingRectangle.height
-        let widthScale = targetSize.width / boundingRectangle.width
+        let maximumTextHeight = CGFloat(numberOfLines) * (font.lineHeight + lineSpacing)
+        let heightScale = maximumTextHeight / boundingRectangle.height
+        let widthScale = width / max(boundingRectangle.width, 1)
 
-        var scale = min(
-            heightScale,
-            widthScale,
-            maximumScaleFactor
-        )
+        var scale = min(heightScale, widthScale, maximumScaleFactor)
+        scale *= 0.98 // Safety margin so we don't land exactly on the truncation edge
 
         scale = max(scale, minimumScaleFactor)
         guard abs(scale - 1.0) >= 0.01 else { return self }

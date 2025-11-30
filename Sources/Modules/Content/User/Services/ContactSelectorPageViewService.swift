@@ -86,29 +86,39 @@ public struct ContactSelectorPageViewService {
                   let conversation = clientSession.conversation.fullConversation,
                   !conversation.participants.map(\.userID).contains(user.id) else { return }
 
-            guard await AKConfirmationAlert(
-                message: user.displayName,
-                cancelButtonTitle: Localized(.cancel).wrappedValue,
-                confirmButtonTitle: "Add to Conversation"
-            ).present(translating: [.confirmButtonTitle]) else { return }
+            let addToConversationAction: AKAction = .init(
+                "Add to Conversation",
+                style: .preferred
+            ) {
+                Task { @MainActor in
+                    self.navigation.navigate(to: .chat(.sheet(.none)))
+                    Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-            navigation.navigate(to: .chat(.sheet(.none)))
-            Observables.chatInfoPageLoadingStateUpdated.trigger()
+                    let addToConversationResult = await self.clientSession.activity.addToConversation(
+                        user.id,
+                        conversation: conversation
+                    )
 
-            let addToConversationResult = await clientSession.activity.addToConversation(
-                user.id,
-                conversation: conversation
-            )
+                    switch addToConversationResult {
+                    case let .success(conversation):
+                        self.clientSession.conversation.setCurrentConversation(conversation)
+                        self.chatPageViewService.reloadCollectionView()
+                        Observables.currentConversationActivityChanged.trigger()
 
-            switch addToConversationResult {
-            case let .success(conversation):
-                clientSession.conversation.setCurrentConversation(conversation)
-                chatPageViewService.reloadCollectionView()
-                Observables.currentConversationActivityChanged.trigger()
-
-            case let .failure(exception):
-                Logger.log(exception, with: .toast)
+                    case let .failure(exception):
+                        Logger.log(exception, with: .toast)
+                    }
+                }
             }
+
+            await AKActionSheet(
+                message: UIApplication.v26FeaturesEnabled ? nil : user.displayName,
+                actions: [addToConversationAction],
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                sourceItem: .custom(.string(
+                    user.displayName.components(separatedBy: " ").last ?? user.displayName
+                ))
+            ).present(translating: [.actions([])])
 
         case .newChatPageView:
             navigation.navigate(to: .chat(.sheet(.none)))

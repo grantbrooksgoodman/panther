@@ -55,7 +55,7 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
         }
 
         if let leafViewController = uiApplication.keyViewController?.leafViewController {
-            parameters["View ID"] = String(type(of: leafViewController))
+            parameters["View ID"] = leafViewController.descriptor
         }
 
         return parameters

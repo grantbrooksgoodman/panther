@@ -67,7 +67,7 @@ public struct ContactSelectorPageView: View {
                 }
             }
             .v26Header(
-                leftItem: viewModel.entryPoint == .chatInfoPageView ? nil : headerLeftItem,
+                leftItem: viewModel.shouldShowInviteButton ? headerLeftItem : nil,
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: headerRightItem,
                 attributes: .init(
@@ -76,14 +76,16 @@ public struct ContactSelectorPageView: View {
                     sizeClass: .sheet
                 )
             )
+            .if(viewModel.shouldShowInviteButton) {
+                $0.navigationBarItemGlassTint(
+                    Colors.navigationBarItemGlassTint,
+                    for: .leading
+                )
+            }
             .if(
                 viewModel.entryPoint == .newChatPageView,
                 { body in
                     body
-                        .navigationBarItemGlassTint(
-                            Colors.navigationBarItemGlassTint,
-                            for: .leading
-                        )
                         .redrawsOnTraitCollectionChange()
                 },
                 else: { body in
@@ -134,7 +136,10 @@ public struct ContactSelectorPageView: View {
                     Section(header: Components.text(letter)) {
                         ForEach(0 ..< pairsForLetter.count, id: \.self) { index in
                             if let contactPair = pairsForLetter.itemAt(index) {
-                                ContactPairCellView(contactPair: contactPair) {
+                                ContactPairCellView(
+                                    contactPair: contactPair,
+                                    isInspectable: UIApplication.v26FeaturesEnabled
+                                ) {
                                     viewModel.send(.selectedContactPairChanged(contactPair))
                                 }
                             }

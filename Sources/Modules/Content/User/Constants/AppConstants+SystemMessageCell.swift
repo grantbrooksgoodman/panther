@@ -18,8 +18,10 @@ import AppSubsystem
 public extension AppConstants.CGFloats {
     enum SystemMessageCell {
         public static let activityStringSystemFontSize: CGFloat = 12
-        public static let labelMinimumScaleFactor: CGFloat = 0.1
-        public static let labelNumberOfLines: CGFloat = 2
+        public static let additionalVerticalPadding: CGFloat = 10
+        public static let defaultHeight: CGFloat = 44
+        public static let labelMinimumScaleFactor: CGFloat = 0.9
+        public static let labelNumberOfLines: CGFloat = 3
         public static let labelParagraphStyleLineSpacing: CGFloat = 4
     }
 }

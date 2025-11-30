@@ -10,6 +10,9 @@
 import Foundation
 import UIKit
 
+/* Proprietary */
+import AppSubsystem
+
 /* 3rd-party */
 import MessageKit
 
@@ -51,13 +54,52 @@ private final class SizeCalculator: MessageSizeCalculator {
     // MARK: - Size for Item
 
     override public func sizeForItem(at indexPath: IndexPath) -> CGSize {
+        @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
+
         guard let layout else { return .zero }
-        let collectionViewWidth = layout.collectionView?.bounds.width ?? 0
+
         let contentInset = layout.collectionView?.contentInset ?? .zero
-        let inset = layout.sectionInset.left + layout.sectionInset.right + contentInset.left + contentInset.right
+        let fullInset = contentInset.left + contentInset.right +
+            layout.sectionInset.left + layout.sectionInset.right
+        let cellWidth = (layout.collectionView?.bounds.width ?? 0) - fullInset
+
+        typealias Colors = AppConstants.Colors.SystemMessageCell
+        typealias Floats = AppConstants.CGFloats.SystemMessageCell
+
+        guard let message = conversation?.messages?.itemAt(indexPath.section),
+              let attributedString = message.attributedSystemString else {
+            return .init(
+                width: cellWidth,
+                height: Floats.defaultHeight
+            )
+        }
+
+        let boundingRectangle = attributedString.boundingRect(
+            with: .init(
+                width: cellWidth,
+                height: .greatestFiniteMagnitude
+            ),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            context: nil
+        )
+
+        let lineHeight = UIFont.systemFont(
+            ofSize: Floats.activityStringSystemFontSize
+        ).lineHeight + Floats.labelParagraphStyleLineSpacing
+
+        let textHeight = min(
+            boundingRectangle.height,
+            lineHeight * Floats.labelNumberOfLines
+        )
+
+        let cellHeight = ceil(max(
+            Floats.defaultHeight,
+            textHeight + Floats.additionalVerticalPadding
+        ))
+
         return .init(
-            width: collectionViewWidth - inset,
-            height: 44
+            width: cellWidth,
+            height: cellHeight
         )
     }
 }

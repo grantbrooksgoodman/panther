@@ -318,7 +318,7 @@ public final class ConversationsPageViewService {
             uiApplication.presentedViews
                 .compactMap { $0 as? UISearchBar }
                 .flatMap(\.traversedSubviews)
-                .filter { String(type(of: $0)) == "_UISearchBarSearchFieldBackgroundView" }
+                .filter { $0.descriptor == "_UISearchBarSearchFieldBackgroundView" }
                 .filter { $0.backgroundColor != .init(hex: 0xE7E7E9) }
         }
 

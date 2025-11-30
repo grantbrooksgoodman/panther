@@ -56,7 +56,8 @@ public struct ChatParticipantView: View {
                 Group {
                     Components.text(
                         participant.displayName,
-                        font: .systemSemibold
+                        font: .systemSemibold,
+                        isInspectable: UIApplication.v26FeaturesEnabled
                     )
 
                     if let firstUser = participant.firstUser {

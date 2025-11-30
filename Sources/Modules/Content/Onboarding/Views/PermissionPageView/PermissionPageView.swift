@@ -59,7 +59,8 @@ public struct PermissionPageView: View {
                     Components.capsuleButton(
                         viewModel.strings.value(for: .finishButtonText),
                         font: .systemSemibold,
-                        foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled
+                        foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled,
+                        isInspectable: UIApplication.v26FeaturesEnabled
                     ) {
                         viewModel.send(.finishButtonTapped)
                     }

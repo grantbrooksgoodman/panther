@@ -99,7 +99,7 @@ public struct AnalyticsService {
         }
 
         if let leafViewController {
-            parameters["view_id"] = String(type(of: leafViewController))
+            parameters["view_id"] = leafViewController.descriptor
         }
 
         return parameters

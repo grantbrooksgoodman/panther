@@ -139,7 +139,9 @@ public extension Conversation {
             id,
             activities: activities,
             messageIDs: messageIDs,
-            messages: messages?.filter { $0.sentDate >= currentUserAddedActivity.date },
+            messages: messages?.filter {
+                $0.isConsentMessage || $0.sentDate >= currentUserAddedActivity.date
+            },
             metadata: metadata,
             participants: participants,
             reactionMetadata: reactionMetadata,

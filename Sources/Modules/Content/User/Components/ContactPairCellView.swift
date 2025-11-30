@@ -28,13 +28,12 @@ public struct ContactPairCellView: View {
 
     // MARK: - Properties
 
-    // String
-    @Localized(.blocked) private var blockedLabelText: String
-    @Localized(.myAccount) private var myAccountLabelText: String
-
-    // Other
     private let action: (() -> Void)?
     private let contactPair: ContactPair
+    private let isInspectable: Bool
+
+    @Localized(.blocked) private var blockedLabelText: String
+    @Localized(.myAccount) private var myAccountLabelText: String
 
     // MARK: - Computed Properties
 
@@ -51,8 +50,13 @@ public struct ContactPairCellView: View {
 
     // MARK: - Init
 
-    public init(contactPair: ContactPair, action: (() -> Void)? = nil) {
+    public init(
+        contactPair: ContactPair,
+        isInspectable: Bool = false,
+        action: (() -> Void)? = nil
+    ) {
         self.contactPair = contactPair
+        self.isInspectable = isInspectable
         self.action = action
     }
 
@@ -86,7 +90,8 @@ public struct ContactPairCellView: View {
                 Components.text(
                     contactPair.contact.lastName,
                     font: .systemSemibold,
-                    foregroundColor: foregroundColor
+                    foregroundColor: foregroundColor,
+                    isInspectable: isInspectable
                 )
 
                 if contactPair.containsBlockedUser {

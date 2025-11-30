@@ -16,7 +16,6 @@ import AppSubsystem
 import Networking
 import Translator
 
-// wiftlint:disable:next type_body_length
 public struct MessageRetranslationService {
     // MARK: - Dependencies
 
