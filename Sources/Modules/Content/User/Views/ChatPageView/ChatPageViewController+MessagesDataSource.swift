@@ -25,7 +25,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Properties
 
-    public var currentSender: MessageKit.SenderType {
+    var currentSender: MessageKit.SenderType {
         // swiftformat:disable acronyms
         Message.Sender(displayName: "", senderId: User.currentUserID ?? "")
         // swiftformat:enable acronyms
@@ -33,7 +33,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Audio Tint Color
 
-    public func audioTintColor(
+    func audioTintColor(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -45,7 +45,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Cell Bottom Label Attributed Text
 
-    public func cellBottomLabelAttributedText(
+    func cellBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
@@ -126,7 +126,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Cell Top Label Attributed Text
 
-    public func cellTopLabelAttributedText(
+    func cellTopLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
@@ -139,7 +139,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Message Bottom Label Attributed Text
 
-    public func messageBottomLabelAttributedText(
+    func messageBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
@@ -152,7 +152,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Message for Item
 
-    public func messageForItem(
+    func messageForItem(
         at indexPath: IndexPath,
         in messagesCollectionView: MessageKit.MessagesCollectionView
     ) -> MessageKit.MessageType {
@@ -163,7 +163,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Message Timestamp Label Attributed Text
 
-    public func messageTimestampLabelAttributedText(
+    func messageTimestampLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
@@ -179,7 +179,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Message Top Label Attributed Text
 
-    public func messageTopLabelAttributedText(
+    func messageTopLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
     ) -> NSAttributedString? {
@@ -232,7 +232,7 @@ extension ChatPageViewController: MessagesDataSource {
 
     // MARK: - Number of Sections
 
-    public func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
+    func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         currentConversation?.messages?.count ?? 0
     }
 }

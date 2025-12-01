@@ -14,18 +14,18 @@ import SwiftUI
 import AppSubsystem
 import Networking
 
-public struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
+struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
     // MARK: - Properties
 
     private let defaultNetworkActivityIndicatorDelegate = DefaultNetworkActivityIndicatorDelegate()
 
     // MARK: - Computed Properties
 
-    public var backgroundColor: Color {
-        Application.isInPrevaricationMode ? .init(uiColor: .systemBlue) : .accent
+    var backgroundColor: Color {
+        .init(uiColor: .accentOrSystemBlue)
     }
 
-    public var progressViewTintColor: Color {
+    var progressViewTintColor: Color {
         ThemeService.isAppDefaultThemeApplied &&
             ThemeService.isDarkModeActive &&
             UIApplication.v26FeaturesEnabled ? .black : .white
@@ -33,11 +33,11 @@ public struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate 
 
     // MARK: - Methods
 
-    public func hide() {
+    func hide() {
         defaultNetworkActivityIndicatorDelegate.hide()
     }
 
-    public func show() {
+    func show() {
         defaultNetworkActivityIndicatorDelegate.show()
         Observables.networkActivityOccurred.trigger()
     }

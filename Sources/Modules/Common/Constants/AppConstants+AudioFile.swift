@@ -14,10 +14,10 @@ import AppSubsystem
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum AudioFile {
-        public static let durationNotificationUserInfoKey = "duration"
-        public static let setDurationNotificationName = "setDuration"
-        public static let urlNotificationUserInfoKey = "url"
+        static let durationNotificationUserInfoKey = "duration"
+        static let setDurationNotificationName = "setDuration"
+        static let urlNotificationUserInfoKey = "url"
     }
 }

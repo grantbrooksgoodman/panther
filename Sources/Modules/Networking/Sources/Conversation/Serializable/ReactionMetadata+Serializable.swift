@@ -16,7 +16,7 @@ import Networking
 extension ReactionMetadata: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = ReactionMetadata
+    typealias T = ReactionMetadata
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
@@ -28,7 +28,7 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         [
             Keys.messageID.rawValue: messageID,
             Keys.reactions.rawValue: reactions.map(\.encoded),
@@ -37,7 +37,7 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.messageID.rawValue] is String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]],
               encodedReactions.allSatisfy({ Reaction.canDecode(from: $0) }) else { return false }
@@ -45,7 +45,7 @@ extension ReactionMetadata: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<ReactionMetadata, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<ReactionMetadata, Exception> {
         guard let messageID = data[Keys.messageID.rawValue] as? String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]] else {
             return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))

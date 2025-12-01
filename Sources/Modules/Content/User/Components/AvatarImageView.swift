@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct AvatarImageView: View {
+struct AvatarImageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.AvatarImageView
@@ -29,7 +29,7 @@ public struct AvatarImageView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ image: UIImage?,
         badgeCount: Int = 0,
         size: CGSize? = nil
@@ -41,7 +41,7 @@ public struct AvatarImageView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         Group {
             if let image {
                 Image(uiImage: image)

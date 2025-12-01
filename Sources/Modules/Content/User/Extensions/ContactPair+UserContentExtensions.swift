@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension ContactPair {
+extension ContactPair {
     // MARK: - Properties
 
     var containsBlockedUser: Bool {

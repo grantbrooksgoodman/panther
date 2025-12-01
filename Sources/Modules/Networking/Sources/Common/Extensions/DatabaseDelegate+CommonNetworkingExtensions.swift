@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public extension DatabaseDelegate {
+extension DatabaseDelegate {
     func clearTemporaryCaches() {
         CoreDatabaseStore.filter { $0.value.expiryThreshold != .seconds(300) }
     }

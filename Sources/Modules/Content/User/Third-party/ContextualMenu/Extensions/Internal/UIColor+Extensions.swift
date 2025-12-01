@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public extension UIColor {
+extension UIColor {
     var asImage: UIImage? {
         let frame = CGRect(origin: .zero, size: .init(width: 1, height: 1))
 

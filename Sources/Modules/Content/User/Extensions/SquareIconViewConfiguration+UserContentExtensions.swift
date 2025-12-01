@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public extension SquareIconView.Configuration {
+extension SquareIconView.Configuration {
     static func penPalsIcon(
         backgroundColor: Color = .purple,
         includesShadow: Bool = false

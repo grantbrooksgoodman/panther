@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension TranslatedLabelStringCollection {
+extension TranslatedLabelStringCollection {
     enum PenPalsPermissionPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
@@ -25,12 +25,12 @@ public extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        public var alternate: String? { nil }
+        var alternate: String? { nil }
     }
 }
 
-public enum PenPalsPermissionPageViewStrings: TranslatedLabelStrings {
-    public static var keyPairs: [TranslationInputMap] {
+enum PenPalsPermissionPageViewStrings: TranslatedLabelStrings {
+    static var keyPairs: [TranslationInputMap] {
         TranslatedLabelStringCollection.PenPalsPermissionPageViewStringKey.allCases
             .map {
                 TranslationInputMap(

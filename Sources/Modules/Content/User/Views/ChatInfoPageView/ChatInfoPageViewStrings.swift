@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension TranslatedLabelStringCollection {
+extension TranslatedLabelStringCollection {
     enum ChatInfoPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
@@ -26,7 +26,7 @@ public extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        public var alternate: String? {
+        var alternate: String? {
             switch self {
             case .participantCountLabelText: "persons"
             case .segmentedControlMediaOptionText: "Shared Media"
@@ -36,8 +36,8 @@ public extension TranslatedLabelStringCollection {
     }
 }
 
-public enum ChatInfoPageViewStrings: TranslatedLabelStrings {
-    public static var keyPairs: [TranslationInputMap] {
+enum ChatInfoPageViewStrings: TranslatedLabelStrings {
+    static var keyPairs: [TranslationInputMap] {
         TranslatedLabelStringCollection.ChatInfoPageViewStringKey.allCases
             .map {
                 TranslationInputMap(

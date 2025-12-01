@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ContactSelectorPageView: View {
+struct ContactSelectorPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ContactSelectorPageView
@@ -22,7 +22,7 @@ public struct ContactSelectorPageView: View {
 
     // MARK: - Types
 
-    public enum EntryPoint {
+    enum EntryPoint {
         case chatInfoPageView
         case newChatPageView
     }
@@ -42,13 +42,13 @@ public struct ContactSelectorPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ContactSelectorPageReducer>) {
+    init(_ viewModel: ViewModel<ContactSelectorPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground
@@ -64,6 +64,10 @@ public struct ContactSelectorPageView: View {
                     } else {
                         noResultsView
                     }
+                }
+                .if(UIApplication.v26FeaturesEnabled) {
+                    $0
+                        .padding(.bottom, NavigationBar.height)
                 }
             }
             .v26Header(

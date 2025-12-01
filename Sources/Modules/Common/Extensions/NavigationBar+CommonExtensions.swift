@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension NavigationBar {
+extension NavigationBar {
     // MARK: - Types
 
     enum ItemPlacement: CaseIterable {

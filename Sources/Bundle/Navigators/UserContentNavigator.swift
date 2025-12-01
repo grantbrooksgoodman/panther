@@ -12,28 +12,28 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct UserContentNavigatorState: NavigatorState {
+struct UserContentNavigatorState: NavigatorState {
     // MARK: - Types
 
-    public enum ModalPaths: Paths {}
+    enum ModalPaths: Paths {}
 
-    public enum SeguePaths: Paths {
+    enum SeguePaths: Paths {
         case chat(Conversation, focusedMessageID: String? = nil)
     }
 
-    public enum SheetPaths: Paths {
+    enum SheetPaths: Paths {
         case newChat
         case settings
     }
 
     // MARK: - Properties
 
-    public var modal: ModalPaths?
-    public var sheet: SheetPaths?
-    public var stack: [SeguePaths] = []
+    var modal: ModalPaths?
+    var sheet: SheetPaths?
+    var stack: [SeguePaths] = []
 }
 
-public enum UserContentNavigator {
+enum UserContentNavigator {
     static func navigate(to route: RootNavigationService.Route.UserContentRoute, on state: inout UserContentNavigatorState) {
         switch route {
         case .pop:
@@ -52,7 +52,7 @@ public enum UserContentNavigator {
     }
 }
 
-public extension RootNavigationService.Route {
+extension RootNavigationService.Route {
     enum UserContentRoute {
         case pop
         case push(UserContentNavigatorState.SeguePaths)

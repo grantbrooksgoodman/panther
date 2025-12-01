@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct ConnectionStatusServiceEffectID: Hashable {
+struct ConnectionStatusServiceEffectID: Hashable {
     // MARK: - Properties
 
-    public let rawValue: String
+    let rawValue: String
 
     // MARK: - Init
 
-    public init(_ rawValue: String) {
+    init(_ rawValue: String) {
         self.rawValue = rawValue
     }
 }
 
-public extension ConnectionStatusServiceEffectID {
+extension ConnectionStatusServiceEffectID {
     static let checkForUpdates: ConnectionStatusServiceEffectID = .init("checkForUpdates")
     static let configureInputBar: ConnectionStatusServiceEffectID = .init("configureInputBar")
     static let showOfflineModeToast: ConnectionStatusServiceEffectID = .init("showOfflineModeToast")

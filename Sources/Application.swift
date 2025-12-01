@@ -14,11 +14,11 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public enum Application {
+enum Application {
     // MARK: - Properties
 
-    public static var isInPrevaricationMode = false
-    public static var loadStartDate: Date = .now
+    static var isInPrevaricationMode = false
+    static var loadStartDate: Date = .now
 
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
@@ -31,7 +31,7 @@ public enum Application {
     // MARK: - Initialize
 
     @MainActor
-    public static func initialize() {
+    static func initialize() {
         /* MARK: Dependencies */
 
         @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool

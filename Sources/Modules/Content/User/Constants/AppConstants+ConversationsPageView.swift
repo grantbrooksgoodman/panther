@@ -15,30 +15,30 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ConversationsPageView {
-        public static let composeToolbarButtonAnimationAmount: CGFloat = 1.4
-        public static let composeToolbarButtonAnimationDelay: CGFloat = 0.1
-        public static let composeToolbarButtonAnimationDuration: CGFloat = 0.4
-        public static let toolbarButtonFrameMinHeight: CGFloat = 30
-        public static let toolbarButtonFrameMinWidth: CGFloat = 30
+        static let composeToolbarButtonAnimationAmount: CGFloat = 1.4
+        static let composeToolbarButtonAnimationDelay: CGFloat = 0.1
+        static let composeToolbarButtonAnimationDuration: CGFloat = 0.4
+        static let toolbarButtonFrameMinHeight: CGFloat = 30
+        static let toolbarButtonFrameMinWidth: CGFloat = 30
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ConversationsPageView {
-        public static let composeToolbarButtonForeground: Color = .init(
+        static let composeToolbarButtonForeground: Color = .init(
             uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
 
         // swiftlint:disable identifier_name
-        public static let createRandomMessagesToolbarButtonForeground: Color = .purple
-        public static let deleteConversationsToolbarButtonForeground: Color = .red
+        static let createRandomMessagesToolbarButtonForeground: Color = .purple
+        static let deleteConversationsToolbarButtonForeground: Color = .red
         // swiftlint:enable identifier_name
 
-        public static let settingsToolbarButtonForeground: Color = .init(
+        static let settingsToolbarButtonForeground: Color = .init(
             uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
     }
@@ -46,11 +46,11 @@ public extension AppConstants.Colors {
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ConversationsPageView { // swiftlint:disable identifier_name line_length
-        public static let composeToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
-        public static let createRandomMessagesToolbarButtonImageSystemName = "sparkles.2"
-        public static let deleteConversationsToolbarButtonImageSystemName = "trash"
-        public static let settingsToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape" // swiftlint:enable identifier_name line_length
+        static let composeToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
+        static let createRandomMessagesToolbarButtonImageSystemName = "sparkles.2"
+        static let deleteConversationsToolbarButtonImageSystemName = "trash"
+        static let settingsToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape" // swiftlint:enable identifier_name line_length
     }
 }

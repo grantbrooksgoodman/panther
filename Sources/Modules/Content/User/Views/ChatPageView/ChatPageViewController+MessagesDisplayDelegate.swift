@@ -25,7 +25,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Background Color
 
-    public func backgroundColor(
+    func backgroundColor(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -35,7 +35,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Configure Audio Cell
 
-    public func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
+    func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
         @Dependency(\.chatPageViewService.audioMessagePlayback) var audioMessagePlaybackService: AudioMessagePlaybackService?
         guard let message = message as? Message else { return }
 
@@ -61,7 +61,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Configure Avatar View
 
-    public func configureAvatarView(
+    func configureAvatarView(
         _ avatarView: AvatarView,
         for message: MessageType,
         at indexPath: IndexPath,
@@ -135,7 +135,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Detector Attributes
 
-    public func detectorAttributes(
+    func detectorAttributes(
         for detector: DetectorType,
         and message: MessageType,
         at indexPath: IndexPath
@@ -154,7 +154,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Enabled Detectors
 
-    public func enabledDetectors(
+    func enabledDetectors(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -164,7 +164,7 @@ extension ChatPageViewController: MessagesDisplayDelegate {
 
     // MARK: - Message Style
 
-    public func messageStyle(
+    func messageStyle(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -191,8 +191,8 @@ extension ChatPageViewController: MessagesDisplayDelegate {
     }
 }
 
-public enum ContactInitialsImageCache {
-    public static func clearCache() {
+enum ContactInitialsImageCache {
+    static func clearCache() {
         _ContactInitialsImageCache.clearCache()
     }
 }

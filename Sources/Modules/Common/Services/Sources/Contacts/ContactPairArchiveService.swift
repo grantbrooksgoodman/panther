@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class ContactPairArchiveService {
+final class ContactPairArchiveService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -50,13 +50,13 @@ public final class ContactPairArchiveService {
 
     // MARK: - Init
 
-    public init() {
+    init() {
         persistValuesForNotificationExtension()
     }
 
     // MARK: - Addition
 
-    public func addValues(_ contactPairs: [ContactPair]) {
+    func addValues(_ contactPairs: [ContactPair]) {
         var values = archive
 
         for contactPair in contactPairs where !values.contains(contactPair) {
@@ -86,7 +86,7 @@ public final class ContactPairArchiveService {
 
     // MARK: - Removal
 
-    public func clearArchive() {
+    func clearArchive() {
         archive = []
         cachedContactPairsForPhoneNumbers = nil
         coreUtilities.clearCaches([.contactImage])
@@ -94,7 +94,7 @@ public final class ContactPairArchiveService {
 
     // MARK: - Retrieval
 
-    public func getValue(phoneNumber: PhoneNumber) -> ContactPair? {
+    func getValue(phoneNumber: PhoneNumber) -> ContactPair? {
         if let cachedContactPairsForPhoneNumbers,
            let cachedValue = cachedContactPairsForPhoneNumbers[phoneNumber.compiledNumberString] {
             return cachedValue

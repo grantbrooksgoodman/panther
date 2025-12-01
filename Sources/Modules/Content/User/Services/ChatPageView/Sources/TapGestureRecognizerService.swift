@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class TapGestureRecognizerService {
+final class TapGestureRecognizerService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.attributeDetection) private var attributeDetectionService: AttributeDetectionService
@@ -28,13 +28,13 @@ public final class TapGestureRecognizerService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Configure Gesture Recognizer
 
-    public func configureGestureRecognizer() {
+    func configureGestureRecognizer() {
         let singleTapGesture = UITapGestureRecognizer(
             target: self,
             action: #selector(handleTapGesture(_:))
@@ -54,7 +54,7 @@ public final class TapGestureRecognizerService {
     // MARK: - Handle Tap Gesture
 
     @objc
-    public func handleTapGesture(_ sender: UITapGestureRecognizer) {
+    func handleTapGesture(_ sender: UITapGestureRecognizer) {
         let touchPoint = sender.location(in: viewController.messagesCollectionView)
 
         guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),

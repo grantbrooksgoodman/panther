@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Array where Element == ContactPair {
+extension Array where Element == ContactPair {
     // MARK: - Properties
 
     var uniquedByPhoneNumber: [ContactPair] {
@@ -62,7 +62,7 @@ public extension Array where Element == ContactPair {
     }
 }
 
-public extension Array where Element == Conversation {
+extension Array where Element == Conversation {
     // MARK: - Properties
 
     /// The unique conversations among the array which are visible for the current user,
@@ -108,7 +108,7 @@ public extension Array where Element == Conversation {
     }
 }
 
-public extension Array where Element == Message {
+extension Array where Element == Message {
     // MARK: - Properties
 
     var filteringSystemMessages: [Message] { filter { !$0.isSystemMessage } }
@@ -126,19 +126,19 @@ public extension Array where Element == Message {
     }
 }
 
-public extension Array where Element == MessageRecipientConsentAcknowledgementData {
+extension Array where Element == MessageRecipientConsentAcknowledgementData {
     var firstWithCurrentUserID: MessageRecipientConsentAcknowledgementData? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
-public extension Array where Element == Participant {
+extension Array where Element == Participant {
     var firstWithCurrentUserID: Participant? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
-public extension Array where Element == PenPalsSharingData {
+extension Array where Element == PenPalsSharingData {
     var allShareWithCurrentUser: Bool {
         guard let firstWithCurrentUserID else { return false }
         return filter { $0.userID != firstWithCurrentUserID.userID }
@@ -158,7 +158,7 @@ public extension Array where Element == PenPalsSharingData {
     }
 }
 
-public extension Array where Element == String {
+extension Array where Element == String {
     /// Sorts the array with alphabetically-prefixed strings taking priority.
     var alphabeticallySorted: [String] {
         var alphabetical = [String]()

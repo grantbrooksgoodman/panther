@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum AppGroupDefaultsDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> UserDefaults {
+enum AppGroupDefaultsDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> UserDefaults {
         .init(suiteName: NotificationExtensionConstants.appGroupDefaultsSuiteName) ?? .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var appGroupDefaults: UserDefaults {
         get { self[AppGroupDefaultsDependency.self] }
         set { self[AppGroupDefaultsDependency.self] = newValue }

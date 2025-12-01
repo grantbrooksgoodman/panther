@@ -10,19 +10,19 @@
 import CoreGraphics
 import Foundation
 
-public struct ShadowParameters {
+struct ShadowParameters {
     // MARK: - Properties
 
-    public static let none: ShadowParameters = .init(opacity: 0)
+    static let none: ShadowParameters = .init(opacity: 0)
 
-    public var color: CGColor
-    public var offset: CGSize
-    public var opacity: Float
-    public var radius: CGFloat
+    var color: CGColor
+    var offset: CGSize
+    var opacity: Float
+    var radius: CGFloat
 
     // MARK: - Init
 
-    public init(
+    init(
         color: CGColor = .init(red: 0, green: 0, blue: 0, alpha: 0),
         offset: CGSize = .init(width: 0, height: 1),
         radius: CGFloat = 5,

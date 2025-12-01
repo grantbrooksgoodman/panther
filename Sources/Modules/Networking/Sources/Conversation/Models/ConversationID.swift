@@ -9,15 +9,15 @@
 /* Native */
 import Foundation
 
-public struct ConversationID: Codable, Hashable {
+struct ConversationID: Codable, Hashable {
     // MARK: - Properties
 
-    public let hash: String
-    public let key: String
+    let hash: String
+    let key: String
 
     // MARK: - Init
 
-    public init(key: String, hash: String) {
+    init(key: String, hash: String) {
         self.key = key
         self.hash = hash
     }

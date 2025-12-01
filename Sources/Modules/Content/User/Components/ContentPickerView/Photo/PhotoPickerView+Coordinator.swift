@@ -14,7 +14,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension PhotoPickerView {
+extension PhotoPickerView {
     final class Coordinator: NSObject, PHPickerViewControllerDelegate {
         // MARK: - Dependencies
 
@@ -26,13 +26,13 @@ public extension PhotoPickerView {
 
         // MARK: - Init
 
-        public init(delegate: any ContentPicker<UIImage>) {
+        init(delegate: any ContentPicker<UIImage>) {
             self.delegate = delegate
         }
 
         // MARK: - PHPickerViewControllerDelegate Conformance
 
-        public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             var exception: Exception?
             defer { delegate.dismiss(exception) }
 

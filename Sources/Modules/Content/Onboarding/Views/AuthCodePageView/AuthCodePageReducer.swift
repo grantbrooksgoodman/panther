@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct AuthCodePageReducer: Reducer {
+struct AuthCodePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -25,7 +25,7 @@ public struct AuthCodePageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case backButtonTapped
@@ -40,27 +40,27 @@ public struct AuthCodePageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Bool
-        public var isBackButtonEnabled = true
-        public var isContinueButtonEnabled = false
+        var isBackButtonEnabled = true
+        var isContinueButtonEnabled = false
 
         // Other
-        public var instructionViewStrings: InstructionViewStrings = .empty
-        public var strings: [TranslationOutputMap] = AuthCodePageViewStrings.defaultOutputMap
-        public var verificationCode = ""
-        public var viewState: StatefulView.ViewState = .loading
+        var instructionViewStrings: InstructionViewStrings = .empty
+        var strings: [TranslationOutputMap] = AuthCodePageViewStrings.defaultOutputMap
+        var verificationCode = ""
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

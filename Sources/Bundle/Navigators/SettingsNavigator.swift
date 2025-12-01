@@ -12,25 +12,25 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct SettingsNavigatorState: NavigatorState {
+struct SettingsNavigatorState: NavigatorState {
     // MARK: - Types
 
-    public enum ModalPaths: Paths {}
+    enum ModalPaths: Paths {}
 
-    public enum SeguePaths: Paths {}
+    enum SeguePaths: Paths {}
 
-    public enum SheetPaths: Paths {
+    enum SheetPaths: Paths {
         case inviteQRCode
     }
 
     // MARK: - Properties
 
-    public var modal: ModalPaths?
-    public var sheet: SheetPaths?
-    public var stack: [SeguePaths] = []
+    var modal: ModalPaths?
+    var sheet: SheetPaths?
+    var stack: [SeguePaths] = []
 }
 
-public enum SettingsNavigator {
+enum SettingsNavigator {
     static func navigate(to route: RootNavigationService.Route.SettingsRoute, on state: inout SettingsNavigatorState) {
         switch route {
         case let .sheet(path):
@@ -39,7 +39,7 @@ public enum SettingsNavigator {
     }
 }
 
-public extension RootNavigationService.Route {
+extension RootNavigationService.Route {
     enum SettingsRoute {
         case sheet(SettingsNavigatorState.SheetPaths?)
     }

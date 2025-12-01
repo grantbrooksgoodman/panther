@@ -14,15 +14,15 @@ import AppSubsystem
 
 // swiftlint:disable identifier_name
 
-public final class ChatPageStateService {
+final class ChatPageStateService {
     // MARK: - Properties
 
     // Bool
-    public private(set) var isPresented: Bool {
+    private(set) var isPresented: Bool {
         didSet { didSetIsPresented() }
     }
 
-    public private(set) var isWaitingToUpdateConversations: Bool {
+    private(set) var isWaitingToUpdateConversations: Bool {
         didSet { didSetIsWaitingToUpdateConversations() }
     }
 
@@ -34,25 +34,25 @@ public final class ChatPageStateService {
 
     // MARK: - Init
 
-    public init(isPresented: Bool, isWaitingToUpdateConversations: Bool) {
+    init(isPresented: Bool, isWaitingToUpdateConversations: Bool) {
         self.isPresented = isPresented
         self.isWaitingToUpdateConversations = isWaitingToUpdateConversations
     }
 
     // MARK: - Setters
 
-    public func setIsPresented(_ isPresented: Bool) {
+    func setIsPresented(_ isPresented: Bool) {
         self.isPresented = isPresented
     }
 
-    public func setIsWaitingToUpdateConversations(_ isWaitingToUpdateConversations: Bool) {
+    func setIsWaitingToUpdateConversations(_ isWaitingToUpdateConversations: Bool) {
         self.isWaitingToUpdateConversations = isWaitingToUpdateConversations
     }
 
     // MARK: - Effect Addition
 
     /// Adds an effect to be run once, upon a change in value of `isPresented`.
-    public func addEffectUponIsPresented(
+    func addEffectUponIsPresented(
         changedTo state: Bool,
         id: ChatPageStateServiceEffectID,
         _ effect: @escaping () -> Void
@@ -66,7 +66,7 @@ public final class ChatPageStateService {
     }
 
     /// Adds an effect to be run once, upon a change in value of `isWaitingToUpdateConversations`.
-    public func addEffectUponIsWaitingToUpdateConversations(
+    func addEffectUponIsWaitingToUpdateConversations(
         changedTo state: Bool,
         id: ChatPageStateServiceEffectID,
         _ effect: @escaping () -> Void

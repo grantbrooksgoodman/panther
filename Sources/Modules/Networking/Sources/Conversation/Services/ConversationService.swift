@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct ConversationService {
+struct ConversationService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
@@ -21,17 +21,17 @@ public struct ConversationService {
 
     // MARK: - Properties
 
-    public let archive: ConversationArchiveService
+    let archive: ConversationArchiveService
 
     // MARK: - Init
 
-    public init(archive: ConversationArchiveService) {
+    init(archive: ConversationArchiveService) {
         self.archive = archive
     }
 
     // MARK: - Conversation Creation
 
-    public func createConversation(
+    func createConversation(
         firstMessage: Message,
         isPenPalsConversation: Bool,
         participants: [Participant]
@@ -98,7 +98,7 @@ public struct ConversationService {
 
     // MARK: - Retrieval by ID
 
-    public func getConversations(idKeys: [String]) async -> Callback<[Conversation], Exception> {
+    func getConversations(idKeys: [String]) async -> Callback<[Conversation], Exception> {
         let commonParams = ["ConversationIDs": idKeys]
 
         guard !idKeys.isBangQualifiedEmpty else {
@@ -194,7 +194,7 @@ public struct ConversationService {
 
     // MARK: - Deletion
 
-    public func removeConversationFromUsers(
+    func removeConversationFromUsers(
         userIDs: [String],
         conversationIDKey: String,
         failureStrategy: BatchFailureStrategy = .returnOnFailure

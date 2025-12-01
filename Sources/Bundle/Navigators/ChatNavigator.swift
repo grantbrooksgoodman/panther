@@ -12,25 +12,25 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct ChatNavigatorState: NavigatorState {
+struct ChatNavigatorState: NavigatorState {
     // MARK: - Types
 
-    public enum ModalPaths: Paths {}
+    enum ModalPaths: Paths {}
 
-    public enum SeguePaths: Paths {}
+    enum SeguePaths: Paths {}
 
-    public enum SheetPaths: Paths {
+    enum SheetPaths: Paths {
         case contactSelector
     }
 
     // MARK: - Properties
 
-    public var modal: ModalPaths?
-    public var sheet: SheetPaths?
-    public var stack: [SeguePaths] = []
+    var modal: ModalPaths?
+    var sheet: SheetPaths?
+    var stack: [SeguePaths] = []
 }
 
-public enum ChatNavigator {
+enum ChatNavigator {
     static func navigate(to route: RootNavigationService.Route.ChatRoute, on state: inout ChatNavigatorState) {
         switch route {
         case let .sheet(path):
@@ -39,7 +39,7 @@ public enum ChatNavigator {
     }
 }
 
-public extension RootNavigationService.Route {
+extension RootNavigationService.Route {
     enum ChatRoute {
         case sheet(ChatNavigatorState.SheetPaths?)
     }

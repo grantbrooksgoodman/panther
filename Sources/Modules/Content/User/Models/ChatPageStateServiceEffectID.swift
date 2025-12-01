@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct ChatPageStateServiceEffectID: Hashable {
+struct ChatPageStateServiceEffectID: Hashable {
     // MARK: - Properties
 
-    public let rawValue: String
+    let rawValue: String
 
     // MARK: - Init
 
-    public init(_ rawValue: String) {
+    init(_ rawValue: String) {
         self.rawValue = rawValue
     }
 }
 
-public extension ChatPageStateServiceEffectID {
+extension ChatPageStateServiceEffectID {
     static let deeplinkToOtherChat: ChatPageStateServiceEffectID = .init("deeplinkToOtherChat")
     static let markConversationStale: ChatPageStateServiceEffectID = .init("markConversationStale")
     static let updateAppearance: ChatPageStateServiceEffectID = .init("updateAppearance")

@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct RegionMenuReducer: Reducer {
+struct RegionMenuReducer: Reducer {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.RegionMenu
@@ -26,7 +26,7 @@ public struct RegionMenuReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case isPresentedChanged(Bool)
         case listViewAppeared(proxy: ScrollViewProxy)
         case runIsPresentedEffect(Bool)
@@ -36,26 +36,26 @@ public struct RegionMenuReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Bool
-        public var isPresented: Binding<Bool>
+        var isPresented: Binding<Bool>
 
         // String
-        @Localized(.selectCallingCode) public var headerLabelText
-        @Localized(.noResults) public var noResultsLabelText
-        public var searchQuery = ""
-        public var selectedRegionCode: Binding<String>
+        @Localized(.selectCallingCode) var headerLabelText
+        @Localized(.noResults) var noResultsLabelText
+        var searchQuery = ""
+        var selectedRegionCode: Binding<String>
 
         /* MARK: Computed Properties */
 
-        public var queriedRegionTitles: [String]? {
+        var queriedRegionTitles: [String]? {
             @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
             return regionDetailService.regionTitles(by: .searchTerm(searchQuery))
         }
 
-        public var selectedRegionTitle: String? {
+        var selectedRegionTitle: String? {
             @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
             return regionDetailService.regionTitles(
                 by: .regionCode(selectedRegionCode.wrappedValue),
@@ -65,7 +65,7 @@ public struct RegionMenuReducer: Reducer {
 
         /* MARK: Init */
 
-        public init(
+        init(
             _ isPresented: Binding<Bool>,
             selectedRegionCode: Binding<String>
         ) {
@@ -75,7 +75,7 @@ public struct RegionMenuReducer: Reducer {
 
         /* MARK: Equatable Conformance */
 
-        public static func == (left: State, right: State) -> Bool {
+        static func == (left: State, right: State) -> Bool {
             let sameIsPresented = left.isPresented.wrappedValue == right.isPresented.wrappedValue
             let sameHeaderLabelText = left.headerLabelText == right.headerLabelText
             let sameNoResultsLabelText = left.noResultsLabelText == right.noResultsLabelText
@@ -94,7 +94,7 @@ public struct RegionMenuReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case let .isPresentedChanged(isPresented):
             return .task(delay: .milliseconds(.init(Floats.delayMilliseconds))) {

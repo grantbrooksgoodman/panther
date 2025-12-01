@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension NavigationBarAppearance {
+extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
         if Application.isInPrevaricationMode {
             return .custom(.init(

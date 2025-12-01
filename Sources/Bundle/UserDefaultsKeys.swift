@@ -13,11 +13,11 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public extension UserDefaultsKey {
+extension UserDefaultsKey {
     // MARK: - Types
 
     struct PermanentKeyDelegate: AppSubsystem.Delegates.PermanentUserDefaultsKeyDelegate {
-        public let permanentKeys: [UserDefaultsKey] = [
+        let permanentKeys: [UserDefaultsKey] = [
             .application(.buildMilestoneString),
             .application(.hasRunOnce),
             .application(.isGlassTintingEnabled),

@@ -14,12 +14,12 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct Contact: Codable, EncodedHashable, Equatable {
+struct Contact: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
     // Array
-    public let phoneNumbers: [PhoneNumber]
-    public var hashFactors: [String] {
+    let phoneNumbers: [PhoneNumber]
+    var hashFactors: [String] {
         [
             firstName,
             id,
@@ -30,18 +30,18 @@ public struct Contact: Codable, EncodedHashable, Equatable {
     }
 
     // Data
-    public let imageData: Data?
+    let imageData: Data?
 
     // String
-    public let firstName: String
-    public let id: String
-    public let lastName: String
+    let firstName: String
+    let id: String
+    let lastName: String
 
     // MARK: - Computed Properties
 
-    public var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
+    var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
 
-    public var fullName: String {
+    var fullName: String {
         if !firstName.isBlank,
            !lastName.isBlank {
             return "\(firstName) \(lastName)"
@@ -54,7 +54,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
         return .init()
     }
 
-    public var initials: String {
+    var initials: String {
         fullName.components(separatedBy: " ").reduce(into: [String]()) { partialResult, string in
             if let firstLetter = string.components.first?.uppercased() {
                 partialResult.append(firstLetter)
@@ -64,7 +64,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ id: String,
         firstName: String,
         lastName: String,
@@ -86,7 +86,7 @@ public struct Contact: Codable, EncodedHashable, Equatable {
         }
     }
 
-    public init(_ contact: CNContact) {
+    init(_ contact: CNContact) {
         @Dependency(\.contactNameService) var contactNameService: ContactNameService
         let compiledName = contactNameService.name(for: contact)
         self.init(
@@ -99,8 +99,8 @@ public struct Contact: Codable, EncodedHashable, Equatable {
     }
 }
 
-public enum ContactImageCache {
-    public static func clearCache() {
+enum ContactImageCache {
+    static func clearCache() {
         _ContactImageCache.clearCache()
     }
 }

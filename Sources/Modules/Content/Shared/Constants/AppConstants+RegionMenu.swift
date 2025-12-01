@@ -15,52 +15,52 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum RegionMenu {
-        public static let buttonLabelGlassEffectPadding: CGFloat = 3
+        static let buttonLabelGlassEffectPadding: CGFloat = 3
 
-        public static let buttonLabelImageCornerRadius: CGFloat = 3
-        public static let buttonLabelImageFrameHeight: CGFloat = 25
-        public static let buttonLabelImageFrameWidth: CGFloat = 40
+        static let buttonLabelImageCornerRadius: CGFloat = 3
+        static let buttonLabelImageFrameHeight: CGFloat = 25
+        static let buttonLabelImageFrameWidth: CGFloat = 40
 
         // swiftlint:disable:next identifier_name
-        public static let buttonLabelVStackBackgroundRectangleCornerRadius: CGFloat = 6
-        public static let buttonLabelVStackShadowRadius: CGFloat = 2
+        static let buttonLabelVStackBackgroundRectangleCornerRadius: CGFloat = 6
+        static let buttonLabelVStackShadowRadius: CGFloat = 2
 
-        public static let buttonLabelVStackFrameMinHeight: CGFloat = 80
-        public static let buttonLabelVStackFrameMinWidth: CGFloat = 45
+        static let buttonLabelVStackFrameMinHeight: CGFloat = 80
+        static let buttonLabelVStackFrameMinWidth: CGFloat = 45
 
-        public static let delayMilliseconds: CGFloat = 500
-        public static let secondaryDelayMilliseconds: CGFloat = 200
+        static let delayMilliseconds: CGFloat = 500
+        static let secondaryDelayMilliseconds: CGFloat = 200
 
-        public static let headerLabelFrameMaxHeight: CGFloat = 54
-        public static let headerLabelSystemFontSize: CGFloat = 17
+        static let headerLabelFrameMaxHeight: CGFloat = 54
+        static let headerLabelSystemFontSize: CGFloat = 17
 
-        public static let listViewCellLabelImageCornerRadius: CGFloat = 3
-        public static let listViewCellLabelImageFrameHeight: CGFloat = 25
-        public static let listViewCellLabelImageFrameWidth: CGFloat = 40
+        static let listViewCellLabelImageCornerRadius: CGFloat = 3
+        static let listViewCellLabelImageFrameHeight: CGFloat = 25
+        static let listViewCellLabelImageFrameWidth: CGFloat = 40
 
-        public static let selectedCellImageLeadingPadding: CGFloat = 3
+        static let selectedCellImageLeadingPadding: CGFloat = 3
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum RegionMenu {
-        public static let buttonLabelDarkForeground: Color = .init(uiColor: .init(hex: 0x2A2A2C))
-        public static let buttonLabelLightForeground: Color = .white
-        public static let buttonLabelTextForeground: Color = .init(uiColor: .systemBlue)
+        static let buttonLabelDarkForeground: Color = .init(uiColor: .init(hex: 0x2A2A2C))
+        static let buttonLabelLightForeground: Color = .white
+        static let buttonLabelTextForeground: Color = .init(uiColor: .systemBlue)
 
-        public static let noResultsLabelTextForeground: Color = .init(uiColor: .secondaryLabel)
-        public static let selectedCellImageForeground: Color = .green
+        static let noResultsLabelTextForeground: Color = .init(uiColor: .secondaryLabel)
+        static let selectedCellImageForeground: Color = .green
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum RegionMenu {
-        public static let selectedCellImageSystemName = "checkmark.circle.fill"
+        static let selectedCellImageSystemName = "checkmark.circle.fill"
     }
 }

@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ChatParticipantView: View {
+struct ChatParticipantView: View {
     // MARK: - Constants Accesors
 
     private typealias Colors = AppConstants.Colors.ChatParticipantView
@@ -29,7 +29,7 @@ public struct ChatParticipantView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ participant: ChatParticipant,
         deleteAction: (() -> Void)?,
         userInfoBadgeViewAction: (() -> Void)?
@@ -41,7 +41,7 @@ public struct ChatParticipantView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         HStack {
             AvatarImageView(
                 participant.thumbnailImage,

@@ -16,19 +16,19 @@ import Networking
 extension ConversationID: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = ConversationID
+    typealias T = ConversationID
 
     // MARK: - Properties
 
-    public var encoded: String { "\(key) | \(hash)" }
+    var encoded: String { "\(key) | \(hash)" }
 
     // MARK: - Methods
 
-    public static func canDecode(from data: String) -> Bool {
+    static func canDecode(from data: String) -> Bool {
         data.components(separatedBy: " | ").count == 2
     }
 
-    public static func decode(from data: String) async -> Callback<ConversationID, Exception> {
+    static func decode(from data: String) async -> Callback<ConversationID, Exception> {
         let components = data.components(separatedBy: " | ")
         guard components.count == 2 else {
             return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public extension URL {
+extension URL {
     var thumbnailPath: URL? {
         let components = absoluteString.components(separatedBy: "/")
         guard components.count > 1,

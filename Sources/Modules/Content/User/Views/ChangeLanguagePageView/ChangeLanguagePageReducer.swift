@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct ChangeLanguagePageReducer: Reducer {
+struct ChangeLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -24,7 +24,7 @@ public struct ChangeLanguagePageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -35,18 +35,18 @@ public struct ChangeLanguagePageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Array
-        public var languages: [String] = []
-        public var strings: [TranslationOutputMap] = ChangeLanguagePageViewStrings.defaultOutputMap
+        var languages: [String] = []
+        var strings: [TranslationOutputMap] = ChangeLanguagePageViewStrings.defaultOutputMap
 
         // Other
-        public var instructionViewStrings: InstructionViewStrings = .empty
-        public var isConfirmButtonEnabled = false
-        public var selectedLanguageName = ""
-        public var viewState: StatefulView.ViewState = .loading
+        var instructionViewStrings: InstructionViewStrings = .empty
+        var isConfirmButtonEnabled = false
+        var selectedLanguageName = ""
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
@@ -59,12 +59,12 @@ public struct ChangeLanguagePageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

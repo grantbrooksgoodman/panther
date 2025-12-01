@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public extension UIView {
+extension UIView {
     func addInteraction(
         targetedPreviewProvider: @escaping TargetedPreviewProvider = { _ in nil },
         menuConfigurationProvider: @escaping MenuConfigurationProvider,

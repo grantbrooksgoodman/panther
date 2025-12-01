@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SplashPageView: View {
+struct SplashPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SplashPageView
@@ -31,14 +31,14 @@ public struct SplashPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<SplashPageReducer>) {
+    init(_ viewModel: ViewModel<SplashPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
         _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         VStack {
             ThemedView {
                 Image(.hello)
@@ -54,7 +54,7 @@ public struct SplashPageView: View {
                     .animation(.easeIn, value: viewService.initializationProgress)
                     .controlSize(.large)
                     .dynamicTypeSize(.large)
-                    .tint(UIApplication.v26FeaturesEnabled ? Colors.progressBarTint : .accent)
+                    .tint(Colors.progressBarTint)
                     .padding(.horizontal, Floats.progressBarHorizontalPadding)
                     .padding(.top, Floats.progressBarTopPadding)
             } else {

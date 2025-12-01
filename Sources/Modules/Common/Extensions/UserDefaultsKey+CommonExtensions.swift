@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension UserDefaultsKey {
+extension UserDefaultsKey {
     enum ApplicationDefaultsKey: String {
         case buildMilestoneString
         case hasRunOnce

@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum QueriedContactPairCache {
+enum QueriedContactPairCache {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -21,12 +21,12 @@ public enum QueriedContactPairCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.contactPairsForSearchTerms) public static var cachedContactPairsForSearchTerms: [String: [ContactPair]]?
-    public static var canWriteToCache = false
+    @Cached(CacheKey.contactPairsForSearchTerms) static var cachedContactPairsForSearchTerms: [String: [ContactPair]]?
+    static var canWriteToCache = false
 
     // MARK: - Clear Cache
 
-    public static func clearCache() {
+    static func clearCache() {
         cachedContactPairsForSearchTerms = nil
     }
 }

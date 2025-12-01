@@ -16,7 +16,7 @@ import MessageKit
 
 private var contextMenuMessageIDKey: UInt8 = 0
 
-public extension MessageContentCell {
+extension MessageContentCell {
     var contextMenuMessageID: String? {
         get { objc_getAssociatedObject(self, &contextMenuMessageIDKey) as? String }
         set { objc_setAssociatedObject(self, &contextMenuMessageIDKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }

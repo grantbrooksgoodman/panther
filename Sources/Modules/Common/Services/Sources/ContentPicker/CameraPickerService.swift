@@ -13,7 +13,7 @@ import PhotosUI
 /* Proprietary */
 import AppSubsystem
 
-public final class CameraPickerService: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+final class CameraPickerService: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -24,7 +24,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
 
     // MARK: - Present
 
-    public func present() {
+    func present() {
         let viewController = UIImagePickerController()
         viewController.delegate = self
         viewController.sourceType = .camera
@@ -33,13 +33,13 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
+    func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - UIImagePickerControllerDelegate Conformance
 
-    public func imagePickerController(
+    func imagePickerController(
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
@@ -55,7 +55,7 @@ public final class CameraPickerService: NSObject, UIImagePickerControllerDelegat
         _onDismiss = nil
     }
 
-    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
         _onDismiss?(nil)
         _onDismiss = nil

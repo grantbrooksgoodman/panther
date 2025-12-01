@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct ContactSelectorPageReducer: Reducer {
+struct ContactSelectorPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
@@ -22,7 +22,7 @@ public struct ContactSelectorPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -40,32 +40,32 @@ public struct ContactSelectorPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        public let entryPoint: ContactSelectorPageView.EntryPoint
+        let entryPoint: ContactSelectorPageView.EntryPoint
 
-        @Localized(.invite) public var inviteToolbarButtonText: String
-        public var searchQuery = ""
-        public var selectedContactPair: ContactPair?
-        public var strings: [TranslationOutputMap] = ContactSelectorPageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
+        @Localized(.invite) var inviteToolbarButtonText: String
+        var searchQuery = ""
+        var selectedContactPair: ContactPair?
+        var strings: [TranslationOutputMap] = ContactSelectorPageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
 
         fileprivate var foundContactPair: ContactPair?
         fileprivate var traitCollectionDidChange = false
 
         /* MARK: Computed Properties */
 
-        public var contactPairs: [ContactPair] {
+        var contactPairs: [ContactPair] {
             @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
             return contactPairArchive ?? .init()
         }
 
-        public var navigationTitle: String {
+        var navigationTitle: String {
             entryPoint == .chatInfoPageView ? strings.value(for: .navigationTitle) : Localized(.contacts).wrappedValue
         }
 
-        public var noResultsLabelText: String {
+        var noResultsLabelText: String {
             if entryPoint == .chatInfoPageView,
                !searchQuery.isBlank,
                searchQuery == searchQuery.digits {
@@ -75,36 +75,36 @@ public struct ContactSelectorPageReducer: Reducer {
             return Localized(.noResults).wrappedValue
         }
 
-        public var queriedContactPairs: [ContactPair] {
+        var queriedContactPairs: [ContactPair] {
             guard let foundContactPair else { return contactPairs.queried(by: searchQuery) }
             return [foundContactPair]
         }
 
-        public var searchBarPlaceholderText: String {
+        var searchBarPlaceholderText: String {
             entryPoint == .chatInfoPageView ? strings.value(for: .searchBarPlaceholderText) : Localized(.search).wrappedValue
         }
 
-        public var sections: [String: [ContactPair]] {
+        var sections: [String: [ContactPair]] {
             .init(
                 grouping: queriedContactPairs,
                 by: { $0.contact.tableViewSectionTitle }
             )
         }
 
-        public var shouldShowInviteButton: Bool {
+        var shouldShowInviteButton: Bool {
             contactPairs.isEmpty || entryPoint == .newChatPageView
         }
 
         /* MARK: Init */
 
-        public init(_ entryPoint: ContactSelectorPageView.EntryPoint) {
+        init(_ entryPoint: ContactSelectorPageView.EntryPoint) {
             self.entryPoint = entryPoint
         }
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             guard state.entryPoint == .chatInfoPageView else {

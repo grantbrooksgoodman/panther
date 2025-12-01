@@ -15,29 +15,29 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum VerifyNumberPageView {
-        public static let backButtonLabelFontSize: CGFloat = 15
-        public static let backButtonTopPadding: CGFloat = 2
+        static let backButtonLabelFontSize: CGFloat = 15
+        static let backButtonTopPadding: CGFloat = 2
 
-        public static let bottomPadding: CGFloat = 30
-        public static let continueButtonTopPadding: CGFloat = 5
+        static let bottomPadding: CGFloat = 30
+        static let continueButtonTopPadding: CGFloat = 5
 
-        public static let innerVStackBottomPadding: CGFloat = 50
-        public static let instructionLabelVerticalPadding: CGFloat = 5
+        static let innerVStackBottomPadding: CGFloat = 50
+        static let instructionLabelVerticalPadding: CGFloat = 5
 
-        public static let phoneNumberTextFieldTrailingPadding: CGFloat = 20
-        public static let phoneNumberTextFieldVerticalPadding: CGFloat = 2
+        static let phoneNumberTextFieldTrailingPadding: CGFloat = 20
+        static let phoneNumberTextFieldVerticalPadding: CGFloat = 2
 
-        public static let regionMenuLeadingPadding: CGFloat = 20
-        public static let regionMenuTrailingPadding: CGFloat = 5
+        static let regionMenuLeadingPadding: CGFloat = 20
+        static let regionMenuTrailingPadding: CGFloat = 5
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum VerifyNumberPageView {
-        public static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground: Color = .gray
     }
 }

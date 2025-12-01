@@ -14,20 +14,20 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct MediaItemView: View {
+struct MediaItemView: View {
     // MARK: - Types
 
-    public struct Metadata: Hashable {
+    struct Metadata: Hashable {
         /* MARK: Properties */
 
-        public let file: MediaFile
-        public let mediaTypeLabelText: String
-        public let senderLabelText: String
-        public let timestampLabelText: String
+        let file: MediaFile
+        let mediaTypeLabelText: String
+        let senderLabelText: String
+        let timestampLabelText: String
 
         /* MARK: Init */
 
-        public init(
+        init(
             _ file: MediaFile,
             mediaTypeLabelText: String,
             senderLabelText: String,
@@ -58,7 +58,7 @@ public struct MediaItemView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ metadata: Metadata,
         action: @escaping () -> Void
     ) {
@@ -68,7 +68,7 @@ public struct MediaItemView: View {
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         Button {
             action()
         } label: {

@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Activity {
+extension Activity {
     enum Action: Codable, Equatable {
         // MARK: - Cases
 
@@ -26,7 +26,7 @@ public extension Activity {
 
         // MARK: - Properties
 
-        public var rawValue: String {
+        var rawValue: String {
             switch self {
             case let .addedToConversation(userID: userID): "ADDED:\(userID)"
             case .changedGroupPhoto: "CHANGED_PHOTO"
@@ -40,7 +40,7 @@ public extension Activity {
 
         // MARK: - Init
 
-        public init?(rawValue: String) {
+        init?(rawValue: String) {
             let components = rawValue.components(separatedBy: ":")
 
             guard components.count == 2,

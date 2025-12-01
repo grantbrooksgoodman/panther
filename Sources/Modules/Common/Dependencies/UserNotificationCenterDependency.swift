@@ -13,13 +13,13 @@ import UserNotifications
 /* Proprietary */
 import AppSubsystem
 
-public enum UserNotificationCenterDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> UNUserNotificationCenter {
+enum UserNotificationCenterDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> UNUserNotificationCenter {
         .current()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var userNotificationCenter: UNUserNotificationCenter {
         get { self[UserNotificationCenterDependency.self] }
         set { self[UserNotificationCenterDependency.self] = newValue }

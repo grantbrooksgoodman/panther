@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct NewChatPageView: View {
+struct NewChatPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.NewChatPageView
@@ -42,14 +42,14 @@ public struct NewChatPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<NewChatPageReducer>) {
+    init(_ viewModel: ViewModel<NewChatPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
         _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         ThemedView {
             VStack {
                 ChatPageView(viewModel.conversation, configuration: .newChat)

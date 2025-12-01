@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension Application {
+extension Application {
     // MARK: - Types
 
     enum ResetCompletionProcedure {

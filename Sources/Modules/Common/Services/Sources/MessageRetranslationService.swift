@@ -16,7 +16,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct MessageRetranslationService {
+struct MessageRetranslationService {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -38,7 +38,7 @@ public struct MessageRetranslationService {
     // MARK: - Retranslate Message in Current Conversation
 
     @MainActor
-    public func retranslateMessageInCurrentConversation(
+    func retranslateMessageInCurrentConversation(
         _ message: Message,
         indexPath: IndexPath
     ) async -> Exception? {

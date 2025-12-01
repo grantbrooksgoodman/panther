@@ -18,16 +18,16 @@ import UserNotifications
 import AlertKit
 import AppSubsystem
 
-public struct PermissionService {
+struct PermissionService {
     // MARK: - Types
 
-    public enum PermissionStatus {
+    enum PermissionStatus {
         case denied
         case granted
         case unknown
     }
 
-    public enum PermissionType {
+    enum PermissionType {
         case contacts
         case notifications
         case recording
@@ -45,19 +45,19 @@ public struct PermissionService {
 
     // MARK: - Computed Properties
 
-    public var contactPermissionStatus: PermissionStatus { getContactPermissionStatus() }
-    public var notificationPermissionStatus: PermissionStatus {
+    var contactPermissionStatus: PermissionStatus { getContactPermissionStatus() }
+    var notificationPermissionStatus: PermissionStatus {
         get async {
             await getNotificationPermissionStatus()
         }
     }
 
-    public var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
-    public var transcribePermissionStatus: PermissionStatus { getTranscribePermissionStatus() }
+    var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
+    var transcribePermissionStatus: PermissionStatus { getTranscribePermissionStatus() }
 
     // MARK: - Permissions Requesting
 
-    public func requestPermission(for type: PermissionType) async -> Callback<PermissionStatus, Exception> {
+    func requestPermission(for type: PermissionType) async -> Callback<PermissionStatus, Exception> {
         switch type {
         case .contacts:
             return await requestContactPermission()
@@ -125,7 +125,7 @@ public struct PermissionService {
 
     /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
     @discardableResult
-    public func presentCTA(for type: PermissionType) async -> Bool {
+    func presentCTA(for type: PermissionType) async -> Bool {
         switch type {
         case .contacts:
             return await presentContactCTA()

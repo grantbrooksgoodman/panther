@@ -13,7 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class PlaybackService {
+final class PlaybackService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.audio) private var audioService: AudioService
@@ -23,7 +23,7 @@ public final class PlaybackService {
 
     // MARK: - Properties
 
-    public private(set) var currentPlayerItem: AVPlayerItem?
+    private(set) var currentPlayerItem: AVPlayerItem?
 
     private var failedToFinishPlayingEffect: (() -> Void)?
     private var finishedPlayingEffect: (() -> Void)?
@@ -31,7 +31,7 @@ public final class PlaybackService {
 
     // MARK: - Computed Properties
 
-    public var isPlaying: Bool { !avQueuePlayer.items().isEmpty }
+    var isPlaying: Bool { !avQueuePlayer.items().isEmpty }
 
     // MARK: - Object Lifecycle
 
@@ -52,7 +52,7 @@ public final class PlaybackService {
     // MARK: - Playback
 
     @discardableResult
-    public func playAudio(url: URL) -> Exception? {
+    func playAudio(url: URL) -> Exception? {
         guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
             return .init(
                 "File does not exist.",
@@ -74,7 +74,7 @@ public final class PlaybackService {
         return nil
     }
 
-    public func stopPlaying() {
+    func stopPlaying() {
         avQueuePlayer.removeAllItems()
         didStopPlaying()
     }
@@ -82,17 +82,17 @@ public final class PlaybackService {
     // MARK: - Side Effects
 
     /// Sets an effect to be run once, upon the next posting of `AVPlayerItemFailedToPlayToEndTime` notification.
-    public func onFailedToFinishPlaying(_ effect: @escaping () -> Void) {
+    func onFailedToFinishPlaying(_ effect: @escaping () -> Void) {
         failedToFinishPlayingEffect = effect
     }
 
     /// Sets an effect to be run once, upon the next posting of `AVPlayerItemDidPlayToEndTime` notification.
-    public func onFinishedPlaying(_ effect: @escaping () -> Void) {
+    func onFinishedPlaying(_ effect: @escaping () -> Void) {
         finishedPlayingEffect = effect
     }
 
     /// Sets an effect to be run once, upon the next call to `stopPlaying()`.
-    public func onStopPlaying(_ effect: @escaping () -> Void) {
+    func onStopPlaying(_ effect: @escaping () -> Void) {
         stopPlayingEffect = effect
     }
 

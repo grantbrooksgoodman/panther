@@ -15,238 +15,240 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ChatPageViewService {
-        public static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
-        public static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
-        public static let scrollDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
-        public static let setNavigationBarButtonItemAppearanceDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
-        public static let triggerFocusedMessageCellInteractionDelayMilliseconds: CGFloat = 500
+        static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
+        static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
+        static let scrollDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
+        static let setNavigationBarButtonItemAppearanceDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
+        static let triggerFocusedMessageCellInteractionDelayMilliseconds: CGFloat = 500
 
         enum AudioMessagePlayback {
-            public static let playbackTimerTimeInterval: CGFloat = 0.1
-            public static let playNextMessageDelayMilliseconds: CGFloat = 100
+            static let playbackTimerTimeInterval: CGFloat = 0.1
+            static let playNextMessageDelayMilliseconds: CGFloat = 100
         }
 
         enum ContextMenu {
             // swiftlint:disable identifier_name
-            public static let doubleTapGestureNumberOfTapsRequired: CGFloat = 2
+            static let doubleTapGestureNumberOfTapsRequired: CGFloat = 2
 
-            public static let interactionTimerTimeInterval: CGFloat = 0.1
-            public static let interactionScrollToLastItemDelayMilliseconds: CGFloat = 60
+            static let interactionTimerTimeInterval: CGFloat = 0.1
+            static let interactionScrollToLastItemDelayMilliseconds: CGFloat = 60
 
-            public static let isLastMessageVisibleScrollViewOffsetLowerBoundDecrement: CGFloat = 150
-            public static let isLastMessageVisibleScrollViewOffsetUpperBoundIncrement: CGFloat = 150
+            static let isLastMessageVisibleScrollViewOffsetLowerBoundDecrement: CGFloat = 150
+            static let isLastMessageVisibleScrollViewOffsetUpperBoundIncrement: CGFloat = 150
 
-            public static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
-            public static let longPressGestureMinimumPressDuration: CGFloat = 0.5
+            static let languageRecognitionMatchConfidenceThreshold: CGFloat = 0.8
+            static let longPressGestureMinimumPressDuration: CGFloat = 0.5
 
-            public static let menuStyleBottomMargin: CGFloat = 8
-            public static let menuStyleTopMargin: CGFloat = 8
+            static let menuStyleBottomMargin: CGFloat = 8
+            static let menuStyleTopMargin: CGFloat = 8
 
-            public static let menuStyleTransformScaleX: CGFloat = 1.08
-            public static let menuStyleTransformScaleY: CGFloat = 1.08
+            static let menuStyleTransformScaleX: CGFloat = 1.08
+            static let menuStyleTransformScaleY: CGFloat = 1.08
 
-            public static let reactionScrollToLastItemDelayMilliseconds: CGFloat = 200
-            public static let triggerExistingSelectionDelayMilliseconds: CGFloat = 10
+            static let reactionScrollToLastItemDelayMilliseconds: CGFloat = 200
+            static let triggerExistingSelectionDelayMilliseconds: CGFloat = 10
             // swiftlint:enable identifier_name
         }
 
         enum DeliveryProgressIndicator {
-            public static let animationDelay: CGFloat = 1
-            public static let animationDuration: CGFloat = 0.2
+            static let animationDelay: CGFloat = 1
+            static let animationDuration: CGFloat = 0.2
 
-            public static let appearanceTimerTimeInterval: CGFloat = 5
-            public static let hiddenTimerTimeInterval: CGFloat = 0.05
-            public static let visibleTimerTimeInterval: CGFloat = 0.01
+            static let appearanceTimerTimeInterval: CGFloat = 5
+            static let hiddenTimerTimeInterval: CGFloat = 0.05
+            static let visibleTimerTimeInterval: CGFloat = 0.01
 
-            public static let timerProgressIncrement: CGFloat = 0.001
-            public static let timerProgressIncrementThreshold: CGFloat = 0.9
+            static let timerProgressIncrement: CGFloat = 0.001
+            static let timerProgressIncrementThreshold: CGFloat = 0.9
 
-            public static let viewFrameHeight: CGFloat = 2
+            static let viewFrameHeight: CGFloat = 2
         }
 
         enum InputBar {
-            public static let buttonOnSelectedTransformScaleX: CGFloat = 1.1
-            public static let buttonOnSelectedTransformScaleY: CGFloat = 1.1
+            static let buttonOnSelectedTransformScaleX: CGFloat = 1.1
+            static let buttonOnSelectedTransformScaleY: CGFloat = 1.1
 
-            public static let buttonSizeHeight: CGFloat = 30
-            public static let buttonSizeWidth: CGFloat = 30
+            static let buttonSizeHeight: CGFloat = 30
+            static let buttonSizeWidth: CGFloat = 30
 
-            public static let consentButtonFontSize: CGFloat = 17
-            public static let consentButtonFrameWidthDecrement: CGFloat = 20 // swiftlint:disable:next identifier_name
-            public static let consentButtonTitleLabelMinimumScaleFactor: CGFloat = 0.5
+            static let consentButtonFontSize: CGFloat = 17
+            static let consentButtonFrameWidthDecrement: CGFloat = 20 // swiftlint:disable:next identifier_name
+            static let consentButtonTitleLabelMinimumScaleFactor: CGFloat = 0.5
 
-            public static let forceAppearanceDelayMilliseconds: CGFloat = 200
+            static let forceAppearanceDelayMilliseconds: CGFloat = 200
 
-            public static let layerBorderWidth: CGFloat = 0.5
-            public static let layerCornerRadius: CGFloat = 15
+            static let layerBorderWidth: CGFloat = 0.5
+            static let layerCornerRadius: CGFloat = 15
 
-            public static let leftStackViewFixedSpaceWidth: CGFloat = 10
-            public static let leftStackViewWidthConstant: CGFloat = 40
-
-            // swiftlint:disable:next identifier_name
-            public static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
+            static let leftStackViewFixedSpaceWidth: CGFloat = 10
+            static let leftStackViewWidthConstant: CGFloat = 40
 
             // swiftlint:disable:next identifier_name
-            public static let sendButtonTrailingAnchorConstraintConstantDecrement: CGFloat = 15
+            static let recordingCancellationVibrationDelayMilliseconds: CGFloat = 50
 
-            public static let textContainerInsetRightIncrement: CGFloat = 10
-            public static let transitionAnimationDuration: CGFloat = 0.3
+            // swiftlint:disable:next identifier_name
+            static let sendButtonTrailingAnchorConstraintConstantDecrement: CGFloat = 15
+
+            static let textContainerInsetRightIncrement: CGFloat = 10
+            static let transitionAnimationDuration: CGFloat = 0.3
         }
 
         enum InputBarGestureRecognizer {
-            public static let errorToastPerpetuationDuration: CGFloat = 3
-            public static let longPressGestureMinimumPressDuration: CGFloat = 0.3
-            public static let millisecondsDelay: CGFloat = 500 // swiftlint:disable:next identifier_name
-            public static let recordingInstructionToastPerpetuationDuration: CGFloat = 2.5
+            static let errorToastPerpetuationDuration: CGFloat = 3
+            static let longPressGestureMinimumPressDuration: CGFloat = 0.3
+            static let millisecondsDelay: CGFloat = 500 // swiftlint:disable:next identifier_name
+            static let recordingInstructionToastPerpetuationDuration: CGFloat = 2.5
         }
 
         enum MediaActionHandler {
-            public static let avAssetImageGeneratorPreferredTimescale: CGFloat = 600
-            public static let imageCompressionSizeKB: CGFloat = 1000
-            public static let thumbnailImageScale: CGFloat = 2
-            public static let thumbnailImageSizeHeight: CGFloat = 500
-            public static let thumbnailImageSizeWidth: CGFloat = 500
+            static let avAssetImageGeneratorPreferredTimescale: CGFloat = 600
+            static let imageCompressionSizeKB: CGFloat = 1000
+            static let thumbnailImageScale: CGFloat = 2
+            static let thumbnailImageSizeHeight: CGFloat = 500
+            static let thumbnailImageSizeWidth: CGFloat = 500
         }
 
         enum RecordingUI {
-            public static let cancelLabelFontSize: CGFloat = 17
-            public static let cancelLabelFrameHeight: CGFloat = 20
-            public static let cancelLabelOffsetIncrement: CGFloat = 10
+            static let cancelLabelFontSize: CGFloat = 17
+            static let cancelLabelFrameHeight: CGFloat = 20
+            static let cancelLabelOffsetIncrement: CGFloat = 10
 
-            public static let durationLabelFontSize: CGFloat = 17
-            public static let durationLabelFrameHeight: CGFloat = 20
+            static let durationLabelFontSize: CGFloat = 17
+            static let durationLabelFrameHeight: CGFloat = 20
 
-            public static let hideAnimationDuration: CGFloat = 0.2
-            public static let showAnimationDuration: CGFloat = 0.3
+            static let hideAnimationDuration: CGFloat = 0.2
+            static let showAnimationDuration: CGFloat = 0.3
 
-            public static let imageViewFrameHeight: CGFloat = 30
-            public static let imageViewFrameWidth: CGFloat = 30
-            public static let imageViewFrameXOriginIncrement: CGFloat = 5
+            static let imageViewFrameHeight: CGFloat = 30
+            static let imageViewFrameWidth: CGFloat = 30
+            static let imageViewFrameXOriginIncrement: CGFloat = 5
 
-            public static let recordingViewFrameSizeWidthDecrement: CGFloat = 10
-            public static let recordingViewLayerBorderWidth: CGFloat = 0.5
-            public static let recordingViewLayerCornerRadius: CGFloat = 15
+            static let recordingViewFrameSizeWidthDecrement: CGFloat = 10
+            static let recordingViewLayerBorderWidth: CGFloat = 0.5
+            static let recordingViewLayerCornerRadius: CGFloat = 15
 
-            public static let transitionAnimationDuration: CGFloat = 0.2
+            static let transitionAnimationDuration: CGFloat = 0.2
         }
 
         enum TypingIndicator {
-            public static let timerTimeInterval: CGFloat = 3
+            static let timerTimeInterval: CGFloat = 3
         }
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ChatPageViewService { // swiftlint:disable:next identifier_name
-        public static let messagesCollectionViewPrimaryDarkBackground: Color = .black // swiftlint:disable:next identifier_name
-        public static let messagesCollectionViewSecondaryDarkBackground: Color = .init(uiColor: .init(hex: 0x1C1C1E))
+        static let messagesCollectionViewPrimaryDarkBackground: Color = .black // swiftlint:disable:next identifier_name
+        static let messagesCollectionViewSecondaryDarkBackground: Color = .init(uiColor: .init(hex: 0x1C1C1E))
 
         enum AudioMessagePlayback {
-            public static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
+            static let cellCurrentUserProgressViewTint: Color = .init(uiColor: .white)
         }
 
         enum DeliveryProgressIndicator {
-            public static let prevaricationModeProgressTint: Color = .init(uiColor: .init(hex: 0x4B6584))
+            static let prevaricationModeProgressTint: Color = .init(uiColor: .init(hex: 0x4B6584))
+            static let progressBarTint: Color = .init(uiColor: .systemBlue)
         }
 
         enum InputBar {
-            public static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
-            public static let inputTextViewTint: Color = .init(uiColor: .clear)
+            static let inputTextViewAlternateTint: Color = .init(uiColor: .clear)
+            static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
+            static let inputTextViewTint: Color = .init(uiColor: .accentOrSystemBlue)
 
-            public static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+            static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
 
-            public static let sendButtonRecordTint: Color = .init(uiColor: .red)
-            public static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
+            static let sendButtonRecordTint: Color = .init(uiColor: .red)
+            static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
         }
 
         enum RecordingUI {
-            public static let cancelLabelTextColor: Color = .init(uiColor: .gray)
-            public static let durationLabelTextColor: Color = .init(uiColor: .gray)
-            public static let recordingViewLayerBorderColor: Color = .init(uiColor: .systemGray)
+            static let cancelLabelTextColor: Color = .init(uiColor: .gray)
+            static let durationLabelTextColor: Color = .init(uiColor: .gray)
+            static let recordingViewLayerBorderColor: Color = .init(uiColor: .systemGray)
         }
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ChatPageViewService {
-        public static let barButtonItemViewID = "_UIModernBarButton" // swiftlint:disable:next line_length
-        public static let chatPageViewPreviewHostingControllerID = "UIHostingController<IDView<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>, ConversationID>>"
-        public static let leafViewControllerID = "ChatPageViewController"
+        static let barButtonItemViewID = "_UIModernBarButton" // swiftlint:disable:next line_length
+        static let chatPageViewPreviewHostingControllerID = "UIHostingController<IDView<ModifiedContent<ChatPageView, _BackgroundStyleModifier<Color>>, ConversationID>>"
+        static let leafViewControllerID = "ChatPageViewController"
 
         enum AudioMessagePlayback {
-            public static let cellDefaultDurationLabelText = "0:00"
+            static let cellDefaultDurationLabelText = "0:00"
         }
 
         enum ContextMenu { // swiftlint:disable identifier_name
-            public static let audioMessageActionAlternateImageSystemName = "text.bubble"
-            public static let audioMessageActionIdentifierRawValue = "audio_message"
-            public static let audioMessageActionImageSystemName = "speaker.wave.2.bubble"
+            static let audioMessageActionAlternateImageSystemName = "text.bubble"
+            static let audioMessageActionIdentifierRawValue = "audio_message"
+            static let audioMessageActionImageSystemName = "speaker.wave.2.bubble"
 
-            public static let copyActionIdentifierRawValue = "copy"
-            public static let copyActionImageSystemName = "doc.on.doc"
+            static let copyActionIdentifierRawValue = "copy"
+            static let copyActionImageSystemName = "doc.on.doc"
 
-            public static let reactionDetailsActionIdentifierRawValue = "reaction_details"
-            public static let reactionDetailsActionImageSystemName = "info.circle"
+            static let reactionDetailsActionIdentifierRawValue = "reaction_details"
+            static let reactionDetailsActionImageSystemName = "info.circle"
 
-            public static let reportMistranslationActionIdentifierRawValue = "report_mistranslation"
-            public static let reportMistranslationActionImageSystemName = "flag"
+            static let reportMistranslationActionIdentifierRawValue = "report_mistranslation"
+            static let reportMistranslationActionImageSystemName = "flag"
 
-            public static let retryTranslationActionIdentifierRawValue = "retry_translation"
-            public static let retryTranslationActionImageSystemName = "arrow.counterclockwise"
+            static let retryTranslationActionIdentifierRawValue = "retry_translation"
+            static let retryTranslationActionImageSystemName = "arrow.counterclockwise"
 
-            public static let saveActionIdentifierRawValue = "save"
-            public static let saveActionImageSystemName = "square.and.arrow.down"
+            static let saveActionIdentifierRawValue = "save"
+            static let saveActionImageSystemName = "square.and.arrow.down"
 
-            public static let speakActionAlternateImageSystemName = "speaker.slash.circle"
-            public static let speakActionIdentifierRawValue = "speak"
-            public static let speakActionImageSystemName = "speaker.wave.2.circle"
+            static let speakActionAlternateImageSystemName = "speaker.slash.circle"
+            static let speakActionIdentifierRawValue = "speak"
+            static let speakActionImageSystemName = "speaker.wave.2.circle"
 
-            public static let viewAlterateActionIdentifierRawValue = "view_alternate"
+            static let viewAlterateActionIdentifierRawValue = "view_alternate"
             // swiftlint:enable identifier_name
         }
 
         enum DeliveryProgressIndicator {
-            public static let viewSemanticTag = "DELIVERY_PROGRESS_VIEW"
+            static let viewSemanticTag = "DELIVERY_PROGRESS_VIEW"
         }
 
         enum InputBar {
-            public static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
-            public static let consentButtonSemanticTag = "CONSENT_BUTTON"
-            public static let recordButtonSemanticTag = "RECORD_BUTTON"
-            public static let sendButtonOfflineImageSystemName = "wifi.slash"
-            public static let sendButtonSemanticTag = "SEND_BUTTON"
+            static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
+            static let consentButtonSemanticTag = "CONSENT_BUTTON"
+            static let recordButtonSemanticTag = "RECORD_BUTTON"
+            static let sendButtonOfflineImageSystemName = "wifi.slash"
+            static let sendButtonSemanticTag = "SEND_BUTTON"
         }
 
         enum InputBarGestureRecognizer { // swiftlint:disable:next line_length
-            public static let audioMessagesUnsupportedAlertMessage = "Audio messages are unsupported for your language.\n\nPlease check back later in a future update!" // swiftlint:disable:next identifier_name
-            public static let audioMessagesUnsupportedAlertCancelButtonTitle = "OK"
-            public static let noSpeechDetectedExceptionDescriptor = "No speech detected"
+            static let audioMessagesUnsupportedAlertMessage = "Audio messages are unsupported for your language.\n\nPlease check back later in a future update!" // swiftlint:disable:next identifier_name
+            static let audioMessagesUnsupportedAlertCancelButtonTitle = "OK"
+            static let noSpeechDetectedExceptionDescriptor = "No speech detected"
         }
 
         enum MediaActionHandler {
-            public static let defaultDocumentName = "document"
-            public static let defaultImageName = "image"
-            public static let defaultVideoName = "video"
+            static let defaultDocumentName = "document"
+            static let defaultImageName = "image"
+            static let defaultVideoName = "video"
         }
 
         enum RecordingUI {
-            public static let cancelLabelFontName = "SFUIText-Semibold"
-            public static let cancelLabelSemanticTag = "CANCEL_LABEL"
-            public static let cancelLabelTextPrefix = "< "
+            static let cancelLabelFontName = "SFUIText-Semibold"
+            static let cancelLabelSemanticTag = "CANCEL_LABEL"
+            static let cancelLabelTextPrefix = "< "
 
-            public static let durationLabelFontName = "SFUIText-Semibold"
-            public static let durationLabelInitialText = "0:00"
-            public static let durationLabelSemanticTag = "DURATION_LABEL"
+            static let durationLabelFontName = "SFUIText-Semibold"
+            static let durationLabelInitialText = "0:00"
+            static let durationLabelSemanticTag = "DURATION_LABEL"
 
-            public static let imageViewSemanticTag = "IMAGE_VIEW"
+            static let imageViewSemanticTag = "IMAGE_VIEW"
 
-            public static let recordingViewSemanticTag = "RECORDING_VIEW"
+            static let recordingViewSemanticTag = "RECORDING_VIEW"
         }
     }
 }

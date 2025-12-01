@@ -12,10 +12,10 @@ import Foundation
 import AppSubsystem
 import Translator
 
-public enum PLISTGenerator {
+enum PLISTGenerator {
     // MARK: - PLIST Generation
 
-    public static func createPLIST(
+    static func createPLIST(
         from dictionary: [String: Any],
         fileName: String? = nil
     ) -> String? {
@@ -40,7 +40,7 @@ public enum PLISTGenerator {
 
     // MARK: - Text Translation
 
-    public static func translate(
+    static func translate(
         text: String,
         completion: @escaping (Callback<String, Exception>) -> Void
     ) {
@@ -54,7 +54,7 @@ public enum PLISTGenerator {
         }
     }
 
-    public static func translate(
+    static func translate(
         text: String,
         toLanguages: [String]
     ) async -> Callback<String, Exception> {

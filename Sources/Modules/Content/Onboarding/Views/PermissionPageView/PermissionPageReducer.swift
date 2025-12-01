@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct PermissionPageReducer: Reducer {
+struct PermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -26,7 +26,7 @@ public struct PermissionPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case backButtonTapped
@@ -43,29 +43,29 @@ public struct PermissionPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Bool
-        public var isBackButtonEnabled = true
-        public var isContactPermissionGranted: Bool?
-        public var isFinishButtonEnabled = false
-        public var isNotificationPermissionGranted: Bool?
+        var isBackButtonEnabled = true
+        var isContactPermissionGranted: Bool?
+        var isFinishButtonEnabled = false
+        var isNotificationPermissionGranted: Bool?
 
         // Other
-        public var instructionViewStrings: InstructionViewStrings = .empty
-        public var strings: [TranslationOutputMap] = PermissionPageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
+        var instructionViewStrings: InstructionViewStrings = .empty
+        var strings: [TranslationOutputMap] = PermissionPageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

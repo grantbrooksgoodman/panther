@@ -10,5 +10,5 @@
 import Foundation
 import UIKit
 
-public typealias MenuConfigurationProvider = (_ view: UIView) -> ContextMenuConfiguration?
-public typealias TargetedPreviewProvider = (_ view: UIView) -> UITargetedPreview?
+typealias MenuConfigurationProvider = (_ view: UIView) -> ContextMenuConfiguration?
+typealias TargetedPreviewProvider = (_ view: UIView) -> UITargetedPreview?

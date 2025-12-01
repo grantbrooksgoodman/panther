@@ -10,14 +10,14 @@
 import Foundation
 import UIKit
 
-public final class RecipientBarTextField: UITextField {
+final class RecipientBarTextField: UITextField {
     // MARK: - Properties
 
     private var _onSuperfluousBackspace: (() -> Void)?
 
     // MARK: - Init
 
-    override public init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
     }
 
@@ -28,14 +28,14 @@ public final class RecipientBarTextField: UITextField {
 
     // MARK: - Delete Backward
 
-    override public func deleteBackward() {
+    override func deleteBackward() {
         if (text ?? "").isEmpty { _onSuperfluousBackspace?() }
         super.deleteBackward()
     }
 
     // MARK: - On Superfluous Backspace
 
-    public func onSuperfluousBackspace(_ onSuperfluousBackspace: @escaping () -> Void) {
+    func onSuperfluousBackspace(_ onSuperfluousBackspace: @escaping () -> Void) {
         _onSuperfluousBackspace = onSuperfluousBackspace
     }
 }

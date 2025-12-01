@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public final class RecipientBar: UIView {
+final class RecipientBar: UIView {
     // MARK: - Properties
 
     private let service: RecipientBarService
@@ -19,19 +19,19 @@ public final class RecipientBar: UIView {
 
     // MARK: - Init
 
-    public init(service: RecipientBarService) {
+    init(service: RecipientBarService) {
         self.service = service
         super.init(frame: service.layout.viewFrame)
     }
 
     @available(*, unavailable)
-    public required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - Layout Subviews
 
-    override public func layoutSubviews() {
+    override func layoutSubviews() {
         service.layout.layoutSubviews()
 
         guard !didRunLayoutSubviewsEffect else { return }

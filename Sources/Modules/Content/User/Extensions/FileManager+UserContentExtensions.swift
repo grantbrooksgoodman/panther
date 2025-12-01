@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension FileManager {
+extension FileManager {
     func copy(
         fileAt url: URL,
         toPath path: URL

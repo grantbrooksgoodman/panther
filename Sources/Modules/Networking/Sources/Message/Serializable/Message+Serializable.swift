@@ -17,12 +17,12 @@ import Translator
 extension Message: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = Message
+    typealias T = Message
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
 
-    public enum SerializationKeys: String {
+    enum SerializationKeys: String {
         case id
         case fromAccountID = "fromAccount"
         case contentType
@@ -33,7 +33,7 @@ extension Message: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
             Keys.id.rawValue: id,
@@ -47,7 +47,7 @@ extension Message: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.id.rawValue] is String,
@@ -68,7 +68,7 @@ extension Message: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<Message, Exception> {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService

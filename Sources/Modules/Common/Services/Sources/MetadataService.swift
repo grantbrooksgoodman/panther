@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class MetadataService {
+final class MetadataService {
     // MARK: - Types
 
     private enum MetadataServiceKey: String {
@@ -28,7 +28,7 @@ public final class MetadataService {
 
         /* MARK: Properties */
 
-        public var path: String {
+        var path: String {
             "\(NetworkPath.shared.rawValue)/\(rawValue)"
         }
     }
@@ -39,16 +39,16 @@ public final class MetadataService {
 
     // MARK: - Properties
 
-    public private(set) var appShareLink: URL?
-    public private(set) var appStoreBuildNumber: Int?
-    public private(set) var isPrevaricationModeEnabled: Bool?
-    public private(set) var redirectionKey: String?
-    public private(set) var shouldForceUpdate: Bool?
-    public private(set) var storageReferenceURL: URL?
+    private(set) var appShareLink: URL?
+    private(set) var appStoreBuildNumber: Int?
+    private(set) var isPrevaricationModeEnabled: Bool?
+    private(set) var redirectionKey: String?
+    private(set) var shouldForceUpdate: Bool?
+    private(set) var storageReferenceURL: URL?
 
     // MARK: - Resolve All Values
 
-    public func resolveValues() async -> Exception? {
+    func resolveValues() async -> Exception? {
         if appShareLink == nil {
             let getAppShareLinkResult = await getAppShareLink()
 

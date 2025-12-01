@@ -17,10 +17,10 @@ import AppSubsystem
 import Networking
 
 // swiftlint:disable:next type_body_length
-public final class ChatInfoPageViewService {
+final class ChatInfoPageViewService {
     // MARK: - Types
 
-    public enum MetadataChangeType {
+    enum MetadataChangeType {
         case name(ConversationMetadata)
         case removePhoto(ConversationMetadata)
         case selectPhotoFromCamera
@@ -46,7 +46,7 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Properties
 
-    public private(set) var isPreviewingMedia = false
+    private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
 
@@ -71,7 +71,7 @@ public final class ChatInfoPageViewService {
     // MARK: - Get Chat Participants
 
     /// `.viewAppeared`
-    public func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
+    func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
 
         guard let conversation = conversationSession.fullConversation else {
@@ -186,7 +186,7 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Reducer Action Handlers
 
-    public func leaveConversationButtonTapped(_ conversation: Conversation?) {
+    func leaveConversationButtonTapped(_ conversation: Conversation?) {
         Task {
             guard let conversation else { return }
             var conversationName = "⌘\(conversation.metadata.name)⌘"
@@ -223,7 +223,7 @@ public final class ChatInfoPageViewService {
         }
     }
 
-    public func mediaItemViewTapped(
+    func mediaItemViewTapped(
         _ metadata: MediaItemView.Metadata,
         filePaths: [String],
         startingIndex: Int
@@ -243,7 +243,7 @@ public final class ChatInfoPageViewService {
         }
     }
 
-    public func removeUserButtonTapped(
+    func removeUserButtonTapped(
         _ chatParticipant: ChatParticipant,
         conversation: Conversation?
     ) {
@@ -281,7 +281,7 @@ public final class ChatInfoPageViewService {
         }
     }
 
-    public func traitCollectionChanged() {
+    func traitCollectionChanged() {
         coreGCD.after(.milliseconds(100)) {
             self.uiSegmentBackgroundViews.forEach {
                 $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
@@ -292,7 +292,7 @@ public final class ChatInfoPageViewService {
     /// `.changeMetadataActionSheetDismissed(.name)`
     /// `.changeMetadataActionSheetDismissed(.removePhoto)`
     /// `.selectedImageChanged`
-    public func updateMetadata(
+    func updateMetadata(
         _ conversation: Conversation,
         action: Activity.Action,
         newMetadata: ConversationMetadata
@@ -318,13 +318,13 @@ public final class ChatInfoPageViewService {
         }
     }
 
-    public func viewAppeared() {
+    func viewAppeared() {
         uiApplication.resignFirstResponders()
         UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
     }
 
     /// `.getChatParticipantsReturned(.success)`
-    public func viewLoaded(withSingleCNContactContainer isPresentingSingleUserContactInfo: Bool) {
+    func viewLoaded(withSingleCNContactContainer isPresentingSingleUserContactInfo: Bool) {
         defer {
             coreGCD.after(.seconds(1)) {
                 self.uiSegmentBackgroundViews.forEach {
@@ -339,7 +339,7 @@ public final class ChatInfoPageViewService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedChatParticipantsForUserIDs = nil
     }
 
@@ -357,6 +357,6 @@ public final class ChatInfoPageViewService {
             .last?
             .isNavigationBarHidden = true
 
-        coreGCD.after(.seconds(1)) { self.hideAdditionalNavigationBarIfNeeded() }
+        coreGCD.after(.milliseconds(500)) { self.hideAdditionalNavigationBarIfNeeded() }
     }
 }

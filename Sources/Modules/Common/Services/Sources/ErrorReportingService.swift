@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public final class ErrorReportingService: AlertKit.ReportDelegate {
+final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -29,11 +29,11 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
 
     // MARK: - Properties
 
-    public private(set) var reportedErrorCodes = [String]()
+    private(set) var reportedErrorCodes = [String]()
 
     // MARK: - Init
 
-    public init() {}
+    init() {}
 
     // MARK: - Computed Properties
 
@@ -63,11 +63,11 @@ public final class ErrorReportingService: AlertKit.ReportDelegate {
 
     // MARK: - File Report
 
-    public func fileReport(_ error: any AlertKit.Errorable) {
+    func fileReport(_ error: any AlertKit.Errorable) {
         _fileReport(error)
     }
 
-    public func fileReport(
+    func fileReport(
         _ error: any AlertKit.Errorable,
         showsToastOnSuccess: Bool
     ) {

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum RichMessageContent: Codable, Equatable {
+enum RichMessageContent: Codable, Equatable {
     // MARK: - Cases
 
     case audio([AudioMessageReference])
@@ -17,14 +17,14 @@ public enum RichMessageContent: Codable, Equatable {
 
     // MARK: - Properties
 
-    public var audioComponents: [AudioMessageReference]? {
+    var audioComponents: [AudioMessageReference]? {
         switch self {
         case let .audio(audioComponents): return audioComponents
         default: return nil
         }
     }
 
-    public var documentComponent: MediaFile? {
+    var documentComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):
             guard mediaComponent.fileExtension.isDocument else { return nil }
@@ -35,7 +35,7 @@ public enum RichMessageContent: Codable, Equatable {
         }
     }
 
-    public var imageComponent: MediaFile? {
+    var imageComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):
             guard mediaComponent.fileExtension.isImage else { return nil }
@@ -46,14 +46,14 @@ public enum RichMessageContent: Codable, Equatable {
         }
     }
 
-    public var mediaComponent: MediaFile? {
+    var mediaComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent): return mediaComponent
         default: return nil
         }
     }
 
-    public var videoComponent: MediaFile? {
+    var videoComponent: MediaFile? {
         switch self {
         case let .media(mediaComponent):
             guard mediaComponent.fileExtension.isVideo else { return nil }

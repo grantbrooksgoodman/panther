@@ -13,19 +13,19 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
+struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
     // MARK: - Type Aliases
 
-    public typealias Content = UIImage
+    typealias Content = UIImage
 
     // MARK: - Properties
 
-    public var onDismiss: (Exception?) -> Void
-    public var onSelection: (UIImage) -> Void
+    var onDismiss: (Exception?) -> Void
+    var onSelection: (UIImage) -> Void
 
     // MARK: - Init
 
-    public init(
+    init(
         onSelection: @escaping (UIImage) -> Void,
         onDismiss: @escaping ((Exception?) -> Void)
     ) {
@@ -35,13 +35,13 @@ public struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Make Coordinator
 
-    public func makeCoordinator() -> Coordinator {
+    func makeCoordinator() -> Coordinator {
         .init(delegate: self)
     }
 
     // MARK: - Make UIViewController
 
-    public func makeUIViewController(context: Context) -> UIImagePickerController {
+    func makeUIViewController(context: Context) -> UIImagePickerController {
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = context.coordinator
         imagePickerController.sourceType = .camera
@@ -50,5 +50,5 @@ public struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Update UIViewController
 
-    public func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }

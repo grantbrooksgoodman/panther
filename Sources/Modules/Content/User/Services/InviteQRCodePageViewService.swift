@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct InviteQRCodePageViewService {
+struct InviteQRCodePageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.metadata.appShareLink) private var appShareLink: URL?
@@ -21,7 +21,7 @@ public struct InviteQRCodePageViewService {
 
     // MARK: - Properties
 
-    public var appShareQRCodeImage: UIImage? {
+    var appShareQRCodeImage: UIImage? {
         guard let appShareLink else { return nil }
         return generateQRCode(from: appShareLink.absoluteString, outputSize: .init(width: 500, height: 500))
     }

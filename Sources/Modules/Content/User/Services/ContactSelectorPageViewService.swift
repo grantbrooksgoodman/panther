@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct ContactSelectorPageViewService {
+struct ContactSelectorPageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -27,7 +27,7 @@ public struct ContactSelectorPageViewService {
 
     // MARK: - Reducer Action Handlers
 
-    public func cancelToolbarButtonTapped(from entryPoint: ContactSelectorPageView.EntryPoint) {
+    func cancelToolbarButtonTapped(from entryPoint: ContactSelectorPageView.EntryPoint) {
         navigation.navigate(to: .chat(.sheet(.none)))
 
         guard entryPoint == .newChatPageView else { return }
@@ -50,11 +50,11 @@ public struct ContactSelectorPageViewService {
     }
 
     /// `.searchQuerySubmitted`
-    public func findUser(with phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
+    func findUser(with phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
         await networking.userService.getUser(phoneNumber: phoneNumber)
     }
 
-    public func inviteToolbarButtonTapped() {
+    func inviteToolbarButtonTapped() {
         Task { @MainActor in
             if let exception = await inviteService.presentInvitationPrompt() {
                 Logger.log(exception, with: .toast)
@@ -63,7 +63,7 @@ public struct ContactSelectorPageViewService {
     }
 
     /// `.findUserReturned(.failure)`
-    public func presentInvitationPrompt(phoneNumber: PhoneNumber) async {
+    func presentInvitationPrompt(phoneNumber: PhoneNumber) async {
         let inviteAction = AKAction("Send Invite", style: .preferred) { inviteToolbarButtonTapped() }
         await AKAlert(
             title: phoneNumber.formattedString(),
@@ -76,7 +76,7 @@ public struct ContactSelectorPageViewService {
     }
 
     @MainActor
-    public func selectedContactPairChanged(
+    func selectedContactPairChanged(
         _ selectedContactPair: ContactPair,
         from entryPoint: ContactSelectorPageView.EntryPoint
     ) async {
@@ -111,13 +111,19 @@ public struct ContactSelectorPageViewService {
                 }
             }
 
+            var sourceItemString = user.displayName
+            let components = user.displayName.components(separatedBy: " ")
+            if let lastComponent = components.last,
+               components.count > 1,
+               sourceItemString != user.phoneNumber.formattedString() {
+                sourceItemString = lastComponent
+            }
+
             await AKActionSheet(
                 message: UIApplication.v26FeaturesEnabled ? nil : user.displayName,
                 actions: [addToConversationAction],
                 cancelButtonTitle: Localized(.cancel).wrappedValue,
-                sourceItem: .custom(.string(
-                    user.displayName.components(separatedBy: " ").last ?? user.displayName
-                ))
+                sourceItem: .custom(.string(sourceItemString))
             ).present(translating: [.actions([])])
 
         case .newChatPageView:

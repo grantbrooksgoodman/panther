@@ -21,7 +21,7 @@ import Translator
 /* 3rd-party */
 import MessageKit
 
-public final class ContextMenuActionHandlerService {
+final class ContextMenuActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.ContextMenu
@@ -40,7 +40,7 @@ public final class ContextMenuActionHandlerService {
 
     // MARK: - Properties
 
-    public private(set) var speakingMessage: Message?
+    private(set) var speakingMessage: Message?
 
     private let viewController: ChatPageViewController
 
@@ -48,7 +48,7 @@ public final class ContextMenuActionHandlerService {
 
     // MARK: - Computed Properties
 
-    public var speakingCell: MessageContentCell? {
+    var speakingCell: MessageContentCell? {
         viewController.messagesCollectionView.visibleCells.first(where: {
             guard let indexPath = viewController.messagesCollectionView.indexPath(for: $0),
                   let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
@@ -75,13 +75,13 @@ public final class ContextMenuActionHandlerService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Menu for Message
 
-    public func menuForMessage(_ message: Message) -> Menu? {
+    func menuForMessage(_ message: Message) -> Menu? {
         guard !message.isConsentMessage else { return nil }
         var actions: [MenuElement] = message.reactions == nil ? [] : [
             .init(
@@ -113,7 +113,7 @@ public final class ContextMenuActionHandlerService {
 
     // MARK: - Reset Speaking Message
 
-    public func resetSpeakingMessage() {
+    func resetSpeakingMessage() {
         speakingMessage = nil
     }
 

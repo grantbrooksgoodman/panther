@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct UserContentContainerView: View {
+struct UserContentContainerView: View {
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.UserContentContainerView
@@ -46,14 +46,14 @@ public struct UserContentContainerView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<UserContentContainerReducer>) {
+    init(_ viewModel: ViewModel<UserContentContainerReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
     @ViewBuilder
-    public var body: some View {
+    var body: some View {
         NavigationStack(path: navigationPathBinding) {
             ConversationsPageView(
                 .init(

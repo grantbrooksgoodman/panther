@@ -10,10 +10,10 @@
 import Foundation
 import UIKit
 
-public final class MenuView: UIView {
+final class MenuView: UIView {
     // MARK: - Types
 
-    public struct Style {
+    struct Style {
         /* MARK: Properties */
 
         // AnimationParameters
@@ -31,7 +31,7 @@ public final class MenuView: UIView {
 
         /* MARK: Init */
 
-        public init(
+        init(
             backgroundColor: UIColor = .white.withAlphaComponent(0.5),
             cornerRadius: CGFloat = 12,
             element: MenuElementView.Style = MenuElementView.Style(),

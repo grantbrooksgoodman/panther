@@ -9,11 +9,11 @@
 /* Native */
 import Foundation
 
-public enum NotificationExtensionConstants {
-    public static let appGroupDefaultsSuiteName = "group.us.neotechnica.notifications"
-    public static let contactArchiveDefaultsKeyName = "notificationExtensionContactArchive"
-    public static let conversationNameMapDefaultsKeyName = "notificationExtensionConversationNameMap"
-    public static let conversationIDKeyUserInfoKey = "conversationIDKey"
-    public static let isReactionUserInfoKey = "isReaction"
-    public static let userNumberHashUserInfoKey = "userNumberHash"
+enum NotificationExtensionConstants {
+    static let appGroupDefaultsSuiteName = "group.us.neotechnica.notifications"
+    static let contactArchiveDefaultsKeyName = "notificationExtensionContactArchive"
+    static let conversationNameMapDefaultsKeyName = "notificationExtensionConversationNameMap"
+    static let conversationIDKeyUserInfoKey = "conversationIDKey"
+    static let isReactionUserInfoKey = "isReaction"
+    static let userNumberHashUserInfoKey = "userNumberHash"
 }

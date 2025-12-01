@@ -10,7 +10,7 @@
 import Foundation
 import SwiftUI
 
-public enum NavigationTransition {
+enum NavigationTransition {
     case didAppear
     case didDisappear
     case willAppear
@@ -27,7 +27,7 @@ private struct OnNavigationTransitionViewModifier: ViewModifier {
 
     // MARK: - Init
 
-    public init(
+    init(
         onViewDidAppear: ((Duration) -> Void)?,
         onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
@@ -65,7 +65,7 @@ private struct TransitionDurationReader: UIViewControllerRepresentable {
 
     // MARK: - Init
 
-    public init(
+    init(
         onViewDidAppear: ((Duration) -> Void)?,
         onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
@@ -103,7 +103,7 @@ private final class TransitionTrackingViewController: UIViewController {
 
     // MARK: - Init
 
-    public convenience init(
+    convenience init(
         onViewDidAppear: ((Duration) -> Void)?,
         onViewDidDisappear: ((Duration) -> Void)?,
         onViewWillAppear: ((Duration) -> Void)?,
@@ -173,7 +173,7 @@ private final class TransitionTrackingViewController: UIViewController {
     }
 }
 
-public extension View {
+extension View {
     func onNavigationTransition(
         _ transition: NavigationTransition,
         effect: @escaping ((Duration) -> Void)

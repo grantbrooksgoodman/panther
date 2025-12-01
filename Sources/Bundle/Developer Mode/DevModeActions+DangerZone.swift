@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public extension DevModeAction.AppActions {
+extension DevModeAction.AppActions {
     enum DangerZone {
         private enum Action {
             /* MARK: Cases */

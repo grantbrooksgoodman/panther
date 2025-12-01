@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - Media File Extension
 
-public enum MediaFileExtension: Codable, Equatable, CaseIterable {
+enum MediaFileExtension: Codable, Equatable, CaseIterable {
     /* MARK: Cases */
 
     case audio(AudioFileExtension)
@@ -21,14 +21,14 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
     /* MARK: Properties */
 
-    public static let hostedCases: [MediaFileExtension] = [
+    static let hostedCases: [MediaFileExtension] = [
         .audio(.m4a),
         .document(.pdf),
         .image(.jpeg),
         .video(.mp4),
     ]
 
-    public static var allCases: [MediaFileExtension] = [
+    static var allCases: [MediaFileExtension] = [
         .audio(.caf),
         .audio(.m4a),
         .document(.pdf),
@@ -41,28 +41,28 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
     /* MARK: Computed Properties */
 
     // Boolean
-    public var isAudio: Bool {
+    var isAudio: Bool {
         switch self {
         case .audio: true
         default: false
         }
     }
 
-    public var isDocument: Bool {
+    var isDocument: Bool {
         switch self {
         case .document: true
         default: false
         }
     }
 
-    public var isImage: Bool {
+    var isImage: Bool {
         switch self {
         case .image: true
         default: false
         }
     }
 
-    public var isVideo: Bool {
+    var isVideo: Bool {
         switch self {
         case .video: true
         default: false
@@ -70,7 +70,7 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
     }
 
     // String
-    public var contentTypeString: String {
+    var contentTypeString: String {
         switch self {
         case let .audio(fileExtension): fileExtension.contentTypeString
         case let .document(fileExtension): fileExtension.contentTypeString
@@ -79,7 +79,7 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
         }
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case let .audio(fileExtension): fileExtension.rawValue
         case let .document(fileExtension): fileExtension.rawValue
@@ -90,7 +90,7 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
     /* MARK: Init */
 
-    public init?(_ string: String) {
+    init?(_ string: String) {
         let rawValue = string.lowercasedTrimmingWhitespaceAndNewlines
         if rawValue == AudioFileExtension.caf.rawValue {
             self = .audio(.caf)
@@ -114,7 +114,7 @@ public enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
 // MARK: - Audio File Extension
 
-public enum AudioFileExtension: String, Codable, Equatable {
+enum AudioFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case caf
@@ -122,7 +122,7 @@ public enum AudioFileExtension: String, Codable, Equatable {
 
     /* MARK: Properties */
 
-    public var contentTypeString: String {
+    var contentTypeString: String {
         switch self {
         case .caf: "audio/x-caf"
         case .m4a: "audio/m4a"
@@ -132,14 +132,14 @@ public enum AudioFileExtension: String, Codable, Equatable {
 
 // MARK: - Document File Extension
 
-public enum DocumentFileExtension: String, Codable, Equatable {
+enum DocumentFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case pdf
 
     /* MARK: Properties */
 
-    public var contentTypeString: String {
+    var contentTypeString: String {
         switch self {
         case .pdf: "application/pdf"
         }
@@ -148,7 +148,7 @@ public enum DocumentFileExtension: String, Codable, Equatable {
 
 // MARK: - Image File Extension
 
-public enum ImageFileExtension: String, Codable, Equatable {
+enum ImageFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case jpeg
@@ -157,7 +157,7 @@ public enum ImageFileExtension: String, Codable, Equatable {
 
     /* MARK: Properties */
 
-    public var contentTypeString: String {
+    var contentTypeString: String {
         switch self {
         case .jpeg,
              .jpg: "image/jpeg"
@@ -168,14 +168,14 @@ public enum ImageFileExtension: String, Codable, Equatable {
 
 // MARK: - Video File Extension
 
-public enum VideoFileExtension: String, Codable, Equatable {
+enum VideoFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case mp4
 
     /* MARK: Properties */
 
-    public var contentTypeString: String {
+    var contentTypeString: String {
         switch self {
         case .mp4: "video/mp4"
         }

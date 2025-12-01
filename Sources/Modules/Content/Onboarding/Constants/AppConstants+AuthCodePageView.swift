@@ -15,33 +15,33 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum AuthCodePageView {
-        public static let backButtonLabelFontSize: CGFloat = 15
-        public static let backButtonTopPadding: CGFloat = 2
+        static let backButtonLabelFontSize: CGFloat = 15
+        static let backButtonTopPadding: CGFloat = 2
 
-        public static let continueButtonTopPadding: CGFloat = 10
+        static let continueButtonTopPadding: CGFloat = 10
 
-        public static let innerVStackBottomPadding: CGFloat = 50
-        public static let instructionLabelVerticalPadding: CGFloat = 5
+        static let innerVStackBottomPadding: CGFloat = 50
+        static let instructionLabelVerticalPadding: CGFloat = 5
 
-        public static let textFieldHorizontalPadding: CGFloat = 20
-        public static let textFieldVerticalPadding: CGFloat = 2
+        static let textFieldHorizontalPadding: CGFloat = 20
+        static let textFieldVerticalPadding: CGFloat = 2
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum AuthCodePageView {
-        public static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground: Color = .gray
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum AuthCodePageView {
-        public static let textFieldPlaceholder = "000000"
+        static let textFieldPlaceholder = "000000"
     }
 }

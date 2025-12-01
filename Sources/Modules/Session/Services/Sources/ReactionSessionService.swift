@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public final class ReactionSessionService {
+final class ReactionSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -30,14 +30,14 @@ public final class ReactionSessionService {
     @LockIsolated private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
 
     // Other
-    public private(set) var isReactingToMessage = false {
+    private(set) var isReactingToMessage = false {
         didSet { didSetIsReactingToMessage() }
     }
 
     // MARK: - Add Effect
 
     /// Adds an effect to be run once, upon a change in value of `isReactingToMessage`.
-    public func addEffectUponIsReactingToMessage(
+    func addEffectUponIsReactingToMessage(
         changedTo state: Bool,
         id: ReactionSessionServiceEffectID,
         _ effect: @escaping () -> Void
@@ -53,7 +53,7 @@ public final class ReactionSessionService {
     // MARK: - React to Message
 
     @MainActor
-    public func react(_ reaction: Reaction, to message: Message) async -> Exception? {
+    func react(_ reaction: Reaction, to message: Message) async -> Exception? {
         guard !message.isMock else { return nil }
         guard let conversation = conversationSession.fullConversation,
               let currentUserID = User.currentUserID,

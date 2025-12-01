@@ -9,12 +9,12 @@
 /* Native */
 import Foundation
 
-public protocol ContextMenuAnimatable {
+protocol ContextMenuAnimatable {
     func appearAnimation(completion: (() -> Void)?)
     func disappearAnimation(completion: (() -> Void)?)
 }
 
-public extension ContextMenuAnimatable {
+extension ContextMenuAnimatable {
     func appearAnimation() { appearAnimation(completion: nil) }
     func disappearAnimation() { disappearAnimation(completion: nil) }
 }

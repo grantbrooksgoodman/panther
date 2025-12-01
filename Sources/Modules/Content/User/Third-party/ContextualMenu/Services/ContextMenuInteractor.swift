@@ -41,7 +41,7 @@ final class ContextMenuInteractor {
 
     // MARK: - Dismiss Context Menu
 
-    public func dismissContextMenu(view: UIView, completion: (() -> Void)?) {
+    func dismissContextMenu(view: UIView, completion: (() -> Void)?) {
         dismissContextMenu(
             interaction: interactions.object(forKey: view),
             completion: completion

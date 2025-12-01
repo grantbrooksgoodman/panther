@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum ModerationType: String {
+enum ModerationType: String {
     // MARK: - Cases
 
     case block
@@ -18,7 +18,7 @@ public enum ModerationType: String {
 
     // MARK: - Properties
 
-    public var allUsersConfirmationMessage: String {
+    var allUsersConfirmationMessage: String {
         switch self { // swiftlint:disable:next line_length
         case .block: "Are you sure you'd like to block all users in this conversation?\n\nYou will no longer receive messages from any chat in which you and any of these users are participants. This can be changed later in Settings.\n\nThe other users will not know you have blocked them."
         case .report: "Are you sure you'd like to report all users in this conversation for improper conduct?"
@@ -26,7 +26,7 @@ public enum ModerationType: String {
         }
     }
 
-    public var singleUserConfirmationMessage: String {
+    var singleUserConfirmationMessage: String {
         switch self { // swiftlint:disable:next line_length
         case .block: "Are you sure you'd like to block this user?\n\nYou will no longer receive messages from any chat in which you and this user are participants. This can be changed later in Settings.\n\nThe other user will not know you have blocked them."
         case .report: "Are you sure you'd like to report this user for improper conduct?"

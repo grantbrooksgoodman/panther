@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SearchBar: View {
+struct SearchBar: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SearchBar
@@ -32,7 +32,7 @@ public struct SearchBar: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ query: Binding<String>,
         bottomPadding: CGFloat = AppConstants.CGFloats.SearchBar.defaultBottomPadding,
         keyboardType: UIKeyboardType? = nil,
@@ -48,7 +48,7 @@ public struct SearchBar: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         HStack {
             HStack {
                 Components.symbol(

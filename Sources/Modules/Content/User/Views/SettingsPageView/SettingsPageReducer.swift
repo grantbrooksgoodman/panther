@@ -15,7 +15,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct SettingsPageReducer: Reducer {
+struct SettingsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -27,7 +27,7 @@ public struct SettingsPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case blockedUsersButtonTapped
@@ -53,7 +53,7 @@ public struct SettingsPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Constants Accessors */
 
         private typealias Strings = AppConstants.Strings.SettingsPageView
@@ -61,70 +61,70 @@ public struct SettingsPageReducer: Reducer {
         /* MARK: Properties */
 
         // Array
-        public var developerModeListItems: [ListRowView.Configuration]?
-        public var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
+        var developerModeListItems: [ListRowView.Configuration]?
+        var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
 
         // Bool
-        public var isMessageRecipientConsentSwitchToggled = false
-        public var isPenPalsParticipantSwitchToggled = false
+        var isMessageRecipientConsentSwitchToggled = false
+        var isPenPalsParticipantSwitchToggled = false
 
         fileprivate var traitCollectionChanged = false
 
         // String
-        public let doneToolbarButtonText = Localized(.done).wrappedValue
-        public let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["…"])
+        let doneToolbarButtonText = Localized(.done).wrappedValue
+        let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["…"])
 
-        public var contactDetailViewSubtitleLabelText: String?
-        public var contactDetailViewTitleLabelText = ""
+        var contactDetailViewSubtitleLabelText: String?
+        var contactDetailViewTitleLabelText = ""
 
         // UUID
-        public var groupedListViewsID = UUID()
-        public var viewID = UUID()
+        var groupedListViewsID = UUID()
+        var viewID = UUID()
 
         // Other
-        public var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
-        public var contactDetailViewImage: UIImage?
-        public var cnContact: CNContact?
-        public var viewState: StatefulView.ViewState = .loading
+        var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
+        var contactDetailViewImage: UIImage?
+        var cnContact: CNContact?
+        var viewState: StatefulView.ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0
 
         /* MARK: Computed Properties */
 
         // Bool
-        public var isBlockedUsersButtonEnabled: Bool {
+        var isBlockedUsersButtonEnabled: Bool {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return !(blockedUserIDs ?? []).isBangQualifiedEmpty
         }
 
-        public var isChangeThemeButtonEnabled: Bool {
+        var isChangeThemeButtonEnabled: Bool {
             @Persistent(.init("pendingThemeID")) var pendingThemeID: String?
             return pendingThemeID == nil
         }
 
         // UIImage
-        public var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
-        public var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
+        var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
+        var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
 
         // Other
-        public var blockedUsersButtonText: String {
+        var blockedUsersButtonText: String {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
         }
 
-        public var navigationBarAppearance: NavigationBarAppearance {
+        var navigationBarAppearance: NavigationBarAppearance {
             guard !Application.isInPrevaricationMode else { return .appDefault }
             return ThemeService.isAppDefaultThemeApplied ? .default() : .themed()
         }
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

@@ -13,13 +13,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct AudioService {
+struct AudioService {
     // MARK: - Types
 
-    public enum FileNames {
-        public static let inputM4A = "input.\(MediaFileExtension.audio(.m4a).rawValue)"
-        public static let outputCAF = "output.\(MediaFileExtension.audio(.caf).rawValue)"
-        public static let outputM4A = "output.\(MediaFileExtension.audio(.m4a).rawValue)"
+    enum FileNames {
+        static let inputM4A = "input.\(MediaFileExtension.audio(.m4a).rawValue)"
+        static let outputCAF = "output.\(MediaFileExtension.audio(.caf).rawValue)"
+        static let outputM4A = "output.\(MediaFileExtension.audio(.m4a).rawValue)"
     }
 
     // MARK: - Dependencies
@@ -28,16 +28,16 @@ public struct AudioService {
 
     // MARK: - Properties
 
-    public let playback: PlaybackService
-    public let recording: RecordingService
-    public let textToSpeech: TextToSpeechService
-    public let transcription: TranscriptionService
+    let playback: PlaybackService
+    let recording: RecordingService
+    let textToSpeech: TextToSpeechService
+    let transcription: TranscriptionService
 
-    @Persistent(.acknowledgedAudioMessagesUnsupported) public var acknowledgedAudioMessagesUnsupported: Bool?
+    @Persistent(.acknowledgedAudioMessagesUnsupported) var acknowledgedAudioMessagesUnsupported: Bool?
 
     // MARK: - Init
 
-    public init(
+    init(
         playback: PlaybackService,
         recording: RecordingService,
         textToSpeech: TextToSpeechService,
@@ -52,7 +52,7 @@ public struct AudioService {
     // MARK: - Methods
 
     @discardableResult
-    public func activateAudioSession() -> Exception? {
+    func activateAudioSession() -> Exception? {
         do {
             try avAudioSession.setCategory(
                 .playAndRecord,

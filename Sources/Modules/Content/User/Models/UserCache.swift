@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum UserCache {
+enum UserCache {
     // MARK: - Properties
 
     // TODO: Clear on updatedCurrentUser & syncContactPairArchive.
@@ -66,7 +66,7 @@ public enum UserCache {
 
     // MARK: - Methods
 
-    public static func clearCache() {
+    static func clearCache() {
         _UserCache.clearCache()
     }
 }

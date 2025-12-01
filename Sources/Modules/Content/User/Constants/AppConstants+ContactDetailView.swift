@@ -15,29 +15,29 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ContactDetailView {
-        public static let avatarImageViewTrailingPadding: CGFloat = 2
-        public static let chevronImageFrameMaxHeight: CGFloat = 15
-        public static let chevronImageFrameMaxWidth: CGFloat = 15
-        public static let cornerRadius: CGFloat = 8
-        public static let glassEffectPadding: CGFloat = 4
+        static let avatarImageViewTrailingPadding: CGFloat = 2
+        static let chevronImageFrameMaxHeight: CGFloat = 15
+        static let chevronImageFrameMaxWidth: CGFloat = 15
+        static let cornerRadius: CGFloat = 8
+        static let glassEffectPadding: CGFloat = 4
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ContactDetailView {
-        public static let darkBackground: Color = .init(uiColor: UIColor(hex: 0x2A2A2C))
-        public static let lightBackground: Color = .white
+        static let darkBackground: Color = .init(uiColor: UIColor(hex: 0x2A2A2C))
+        static let lightBackground: Color = .white
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ContactDetailView {
-        public static let chevronImageSystemName = "chevron.forward"
+        static let chevronImageSystemName = "chevron.forward"
     }
 }

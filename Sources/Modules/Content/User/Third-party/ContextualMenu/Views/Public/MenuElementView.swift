@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public final class MenuElementView: UIView {
+final class MenuElementView: UIView {
     // MARK: - Properties
 
     let element: MenuElement

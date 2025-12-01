@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public extension DevModeAction.AppActions {
+extension DevModeAction.AppActions {
     enum Breadcrumbs {
         // MARK: - Manage Breadcrumbs Capture Action
 

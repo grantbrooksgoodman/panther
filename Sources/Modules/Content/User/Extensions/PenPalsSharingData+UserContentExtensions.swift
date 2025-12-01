@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension PenPalsSharingData {
+extension PenPalsSharingData {
     /// - Note: Returns `nil` if accessed on the current user.
     var sharesDataWithCurrentUser: Bool? {
         guard let currentUserID = User.currentUserID,

@@ -17,7 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct UserTestingService {
+struct UserTestingService {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -93,7 +93,7 @@ public struct UserTestingService {
     // MARK: - Create Random Messages
 
     @MainActor
-    public func createRandomMessages(count: Int = 1) async -> Exception? {
+    func createRandomMessages(count: Int = 1) async -> Exception? {
         guard isOnProperEnvironment else {
             return .environmentIntrusionDetected(
                 metadata: .init(sender: self)

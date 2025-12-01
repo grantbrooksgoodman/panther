@@ -15,7 +15,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RecipientBarLayoutService {
+final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService.RecipientBarService.Layout
@@ -38,24 +38,24 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
-    public var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
-    public var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    public var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
-    public var textField: UITextField? { recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
-    public var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
-    public var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
+    var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
+    var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
+    var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
+    var textField: UITextField? { recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
+    var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
+    var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
 
     private var screenWidth: CGFloat { uiApplication.mainScreen.bounds.width }
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Layout Subviews
 
-    public func layoutSubviews() {
+    func layoutSubviews() {
         configureBackgroundColor()
         configureBorders()
 
@@ -76,7 +76,7 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Remove from Superview
 
-    public func removeFromSuperview() {
+    func removeFromSuperview() {
         Task { @MainActor in
             recipientBarView?.removeFromSuperview()
             viewController.messagesCollectionView.contentInset.top = 0
@@ -87,7 +87,7 @@ public final class RecipientBarLayoutService {
 
     // MARK: - Set Is User Interaction Enabled
 
-    public func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
+    func setIsUserInteractionEnabled(_ isUserInteractionEnabled: Bool) {
         Task { @MainActor in
             Observables.isNewChatPageDoneToolbarButtonEnabled.value = isUserInteractionEnabled
 
@@ -109,7 +109,7 @@ public final class RecipientBarLayoutService {
 
     // MARK: - UI Configuration
 
-    public func configureBorders() {
+    func configureBorders() {
         func satisfiesConstraints(_ layer: CALayer) -> Bool {
             guard layer.backgroundColor == UIColor(Colors.darkBorder).cgColor || layer.backgroundColor == UIColor(Colors.lightBorder).cgColor,
                   layer.frame.height == Floats.borderHeight else { return false }

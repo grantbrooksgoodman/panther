@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum OnboardingServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> OnboardingService {
+enum OnboardingServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> OnboardingService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var onboardingService: OnboardingService {
         get { self[OnboardingServiceDependency.self] }
         set { self[OnboardingServiceDependency.self] = newValue }

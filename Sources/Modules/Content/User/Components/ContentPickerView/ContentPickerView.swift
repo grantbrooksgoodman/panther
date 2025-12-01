@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct ContentPickerView<Content>: View {
+struct ContentPickerView<Content>: View {
     // MARK: - Properties
 
     private let source: ContentPickerContentSource
@@ -22,7 +22,7 @@ public struct ContentPickerView<Content>: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ source: ContentPickerContentSource,
         onSelection: @escaping (Content) -> Void,
         onDismiss: @escaping (Exception?) -> Void
@@ -34,7 +34,7 @@ public struct ContentPickerView<Content>: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         switch source {
         case .camera:
             CameraPickerView { image in

@@ -13,14 +13,14 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct RemoteCacheService {
+struct RemoteCacheService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Remote Cache Status Configuration
 
-    public func cacheStatus(userID: String) async -> Callback<RemoteCacheStatus, Exception> {
+    func cacheStatus(userID: String) async -> Callback<RemoteCacheStatus, Exception> {
         let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
 
         switch getValuesResult {
@@ -36,7 +36,7 @@ public struct RemoteCacheService {
         }
     }
 
-    public func setCacheStatus(_ cacheStatus: RemoteCacheStatus, userID: String) async -> Exception? {
+    func setCacheStatus(_ cacheStatus: RemoteCacheStatus, userID: String) async -> Exception? {
         let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
 
         switch getValuesResult {

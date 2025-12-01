@@ -14,7 +14,7 @@ import AppSubsystem
 import Translator
 
 // swiftlint:disable:next type_body_length
-public final class MessageDeliveryService {
+final class MessageDeliveryService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -24,7 +24,7 @@ public final class MessageDeliveryService {
 
     // MARK: - Properties
 
-    public private(set) var isSendingMessage = false {
+    private(set) var isSendingMessage = false {
         didSet { didSetIsSendingMessage() }
     }
 
@@ -57,7 +57,7 @@ public final class MessageDeliveryService {
     // MARK: - Add Effect
 
     /// Adds an effect to be run once, upon a change in value of `isSendingMessage`.
-    public func addEffectUponIsSendingMessage(
+    func addEffectUponIsSendingMessage(
         changedTo state: Bool,
         id: MessageDeliveryServiceEffectID,
         _ effect: @escaping () -> Void
@@ -72,7 +72,7 @@ public final class MessageDeliveryService {
 
     // MARK: - Send Audio Message
 
-    public func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
+    func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
         guard !users.isEmpty else { return nil }
 
         isSendingMessage = true
@@ -133,7 +133,7 @@ public final class MessageDeliveryService {
 
     // MARK: - Send Media Message
 
-    public func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
+    func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
         guard !users.isEmpty else { return nil }
 
         services.haptics.generateFeedback(.medium)
@@ -181,7 +181,7 @@ public final class MessageDeliveryService {
 
     // MARK: - Send Text Message
 
-    public func sendTextMessage(_ text: String) async -> Exception? {
+    func sendTextMessage(_ text: String) async -> Exception? {
         guard !users.isEmpty,
               !text.isBlank else { return nil }
 

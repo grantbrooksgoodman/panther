@@ -15,21 +15,21 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum SystemMessageCell {
-        public static let activityStringSystemFontSize: CGFloat = 12
-        public static let additionalVerticalPadding: CGFloat = 10
-        public static let defaultHeight: CGFloat = 44
-        public static let labelMinimumScaleFactor: CGFloat = 0.9
-        public static let labelNumberOfLines: CGFloat = 3
-        public static let labelParagraphStyleLineSpacing: CGFloat = 4
+        static let activityStringSystemFontSize: CGFloat = 12
+        static let additionalVerticalPadding: CGFloat = 10
+        static let defaultHeight: CGFloat = 44
+        static let labelMinimumScaleFactor: CGFloat = 0.9
+        static let labelNumberOfLines: CGFloat = 3
+        static let labelParagraphStyleLineSpacing: CGFloat = 4
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum SystemMessageCell { // NIT: Using UIColor for this.
-        public static let activityStringForeground: UIColor = ThemeService.isDarkModeActive ? UIColor.lightGray : .gray
+        static let activityStringForeground: UIColor = ThemeService.isDarkModeActive ? UIColor.lightGray : .systemGray
     }
 }

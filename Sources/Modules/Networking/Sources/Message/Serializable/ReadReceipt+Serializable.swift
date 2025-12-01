@@ -16,18 +16,18 @@ import Networking
 extension ReadReceipt: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = ReadReceipt
+    typealias T = ReadReceipt
 
     // MARK: - Properties
 
-    public var encoded: String {
+    var encoded: String {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return "\(userID) | \(dateFormatter.string(from: readDate))"
     }
 
     // MARK: - Methods
 
-    public static func canDecode(from data: String) -> Bool {
+    static func canDecode(from data: String) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         let components = data.components(separatedBy: " | ")
@@ -38,7 +38,7 @@ extension ReadReceipt: Serializable {
         return true
     }
 
-    public static func decode(from data: String) async -> Callback<ReadReceipt, Exception> {
+    static func decode(from data: String) async -> Callback<ReadReceipt, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         let components = data.components(separatedBy: " | ")

@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct Participant: Codable, Equatable {
+struct Participant: Codable, Equatable {
     // MARK: - Properties
 
     // Bool
-    public let hasDeletedConversation: Bool
-    public let isTyping: Bool
+    let hasDeletedConversation: Bool
+    let isTyping: Bool
 
     // String
-    public let userID: String
+    let userID: String
 
     // MARK: - Init
 
-    public init(
+    init(
         userID: String,
         hasDeletedConversation: Bool = false,
         isTyping: Bool = false

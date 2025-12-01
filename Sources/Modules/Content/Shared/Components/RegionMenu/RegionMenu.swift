@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct RegionMenu: View {
+struct RegionMenu: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.RegionMenu
@@ -31,13 +31,13 @@ public struct RegionMenu: View {
 
     // MARK: - Init
 
-    public init(_ selectedRegionCode: Binding<String>) {
+    init(_ selectedRegionCode: Binding<String>) {
         _selectedRegionCode = selectedRegionCode
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         Button {
             isPresented.toggle()
         } label: {
@@ -129,13 +129,13 @@ private struct RegionPickerView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<RegionMenuReducer>) {
+    init(_ viewModel: ViewModel<RegionMenuReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         if viewModel.isPresented.wrappedValue {
             ScrollViewReader { proxy in
                 SearchBar.inView(withQuery: searchQueryBinding) {

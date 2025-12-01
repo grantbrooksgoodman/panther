@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension Date { // swiftlint:disable:next identifier_name
+extension Date { // swiftlint:disable:next identifier_name
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.Date
 

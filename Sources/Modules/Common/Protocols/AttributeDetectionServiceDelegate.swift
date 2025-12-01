@@ -14,20 +14,20 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-public protocol AttributeDetectionServiceDelegate: AnyObject {
+protocol AttributeDetectionServiceDelegate: AnyObject {
     func didSelectDate(_ date: Date, inText text: String)
     func didSelectPhoneNumber(_ phoneNumber: String)
     func didSelectURL(_ url: URL, inText text: String)
 }
 
-public final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate {
+final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Properties
 
-    public static let shared = DefaultAttributeDetectionServiceDelegate()
+    static let shared = DefaultAttributeDetectionServiceDelegate()
 
     // MARK: - Init
 
@@ -35,7 +35,7 @@ public final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionS
 
     // MARK: - Did Select Date
 
-    public func didSelectDate(_ date: Date, inText text: String) {
+    func didSelectDate(_ date: Date, inText text: String) {
         guard let url = URL(string: "calshow:\(date.timeIntervalSinceReferenceDate)") else { return }
         let nonEnglishTitle = "Show in the calendar"
         confirmSelection(
@@ -47,14 +47,14 @@ public final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionS
 
     // MARK: - Did Select Phone Number
 
-    public func didSelectPhoneNumber(_ phoneNumber: String) {
+    func didSelectPhoneNumber(_ phoneNumber: String) {
         guard let url = URL(string: "tel://\(phoneNumber.digits)") else { return }
         openURL(url)
     }
 
     // MARK: - Did Select URL
 
-    public func didSelectURL(_ url: URL, inText text: String) {
+    func didSelectURL(_ url: URL, inText text: String) {
         confirmSelection(
             "Open in \(RuntimeStorage.languageCode == "en" ? "Safari" : "browser")",
             text: text,

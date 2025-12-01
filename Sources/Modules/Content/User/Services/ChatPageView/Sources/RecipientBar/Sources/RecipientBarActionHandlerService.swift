@@ -14,7 +14,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-public final class RecipientBarActionHandlerService {
+final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ActionHandler
@@ -33,13 +33,13 @@ public final class RecipientBarActionHandlerService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - On Superfluous Backspace
 
-    public func onSuperflousBackspace() {
+    func onSuperflousBackspace() {
         guard let service = chatPageViewService.recipientBar else { return }
 
         /// - Returns: A boolean value indicating whether or not the view was configured for the given sublevels.
@@ -73,7 +73,7 @@ public final class RecipientBarActionHandlerService {
     // MARK: - Selector Action Handlers
 
     @objc
-    public func selectContactButtonTapped() {
+    func selectContactButtonTapped() {
         Task { @MainActor in
             func presentCTA() {
                 core.gcd.after(.milliseconds(500)) {
@@ -137,13 +137,13 @@ public final class RecipientBarActionHandlerService {
     }
 
     @objc
-    public func textFieldChanged(_ textField: UITextField) {
+    func textFieldChanged(_ textField: UITextField) {
         chatPageViewService.recipientBar?.tableView.setQuery(textField.text ?? "")
     }
 
     // MARK: - Text Field Should Return
 
-    public func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
+    func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 

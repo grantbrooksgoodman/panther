@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct InviteQRCodePageView: View {
+struct InviteQRCodePageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.InviteQRCodePageView
@@ -26,13 +26,13 @@ public struct InviteQRCodePageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<InviteQRCodePageReducer>) {
+    init(_ viewModel: ViewModel<InviteQRCodePageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground

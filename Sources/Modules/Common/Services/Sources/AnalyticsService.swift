@@ -16,7 +16,7 @@ import Networking
 /* 3rd-party */
 import FirebaseAnalytics
 
-public struct AnalyticsService {
+struct AnalyticsService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -27,7 +27,7 @@ public struct AnalyticsService {
 
     // MARK: - Types
 
-    public enum AnalyticsEvent: String {
+    enum AnalyticsEvent: String {
         /* MARK: Cases */
 
         case accessChat
@@ -60,14 +60,14 @@ public struct AnalyticsService {
 
         /* MARK: Properties */
 
-        public var name: String {
+        var name: String {
             rawValue.snakeCased
         }
     }
 
     // MARK: - Computed Properties
 
-    public static var shouldEnableDataCollection: Bool {
+    static var shouldEnableDataCollection: Bool {
         @Dependency(\.build) var build: Build
 
         if !CommandLine.arguments.containsAllStrings(in: ["-FIRAnalyticsDebugEnabled", "-FIRDebugEnabled"]) {
@@ -107,7 +107,7 @@ public struct AnalyticsService {
 
     // MARK: - Log Event
 
-    public func logEvent(_ event: AnalyticsEvent, userInfo: [String: String]? = nil) {
+    func logEvent(_ event: AnalyticsEvent, userInfo: [String: String]? = nil) {
         Task { @MainActor in
             guard AnalyticsService.shouldEnableDataCollection else { return }
 

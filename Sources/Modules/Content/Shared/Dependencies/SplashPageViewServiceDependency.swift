@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum SplashPageViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> SplashPageViewService {
+enum SplashPageViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> SplashPageViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var splashPageViewService: SplashPageViewService {
         get { self[SplashPageViewServiceDependency.self] }
         set { self[SplashPageViewServiceDependency.self] = newValue }

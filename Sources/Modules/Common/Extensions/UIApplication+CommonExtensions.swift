@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension UIApplication {
+extension UIApplication {
     static var isGlassTintingEnabled: Bool {
         @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
         guard !Application.isInPrevaricationMode,

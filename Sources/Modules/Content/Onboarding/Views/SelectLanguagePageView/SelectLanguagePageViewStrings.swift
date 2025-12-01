@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
-public extension TranslatedLabelStringCollection {
+extension TranslatedLabelStringCollection {
     enum SelectLanguagePageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
@@ -26,7 +26,7 @@ public extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        public var alternate: String? {
+        var alternate: String? {
             switch self {
             case .backButtonText:
                 return "Go back"
@@ -38,8 +38,8 @@ public extension TranslatedLabelStringCollection {
     }
 }
 
-public enum SelectLanguagePageViewStrings: TranslatedLabelStrings {
-    public static var keyPairs: [TranslationInputMap] {
+enum SelectLanguagePageViewStrings: TranslatedLabelStrings {
+    static var keyPairs: [TranslationInputMap] {
         TranslatedLabelStringCollection.SelectLanguagePageViewStringKey.allCases
             .map {
                 TranslationInputMap(

@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct AuthCodePageView: View {
+struct AuthCodePageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.AuthCodePageView
@@ -36,13 +36,13 @@ public struct AuthCodePageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<AuthCodePageReducer>) {
+    init(_ viewModel: ViewModel<AuthCodePageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             VStack {
                 InstructionView(viewModel.instructionViewStrings)

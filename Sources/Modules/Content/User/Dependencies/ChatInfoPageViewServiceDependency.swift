@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ChatInfoPageViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ChatInfoPageViewService {
+enum ChatInfoPageViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ChatInfoPageViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var chatInfoPageViewService: ChatInfoPageViewService {
         get { self[ChatInfoPageViewServiceDependency.self] }
         set { self[ChatInfoPageViewServiceDependency.self] = newValue }

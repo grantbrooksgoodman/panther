@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RecipientBarContactSelectionUIService {
+final class RecipientBarContactSelectionUIService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService.RecipientBarService.ContactSelectionUI
@@ -27,7 +27,7 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Properties
 
-    public private(set) var selectedContactPairs = [ContactPair]()
+    private(set) var selectedContactPairs = [ContactPair]()
 
     private let viewController: ChatPageViewController
 
@@ -44,13 +44,13 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Contact Pair Selection
 
-    public func deselectContactPair(withViewID contactHash: String) {
+    func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
         core.gcd.after(.milliseconds(100)) {
@@ -60,7 +60,7 @@ public final class RecipientBarContactSelectionUIService {
         }
     }
 
-    public func deselectMockContactPairs() {
+    func deselectMockContactPairs() {
         selectedContactPairs.filter(\.isMock).map(\.contact.encodedHash).forEach { deselectContactPair(withViewID: $0) }
         guard let configService = chatPageViewService.recipientBar?.config,
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }
@@ -78,7 +78,7 @@ public final class RecipientBarContactSelectionUIService {
         configService.reconfigureCollectionView()
     }
 
-    public func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
+    func selectContactPair(_ contactPair: ContactPair, performInputBarFix: Bool = false) {
         guard !contactPair.containsBlockedUser else {
             Logger.log(
                 .init(
@@ -194,7 +194,7 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - Label Representation
 
-    public func toggleLabelRepresentation(on: Bool) {
+    func toggleLabelRepresentation(on: Bool) {
         guard let inputBarService = chatPageViewService.inputBar,
               !inputBarService.isForcingAppearance else { return }
 
@@ -238,14 +238,14 @@ public final class RecipientBarContactSelectionUIService {
 
     // MARK: - View Highlighting
 
-    public func isHighlighted(viewID contactHash: String) -> Bool {
+    func isHighlighted(viewID contactHash: String) -> Bool {
         guard let contactView = contactViews.first(where: { $0.identifier == contactHash }),
               let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel,
               contactLabel.textColor == UIColor(Colors.contactViewHighlightedText) else { return false }
         return true
     }
 
-    public func toggleIsHighlighted(viewID contactHash: String) {
+    func toggleIsHighlighted(viewID contactHash: String) {
         guard let contactView = contactViews.first(where: { $0.identifier == contactHash }),
               let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { return }
 
@@ -268,7 +268,7 @@ public final class RecipientBarContactSelectionUIService {
         }
     }
 
-    public func unhighlightAllViews() {
+    func unhighlightAllViews() {
         for contactView in contactViews {
             guard let contactLabel = contactView.firstSubview(for: Strings.contactLabelSemanticTag) as? UILabel else { continue }
             let redColor = UIColor(Colors.contactViewRedText)

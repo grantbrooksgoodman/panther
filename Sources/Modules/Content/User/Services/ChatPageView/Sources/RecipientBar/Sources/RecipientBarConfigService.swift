@@ -14,10 +14,10 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RecipientBarConfigService {
+final class RecipientBarConfigService {
     // MARK: - Types
 
-    public enum ContactViewSpacialConfiguration {
+    enum ContactViewSpacialConfiguration {
         case furthestTrailing(onSublevel: Int? = nil)
         case onSameLevelAsTextField
     }
@@ -39,13 +39,13 @@ public final class RecipientBarConfigService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - First Contact View
 
-    public func firstContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
+    func firstContactView(_ configuration: ContactViewSpacialConfiguration) -> UIView? {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return nil }
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ContactSelectionUI
         var subviews = recipientBarView.subviews(for: Strings.contactViewSemanticTag)
@@ -66,7 +66,7 @@ public final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Collection View
 
-    public func reconfigureCollectionView() {
+    func reconfigureCollectionView() {
         Task { @MainActor in
             var shouldReload = false
 
@@ -133,7 +133,7 @@ public final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Last Contact View
 
-    public func reconfigureLastContactView() {
+    func reconfigureLastContactView() {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ContactSelectionUI
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.ContactSelectionUI
 
@@ -156,7 +156,7 @@ public final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Recipient Bar
 
-    public func reconfigureRecipientBar(forSublevel sublevel: Int) {
+    func reconfigureRecipientBar(forSublevel sublevel: Int) {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               let tableView = chatPageViewService.recipientBar?.layout.tableView else { return }
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.Layout
@@ -168,7 +168,7 @@ public final class RecipientBarConfigService {
 
     // MARK: - Reconfigure Text Field
 
-    public func reconfigureTextField(relativeTo view: UIView) {
+    func reconfigureTextField(relativeTo view: UIView) {
         guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
               let textField = chatPageViewService.recipientBar?.layout.textField,
               let toLabel = chatPageViewService.recipientBar?.layout.toLabel else { return }

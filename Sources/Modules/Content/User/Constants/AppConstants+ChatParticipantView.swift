@@ -15,30 +15,30 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ChatParticipantView {
-        public static let avatarImageViewSizeHeight: CGFloat = 40
-        public static let avatarImageViewSizeWidth: CGFloat = 40
-        public static let avatarImageViewTrailingPadding: CGFloat = 2
+        static let avatarImageViewSizeHeight: CGFloat = 40
+        static let avatarImageViewSizeWidth: CGFloat = 40
+        static let avatarImageViewTrailingPadding: CGFloat = 2
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ChatParticipantView {
-        public static let deleteButtonTint: Color = .red // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
+        static let deleteButtonTint: Color = .red // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconCompleteForeground: Color = .green // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconIncompleteForeground: Color = .orange
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ChatParticipantView {
-        public static let deleteButtonImageSystemName = "trash" // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
-        public static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
+        static let deleteButtonImageSystemName = "trash" // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconCompleteImageSystemName = "person.crop.circle.fill.badge.checkmark" // swiftlint:disable:next identifier_name
+        static let penPalsSharingStatusIconIncompleteImageSystemName = "person.crop.circle.badge.questionmark.fill"
     }
 }

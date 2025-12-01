@@ -14,19 +14,19 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
+struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
     // MARK: - Type Aliases
 
-    public typealias Content = UIImage
+    typealias Content = UIImage
 
     // MARK: - Properties
 
-    public var onDismiss: (Exception?) -> Void
-    public var onSelection: (UIImage) -> Void
+    var onDismiss: (Exception?) -> Void
+    var onSelection: (UIImage) -> Void
 
     // MARK: - Init
 
-    public init(
+    init(
         onSelection: @escaping (UIImage) -> Void,
         onDismiss: @escaping ((Exception?) -> Void)
     ) {
@@ -36,13 +36,13 @@ public struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Make Coordinator
 
-    public func makeCoordinator() -> Coordinator {
+    func makeCoordinator() -> Coordinator {
         .init(delegate: self)
     }
 
     // MARK: - Make UIViewController
 
-    public func makeUIViewController(context: Context) -> PHPickerViewController {
+    func makeUIViewController(context: Context) -> PHPickerViewController {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         let pickerViewController = PHPickerViewController(configuration: configuration)
@@ -52,5 +52,5 @@ public struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Update UIViewController
 
-    public func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
 }

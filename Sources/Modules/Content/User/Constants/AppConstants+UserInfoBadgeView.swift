@@ -15,32 +15,32 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum UserInfoBadgeView {
-        public static let bodyCornerRadius: CGFloat = 3
-        public static let bodyMaxHeight: CGFloat = 20
-        public static let bodyMaxWidth: CGFloat = 50
+        static let bodyCornerRadius: CGFloat = 3
+        static let bodyMaxHeight: CGFloat = 20
+        static let bodyMaxWidth: CGFloat = 50
 
-        public static let labelViewHStackSpacing: CGFloat = 2
+        static let labelViewHStackSpacing: CGFloat = 2
 
-        public static let labelViewImageCornerRadius: CGFloat = 2
-        public static let labelViewImageFrameHeight: CGFloat = 10
-        public static let labelViewImageFrameWidth: CGFloat = 20
+        static let labelViewImageCornerRadius: CGFloat = 2
+        static let labelViewImageFrameHeight: CGFloat = 10
+        static let labelViewImageFrameWidth: CGFloat = 20
 
-        public static let labelViewTextFrameHeight: CGFloat = 10
-        public static let labelViewTextFrameWidth: CGFloat = 20
+        static let labelViewTextFrameHeight: CGFloat = 10
+        static let labelViewTextFrameWidth: CGFloat = 20
 
-        public static let labelViewTextOpacity: CGFloat = 0.8
-        public static let labelViewTextShadowRadius: CGFloat = 20
+        static let labelViewTextOpacity: CGFloat = 0.8
+        static let labelViewTextShadowRadius: CGFloat = 20
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum UserInfoBadgeView {
-        public static let bodyDarkForeground: Color = .init(uiColor: .init(hex: 0x27252A))
-        public static let bodyLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
-        public static let labelViewTextShadow: Color = .black
+        static let bodyDarkForeground: Color = .init(uiColor: .init(hex: 0x27252A))
+        static let bodyLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+        static let labelViewTextShadow: Color = .black
     }
 }

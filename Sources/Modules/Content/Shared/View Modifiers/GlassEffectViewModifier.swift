@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public extension View {
+extension View {
     func glassEffect(
         padding edgePadding: CGFloat? = nil,
         shape: some Shape = .capsule,

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public extension Activity.Action {
+extension Activity.Action {
     var isCurrentUserAdded: Bool {
         switch self {
         case let .addedToConversation(userID: userID): userID == User.currentUserID

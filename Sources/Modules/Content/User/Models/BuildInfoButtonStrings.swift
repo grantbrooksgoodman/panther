@@ -13,10 +13,10 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct BuildInfoButtonStrings: Equatable {
+struct BuildInfoButtonStrings: Equatable {
     // MARK: - Types
 
-    public enum BuildInfoButtonStringKey: Equatable {
+    enum BuildInfoButtonStringKey: Equatable {
         case bundleVersionAndBuildNumber
         case buildSKU
         case projectID
@@ -26,12 +26,12 @@ public struct BuildInfoButtonStrings: Equatable {
 
     // MARK: - Properties
 
-    public let key: BuildInfoButtonStringKey
-    public let labelText: String
+    let key: BuildInfoButtonStringKey
+    let labelText: String
 
     // MARK: - Computed Properties
 
-    public var next: BuildInfoButtonStrings {
+    var next: BuildInfoButtonStrings {
         switch key {
         case .bundleVersionAndBuildNumber:
             return .init(.buildSKU)
@@ -52,7 +52,7 @@ public struct BuildInfoButtonStrings: Equatable {
 
     // MARK: - Init
 
-    public init(_ key: BuildInfoButtonStringKey) {
+    init(_ key: BuildInfoButtonStringKey) {
         @Dependency(\.build) var build: Build
         @Dependency(\.currentCalendar) var calendar: Calendar
 

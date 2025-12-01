@@ -13,14 +13,14 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public protocol ContentPicker<Content> {
+protocol ContentPicker<Content> {
     associatedtype Content
 
     var onDismiss: (Exception?) -> Void { get }
     var onSelection: (Content) -> Void { get }
 }
 
-public extension ContentPicker {
+extension ContentPicker {
     func dismiss(_ exception: Exception? = nil) {
         @Dependency(\.uiApplication.keyViewController) var keyViewController: UIViewController?
         keyViewController?.dismiss(animated: true)
@@ -28,7 +28,7 @@ public extension ContentPicker {
     }
 }
 
-public extension Exception {
+extension Exception {
     static func contentPickerContentTypeMismatch(
         _ metadata: ExceptionMetadata
     ) -> Exception {

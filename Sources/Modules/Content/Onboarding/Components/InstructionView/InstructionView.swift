@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct InstructionView: View {
+struct InstructionView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.InstructionView
@@ -34,13 +34,13 @@ public struct InstructionView: View {
 
     // MARK: - Init
 
-    public init(_ strings: InstructionViewStrings) {
+    init(_ strings: InstructionViewStrings) {
         self.strings = strings
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         ThemedView {
             HStack {
                 VStack(alignment: .leading) {

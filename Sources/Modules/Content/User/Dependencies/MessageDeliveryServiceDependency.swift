@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum MessageDeliveryServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> MessageDeliveryService {
+enum MessageDeliveryServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> MessageDeliveryService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var messageDeliveryService: MessageDeliveryService {
         get { self[MessageDeliveryServiceDependency.self] }
         set { self[MessageDeliveryServiceDependency.self] = newValue }

@@ -13,24 +13,24 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct RecipientBarService {
+struct RecipientBarService {
     // MARK: - Dependencies
 
     @Dependency(\.uiApplication.keyViewController?.leafViewController) private var leafViewController: UIViewController?
 
     // MARK: - Properties
 
-    public let actionHandler: RecipientBarActionHandlerService
-    public let config: RecipientBarConfigService
-    public let contactSelectionUI: RecipientBarContactSelectionUIService
-    public let layout: RecipientBarLayoutService
-    public let tableView: RecipientBarTableViewService
+    let actionHandler: RecipientBarActionHandlerService
+    let config: RecipientBarConfigService
+    let contactSelectionUI: RecipientBarContactSelectionUIService
+    let layout: RecipientBarLayoutService
+    let tableView: RecipientBarTableViewService
 
     private let viewController: ChatPageViewController
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
         config = .init(viewController)
@@ -41,7 +41,7 @@ public struct RecipientBarService {
 
     // MARK: - On Layout Subviews
 
-    public func onLayoutSubviews() {
+    func onLayoutSubviews() {
         defer { tableView.reloadData() }
         if let leafViewController {
             guard leafViewController.descriptor == AppConstants.Strings.ChatPageViewService.leafViewControllerID else { return }

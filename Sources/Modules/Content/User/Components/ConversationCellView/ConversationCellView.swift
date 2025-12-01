@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ConversationCellView: View {
+struct ConversationCellView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ConversationCellView
@@ -27,13 +27,13 @@ public struct ConversationCellView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ConversationCellReducer>) {
+    init(_ viewModel: ViewModel<ConversationCellReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         Button {
             viewModel.send(.cellTapped)
         } label: {

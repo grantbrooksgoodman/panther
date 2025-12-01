@@ -14,11 +14,11 @@ import AppSubsystem
 import Networking
 import Translator
 
-public extension CacheDomain {
+extension CacheDomain {
     // MARK: - Types
 
     struct List: AppSubsystem.Delegates.CacheDomainListDelegate {
-        public var appCacheDomains: [CacheDomain] {
+        var appCacheDomains: [CacheDomain] {
             [
                 .chatInfoPageViewService,
                 .commonPropertyLists,

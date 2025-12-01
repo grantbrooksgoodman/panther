@@ -15,24 +15,24 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum WelcomePageView {
-        public static let continueButtonVerticalPadding: CGFloat = 5
+        static let continueButtonVerticalPadding: CGFloat = 5
 
-        public static let imageBottomPadding: CGFloat = 5
-        public static let imageFrameHeight: CGFloat = 70
-        public static let imageFrameWidth: CGFloat = 150
-        public static let instructionLabelHorizontalPadding: CGFloat = 30
-        public static let instructionLabelVerticalPadding: CGFloat = 5
+        static let imageBottomPadding: CGFloat = 5
+        static let imageFrameHeight: CGFloat = 70
+        static let imageFrameWidth: CGFloat = 150
+        static let instructionLabelHorizontalPadding: CGFloat = 30
+        static let instructionLabelVerticalPadding: CGFloat = 5
 
-        public static let signInButtonLabelFontSize: CGFloat = 15
+        static let signInButtonLabelFontSize: CGFloat = 15
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum WelcomePageView {
-        public static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+        static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
     }
 }

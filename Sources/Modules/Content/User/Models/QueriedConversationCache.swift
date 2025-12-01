@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum QueriedConversationCache {
+enum QueriedConversationCache {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -21,11 +21,11 @@ public enum QueriedConversationCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.conversationsForSearchTerms) public static var cachedConversationsForSearchTerms: [String: [Conversation]]?
+    @Cached(CacheKey.conversationsForSearchTerms) static var cachedConversationsForSearchTerms: [String: [Conversation]]?
 
     // MARK: - Clear Cache
 
-    public static func clearCache() {
+    static func clearCache() {
         cachedConversationsForSearchTerms = nil
     }
 }

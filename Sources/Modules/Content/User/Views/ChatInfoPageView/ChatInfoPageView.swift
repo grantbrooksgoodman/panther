@@ -16,7 +16,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ChatInfoPageView: View {
+struct ChatInfoPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatInfoPageView
@@ -71,14 +71,14 @@ public struct ChatInfoPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
+    init(_ viewModel: ViewModel<ChatInfoPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
         _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground

@@ -19,7 +19,7 @@ import MessageKit
 extension ChatPageViewController: UITextViewDelegate {
     // MARK: - Properties
 
-    override public var textInputMode: UITextInputMode? {
+    override var textInputMode: UITextInputMode? {
         .activeInputModes
             .filter { $0.primaryLanguage != nil }
             .first(where: { $0.primaryLanguage!.lowercased().hasPrefix(RuntimeStorage.languageCode) })
@@ -27,7 +27,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Should Begin Editing
 
-    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 
         guard let recipientBarService = chatPageViewService.recipientBar,
@@ -42,7 +42,7 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Did Begin Editing
 
-    public func textViewDidBeginEditing(_ textView: UITextView) {
+    func textViewDidBeginEditing(_ textView: UITextView) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
 
@@ -59,14 +59,14 @@ extension ChatPageViewController: UITextViewDelegate {
 
     // MARK: - Should Change Text in Range
 
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         @Dependency(\.commonServices.audio.recording) var recordingService: RecordingService
         return !recordingService.isInOrWillTransitionToRecordingState
     }
 
     // MARK: - Did Change
 
-    public func textViewDidChange(_ textView: UITextView) {
+    func textViewDidChange(_ textView: UITextView) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         inputBarService?.configureInputBar()
     }

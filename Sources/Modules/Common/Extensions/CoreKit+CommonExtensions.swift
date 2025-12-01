@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public extension CoreKit.GCD {
+extension CoreKit.GCD {
     var newSerialQueue: DispatchQueue {
         let label = "\(Int.random(in: 1 ... 1_000_000))"
         Logger.log(
@@ -25,7 +25,7 @@ public extension CoreKit.GCD {
     }
 }
 
-public extension CoreKit.Utilities {
+extension CoreKit.Utilities {
     // MARK: - Types
 
     enum ConversationDeletionGranularity {

@@ -12,30 +12,30 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct ReactionDetailsPageObserver: Observer {
+struct ReactionDetailsPageObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = ReactionDetailsPageReducer
+    typealias R = ReactionDetailsPageReducer
 
     // MARK: - Properties
 
-    public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.currentConversationMetadataChanged]
-    public let viewModel: ViewModel<ReactionDetailsPageReducer>
+    let id = UUID()
+    let observedValues: [any ObservableProtocol] = [Observables.currentConversationMetadataChanged]
+    let viewModel: ViewModel<ReactionDetailsPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
+    init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
         self.viewModel = viewModel
     }
 
     // MARK: - Observer Conformance
 
-    public func linkObservables() {
+    func linkObservables() {
         Observers.link(ReactionDetailsPageObserver.self, with: observedValues)
     }
 
-    public func onChange(of observable: Observable<Any>) {
+    func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -50,7 +50,7 @@ public struct ReactionDetailsPageObserver: Observer {
         }
     }
 
-    public func send(_ action: ReactionDetailsPageReducer.Action) {
+    func send(_ action: ReactionDetailsPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }

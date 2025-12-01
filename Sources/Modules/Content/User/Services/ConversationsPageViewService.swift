@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public final class ConversationsPageViewService {
+final class ConversationsPageViewService {
     // MARK: - Types
 
     private enum ReloadType: String {
@@ -32,7 +32,7 @@ public final class ConversationsPageViewService {
 
         /* MARK: Properties */
 
-        public var next: ReloadType {
+        var next: ReloadType {
             switch self {
             case .full: .partial
             case .minimal: .full
@@ -59,7 +59,7 @@ public final class ConversationsPageViewService {
 
     // MARK: - View Lifecycle
 
-    public func viewAppeared() {
+    func viewAppeared() {
         NavigationBar.setAppearance(.conversationsPageView)
         userSession.startObservingCurrentUserChanges()
 
@@ -75,12 +75,12 @@ public final class ConversationsPageViewService {
         }
     }
 
-    public func viewDisappeared() {
+    func viewDisappeared() {
         StatusBar.overrideStyle(.appAware)
     }
 
     /// `.resolveReturned`
-    public func viewLoaded() {
+    func viewLoaded() {
         func showOfflineModeToast() {
             Toast.show(.init(
                 .capsule(style: .warning),
@@ -182,7 +182,7 @@ public final class ConversationsPageViewService {
         showOfflineModeToast()
     }
 
-    public func traitCollectionChanged() {
+    func traitCollectionChanged() {
         guard !chatPageState.isPresented else {
             return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
         }
@@ -197,7 +197,7 @@ public final class ConversationsPageViewService {
 
     // MARK: - Reducer Action Handlers
 
-    public func deleteConversationsToolbarButtonTapped() {
+    func deleteConversationsToolbarButtonTapped() {
         func populateValuesIfNeeded() async -> Exception? {
             guard let currentUser = userSession.currentUser,
                   currentUser.conversations == nil ||
@@ -222,7 +222,7 @@ public final class ConversationsPageViewService {
     }
 
     /// `.pulledToRefresh`
-    public func reloadData() async -> Callback<[Conversation], Exception> {
+    func reloadData() async -> Callback<[Conversation], Exception> {
         func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
             if let conversations = userSession.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate,
                let firstConversation = conversations.first,

@@ -15,21 +15,21 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ContactSelectorPageView {
-        public static let cancelToolbarButtonSystemFontSize: CGFloat = 17
-        public static let listViewDefaultMinListRowHeight: CGFloat = 44
-        public static let noResultsLabelHorizontalPadding: CGFloat = 10
+        static let cancelToolbarButtonSystemFontSize: CGFloat = 17
+        static let listViewDefaultMinListRowHeight: CGFloat = 44
+        static let noResultsLabelHorizontalPadding: CGFloat = 10
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ContactSelectorPageView {
-        public static let navigationBarItemGlassTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
-        public static let noResultsLabelAlternateForeground: Color = .init(uiColor: .systemBlue)
-        public static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
-        public static let tintedGlassToolbarButtonForeground: Color = .white
+        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        static let noResultsLabelAlternateForeground: Color = .init(uiColor: .systemBlue)
+        static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
+        static let tintedGlassToolbarButtonForeground: Color = .white
     }
 }

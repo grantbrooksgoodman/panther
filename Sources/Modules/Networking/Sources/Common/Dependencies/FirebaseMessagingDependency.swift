@@ -15,13 +15,13 @@ import AppSubsystem
 /* 3rd-party */
 import FirebaseMessaging
 
-public enum FirebaseMessagingDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> Messaging {
+enum FirebaseMessagingDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> Messaging {
         Messaging.messaging()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var firebaseMessaging: Messaging {
         get { self[FirebaseMessagingDependency.self] }
         set { self[FirebaseMessagingDependency.self] = newValue }

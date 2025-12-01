@@ -16,7 +16,7 @@ import AppSubsystem
 extension RecipientBar: UITextFieldDelegate {
     // MARK: - Should Begin Editing
 
-    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         @Dependency(\.chatPageViewService.recipientBar?.layout.tableView) var recipientBarTableView: UITableView?
         guard let recipientBarTableView else { return true }
         recipientBarTableView.setContentOffset(recipientBarTableView.contentOffset, animated: false)
@@ -25,7 +25,7 @@ extension RecipientBar: UITextFieldDelegate {
 
     // MARK: - Should Return
 
-    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         @Dependency(\.chatPageViewService.recipientBar?.actionHandler) var actionHandlerService: RecipientBarActionHandlerService?
         actionHandlerService?.textFieldShouldReturn(textField.text ?? "")
         return true
@@ -33,7 +33,7 @@ extension RecipientBar: UITextFieldDelegate {
 
     // MARK: - Did Begin Editing
 
-    public func textFieldDidBeginEditing(_ textField: UITextField) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         chatPageViewService.inputBar?.setAttachMediaButtonIsEnabled(false)
         chatPageViewService.inputBar?.setSendButtonIsEnabled(false)
@@ -43,7 +43,7 @@ extension RecipientBar: UITextFieldDelegate {
 
     // MARK: - Did End Editing
 
-    public func textFieldDidEndEditing(_ textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.UITextFieldDelegate

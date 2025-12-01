@@ -16,14 +16,14 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
+final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
     private lazy var sizeCalculator = SizeCalculator(layout: self)
 
     // MARK: - Methods
 
-    override public func cellSizeCalculatorForItem(at indexPath: IndexPath) -> CellSizeCalculator {
+    override func cellSizeCalculatorForItem(at indexPath: IndexPath) -> CellSizeCalculator {
         if isSectionReservedForTypingIndicator(indexPath.section) {
             return typingIndicatorSizeCalculator
         }
@@ -36,7 +36,7 @@ public final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
         return super.cellSizeCalculatorForItem(at: indexPath)
     }
 
-    override public func messageSizeCalculators() -> [MessageSizeCalculator] {
+    override func messageSizeCalculators() -> [MessageSizeCalculator] {
         var superCalculators = super.messageSizeCalculators()
         superCalculators.append(sizeCalculator)
         return superCalculators
@@ -46,14 +46,14 @@ public final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
 private final class SizeCalculator: MessageSizeCalculator {
     // MARK: - Init
 
-    override public init(layout: MessagesCollectionViewFlowLayout? = nil) {
+    override init(layout: MessagesCollectionViewFlowLayout? = nil) {
         super.init()
         self.layout = layout
     }
 
     // MARK: - Size for Item
 
-    override public func sizeForItem(at indexPath: IndexPath) -> CGSize {
+    override func sizeForItem(at indexPath: IndexPath) -> CGSize {
         @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
 
         guard let layout else { return .zero }

@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ReactionDetailsPageReducer: Reducer {
+struct ReactionDetailsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: Navigation
@@ -22,7 +22,7 @@ public struct ReactionDetailsPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -32,16 +32,16 @@ public struct ReactionDetailsPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        public let navigationTitle = Localized(.reactionDetails).wrappedValue.removingOccurrences(of: ["…"])
+        let navigationTitle = Localized(.reactionDetails).wrappedValue.removingOccurrences(of: ["…"])
 
-        public var viewID = UUID()
+        var viewID = UUID()
 
         /* MARK: Computed Properties */
 
-        public var listItems: [ListRowView.Configuration] {
+        var listItems: [ListRowView.Configuration] {
             @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
             @Dependency(\.clientSession) var clientSession: ClientSession
 
@@ -88,12 +88,12 @@ public struct ReactionDetailsPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             uiApplication.resignFirstResponders()

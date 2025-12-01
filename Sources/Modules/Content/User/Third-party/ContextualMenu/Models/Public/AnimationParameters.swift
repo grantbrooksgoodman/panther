@@ -10,17 +10,17 @@
 import Foundation
 import UIKit
 
-public struct AnimationParameters {
+struct AnimationParameters {
     // MARK: - Properties
 
-    public let curve: UIView.AnimationOptions
-    public let damping: CGFloat
-    public let duration: TimeInterval
-    public let initialSpringVelocity: CGFloat
+    let curve: UIView.AnimationOptions
+    let damping: CGFloat
+    let duration: TimeInterval
+    let initialSpringVelocity: CGFloat
 
     // MARK: - Init
 
-    public init(
+    init(
         duration: TimeInterval = 0.3,
         damping: CGFloat = 1,
         initialSpringVelocity: CGFloat = 4,

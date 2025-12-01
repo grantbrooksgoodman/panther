@@ -13,14 +13,14 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct ActivitySessionService {
+struct ActivitySessionService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Add User to Conversation
 
-    public func addToConversation(
+    func addToConversation(
         _ userID: String,
         conversation: Conversation
     ) async -> Callback<Conversation, Exception> {
@@ -107,7 +107,7 @@ public struct ActivitySessionService {
 
     // MARK: - Remove User from Conversation
 
-    public func removeFromConversation(
+    func removeFromConversation(
         _ userID: String,
         conversation: Conversation,
         removeFromUser: Bool = true

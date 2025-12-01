@@ -16,12 +16,12 @@ import Networking
 extension ConversationMetadata: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = ConversationMetadata
+    typealias T = ConversationMetadata
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
 
-    public enum SerializationKeys: String {
+    enum SerializationKeys: String {
         case name
         case imageData
         case isPenPalsConversation
@@ -33,7 +33,7 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
             Keys.name.rawValue: name,
@@ -48,7 +48,7 @@ extension ConversationMetadata: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.name.rawValue] is String,
@@ -67,7 +67,7 @@ extension ConversationMetadata: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<ConversationMetadata, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<ConversationMetadata, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         // swiftlint:disable identifier_name

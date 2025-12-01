@@ -13,7 +13,7 @@ import Foundation
 import Networking
 
 extension Participant: Validatable {
-    public var isWellFormed: Bool {
+    var isWellFormed: Bool {
         !userID.isBangQualifiedEmpty
     }
 }

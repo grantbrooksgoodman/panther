@@ -17,7 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public final class IntegrityService {
+final class IntegrityService {
     // MARK: - Dependencies
 
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
@@ -38,11 +38,11 @@ public final class IntegrityService {
 
     // MARK: - Init
 
-    public init() {}
+    init() {}
 
     // MARK: - Resolve Session
 
-    public func resolveSession() async -> Exception? {
+    func resolveSession() async -> Exception? {
         await withCheckedContinuation { continuation in
             resolveSession { exception in
                 continuation.resume(returning: exception)
@@ -128,7 +128,7 @@ public final class IntegrityService {
 
     // MARK: - Prune Deleted Users
 
-    public func pruneDeletedUsers() async -> Exception? {
+    func pruneDeletedUsers() async -> Exception? {
         let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
 
         switch getValuesResult {
@@ -156,7 +156,7 @@ public final class IntegrityService {
 
     // MARK: - Prune Invalidated Caches
 
-    public func pruneInvalidatedCaches() async -> Exception? {
+    func pruneInvalidatedCaches() async -> Exception? {
         let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
 
         switch getValuesResult {
@@ -184,7 +184,7 @@ public final class IntegrityService {
 
     // MARK: - Malformed Data
 
-    public func repairMalformedConversations(_ idKeys: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
+    func repairMalformedConversations(_ idKeys: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -246,7 +246,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
+    func repairMalformedMessages(_ messageIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -302,7 +302,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func repairMalformedUsers(_ userIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
+    func repairMalformedUsers(_ userIDs: [String]? = nil) async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -349,7 +349,7 @@ public final class IntegrityService {
 
     // MARK: - Broken Data
 
-    public func resolveBrokenConversationChain() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveBrokenConversationChain() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -384,7 +384,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveBrokenMessageChain() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -416,7 +416,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveMismatchedParticipants() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveMismatchedParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -457,7 +457,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNoAudioComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveNoAudioComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -516,7 +516,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveNoMediaComponentMessages() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var messageIDsToRepair = [String]()
         var verifiedMediaItemPaths = [String]()
@@ -580,7 +580,7 @@ public final class IntegrityService {
         return await repairMalformedMessages(messageIDsToRepair)
     }
 
-    public func resolveNonExistentParticipants() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveNonExistentParticipants() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -600,7 +600,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveNonExistentTranslations() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveNonExistentTranslations() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         var tookAction = false
 
@@ -651,7 +651,7 @@ public final class IntegrityService {
         return (tookAction, exceptions.compiledException)
     }
 
-    public func resolveOrphanedMedia() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveOrphanedMedia() async -> (tookAction: Bool, exception: Exception?) {
         var exceptions = [Exception]()
         let referencedMediaFilePaths = Set(
             session
@@ -698,7 +698,7 @@ public final class IntegrityService {
         }
     }
 
-    public func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
+    func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
         var tookAction = false
         var orphanedMessageIDs = [String]()
 

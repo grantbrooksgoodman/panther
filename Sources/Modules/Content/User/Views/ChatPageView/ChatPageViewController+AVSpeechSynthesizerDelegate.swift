@@ -20,7 +20,7 @@ import MessageKit
 extension ChatPageViewController: AVSpeechSynthesizerDelegate {
     // MARK: - Did Cancel Utterance
 
-    public func speechSynthesizer(
+    func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         didCancel utterance: AVSpeechUtterance
     ) {
@@ -36,7 +36,7 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
 
     // MARK: - Did Finish Utterance
 
-    public func speechSynthesizer(
+    func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         didFinish utterance: AVSpeechUtterance
     ) {
@@ -52,7 +52,7 @@ extension ChatPageViewController: AVSpeechSynthesizerDelegate {
 
     // MARK: - Will Speak Range of Speech String
 
-    public func speechSynthesizer(
+    func speechSynthesizer(
         _ synthesizer: AVSpeechSynthesizer,
         willSpeakRangeOfSpeechString characterRange: NSRange,
         utterance: AVSpeechUtterance

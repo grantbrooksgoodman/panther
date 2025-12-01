@@ -80,7 +80,7 @@ private struct V26HeaderViewModifier: ViewModifier {
 
     // MARK: - Init
 
-    public init(
+    init(
         leftItem: HeaderView.PeripheralButtonType?,
         centerItem: HeaderView.CenterItemType?,
         rightItem: HeaderView.PeripheralButtonType?,
@@ -102,7 +102,7 @@ private struct V26HeaderViewModifier: ViewModifier {
 
     // MARK: - Body
 
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .if(
                 UIApplication.v26FeaturesEnabled,
@@ -241,7 +241,7 @@ private struct V26HeaderViewModifier: ViewModifier {
     }
 }
 
-public extension View {
+extension View {
     /// - Parameter attributes: Choosing a themed `appearance` value overrides all color values to those of the system theme.
     func v26Header(
         leftItem: HeaderView.PeripheralButtonType? = nil,

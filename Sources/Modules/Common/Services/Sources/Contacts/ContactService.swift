@@ -15,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class ContactService {
+final class ContactService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -31,19 +31,19 @@ public final class ContactService {
 
     // MARK: - Properties
 
-    public let contactPairArchive: ContactPairArchiveService
+    let contactPairArchive: ContactPairArchiveService
 
-    @Cached(CacheKey.cnContacts) public var cachedCNContacts: [CNContact]?
+    @Cached(CacheKey.cnContacts) var cachedCNContacts: [CNContact]?
 
     // MARK: - Init
 
-    public init(contactPairArchive: ContactPairArchiveService) {
+    init(contactPairArchive: ContactPairArchiveService) {
         self.contactPairArchive = contactPairArchive
     }
 
     // MARK: - Sync Contact Pair Archive
 
-    public func syncContactPairArchive() async -> Exception? {
+    func syncContactPairArchive() async -> Exception? {
         let getAllUsersResult = await userService.getAllUsers()
 
         switch getAllUsersResult {
@@ -88,7 +88,7 @@ public final class ContactService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedCNContacts = nil
     }
 

@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct VerifyNumberPageView: View {
+struct VerifyNumberPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.VerifyNumberPageView
@@ -42,13 +42,13 @@ public struct VerifyNumberPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<VerifyNumberPageReducer>) {
+    init(_ viewModel: ViewModel<VerifyNumberPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             VStack {
                 InstructionView(viewModel.instructionViewStrings)

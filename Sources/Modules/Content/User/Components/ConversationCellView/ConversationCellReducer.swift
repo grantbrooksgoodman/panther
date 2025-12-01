@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct ConversationCellReducer: Reducer {
+struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
@@ -23,7 +23,7 @@ public struct ConversationCellReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case blockUsersButtonTapped
@@ -38,26 +38,26 @@ public struct ConversationCellReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        public let subtitleLabelTextForegroundColor: Color = .init(
+        let subtitleLabelTextForegroundColor: Color = .init(
             uiColor: .subtitleText.lighter(
                 by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
             ) ?? .subtitleText
         )
 
-        @Localized(.blockUser) public var blockUsersButtonText: String
-        public var cellViewData: ConversationCellViewData = .empty
-        public var conversation: Conversation
-        @Localized(.delete) public var deleteConversationButtonText: String
-        @Localized(.reportUser) public var reportUsersButtonText: String
+        @Localized(.blockUser) var blockUsersButtonText: String
+        var cellViewData: ConversationCellViewData = .empty
+        var conversation: Conversation
+        @Localized(.delete) var deleteConversationButtonText: String
+        @Localized(.reportUser) var reportUsersButtonText: String
 
         fileprivate var searchQuery: String
 
         /* MARK: Computed Properties */
 
-        public var chevronImageForegroundColor: Color {
+        var chevronImageForegroundColor: Color {
             guard ThemeService.isDarkModeActive else {
                 return .init(
                     uiColor: .titleText.lighter(by: AppConstants.CGFloats.ConversationCellView.chevronImageForegroundColorAdjustmentPercentage) ?? .titleText
@@ -69,13 +69,13 @@ public struct ConversationCellReducer: Reducer {
             )
         }
 
-        public var focusedMessageID: String? {
+        var focusedMessageID: String? {
             conversation.messages?.last(where: { $0.textContains(searchQuery) })?.id
         }
 
         /* MARK: Init */
 
-        public init(
+        init(
             _ conversation: Conversation,
             searchQuery: String
         ) {
@@ -86,7 +86,7 @@ public struct ConversationCellReducer: Reducer {
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             guard let cellViewData = ConversationCellViewData(

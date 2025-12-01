@@ -16,7 +16,7 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
-public final class UserSessionService {
+final class UserSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -28,14 +28,14 @@ public final class UserSessionService {
     // MARK: - Properties
 
     // NIT: Should probably be actor-isolated.
-    public private(set) var currentUser: User?
+    private(set) var currentUser: User?
 
     @Persistent(.currentUserID) private var currentUserID: String?
     @LockIsolated private var isUpdatingCurrentUser = false
 
     // MARK: - Computed Properties
 
-    public var offlineCurrentUser: User? {
+    var offlineCurrentUser: User? {
         get {
             @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
 
@@ -75,7 +75,7 @@ public final class UserSessionService {
 
     // MARK: - Resolve Current User
 
-    public func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
+    func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
         guard let currentUserID else {
             return .failure(.init("Current user ID has not been set.", metadata: .init(sender: self)))
         }
@@ -115,7 +115,7 @@ public final class UserSessionService {
 
     // MARK: - Set Current User
 
-    public func setCurrentUser(_ user: User?) -> Exception? {
+    func setCurrentUser(_ user: User?) -> Exception? {
         if let user {
             guard let currentUserID,
                   user.id == currentUserID else {
@@ -135,12 +135,12 @@ public final class UserSessionService {
 
     // MARK: - Offline Current User
 
-    public func persistOfflineCurrentUser() {
+    func persistOfflineCurrentUser() {
         offlineCurrentUser = currentUser
     }
 
     @discardableResult
-    public func setOfflineCurrentUser() -> Exception? {
+    func setOfflineCurrentUser() -> Exception? {
         guard !build.isOnline else {
             return .init(
                 "Internet connection is not offline.",
@@ -164,7 +164,7 @@ public final class UserSessionService {
     // MARK: - Resolve & Set Language Code
 
     @discardableResult
-    public func resolveAndSetLanguageCode() async -> Exception? {
+    func resolveAndSetLanguageCode() async -> Exception? {
         guard let currentUserID else {
             return .init(
                 "Current user ID has not been set.",
@@ -198,7 +198,7 @@ public final class UserSessionService {
 
     // MARK: - Current User Observation
 
-    public func startObservingCurrentUserChanges() {
+    func startObservingCurrentUserChanges() {
         guard let currentUserDatabaseReference else { return }
         currentUserDatabaseReference.removeAllObservers()
 
@@ -260,7 +260,7 @@ public final class UserSessionService {
     }
 
     @discardableResult
-    public func stopObservingCurrentUserChanges() -> Exception? {
+    func stopObservingCurrentUserChanges() -> Exception? {
         guard let currentUserDatabaseReference else {
             return .init("Current user has not been set.", metadata: .init(sender: self))
         }

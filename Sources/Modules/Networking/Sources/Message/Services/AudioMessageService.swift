@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct AudioMessageService {
+struct AudioMessageService {
     // MARK: - Dependencies
 
     @Dependency(\.fileManager) private var fileManager: FileManager
@@ -22,7 +22,7 @@ public struct AudioMessageService {
 
     // MARK: - Get Audio Component
 
-    public func getAudioComponent(for message: Message) async -> Callback<Message, Exception> {
+    func getAudioComponent(for message: Message) async -> Callback<Message, Exception> {
         switch cachedAudioMessageReference(for: message) {
         case let .success(audioMessageReference):
             return .success(appendAudioComponent(audioMessageReference, to: message))
@@ -43,7 +43,7 @@ public struct AudioMessageService {
     // MARK: - Delete Input Audio Component
 
     // TODO: This is inefficient. Rewrite with Message as the argument.
-    public func deleteInputAudioComponent(for messageID: String) async -> Exception? {
+    func deleteInputAudioComponent(for messageID: String) async -> Exception? {
         if let exception = await networking.storage.deleteItem(
             at: "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
         ) {
@@ -56,7 +56,7 @@ public struct AudioMessageService {
 
     // MARK: - Upload Audio Components
 
-    public func uploadAudioComponents(
+    func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message
     ) async -> Exception? {
@@ -251,7 +251,7 @@ public struct AudioMessageService {
         ).get()) == true
     }
 
-    public func preRecordedOutputExists(for translation: Translation) async -> Bool {
+    func preRecordedOutputExists(for translation: Translation) async -> Bool {
         let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
         let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         return (try? await networking.storage.itemExists(

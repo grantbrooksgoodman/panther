@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ChangeLanguagePageViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ChangeLanguagePageViewService {
+enum ChangeLanguagePageViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ChangeLanguagePageViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var changeLanguagePageViewService: ChangeLanguagePageViewService {
         get { self[ChangeLanguagePageViewServiceDependency.self] }
         set { self[ChangeLanguagePageViewServiceDependency.self] = newValue }

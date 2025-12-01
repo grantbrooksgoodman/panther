@@ -10,20 +10,20 @@
 import Contacts
 import Foundation
 
-public struct CNContactContainer: Equatable {
+struct CNContactContainer: Equatable {
     // MARK: - Properties
 
-    public let cnContact: CNMutableContact
-    public let isUnknown: Bool
+    let cnContact: CNMutableContact
+    let isUnknown: Bool
 
     // MARK: - Init
 
-    public init(_ cnContact: CNMutableContact, isUnknown: Bool) {
+    init(_ cnContact: CNMutableContact, isUnknown: Bool) {
         self.cnContact = cnContact
         self.isUnknown = isUnknown
     }
 
-    public init?(_ cnContact: CNMutableContact?, isUnknown: Bool = false) {
+    init?(_ cnContact: CNMutableContact?, isUnknown: Bool = false) {
         guard let cnContact else { return nil }
         self.init(cnContact, isUnknown: isUnknown)
     }

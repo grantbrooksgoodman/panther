@@ -10,16 +10,16 @@
 import Foundation
 import UIKit
 
-public struct MenuElement {
+struct MenuElement {
     // MARK: - Types
 
-    public struct Attributes: OptionSet {
+    struct Attributes: OptionSet {
         /* MARK: Properties */
 
-        public static let `default`: Attributes = .init(rawValue: 1 << 0)
-        public static let destructive: Attributes = .init(rawValue: 1 << 1)
+        static let `default`: Attributes = .init(rawValue: 1 << 0)
+        static let destructive: Attributes = .init(rawValue: 1 << 1)
 
-        public let rawValue: Int8
+        let rawValue: Int8
 
         /* MARK: Computed Properties */
 
@@ -33,7 +33,7 @@ public struct MenuElement {
 
         /* MARK: Init */
 
-        public init(rawValue: Int8) {
+        init(rawValue: Int8) {
             self.rawValue = rawValue
         }
     }
@@ -63,7 +63,7 @@ public struct MenuElement {
 
     // MARK: - Init
 
-    public init(
+    init(
         title: String,
         image: UIImage? = nil,
         identifier: UIAction.Identifier? = nil,

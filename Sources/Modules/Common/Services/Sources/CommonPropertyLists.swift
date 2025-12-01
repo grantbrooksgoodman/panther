@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class CommonPropertyLists {
+final class CommonPropertyLists {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -26,14 +26,14 @@ public final class CommonPropertyLists {
 
     // MARK: - Properties
 
-    public static let shared = CommonPropertyLists()
+    static let shared = CommonPropertyLists()
 
     @Cached(CacheKey.callingCodes) private var cachedCallingCodes: [String: String]?
     @Cached(CacheKey.lookupTables) private var cachedLookupTables: [String: [String]]?
 
     // MARK: - Computed Properties
 
-    public var callingCodes: [String: String] {
+    var callingCodes: [String: String] {
         if let cachedCallingCodes,
            !cachedCallingCodes.isEmpty {
             return cachedCallingCodes
@@ -49,7 +49,7 @@ public final class CommonPropertyLists {
         return dictionary
     }
 
-    public var lookupTables: [String: [String]] {
+    var lookupTables: [String: [String]] {
         if let cachedLookupTables,
            !cachedLookupTables.isEmpty {
             return cachedLookupTables
@@ -71,7 +71,7 @@ public final class CommonPropertyLists {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedCallingCodes = nil
         cachedLookupTables = nil
     }

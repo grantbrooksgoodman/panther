@@ -13,16 +13,16 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public extension NetworkServices {
+extension NetworkServices {
     enum NetworkServiceStore {
-        public static let conversationService = ConversationService(archive: .init())
-        public static let integrityService = IntegrityService()
-        public static let messageService = MessageService(
+        static let conversationService = ConversationService(archive: .init())
+        static let integrityService = IntegrityService()
+        static let messageService = MessageService(
             audio: .init(),
             legacy: .init(),
             media: .init()
         )
-        public static let userService = UserService(
+        static let userService = UserService(
             legacy: .init(),
             testing: .init()
         )

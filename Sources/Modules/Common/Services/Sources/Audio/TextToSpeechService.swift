@@ -13,7 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct TextToSpeechService {
+struct TextToSpeechService {
     // MARK: - Type Aliases
 
     private typealias FileNames = AudioService.FileNames
@@ -26,7 +26,7 @@ public struct TextToSpeechService {
 
     // MARK: - Read to File
 
-    public func readToFile(text: String, languageCode: String) async -> Callback<URL, Exception> {
+    func readToFile(text: String, languageCode: String) async -> Callback<URL, Exception> {
         guard isTextToSpeechSupported(for: languageCode) else {
             return .failure(.init(
                 "Text to speech is not supported for the specified language code.",
@@ -56,7 +56,7 @@ public struct TextToSpeechService {
 
     // MARK: - Highest Quality Voice
 
-    public func highestQualityVoice(
+    func highestQualityVoice(
         _ languageCode: String,
         mustIncludeAudioFileSettings: Bool = false
     ) -> AVSpeechSynthesisVoice? {
@@ -78,7 +78,7 @@ public struct TextToSpeechService {
 
     // MARK: - Capabilities
 
-    public func isTextToSpeechSupported(for languageCode: String) -> Bool {
+    func isTextToSpeechSupported(for languageCode: String) -> Bool {
         if let cachedValue = _TextToSpeechServiceCache.cachedTextToSpeechSupportForLanguageCodes?[languageCode] {
             return cachedValue
         }
@@ -214,8 +214,8 @@ public struct TextToSpeechService {
     }
 }
 
-public enum TextToSpeechServiceCache {
-    public static func clearCache() {
+enum TextToSpeechServiceCache {
+    static func clearCache() {
         _TextToSpeechServiceCache.clearCache()
     }
 }

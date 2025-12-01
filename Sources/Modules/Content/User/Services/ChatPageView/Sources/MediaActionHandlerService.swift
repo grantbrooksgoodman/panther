@@ -19,7 +19,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public final class MediaActionHandlerService {
+final class MediaActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.MediaActionHandler
@@ -37,17 +37,17 @@ public final class MediaActionHandlerService {
 
     private let viewController: ChatPageViewController
 
-    public private(set) var isPresentingPickerController = false
+    private(set) var isPresentingPickerController = false
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Attach Media Button Tapped
 
-    public func attachMediaButtonTapped() {
+    func attachMediaButtonTapped() {
         services.haptics.generateFeedback(.medium)
 
         let takePhotoAction: AKAction = .init("Take photo") { self.presentCameraPicker() }

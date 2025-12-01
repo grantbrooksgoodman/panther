@@ -14,10 +14,10 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct GenericTextField: View {
+struct GenericTextField: View {
     // MARK: - Constants Accessors
 
-    public typealias Floats = AppConstants.CGFloats.GenericTextField
+    typealias Floats = AppConstants.CGFloats.GenericTextField
 
     // MARK: - Properties
 
@@ -41,7 +41,7 @@ public struct GenericTextField: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ text: Binding<String>,
         alignment: TextAlignment = .center,
         autocapitalization: TextInputAutocapitalization? = nil,
@@ -69,7 +69,7 @@ public struct GenericTextField: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         let textField = TextField(
             "",
             text: $text,

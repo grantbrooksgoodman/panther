@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct ReactionSessionServiceEffectID: Hashable {
+struct ReactionSessionServiceEffectID: Hashable {
     // MARK: - Properties
 
-    public let rawValue: String
+    let rawValue: String
 
     // MARK: - Init
 
-    public init(_ rawValue: String) {
+    init(_ rawValue: String) {
         self.rawValue = rawValue
     }
 }
 
-public extension ReactionSessionServiceEffectID {
+extension ReactionSessionServiceEffectID {
     static let reloadCollectionView: ReactionSessionServiceEffectID = .init("reloadCollectionView")
     static let scrollToLastItem: ReactionSessionServiceEffectID = .init("scrollToLastItem")
 }

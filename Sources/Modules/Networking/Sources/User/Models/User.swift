@@ -13,36 +13,36 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class User: Codable, EncodedHashable, Equatable, Hashable {
+final class User: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Properties
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
-    public private(set) var conversationIDs: [ConversationID]?
-    public private(set) var conversations: [Conversation]?
+    private(set) var conversationIDs: [ConversationID]?
+    private(set) var conversations: [Conversation]?
 
-    public let blockedUserIDs: [String]?
-    public let id: String
-    public let isPenPalsParticipant: Bool
-    public let languageCode: String
-    public let messageRecipientConsentRequired: Bool
-    public let phoneNumber: PhoneNumber
-    public let previousLanguageCodes: [String]?
-    public let pushTokens: [String]?
+    let blockedUserIDs: [String]?
+    let id: String
+    let isPenPalsParticipant: Bool
+    let languageCode: String
+    let messageRecipientConsentRequired: Bool
+    let phoneNumber: PhoneNumber
+    let previousLanguageCodes: [String]?
+    let pushTokens: [String]?
 
     private var isSettingConversations = false
 
     // MARK: - Computed Properties
 
-    public var canSendAudioMessages: Bool {
+    var canSendAudioMessages: Bool {
         @Dependency(\.commonServices.audio.transcription) var transcriptionService: TranscriptionService
         return transcriptionService.isTranscriptionSupported(for: languageCode)
     }
 
-    public var hashFactors: [String] {
+    var hashFactors: [String] {
         var factors = [String]()
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
-        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? [])
+        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? []) // TODO: Audit this.
         factors.append(id)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
@@ -50,10 +50,10 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(phoneNumber.encodedHash)
         factors.append(contentsOf: previousLanguageCodes ?? [])
         factors.append(contentsOf: pushTokens ?? [])
-        return factors
+        return factors.sorted()
     }
 
-    public var hostedBadgeNumber: Int {
+    var hostedBadgeNumber: Int {
         get async {
             @Dependency(\.networking.database) var database: DatabaseDelegate
             let getValuesResult = await database.getValues(
@@ -82,7 +82,7 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ id: String,
         blockedUserIDs: [String]?,
         conversationIDs: [ConversationID]?,
@@ -107,7 +107,7 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Badge Number Calculation
 
     /// - Note: Will return `0` for users other than the current user.
-    public func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
+    func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
         guard id == User.currentUserID else { return 0 }
 
         if conversationIDs?.isEmpty == false,
@@ -142,7 +142,7 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     // MARK: - Capability Testing
 
-    public func canSendAudioMessages(to user: User) -> Bool {
+    func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
         return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
     }
@@ -150,7 +150,7 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
     // MARK: - Set Conversations
 
     /// - Note: Returns `nil` if called on a user other than the current user.
-    public func setConversations() async -> Exception? {
+    func setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
@@ -260,13 +260,13 @@ public final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (left: User, right: User) -> Bool {
+    static func == (left: User, right: User) -> Bool {
         left.encodedHash == right.encodedHash
     }
 
     // MARK: - Hashable Conformance
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(encodedHash)
     }
 }

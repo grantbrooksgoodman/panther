@@ -14,7 +14,7 @@ import AppSubsystem
 
 // FIXME: Previously saw data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency. Audit new behavior.
 // NIT: Maybe fixed with @LockIsolated?
-public final class ConversationArchiveService {
+final class ConversationArchiveService {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
@@ -33,11 +33,11 @@ public final class ConversationArchiveService {
 
     // MARK: - Init
 
-    public init() { archive = persistedArchive ?? [] }
+    init() { archive = persistedArchive ?? [] }
 
     // MARK: - Addition
 
-    public func addValue(_ conversation: Conversation) {
+    func addValue(_ conversation: Conversation) {
         guard !archive.contains(conversation) else { return }
         archive.removeAll(where: { $0.id.key == conversation.id.key })
         archive.append(conversation)
@@ -56,11 +56,11 @@ public final class ConversationArchiveService {
 
     // MARK: - Removal
 
-    public func clearArchive() {
+    func clearArchive() {
         archive = []
     }
 
-    public func removeValue(idKey: String) {
+    func removeValue(idKey: String) {
         guard archive.contains(where: { $0.id.key == idKey }) else { return }
         archive.removeAll(where: { $0.id.key == idKey })
 
@@ -77,11 +77,11 @@ public final class ConversationArchiveService {
 
     // MARK: - Retrieval
 
-    public func getValue(id: ConversationID) -> Conversation? {
+    func getValue(id: ConversationID) -> Conversation? {
         archive.first(where: { $0.id == id })
     }
 
-    public func getValue(idKey: String) -> Conversation? {
+    func getValue(idKey: String) -> Conversation? {
         archive.first(where: { $0.id.key == idKey })
     }
 

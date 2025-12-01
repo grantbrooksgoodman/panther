@@ -15,10 +15,10 @@ import AppSubsystem
 import Networking
 
 @MainActor
-public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
+final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
     // MARK: - Types
 
-    public enum CaptureGranularity {
+    enum CaptureGranularity {
         case broad
         case narrow
     }
@@ -32,10 +32,10 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
 
     // MARK: - Properties
 
-    public nonisolated static let shared = BreadcrumbsCaptureService()
+    nonisolated static let shared = BreadcrumbsCaptureService()
 
-    public private(set) var captureGranularity: CaptureGranularity = .broad
-    public private(set) var savesToPhotos = true
+    private(set) var captureGranularity: CaptureGranularity = .broad
+    private(set) var savesToPhotos = true
 
     private var captureTask: Task<Void, Never>?
     private var recordedViewControllers = Set<String>()
@@ -43,12 +43,12 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
 
     // MARK: - Computed Properties
 
-    public private(set) var captureFrequency: Duration {
+    private(set) var captureFrequency: Duration {
         get { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; return persistedValue ?? .seconds(10) }
         set { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; persistedValue = newValue }
     }
 
-    public var isCapturing: Bool { captureTask != nil }
+    var isCapturing: Bool { captureTask != nil }
 
     private var captureHistory: Set<String> {
         get { @Persistent(.breadcrumbsCaptureHistory) var persistedValue: Set<String>?; return persistedValue ?? .init() }
@@ -97,7 +97,7 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
     // MARK: - Capture
 
     @discardableResult
-    public func startCapture() -> Exception? {
+    func startCapture() -> Exception? {
         guard !isCapturing else {
             return .init(
                 "Breadcrumbs capture is already running.",
@@ -117,7 +117,7 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
     }
 
     @discardableResult
-    public func stopCapture() -> Exception? {
+    func stopCapture() -> Exception? {
         guard isCapturing else {
             return .init(
                 "Breadcrumbs capture is not running.",
@@ -132,19 +132,19 @@ public final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Deleg
 
     // MARK: - Set Capture Frequency
 
-    public func setCaptureFrequency(_ captureFrequency: Duration) {
+    func setCaptureFrequency(_ captureFrequency: Duration) {
         self.captureFrequency = captureFrequency
     }
 
     // MARK: - Set Capture Granularity
 
-    public func setCaptureGranularity(_ captureGranularity: CaptureGranularity) {
+    func setCaptureGranularity(_ captureGranularity: CaptureGranularity) {
         self.captureGranularity = captureGranularity
     }
 
     // MARK: - Set Saves to Photos
 
-    public func setSavesToPhotos(_ savesToPhotos: Bool) {
+    func setSavesToPhotos(_ savesToPhotos: Bool) {
         self.savesToPhotos = savesToPhotos
     }
 

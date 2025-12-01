@@ -12,12 +12,12 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct OnboardingNavigatorState: NavigatorState {
+struct OnboardingNavigatorState: NavigatorState {
     // MARK: - Types
 
-    public enum ModalPaths: Paths {}
+    enum ModalPaths: Paths {}
 
-    public enum SeguePaths: Paths {
+    enum SeguePaths: Paths {
         case authCode
         case permission
         case selectLanguage
@@ -25,16 +25,16 @@ public struct OnboardingNavigatorState: NavigatorState {
         case verifyNumber
     }
 
-    public enum SheetPaths: Paths {}
+    enum SheetPaths: Paths {}
 
     // MARK: - Properties
 
-    public var modal: ModalPaths?
-    public var sheet: SheetPaths?
-    public var stack: [SeguePaths] = []
+    var modal: ModalPaths?
+    var sheet: SheetPaths?
+    var stack: [SeguePaths] = []
 }
 
-public enum OnboardingNavigator {
+enum OnboardingNavigator {
     static func navigate(to route: RootNavigationService.Route.OnboardingRoute, on state: inout OnboardingNavigatorState) {
         switch route {
         case .pop:
@@ -50,7 +50,7 @@ public enum OnboardingNavigator {
     }
 }
 
-public extension RootNavigationService.Route {
+extension RootNavigationService.Route {
     enum OnboardingRoute {
         case pop
         case push(OnboardingNavigatorState.SeguePaths)

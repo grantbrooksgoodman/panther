@@ -18,7 +18,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-public final class InputBarService {
+final class InputBarService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -45,9 +45,9 @@ public final class InputBarService {
 
     // MARK: - Properties
 
-    public let actionHandler: InputBarActionHandlerService
+    let actionHandler: InputBarActionHandlerService
 
-    public private(set) var isForcingAppearance = false
+    private(set) var isForcingAppearance = false
 
     private let viewController: ChatPageViewController
 
@@ -55,9 +55,10 @@ public final class InputBarService {
 
     // MARK: - Computed Properties
 
-    public var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
-    public var shouldEnableAttachMediaButton: Bool { getShouldEnableAttachMediaButton() }
-    public var shouldEnableSendButton: Bool { getShouldEnableSendButton() }
+    var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
+    var isShowingConsentButton: Bool { (consentButton?.alpha ?? 0) > 0 }
+    var shouldEnableAttachMediaButton: Bool { getShouldEnableAttachMediaButton() }
+    var shouldEnableSendButton: Bool { getShouldEnableSendButton() }
 
     private var consentButton: UIButton? { inputBar.firstSubview(for: Strings.consentButtonSemanticTag) as? UIButton }
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
@@ -67,14 +68,14 @@ public final class InputBarService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
     }
 
     // MARK: - Configure Input Bar
 
-    public func configureInputBar(
+    func configureInputBar(
         forRecording: Bool? = nil,
         forceUpdate: Bool = false
     ) {
@@ -183,7 +184,7 @@ public final class InputBarService {
 
     // MARK: - Become First Responder
 
-    public func becomeFirstResponder() {
+    func becomeFirstResponder() {
         guard !shouldShowConsentButton else { return }
         let startDate = Date.now
         while chatPageState.isPresented,
@@ -197,7 +198,7 @@ public final class InputBarService {
     // MARK: - Force Appearance
 
     /// - NOTE: Fixes a bug in which the dismissal of the contact selector sheet would cause the input bar to hide.
-    public func forceAppearance() {
+    func forceAppearance() {
         guard let textField = chatPageViewService.recipientBar?.layout.textField else { return }
 
         viewController.view.isUserInteractionEnabled = false
@@ -224,7 +225,7 @@ public final class InputBarService {
 
     // MARK: - Set Attach Media Button Image
 
-    public func setAttachMediaButtonImage() {
+    func setAttachMediaButtonImage() {
         let attachMediaButtonNormalImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: false)
         let attachMediaButtonHighlightedImage = inputBarConfigService.attachMediaButtonImage(isHighlighted: true)
 
@@ -234,7 +235,7 @@ public final class InputBarService {
 
     // MARK: - Set Attach Media Button Is Enabled
 
-    public func setAttachMediaButtonIsEnabled(_ isEnabled: Bool) {
+    func setAttachMediaButtonIsEnabled(_ isEnabled: Bool) {
         mainQueue.async {
             if !self.isForcingAppearance {
                 guard self.inputBar.leftStackView.attachMediaButton?.isEnabled != isEnabled else { return }
@@ -254,18 +255,18 @@ public final class InputBarService {
 
     // MARK: - Set Consent Button Is Enabled
 
-    public func setConsentButtonIsEnabled(_ isEnabled: Bool) {
+    func setConsentButtonIsEnabled(_ isEnabled: Bool) {
         mainQueue.async {
             guard let consentButton = self.consentButton else { return }
             consentButton.isEnabled = isEnabled
             consentButton.isUserInteractionEnabled = isEnabled
-            consentButton.setTitleColor(isEnabled ? .accent : .disabled, for: .normal)
+            consentButton.setTitleColor(isEnabled ? .accentOrSystemBlue : .disabled, for: .normal)
         }
     }
 
     // MARK: - Set Send Button Is Enabled
 
-    public func setSendButtonIsEnabled(_ isEnabled: Bool) {
+    func setSendButtonIsEnabled(_ isEnabled: Bool) {
         mainQueue.async {
             if !self.isForcingAppearance {
                 guard self.inputBar.sendButton.isEnabled != isEnabled else { return }
@@ -283,7 +284,7 @@ public final class InputBarService {
 
     // MARK: - Toggle Sending UI
 
-    public func toggleSendingUI(
+    func toggleSendingUI(
         on: Bool,
         clearInputTextViewText: Bool = true
     ) {
@@ -301,7 +302,7 @@ public final class InputBarService {
                 self.setAttachMediaButtonIsEnabled(self.shouldEnableAttachMediaButton)
             }
 
-            self.inputBar.inputTextView.tintColor = on ? UIColor(Colors.inputTextViewTint) : .accent
+            self.inputBar.inputTextView.tintColor = UIColor(on ? Colors.inputTextViewAlternateTint : Colors.inputTextViewTint)
             self.inputBar.leftStackView.attachMediaButton?.isUserInteractionEnabled = !on
             self.inputBar.sendButton.isUserInteractionEnabled = !on
         }
@@ -405,7 +406,7 @@ public final class InputBarService {
         consentButton.setTitleColor(
             shouldEnableConsentButton || (fullConversation
                 .currentUserInitiatorRequiresMessageReceiptConsent && fullConversation
-                .didSendConsentMessage) ? .accent : .disabled,
+                .didSendConsentMessage) ? .accentOrSystemBlue : .disabled,
             for: .normal
         )
 

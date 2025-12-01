@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum InviteQRCodePageViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> InviteQRCodePageViewService {
+enum InviteQRCodePageViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> InviteQRCodePageViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var inviteQRCodePageViewService: InviteQRCodePageViewService {
         get { self[InviteQRCodePageViewServiceDependency.self] }
         set { self[InviteQRCodePageViewServiceDependency.self] = newValue }

@@ -17,7 +17,7 @@ import AppSubsystem
 import InputBarAccessoryView
 import MessageKit
 
-public struct ChatPageViewControllerFactory {
+struct ChatPageViewControllerFactory {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -27,7 +27,7 @@ public struct ChatPageViewControllerFactory {
 
     // MARK: - Build View Controller
 
-    public func buildViewController() -> ChatPageViewController {
+    func buildViewController() -> ChatPageViewController {
         let viewController = ChatPageViewController()
         viewController.messagesCollectionView = MessagesCollectionView(
             frame: .zero,
@@ -53,7 +53,7 @@ public struct ChatPageViewControllerFactory {
 
     // MARK: - UI Configuration
 
-    public func configureRecipientBar(_ viewController: ChatPageViewController, service: RecipientBarService) {
+    func configureRecipientBar(_ viewController: ChatPageViewController, service: RecipientBarService) {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.Layout
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.Layout
 
@@ -131,7 +131,9 @@ public struct ChatPageViewControllerFactory {
 
         deliveryProgressView.alpha = 0
         deliveryProgressView.progress = 0
-        deliveryProgressView.progressTintColor = Application.isInPrevaricationMode ? UIColor(Colors.prevaricationModeProgressTint) : .accent
+        deliveryProgressView.progressTintColor = Application.isInPrevaricationMode ?
+            UIColor(Colors.prevaricationModeProgressTint) :
+            (ThemeService.isAppDefaultThemeApplied ? UIColor(Colors.progressBarTint) : .accent)
         deliveryProgressView.progressViewStyle = .bar
 
         deliveryProgressView.tag = coreUI.semTag(for: Strings.viewSemanticTag)

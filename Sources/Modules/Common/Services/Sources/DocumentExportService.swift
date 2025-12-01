@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
+final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -26,7 +26,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Present Export Controller
 
-    public func presentExportController(forFileAt url: URL) -> Exception? {
+    func presentExportController(forFileAt url: URL) -> Exception? {
         guard let fileExtension = url.path().components(separatedBy: "/").last?.components(separatedBy: ".").last else {
             return .init(
                 "Failed to determine file type.",
@@ -57,13 +57,13 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Bool) -> Void) {
+    func onDismiss(_ perform: @escaping (Bool) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - UIDocumentPickerDelegate Conformance
 
-    public func documentPicker(
+    func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
     ) {
@@ -71,7 +71,7 @@ public final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         onDismiss(cancelled: false)
     }
 
-    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         controller.dismiss(animated: true) {
             StatusBar.overrideStyle(.appAware)
             self.onDismiss(cancelled: true)

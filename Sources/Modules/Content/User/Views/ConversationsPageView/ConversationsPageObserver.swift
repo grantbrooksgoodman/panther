@@ -13,10 +13,10 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct ConversationsPageObserver: Observer {
+struct ConversationsPageObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = ConversationsPageReducer
+    typealias R = ConversationsPageReducer
 
     // MARK: - Dependencies
 
@@ -29,27 +29,27 @@ public struct ConversationsPageObserver: Observer {
 
     // MARK: - Properties
 
-    public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [
+    let id = UUID()
+    let observedValues: [any ObservableProtocol] = [
         Observables.traitCollectionChanged,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
-    public let viewModel: ViewModel<ConversationsPageReducer>
+    let viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ConversationsPageReducer>) {
+    init(_ viewModel: ViewModel<ConversationsPageReducer>) {
         self.viewModel = viewModel
     }
 
     // MARK: - Observer Conformance
 
-    public func linkObservables() {
+    func linkObservables() {
         Observers.link(ConversationsPageObserver.self, with: observedValues)
     }
 
-    public func onChange(of observable: Observable<Any>) {
+    func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -74,7 +74,7 @@ public struct ConversationsPageObserver: Observer {
         }
     }
 
-    public func send(_ action: ConversationsPageReducer.Action) {
+    func send(_ action: ConversationsPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }
@@ -143,48 +143,59 @@ public struct ConversationsPageObserver: Observer {
                 return
             }
 
-            if let currentConversation = clientSession.conversation.fullConversation,
-               let updatedConversation = clientSession.user.currentUser?.conversations?.first(where: { $0.id.key == currentConversation.id.key }) {
-                guard let currentMessages = currentConversation.messages?.filteringSystemMessages,
-                      let missingMessages = updatedConversation.messages?
-                      .filteringSystemMessages
-                      .filter({ !currentMessages.contains($0) })
-                      .filter({ !$0.isFromCurrentUser })
-                      .filter({ $0.currentUserReadReceipt == nil }),
-                      !missingMessages.isEmpty else {
-                    guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
-                    clientSession.conversation.setCurrentConversation(updatedConversation)
-                    chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
+            defer { chatPageState.setIsWaitingToUpdateConversations(false) }
 
-                    guard currentConversation.id.hash != updatedConversation.id.hash else { return }
-                    if let navigationTitle = ConversationCellViewData(updatedConversation)?.titleLabelText {
-                        chatPageViewService.setNavigationTitle(navigationTitle)
-                    }
+            guard let currentConversation = clientSession.conversation.fullConversation,
+                  let updatedConversation = clientSession
+                  .user
+                  .currentUser?
+                  .conversations?
+                  .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
-                    chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
-                    Observables.currentConversationMetadataChanged.trigger()
-                    return
-                }
-
-                let updateReadDateResult = await updatedConversation.updateReadDate(for: missingMessages)
-
-                switch updateReadDateResult {
-                case let .success(conversation):
-                    if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
-                       let exception = await notificationService.setBadgeNumber(badgeNumber) {
-                        Logger.log(exception, domain: .conversation)
-                    }
-
-                    guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
-                    clientSession.conversation.setCurrentConversation(conversation)
-                    chatPageViewService.reloadCollectionView()
-
-                case let .failure(exception):
-                    Logger.log(exception, domain: .conversation)
-                }
+            func configureInputBarIfNeeded() {
+                guard chatPageViewService.inputBar?.isShowingConsentButton == true else { return }
+                chatPageViewService.inputBar?.configureInputBar()
             }
 
-            chatPageState.setIsWaitingToUpdateConversations(false)
+            guard let currentMessages = currentConversation.messages?.filteringSystemMessages,
+                  let missingMessages = updatedConversation.messages?
+                  .filteringSystemMessages
+                  .filter({ !currentMessages.contains($0) })
+                  .filter({ !$0.isFromCurrentUser })
+                  .filter({ $0.currentUserReadReceipt == nil }),
+                  !missingMessages.isEmpty else {
+                guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
+                clientSession.conversation.setCurrentConversation(updatedConversation)
+                chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
+
+                guard currentConversation.id.hash != updatedConversation.id.hash else { return }
+                if let navigationTitle = ConversationCellViewData(updatedConversation)?.titleLabelText {
+                    chatPageViewService.setNavigationTitle(navigationTitle)
+                }
+
+                chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
+                configureInputBarIfNeeded()
+                Observables.currentConversationMetadataChanged.trigger()
+                return
+            }
+
+            let updateReadDateResult = await updatedConversation.updateReadDate(for: missingMessages)
+
+            switch updateReadDateResult {
+            case let .success(conversation):
+                if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
+                   let exception = await notificationService.setBadgeNumber(badgeNumber) {
+                    Logger.log(exception, domain: .conversation)
+                }
+
+                guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return }
+                clientSession.conversation.setCurrentConversation(conversation)
+                chatPageViewService.reloadCollectionView()
+                configureInputBarIfNeeded()
+
+            case let .failure(exception):
+                Logger.log(exception, domain: .conversation)
+            }
         }
     }
 }

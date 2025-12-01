@@ -13,12 +13,12 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RecipientBarTableViewService {
+final class RecipientBarTableViewService {
     // MARK: - Types
 
-    public struct TableViewSection {
-        public let letter: String
-        public let contactPairs: [ContactPair]
+    struct TableViewSection {
+        let letter: String
+        let contactPairs: [ContactPair]
     }
 
     // MARK: - Dependencies
@@ -37,17 +37,17 @@ public final class RecipientBarTableViewService {
 
     // MARK: - Computed Properties
 
-    public var sections: [TableViewSection] { getSections() }
+    var sections: [TableViewSection] { getSections() }
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Reload Data
 
-    public func reloadData() {
+    func reloadData() {
         guard contactPairs != nil else {
             Task.background(delayedBy: .seconds(1)) { @MainActor in
                 resolveContactPairs()
@@ -62,13 +62,13 @@ public final class RecipientBarTableViewService {
 
     // MARK: - Resolve Contact Pairs
 
-    public func resolveContactPairs() {
+    func resolveContactPairs() {
         contactPairs = getContactPairs() ?? []
     }
 
     // MARK: - Set Query
 
-    public func setQuery(_ query: String) {
+    func setQuery(_ query: String) {
         guard let recipientBarView = service?.layout.recipientBarView,
               let tableView = service?.layout.tableView else { return }
 

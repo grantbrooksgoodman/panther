@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public extension MessagesCollectionView {
+extension MessagesCollectionView {
     func scrollTo(
         messageID: String,
         at scrollPosition: UICollectionView.ScrollPosition = .top,

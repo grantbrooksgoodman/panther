@@ -14,7 +14,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct CNContactView: View {
+struct CNContactView: View {
     // MARK: - Properties
 
     private let cnContact: CNContact
@@ -23,7 +23,7 @@ public struct CNContactView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ cnContact: CNContact,
         isUnknown: Bool = false,
         navigationBarAppearance: NavigationBarAppearance = Application.isInPrevaricationMode ? .appDefault : .default()
@@ -35,7 +35,7 @@ public struct CNContactView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         ThemedView {
             _CNContactView(cnContact, isUnknown: isUnknown)
                 .navigationBarBackButtonHidden()
@@ -56,7 +56,7 @@ private struct _CNContactView: UIViewControllerRepresentable {
 
     // MARK: - Type Aliases
 
-    public typealias UIViewControllerType = CNContactViewController
+    typealias UIViewControllerType = CNContactViewController
 
     // MARK: - Properties
 
@@ -65,14 +65,14 @@ private struct _CNContactView: UIViewControllerRepresentable {
 
     // MARK: - Init
 
-    public init(_ cnContact: CNContact, isUnknown: Bool) {
+    init(_ cnContact: CNContact, isUnknown: Bool) {
         self.cnContact = cnContact
         self.isUnknown = isUnknown
     }
 
     // MARK: - Make UIViewController
 
-    public func makeUIViewController(context: Context) -> CNContactViewController {
+    func makeUIViewController(context: Context) -> CNContactViewController {
         let viewController: CNContactViewController = isUnknown ? .init(forUnknownContact: cnContact) : .init(for: cnContact)
         viewController.allowsEditing = false
 
@@ -86,5 +86,5 @@ private struct _CNContactView: UIViewControllerRepresentable {
 
     // MARK: - Update UIViewController
 
-    public func updateUIViewController(_ uiViewController: CNContactViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: CNContactViewController, context: Context) {}
 }

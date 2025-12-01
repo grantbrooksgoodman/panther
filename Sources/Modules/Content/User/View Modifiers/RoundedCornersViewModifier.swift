@@ -18,14 +18,14 @@ private struct RoundedCornersViewModifier: Shape {
 
     // MARK: - Init
 
-    public init(radius: CGFloat, corners: UIRectCorner) {
+    init(radius: CGFloat, corners: UIRectCorner) {
         self.radius = radius
         self.corners = corners
     }
 
     // MARK: - Path
 
-    public func path(in rect: CGRect) -> Path {
+    func path(in rect: CGRect) -> Path {
         .init(
             UIBezierPath(
                 roundedRect: rect,
@@ -36,7 +36,7 @@ private struct RoundedCornersViewModifier: Shape {
     }
 }
 
-public extension View {
+extension View {
     func roundedCorners(
         _ radius: CGFloat = .infinity,
         corners: UIRectCorner = .allCorners

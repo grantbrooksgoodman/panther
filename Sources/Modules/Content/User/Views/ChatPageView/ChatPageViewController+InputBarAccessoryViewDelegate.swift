@@ -18,7 +18,7 @@ import InputBarAccessoryView
 extension ChatPageViewController: InputBarAccessoryViewDelegate {
     // MARK: - Did Press Send Button
 
-    public func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
+    func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
             if let exception = await inputBarService?.actionHandler.didPressSendButton(with: text) {
@@ -29,7 +29,7 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
 
     // MARK: - Text View Did Change
 
-    public func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
+    func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
         @Dependency(\.chatPageViewService.typingIndicator) var typingIndicatorService: TypingIndicatorService?
         Task.background {
             if let exception = await typingIndicatorService?.textViewDidChange(to: text) {

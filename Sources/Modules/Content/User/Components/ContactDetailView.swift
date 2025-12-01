@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ContactDetailView: View {
+struct ContactDetailView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ContactDetailView
@@ -32,7 +32,7 @@ public struct ContactDetailView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         titleLabelText: String,
         subtitleLabelText: String?,
         image: UIImage?
@@ -44,7 +44,7 @@ public struct ContactDetailView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         HStack {
             AvatarImageView(image)
                 .padding(.trailing, Floats.avatarImageViewTrailingPadding)

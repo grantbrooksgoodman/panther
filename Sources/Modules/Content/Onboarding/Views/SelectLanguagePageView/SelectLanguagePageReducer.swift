@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct SelectLanguagePageReducer: Reducer {
+struct SelectLanguagePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -24,7 +24,7 @@ public struct SelectLanguagePageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case backButtonTapped
@@ -36,17 +36,17 @@ public struct SelectLanguagePageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Array
-        public var languages: [String] = []
-        public var strings: [TranslationOutputMap] = SelectLanguagePageViewStrings.defaultOutputMap
+        var languages: [String] = []
+        var strings: [TranslationOutputMap] = SelectLanguagePageViewStrings.defaultOutputMap
 
         // Other
-        public var instructionViewStrings: InstructionViewStrings = .empty
-        public var selectedLanguageName = ""
-        public var viewState: StatefulView.ViewState = .loading
+        var instructionViewStrings: InstructionViewStrings = .empty
+        var selectedLanguageName = ""
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
@@ -61,12 +61,12 @@ public struct SelectLanguagePageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

@@ -13,17 +13,17 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct ContextMenuService {
+struct ContextMenuService {
     // MARK: - Properties
 
-    public let actionHandler: ContextMenuActionHandlerService
-    public let interaction: ContextMenuInteractionService
+    let actionHandler: ContextMenuActionHandlerService
+    let interaction: ContextMenuInteractionService
 
     private let viewController: ChatPageViewController
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)
         interaction = .init(viewController)
@@ -31,7 +31,7 @@ public struct ContextMenuService {
 
     // MARK: - Dismiss Menu
 
-    public func dismissMenu() {
+    func dismissMenu() {
         Task { @MainActor in
             UIView.dismissCurrentContextMenu()
         }

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum ContentPickerContentSource {
+enum ContentPickerContentSource {
     case camera
     case photoLibrary
 }

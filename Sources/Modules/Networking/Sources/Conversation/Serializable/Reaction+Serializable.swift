@@ -16,7 +16,7 @@ import Networking
 extension Reaction: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = Reaction
+    typealias T = Reaction
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
@@ -28,7 +28,7 @@ extension Reaction: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         [
             Keys.style.rawValue: style.encodedValue,
             Keys.userID.rawValue: userID,
@@ -37,7 +37,7 @@ extension Reaction: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               Reaction.Style(encodedValue: encodedStyle) != nil,
               data[Keys.userID.rawValue] is String else { return false }
@@ -45,7 +45,7 @@ extension Reaction: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<Reaction, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<Reaction, Exception> {
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               let style = Reaction.Style(encodedValue: encodedStyle),
               let userID = data[Keys.userID.rawValue] as? String else {

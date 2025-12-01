@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum BatchFailureStrategy {
+enum BatchFailureStrategy {
     case continueOnFailure
     case returnOnFailure
 }

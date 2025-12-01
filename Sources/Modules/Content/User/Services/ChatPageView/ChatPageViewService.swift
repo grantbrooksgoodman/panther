@@ -19,7 +19,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class ChatPageViewService {
+final class ChatPageViewService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService
@@ -41,20 +41,20 @@ public final class ChatPageViewService {
 
     // MARK: - Properties
 
-    public private(set) var alternateMessage: AlternateMessageService?
-    public private(set) var audioMessagePlayback: AudioMessagePlaybackService?
-    public private(set) var contextMenu: ContextMenuService?
-    public private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
-    public private(set) var inputBar: InputBarService?
-    public private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
-    public private(set) var mediaActionHandler: MediaActionHandlerService?
-    public private(set) var mediaMessagePreview: MediaMessagePreviewService?
-    public private(set) var readReceipts: ReadReceiptService?
-    public private(set) var recipientBar: RecipientBarService?
-    public private(set) var recordingUI: RecordingUIService?
-    public private(set) var searchInteraction: SearchInteractionService?
-    public private(set) var tapGestureRecognizer: TapGestureRecognizerService?
-    public private(set) var typingIndicator: TypingIndicatorService?
+    private(set) var alternateMessage: AlternateMessageService?
+    private(set) var audioMessagePlayback: AudioMessagePlaybackService?
+    private(set) var contextMenu: ContextMenuService?
+    private(set) var deliveryProgressIndicator: DeliveryProgressIndicatorService?
+    private(set) var inputBar: InputBarService?
+    private(set) var inputBarGestureRecognizer: InputBarGestureRecognizerService?
+    private(set) var mediaActionHandler: MediaActionHandlerService?
+    private(set) var mediaMessagePreview: MediaMessagePreviewService?
+    private(set) var readReceipts: ReadReceiptService?
+    private(set) var recipientBar: RecipientBarService?
+    private(set) var recordingUI: RecordingUIService?
+    private(set) var searchInteraction: SearchInteractionService?
+    private(set) var tapGestureRecognizer: TapGestureRecognizerService?
+    private(set) var typingIndicator: TypingIndicatorService?
 
     private var configuration: ChatPageView.Configuration = .default
     private var viewController: ChatPageViewController?
@@ -71,7 +71,7 @@ public final class ChatPageViewService {
 
     // MARK: - Instantiate View Controller
 
-    public func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
+    func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
 
@@ -114,7 +114,7 @@ public final class ChatPageViewService {
 
     // MARK: - View Controller Lifecycle Handlers
 
-    public func onViewWillAppear() {
+    func onViewWillAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         Message.consentRequestMessageID = nil
@@ -135,7 +135,7 @@ public final class ChatPageViewService {
         startSettingNavigationBarButtonItemAppearance()
     }
 
-    public func onViewDidAppear() {
+    func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         typingIndicator?.startCheckingForTypingIndicatorChanges()
@@ -208,7 +208,7 @@ public final class ChatPageViewService {
         }
     }
 
-    public func onViewWillDisappear() {
+    func onViewWillDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         Message.consentRequestMessageID = nil
@@ -217,7 +217,7 @@ public final class ChatPageViewService {
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
-    public func onViewDidDisappear() {
+    func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
@@ -249,30 +249,30 @@ public final class ChatPageViewService {
 
     // MARK: - UIScrollView
 
-    public func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
         loadMoreMessages(fromScrollToTop: false)
     }
 
     @MainActor
-    public func onScrollViewDidEndScrollingAnimation() {
+    func onScrollViewDidEndScrollingAnimation() {
         searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
 
-    public func onScrollViewDidScrollToTop() {
+    func onScrollViewDidScrollToTop() {
         loadMoreMessages(fromScrollToTop: true)
     }
 
     // MARK: - UITraitCollection
 
-    public func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
         redrawForAppearanceChange()
     }
 
     // MARK: - Auxiliary
 
-    public func redrawForAppearanceChange() {
+    func redrawForAppearanceChange() {
         Task { @MainActor in
             inputBar?.configureInputBar(forceUpdate: true)
             inputBar?.setAttachMediaButtonImage()
@@ -294,14 +294,14 @@ public final class ChatPageViewService {
         }
     }
 
-    public func reloadCollectionView() {
+    func reloadCollectionView() {
         Task { @MainActor in
             guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
             viewController?.messagesCollectionView.reloadData()
         }
     }
 
-    public func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
+    func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
         func reloadItems() {
             Task { @MainActor in
                 guard let viewController,
@@ -321,7 +321,7 @@ public final class ChatPageViewService {
         }
     }
 
-    public func setNavigationTitle(_ navigationTitle: String) {
+    func setNavigationTitle(_ navigationTitle: String) {
         Task { @MainActor in
             guard let parent = viewController?.parent else { return }
             parent.navigationItem.title = navigationTitle

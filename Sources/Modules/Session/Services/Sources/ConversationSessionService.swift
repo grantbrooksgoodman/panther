@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class ConversationSessionService {
+final class ConversationSessionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ConversationSessionService
@@ -24,7 +24,7 @@ public final class ConversationSessionService {
 
     // MARK: - Properties
 
-    public private(set) var currentConversation: Conversation?
+    private(set) var currentConversation: Conversation?
 
     private var completeMessageArray: [Message]?
     private var messageOffset = Floats.defaultMessageOffset
@@ -32,7 +32,7 @@ public final class ConversationSessionService {
     // MARK: - Computed Properties
 
     /// The value of `currentConversation` with the fully populated `messages` array.
-    public var fullConversation: Conversation? {
+    var fullConversation: Conversation? {
         guard let currentConversation else { return nil }
         return .init(
             currentConversation.id,
@@ -46,11 +46,11 @@ public final class ConversationSessionService {
         )
     }
 
-    public var sync: ConversationSyncService { .init() }
+    var sync: ConversationSyncService { .init() }
 
     // MARK: - Add Messages
 
-    public func addMessages(_ messages: [Message], to conversation: Conversation) async -> Callback<Conversation, Exception> {
+    func addMessages(_ messages: [Message], to conversation: Conversation) async -> Callback<Conversation, Exception> {
         guard !messages.isEmpty else {
             return .failure(.init(
                 "No messages provided.",
@@ -73,7 +73,7 @@ public final class ConversationSessionService {
 
     // MARK: - Set Current Conversation
 
-    public func setCurrentConversation(_ currentConversation: Conversation?) {
+    func setCurrentConversation(_ currentConversation: Conversation?) {
         // NIT: .unique and .sortedByAscendingSentDate should be unnecessary here.
         completeMessageArray = currentConversation?
             .messages?
@@ -91,7 +91,7 @@ public final class ConversationSessionService {
 
     // MARK: - Message Offset
 
-    public func incrementMessageOffset() {
+    func incrementMessageOffset() {
         guard let fullConversation else { return }
         messageOffset += Floats.messageOffsetIncrement
         currentConversation = withMessagesOffset(
@@ -100,7 +100,7 @@ public final class ConversationSessionService {
         )
     }
 
-    public func incrementMessageOffset(to messageID: String) {
+    func incrementMessageOffset(to messageID: String) {
         guard let fullConversation,
               fullConversation.messageIDs.contains(messageID),
               fullConversation.messages?.map(\.id).contains(messageID) == true else { return }
@@ -114,13 +114,13 @@ public final class ConversationSessionService {
         }
     }
 
-    public func resetMessageOffset() {
+    func resetMessageOffset() {
         messageOffset = Floats.defaultMessageOffset
     }
 
     // MARK: - Deletion
 
-    public func deleteConversation(_ conversation: Conversation, forced: Bool = false) async -> Exception? {
+    func deleteConversation(_ conversation: Conversation, forced: Bool = false) async -> Exception? {
         if !forced {
             guard conversation.participants
                 .filter({ $0.userID != User.currentUserID })

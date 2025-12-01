@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct SignInPageReducer: Reducer {
+struct SignInPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -27,7 +27,7 @@ public struct SignInPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -49,10 +49,10 @@ public struct SignInPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Types */
 
-        public enum Configuration {
+        enum Configuration {
             case phoneNumber
             case verificationCode
         }
@@ -65,37 +65,37 @@ public struct SignInPageReducer: Reducer {
         /* MARK: Properties */
 
         // Bool
-        public var isBackButtonEnabled = true
-        public var isContinueButtonEnabled = false
+        var isBackButtonEnabled = true
+        var isContinueButtonEnabled = false
 
         // String
-        public var authID = ""
-        public var phoneNumberString = ""
-        public var selectedRegionCode = ""
-        public var verificationCode = ""
+        var authID = ""
+        var phoneNumberString = ""
+        var selectedRegionCode = ""
+        var verificationCode = ""
 
         // Other
-        public var configuration: Configuration = .phoneNumber
-        public var regionMenuViewID = UUID()
-        public var strings: [TranslationOutputMap] = SignInPageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
+        var configuration: Configuration = .phoneNumber
+        var regionMenuViewID = UUID()
+        var strings: [TranslationOutputMap] = SignInPageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
-        public var continueButtonText: String {
+        var continueButtonText: String {
             strings.value(for: configuration == .phoneNumber ? .phoneNumberContinueButtonText : .verificationCodeContinueButtonText)
         }
 
-        public var instructionLabelText: String {
+        var instructionLabelText: String {
             strings.value(for: configuration == .phoneNumber ? .phoneNumberInstructionLabelText : .verificationCodeInstructionLabelText)
         }
 
-        public var numberIsValidLength: Bool {
+        var numberIsValidLength: Bool {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
             return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
         }
 
-        public var phoneNumber: PhoneNumber {
+        var phoneNumber: PhoneNumber {
             @Dependency(\.commonServices) var services: CommonServices
             return .init(
                 callingCode: services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? services.phoneNumber.deviceCallingCode,
@@ -108,13 +108,13 @@ public struct SignInPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

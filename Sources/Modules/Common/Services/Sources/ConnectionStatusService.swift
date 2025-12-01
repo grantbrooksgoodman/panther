@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class ConnectionStatusService {
+final class ConnectionStatusService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -26,7 +26,7 @@ public final class ConnectionStatusService {
 
     // MARK: - Init
 
-    public init() {
+    init() {
         isAwaitingConnectionRestoration = !build.isOnline
 
         do {
@@ -64,18 +64,18 @@ public final class ConnectionStatusService {
 
     /// Adds an effect to be run upon a change in connection status.
     /// - Warning: The provided effect will run perpetually, for each change in connection status. Call `clearAllEffects()` or `removeEffect(_:)` if this is not the desired behavior.
-    public func addEffectUponConnectionChanged(
+    func addEffectUponConnectionChanged(
         id: ConnectionStatusServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
         uponConnectionChanged[id] = effect
     }
 
-    public func clearAllEffects() {
+    func clearAllEffects() {
         uponConnectionChanged = .init()
     }
 
-    public func removeEffect(_ id: ConnectionStatusServiceEffectID) {
+    func removeEffect(_ id: ConnectionStatusServiceEffectID) {
         uponConnectionChanged[id] = nil
     }
 }

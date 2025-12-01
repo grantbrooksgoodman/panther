@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Array where Element == ReactionMetadata {
+extension Array where Element == ReactionMetadata {
     func filteringCurrentUserReactions(to messageID: String) -> [ReactionMetadata] {
         func satisfiesConstraints(_ metadata: ReactionMetadata) -> Bool {
             guard metadata.messageID == messageID,

@@ -13,7 +13,7 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-public struct ConversationCellViewService {
+struct ConversationCellViewService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -23,13 +23,13 @@ public struct ConversationCellViewService {
 
     // MARK: - Methods
 
-    public func blockUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
+    func blockUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
         await moderationSession.blockUsers(inConversation: conversation)
     }
 
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
-    public func presentDeletionActionSheet(_ title: String) async -> Bool {
+    func presentDeletionActionSheet(_ title: String) async -> Bool {
         var cancelled = true
         let deleteAction: AKAction = .init("Delete", style: .destructive) { cancelled = false }
         await AKActionSheet(
@@ -43,7 +43,7 @@ public struct ConversationCellViewService {
     }
 
     /// `.userInfoBadgeTapped`
-    public func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
+    func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
         Task {
             guard let user = cellViewData.otherUser else { return }
 
@@ -79,7 +79,7 @@ public struct ConversationCellViewService {
         }
     }
 
-    public func reportUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
+    func reportUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
         await moderationSession.reportUsers(inConversation: conversation)
     }
 }

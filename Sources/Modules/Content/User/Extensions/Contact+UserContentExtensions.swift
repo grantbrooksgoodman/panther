@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public extension Contact {
+extension Contact {
     /// Attempts to resolve a last name using all available content sources.
     var absoluteLastName: String {
         if !lastName.isBlank {

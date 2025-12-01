@@ -15,60 +15,60 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ConversationCellView {
-        public static let avatarImageViewTopPadding: CGFloat = 10
+        static let avatarImageViewTopPadding: CGFloat = 10
 
-        public static let chevronImageAndDateLabelHStackSpacing: CGFloat = 0 // swiftlint:disable:next identifier_name
-        public static let chevronImageForegroundColorAdjustmentPercentage: CGFloat = 75
-        public static let chevronImageFrameMaxWidth: CGFloat = 12
-        public static let chevronImageFrameMaxHeight: CGFloat = 12
+        static let chevronImageAndDateLabelHStackSpacing: CGFloat = 0 // swiftlint:disable:next identifier_name
+        static let chevronImageForegroundColorAdjustmentPercentage: CGFloat = 75
+        static let chevronImageFrameMaxWidth: CGFloat = 12
+        static let chevronImageFrameMaxHeight: CGFloat = 12
 
-        public static let dateLabelPaddingTrailing: CGFloat = 6
-        public static let dateLabelSystemFontSize: CGFloat = 14
+        static let dateLabelPaddingTrailing: CGFloat = 6
+        static let dateLabelSystemFontSize: CGFloat = 14
 
-        public static let frameHeight: CGFloat = 62
+        static let frameHeight: CGFloat = 62
 
-        public static let navigationLinkFrameWidth: CGFloat = 0
-        public static let navigationLinkOpacity: CGFloat = 0
+        static let navigationLinkFrameWidth: CGFloat = 0
+        static let navigationLinkOpacity: CGFloat = 0
 
         // swiftlint:disable:next identifier_name
-        public static let subtitleLabelForegroundColorAdjustmentPercentage: CGFloat = 3
-        public static let subtitleLabelLineLimit: CGFloat = 2
-        public static let subtitleLabelSystemFontSize: CGFloat = 14
-        public static let subtitleLabelXOffset: CGFloat = 1.5
-        public static let subtitleLabelYOffset: CGFloat = -3
+        static let subtitleLabelForegroundColorAdjustmentPercentage: CGFloat = 3
+        static let subtitleLabelLineLimit: CGFloat = 2
+        static let subtitleLabelSystemFontSize: CGFloat = 14
+        static let subtitleLabelXOffset: CGFloat = 1.5
+        static let subtitleLabelYOffset: CGFloat = -3
 
-        public static let titleLabelBottomPadding: CGFloat = 0.01
-        public static let titleLabelMinimumScaleFactor: CGFloat = 0.01
-        public static let titleLabelSystemFontSize: CGFloat = 500
+        static let titleLabelBottomPadding: CGFloat = 0.01
+        static let titleLabelMinimumScaleFactor: CGFloat = 0.01
+        static let titleLabelSystemFontSize: CGFloat = 500
 
-        public static let unreadIndicatorViewFrameHeight: CGFloat = 10
-        public static let unreadIndicatorViewFrameWidth: CGFloat = 10
-        public static let unreadIndicatorViewTrailingPadding: CGFloat = -15
-        public static let unreadIndicatorViewXOffset: CGFloat = -10
-        public static let unreadIndicatorViewYOffset: CGFloat = 7
+        static let unreadIndicatorViewFrameHeight: CGFloat = 10
+        static let unreadIndicatorViewFrameWidth: CGFloat = 10
+        static let unreadIndicatorViewTrailingPadding: CGFloat = -15
+        static let unreadIndicatorViewXOffset: CGFloat = -10
+        static let unreadIndicatorViewYOffset: CGFloat = 7
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ConversationCellView {
-        public static let blockUsersButtonImageTint: Color = .init(uiColor: .systemGray)
-        public static let deleteConversationButtonImageTint: Color = .red
-        public static let reportUsersButtonImageTint: Color = .orange
-        public static let unreadIndicatorViewForeground: Color = .blue
+        static let blockUsersButtonImageTint: Color = .init(uiColor: .systemGray)
+        static let deleteConversationButtonImageTint: Color = .red
+        static let reportUsersButtonImageTint: Color = .orange
+        static let unreadIndicatorViewForeground: Color = .blue
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ConversationCellView {
-        public static let blockUsersButtonImageSystemName = "flag"
-        public static let chevronImageSystemName = "chevron.forward"
-        public static let deleteConversationButtonImageSystemName = "trash"
-        public static let reportUsersButtonImageSystemName = "exclamationmark.bubble"
+        static let blockUsersButtonImageSystemName = "flag"
+        static let chevronImageSystemName = "chevron.forward"
+        static let deleteConversationButtonImageSystemName = "trash"
+        static let reportUsersButtonImageSystemName = "exclamationmark.bubble"
     }
 }

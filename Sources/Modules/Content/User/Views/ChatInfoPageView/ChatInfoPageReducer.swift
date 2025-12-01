@@ -16,7 +16,7 @@ import SwiftUI
 import AppSubsystem
 import Networking
 
-public struct ChatInfoPageReducer: Reducer {
+struct ChatInfoPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
@@ -29,7 +29,7 @@ public struct ChatInfoPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action { // TODO: Make all models Sendable where possible. Good preparation for Swift 6 language mode.
+    enum Action { // TODO: Make all models Sendable where possible. Good preparation for Swift 6 language mode.
         case viewAppeared
         case viewDisappeared
 
@@ -62,93 +62,93 @@ public struct ChatInfoPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Array
-        public var chatParticipants = [ChatParticipant]()
-        public var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
-        public var visibleParticipants = [ChatParticipant]()
+        var chatParticipants = [ChatParticipant]()
+        var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
+        var visibleParticipants = [ChatParticipant]()
 
         // Bool
-        public var inputBarWasFirstResponder = false
-        public var isChangeMetadataButtonEnabled = true
-        public var isLeaveConversationButtonEnabled = true
-        public var isPenPalsSharingDataSwitchToggled = false
-        public var isPresentingCameraPickerSheet = false
-        public var isPresentingImagePickerSheet = false
+        var inputBarWasFirstResponder = false
+        var isChangeMetadataButtonEnabled = true
+        var isLeaveConversationButtonEnabled = true
+        var isPenPalsSharingDataSwitchToggled = false
+        var isPresentingCameraPickerSheet = false
+        var isPresentingImagePickerSheet = false
 
         // UUID
-        public var chatInfoCellViewID = UUID()
-        public var segmentedControlViewID = UUID()
-        public var viewID = UUID()
+        var chatInfoCellViewID = UUID()
+        var segmentedControlViewID = UUID()
+        var viewID = UUID()
 
         // Other
-        @Localized(.done) public var doneButtonText: String
-        public var segmentedControlSelectionIndex = 0
-        public var viewState: StatefulView.ViewState = .loading
+        @Localized(.done) var doneButtonText: String
+        var segmentedControlSelectionIndex = 0
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
-        public var avatarImage: UIImage? { cellViewData?.thumbnailImage }
+        var avatarImage: UIImage? { cellViewData?.thumbnailImage }
 
-        public var chatInfoCellImageSystemName: String {
+        var chatInfoCellImageSystemName: String {
             "chevron.\(visibleParticipants.isEmpty ? "right" : "down").circle"
         }
 
-        public var chatInfoCellSubtitleLabelText: String {
+        var chatInfoCellSubtitleLabelText: String {
             chatParticipants.map { $0.displayName }.joined(separator: ", ")
         }
 
-        public var chatInfoCellTitleLabelText: String {
+        var chatInfoCellTitleLabelText: String {
             "\(chatParticipants.count) \(strings.value(for: .participantCountLabelText))"
         }
 
-        public var chatTitleLabelText: String {
+        var chatTitleLabelText: String {
             guard let cellViewData else { return "" }
             return cellViewData.titleLabelText
         }
 
-        public var isDeveloperModeEnabled: Bool {
+        var isDeveloperModeEnabled: Bool {
             @Dependency(\.build) var build: Build
             return build.isDeveloperModeEnabled
         }
 
-        public var mediaItemMetadata: [MediaItemView.Metadata] {
+        var mediaItemMetadata: [MediaItemView.Metadata] {
             conversation?.mediaItemMetadata ?? []
         }
 
-        public var segmentedControlMaxWidth: CGFloat {
+        var segmentedControlMaxWidth: CGFloat {
             Dependency(\.uiApplication.mainScreen.bounds.width).wrappedValue * (2 / 3)
         }
 
-        public var segmentedControlOptionTitles: [String] {
+        var segmentedControlOptionTitles: [String] {
             [
                 strings.value(for: .segmentedControlParticipantsOptionText),
                 strings.value(for: .segmentedControlMediaOptionText),
             ]
         }
 
-        public var shouldElongateSegmentedControl: Bool {
+        var shouldElongateSegmentedControl: Bool {
             RuntimeStorage.languageCode != "en" && segmentedControlOptionTitles
                 .contains(where: { $0.count >= 25 || $0.components(separatedBy: " ").count > 2 })
         }
 
-        public var showsChangeMetadataButton: Bool {
+        var showsChangeMetadataButton: Bool {
             conversation?.metadata.isPenPalsConversation == false
         }
 
-        public var showsPenPalsSharingDataSwitch: Bool {
+        var showsPenPalsSharingDataSwitch: Bool {
             conversation?.metadata.isPenPalsConversation == true && conversation?.participants.count == 2
         }
 
-        public var singleCNContactContainer: CNContactContainer? {
+        var singleCNContactContainer: CNContactContainer? {
             guard chatParticipants.count == 1,
                   conversation?.metadata.isPenPalsConversation == false else { return nil }
             return chatParticipants.first?.cnContactContainer
         }
 
-        public var visibleParticipantsIncrement: Int {
+        var visibleParticipantsIncrement: Int {
             // FIXME: Remove the dependency on isDeveloperModeEnabled.
             guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
@@ -170,13 +170,13 @@ public struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

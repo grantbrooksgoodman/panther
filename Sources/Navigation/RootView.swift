@@ -14,14 +14,14 @@ import SwiftUI
 import AppSubsystem
 import Networking
 
-public struct RootView: View {
+struct RootView: View {
     // MARK: - Dependencies
 
     @ObservedDependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Body
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             switch navigation.state.modal {
             case .onboarding:

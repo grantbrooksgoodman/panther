@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct PenPalsService {
+struct PenPalsService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.contact) private var contactService: ContactService
@@ -34,17 +34,17 @@ public struct PenPalsService {
 
     // MARK: - Init
 
-    public init() {}
+    init() {}
 
     // MARK: - Is Known to Current User
 
-    public func isKnownToCurrentUser(_ userID: String) -> Bool {
+    func isKnownToCurrentUser(_ userID: String) -> Bool {
         (contactPairArchiveUserIDs + currentUserConversationUserIDs()).contains(userID)
     }
 
     // MARK: - Is Obfuscated Pen Pal with Current User
 
-    public func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
+    func isObfuscatedPenPalWithCurrentUser(_ user: User) -> Bool {
         guard let currentUser = userSession.currentUser,
               let penPalsConversations = currentUser
               .conversations?
@@ -56,7 +56,7 @@ public struct PenPalsService {
     // MARK: - Update Sharing Data for Known Users
 
     /// - Note: Will populate the contact pair archive and the current user's conversations if either are `nil` or empty.
-    public func updateSharingDataForKnownUsers() async -> Exception? {
+    func updateSharingDataForKnownUsers() async -> Exception? {
         if let exception = await populateValuesIfNeeded() {
             Logger.log(exception, domain: .penPals)
         }
@@ -126,7 +126,7 @@ public struct PenPalsService {
 
     // MARK: - Get Random PenPals Participant
 
-    public func getRandomPenPalsParticipant() async -> Callback<User, Exception> {
+    func getRandomPenPalsParticipant() async -> Callback<User, Exception> {
         if let exception = await populateValuesIfNeeded() {
             Logger.log(exception, domain: .penPals)
         }
@@ -159,7 +159,7 @@ public struct PenPalsService {
 
     // MARK: - Set didGrantPenPalsPermission
 
-    public func setDidGrantPenPalsPermission(_ didGrantPenPalsPermission: Bool) async -> Exception? {
+    func setDidGrantPenPalsPermission(_ didGrantPenPalsPermission: Bool) async -> Exception? {
         guard let currentUser = userSession.currentUser else {
             return .init(
                 "Current user has not been set.",

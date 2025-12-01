@@ -15,7 +15,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct ChangeLanguagePageViewService {
+struct ChangeLanguagePageViewService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
@@ -24,7 +24,7 @@ public struct ChangeLanguagePageViewService {
 
     // MARK: - Reducer Action Handlers
 
-    public func confirmButtonTapped(_ selectedLanguageCode: String) {
+    func confirmButtonTapped(_ selectedLanguageCode: String) {
         Task {
             let applyAndExitAction: AKAction = .init(
                 "Apply & Exit",

@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct WelcomePageReducer: Reducer {
+struct WelcomePageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
@@ -24,7 +24,7 @@ public struct WelcomePageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewFirstAppeared
 
@@ -38,7 +38,7 @@ public struct WelcomePageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Types */
 
         fileprivate enum TaskID {
@@ -47,9 +47,9 @@ public struct WelcomePageReducer: Reducer {
 
         /* MARK: Properties */
 
-        public var strings: [TranslationOutputMap] = WelcomePageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
-        public var welcomeLabelText = Localized(.welcomeToHello).wrappedValue
+        var strings: [TranslationOutputMap] = WelcomePageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
+        var welcomeLabelText = Localized(.welcomeToHello).wrappedValue
 
         fileprivate var cycledLanguageCodes = [String: String]()
 
@@ -62,12 +62,12 @@ public struct WelcomePageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.welcomeLabelText = Localized(

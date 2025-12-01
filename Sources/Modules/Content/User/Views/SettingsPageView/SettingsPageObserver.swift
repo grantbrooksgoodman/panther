@@ -12,33 +12,33 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct SettingsPageObserver: Observer {
+struct SettingsPageObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = SettingsPageReducer
+    typealias R = SettingsPageReducer
 
     // MARK: - Properties
 
-    public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [
+    let id = UUID()
+    let observedValues: [any ObservableProtocol] = [
         Observables.didGrantPenPalsPermission,
         Observables.traitCollectionChanged,
     ]
-    public let viewModel: ViewModel<R>
+    let viewModel: ViewModel<R>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<R>) {
+    init(_ viewModel: ViewModel<R>) {
         self.viewModel = viewModel
     }
 
     // MARK: - Observer Conformance
 
-    public func linkObservables() {
+    func linkObservables() {
         Observers.link(SettingsPageObserver.self, with: observedValues)
     }
 
-    public func onChange(of observable: Observable<Any>) {
+    func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -57,7 +57,7 @@ public struct SettingsPageObserver: Observer {
         }
     }
 
-    public func send(_ action: R.Action) {
+    func send(_ action: R.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }

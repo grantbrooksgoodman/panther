@@ -9,28 +9,28 @@
 /* Native */
 import Foundation
 
-public struct UserDataSnapshot {
+struct UserDataSnapshot {
     // MARK: - Properties
 
-    public static let empty: UserDataSnapshot = .init(
+    static let empty: UserDataSnapshot = .init(
         .init(timeIntervalSince1970: 0),
         data: .init(),
         expiryThreshold: .zero
     )
 
-    public let data: [String: Any]
-    public let date: Date
-    public let expiryThreshold: Duration
+    let data: [String: Any]
+    let date: Date
+    let expiryThreshold: Duration
 
     // MARK: - Computed Properties
 
-    public var isExpired: Bool {
+    var isExpired: Bool {
         Double(abs(date.seconds(from: Date.now) * 1000)) > expiryThreshold.milliseconds
     }
 
     // MARK: - Init
 
-    public init(
+    init(
         _ date: Date = .now,
         data: [String: Any],
         expiryThreshold: Duration

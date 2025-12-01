@@ -16,10 +16,10 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class MediaMessagePreviewService {
+final class MediaMessagePreviewService {
     // MARK: - Types
 
-    public enum CacheKey: String, CaseIterable {
+    enum CacheKey: String, CaseIterable {
         case images
         case thumbnails
     }
@@ -34,10 +34,10 @@ public final class MediaMessagePreviewService {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.images) public var cachedImages: [URL: UIImage]?
-    @Cached(CacheKey.thumbnails) public var cachedThumbnails: [URL: UIImage]?
+    @Cached(CacheKey.images) var cachedImages: [URL: UIImage]?
+    @Cached(CacheKey.thumbnails) var cachedThumbnails: [URL: UIImage]?
 
-    public private(set) var isPreviewingMedia = false
+    private(set) var isPreviewingMedia = false
 
     private let viewController: ChatPageViewController
 
@@ -52,13 +52,13 @@ public final class MediaMessagePreviewService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Configure Gesture Recognizers
 
-    public func configureGestureRecognizers() {
+    func configureGestureRecognizers() {
         let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
             target: self,
             action: #selector(pinchGestureRecognized)
@@ -68,7 +68,7 @@ public final class MediaMessagePreviewService {
 
     // MARK: - Did Tap Image
 
-    public func didTapImage(in cell: MessageCollectionViewCell) {
+    func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
               message.contentType.isMedia,
@@ -109,7 +109,7 @@ public final class MediaMessagePreviewService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedImages = nil
         cachedThumbnails = nil
     }

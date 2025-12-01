@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public final class AccountDeletionService {
+final class AccountDeletionService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -31,7 +31,7 @@ public final class AccountDeletionService {
 
     // MARK: - Delete Account
 
-    public func deleteAccount() async -> Exception? {
+    func deleteAccount() async -> Exception? {
         var exceptions = [Exception]()
 
         guard let currentUserID = User.currentUserID else {

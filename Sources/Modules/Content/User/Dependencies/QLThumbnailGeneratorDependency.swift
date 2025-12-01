@@ -13,13 +13,13 @@ import QuickLook
 /* Proprietary */
 import AppSubsystem
 
-public enum QLThumbnailGeneratorDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> QLThumbnailGenerator {
+enum QLThumbnailGeneratorDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> QLThumbnailGenerator {
         .shared
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var qlThumbnailGenerator: QLThumbnailGenerator {
         get { self[QLThumbnailGeneratorDependency.self] }
         set { self[QLThumbnailGeneratorDependency.self] = newValue }

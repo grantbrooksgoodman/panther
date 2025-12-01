@@ -12,15 +12,15 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct PenPalsSharingData: Codable, Equatable {
+struct PenPalsSharingData: Codable, Equatable {
     // MARK: - Properties
 
-    public let sharesDataWithUserIDs: [String]?
-    public let userID: String
+    let sharesDataWithUserIDs: [String]?
+    let userID: String
 
     // MARK: - Init
 
-    public init(userID: String, sharesDataWithUserIDs: [String]? = nil) {
+    init(userID: String, sharesDataWithUserIDs: [String]? = nil) {
         assert(
             sharesDataWithUserIDs == nil ? true : !sharesDataWithUserIDs!.isBangQualifiedEmpty,
             "Instantiated PenPalsSharingData with empty sharesDataWithUserIDs array"
@@ -32,13 +32,13 @@ public struct PenPalsSharingData: Codable, Equatable {
 
     // MARK: - Default Values
 
-    public static func empty(userIDs: [String]) -> [PenPalsSharingData] {
+    static func empty(userIDs: [String]) -> [PenPalsSharingData] {
         userIDs.reduce(into: [PenPalsSharingData]()) { partialResult, userID in
             partialResult.append(.init(userID: userID))
         }
     }
 
-    public static func prepopulated(userIDs: [String]) -> [PenPalsSharingData] {
+    static func prepopulated(userIDs: [String]) -> [PenPalsSharingData] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
         let userIDs = userIDs.unique

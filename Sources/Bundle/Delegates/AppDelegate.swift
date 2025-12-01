@@ -19,7 +19,7 @@ import FirebaseCore
 import FirebaseMessaging
 
 @main
-public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -32,7 +32,10 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     // MARK: - UIApplication
 
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         Application.initialize()
         setUpFirebaseAnalytics()
         setUpPushNotifications()
@@ -40,7 +43,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         return true
     }
 
-    public func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         userSession.persistOfflineCurrentUser()
         services.analytics.logEvent(.terminateApp)
     }
@@ -61,7 +64,7 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     // MARK: - UISceneSession
 
-    public func application(
+    func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
         options: UIScene.ConnectionOptions
@@ -71,7 +74,10 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    public func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    func application(
+        _ application: UIApplication,
+        didDiscardSceneSessions sceneSessions: Set<UISceneSession>
+    ) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
@@ -80,14 +86,17 @@ public final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDel
 
     // MARK: - MessagingDelegate Conformance
 
-    public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    func messaging(
+        _ messaging: Messaging,
+        didReceiveRegistrationToken fcmToken: String?
+    ) {
         notificationCenter.post(name: Notification.Name("FCMToken"), object: nil, userInfo: ["token": fcmToken ?? ""])
         services.pushToken.setCurrentToken(fcmToken)
     }
 
     // MARK: - UNUserNotificationCenterDelegate Conformance
 
-    public func userNotificationCenter(
+    func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {

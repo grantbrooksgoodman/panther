@@ -16,10 +16,10 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class AlternateMessageService {
+final class AlternateMessageService {
     // MARK: - Types
 
-    public enum AlternateMessageType {
+    enum AlternateMessageType {
         case alternateText
         case audioTranscription
     }
@@ -33,37 +33,37 @@ public final class AlternateMessageService {
 
     // MARK: - Computed Properties
 
-    public var textCellLabelFont: UIFont { getTextCellLabelFont() }
+    var textCellLabelFont: UIFont { getTextCellLabelFont() }
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Is Displaying
 
-    public func isDisplayingAlternateText(for message: Message) -> Bool {
+    func isDisplayingAlternateText(for message: Message) -> Bool {
         alternateTextMessageIDs.contains(message.id)
     }
 
-    public func isDisplayingAudioTranscription(for message: Message) -> Bool {
+    func isDisplayingAudioTranscription(for message: Message) -> Bool {
         audioTranscriptionMessageIDs.contains(message.id)
     }
 
     // MARK: - Restore All
 
-    public func restoreAllAlternateTextMessageIDs() {
+    func restoreAllAlternateTextMessageIDs() {
         alternateTextMessageIDs = []
     }
 
-    public func restoreAllAudioTranscriptionMessageIDs() {
+    func restoreAllAudioTranscriptionMessageIDs() {
         audioTranscriptionMessageIDs = []
     }
 
     // MARK: - Toggle
 
-    public func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
+    func toggle(_ type: AlternateMessageType, for cell: MessageContentCell) {
         @Dependency(\.commonServices.analytics) var analytics: AnalyticsService
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
 

@@ -15,18 +15,18 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ReactionDetailsPageView {
-        public static let groupListViewHorizontalPadding: CGFloat = 20
-        public static let groupListViewTopPadding: CGFloat = 20
+        static let groupListViewHorizontalPadding: CGFloat = 20
+        static let groupListViewTopPadding: CGFloat = 20
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ReactionDetailsPageView {
-        public static let doneHeaderItemForeground: Color = UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
-        public static let navigationBarItemGlassTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
+        static let doneHeaderItemForeground: Color = UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
+        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
     }
 }

@@ -15,33 +15,33 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum SplashPageView {
-        public static let activityIndicatorScaleEffect: CGFloat = 0.8
+        static let activityIndicatorScaleEffect: CGFloat = 0.8
 
-        public static let fadeInDelayMilliseconds: CGFloat = 250
+        static let fadeInDelayMilliseconds: CGFloat = 250
 
-        public static let imageFrameHeight: CGFloat = 70
-        public static let imageFrameWidth: CGFloat = 150
+        static let imageFrameHeight: CGFloat = 70
+        static let imageFrameWidth: CGFloat = 150
 
-        public static let padding: CGFloat = 5
+        static let padding: CGFloat = 5
 
         // swiftlint:disable:next identifier_name
-        public static let progressBarActivityIndicatorFrameMaxHeight: CGFloat = 30 // swiftlint:disable:next identifier_name
-        public static let progressBarActivityIndicatorFrameMaxWidth: CGFloat = 30
+        static let progressBarActivityIndicatorFrameMaxHeight: CGFloat = 30 // swiftlint:disable:next identifier_name
+        static let progressBarActivityIndicatorFrameMaxWidth: CGFloat = 30
 
-        public static let progressBarHorizontalPadding: CGFloat = 40
-        public static let progressBarTopPadding: CGFloat = 10
+        static let progressBarHorizontalPadding: CGFloat = 40
+        static let progressBarTopPadding: CGFloat = 10
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum SplashPageView {
-        public static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
-        public static let loadingLabelForeground: Color = .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
-        public static let progressBarActivityIndicatorTint: Color = .init(uiColor: .systemGray)
-        public static let progressBarTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
+        static let imageDarkForeground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
+        static let loadingLabelForeground: Color = .init(uiColor: ThemeService.isDarkModeActive ? .lightGray : .darkGray)
+        static let progressBarActivityIndicatorTint: Color = .init(uiColor: .systemGray)
+        static let progressBarTint: Color = .init(uiColor: .accentOrSystemBlue)
     }
 }

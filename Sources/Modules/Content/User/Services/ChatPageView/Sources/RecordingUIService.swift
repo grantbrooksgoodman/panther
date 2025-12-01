@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-public final class RecordingUIService {
+final class RecordingUIService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService.RecordingUI
@@ -30,7 +30,7 @@ public final class RecordingUIService {
 
     // MARK: - Properties
 
-    public var isShowingRecordingUI = false
+    var isShowingRecordingUI = false
 
     private let viewController: ChatPageViewController
 
@@ -50,7 +50,7 @@ public final class RecordingUIService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
@@ -62,17 +62,18 @@ public final class RecordingUIService {
 
     // MARK: - Toggle Recording UI
 
-    public func hideRecordingUI() async {
+    func hideRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
                 UIView.animate(withDuration: Floats.hideAnimationDuration) {
+                    typealias Colors = AppConstants.Colors.ChatPageViewService.InputBar
                     typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
                     self.recordingView?.alpha = 0
 
                     self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
                     self.inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
                     self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = true
-                    self.inputBar.inputTextView.tintColor = .accent
+                    self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
                     self.inputBar.leftStackView.attachMediaButton?.alpha = 1
                 } completion: { _ in
                     self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
@@ -84,7 +85,7 @@ public final class RecordingUIService {
         }
     }
 
-    public func showRecordingUI() async {
+    func showRecordingUI() async {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
                 isShowingRecordingUI = true
@@ -111,7 +112,7 @@ public final class RecordingUIService {
                     self.inputBar.inputTextView.layer.borderWidth = 0
                     self.inputBar.inputTextView.placeholder = nil
                     self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = false
-                    self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
+                    self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewAlternateTint)
                     self.inputBar.leftStackView.attachMediaButton?.alpha = 0
 
                     recordingView.alpha = 1

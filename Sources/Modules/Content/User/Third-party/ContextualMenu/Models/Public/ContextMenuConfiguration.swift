@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public struct ContextMenuConfiguration {
+struct ContextMenuConfiguration {
     // MARK: - Properties
 
     let menu: Menu
@@ -19,7 +19,7 @@ public struct ContextMenuConfiguration {
 
     // MARK: - Computed Properties
 
-    public var uiContextMenuConfiguration: UIContextMenuConfiguration {
+    var uiContextMenuConfiguration: UIContextMenuConfiguration {
         .init(
             actionProvider: { _ -> UIMenu? in
                 menu.uiMenu
@@ -29,7 +29,7 @@ public struct ContextMenuConfiguration {
 
     // MARK: - Init
 
-    public init(accessoryView: UIView? = nil, menu: Menu) {
+    init(accessoryView: UIView? = nil, menu: Menu) {
         self.accessoryView = accessoryView
         self.menu = menu
     }

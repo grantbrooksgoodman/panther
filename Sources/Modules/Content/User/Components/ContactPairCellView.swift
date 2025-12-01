@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ContactPairCellView: View {
+struct ContactPairCellView: View {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ContactPairCellView
@@ -50,7 +50,7 @@ public struct ContactPairCellView: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         contactPair: ContactPair,
         isInspectable: Bool = false,
         action: (() -> Void)? = nil
@@ -62,7 +62,7 @@ public struct ContactPairCellView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         if let action {
             Button {
                 action()

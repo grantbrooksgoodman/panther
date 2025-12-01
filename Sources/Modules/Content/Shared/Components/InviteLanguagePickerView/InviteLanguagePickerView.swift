@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct InviteLanguagePickerView: View {
+struct InviteLanguagePickerView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.InviteLanguagePickerView
@@ -35,13 +35,13 @@ public struct InviteLanguagePickerView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<InviteLanguagePickerReducer>) {
+    init(_ viewModel: ViewModel<InviteLanguagePickerReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             Color.clear
                 .frame(width: .zero, height: .zero)

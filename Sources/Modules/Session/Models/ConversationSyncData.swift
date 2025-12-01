@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct ConversationSyncData: Hashable {
+struct ConversationSyncData: Hashable {
     // MARK: - Properties
 
-    public let conversation: Conversation
-    public let newData: [String: Any]
+    let conversation: Conversation
+    let newData: [String: Any]
 
     // MARK: - Computed Properties
 
-    public static let empty: ConversationSyncData = .init(.empty, newData: [:])
+    static let empty: ConversationSyncData = .init(.empty, newData: [:])
 
     // MARK: - Init
 
-    public init(
+    init(
         _ conversation: Conversation,
         newData: [String: Any]
     ) {
@@ -31,7 +31,7 @@ public struct ConversationSyncData: Hashable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (left: ConversationSyncData, right: ConversationSyncData) -> Bool {
+    static func == (left: ConversationSyncData, right: ConversationSyncData) -> Bool {
         let leftObjectCount = left.newData.count + left.newData.compactMapValues { $0 as? [String: Any] }.count
         let rightObjectCount = right.newData.count + right.newData.compactMapValues { $0 as? [String: Any] }.count
 
@@ -43,7 +43,7 @@ public struct ConversationSyncData: Hashable {
 
     // MARK: - Hashable Conformance
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(conversation)
         hasher.combine(newData.count + newData.compactMapValues { $0 as? [String: Any] }.count)
     }

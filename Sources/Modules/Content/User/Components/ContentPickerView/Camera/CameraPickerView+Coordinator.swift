@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public extension CameraPickerView {
+extension CameraPickerView {
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         // MARK: - Properties
 
@@ -18,13 +18,13 @@ public extension CameraPickerView {
 
         // MARK: - Init
 
-        public init(delegate: any ContentPicker<UIImage>) {
+        init(delegate: any ContentPicker<UIImage>) {
             self.delegate = delegate
         }
 
         // MARK: - UIImagePickerControllerDelegate Conformance
 
-        public func imagePickerController(
+        func imagePickerController(
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
@@ -37,7 +37,7 @@ public extension CameraPickerView {
             delegate.dismiss()
         }
 
-        public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             delegate.dismiss()
         }
     }

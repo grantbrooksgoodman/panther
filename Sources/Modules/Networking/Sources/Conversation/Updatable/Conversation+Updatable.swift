@@ -16,12 +16,12 @@ import Networking
 extension Conversation: Updatable {
     // MARK: - Type Aliases
 
-    public typealias SerializationKey = Conversation.SerializationKeys
-    public typealias U = Conversation
+    typealias SerializationKey = Conversation.SerializationKeys
+    typealias U = Conversation
 
     // MARK: - Properties
 
-    public var updatableKeys: [SerializationKeys] {
+    var updatableKeys: [SerializationKeys] {
         [
             .activities,
             .messages,
@@ -33,7 +33,7 @@ extension Conversation: Updatable {
 
     // MARK: - Modify Key
 
-    public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Conversation? {
+    func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Conversation? {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         switch key {
@@ -110,7 +110,7 @@ extension Conversation: Updatable {
 
     // MARK: - Update Value
 
-    public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
+    func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 

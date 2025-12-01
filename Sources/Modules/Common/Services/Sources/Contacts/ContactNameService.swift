@@ -10,10 +10,10 @@
 import Contacts
 import Foundation
 
-public struct ContactNameService {
+struct ContactNameService {
     // MARK: - Name for Contact
 
-    public func name(for contact: CNContact) -> (firstName: String, lastName: String) {
+    func name(for contact: CNContact) -> (firstName: String, lastName: String) {
         let lastName = lastName(contact)
         let firstName = firstName(contact)
 

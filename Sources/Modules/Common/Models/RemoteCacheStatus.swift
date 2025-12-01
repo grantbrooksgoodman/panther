@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum RemoteCacheStatus {
+enum RemoteCacheStatus {
     case invalid
     case valid
 }

@@ -16,15 +16,15 @@ import Networking
 extension Participant: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = Participant
+    typealias T = Participant
 
     // MARK: - Properties
 
-    public var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
+    var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
 
     // MARK: - Methods
 
-    public static func canDecode(from data: String) -> Bool {
+    static func canDecode(from data: String) -> Bool {
         let components = data.components(separatedBy: " | ")
         guard components.count == 3,
               components[1] == "true" || components[1] == "false",
@@ -33,7 +33,7 @@ extension Participant: Serializable {
         return true
     }
 
-    public static func decode(from data: String) async -> Callback<Participant, Exception> {
+    static func decode(from data: String) async -> Callback<Participant, Exception> {
         let components = data.components(separatedBy: " | ")
         guard components.count == 3,
               components[1] == "true" || components[1] == "false",

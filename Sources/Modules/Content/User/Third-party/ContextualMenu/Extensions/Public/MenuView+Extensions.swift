@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 extension MenuView: ContextMenuAnimatable {
-    public func appearAnimation(completion: (() -> Void)? = nil) {
+    func appearAnimation(completion: (() -> Void)? = nil) {
         applyTransform(
             scale: style.disappearedScalingValue,
             anchorPoint: anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
@@ -37,7 +37,7 @@ extension MenuView: ContextMenuAnimatable {
         )
     }
 
-    public func disappearAnimation(completion: (() -> Void)? = nil) {
+    func disappearAnimation(completion: (() -> Void)? = nil) {
         UIView.animate(
             withDuration: style.disappearAnimationParameters.duration,
             delay: 0,

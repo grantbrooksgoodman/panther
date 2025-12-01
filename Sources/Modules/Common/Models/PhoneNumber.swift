@@ -16,22 +16,22 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
-public final class PhoneNumber: Codable, EncodedHashable, Equatable {
+final class PhoneNumber: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
-    public let callingCode: String
-    public let internalFormattedString: String?
-    public let label: String?
-    public let nationalNumberString: String
-    public let regionCode: String
+    let callingCode: String
+    let internalFormattedString: String?
+    let label: String?
+    let nationalNumberString: String
+    let regionCode: String
 
     private var formattedString: String?
     private var formattedStringRegionCode: String?
 
     // MARK: - Computed Properties
 
-    public var compiledNumberString: String { callingCode + nationalNumberString }
-    public var hashFactors: [String] {
+    var compiledNumberString: String { callingCode + nationalNumberString }
+    var hashFactors: [String] {
         [
             callingCode,
             internalFormattedString ?? "",
@@ -43,7 +43,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
     // MARK: - Init
 
-    public init(
+    init(
         callingCode: String,
         nationalNumberString: String,
         regionCode: String,
@@ -57,7 +57,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
         self.internalFormattedString = internalFormattedString
     }
 
-    public convenience init(_ cnLabeledPhoneNumber: CNLabeledValue<CNPhoneNumber>) {
+    convenience init(_ cnLabeledPhoneNumber: CNLabeledValue<CNPhoneNumber>) {
         @Dependency(\.commonServices) var services: CommonServices
 
         var localizedLabel: String?
@@ -121,7 +121,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
         )
     }
 
-    public convenience init(
+    convenience init(
         _ string: String,
         label: String? = nil
     ) {
@@ -137,7 +137,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
     // MARK: - Formatted Strings
 
-    public func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
+    func formattedString(regionCode: String? = nil, useFailsafe: Bool = true) -> String {
         let regionCode = regionCode ?? self.regionCode
 
         if let formattedStringRegionCode,
@@ -160,7 +160,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
         return formattedString
     }
 
-    public func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
+    func partiallyFormatted(forRegion regionCode: String? = nil) -> String {
         @Dependency(\.commonServices) var services: CommonServices
 
         let regionCode = regionCode ?? self.regionCode
@@ -235,7 +235,7 @@ public final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (left: PhoneNumber, right: PhoneNumber) -> Bool {
+    static func == (left: PhoneNumber, right: PhoneNumber) -> Bool {
         left.hashFactors == right.hashFactors
     }
 }

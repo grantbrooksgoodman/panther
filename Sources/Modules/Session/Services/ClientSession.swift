@@ -12,21 +12,21 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class ClientSession {
+final class ClientSession {
     // MARK: - Properties
 
-    public let activity: ActivitySessionService
-    public let conversation: ConversationSessionService
-    public let message: MessageSessionService
-    public let moderation: ModerationSessionService
-    public let reaction: ReactionSessionService
-    public let user: UserSessionService
+    let activity: ActivitySessionService
+    let conversation: ConversationSessionService
+    let message: MessageSessionService
+    let moderation: ModerationSessionService
+    let reaction: ReactionSessionService
+    let user: UserSessionService
 
-    public private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
+    private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
 
     // MARK: - Init
 
-    public init(
+    init(
         activity: ActivitySessionService,
         conversation: ConversationSessionService,
         message: MessageSessionService,
@@ -44,7 +44,7 @@ public final class ClientSession {
 
     // MARK: - Register Delivery Progress Indicator
 
-    public func registerDeliveryProgressIndicator(_ deliveryProgressIndicator: DeliveryProgressIndicator) {
+    func registerDeliveryProgressIndicator(_ deliveryProgressIndicator: DeliveryProgressIndicator) {
         self.deliveryProgressIndicator = deliveryProgressIndicator
     }
 }

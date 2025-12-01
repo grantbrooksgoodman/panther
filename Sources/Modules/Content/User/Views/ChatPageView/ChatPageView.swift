@@ -16,14 +16,14 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public struct ChatPageView: UIViewControllerRepresentable {
+struct ChatPageView: UIViewControllerRepresentable {
     // MARK: - Type Aliases
 
-    public typealias UIViewControllerType = MessagesViewController
+    typealias UIViewControllerType = MessagesViewController
 
     // MARK: - Types
 
-    public enum Configuration: Equatable {
+    enum Configuration: Equatable {
         /* MARK: Cases */
 
         case `default`(focusedMessageID: String?)
@@ -32,10 +32,10 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
         /* MARK: Properties */
 
-        public static let `default`: Configuration = .default(focusedMessageID: nil)
-        public static let preview: Configuration = .preview(focusedMessageID: nil)
+        static let `default`: Configuration = .default(focusedMessageID: nil)
+        static let preview: Configuration = .preview(focusedMessageID: nil)
 
-        public var focusedMessageID: String? {
+        var focusedMessageID: String? {
             switch self {
             case let .default(focusedMessageID): return focusedMessageID
             case let .preview(focusedMessageID): return focusedMessageID
@@ -45,7 +45,7 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
         /* MARK: Equatable Conformance */
 
-        public static func == (left: Configuration, right: Configuration) -> Bool {
+        static func == (left: Configuration, right: Configuration) -> Bool {
             switch (left, right) {
             case(.default, .default),
                  (.newChat, .newChat),
@@ -67,18 +67,18 @@ public struct ChatPageView: UIViewControllerRepresentable {
 
     // MARK: - Init
 
-    public init(_ conversation: Conversation, configuration: Configuration) {
+    init(_ conversation: Conversation, configuration: Configuration) {
         self.conversation = conversation
         self.configuration = configuration
     }
 
     // MARK: - Make UIViewController
 
-    public func makeUIViewController(context: Context) -> MessagesViewController {
+    func makeUIViewController(context: Context) -> MessagesViewController {
         viewService.instantiateViewController(conversation, configuration: configuration)
     }
 
     // MARK: - Update UIViewController
 
-    public func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {}
 }

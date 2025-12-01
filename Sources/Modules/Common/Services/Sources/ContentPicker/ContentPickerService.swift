@@ -9,16 +9,16 @@
 /* Native */
 import Foundation
 
-public struct ContentPickerService {
+struct ContentPickerService {
     // MARK: - Properties
 
-    public let camera: CameraPickerService
-    public let document: DocumentPickerService
-    public let media: MediaPickerService
+    let camera: CameraPickerService
+    let document: DocumentPickerService
+    let media: MediaPickerService
 
     // MARK: - Init
 
-    public init(
+    init(
         camera: CameraPickerService,
         document: DocumentPickerService,
         media: MediaPickerService

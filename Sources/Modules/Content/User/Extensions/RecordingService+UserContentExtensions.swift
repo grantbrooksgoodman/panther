@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension RecordingService {
+extension RecordingService {
     var isInOrWillTransitionToRecordingState: Bool {
         @Dependency(\.chatPageViewService.recordingUI?.isShowingRecordingUI) var isShowingRecordingUI: Bool?
         guard !isRecording,

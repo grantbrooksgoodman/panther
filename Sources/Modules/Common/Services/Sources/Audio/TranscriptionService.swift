@@ -13,14 +13,14 @@ import Speech
 /* Proprietary */
 import AppSubsystem
 
-public struct TranscriptionService {
+struct TranscriptionService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.permission) private var permissionService: PermissionService
 
     // MARK: - Transcribe Audio File
 
-    public func transcribeAudioFile(at url: URL, languageCode: String) async -> Callback<String, Exception> {
+    func transcribeAudioFile(at url: URL, languageCode: String) async -> Callback<String, Exception> {
         guard permissionService.transcribePermissionStatus == .granted else {
             return .failure(.init("Not authorized for transcription.", metadata: .init(sender: self)))
         }
@@ -72,7 +72,7 @@ public struct TranscriptionService {
 
     // MARK: - Capabilities
 
-    public func isTranscriptionSupported(for languageCode: String) -> Bool {
+    func isTranscriptionSupported(for languageCode: String) -> Bool {
         if let cachedValue = _TranscriptionServiceCache.cachedTranscriptionSupportForLanguageCodes?[languageCode] {
             return cachedValue
         }
@@ -90,8 +90,8 @@ public struct TranscriptionService {
     }
 }
 
-public enum TranscriptionServiceCache {
-    public static func clearCache() {
+enum TranscriptionServiceCache {
+    static func clearCache() {
         _TranscriptionServiceCache.clearCache()
     }
 }

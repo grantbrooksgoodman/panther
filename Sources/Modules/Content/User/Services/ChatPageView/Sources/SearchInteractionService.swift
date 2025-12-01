@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class SearchInteractionService {
+final class SearchInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
@@ -44,7 +44,7 @@ public final class SearchInteractionService {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ viewController: ChatPageViewController,
         focusedMessageID: String?
     ) {
@@ -55,7 +55,7 @@ public final class SearchInteractionService {
     // MARK: - Trigger Focused Message Cell Interaction
 
     @MainActor
-    public func triggerFocusedMessageCellInteractionIfNeeded() {
+    func triggerFocusedMessageCellInteractionIfNeeded() {
         guard isChatPagePresented,
               !hasTriggeredInteractionOnce else { return }
 

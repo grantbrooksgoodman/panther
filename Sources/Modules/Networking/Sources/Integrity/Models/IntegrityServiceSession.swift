@@ -13,21 +13,21 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class IntegrityServiceSession {
+final class IntegrityServiceSession {
     // MARK: - Types
 
-    public struct Indices {
+    struct Indices {
         /* MARK: Properties */
 
-        public let conversationsByMessageID: [String: Set<String>]
-        public let existingConversationIDs: Set<String>
-        public let existingMessageIDs: Set<String>
-        public let existingUserIDs: Set<String>
-        public let usersByConversationIDKey: [String: Set<String>]
+        let conversationsByMessageID: [String: Set<String>]
+        let existingConversationIDs: Set<String>
+        let existingMessageIDs: Set<String>
+        let existingUserIDs: Set<String>
+        let usersByConversationIDKey: [String: Set<String>]
 
         /* MARK: Computed Properties */
 
-        public static let empty: Indices = .init(
+        static let empty: Indices = .init(
             conversationsByMessageID: [:],
             existingConversationIDs: [],
             existingMessageIDs: [],
@@ -54,18 +54,18 @@ public final class IntegrityServiceSession {
 
     // MARK: - Properties
 
-    public static let empty: IntegrityServiceSession = .init(
+    static let empty: IntegrityServiceSession = .init(
         conversationData: [:],
         messageData: [:],
         translationData: [:],
         userData: [:]
     )
 
-    public let conversationData: [String: Any]
-    public let indices: Indices
-    public let messageData: [String: Any]
-    public let translationData: [String: [String: Any]]
-    public let userData: [String: Any]
+    let conversationData: [String: Any]
+    let indices: Indices
+    let messageData: [String: Any]
+    let translationData: [String: [String: Any]]
+    let userData: [String: Any]
 
     // MARK: - Init
 
@@ -90,7 +90,7 @@ public final class IntegrityServiceSession {
 
     // MARK: - Resolve
 
-    public static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
+    static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
         var conversationData: [String: Any]?

@@ -15,41 +15,41 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum SearchBar {
-        public static let clearButtonImageOpacity: CGFloat = 1
+        static let clearButtonImageOpacity: CGFloat = 1
 
-        public static let defaultBottomPadding: CGFloat = 8
+        static let defaultBottomPadding: CGFloat = 8
 
-        public static let glassEffectPadding: CGFloat = 4
+        static let glassEffectPadding: CGFloat = 4
 
-        public static let innerHStackCornerRadius: CGFloat = 10
-        public static let innerHStackHorizontalPadding: CGFloat = 8
+        static let innerHStackCornerRadius: CGFloat = 10
+        static let innerHStackHorizontalPadding: CGFloat = 8
 
-        public static let textFieldFrameHeight: CGFloat = 36
-        public static let textFieldMinimumScaleFactor: CGFloat = 0.5
+        static let textFieldFrameHeight: CGFloat = 36
+        static let textFieldMinimumScaleFactor: CGFloat = 0.5
 
-        public static let v26HorizontalPadding: CGFloat = 15
+        static let v26HorizontalPadding: CGFloat = 15
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum SearchBar {
-        public static let clearButtonImageForeground: Color = .secondary
-        public static let searchImageForeground: Color = .secondary
+        static let clearButtonImageForeground: Color = .secondary
+        static let searchImageForeground: Color = .secondary
 
-        public static let innerHStackDarkBackground: Color = .init(uiColor: .init(hex: 0x3B3A3F))
-        public static let innerHStackLightBackground: Color = .init(uiColor: .init(hex: 0xE7E7E9))
+        static let innerHStackDarkBackground: Color = .init(uiColor: .init(hex: 0x3B3A3F))
+        static let innerHStackLightBackground: Color = .init(uiColor: .init(hex: 0xE7E7E9))
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum SearchBar {
-        public static let clearButtonImageSystemName = "xmark.circle.fill"
-        public static let searchImageSystemName = "magnifyingglass"
+        static let clearButtonImageSystemName = "xmark.circle.fill"
+        static let searchImageSystemName = "magnifyingglass"
     }
 }

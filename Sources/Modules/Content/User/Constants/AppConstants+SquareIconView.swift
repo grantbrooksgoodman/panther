@@ -15,28 +15,28 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum SquareIconView {
-        public static let cornerRadius: CGFloat = 30
+        static let cornerRadius: CGFloat = 30
 
-        public static let defaultFrameHeight: CGFloat = 150
-        public static let defaultFrameWidth: CGFloat = 150
+        static let defaultFrameHeight: CGFloat = 150
+        static let defaultFrameWidth: CGFloat = 150
 
-        public static let overlayFrameHeightMultiplier: CGFloat = 2 / 3
-        public static let overlayFrameWidthMultiplier: CGFloat = 2 / 3
-        public static let overlayTextFontScale: CGFloat = 60
+        static let overlayFrameHeightMultiplier: CGFloat = 2 / 3
+        static let overlayFrameWidthMultiplier: CGFloat = 2 / 3
+        static let overlayTextFontScale: CGFloat = 60
 
-        public static let shadowColorOpacity: CGFloat = 0.2
-        public static let shadowRadius: CGFloat = 10
-        public static let shadowYOffset: CGFloat = 5
+        static let shadowColorOpacity: CGFloat = 0.2
+        static let shadowRadius: CGFloat = 10
+        static let shadowYOffset: CGFloat = 5
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum SquareIconView {
-        public static let overlaySymbolForeground: Color = .white
-        public static let shadow: Color = .black
+        static let overlaySymbolForeground: Color = .white
+        static let shadow: Color = .black
     }
 }

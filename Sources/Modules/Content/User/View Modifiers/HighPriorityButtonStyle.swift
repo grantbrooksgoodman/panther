@@ -10,7 +10,7 @@
 import Foundation
 import SwiftUI
 
-public struct HighPriorityButtonStyle: PrimitiveButtonStyle {
+struct HighPriorityButtonStyle: PrimitiveButtonStyle {
     private struct ButtonView: View {
         /* MARK: Properties */
 
@@ -19,7 +19,7 @@ public struct HighPriorityButtonStyle: PrimitiveButtonStyle {
 
         /* MARK: Init */
 
-        public init(
+        init(
             configuration: PrimitiveButtonStyle.Configuration,
             isPressed: Bool
         ) {
@@ -29,7 +29,7 @@ public struct HighPriorityButtonStyle: PrimitiveButtonStyle {
 
         /* MARK: View */
 
-        public var body: some View {
+        var body: some View {
             let gesture = DragGesture(minimumDistance: 0)
                 .onChanged { _ in isPressed = true }
                 .onEnded { value in
@@ -47,7 +47,7 @@ public struct HighPriorityButtonStyle: PrimitiveButtonStyle {
 
     // MARK: - Make Body
 
-    public func makeBody(configuration: PrimitiveButtonStyle.Configuration) -> some View {
+    func makeBody(configuration: PrimitiveButtonStyle.Configuration) -> some View {
         ButtonView(configuration: configuration, isPressed: false)
     }
 }

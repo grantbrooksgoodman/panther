@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ConversationCellViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ConversationCellViewService {
+enum ConversationCellViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ConversationCellViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var conversationCellViewService: ConversationCellViewService {
         get { self[ConversationCellViewServiceDependency.self] }
         set { self[ConversationCellViewServiceDependency.self] = newValue }

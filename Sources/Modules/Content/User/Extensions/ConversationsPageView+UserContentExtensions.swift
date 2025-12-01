@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension ConversationsPageView {
+extension ConversationsPageView {
     static func reapplyNavigationBarItemGlassTintIfNeeded() {
         guard !ThemeService.isAppDefaultThemeApplied,
               UIApplication.isGlassTintingEnabled else { return }

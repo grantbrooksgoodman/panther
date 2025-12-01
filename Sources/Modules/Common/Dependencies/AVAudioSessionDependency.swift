@@ -13,13 +13,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum AVAudioSessionDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> AVAudioSession {
+enum AVAudioSessionDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> AVAudioSession {
         .sharedInstance()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var avAudioSession: AVAudioSession {
         get { self[AVAudioSessionDependency.self] }
         set { self[AVAudioSessionDependency.self] = newValue }

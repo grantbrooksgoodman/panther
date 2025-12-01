@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct PenPalsPermissionPageReducer: Reducer {
+struct PenPalsPermissionPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
@@ -21,7 +21,7 @@ public struct PenPalsPermissionPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case dismissButtonTapped
@@ -32,20 +32,20 @@ public struct PenPalsPermissionPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        public var strings: [TranslationOutputMap] = PenPalsPermissionPageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
+        var strings: [TranslationOutputMap] = PenPalsPermissionPageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

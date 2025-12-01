@@ -15,8 +15,8 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ContactPairCellView {
-        public static let hStackSpacing: CGFloat = 3.5
+        static let hStackSpacing: CGFloat = 3.5
     }
 }

@@ -18,11 +18,11 @@ import Networking
 /**
  Use this extension to add new actions to the Developer Mode menu.
  */
-public extension DevModeAction {
+extension DevModeAction {
     struct AppActions: AppSubsystem.Delegates.DevModeAppActionDelegate {
         // MARK: - Properties
 
-        public var appActions: [DevModeAction] {
+        var appActions: [DevModeAction] {
             var actions = [
                 Breadcrumbs.manageBreadcrumbsCaptureAction,
                 AppActions.setCurrentUserIDAction,

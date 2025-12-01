@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct NavigationWindow: View {
+struct NavigationWindow: View {
     // MARK: - Properties
 
     private let content: () -> any View
@@ -26,7 +26,7 @@ public struct NavigationWindow: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         displayMode: NavigationBarItem.TitleDisplayMode = .automatic,
         isBackButtonHidden: Bool = false,
         toolbarBackgroundColor: Color? = nil,
@@ -44,7 +44,7 @@ public struct NavigationWindow: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         NavigationView {
             content()
                 .eraseToAnyView()
@@ -74,7 +74,7 @@ public struct NavigationWindow: View {
     }
 }
 
-public extension NavigationWindow {
+extension NavigationWindow {
     struct Toolbar: ToolbarContent {
         // MARK: - Properties
 
@@ -90,14 +90,14 @@ public extension NavigationWindow {
 
         // MARK: - Init
 
-        public init(_ items: [NavigationWindow.Toolbar.Item]) {
+        init(_ items: [NavigationWindow.Toolbar.Item]) {
             self.items = items
         }
 
         // MARK: - View
 
         @ToolbarContentBuilder
-        public var body: some ToolbarContent {
+        var body: some ToolbarContent {
             if !leadingItems.isEmpty {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     ForEach(leadingItems) {
@@ -125,11 +125,11 @@ public extension NavigationWindow {
     }
 }
 
-public extension NavigationWindow.Toolbar {
+extension NavigationWindow.Toolbar {
     struct Item: Identifiable {
         // MARK: - Types
 
-        public enum Placement {
+        enum Placement {
             /* MARK: Cases */
 
             case principal
@@ -138,7 +138,7 @@ public extension NavigationWindow.Toolbar {
 
             /* MARK: Properties */
 
-            public var toolbarItemPlacement: ToolbarItemPlacement {
+            var toolbarItemPlacement: ToolbarItemPlacement {
                 switch self {
                 case .principal: .principal
                 case .topBarLeading: .topBarLeading
@@ -149,13 +149,13 @@ public extension NavigationWindow.Toolbar {
 
         // MARK: - Properties
 
-        public let content: () -> any View
-        public let id: AnyHashable
-        public let placement: Placement
+        let content: () -> any View
+        let id: AnyHashable
+        let placement: Placement
 
         // MARK: - Init
 
-        public init(
+        init(
             placement: Placement,
             content: @escaping () -> any View
         ) {
@@ -166,16 +166,16 @@ public extension NavigationWindow.Toolbar {
     }
 }
 
-public extension NavigationWindow.Toolbar {
+extension NavigationWindow.Toolbar {
     struct TitleConfiguration {
         // MARK: - Properties
 
-        public let color: Color
-        public let text: String
+        let color: Color
+        let text: String
 
         // MARK: - Init
 
-        public init(
+        init(
             _ text: String,
             color: Color = .navigationBarTitle
         ) {

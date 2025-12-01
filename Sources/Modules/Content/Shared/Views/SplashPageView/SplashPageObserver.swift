@@ -12,30 +12,30 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct SplashPageObserver: Observer {
+struct SplashPageObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = SplashPageReducer
+    typealias R = SplashPageReducer
 
     // MARK: - Properties
 
-    public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [Observables.networkActivityOccurred]
-    public let viewModel: ViewModel<SplashPageReducer>
+    let id = UUID()
+    let observedValues: [any ObservableProtocol] = [Observables.networkActivityOccurred]
+    let viewModel: ViewModel<SplashPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<SplashPageReducer>) {
+    init(_ viewModel: ViewModel<SplashPageReducer>) {
         self.viewModel = viewModel
     }
 
     // MARK: - Observer Conformance
 
-    public func linkObservables() {
+    func linkObservables() {
         Observers.link(SplashPageObserver.self, with: observedValues)
     }
 
-    public func onChange(of observable: Observable<Any>) {
+    func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -50,7 +50,7 @@ public struct SplashPageObserver: Observer {
         }
     }
 
-    public func send(_ action: SplashPageReducer.Action) {
+    func send(_ action: SplashPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action, animation: .easeIn)
         }

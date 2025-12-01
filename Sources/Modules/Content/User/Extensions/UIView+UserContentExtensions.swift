@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension UIView {
+extension UIView {
     // MARK: - Properties
 
     /// Leverages the `focusGroupIdentifier` property for use as a secondary identifier, separate from the view's `tag`.

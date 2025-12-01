@@ -13,7 +13,7 @@ import StoreKit
 /* Proprietary */
 import AppSubsystem
 
-public struct ReviewService {
+struct ReviewService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -44,11 +44,11 @@ public struct ReviewService {
 
     // MARK: - Methods
 
-    public func incrementAppOpenCount() {
+    func incrementAppOpenCount() {
         appOpenCount = (appOpenCount ?? 0) + 1
     }
 
-    public func promptToReview() {
+    func promptToReview() {
         guard canPromptToReview,
               let windowScene = uiApplication.mainWindow?.windowScene else { return }
         SKStoreReviewController.requestReview(in: windowScene)

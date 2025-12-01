@@ -10,8 +10,8 @@
 import Foundation
 import UIKit
 
-public extension UINavigationController {
-    override func viewWillLayoutSubviews() {
+extension UINavigationController {
+    override open func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         navigationBar.topItem?.backButtonDisplayMode = .minimal
     }

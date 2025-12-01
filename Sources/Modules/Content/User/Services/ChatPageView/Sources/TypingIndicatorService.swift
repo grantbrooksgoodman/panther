@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class TypingIndicatorService {
+final class TypingIndicatorService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.TypingIndicator
@@ -35,7 +35,7 @@ public final class TypingIndicatorService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
@@ -47,7 +47,7 @@ public final class TypingIndicatorService {
 
     // MARK: - Reset Typing Indicator Status for Current User
 
-    public static func resetTypingIndicatorStatusForCurrentUser() async -> Exception? {
+    static func resetTypingIndicatorStatusForCurrentUser() async -> Exception? {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else {
             return .init("Current user has not been set.", metadata: .init(sender: self))
@@ -84,7 +84,7 @@ public final class TypingIndicatorService {
     // MARK: - Text View Did Change
 
     @MainActor
-    public func textViewDidChange(to text: String) async -> Exception? {
+    func textViewDidChange(to text: String) async -> Exception? {
         return await withUnsafeContinuation { continuation in
             _textViewDidChange(to: text) { exception in
                 continuation.resume(returning: exception)
@@ -124,7 +124,7 @@ public final class TypingIndicatorService {
 
     // MARK: - Typing Indicator Timer
 
-    public func startCheckingForTypingIndicatorChanges() {
+    func startCheckingForTypingIndicatorChanges() {
         typingIndicatorTimer = .scheduledTimer(
             timeInterval: .init(Floats.timerTimeInterval),
             target: self,
@@ -134,7 +134,7 @@ public final class TypingIndicatorService {
         )
     }
 
-    public func stopCheckingForTypingIndicatorChanges() {
+    func stopCheckingForTypingIndicatorChanges() {
         typingIndicatorTimer?.invalidate()
         typingIndicatorTimer = nil
     }

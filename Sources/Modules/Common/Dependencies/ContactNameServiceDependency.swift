@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ContactNameServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ContactNameService {
+enum ContactNameServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ContactNameService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var contactNameService: ContactNameService {
         get { self[ContactNameServiceDependency.self] }
         set { self[ContactNameServiceDependency.self] = newValue }

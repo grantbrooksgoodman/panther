@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension NSAttributedString {
+extension NSAttributedString {
     static func messageCellString(
         _ text: String,
         foregroundColor: UIColor,

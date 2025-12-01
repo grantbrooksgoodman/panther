@@ -15,10 +15,10 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-public final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
+final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
     // MARK: - Types
 
-    public enum UpdateType {
+    enum UpdateType {
         case forced
         case normal
     }
@@ -32,9 +32,9 @@ public final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelega
 
     // MARK: - Properties
 
-    public static let shared = UpdateService()
+    static let shared = UpdateService()
 
-    public let isForcedUpdateRequiredSubject = CurrentValueSubject<Bool?, Never>(nil)
+    let isForcedUpdateRequiredSubject = CurrentValueSubject<Bool?, Never>(nil)
 
     @Persistent(.buildNumberWhenLastForcedToUpdate) private var buildNumberWhenLastForcedToUpdate: Int?
     @Persistent(.relaunchesSinceLastPostponedUpdate) private var relaunchesSinceLastPostponedUpdate: Int?
@@ -42,7 +42,7 @@ public final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelega
 
     // MARK: - Computed Properties
 
-    public var installButtonRedirectURL: URL? { metadataService.appShareLink }
+    var installButtonRedirectURL: URL? { metadataService.appShareLink }
 
     private var hasUpdatedSinceLastForced: Bool {
         guard let buildNumberWhenLastForcedToUpdate else { return true }
@@ -61,7 +61,7 @@ public final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelega
     // MARK: - Check for Updates
 
     @discardableResult
-    public func promptToUpdateIfNeeded() async -> Exception? {
+    func promptToUpdateIfNeeded() async -> Exception? {
         let checkForUpdatesResult = await checkForUpdates()
 
         switch checkForUpdatesResult {
@@ -136,7 +136,7 @@ public final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelega
 
     // MARK: - Increment Relaunch Count
 
-    public func incrementRelaunchCountIfNeeded() {
+    func incrementRelaunchCountIfNeeded() {
         guard firstPostponedUpdate != nil else { return }
         relaunchesSinceLastPostponedUpdate = (relaunchesSinceLastPostponedUpdate ?? 0) + 1
     }

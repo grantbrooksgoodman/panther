@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension TranslatedLabelStringCollection {
+extension TranslatedLabelStringCollection {
     enum SettingsPageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
@@ -31,7 +31,7 @@ public extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        public var alternate: String? {
+        var alternate: String? {
             switch self {
             case .changeThemeButtonText:
                 return "Change Appearance"
@@ -49,8 +49,8 @@ public extension TranslatedLabelStringCollection {
     }
 }
 
-public enum SettingsPageViewStrings: TranslatedLabelStrings {
-    public static var keyPairs: [TranslationInputMap] {
+enum SettingsPageViewStrings: TranslatedLabelStrings {
+    static var keyPairs: [TranslationInputMap] {
         TranslatedLabelStringCollection.SettingsPageViewStringKey.allCases
             .map {
                 TranslationInputMap(

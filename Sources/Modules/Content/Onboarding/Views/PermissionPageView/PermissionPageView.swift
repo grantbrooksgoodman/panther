@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct PermissionPageView: View {
+struct PermissionPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.PermissionsView
@@ -25,13 +25,13 @@ public struct PermissionPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<PermissionPageReducer>) {
+    init(_ viewModel: ViewModel<PermissionPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             VStack {
                 InstructionView(viewModel.instructionViewStrings)

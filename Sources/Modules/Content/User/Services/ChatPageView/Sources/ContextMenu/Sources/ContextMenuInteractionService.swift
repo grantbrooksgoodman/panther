@@ -17,7 +17,7 @@ import AppSubsystem
 import MessageKit
 
 // swiftlint:disable:next type_body_length
-public final class ContextMenuInteractionService {
+final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.ContextMenu
@@ -35,7 +35,7 @@ public final class ContextMenuInteractionService {
     // MARK: - Properties
 
     // Bool
-    public private(set) var isPresentingContextMenu = false {
+    private(set) var isPresentingContextMenu = false {
         didSet { restoreSpeakingCellAttributes() }
     }
 
@@ -43,7 +43,7 @@ public final class ContextMenuInteractionService {
     private var lastMessageWasVisibleBeforeInteraction = false
 
     // Other
-    public private(set) var selectedMessageID: String?
+    private(set) var selectedMessageID: String?
 
     private let viewController: ChatPageViewController
 
@@ -79,7 +79,7 @@ public final class ContextMenuInteractionService {
 
     // MARK: - Object Lifecycle
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
@@ -91,7 +91,7 @@ public final class ContextMenuInteractionService {
 
     // MARK: - Configure Double Tap Gesture Recognizer
 
-    public func configureDoubleTapGestureRecognizer() {
+    func configureDoubleTapGestureRecognizer() {
         let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(reactToSelectedMessage(_:)))
         doubleTapGesture.delaysTouchesBegan = true
         doubleTapGesture.numberOfTapsRequired = Int(Floats.doubleTapGestureNumberOfTapsRequired)
@@ -100,13 +100,13 @@ public final class ContextMenuInteractionService {
 
     // MARK: - Context Menu Interaction Timer
 
-    public func addContextMenuInteractionToVisibleCellsOnce() {
+    func addContextMenuInteractionToVisibleCellsOnce() {
         Task { @MainActor in
             addContextMenuInteractionToVisibleCells()
         }
     }
 
-    public func startAddingContextMenuInteractionToVisibleCells() {
+    func startAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer = .scheduledTimer(
             timeInterval: Floats.interactionTimerTimeInterval,
             target: self,
@@ -116,14 +116,14 @@ public final class ContextMenuInteractionService {
         )
     }
 
-    public func stopAddingContextMenuInteractionToVisibleCells() {
+    func stopAddingContextMenuInteractionToVisibleCells() {
         contextMenuInteractionTimer?.invalidate()
         contextMenuInteractionTimer = nil
     }
 
     // MARK: - Remove UIMenu Long Press Gesture for Visible Cells
 
-    public func removeUIMenuLongPressGestureForVisibleCells() {
+    func removeUIMenuLongPressGestureForVisibleCells() {
         Task { @MainActor in
             let visibleCells = viewController.messagesCollectionView.visibleCells.compactMap { $0 as? MessageContentCell }
             for cell in visibleCells {
@@ -140,7 +140,7 @@ public final class ContextMenuInteractionService {
     // MARK: - React to Selected Message
 
     @objc
-    public func reactToSelectedMessage(_ sender: Any) {
+    func reactToSelectedMessage(_ sender: Any) {
         guard !clientSession.reaction.isReactingToMessage else {
             clientSession.reaction.addEffectUponIsReactingToMessage(
                 changedTo: false,
@@ -200,7 +200,7 @@ public final class ContextMenuInteractionService {
 
     // MARK: - Keyboard Will Show Observer
 
-    public func addKeyboardWillShowObserver() {
+    func addKeyboardWillShowObserver() {
         notificationCenter.addObserver(
             self,
             name: UIResponder.keyboardWillShowNotification
@@ -210,7 +210,7 @@ public final class ContextMenuInteractionService {
         }
     }
 
-    public func removeKeyboardWillShowObserver() {
+    func removeKeyboardWillShowObserver() {
         notificationCenter.removeObserver(
             self,
             name: UIResponder.keyboardWillShowNotification,
@@ -220,7 +220,7 @@ public final class ContextMenuInteractionService {
 
     // MARK: - Set Is Presenting Context Menu
 
-    public func setIsPresentingContextMenu(_ isPresentingContextMenu: Bool) {
+    func setIsPresentingContextMenu(_ isPresentingContextMenu: Bool) {
         self.isPresentingContextMenu = isPresentingContextMenu
     }
 

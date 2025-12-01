@@ -13,33 +13,33 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct ConversationMetadata: Codable, Equatable {
+struct ConversationMetadata: Codable, Equatable {
     // MARK: - Properties
 
     // Array
     // swiftlint:disable:next identifier_name
-    public let messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]
-    public let penPalsSharingData: [PenPalsSharingData]
+    let messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]
+    let penPalsSharingData: [PenPalsSharingData]
 
     // String
-    public let name: String
-    public let requiresConsentFromInitiator: String?
+    let name: String
+    let requiresConsentFromInitiator: String?
 
     // Other
-    public let imageData: Data?
-    public let isPenPalsConversation: Bool
-    public let lastModifiedDate: Date
+    let imageData: Data?
+    let isPenPalsConversation: Bool
+    let lastModifiedDate: Date
 
     // MARK: - Computed Properties
 
-    public var image: UIImage? {
+    var image: UIImage? {
         guard let imageData else { return nil }
         return .init(data: imageData)
     }
 
     // MARK: - Init
 
-    public init(
+    init(
         name: String,
         imageData: Data?,
         isPenPalsConversation: Bool,
@@ -59,7 +59,7 @@ public struct ConversationMetadata: Codable, Equatable {
 
     // MARK: - Default Value
 
-    public static func empty(
+    static func empty(
         userIDs: [String],
         isPenPalsConversation: Bool = false
     ) -> ConversationMetadata {
@@ -84,7 +84,7 @@ public struct ConversationMetadata: Codable, Equatable {
 
     // MARK: - Mutation
 
-    public func copyWith(
+    func copyWith(
         name: String? = nil,
         imageData: Data = .init(),
         isPenPalsConversation: Bool? = nil,

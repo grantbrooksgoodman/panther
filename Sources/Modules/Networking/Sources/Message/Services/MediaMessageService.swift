@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct MediaMessageService {
+struct MediaMessageService {
     // MARK: - Dependencies
 
     @Dependency(\.fileManager) private var fileManager: FileManager
@@ -21,7 +21,7 @@ public struct MediaMessageService {
 
     // MARK: - Get Media Component
 
-    public func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
+    func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
         let commonParams = ["MessageID": message.id]
         guard let localMediaFilePath = message.localMediaFilePath else {
             return .failure(.init(
@@ -49,7 +49,7 @@ public struct MediaMessageService {
 
     // MARK: - Delete Media Component
 
-    public func deleteMediaComponent(for messageID: String) async -> Exception? {
+    func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
         let getValuesResult = await networking.database.getValues(
@@ -96,7 +96,7 @@ public struct MediaMessageService {
 
     // MARK: - Upload Media Component
 
-    public func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
+    func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
         let pathPrefix = "\(NetworkPath.media.rawValue)/\(mediaComponent.encodedHash.shortened)"
         let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"

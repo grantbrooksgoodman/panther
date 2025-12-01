@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum RecordButtonCommand {
+enum RecordButtonCommand {
     case cancelRecording
     case startRecording
     case stopRecording

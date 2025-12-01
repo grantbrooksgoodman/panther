@@ -9,17 +9,17 @@
 /* Native */
 import Foundation
 
-public struct InstructionViewStrings: Equatable {
+struct InstructionViewStrings: Equatable {
     // MARK: - Properties
 
-    public static let empty: InstructionViewStrings = .init(titleLabelText: "", subtitleLabelText: "")
+    static let empty: InstructionViewStrings = .init(titleLabelText: "", subtitleLabelText: "")
 
-    public let subtitleLabelText: String
-    public let titleLabelText: String
+    let subtitleLabelText: String
+    let titleLabelText: String
 
     // MARK: - Init
 
-    public init(titleLabelText: String, subtitleLabelText: String) {
+    init(titleLabelText: String, subtitleLabelText: String) {
         self.titleLabelText = titleLabelText
         self.subtitleLabelText = subtitleLabelText
     }

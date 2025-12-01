@@ -15,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class ConversationSyncService {
+final class ConversationSyncService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
@@ -35,7 +35,7 @@ public final class ConversationSyncService {
     // MARK: - Synchronization
 
     // swiftlint:disable:next function_body_length
-    public func synchronizeConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+    func synchronizeConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
         let commonParams: [String: Any] = [
             "ConversationIDHash": conversation.id.hash,
             "ConversationIDKey": conversation.id.key,
@@ -440,7 +440,10 @@ public final class ConversationSyncService {
             conversationIDs.removeAll(where: { $0.key == conversation.id.key })
             conversationIDs.insert(conversation.id, at: index)
 
-            let updateValueResult = await user.updateValue(conversationIDs, forKey: .conversationIDs)
+            let updateValueResult = await user.updateValue(
+                conversationIDs,
+                forKey: .conversationIDs
+            )
 
             switch updateValueResult {
             case let .failure(exception):

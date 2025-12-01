@@ -12,38 +12,38 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct CommonServices {
+struct CommonServices {
     // MARK: - Properties
 
-    public let accountDeletion: AccountDeletionService
-    public let analytics: AnalyticsService
-    public let attributeDetection: AttributeDetectionService
-    public let audio: AudioService
-    public let breadcrumbsCapture: BreadcrumbsCaptureService
-    public let connectionStatus: ConnectionStatusService
-    public let contact: ContactService
-    public let contentPicker: ContentPickerService
-    public let documentExport: DocumentExportService
-    public let haptics: HapticsService
-    public let invite: InviteService
-    public let messageRecipientConsent: MessageRecipientConsentService
-    public let messageRetranslation: MessageRetranslationService
-    public let metadata: MetadataService
-    public let networkActivityIndicator: NetworkActivityIndicatorService
-    public let notification: NotificationService
-    public let penPals: PenPalsService
-    public let permission: PermissionService
-    public let phoneNumber: PhoneNumberService
-    public let propertyLists: CommonPropertyLists
-    public let pushToken: PushTokenService
-    public let regionDetail: RegionDetailService
-    public let remoteCache: RemoteCacheService
-    public let review: ReviewService
-    public let update: UpdateService
+    let accountDeletion: AccountDeletionService
+    let analytics: AnalyticsService
+    let attributeDetection: AttributeDetectionService
+    let audio: AudioService
+    let breadcrumbsCapture: BreadcrumbsCaptureService
+    let connectionStatus: ConnectionStatusService
+    let contact: ContactService
+    let contentPicker: ContentPickerService
+    let documentExport: DocumentExportService
+    let haptics: HapticsService
+    let invite: InviteService
+    let messageRecipientConsent: MessageRecipientConsentService
+    let messageRetranslation: MessageRetranslationService
+    let metadata: MetadataService
+    let networkActivityIndicator: NetworkActivityIndicatorService
+    let notification: NotificationService
+    let penPals: PenPalsService
+    let permission: PermissionService
+    let phoneNumber: PhoneNumberService
+    let propertyLists: CommonPropertyLists
+    let pushToken: PushTokenService
+    let regionDetail: RegionDetailService
+    let remoteCache: RemoteCacheService
+    let review: ReviewService
+    let update: UpdateService
 
     // MARK: - Init
 
-    public init(
+    init(
         accountDeletion: AccountDeletionService,
         analytics: AnalyticsService,
         attributeDetection: AttributeDetectionService,

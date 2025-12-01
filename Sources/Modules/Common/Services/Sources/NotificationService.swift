@@ -17,7 +17,7 @@ import UserNotifications
 import AppSubsystem
 import Networking
 
-public struct NotificationService {
+struct NotificationService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -29,7 +29,7 @@ public struct NotificationService {
 
     // MARK: - Set Badge Number
 
-    public func setBadgeNumber(_ badgeNumber: Int, updateHostedValue: Bool = true) async -> Exception? {
+    func setBadgeNumber(_ badgeNumber: Int, updateHostedValue: Bool = true) async -> Exception? {
         do {
             try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
         } catch {
@@ -43,7 +43,7 @@ public struct NotificationService {
 
     // MARK: - Notify Users of Message
 
-    public func notify(
+    func notify(
         _ users: [User],
         ofReaction reaction: Reaction? = nil,
         message: Message,
@@ -105,7 +105,7 @@ public struct NotificationService {
 
     // MARK: - Notify of Prevarication Mode Analytics Event
 
-    public func notifyOfPrevaricationModeAnalyticsEvent(_ title: String, body: String) async -> Exception? {
+    func notifyOfPrevaricationModeAnalyticsEvent(_ title: String, body: String) async -> Exception? {
         let getValuesResult = await networking.database.getValues(
             at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)",
             prependingEnvironment: false
@@ -147,7 +147,7 @@ public struct NotificationService {
     // MARK: - Respond to In-app Notification
 
     @MainActor
-    public func respondToInAppNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
+    func respondToInAppNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
         Logger.log(
             "Received notification.\n\"\(notification.request.content.body)\"",
             domain: .notifications,

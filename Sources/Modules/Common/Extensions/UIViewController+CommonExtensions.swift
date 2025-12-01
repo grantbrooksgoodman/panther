@@ -14,7 +14,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension UIViewController {
+extension UIViewController {
     // MARK: - Properties
 
     static let swizzlePresent: Void = {

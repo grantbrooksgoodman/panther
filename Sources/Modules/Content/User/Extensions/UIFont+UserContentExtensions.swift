@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public extension UIFont {
+extension UIFont {
     // MARK: - Properties
 
     var bolded: UIFont { withTraits(traits: .traitBold) }

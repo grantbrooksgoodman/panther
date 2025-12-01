@@ -10,10 +10,10 @@
 import Foundation
 import UIKit
 
-public final class AttributeDetectionService {
+final class AttributeDetectionService {
     // MARK: - Properties
 
-    public static let shared = AttributeDetectionService()
+    static let shared = AttributeDetectionService()
 
     private var delegate: AttributeDetectionServiceDelegate? = DefaultAttributeDetectionServiceDelegate.shared
 
@@ -23,13 +23,13 @@ public final class AttributeDetectionService {
 
     // MARK: - Register Delegate
 
-    public func registerDelegate(_ delegate: AttributeDetectionServiceDelegate) {
+    func registerDelegate(_ delegate: AttributeDetectionServiceDelegate) {
         self.delegate = delegate
     }
 
     // MARK: - Handle Gesture
 
-    public func handleGesture(
+    func handleGesture(
         in view: UIView,
         label: UILabel,
         at touchLocation: CGPoint

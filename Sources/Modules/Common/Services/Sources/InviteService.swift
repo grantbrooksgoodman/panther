@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public struct InviteService {
+struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -46,7 +46,7 @@ public struct InviteService {
     // MARK: - Compose Invitation
 
     @MainActor
-    public func composeInvitation(languageCode: String?) async -> Exception? {
+    func composeInvitation(languageCode: String?) async -> Exception? {
         guard let appShareLink = services.metadata.appShareLink else {
             if let exception = await services.metadata.resolveValues() {
                 return exception
@@ -92,7 +92,7 @@ public struct InviteService {
     // MARK: - Present Invitation Prompt
 
     @MainActor
-    public func presentInvitationPrompt() async -> Exception? {
+    func presentInvitationPrompt() async -> Exception? {
         guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else { return nil }
         guard shouldPresentInviteLanguagePicker else {
             if let exception = await composeInvitation(languageCode: nil) {
@@ -112,7 +112,7 @@ public struct InviteService {
 
     // MARK: - Present Invitation Suggestion Prompt
 
-    public func presentInvitationSuggestionPrompt() async {
+    func presentInvitationSuggestionPrompt() async {
         let inviteAction: AKAction = .init(
             "Send Invite",
             style: .preferred
@@ -133,7 +133,7 @@ public struct InviteService {
     // MARK: - Suggest Invitation If Needed
 
     /// - Returns: `true` if the necessary conditions to suggest invitation were met.
-    public func suggestInvitationIfNeeded() async -> Bool {
+    func suggestInvitationIfNeeded() async -> Bool {
         guard canSuggestInvitation else { return false }
 
         if let exception = await services.contact.syncContactPairArchive() {

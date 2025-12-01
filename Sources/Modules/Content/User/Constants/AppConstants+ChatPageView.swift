@@ -17,103 +17,103 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ChatPageView {
-        public static let messageLabelInset: CGFloat = 4
+        static let messageLabelInset: CGFloat = 4
 
-        public static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
-        public static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
+        static let messageOutgoingCellBottomLabelAlignmentRightTextInset: CGFloat = 10
+        static let messageOutgoingCellBottomLabelAlignmentTopTextInset: CGFloat = 2
 
-        public static let textCellMessageLabelLeftTextInset: CGFloat = 15
-        public static let textCellMessageLabelRightTextInset: CGFloat = 1
+        static let textCellMessageLabelLeftTextInset: CGFloat = 15
+        static let textCellMessageLabelRightTextInset: CGFloat = 1
 
         enum AVSpeechSynthesizerDelegate {
-            public static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
+            static let attributedStringParagraphStyleLineSpacing: CGFloat = 1.25
         }
 
         enum MessagesDataSource {
-            public static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
-            public static let cellBottomLabelAttributedTextEmojiAttributesSystemFontSize: CGFloat = 14
-            public static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
+            static let cellBottomLabelAttributedTextBoldAttributesSystemFontSize: CGFloat = 12
+            static let cellBottomLabelAttributedTextEmojiAttributesSystemFontSize: CGFloat = 14
+            static let cellBottomLabelAttributedTextStandardAttributesSystemFontSize: CGFloat = 12
 
-            public static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 12
-            public static let messageTopLabelAttributedTextAttributesBaselineOffset: CGFloat = 3
-            public static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
+            static let messageTimestampLabelAttributedTextAttributesSystemFontSize: CGFloat = 12
+            static let messageTopLabelAttributedTextAttributesBaselineOffset: CGFloat = 3
+            static let messageTopLabelAttributedTextAttributesFontSize: CGFloat = 10.5
         }
 
         enum MessagesDisplayDelegate {
-            public static let audioCellProgressViewTrackTintColorAlphaComponent: CGFloat = 0.8
-            public static let audioCellProgressViewTrackTintColorDarkeningPercentage: CGFloat = 6
+            static let audioCellProgressViewTrackTintColorAlphaComponent: CGFloat = 0.8
+            static let audioCellProgressViewTrackTintColorDarkeningPercentage: CGFloat = 6
 
-            public static let messageStyleCustomLayerCornerRadius: CGFloat = 10
-            public static let messageStyleCustomLayerShadowOffsetHeight: CGFloat = 2
-            public static let messageStyleCustomLayerShadowOpacity: CGFloat = 0.1
-            public static let messageStyleCustomLayerShadowRadius: CGFloat = 4
+            static let messageStyleCustomLayerCornerRadius: CGFloat = 10
+            static let messageStyleCustomLayerShadowOffsetHeight: CGFloat = 2
+            static let messageStyleCustomLayerShadowOpacity: CGFloat = 0.1
+            static let messageStyleCustomLayerShadowRadius: CGFloat = 4
         }
 
         enum MessagesLayoutDelegate {
-            public static let cellBottomLabelHeight: CGFloat = 20
-            public static let cellTopLabelHeight: CGFloat = 25
-            public static let cellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
-            public static let messageTopLabelHeight: CGFloat = 15
+            static let cellBottomLabelHeight: CGFloat = 20
+            static let cellTopLabelHeight: CGFloat = 25
+            static let cellTopLabelHeightSentDateSecondsComparator: CGFloat = 5400
+            static let messageTopLabelHeight: CGFloat = 15
         }
 
         enum UITextViewDelegate {
-            public static let setButtonsIsEnabledDelayMilliseconds: CGFloat = 100
-            public static let toggleLabelRepresentationDelayMilliseconds: CGFloat = 10
+            static let setButtonsIsEnabledDelayMilliseconds: CGFloat = 100
+            static let toggleLabelRepresentationDelayMilliseconds: CGFloat = 10
         }
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ChatPageView {
-        public static let messagesCollectionViewPrevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
+        static let messagesCollectionViewPrevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
 
         enum AVSpeechSynthesizerDelegate {
-            public static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
-            public static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
-            public static let willSpeakRangeOfSpeechStringWhite: Color = .init(uiColor: .white)
+            static let willSpeakRangeOfSpeechStringHighlight: Color = .init(uiColor: .red)
+            static let willSpeakRangeOfSpeechStringNotWhite: Color = .init(uiColor: .black)
+            static let willSpeakRangeOfSpeechStringWhite: Color = .init(uiColor: .white)
         }
 
         enum MessagesDataSource {
-            public static let cellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
-            public static let cellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
+            static let cellBottomLabelAttributedTextBoldAttributesForeground: Color = .init(uiColor: .gray)
+            static let cellBottomLabelAttributedTextStandardAttributesForeground: Color = .init(uiColor: .lightGray)
 
-            public static let currentUserAudioTintColor: Color = .init(uiColor: .white)
+            static let currentUserAudioTintColor: Color = .init(uiColor: .white)
 
-            public static let messageTimestampLabelAttributedTextAttributesForeground: Color = .init(uiColor: .lightGray)
-            public static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
+            static let messageTimestampLabelAttributedTextAttributesForeground: Color = .init(uiColor: .lightGray)
+            static let messageTopLabelAttributedTextAttributesForeground: Color = .init(uiColor: .systemGray)
         }
 
         enum MessagesDisplayDelegate {
-            public static let audioCellProgressViewCurrentUserAccent: Color = .init(uiColor: .white)
+            static let audioCellProgressViewCurrentUserAccent: Color = .init(uiColor: .white)
 
-            public static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
-            public static let detectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
+            static let detectorAttributesAlternateForeground: Color = .init(uiColor: .black)
+            static let detectorAttributesPrimaryForeground: Color = .init(uiColor: .white)
 
-            public static let genericAvatarViewBackground: Color = .init(uiColor: .clear)
-            public static let genericAvatarViewTint: Color = .init(uiColor: .gray)
+            static let genericAvatarViewBackground: Color = .init(uiColor: .clear)
+            static let genericAvatarViewTint: Color = .init(uiColor: .gray)
 
-            public static let messageStyleCustomLayerShadowColor: Color = .init(uiColor: .black)
+            static let messageStyleCustomLayerShadowColor: Color = .init(uiColor: .black)
 
-            public static let penPalsAvatarViewBackground: Color = .init(uiColor: .clear)
-            public static let penPalsAvatarViewTint: Color = .init(uiColor: .purple)
+            static let penPalsAvatarViewBackground: Color = .init(uiColor: .clear)
+            static let penPalsAvatarViewTint: Color = .init(uiColor: .purple)
         }
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ChatPageView {
         enum MessagesDataSource {
-            public static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
+            static let messageTopLabelAttributedTextAttributesFontName = "SFUIText-Regular"
         }
 
         enum MessagesDisplayDelegate {
-            public static let avatarViewImageSystemName = "person.crop.circle.fill"
+            static let avatarViewImageSystemName = "person.crop.circle.fill"
         }
     }
 }

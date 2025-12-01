@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct PenPalsPermissionPageView: View {
+struct PenPalsPermissionPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.PenPalsPermissionPageView
@@ -26,13 +26,13 @@ public struct PenPalsPermissionPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<PenPalsPermissionPageReducer>) {
+    init(_ viewModel: ViewModel<PenPalsPermissionPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: ThemeService.isDarkModeActive ? Color.groupedContentBackground : .white

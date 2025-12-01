@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct WelcomePageView: View {
+struct WelcomePageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.WelcomePageView
@@ -26,13 +26,13 @@ public struct WelcomePageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<WelcomePageReducer>) {
+    init(_ viewModel: ViewModel<WelcomePageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             VStack {
                 Image(.hello)

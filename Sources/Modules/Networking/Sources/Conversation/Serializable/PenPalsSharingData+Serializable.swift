@@ -16,11 +16,11 @@ import Networking
 extension PenPalsSharingData: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = PenPalsSharingData
+    typealias T = PenPalsSharingData
 
     // MARK: - Properties
 
-    public var encoded: String {
+    var encoded: String {
         let sharesDataWithUserIDsString = sharesDataWithUserIDs?.reduce(into: String()) { partialResult, userID in
             if partialResult.isBlank { partialResult = userID } else { partialResult += ", \(userID)" }
         } ?? .bangQualifiedEmpty
@@ -30,14 +30,14 @@ extension PenPalsSharingData: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: String) -> Bool {
+    static func canDecode(from data: String) -> Bool {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2,
               components.allSatisfy({ !$0.isBlank }) else { return false }
         return true
     }
 
-    public static func decode(from data: String) async -> Callback<PenPalsSharingData, Exception> {
+    static func decode(from data: String) async -> Callback<PenPalsSharingData, Exception> {
         guard canDecode(from: data) else {
             return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }

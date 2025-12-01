@@ -15,22 +15,22 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ReactionsViewController {
-        public static let reactionButtonHeight: CGFloat = 35
-        public static let reactionButtonTitleLabelSystemFontSize: CGFloat = 15
-        public static let stackViewLeadingAnchorConstraintConstant: CGFloat = 10
-        public static let stackViewSpacing: CGFloat = 8
-        public static let subviewLayerCornerRadius: CGFloat = 17.5
-        public static let superviewLayerCornerRadius: CGFloat = 5
-        public static let viewAlpha: CGFloat = 0.8
+        static let reactionButtonHeight: CGFloat = 35
+        static let reactionButtonTitleLabelSystemFontSize: CGFloat = 15
+        static let stackViewLeadingAnchorConstraintConstant: CGFloat = 10
+        static let stackViewSpacing: CGFloat = 8
+        static let subviewLayerCornerRadius: CGFloat = 17.5
+        static let superviewLayerCornerRadius: CGFloat = 5
+        static let viewAlpha: CGFloat = 0.8
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ReactionsViewController { // NIT: Using UIColor for this.
-        public static let reactionButtonBackground: UIColor = .systemGray3
+        static let reactionButtonBackground: UIColor = .systemGray3
     }
 }

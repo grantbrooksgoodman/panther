@@ -12,10 +12,10 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class AppIconService {
+final class AppIconService {
     // MARK: - Types
 
-    public enum AppIcon: String, CaseIterable {
+    enum AppIcon: String, CaseIterable {
         case blue = "Blue"
         case gray = "Application"
     }
@@ -26,13 +26,13 @@ public final class AppIconService {
 
     // MARK: - Properties
 
-    public private(set) var lastIconSet: AppIcon?
+    private(set) var lastIconSet: AppIcon?
 
     private var alertDismissalTimer: Timer?
 
     // MARK: - Set App Icon
 
-    public func setAppIcon(_ icon: AppIcon) {
+    func setAppIcon(_ icon: AppIcon) {
         lastIconSet = icon
         uiApplication.setAlternateIconName("\(icon.rawValue) Icon") { error in
             guard let error else { return }
@@ -42,7 +42,7 @@ public final class AppIconService {
 
     // MARK: - Timer Methods
 
-    public func startDismissingAlerts() {
+    func startDismissingAlerts() {
         alertDismissalTimer = Timer.scheduledTimer(
             timeInterval: 0.01,
             target: self,
@@ -52,7 +52,7 @@ public final class AppIconService {
         )
     }
 
-    public func stopDismissingAlerts() {
+    func stopDismissingAlerts() {
         alertDismissalTimer?.invalidate()
         alertDismissalTimer = nil
     }
@@ -75,7 +75,7 @@ public final class AppIconService {
 
     // MARK: - Randomize App Icon
 
-    public func randomizeAppIcon() {
+    func randomizeAppIcon() {
         var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
         guard randomBool else { return }
 
@@ -91,13 +91,13 @@ public final class AppIconService {
 
 /* MARK: Dependency */
 
-public enum AppIconServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> AppIconService {
+enum AppIconServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> AppIconService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var appIconService: AppIconService {
         get { self[AppIconServiceDependency.self] }
         set { self[AppIconServiceDependency.self] = newValue }

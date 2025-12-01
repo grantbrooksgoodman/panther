@@ -16,11 +16,11 @@ import AppSubsystem
 /**
  Use this extension to catalog application-specific `Exception` types and their corresponding error code values.
  */
-public extension AppException {
+extension AppException {
     // MARK: - Types
 
     struct ExceptionMetadataDelegate: AppSubsystem.Delegates.ExceptionMetadataDelegate {
-        public func isReportable(_ errorCode: String) -> Bool {
+        func isReportable(_ errorCode: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
             guard errorCode != AppException.cannotSendTextMessages.errorCode else { return false }
             guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
@@ -28,7 +28,7 @@ public extension AppException {
         }
 
         // swiftlint:disable line_length
-        public func userFacingDescriptor(for descriptor: String) -> String? {
+        func userFacingDescriptor(for descriptor: String) -> String? {
             switch descriptor {
             case "Attempted to select contact pair containing blocked user.":
                 return "You have blocked this user."

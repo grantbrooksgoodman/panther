@@ -14,9 +14,9 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ChangeLanguagePageView {
-        public static let innerVStackTopPadding: CGFloat = 50
-        public static let pickerHorizontalPadding: CGFloat = 30
+        static let innerVStackTopPadding: CGFloat = 50
+        static let pickerHorizontalPadding: CGFloat = 30
     }
 }

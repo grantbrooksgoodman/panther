@@ -16,9 +16,9 @@ import AppSubsystem
 import MessageKit
 
 extension AudioFile: AudioItem {
-    public var duration: Float { contentDuration ?? 0 }
+    var duration: Float { contentDuration ?? 0 }
 
-    public var size: CGSize {
+    var size: CGSize {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.AudioItem
         return .init(width: Floats.sizeWidth, height: Floats.sizeHeight)
     }

@@ -16,15 +16,15 @@ import Networking
 extension MessageRecipientConsentAcknowledgementData: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = MessageRecipientConsentAcknowledgementData
+    typealias T = MessageRecipientConsentAcknowledgementData
 
     // MARK: - Properties
 
-    public var encoded: String { "\(userID): \(consentAcknowledged ? "!" : false.description)" }
+    var encoded: String { "\(userID): \(consentAcknowledged ? "!" : false.description)" }
 
     // MARK: - Methods
 
-    public static func canDecode(from data: String) -> Bool {
+    static func canDecode(from data: String) -> Bool {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2,
               let booleanString = components.itemAt(1),
@@ -34,7 +34,7 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
         return true
     }
 
-    public static func decode(from data: String) async -> Callback<MessageRecipientConsentAcknowledgementData, Exception> {
+    static func decode(from data: String) async -> Callback<MessageRecipientConsentAcknowledgementData, Exception> {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2 else {
             return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))

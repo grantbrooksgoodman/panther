@@ -13,17 +13,17 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class RegionDetailService {
+final class RegionDetailService {
     // MARK: - Types
 
-    public enum QueryStrategy {
+    enum QueryStrategy {
         case callingCode(String)
         case regionCode(String)
         case regionTitle(String)
         case searchTerm(String)
     }
 
-    public enum RegionTitleFormat {
+    enum RegionTitleFormat {
         case callingCodeFirst
         case regionNameFirst
     }
@@ -55,7 +55,7 @@ public final class RegionDetailService {
 
     // MARK: - Computed Properties
 
-    public var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
+    var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
 
     private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
     private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
@@ -63,17 +63,17 @@ public final class RegionDetailService {
 
     // MARK: - Init
 
-    public init() {}
+    init() {}
 
     // MARK: - Calling Codes
 
-    public func callingCode(regionCode: String) -> String? {
+    func callingCode(regionCode: String) -> String? {
         callingCodes[regionCode.uppercased()]
     }
 
     // MARK: - Images
 
-    public func image(by strategy: QueryStrategy) -> UIImage? {
+    func image(by strategy: QueryStrategy) -> UIImage? {
         let keys = Array(callingCodes.keys)
 
         switch strategy {
@@ -114,7 +114,7 @@ public final class RegionDetailService {
 
     // MARK: - Region Codes
 
-    public func regionCode(by strategy: QueryStrategy) -> String? {
+    func regionCode(by strategy: QueryStrategy) -> String? {
         switch strategy {
         case let .callingCode(callingCode):
             guard let regionCodes = regionCodes(callingCode: callingCode) else { return nil }
@@ -130,7 +130,7 @@ public final class RegionDetailService {
         }
     }
 
-    public func regionCodes(by strategy: QueryStrategy) -> [String]? {
+    func regionCodes(by strategy: QueryStrategy) -> [String]? {
         switch strategy {
         case let .callingCode(callingCode):
             return regionCodes(callingCode: callingCode)
@@ -156,7 +156,7 @@ public final class RegionDetailService {
 
     // MARK: - Region Titles
 
-    public func localizedRegionName(regionCode: String, languageCode: String? = nil) -> String {
+    func localizedRegionName(regionCode: String, languageCode: String? = nil) -> String {
         var cachedValue = cachedLocalizedRegionNamesForRegionCodes ?? .init()
         if let string = cachedValue[regionCode],
            languageCode == nil {
@@ -181,7 +181,7 @@ public final class RegionDetailService {
         return regionName
     }
 
-    public func regionTitles(
+    func regionTitles(
         by strategy: QueryStrategy,
         titleFormat: RegionTitleFormat = .callingCodeFirst
     ) -> [String]? {
@@ -289,7 +289,7 @@ public final class RegionDetailService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedImagesForRegionCodes = nil
         cachedImagesForRegionTitles = nil
 

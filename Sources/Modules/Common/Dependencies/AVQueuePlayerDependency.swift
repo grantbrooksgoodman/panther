@@ -13,13 +13,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum AVQueuePlayerDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> AVQueuePlayer {
+enum AVQueuePlayerDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> AVQueuePlayer {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var avQueuePlayer: AVQueuePlayer {
         get { self[AVQueuePlayerDependency.self] }
         set { self[AVQueuePlayerDependency.self] = newValue }

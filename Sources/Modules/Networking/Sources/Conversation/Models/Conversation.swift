@@ -13,22 +13,22 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class Conversation: Codable, EncodedHashable, Hashable {
+final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // Array
-    public let activities: [Activity]?
-    public let messageIDs: [String]
-    public let participants: [Participant]
-    public let reactionMetadata: [ReactionMetadata]?
+    let activities: [Activity]?
+    let messageIDs: [String]
+    let participants: [Participant]
+    let reactionMetadata: [ReactionMetadata]?
 
     /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
-    public private(set) var messages: [Message]?
+    private(set) var messages: [Message]?
     /// When set, contains all users participating in this conversation, other than the current user.
-    public private(set) var users: [User]?
+    private(set) var users: [User]?
 
     // Other
-    public static let empty: Conversation = .init(
+    static let empty: Conversation = .init(
         .init(key: "", hash: ""),
         activities: nil,
         messageIDs: [],
@@ -39,12 +39,12 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
         users: nil
     )
 
-    public let id: ConversationID
-    public let metadata: ConversationMetadata
+    let id: ConversationID
+    let metadata: ConversationMetadata
 
     // MARK: - Computed Properties
 
-    public var hashFactors: [String] {
+    var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
@@ -68,7 +68,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ id: ConversationID,
         activities: [Activity]?,
         messageIDs: [String],
@@ -91,7 +91,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Set Messages
 
     /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
-    public func setMessages(ids: Set<String>? = nil) async -> Exception? {
+    func setMessages(ids: Set<String>? = nil) async -> Exception? {
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
@@ -170,7 +170,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Set Users
 
-    public func setUsers(forceUpdate: Bool = false) async -> Exception? {
+    func setUsers(forceUpdate: Bool = false) async -> Exception? {
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
@@ -221,7 +221,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Update Read Date
 
-    public func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
+    func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard !messages.isEmpty else {
@@ -274,7 +274,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (left: Conversation, right: Conversation) -> Bool {
+    static func == (left: Conversation, right: Conversation) -> Bool {
         let sameID = left.id == right.id
         let sameActivities = left.activities == right.activities
         let sameMessageIDs = left.messageIDs == right.messageIDs
@@ -298,7 +298,7 @@ public final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Hashable Conformance
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(id.key)
         hasher.combine(id.hash)
     }

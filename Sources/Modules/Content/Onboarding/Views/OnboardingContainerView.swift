@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct OnboardingContainerView: View {
+struct OnboardingContainerView: View {
     // MARK: - Dependencies
 
     @ObservedDependency(\.navigation) private var navigation: Navigation
@@ -30,7 +30,7 @@ public struct OnboardingContainerView: View {
     // MARK: - View
 
     @ViewBuilder
-    public var body: some View {
+    var body: some View {
         ZStack {
             Color.clear
                 .frame(width: .zero, height: .zero)

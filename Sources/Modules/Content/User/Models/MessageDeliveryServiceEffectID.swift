@@ -9,19 +9,19 @@
 /* Native */
 import Foundation
 
-public struct MessageDeliveryServiceEffectID: Hashable {
+struct MessageDeliveryServiceEffectID: Hashable {
     // MARK: - Properties
 
-    public let rawValue: String
+    let rawValue: String
 
     // MARK: - Init
 
-    public init(_ rawValue: String) {
+    init(_ rawValue: String) {
         self.rawValue = rawValue
     }
 }
 
-public extension MessageDeliveryServiceEffectID {
+extension MessageDeliveryServiceEffectID {
     static let configureInputBar: MessageDeliveryServiceEffectID = .init("configureInputBar")
     static let reloadCollectionView: MessageDeliveryServiceEffectID = .init("reloadCollectionView")
     static let updateConversations: MessageDeliveryServiceEffectID = .init("updateConversations")

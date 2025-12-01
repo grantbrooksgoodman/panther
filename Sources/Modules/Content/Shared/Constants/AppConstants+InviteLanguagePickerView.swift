@@ -15,19 +15,19 @@ import AppSubsystem
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum InviteLanguagePickerView {
-        public static let doneHeaderItemForeground: Color = UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
-        public static let navigationBarItemGlassTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
-        public static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
-        public static let selectedCellImageForeground: Color = .green
+        static let doneHeaderItemForeground: Color = UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
+        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
+        static let selectedCellImageForeground: Color = .green
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum InviteLanguagePickerView {
-        public static let selectedCellImageSystemName = "checkmark.circle.fill"
+        static let selectedCellImageSystemName = "checkmark.circle.fill"
     }
 }

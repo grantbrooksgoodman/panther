@@ -16,16 +16,16 @@ import Networking
 extension Message: Updatable {
     // MARK: - Type Aliases
 
-    public typealias SerializationKey = Message.SerializationKeys
-    public typealias U = Message
+    typealias SerializationKey = Message.SerializationKeys
+    typealias U = Message
 
     // MARK: - Properties
 
-    public var updatableKeys: [SerializationKeys] { [.readReceipts] }
+    var updatableKeys: [SerializationKeys] { [.readReceipts] }
 
     // MARK: - Modify Key
 
-    public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Message? {
+    func modifyKey(_ key: SerializationKeys, withValue value: Any) -> Message? {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         switch key {
@@ -53,7 +53,7 @@ extension Message: Updatable {
 
     // MARK: - Update Value
 
-    public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Message, Exception> {
+    func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Message, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {

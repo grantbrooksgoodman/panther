@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class UserService {
+final class UserService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -27,14 +27,14 @@ public final class UserService {
 
     // MARK: - Properties
 
-    public let legacy: LegacyUserService
-    public let testing: UserTestingService
+    let legacy: LegacyUserService
+    let testing: UserTestingService
 
     @Cached(CacheKey.userDataSnapshots) private var cachedUserDataSnapshots: [UserDataSnapshot]?
 
     // MARK: - Init
 
-    public init(
+    init(
         legacy: LegacyUserService,
         testing: UserTestingService
     ) {
@@ -44,7 +44,7 @@ public final class UserService {
 
     // MARK: - User Creation
 
-    public func createUser(
+    func createUser(
         id: String,
         languageCode: String,
         phoneNumber: PhoneNumber,
@@ -85,7 +85,7 @@ public final class UserService {
 
     // MARK: - Collision Detection
 
-    public func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
+    func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
         let getUserResult = await getUser(phoneNumber: phoneNumber)
 
         switch getUserResult {
@@ -96,7 +96,7 @@ public final class UserService {
 
     // MARK: - Get All Users
 
-    public func getAllUsers() async -> Callback<[User], Exception> {
+    func getAllUsers() async -> Callback<[User], Exception> {
         let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
         switch getValuesResult {
@@ -114,7 +114,7 @@ public final class UserService {
 
     // MARK: - Retrieval by ID
 
-    public func getUser(id: String) async -> Callback<User, Exception> {
+    func getUser(id: String) async -> Callback<User, Exception> {
         let commonParams = ["UserID": id]
 
         guard !id.isBangQualifiedEmpty else {
@@ -168,7 +168,7 @@ public final class UserService {
         }
     }
 
-    public func getUsers(ids: [String]) async -> Callback<[User], Exception> {
+    func getUsers(ids: [String]) async -> Callback<[User], Exception> {
         let commonParams = ["UserIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
@@ -205,7 +205,7 @@ public final class UserService {
 
     // MARK: - Retrieval by Phone Number
 
-    public func getUser(phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
+    func getUser(phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
         let commonParams = ["PhoneNumber": phoneNumber.encoded]
         let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
@@ -243,7 +243,7 @@ public final class UserService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedUserDataSnapshots = nil
     }
 }

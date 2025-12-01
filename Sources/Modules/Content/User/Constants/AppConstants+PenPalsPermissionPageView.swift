@@ -15,36 +15,36 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum PenPalsPermissionPageView {
-        public static let dismissButtonBottomPadding: CGFloat = 70
+        static let dismissButtonBottomPadding: CGFloat = 70
 
-        public static let enableButtonBottomPadding: CGFloat = 20
+        static let enableButtonBottomPadding: CGFloat = 20
 
-        public static let enableButtonLabelCornerRadius: CGFloat = 16
-        public static let enableButtonLabelFrameHeight: CGFloat = 50
-        public static let enableButtonLabelFrameMinWidth: CGFloat = 200
-        public static let enableButtonLabelHorizontalPadding: CGFloat = 40
+        static let enableButtonLabelCornerRadius: CGFloat = 16
+        static let enableButtonLabelFrameHeight: CGFloat = 50
+        static let enableButtonLabelFrameMinWidth: CGFloat = 200
+        static let enableButtonLabelHorizontalPadding: CGFloat = 40
 
-        public static let enableButtonLabelShadowColorOpacity: CGFloat = 0.2
-        public static let enableButtonLabelShadowRadius: CGFloat = 10
-        public static let enableButtonLabelShadowYOffset: CGFloat = 4
+        static let enableButtonLabelShadowColorOpacity: CGFloat = 0.2
+        static let enableButtonLabelShadowRadius: CGFloat = 10
+        static let enableButtonLabelShadowYOffset: CGFloat = 4
 
-        public static let subtitleLabelHorizontalPadding: CGFloat = 20
-        public static let subtitleLabelTopPadding: CGFloat = 25
+        static let subtitleLabelHorizontalPadding: CGFloat = 20
+        static let subtitleLabelTopPadding: CGFloat = 25
 
-        public static let titleLabelBottomPadding: CGFloat = 20
-        public static let titleLabelFontScale: CGFloat = 34
-        public static let titleLabelTopPadding: CGFloat = 60
+        static let titleLabelBottomPadding: CGFloat = 20
+        static let titleLabelFontScale: CGFloat = 34
+        static let titleLabelTopPadding: CGFloat = 60
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum PenPalsPermissionPageView {
-        public static let accent: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
-        public static let enableButtonLabelOverlayTextForeground: Color = .white
-        public static let enableButtonLabelShadow: Color = .black
+        static let accent: Color = .init(uiColor: .accentOrSystemBlue)
+        static let enableButtonLabelOverlayTextForeground: Color = .white
+        static let enableButtonLabelShadow: Color = .black
     }
 }

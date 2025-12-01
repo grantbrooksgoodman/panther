@@ -17,13 +17,13 @@ import AppSubsystem
 import MessageKit
 
 extension MediaFile: MediaItem {
-    public var image: UIImage? { image(.thumbnail) }
-    public var placeholderImage: UIImage { .missing }
-    public var size: CGSize { image?.size ?? .zero }
-    public var url: URL? { localPathURL }
+    var image: UIImage? { image(.thumbnail) }
+    var placeholderImage: UIImage { .missing }
+    var size: CGSize { image?.size ?? .zero }
+    var url: URL? { localPathURL }
 }
 
-public extension MediaFile {
+extension MediaFile {
     // MARK: - Types
 
     enum ImageQuality {

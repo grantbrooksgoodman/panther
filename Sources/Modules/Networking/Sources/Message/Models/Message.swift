@@ -14,20 +14,20 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct Message: Codable, EncodedHashable, Hashable {
+struct Message: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // Array
-    public let readReceipts: [ReadReceipt]?
-    public let translationReferences: [TranslationReference]?
-    public let translations: [Translation]?
+    let readReceipts: [ReadReceipt]?
+    let translationReferences: [TranslationReference]?
+    let translations: [Translation]?
 
     // String
-    public let fromAccountID: String
-    public let id: String
+    let fromAccountID: String
+    let id: String
 
     // Other
-    public static let empty: Message = .init(
+    static let empty: Message = .init(
         "",
         fromAccountID: "",
         contentType: .text,
@@ -38,34 +38,34 @@ public struct Message: Codable, EncodedHashable, Hashable {
         sentDate: .init(timeIntervalSince1970: 0)
     )
 
-    public let contentType: HostedContentType
-    public let richContent: RichMessageContent?
-    public let sentDate: Date
+    let contentType: HostedContentType
+    let richContent: RichMessageContent?
+    let sentDate: Date
 
     // MARK: - Computed Properties
 
     // Array
-    public var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
-    public var hashFactors: [String] { getHashFactors() }
+    var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
+    var hashFactors: [String] { getHashFactors() }
 
     // MediaFile
-    public var documentComponent: MediaFile? { richContent?.documentComponent }
-    public var imageComponent: MediaFile? { richContent?.imageComponent }
-    public var videoComponent: MediaFile? { richContent?.videoComponent }
+    var documentComponent: MediaFile? { richContent?.documentComponent }
+    var imageComponent: MediaFile? { richContent?.imageComponent }
+    var videoComponent: MediaFile? { richContent?.videoComponent }
 
     // Other
-    public var audioComponent: AudioMessageReference? { audioComponents?.first }
-    public var currentUserReadReceipt: ReadReceipt? { getCurrentUserReadReceipt() }
-    public var localAudioFilePath: LocalAudioFilePath? { .init(self) }
-    public var localMediaFilePath: LocalMediaFilePath? { .init(self) }
+    var audioComponent: AudioMessageReference? { audioComponents?.first }
+    var currentUserReadReceipt: ReadReceipt? { getCurrentUserReadReceipt() }
+    var localAudioFilePath: LocalAudioFilePath? { .init(self) }
+    var localMediaFilePath: LocalMediaFilePath? { .init(self) }
     /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
-    public var reactions: [Reaction]? { getReactions() }
+    var reactions: [Reaction]? { getReactions() }
     /// The translation for this message in the current user's language code.
-    public var translation: Translation? { translations?.first }
+    var translation: Translation? { translations?.first }
 
     // MARK: - Init
 
-    public init(
+    init(
         _ id: String,
         fromAccountID: String,
         contentType: HostedContentType,
@@ -87,7 +87,7 @@ public struct Message: Codable, EncodedHashable, Hashable {
 
     // MARK: - Hashable Conformance
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
     }
 

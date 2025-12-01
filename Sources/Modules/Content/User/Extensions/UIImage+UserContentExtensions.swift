@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension UIImage {
+extension UIImage {
     // MARK: - Type Aliases
 
     private typealias Strings = AppConstants.Strings.UserContentExtensions.UIImage

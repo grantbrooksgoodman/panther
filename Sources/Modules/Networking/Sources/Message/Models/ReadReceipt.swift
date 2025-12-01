@@ -12,15 +12,15 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct ReadReceipt: Codable, Equatable {
+struct ReadReceipt: Codable, Equatable {
     // MARK: - Properties
 
-    public let readDate: Date
-    public let userID: String
+    let readDate: Date
+    let userID: String
 
     // MARK: - Init
 
-    public init(userID: String, readDate: Date) {
+    init(userID: String, readDate: Date) {
         self.userID = userID
         self.readDate = readDate
     }

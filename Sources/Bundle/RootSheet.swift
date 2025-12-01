@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 
 @MainActor
-public extension RootSheet {
+extension RootSheet {
     /* Add values here to expose new views for presentation on the root sheet. */
 
     static let chatInfoPageView: RootSheet = .init(.init(

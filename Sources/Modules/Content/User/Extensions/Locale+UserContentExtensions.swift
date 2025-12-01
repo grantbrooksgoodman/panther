@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Locale {
+extension Locale {
     static var systemLanguageID: String {
         @Dependency(\.mainBundle) var mainBundle: Bundle
         @Dependency(\.currentLocale) var currentLocale: Locale

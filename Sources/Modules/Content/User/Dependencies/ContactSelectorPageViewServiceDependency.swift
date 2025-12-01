@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ContactSelectorPageViewServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ContactSelectorPageViewService {
+enum ContactSelectorPageViewServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ContactSelectorPageViewService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var contactSelectorPageViewService: ContactSelectorPageViewService {
         get { self[ContactSelectorPageViewServiceDependency.self] }
         set { self[ContactSelectorPageViewServiceDependency.self] = newValue }

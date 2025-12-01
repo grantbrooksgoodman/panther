@@ -13,16 +13,16 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct ConversationCellViewData: Equatable {
+struct ConversationCellViewData: Equatable {
     // MARK: - Properties
 
     // String
-    public let dateLabelText: String
-    public let subtitleLabelText: String
-    public let titleLabelText: String
+    let dateLabelText: String
+    let subtitleLabelText: String
+    let titleLabelText: String
 
     // Other
-    public static let empty: ConversationCellViewData = .init(
+    static let empty: ConversationCellViewData = .init(
         titleLabelText: "",
         subtitleLabelText: "",
         dateLabelText: "",
@@ -31,13 +31,13 @@ public struct ConversationCellViewData: Equatable {
         thumbnailImage: nil
     )
 
-    public let isShowingUnreadIndicator: Bool
-    public let otherUser: User?
-    public let thumbnailImage: UIImage?
+    let isShowingUnreadIndicator: Bool
+    let otherUser: User?
+    let thumbnailImage: UIImage?
 
     // MARK: - Init
 
-    public init(
+    init(
         titleLabelText: String,
         subtitleLabelText: String,
         dateLabelText: String,
@@ -53,7 +53,7 @@ public struct ConversationCellViewData: Equatable {
         self.thumbnailImage = thumbnailImage
     }
 
-    public init(user: User) {
+    init(user: User) {
         titleLabelText = ConversationCellViewData.empty.titleLabelText
         subtitleLabelText = ConversationCellViewData.empty.subtitleLabelText
         dateLabelText = ConversationCellViewData.empty.dateLabelText
@@ -63,7 +63,7 @@ public struct ConversationCellViewData: Equatable {
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    public init?(
+    init?(
         _ conversation: Conversation,
         searchQuery: String? = nil
     ) {
@@ -204,8 +204,8 @@ public struct ConversationCellViewData: Equatable {
     }
 }
 
-public enum ConversationCellViewDataCache {
-    public static func clearCache() {
+enum ConversationCellViewDataCache {
+    static func clearCache() {
         _ConversationCellViewDataCache.clearCache()
     }
 }

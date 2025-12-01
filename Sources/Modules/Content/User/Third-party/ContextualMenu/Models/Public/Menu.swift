@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-public struct Menu {
+struct Menu {
     // MARK: - Properties
 
     let children: [MenuElement]
@@ -23,7 +23,7 @@ public struct Menu {
 
     // MARK: - Init
 
-    public init(children: [MenuElement]) {
+    init(children: [MenuElement]) {
         self.children = children
     }
 }

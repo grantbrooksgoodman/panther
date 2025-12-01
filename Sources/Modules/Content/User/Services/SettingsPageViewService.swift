@@ -17,7 +17,7 @@ import SwiftUI
 import AlertKit
 import AppSubsystem
 
-public final class SettingsPageViewService {
+final class SettingsPageViewService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -45,20 +45,20 @@ public final class SettingsPageViewService {
 
     // MARK: - Properties
 
-    @LockIsolated public var isMainPagePresented = true
+    @LockIsolated var isMainPagePresented = true
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
 
     // MARK: - Reducer Action Handlers
 
-    public func blockedUsersButtonTapped() {
+    func blockedUsersButtonTapped() {
         Task {
             guard let exception = await moderationSession.unblockUsers() else { return }
             Logger.log(exception, with: .toast)
         }
     }
 
-    public func changeThemeButtonTapped() {
+    func changeThemeButtonTapped() {
         Task {
             var actions = [AKAction]()
 
@@ -92,7 +92,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func clearCachesButtonTapped() {
+    func clearCachesButtonTapped() {
         @Sendable
         func clearCaches() async {
             services.analytics.logEvent(.clearCaches)
@@ -127,7 +127,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func deleteAccountButtonTapped() {
+    func deleteAccountButtonTapped() {
         Task {
             @Sendable
             func clearCachesAndExit() async {
@@ -174,7 +174,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func inviteFriendsButtonTapped() {
+    func inviteFriendsButtonTapped() {
         Task {
             let shareToOtherAppAction: AKAction = .init("Share to Another App") {
                 Task { @MainActor in
@@ -196,14 +196,14 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func leaveReviewButtonTapped() {
+    func leaveReviewButtonTapped() {
         guard let url = URL(string: Strings.reviewOnAppStoreURLString) else { return }
         Task { @MainActor in
             await uiApplication.open(url)
         }
     }
 
-    public func messageRecipientConsentSwitchToggled(on: Bool) {
+    func messageRecipientConsentSwitchToggled(on: Bool) {
         Task {
             if let exception = await services.messageRecipientConsent.setMessageRecipientConsentRequired(on) {
                 Logger.log(exception, with: .toast)
@@ -211,7 +211,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func penPalsParticipantSwitchToggled(on: Bool) {
+    func penPalsParticipantSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {
                 let confirmAction: AKAction = .init(
@@ -244,7 +244,7 @@ public final class SettingsPageViewService {
     }
 
     /// `.longPressGestureRecognized`
-    public func promptToEnterPrereleaseMode() {
+    func promptToEnterPrereleaseMode() {
         Task {
             @Persistent(.buildMilestoneString) var buildMilestoneString: String?
             guard build.milestone == .generalRelease else {
@@ -293,7 +293,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func sendFeedbackButtonTapped() {
+    func sendFeedbackButtonTapped() {
         Task {
             await AKActionSheet(
                 title: "File a Report",
@@ -310,7 +310,7 @@ public final class SettingsPageViewService {
         }
     }
 
-    public func signOutButtonTapped() {
+    func signOutButtonTapped() {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task {
@@ -346,15 +346,17 @@ public final class SettingsPageViewService {
                 }
             }
 
+            let sourceItemString = RuntimeStorage.languageCode == "en" ? "Sign Out" : "Log Out"
             await AKActionSheet(
                 actions: [signOutAction],
-                cancelButtonTitle: Localized(.cancel).wrappedValue
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                sourceItem: .custom(.string(sourceItemString.localized))
             ).present(translating: [.actions([])])
         }
     }
 
     /// `.longPressGestureRecognized`
-    public func setClipboardWithHapticFeedback(_ string: String) {
+    func setClipboardWithHapticFeedback(_ string: String) {
         uiPasteboard.string = string
         services.haptics.generateFeedback(.heavy)
     }
@@ -362,7 +364,7 @@ public final class SettingsPageViewService {
     // MARK: - Developer Mode List Items
 
     /// `.viewAppeared`
-    public func developerModeListItems() -> [ListRowView.Configuration]? {
+    func developerModeListItems() -> [ListRowView.Configuration]? {
         func overrideLanguageCodeButtonTapped() {
             guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
                 guard let currentUser = userSession.currentUser else { return }
@@ -435,7 +437,7 @@ public final class SettingsPageViewService {
     // MARK: - Fetch CNContact for Current User
 
     /// `.viewAppeared`
-    public func fetchCNContactForCurrentUser() async -> Callback<CNContact, Exception> {
+    func fetchCNContactForCurrentUser() async -> Callback<CNContact, Exception> {
         if let cachedCNContactForCurrentUser {
             return .success(cachedCNContactForCurrentUser)
         }
@@ -461,7 +463,7 @@ public final class SettingsPageViewService {
 
     // MARK: - Clear Cache
 
-    public func clearCache() {
+    func clearCache() {
         cachedCNContactForCurrentUser = nil
     }
 

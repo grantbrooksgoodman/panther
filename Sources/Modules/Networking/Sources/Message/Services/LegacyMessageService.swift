@@ -12,4 +12,4 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct LegacyMessageService {}
+struct LegacyMessageService {}

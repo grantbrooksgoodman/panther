@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct StatusIndicatorButton: View {
+struct StatusIndicatorButton: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.StatusIndicatorButton
@@ -41,7 +41,7 @@ public struct StatusIndicatorButton: View {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ text: String,
         isCompleted: Bool?,
         action: @escaping () -> Void
@@ -53,7 +53,7 @@ public struct StatusIndicatorButton: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         Button {
             action()
         } label: {

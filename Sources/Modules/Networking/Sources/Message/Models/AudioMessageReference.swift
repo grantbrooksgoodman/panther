@@ -12,22 +12,22 @@ import Foundation
 /* Proprietary */
 import Translator
 
-public struct AudioMessageReference: Codable, Equatable {
+struct AudioMessageReference: Codable, Equatable {
     // MARK: - Properties
 
     // AudioFile
-    public let original: AudioFile
-    public let translated: AudioFile
+    let original: AudioFile
+    let translated: AudioFile
 
     // String
-    public let translatedDirectoryPath: String
+    let translatedDirectoryPath: String
 
     // Translation
-    public let translation: Translation
+    let translation: Translation
 
     // MARK: - Init
 
-    public init(
+    init(
         translation: Translation,
         original: AudioFile,
         translated: AudioFile,

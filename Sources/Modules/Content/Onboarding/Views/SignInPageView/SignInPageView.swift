@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SignInPageView: View {
+struct SignInPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SignInPageView
@@ -50,13 +50,13 @@ public struct SignInPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<SignInPageReducer>) {
+    init(_ viewModel: ViewModel<SignInPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(viewModel.binding(for: \.viewState)) {
             VStack {
                 Image(.hello)

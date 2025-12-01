@@ -10,6 +10,6 @@
 import Foundation
 import SwiftUI
 
-public extension Image {
+extension Image {
     static var missing: Image { .init(uiImage: .missing) }
 }

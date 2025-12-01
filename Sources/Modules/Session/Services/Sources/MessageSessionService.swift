@@ -15,7 +15,7 @@ import Networking
 import Translator
 
 // swiftlint:disable:next type_body_length
-public struct MessageSessionService {
+struct MessageSessionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.MessageSessionService
@@ -31,7 +31,7 @@ public struct MessageSessionService {
 
     // MARK: - Send Audio Message
 
-    public func sendAudioMessage(
+    func sendAudioMessage(
         _ inputFile: AudioFile,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
@@ -145,7 +145,7 @@ public struct MessageSessionService {
 
     // MARK: - Send Media Message
 
-    public func sendMediaMessage(
+    func sendMediaMessage(
         _ mediaFile: MediaFile,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
@@ -168,7 +168,7 @@ public struct MessageSessionService {
 
     // MARK: - Send Text Message
 
-    public func sendTextMessage(
+    func sendTextMessage(
         _ text: String,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)

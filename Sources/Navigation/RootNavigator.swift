@@ -12,32 +12,32 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct RootNavigatorState: NavigatorState {
+struct RootNavigatorState: NavigatorState {
     // MARK: - Types
 
-    public enum ModalPaths: Paths {
+    enum ModalPaths: Paths {
         case onboarding
         case splash
         case userContent
     }
 
-    public enum SeguePaths: Paths {}
+    enum SeguePaths: Paths {}
 
-    public enum SheetPaths: Paths {}
+    enum SheetPaths: Paths {}
 
     // MARK: - Properties
 
-    public var chat: ChatNavigatorState = .init()
-    public var onboarding: OnboardingNavigatorState = .init()
-    public var settings: SettingsNavigatorState = .init()
-    public var userContent: UserContentNavigatorState = .init()
+    var chat: ChatNavigatorState = .init()
+    var onboarding: OnboardingNavigatorState = .init()
+    var settings: SettingsNavigatorState = .init()
+    var userContent: UserContentNavigatorState = .init()
 
-    public var modal: ModalPaths?
-    public var sheet: SheetPaths?
-    public var stack: [SeguePaths] = []
+    var modal: ModalPaths?
+    var sheet: SheetPaths?
+    var stack: [SeguePaths] = []
 }
 
-public enum RootNavigator {
+enum RootNavigator {
     static func navigate(to route: RootNavigationService.Route.RootRoute, on state: inout RootNavigatorState) {
         switch route {
         case let .modal(modal):
@@ -46,7 +46,7 @@ public enum RootNavigator {
     }
 }
 
-public extension RootNavigationService.Route {
+extension RootNavigationService.Route {
     enum RootRoute {
         case modal(RootNavigatorState.ModalPaths)
     }

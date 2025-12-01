@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
-public extension String {
+extension String {
     static var bangQualifiedEmpty: String { "!" }
     var isBangQualifiedEmpty: Bool { isBlank || self == .bangQualifiedEmpty }
 

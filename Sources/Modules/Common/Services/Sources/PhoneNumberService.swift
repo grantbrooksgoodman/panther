@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
-public final class PhoneNumberService {
+final class PhoneNumberService {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -38,7 +38,7 @@ public final class PhoneNumberService {
 
     // MARK: - Computed Properties
 
-    public var deviceCallingCode: String {
+    var deviceCallingCode: String {
         guard let regionCode = currentLocale.region?.identifier,
               let callingCode = callingCodes[regionCode] else { return "1" }
         return callingCode
@@ -49,7 +49,7 @@ public final class PhoneNumberService {
 
     // MARK: - Calling Code Determination
 
-    public func possibleCallingCodes(for number: String) -> [String]? {
+    func possibleCallingCodes(for number: String) -> [String]? {
         if let cachedPossibleHashesForNumbers,
            let cachedValue = cachedPossibleHashesForNumbers[number] {
             return cachedValue
@@ -65,7 +65,7 @@ public final class PhoneNumberService {
         return countryCodes
     }
 
-    public func possibleCallingCodes(for numbers: [String]) -> [String]? {
+    func possibleCallingCodes(for numbers: [String]) -> [String]? {
         var callingCodes = [String]()
 
         for number in numbers {
@@ -101,7 +101,7 @@ public final class PhoneNumberService {
 
     // MARK: - Example National Number String
 
-    public func exampleNationalNumberString(for regionCode: String) -> String {
+    func exampleNationalNumberString(for regionCode: String) -> String {
         let usNumberString = "(555) 555-5555"
         guard regionCode != "US" else { return usNumberString }
 
@@ -116,7 +116,7 @@ public final class PhoneNumberService {
 
     // MARK: - Hash Generation
 
-    public func possibleHashes(for number: String) -> [String]? {
+    func possibleHashes(for number: String) -> [String]? {
         if let cachedPossibleCallingCodesForNumbers,
            let cachedValue = cachedPossibleCallingCodesForNumbers[number] {
             return cachedValue
@@ -137,7 +137,7 @@ public final class PhoneNumberService {
         return hashes
     }
 
-    public func possibleHashes(for numbers: [String]) -> [String]? {
+    func possibleHashes(for numbers: [String]) -> [String]? {
         var hashes = [String]()
 
         for number in numbers {
@@ -150,7 +150,7 @@ public final class PhoneNumberService {
 
     // MARK: - Length Validation
 
-    public func numberIsValidLength(_ length: Int, for callingCode: String) -> Bool {
+    func numberIsValidLength(_ length: Int, for callingCode: String) -> Bool {
         guard let callingCodesForNumberLength = lookupTables[String(length)],
               callingCodesForNumberLength.contains(callingCode) else { return false }
         return true

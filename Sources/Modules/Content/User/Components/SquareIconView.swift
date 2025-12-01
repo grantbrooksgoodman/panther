@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SquareIconView: View {
+struct SquareIconView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SquareIconView
@@ -26,14 +26,14 @@ public struct SquareIconView: View {
 
     // MARK: - Init
 
-    public init(_ configuration: Configuration) {
+    init(_ configuration: Configuration) {
         self.configuration = configuration
     }
 
     // MARK: - View
 
     @ViewBuilder
-    public var body: some View {
+    var body: some View {
         Rectangle()
             .frame(
                 width: configuration.size.width,
@@ -113,7 +113,7 @@ public struct SquareIconView: View {
 
     // MARK: - UIImage Representation
 
-    public static func image(_ configuration: Configuration) -> UIImage? {
+    static func image(_ configuration: Configuration) -> UIImage? {
         // swiftlint:disable:next identifier_name
         if let cachedSquareIconImagesForConfigurationEncodedHashes = _SquareIconImageCache.cachedSquareIconImagesForConfigurationEncodedHashes,
            let image = cachedSquareIconImagesForConfigurationEncodedHashes[configuration.encodedHash] {
@@ -128,8 +128,8 @@ public struct SquareIconView: View {
     }
 }
 
-public enum SquareIconImageCache {
-    public static func clearCache() {
+enum SquareIconImageCache {
+    static func clearCache() {
         _SquareIconImageCache.clearCache()
     }
 }

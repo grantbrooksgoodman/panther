@@ -17,7 +17,7 @@ import Networking
 /* 3rd-party */
 import MessageKit
 
-public final class ReactionsViewController: UIViewController {
+final class ReactionsViewController: UIViewController {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ReactionsViewController
@@ -44,7 +44,7 @@ public final class ReactionsViewController: UIViewController {
 
     // MARK: - View Did Load
 
-    override public func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
         setUpReactions()
@@ -53,13 +53,13 @@ public final class ReactionsViewController: UIViewController {
 
     // MARK: - Reaction Selection
 
-    public func deselectAllReactions() {
+    func deselectAllReactions() {
         stackView.subviews.forEach {
             $0.backgroundColor = Colors.reactionButtonBackground
         }
     }
 
-    public func markSelected(_ reactionStyle: Reaction.Style) {
+    func markSelected(_ reactionStyle: Reaction.Style) {
         stackView
             .subviews
             .compactMap { $0 as? UIButton }

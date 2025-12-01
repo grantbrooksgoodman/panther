@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public extension SettingsPageView {
+extension SettingsPageView {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SettingsPageView
@@ -197,6 +197,7 @@ public extension SettingsPageView {
         .init(
             .button { viewModel.send(.signOutButtonTapped) },
             innerText: viewModel.strings.value(for: .signOutButtonText),
+            isInspectable: UIApplication.v26FeaturesEnabled,
             imageView: {
                 SquareIconView.image(
                     .init(

@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct ConversationsPageReducer: Reducer {
+struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
@@ -27,7 +27,7 @@ public struct ConversationsPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -52,38 +52,38 @@ public struct ConversationsPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Array
-        public var conversations = [Conversation]()
-        public var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
+        var conversations = [Conversation]()
+        var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
 
         // Bool
-        public var isRefreshing = false
-        public var isSearching = false
+        var isRefreshing = false
+        var isSearching = false
 
         // Other
-        public var animationAmount: CGFloat = 1
-        public var conversationCellViewID = UUID()
-        public var searchQuery = ""
-        public var viewState: StatefulView.ViewState = .loading
+        var animationAmount: CGFloat = 1
+        var conversationCellViewID = UUID()
+        var searchQuery = ""
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
-        public var shouldShowExtraToolbarButtons: Bool {
+        var shouldShowExtraToolbarButtons: Bool {
             @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
             return Networking.config.environment == .staging && isDeveloperModeEnabled
         }
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

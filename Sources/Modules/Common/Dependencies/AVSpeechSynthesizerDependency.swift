@@ -13,13 +13,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum AVSpeechSynthesizerDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> AVSpeechSynthesizer {
+enum AVSpeechSynthesizerDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> AVSpeechSynthesizer {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var avSpeechSynthesizer: AVSpeechSynthesizer {
         get { self[AVSpeechSynthesizerDependency.self] }
         set { self[AVSpeechSynthesizerDependency.self] = newValue }

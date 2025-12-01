@@ -15,24 +15,24 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum SelectLanguagePageView {
-        public static let backButtonLabelFontSize: CGFloat = 15
-        public static let backButtonTopPadding: CGFloat = 2
+        static let backButtonLabelFontSize: CGFloat = 15
+        static let backButtonTopPadding: CGFloat = 2
 
-        public static let continueButtonTopPadding: CGFloat = 5
+        static let continueButtonTopPadding: CGFloat = 5
 
-        public static let innerVStackBottomPadding: CGFloat = 50
-        public static let instructionLabelVerticalPadding: CGFloat = 5
+        static let innerVStackBottomPadding: CGFloat = 50
+        static let instructionLabelVerticalPadding: CGFloat = 5
 
-        public static let pickerHorizontalPadding: CGFloat = 30
+        static let pickerHorizontalPadding: CGFloat = 30
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum SelectLanguagePageView {
-        public static let instructionLabelForeground: Color = .gray
+        static let instructionLabelForeground: Color = .gray
     }
 }

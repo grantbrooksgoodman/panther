@@ -15,7 +15,7 @@ import AppSubsystem
 import Networking
 
 // swiftlint:disable:next type_body_length
-public struct ModerationSessionService {
+struct ModerationSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
@@ -25,15 +25,15 @@ public struct ModerationSessionService {
 
     // MARK: - Content Moderation
 
-    public func blockUsers(inConversation conversation: Conversation) async -> Exception? {
+    func blockUsers(inConversation conversation: Conversation) async -> Exception? {
         await moderate(.block, dataSource: (conversation, nil))
     }
 
-    public func reportUsers(inConversation conversation: Conversation) async -> Exception? {
+    func reportUsers(inConversation conversation: Conversation) async -> Exception? {
         await moderate(.report, dataSource: (conversation, nil))
     }
 
-    public func unblockUsers() async -> Exception? {
+    func unblockUsers() async -> Exception? {
         let getBlockedUsersResult = await getBlockedUsers()
 
         switch getBlockedUsersResult {

@@ -12,34 +12,34 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct NewChatPageObserver: Observer {
+struct NewChatPageObserver: Observer {
     // MARK: - Type Aliases
 
-    public typealias R = NewChatPageReducer
+    typealias R = NewChatPageReducer
 
     // MARK: - Properties
 
-    public let id = UUID()
-    public let observedValues: [any ObservableProtocol] = [
+    let id = UUID()
+    let observedValues: [any ObservableProtocol] = [
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
         Observables.newChatPagePenPalsToolbarButtonAnimation,
     ]
-    public let viewModel: ViewModel<NewChatPageReducer>
+    let viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<NewChatPageReducer>) {
+    init(_ viewModel: ViewModel<NewChatPageReducer>) {
         self.viewModel = viewModel
     }
 
     // MARK: - Observer Conformance
 
-    public func linkObservables() {
+    func linkObservables() {
         Observers.link(NewChatPageObserver.self, with: observedValues)
     }
 
-    public func onChange(of observable: Observable<Any>) {
+    func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
             domain: .observer,
@@ -61,7 +61,7 @@ public struct NewChatPageObserver: Observer {
         }
     }
 
-    public func send(_ action: NewChatPageReducer.Action) {
+    func send(_ action: NewChatPageReducer.Action) {
         Task { @MainActor in
             viewModel.send(action)
         }

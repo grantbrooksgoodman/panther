@@ -13,24 +13,24 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class AudioFile: Codable, Equatable {
+final class AudioFile: Codable, Equatable {
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.AudioFile
 
     // MARK: - Properties
 
-    public let fileExtension: AudioFileExtension
-    public let name: String
-    public let url: URL
+    let fileExtension: AudioFileExtension
+    let name: String
+    let url: URL
 
-    public private(set) var contentDuration: Float? {
+    private(set) var contentDuration: Float? {
         didSet { didSetDuration() }
     }
 
     // MARK: - Init
 
-    public init(
+    init(
         _ url: URL,
         name: String,
         fileExtension: AudioFileExtension,
@@ -42,7 +42,7 @@ public final class AudioFile: Codable, Equatable {
         self.contentDuration = contentDuration
     }
 
-    public convenience init?(_ url: URL) {
+    convenience init?(_ url: URL) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
         guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)),
@@ -69,7 +69,7 @@ public final class AudioFile: Codable, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (left: AudioFile, right: AudioFile) -> Bool {
+    static func == (left: AudioFile, right: AudioFile) -> Bool {
         let sameContentDuration = left.contentDuration == right.contentDuration
         let sameFileExtension = left.fileExtension == right.fileExtension
         let sameName = left.name == right.name

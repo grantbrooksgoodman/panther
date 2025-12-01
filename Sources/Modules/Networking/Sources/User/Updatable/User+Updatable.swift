@@ -16,12 +16,12 @@ import Networking
 extension User: Updatable {
     // MARK: - Type Aliases
 
-    public typealias SerializationKey = User.SerializationKeys
-    public typealias U = User
+    typealias SerializationKey = User.SerializationKeys
+    typealias U = User
 
     // MARK: - Properties
 
-    public var updatableKeys: [SerializationKeys] {
+    var updatableKeys: [SerializationKeys] {
         [
             .blockedUserIDs,
             .conversationIDs,
@@ -34,7 +34,7 @@ extension User: Updatable {
 
     // MARK: - Modify Key
 
-    public func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
+    func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
         switch key {
         case .badgeNumber,
              .id,
@@ -131,7 +131,7 @@ extension User: Updatable {
 
     // MARK: - Upate Value
 
-    public func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<User, Exception> {
+    func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<User, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {

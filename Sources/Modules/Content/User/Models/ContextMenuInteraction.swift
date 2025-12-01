@@ -12,14 +12,14 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ContextMenuInteraction {
+enum ContextMenuInteraction {
     // MARK: - Properties
 
-    public private(set) static var canBegin = true
+    private(set) static var canBegin = true
 
     // MARK: - Methods
 
-    public static func setCanBegin(_ canBegin: Bool) {
+    static func setCanBegin(_ canBegin: Bool) {
         @Dependency(\.chatPageViewService.contextMenu?.interaction) var contextMenuInteractionService: ContextMenuInteractionService?
         self.canBegin = canBegin
 

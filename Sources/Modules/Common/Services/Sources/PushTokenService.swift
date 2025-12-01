@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public final class PushTokenService {
+final class PushTokenService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
@@ -21,17 +21,17 @@ public final class PushTokenService {
 
     // MARK: - Properties
 
-    public private(set) var currentToken: String?
+    private(set) var currentToken: String?
 
     // MARK: - Set Push Token
 
-    public func setCurrentToken(_ currentToken: String?) {
+    func setCurrentToken(_ currentToken: String?) {
         self.currentToken = currentToken
     }
 
     // MARK: - Update Push Tokens for Current User
 
-    public func updatePushTokensForCurrentUser() async -> Exception? {
+    func updatePushTokensForCurrentUser() async -> Exception? {
         guard let currentUser = userSession.currentUser,
               let currentToken else {
             return .init("Either current user or push token has not been set.", metadata: .init(sender: self))
@@ -60,7 +60,7 @@ public final class PushTokenService {
 
     // MARK: - Prune Push Tokens for Current User
 
-    public func prunePushTokensForCurrentUser() async -> Exception? {
+    func prunePushTokensForCurrentUser() async -> Exception? {
         guard let currentUser = userSession.currentUser,
               let currentUserPushTokens = currentUser.pushTokens else { return nil }
 

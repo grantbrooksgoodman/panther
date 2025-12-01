@@ -13,21 +13,21 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct LocalAudioFilePath: Codable, Equatable {
+struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Properties
 
     // String
-    public let inputFilePathString: String
-    public let outputDirectoryPathString: String
-    public let outputFilePathString: String
+    let inputFilePathString: String
+    let outputDirectoryPathString: String
+    let outputFilePathString: String
 
     // URL
-    public let inputFilePathURL: URL
-    public let outputFilePathURL: URL
+    let inputFilePathURL: URL
+    let outputFilePathURL: URL
 
     // MARK: - Init
 
-    public init(
+    init(
         inputFilePathString: String,
         inputFilePathURL: URL,
         outputDirectoryPathString: String,
@@ -41,7 +41,7 @@ public struct LocalAudioFilePath: Codable, Equatable {
         self.outputFilePathURL = outputFilePathURL
     }
 
-    public init?(_ message: Message) {
+    init?(_ message: Message) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
         guard message.contentType.isAudio,

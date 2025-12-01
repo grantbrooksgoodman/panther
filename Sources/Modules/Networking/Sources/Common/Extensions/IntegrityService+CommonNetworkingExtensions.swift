@@ -16,7 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public extension IntegrityService {
+extension IntegrityService {
     func repairDatabase(
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil,

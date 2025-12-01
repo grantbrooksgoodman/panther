@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension User {
+extension User {
     var contactPair: ContactPair? {
         @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
         return contactPairArchive.getValue(phoneNumber: phoneNumber)

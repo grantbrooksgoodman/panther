@@ -15,62 +15,62 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum ChatInfoPageView {
-        public static let addContactButtonCircleFrameMaxHeight: CGFloat = 40
-        public static let addContactButtonCircleFrameMaxWidth: CGFloat = 40
-        public static let addContactButtonCircleTrailingPadding: CGFloat = 2
+        static let addContactButtonCircleFrameMaxHeight: CGFloat = 40
+        static let addContactButtonCircleFrameMaxWidth: CGFloat = 40
+        static let addContactButtonCircleTrailingPadding: CGFloat = 2
 
-        public static let addContactButtonImageHeight: CGFloat = 15
-        public static let addContactButtonImageWidth: CGFloat = 15
+        static let addContactButtonImageHeight: CGFloat = 15
+        static let addContactButtonImageWidth: CGFloat = 15
 
-        public static let avatarImageViewHorizontalPadding: CGFloat = 10
-        public static let avatarImageViewSizeHeight: CGFloat = 100
-        public static let avatarImageViewSizeWidth: CGFloat = 100
-        public static let avatarImageViewTopPadding: CGFloat = 20
+        static let avatarImageViewHorizontalPadding: CGFloat = 10
+        static let avatarImageViewSizeHeight: CGFloat = 100
+        static let avatarImageViewSizeWidth: CGFloat = 100
+        static let avatarImageViewTopPadding: CGFloat = 20
 
-        public static let changeMetadataButtonHorizontalPadding: CGFloat = 10
-        public static let changeMetadataButtonLabelFontSize: CGFloat = 15
+        static let changeMetadataButtonHorizontalPadding: CGFloat = 10
+        static let changeMetadataButtonLabelFontSize: CGFloat = 15
 
-        public static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15
-        public static let chatTitleLabelHorizontalPadding: CGFloat = 10
-
-        // swiftlint:disable:next identifier_name
-        public static let leaveConversationListRowViewHorizontalPadding: CGFloat = 20
-        public static let listTransitionAnimationDuration: CGFloat = 0.2
-        public static let listViewYOffset: CGFloat = -8
-        public static let listViewAlternateYOffset: CGFloat = -30
-
-        public static let participantViewDeleteActionComparator: CGFloat = 2
-        public static let penPalsListRowViewHorizontalPadding: CGFloat = 30
-        public static let penPalsListRowViewTopPadding: CGFloat = 5
+        static let chatInfoCellSubtitleLabelFontSize: CGFloat = 15
+        static let chatTitleLabelHorizontalPadding: CGFloat = 10
 
         // swiftlint:disable:next identifier_name
-        public static let segmentedControlHorizontalOrLeadingPadding: CGFloat = 20
-        public static let segmentedControlTopPadding: CGFloat = 20
+        static let leaveConversationListRowViewHorizontalPadding: CGFloat = 20
+        static let listTransitionAnimationDuration: CGFloat = 0.2
+        static let listViewYOffset: CGFloat = -8
+        static let listViewAlternateYOffset: CGFloat = -30
+
+        static let participantViewDeleteActionComparator: CGFloat = 2
+        static let penPalsListRowViewHorizontalPadding: CGFloat = 30
+        static let penPalsListRowViewTopPadding: CGFloat = 5
+
+        // swiftlint:disable:next identifier_name
+        static let segmentedControlHorizontalOrLeadingPadding: CGFloat = 20
+        static let segmentedControlTopPadding: CGFloat = 20
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum ChatInfoPageView {
-        public static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
-        public static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
+        static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
+        static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
-        public static let addContactButtonLabelForeground: Color = .init(uiColor: .systemBlue)
-        public static let addContactButtonSymbolForeground: Color = .init(uiColor: .systemBlue)
+        static let addContactButtonLabelForeground: Color = .init(uiColor: .accentOrSystemBlue)
+        static let addContactButtonSymbolForeground: Color = .init(uiColor: .accentOrSystemBlue)
 
-        public static let changeMetadataButtonForeground: Color = .init(uiColor: .systemBlue)
-        public static let leaveConversationListRowViewForeground: Color = .red
+        static let changeMetadataButtonForeground: Color = .init(uiColor: .accentOrSystemBlue)
+        static let leaveConversationListRowViewForeground: Color = .red
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum ChatInfoPageView {
-        public static let addContactButtonImageSystemName = "plus"
-        public static let doneButtonImageSystemName = "checkmark"
+        static let addContactButtonImageSystemName = "plus"
+        static let doneButtonImageSystemName = "checkmark"
     }
 }

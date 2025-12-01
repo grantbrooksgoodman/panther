@@ -15,22 +15,22 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum V26HeaderViewModifier {
-        public static let imageMaxWidthDivisor: CGFloat = 3
-        public static let navigationBarHeightIncrement: CGFloat = 20
-        public static let toolbarButtonHeight: CGFloat = 30
-        public static let toolbarButtonWidth: CGFloat = 30
-        public static let toolbarButtonLabelHorizontalPadding: CGFloat = 8
-        public static let toolbarButtonLabelMinimumScaleFactor: CGFloat = 0.5
+        static let imageMaxWidthDivisor: CGFloat = 3
+        static let navigationBarHeightIncrement: CGFloat = 20
+        static let toolbarButtonHeight: CGFloat = 30
+        static let toolbarButtonWidth: CGFloat = 30
+        static let toolbarButtonLabelHorizontalPadding: CGFloat = 8
+        static let toolbarButtonLabelMinimumScaleFactor: CGFloat = 0.5
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum V26HeaderViewModifier {
-        public static let cancelToolbarButtonImageSystemName = "xmark"
-        public static let doneToolbarButtonImageSystemName = "checkmark"
+        static let cancelToolbarButtonImageSystemName = "xmark"
+        static let doneToolbarButtonImageSystemName = "checkmark"
     }
 }

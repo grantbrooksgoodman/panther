@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension TranslatedLabelStringCollection {
+extension TranslatedLabelStringCollection {
     enum WelcomePageViewStringKey: String, Equatable, CaseIterable, TranslatedLabelStringKey {
         // MARK: - Cases
 
@@ -21,7 +21,7 @@ public extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        public var alternate: String? {
+        var alternate: String? {
             switch self {
             case .continueButtonText: "Create an Account"
             default: nil
@@ -30,8 +30,8 @@ public extension TranslatedLabelStringCollection {
     }
 }
 
-public enum WelcomePageViewStrings: TranslatedLabelStrings {
-    public static var keyPairs: [TranslationInputMap] {
+enum WelcomePageViewStrings: TranslatedLabelStrings {
+    static var keyPairs: [TranslationInputMap] {
         TranslatedLabelStringCollection.WelcomePageViewStringKey.allCases
             .map {
                 TranslationInputMap(

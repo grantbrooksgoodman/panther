@@ -14,11 +14,11 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public extension SquareIconView {
+extension SquareIconView {
     struct Configuration: EncodedHashable {
         // MARK: - Types
 
-        public enum OverlayConfiguration {
+        enum OverlayConfiguration {
             case resource(
                 _ resource: ImageResource,
                 foregroundColor: Color = AppConstants.Colors.SquareIconView.overlaySymbolForeground,
@@ -43,16 +43,16 @@ public extension SquareIconView {
         // MARK: - Properties
 
         // Color
-        public let backgroundColor: Color
+        let backgroundColor: Color
 
         // Other
-        public let includesShadow: Bool
-        public let overlay: OverlayConfiguration
-        public let size: CGSize
+        let includesShadow: Bool
+        let overlay: OverlayConfiguration
+        let size: CGSize
 
         // MARK: - Computed Properties
 
-        public var hashFactors: [String] {
+        var hashFactors: [String] {
             [
                 backgroundColor.description,
                 includesShadow.description,
@@ -69,7 +69,7 @@ public extension SquareIconView {
 
         // MARK: - Init
 
-        public init(
+        init(
             size: CGSize = .init(
                 width: AppConstants.CGFloats.SquareIconView.defaultFrameWidth,
                 height: AppConstants.CGFloats.SquareIconView.defaultFrameHeight

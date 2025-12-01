@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct NewChatPageReducer: Reducer {
+struct NewChatPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -23,7 +23,7 @@ public struct NewChatPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared // swiftlint:disable:next identifier_name
         case animatePenPalsToolbarButtonBackgroundColor
 
@@ -36,26 +36,26 @@ public struct NewChatPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Bool
-        public var isDoneToolbarButtonEnabled = true
-        public var shouldShowPenPalsToolbarButton = false
-        public var shouldUseBoldDoneToolbarButton = false
+        var isDoneToolbarButtonEnabled = true
+        var shouldShowPenPalsToolbarButton = false
+        var shouldUseBoldDoneToolbarButton = false
 
         // String
-        public var doneToolbarButtonText = ""
-        public var navigationTitle = ""
+        var doneToolbarButtonText = ""
+        var navigationTitle = ""
 
         // Other
-        public var conversation: Conversation = .empty
-        public var penPalsToolbarButtonBackgroundColor: Color = .purple
-        public var v26NavigationBarProxyViewID = UUID()
+        var conversation: Conversation = .empty
+        var penPalsToolbarButtonBackgroundColor: Color = .purple
+        var v26NavigationBarProxyViewID = UUID()
 
         /* MARK: Computed Properties */
 
-        public var navigationBarOpacity: CGFloat {
+        var navigationBarOpacity: CGFloat {
             @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
             return (viewControllers
                 .compactMap { $0 as? ChatPageViewController }
@@ -67,12 +67,12 @@ public struct NewChatPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             services.analytics.logEvent(.accessNewChatPage)

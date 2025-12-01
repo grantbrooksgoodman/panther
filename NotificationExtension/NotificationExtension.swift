@@ -9,18 +9,18 @@
 /* Native */
 import UserNotifications
 
-public final class NotificationExtension: UNNotificationServiceExtension {
+final class NotificationExtension: UNNotificationServiceExtension {
     // MARK: - Properties
 
-    public var contentHandler: ((UNNotificationContent) -> Void)?
-    public var bestAttemptContent: UNMutableNotificationContent?
+    var contentHandler: ((UNNotificationContent) -> Void)?
+    var bestAttemptContent: UNMutableNotificationContent?
 
     private let appGroupDefaults = UserDefaults(suiteName: NotificationExtensionConstants.appGroupDefaultsSuiteName)
     private let jsonDecoder = JSONDecoder()
 
     // MARK: - Methods
 
-    override public func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
@@ -66,7 +66,7 @@ public final class NotificationExtension: UNNotificationServiceExtension {
         }
     }
 
-    override public func serviceExtensionTimeWillExpire() {
+    override func serviceExtensionTimeWillExpire() {
         // Called just before the extension will be terminated by the system.
         // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
         guard let contentHandler,

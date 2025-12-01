@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-public final class MessageRecipientConsentService {
+final class MessageRecipientConsentService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -27,7 +27,7 @@ public final class MessageRecipientConsentService {
     // MARK: - Send Consent Message in Current Conversation
 
     @MainActor
-    public func sendConsentMessageInCurrentConversation() async -> Exception? {
+    func sendConsentMessageInCurrentConversation() async -> Exception? {
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
             return .init(
@@ -85,7 +85,7 @@ public final class MessageRecipientConsentService {
 
     // MARK: - Set Message Recipient Consent Required
 
-    public func setMessageRecipientConsentRequired(_ messageRecipientConsentRequired: Bool) async -> Exception? {
+    func setMessageRecipientConsentRequired(_ messageRecipientConsentRequired: Bool) async -> Exception? {
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Current user has not been set.",

@@ -12,8 +12,8 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum ClientSessionDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> ClientSession {
+enum ClientSessionDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> ClientSession {
         .init(
             activity: .init(),
             conversation: .init(),
@@ -25,7 +25,7 @@ public enum ClientSessionDependency: DependencyKey {
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var clientSession: ClientSession {
         get { self[ClientSessionDependency.self] }
         set { self[ClientSessionDependency.self] = newValue }

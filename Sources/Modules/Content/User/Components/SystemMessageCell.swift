@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class SystemMessageCell: UICollectionViewCell {
+final class SystemMessageCell: UICollectionViewCell {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.SystemMessageCell
@@ -29,19 +29,19 @@ public final class SystemMessageCell: UICollectionViewCell {
 
     // MARK: - Init
 
-    override public init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(label)
     }
 
-    public required init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         contentView.addSubview(label)
     }
 
     // MARK: - Methods
 
-    override public func layoutSubviews() {
+    override func layoutSubviews() {
         super.layoutSubviews()
 
         defer { setLabelProperties() }

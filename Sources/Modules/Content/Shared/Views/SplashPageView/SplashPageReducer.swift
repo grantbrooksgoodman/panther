@@ -13,7 +13,7 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-public struct SplashPageReducer: Reducer {
+struct SplashPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.navigation) private var navigation: Navigation
@@ -22,7 +22,7 @@ public struct SplashPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
         case bundleInitializationProgressOccurred
         case errorAlertDismissed
@@ -33,24 +33,24 @@ public struct SplashPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        public var didAttemptAutomaticErrorRecovery = false
-        public var exception: Exception?
+        var didAttemptAutomaticErrorRecovery = false
+        var exception: Exception?
 
         /* MARK: Computed Properties */
 
-        public var shouldShowProgressBar: Bool { User.currentUserID != nil }
+        var shouldShowProgressBar: Bool { User.currentUserID != nil }
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.didAttemptAutomaticErrorRecovery = false

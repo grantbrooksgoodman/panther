@@ -13,7 +13,7 @@ import UIKit
 extension MenuElementView {
     // MARK: - Types
 
-    public struct Style {
+    struct Style {
         /* MARK: Properties */
 
         // Dictionary
@@ -32,7 +32,7 @@ extension MenuElementView {
 
         /* MARK: Init */
 
-        public init(
+        init(
             height: CGFloat = 44,
             backgroundColor: UIColor = .clear,
             highlightedBackgroundColor: UIColor = .black.withAlphaComponent(0.2),

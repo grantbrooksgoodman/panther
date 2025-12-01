@@ -12,8 +12,8 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum CommonServicesDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> CommonServices {
+enum CommonServicesDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> CommonServices {
         .init(
             accountDeletion: .init(),
             analytics: .init(),
@@ -60,7 +60,7 @@ public enum CommonServicesDependency: DependencyKey {
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var commonServices: CommonServices {
         get { self[CommonServicesDependency.self] }
         set { self[CommonServicesDependency.self] = newValue }

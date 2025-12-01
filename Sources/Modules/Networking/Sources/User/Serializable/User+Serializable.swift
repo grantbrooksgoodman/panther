@@ -16,12 +16,12 @@ import Networking
 extension User: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = User
+    typealias T = User
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
 
-    public enum SerializationKeys: String {
+    enum SerializationKeys: String {
         case id
         case badgeNumber
         case blockedUserIDs
@@ -36,7 +36,7 @@ extension User: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         let conversationIDs = (conversationIDs ?? .init()).map { $0.encoded }
         return [
             Keys.id.rawValue: id,
@@ -53,7 +53,7 @@ extension User: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] is String,
               data[Keys.blockedUserIDs.rawValue] is [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
@@ -69,7 +69,7 @@ extension User: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
         guard let id = data[Keys.id.rawValue] as? String,
               let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],

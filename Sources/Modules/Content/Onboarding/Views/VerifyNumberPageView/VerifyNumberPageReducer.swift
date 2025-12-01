@@ -14,7 +14,7 @@ import UIKit
 import AppSubsystem
 import Networking
 
-public struct VerifyNumberPageReducer: Reducer {
+struct VerifyNumberPageReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
@@ -26,7 +26,7 @@ public struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case backButtonTapped
@@ -45,31 +45,31 @@ public struct VerifyNumberPageReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
         // Bool
-        public var isBackButtonEnabled = true
-        public var isContinueButtonEnabled = false
+        var isBackButtonEnabled = true
+        var isContinueButtonEnabled = false
 
         // String
-        public var phoneNumberString = ""
-        public var selectedRegionCode = ""
+        var phoneNumberString = ""
+        var selectedRegionCode = ""
 
         // Other
-        public var instructionViewStrings: InstructionViewStrings = .empty
-        public var regionMenuViewID = UUID()
-        public var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
-        public var viewState: StatefulView.ViewState = .loading
+        var instructionViewStrings: InstructionViewStrings = .empty
+        var regionMenuViewID = UUID()
+        var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
+        var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
-        public var numberIsValidLength: Bool {
+        var numberIsValidLength: Bool {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
             return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
         }
 
-        public var phoneNumber: PhoneNumber {
+        var phoneNumber: PhoneNumber {
             @Dependency(\.commonServices) var services: CommonServices
             return .init(
                 callingCode: services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? services.phoneNumber.deviceCallingCode,
@@ -82,13 +82,13 @@ public struct VerifyNumberPageReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
     // swiftlint:disable:next function_body_length
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.viewState = .loading

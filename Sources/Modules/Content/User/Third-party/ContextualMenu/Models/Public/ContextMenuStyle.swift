@@ -10,23 +10,23 @@
 import Foundation
 import UIKit
 
-public struct ContextMenuStyle {
+struct ContextMenuStyle {
     // MARK: - Types
 
-    public struct Preview {
+    struct Preview {
         /* MARK: Properties */
 
         // CGFloat
-        public var bottomMargin: CGFloat
-        public var topMargin: CGFloat
+        var bottomMargin: CGFloat
+        var topMargin: CGFloat
 
         // Other
-        public var shadow: ShadowParameters
-        public var transform: CGAffineTransform
+        var shadow: ShadowParameters
+        var transform: CGAffineTransform
 
         /* MARK: Init */
 
-        public init(
+        init(
             transform: CGAffineTransform = .init(scaleX: 1.2, y: 1.2),
             topMargin: CGFloat = 8,
             bottomMargin: CGFloat = 8,
@@ -42,22 +42,22 @@ public struct ContextMenuStyle {
     // MARK: - Properties
 
     // AnimationParameters
-    public let appearAnimationParameters: AnimationParameters
-    public let disappearAnimationParameters: AnimationParameters
+    let appearAnimationParameters: AnimationParameters
+    let disappearAnimationParameters: AnimationParameters
 
     // Other
-    public static let `default` = ContextMenuStyle()
+    static let `default` = ContextMenuStyle()
 
-    public let blurAlpha: CGFloat
-    public let backgroundBlurStyle: UIBlurEffect.Style
-    public let backgroundColor: UIColor
-    public let menu: MenuView.Style
-    public let preview: Preview
-    public let windowLevel: UIWindow.Level
+    let blurAlpha: CGFloat
+    let backgroundBlurStyle: UIBlurEffect.Style
+    let backgroundColor: UIColor
+    let menu: MenuView.Style
+    let preview: Preview
+    let windowLevel: UIWindow.Level
 
     // MARK: - Init
 
-    public init(
+    init(
         windowLevel: UIWindow.Level = .statusBar - 1,
         backgroundColor: UIColor = .clear,
         backgroundBlurStyle: UIBlurEffect.Style = .systemUltraThinMaterialDark,

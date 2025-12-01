@@ -13,7 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class RecordingService: NSObject {
+final class RecordingService: NSObject {
     // MARK: - Type Aliases
 
     private typealias FileNames = AudioService.FileNames
@@ -27,13 +27,13 @@ public final class RecordingService: NSObject {
 
     // MARK: - Properties
 
-    public private(set) var willStartRecording = false
+    private(set) var willStartRecording = false
 
     private var audioRecorder: AVAudioRecorder?
 
     // MARK: - Computed Properties
 
-    public var isRecording: Bool { audioRecorder?.isRecording ?? false }
+    var isRecording: Bool { audioRecorder?.isRecording ?? false }
 
     // MARK: - Object Lifecycle
 
@@ -43,7 +43,7 @@ public final class RecordingService: NSObject {
 
     // MARK: - Recording
 
-    public func cancelRecording() -> Exception? {
+    func cancelRecording() -> Exception? {
         let stopRecordingResult = stopRecording()
 
         switch stopRecordingResult {
@@ -63,7 +63,7 @@ public final class RecordingService: NSObject {
         }
     }
 
-    public func startRecording() -> Exception? {
+    func startRecording() -> Exception? {
         willStartRecording = true
 
         audioService.activateAudioSession()
@@ -90,7 +90,7 @@ public final class RecordingService: NSObject {
         return nil
     }
 
-    public func stopRecording() -> Callback<URL, Exception> {
+    func stopRecording() -> Callback<URL, Exception> {
         willStartRecording = false
         stopObservingInterruptions()
 
@@ -146,7 +146,7 @@ public final class RecordingService: NSObject {
 /* MARK: AVAudioRecorderDelegate Conformance */
 
 extension RecordingService: AVAudioRecorderDelegate {
-    public func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         guard flag else {
             switch stopRecording() {
             case let .failure(exception):
@@ -159,7 +159,7 @@ extension RecordingService: AVAudioRecorderDelegate {
         }
     }
 
-    public func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
+    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
         switch stopRecording() {
         case .success:
             Logger.log(.init(error, metadata: .init(sender: self)))

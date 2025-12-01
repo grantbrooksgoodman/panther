@@ -13,20 +13,20 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct LocalMediaFilePath: Codable, Equatable {
+struct LocalMediaFilePath: Codable, Equatable {
     // MARK: - Properties
 
-    public let relativePathString: String
-    public let relativeThumbnailPathString: String?
+    let relativePathString: String
+    let relativeThumbnailPathString: String?
 
     // MARK: - Computed Properties
 
-    public var localPathURL: URL {
+    var localPathURL: URL {
         @Dependency(\.fileManager) var fileManager: FileManager
         return fileManager.documentsDirectoryURL.appending(path: relativePathString)
     }
 
-    public var localThumbnailPathURL: URL? {
+    var localThumbnailPathURL: URL? {
         @Dependency(\.fileManager) var fileManager: FileManager
         guard let relativeThumbnailPathString else { return nil }
         return fileManager.documentsDirectoryURL.appending(path: relativeThumbnailPathString)
@@ -34,7 +34,7 @@ public struct LocalMediaFilePath: Codable, Equatable {
 
     // MARK: - Init
 
-    public init(
+    init(
         relativePathString: String,
         relativeThumbnailPathString: String? = nil,
     ) {
@@ -42,7 +42,7 @@ public struct LocalMediaFilePath: Codable, Equatable {
         self.relativeThumbnailPathString = relativeThumbnailPathString
     }
 
-    public init?(_ message: Message) {
+    init?(_ message: Message) {
         switch message.contentType {
         case let .media(id: fileID, extension: fileExtension):
             let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"

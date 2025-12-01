@@ -10,10 +10,10 @@
 import Foundation
 import UIKit
 
-public struct HapticsService {
+struct HapticsService {
     // MARK: - Types
 
-    public enum HapticFeedbackStyle {
+    enum HapticFeedbackStyle {
         case heavy
         case light
         case medium
@@ -36,7 +36,7 @@ public struct HapticsService {
 
     // MARK: - Init
 
-    public init(
+    init(
         heavyImpactFeedbackGenerator: UIImpactFeedbackGenerator,
         lightImpactFeedbackGenerator: UIImpactFeedbackGenerator,
         mediumImpactFeedbackGenerator: UIImpactFeedbackGenerator,
@@ -54,7 +54,7 @@ public struct HapticsService {
 
     // MARK: - Methods
 
-    public func generateFeedback(_ style: HapticFeedbackStyle) {
+    func generateFeedback(_ style: HapticFeedbackStyle) {
         Task { @MainActor in
             switch style {
             case .heavy:

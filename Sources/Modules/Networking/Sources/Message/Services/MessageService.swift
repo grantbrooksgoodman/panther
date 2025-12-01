@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public struct MessageService {
+struct MessageService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
@@ -23,13 +23,13 @@ public struct MessageService {
 
     // MARK: - Properties
 
-    public let audio: AudioMessageService
-    public let legacy: LegacyMessageService
-    public let media: MediaMessageService
+    let audio: AudioMessageService
+    let legacy: LegacyMessageService
+    let media: MediaMessageService
 
     // MARK: - Init
 
-    public init(
+    init(
         audio: AudioMessageService,
         legacy: LegacyMessageService,
         media: MediaMessageService
@@ -41,7 +41,7 @@ public struct MessageService {
 
     // MARK: - Message Creation
 
-    public func createMessage(
+    func createMessage(
         fromAccountID: String,
         richContent: RichMessageContent?,
         translations: [Translation]?
@@ -153,7 +153,7 @@ public struct MessageService {
 
     // MARK: - Retrieval by ID
 
-    public func getMessage(id: String) async -> Callback<Message, Exception> {
+    func getMessage(id: String) async -> Callback<Message, Exception> {
         let commonParams = ["MessageID": id]
 
         guard !id.isBangQualifiedEmpty else {
@@ -189,7 +189,7 @@ public struct MessageService {
         }
     }
 
-    public func getMessages(ids: [String]) async -> Callback<[Message], Exception> {
+    func getMessages(ids: [String]) async -> Callback<[Message], Exception> {
         let commonParams = ["MessageIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
@@ -225,7 +225,7 @@ public struct MessageService {
     // MARK: - Deletion
 
     // TODO: Rewrite with Message as the argument for greater efficiency.
-    public func deleteMessage(
+    func deleteMessage(
         id messageID: String,
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true
@@ -299,7 +299,7 @@ public struct MessageService {
     }
 
     // TODO: Rewrite with Message as the argument for greater efficiency.
-    public func deleteMessages(
+    func deleteMessages(
         ids messageIDs: [String],
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true,

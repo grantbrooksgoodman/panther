@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct InviteLanguagePickerReducer: Reducer {
+struct InviteLanguagePickerReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
@@ -20,7 +20,7 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     // MARK: - Actions
 
-    public enum Action {
+    enum Action {
         case viewAppeared
 
         case cancelHeaderItemTapped
@@ -32,25 +32,25 @@ public struct InviteLanguagePickerReducer: Reducer {
 
     // MARK: - State
 
-    public struct State: Equatable {
+    struct State: Equatable {
         /* MARK: Properties */
 
-        @Localized(.cancel) public var cancelHeaderItemText: String
-        @Localized(.done) public var doneHeaderItemText: String
-        public var isDoneHeaderItemEnabled = false
-        @Localized(.selectLanguage) public var navigationTitle: String
-        @Localized(.noResults) public var noResultsLabelText: String
-        public var searchQuery = ""
-        public var selectedLanguageCode = ""
+        @Localized(.cancel) var cancelHeaderItemText: String
+        @Localized(.done) var doneHeaderItemText: String
+        var isDoneHeaderItemEnabled = false
+        @Localized(.selectLanguage) var navigationTitle: String
+        @Localized(.noResults) var noResultsLabelText: String
+        var searchQuery = ""
+        var selectedLanguageCode = ""
 
         /* MARK: Computed Properties */
 
-        public var localizedLanguageNames: [String: String] {
+        var localizedLanguageNames: [String: String] {
             @Dependency(\.coreKit.utils.localizedLanguageCodeDictionary) var localizedLanguageCodeDictionary: [String: String]?
             return localizedLanguageCodeDictionary ?? RuntimeStorage.languageCodeDictionary ?? .init()
         }
 
-        public var queriedLanguageNames: [String: String] {
+        var queriedLanguageNames: [String: String] {
             localizedLanguageNames.filter {
                 $0.value.lowercasedTrimmingWhitespaceAndNewlines.contains(searchQuery.lowercasedTrimmingWhitespaceAndNewlines)
             }
@@ -58,12 +58,12 @@ public struct InviteLanguagePickerReducer: Reducer {
 
         /* MARK: Init */
 
-        public init() {}
+        init() {}
     }
 
     // MARK: - Reduce
 
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
             state.isDoneHeaderItemEnabled = false

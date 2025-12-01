@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Persistent {
+extension Persistent {
     convenience init(_ userSessionServiceKey: UserDefaultsKey.UserSessionServiceDefaultsKey) {
         self.init(.userSessionService(userSessionServiceKey))
     }

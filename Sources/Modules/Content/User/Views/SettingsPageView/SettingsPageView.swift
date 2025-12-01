@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct SettingsPageView: View {
+struct SettingsPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.SettingsPageView
@@ -42,14 +42,14 @@ public struct SettingsPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<SettingsPageReducer>) {
+    init(_ viewModel: ViewModel<SettingsPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
         _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground

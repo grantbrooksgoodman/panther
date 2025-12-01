@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public final class SplashPageViewService: ObservableObject {
+final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -38,7 +38,7 @@ public final class SplashPageViewService: ObservableObject {
 
     // Other
     @Published
-    public var initializationProgress: CGFloat = 0 {
+    var initializationProgress: CGFloat = 0 {
         didSet {
             guard initializationProgress == 1 else { return }
             core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
@@ -46,20 +46,20 @@ public final class SplashPageViewService: ObservableObject {
     }
 
     @Published
-    public private(set) var loadingLabelText = ""
+    private(set) var loadingLabelText = ""
 
     private var initializationStartDate = Date(timeIntervalSince1970: 0)
 
     // MARK: - Computed Properties
 
-    public var shouldShowLoadingLabel: Bool { didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration }
+    var shouldShowLoadingLabel: Bool { didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration }
 
     // MARK: - Methods
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
     @MainActor
-    public func initializeBundle() async -> Exception? {
+    func initializeBundle() async -> Exception? {
         /* MARK: Service Setup */
 
         didSurpassQuickLoadTimeoutDuration = false
@@ -234,7 +234,7 @@ public final class SplashPageViewService: ObservableObject {
     }
 
     /// `.errorAlertDismissed`
-    public func performRetryHandler() async -> Exception? {
+    func performRetryHandler() async -> Exception? {
         func attemptDatabaseRepair() async -> Exception? {
             didAttemptDatabaseRepair = true
             loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
@@ -266,7 +266,7 @@ public final class SplashPageViewService: ObservableObject {
     }
 
     /// `.initializedBundle`
-    public func presentErrorAlert(_ exception: Exception) async {
+    func presentErrorAlert(_ exception: Exception) async {
         let mockGenericException: Exception = .init(metadata: .init(sender: self))
         let mockTimedOutException: Exception = .timedOut(metadata: .init(sender: self))
 

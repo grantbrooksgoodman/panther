@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Persistent {
+extension Persistent {
     convenience init(_ conversationArchiveServiceKey: UserDefaultsKey.ConversationArchiveServiceDefaultsKey) {
         self.init(.conversationArchiveService(conversationArchiveServiceKey))
     }

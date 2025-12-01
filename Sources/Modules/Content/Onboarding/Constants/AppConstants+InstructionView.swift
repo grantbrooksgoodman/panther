@@ -15,26 +15,26 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum InstructionView {
-        public static let frameMaxHeight: CGFloat = 220
-        public static let leadingPadding: CGFloat = 20
-        public static let screenWidthDivisor: CGFloat = 2
+        static let frameMaxHeight: CGFloat = 220
+        static let leadingPadding: CGFloat = 20
+        static let screenWidthDivisor: CGFloat = 2
 
-        public static let subtitleLabelFontSize: CGFloat = 14
-        public static let subtitleLabelMinimumScaleFactor: CGFloat = 0.01
+        static let subtitleLabelFontSize: CGFloat = 14
+        static let subtitleLabelMinimumScaleFactor: CGFloat = 0.01
 
-        public static let titleLabelBottomPadding: CGFloat = 2
-        public static let titleLabelMinimumScaleFactor: CGFloat = 0.01
+        static let titleLabelBottomPadding: CGFloat = 2
+        static let titleLabelMinimumScaleFactor: CGFloat = 0.01
 
-        public static let topPadding: CGFloat = 15
+        static let topPadding: CGFloat = 15
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum InstructionView {
-        public static let subtitleLabelForeground: Color = .gray
+        static let subtitleLabelForeground: Color = .gray
     }
 }

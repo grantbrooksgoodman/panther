@@ -15,7 +15,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-public extension InputBarSendButton {
+extension InputBarSendButton {
     var isRecordButton: Bool {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public enum HostedContentType: Codable, Equatable {
+enum HostedContentType: Codable, Equatable {
     // MARK: - Cases
 
     case audio(AudioFileExtension)
@@ -18,34 +18,34 @@ public enum HostedContentType: Codable, Equatable {
 
     // MARK: - Properties
 
-    public var isAudio: Bool {
+    var isAudio: Bool {
         switch self {
         case .audio: return true
         default: return false
         }
     }
 
-    public var isMedia: Bool {
+    var isMedia: Bool {
         switch self {
         case .media: return true
         default: return false
         }
     }
 
-    public var mediaFileID: String? {
+    var mediaFileID: String? {
         switch self {
         case let .media(id: id, extension: _): return id
         default: return nil
         }
     }
 
-    public var mediaFilePath: String? {
+    var mediaFilePath: String? {
         guard let mediaFileExtension,
               let mediaFileID else { return nil }
         return "\(mediaFileID).\(mediaFileExtension.rawValue)"
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case let .audio(fileExtension): return fileExtension.contentTypeString
         case let .media(_, fileExtension): return fileExtension.contentTypeString
@@ -62,7 +62,7 @@ public enum HostedContentType: Codable, Equatable {
 
     // MARK: - Init
 
-    public init?(hostedValue: String) {
+    init?(hostedValue: String) {
         if hostedValue == HostedContentType.text.rawValue {
             self = .text
             return

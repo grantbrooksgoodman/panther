@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import ComponentKit
 
-public extension ComponentKit {
+extension ComponentKit {
     func v26DoneButton(
         foregroundColor: Color = .navigationBarButton,
         action: @escaping () -> Void

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-public protocol DeliveryProgressIndicator {
+protocol DeliveryProgressIndicator {
     func incrementDeliveryProgress(by: Float)
     func startAnimatingDeliveryProgress()
 }

@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-public extension HostedTranslationDelegate {
+extension HostedTranslationDelegate {
     @discardableResult
     func addRecentlyUploadedLocalizedTranslationsToLocalArchive() async -> Exception? {
         @Dependency(\.translationArchiverDelegate) var localTranslationArchiver: TranslationArchiverDelegate

@@ -16,7 +16,7 @@ import Networking
 extension PhoneNumber: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = PhoneNumber
+    typealias T = PhoneNumber
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
@@ -29,7 +29,7 @@ extension PhoneNumber: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         [
             Keys.callingCode.rawValue: callingCode,
             Keys.nationalNumberString.rawValue: nationalNumberString,
@@ -39,7 +39,7 @@ extension PhoneNumber: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         guard (data[Keys.callingCode.rawValue] as? String)?.digits.isBlank == false,
               (data[Keys.nationalNumberString.rawValue] as? String)?.digits.isBlank == false,
               data[Keys.regionCode.rawValue] is String else { return false }
@@ -47,7 +47,7 @@ extension PhoneNumber: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<PhoneNumber, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<PhoneNumber, Exception> {
         guard let callingCode = data[Keys.callingCode.rawValue] as? String,
               let nationalNumberString = data[Keys.nationalNumberString.rawValue] as? String,
               let regionCode = data[Keys.regionCode.rawValue] as? String else {

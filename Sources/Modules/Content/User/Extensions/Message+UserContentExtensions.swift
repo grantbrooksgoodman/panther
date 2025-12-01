@@ -21,14 +21,14 @@ import MessageKit
 extension Message: MessageType {
     // MARK: - Types
 
-    public struct Sender: SenderType {
-        public let displayName: String
-        public let senderId: String
+    struct Sender: SenderType {
+        let displayName: String
+        let senderId: String
     }
 
     // MARK: - Properties
 
-    public var kind: MessageKind {
+    var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
 
         guard !isSystemMessage else { return .custom(nil) }
@@ -89,13 +89,13 @@ extension Message: MessageType {
         )
     }
 
-    public var messageId: String { id }
-    public var sender: SenderType { Sender(displayName: "", senderId: fromAccountID) }
+    var messageId: String { id }
+    var sender: SenderType { Sender(displayName: "", senderId: fromAccountID) }
 }
 
 // swiftformat:enable acronyms
 
-public extension Message {
+extension Message {
     // MARK: - Properties
 
     var attributedSystemString: NSAttributedString? {

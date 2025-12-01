@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public final class ReadReceiptService {
+final class ReadReceiptService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
@@ -24,13 +24,13 @@ public final class ReadReceiptService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Update Read Date for Unread Messages
 
-    public func updateReadDateForUnreadMessages() async -> Exception? {
+    func updateReadDateForUnreadMessages() async -> Exception? {
         guard let conversation = clientSession.conversation.fullConversation,
               let messages = conversation.messages?.filteringSystemMessages.filter({ !$0.isFromCurrentUser }),
               messages.last?.currentUserReadReceipt == nil else { return nil }

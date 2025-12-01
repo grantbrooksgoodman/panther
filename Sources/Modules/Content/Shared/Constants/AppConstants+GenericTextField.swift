@@ -12,9 +12,9 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum GenericTextField {
-        public static let defaultDividerXOffset: CGFloat = 0
-        public static let defaultDividerYOffset: CGFloat = 18
+        static let defaultDividerXOffset: CGFloat = 0
+        static let defaultDividerYOffset: CGFloat = 18
     }
 }

@@ -13,7 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension ContactService {
+extension ContactService {
     func firstCNContact(
         for phoneNumber: PhoneNumber,
         returnForEmptyCachedCNContacts: Bool = false

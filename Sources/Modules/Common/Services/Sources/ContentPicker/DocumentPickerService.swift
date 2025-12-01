@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
+final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
@@ -26,7 +26,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Present
 
-    public func present() {
+    func present() {
         let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [
             .jpeg,
             .mpeg4Movie,
@@ -39,13 +39,13 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
+    func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - UIDocumentPickerDelegate Conformance
 
-    public func documentPicker(
+    func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
     ) {
@@ -56,7 +56,7 @@ public final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
         processURL(firstURL)
     }
 
-    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         controller.dismiss(animated: true)
         dismiss(nil)
     }

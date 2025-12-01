@@ -21,7 +21,7 @@ private struct NavigationBarItemGlassTintViewModifier: ViewModifier {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ color: Color,
         for placement: Set<NavigationBar.ItemPlacement>
     ) {
@@ -31,7 +31,7 @@ private struct NavigationBarItemGlassTintViewModifier: ViewModifier {
 
     // MARK: - Body
 
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .onNavigationTransition(.didAppear) { _ in
                 let color = UIColor(color)
@@ -45,7 +45,7 @@ private struct NavigationBarItemGlassTintViewModifier: ViewModifier {
     }
 }
 
-public extension View {
+extension View {
     func navigationBarItemGlassTint(
         _ color: Color,
         for placement: NavigationBar.ItemPlacement

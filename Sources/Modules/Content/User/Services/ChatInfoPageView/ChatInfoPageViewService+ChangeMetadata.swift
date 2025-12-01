@@ -13,7 +13,7 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-public extension ChatInfoPageViewService {
+extension ChatInfoPageViewService {
     // MARK: - Present Change Metadata Action Sheet
 
     /// `.changeMetadataButtonTapped`

@@ -14,7 +14,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-public struct LegacyUserService {
+struct LegacyUserService {
     // MARK: - Dependencies
 
     @Dependency(\.networking) private var networking: NetworkServices
@@ -25,7 +25,7 @@ public struct LegacyUserService {
     /// - Parameter id: The identifier of the user to be converted.
     /// - Returns: An optional `Exception` describing the error encountered.
     /// - Warning: This method will clear all open conversations for the legacy user associated with the provided ID.
-    public func convertUser(id: String) async -> Exception? {
+    func convertUser(id: String) async -> Exception? {
         let commonParams = ["UserID": id]
 
         let userPath = "\(NetworkPath.users.rawValue)/\(id)"

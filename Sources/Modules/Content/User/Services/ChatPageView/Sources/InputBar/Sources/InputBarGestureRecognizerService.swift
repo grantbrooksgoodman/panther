@@ -17,7 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-public final class InputBarGestureRecognizerService {
+final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBarGestureRecognizer
@@ -40,13 +40,13 @@ public final class InputBarGestureRecognizerService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
-    // MARK: - Public
+    // MARK: - Internal
 
-    public func configureGestureRecognizers() {
+    func configureGestureRecognizers() {
         removeInputBarGestureRecognizers()
 
         guard let currentUser,
@@ -79,7 +79,7 @@ public final class InputBarGestureRecognizerService {
         ))
     }
 
-    public func removeInputBarGestureRecognizers() {
+    func removeInputBarGestureRecognizers() {
         inputBar.sendButton.gestureRecognizers?.removeAll()
     }
 

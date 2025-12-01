@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct UserInfoBadgeView: View {
+struct UserInfoBadgeView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.UserInfoBadgeView
@@ -28,7 +28,7 @@ public struct UserInfoBadgeView: View {
 
     // MARK: - Init
 
-    public init(_ user: User, action: (() -> Void)? = nil) {
+    init(_ user: User, action: (() -> Void)? = nil) {
         self.user = user
         self.action = action
 
@@ -43,7 +43,7 @@ public struct UserInfoBadgeView: View {
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         Rectangle()
             .overlay(contentView, alignment: .center)
             .frame(maxWidth: Floats.bodyMaxWidth, maxHeight: Floats.bodyMaxHeight)

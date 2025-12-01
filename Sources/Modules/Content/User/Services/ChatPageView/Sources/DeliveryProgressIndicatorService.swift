@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
+final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
@@ -40,7 +40,7 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Object Lifecycle
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
@@ -52,9 +52,9 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         deliveryProgressTimer = nil
     }
 
-    // MARK: - Public
+    // MARK: - Internal
 
-    public func incrementDeliveryProgress(by: Float) {
+    func incrementDeliveryProgress(by: Float) {
         mainQueue.async {
             guard let progressView = self.progressView else { return }
             UIView.animate(withDuration: Floats.animationDuration) {
@@ -63,14 +63,14 @@ public final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         }
     }
 
-    public func startAnimatingDeliveryProgress() {
+    func startAnimatingDeliveryProgress() {
         mainQueue.async {
             self.instantiateDeliveryProgressTimer(Floats.hiddenTimerTimeInterval)
             self.instantiateAppearanceTimer()
         }
     }
 
-    public func stopAnimatingDeliveryProgress() {
+    func stopAnimatingDeliveryProgress() {
         deliveryProgressTimer?.invalidate()
         deliveryProgressTimer = nil
 

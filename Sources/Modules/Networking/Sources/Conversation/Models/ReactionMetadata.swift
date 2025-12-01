@@ -12,22 +12,22 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
+struct ReactionMetadata: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
-    public static let empty: ReactionMetadata = .init(
+    static let empty: ReactionMetadata = .init(
         messageID: .bangQualifiedEmpty,
         reactions: [
             .init(Reaction.Style.orderedCases.first ?? .love, userID: .bangQualifiedEmpty),
         ]
     )
 
-    public let messageID: String
-    public let reactions: [Reaction]
+    let messageID: String
+    let reactions: [Reaction]
 
     // MARK: - Computed Properties
 
-    public var hashFactors: [String] {
+    var hashFactors: [String] {
         var factors = [messageID]
         factors.append(contentsOf: reactions.map(\.userID))
         factors.append(contentsOf: reactions.map(\.style.encodedValue))
@@ -36,7 +36,7 @@ public struct ReactionMetadata: Codable, EncodedHashable, Hashable {
 
     // MARK: - Init
 
-    public init(
+    init(
         messageID: String,
         reactions: [Reaction]
     ) {

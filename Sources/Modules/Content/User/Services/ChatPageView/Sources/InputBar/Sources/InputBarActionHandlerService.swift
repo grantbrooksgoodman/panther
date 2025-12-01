@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-public final class InputBarActionHandlerService {
+final class InputBarActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
@@ -41,20 +41,20 @@ public final class InputBarActionHandlerService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
     // MARK: - Did Press Attach Media Button
 
-    public func didPressAttachMediaButton() {
+    func didPressAttachMediaButton() {
         chatPageViewService.mediaActionHandler?.attachMediaButtonTapped()
     }
 
     // MARK: - Did Press Consent Button
 
     @objc
-    public func didPressConsentButton() {
+    func didPressConsentButton() {
         Task {
             if let exception = await services.messageRecipientConsent.sendConsentMessageInCurrentConversation() {
                 Logger.log(exception, with: .toast)
@@ -64,7 +64,7 @@ public final class InputBarActionHandlerService {
 
     // MARK: - Did Press Record Button
 
-    public func didPressRecordButton(with command: RecordButtonCommand) async -> Exception? {
+    func didPressRecordButton(with command: RecordButtonCommand) async -> Exception? {
         switch command {
         case .cancelRecording:
             guard !isStoppingRecording,
@@ -123,7 +123,7 @@ public final class InputBarActionHandlerService {
     // MARK: - Did Press Send Button
 
     @MainActor
-    public func didPressSendButton(with text: String) async -> Exception? {
+    func didPressSendButton(with text: String) async -> Exception? {
         /// - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
         var isConversationEmpty: Bool {
             if let currentConversation = viewController.currentConversation,

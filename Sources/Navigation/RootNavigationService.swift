@@ -12,16 +12,16 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public typealias Navigation = NavigationCoordinator<RootNavigationService>
+typealias Navigation = NavigationCoordinator<RootNavigationService>
 
-public struct RootNavigationService: Navigating {
+struct RootNavigationService: Navigating {
     // MARK: - Type Aliases
 
-    public typealias State = RootNavigatorState
+    typealias State = RootNavigatorState
 
     // MARK: - Types
 
-    public enum Route {
+    enum Route {
         case chat(ChatRoute)
         case onboarding(OnboardingRoute)
         case root(RootRoute)
@@ -31,7 +31,7 @@ public struct RootNavigationService: Navigating {
 
     // MARK: - Navigate to Route
 
-    public func navigate(to route: Route, on state: inout RootNavigatorState) {
+    func navigate(to route: Route, on state: inout RootNavigatorState) {
         switch route {
         case let .chat(chatRoute):
             ChatNavigator.navigate(to: chatRoute, on: &state.chat)

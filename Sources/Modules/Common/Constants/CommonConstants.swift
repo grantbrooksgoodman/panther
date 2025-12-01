@@ -9,8 +9,8 @@
 /* Native */
 import Foundation
 
-public enum CommonConstants {
-    public static let newConversationID = "EMPTY"
-    public static let newMessageID = "NEW"
-    public static let systemMessageID = "SYSTEM"
+enum CommonConstants {
+    static let newConversationID = "EMPTY"
+    static let newMessageID = "NEW"
+    static let systemMessageID = "SYSTEM"
 }

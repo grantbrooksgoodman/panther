@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct PhoneNumberTextField: View {
+struct PhoneNumberTextField: View {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices) private var services: CommonServices
@@ -37,14 +37,14 @@ public struct PhoneNumberTextField: View {
 
     // MARK: - Init
 
-    public init(_ text: Binding<String>, regionCode: Binding<String>) {
+    init(_ text: Binding<String>, regionCode: Binding<String>) {
         _text = text
         _regionCode = regionCode
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         GenericTextField(
             $text,
             keyboardType: .phonePad,

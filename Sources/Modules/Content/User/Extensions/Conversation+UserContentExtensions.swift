@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension Conversation {
+extension Conversation {
     // MARK: - Properties
 
     var currentUserGrantedMessageReceiptConsent: Bool {

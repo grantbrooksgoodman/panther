@@ -12,13 +12,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public enum InputBarConfigServiceDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> InputBarConfigService {
+enum InputBarConfigServiceDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> InputBarConfigService {
         .init()
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var inputBarConfigService: InputBarConfigService {
         get { self[InputBarConfigServiceDependency.self] }
         set { self[InputBarConfigServiceDependency.self] = newValue }

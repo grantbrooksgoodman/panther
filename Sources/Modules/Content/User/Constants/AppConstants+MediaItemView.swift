@@ -15,27 +15,27 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum MediaItemView {
-        public static let imageCornerRadius: CGFloat = 8
-        public static let imageFrameHeight: CGFloat = 60
-        public static let imageFrameWidth: CGFloat = 60
+        static let imageCornerRadius: CGFloat = 8
+        static let imageFrameHeight: CGFloat = 60
+        static let imageFrameWidth: CGFloat = 60
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum MediaItemView {
-        public static let senderLabelForegrround: Color = .init(uiColor: .systemGray)
-        public static let timestampLabelForeground: Color = .init(uiColor: .systemGray)
+        static let senderLabelForegrround: Color = .init(uiColor: .systemGray)
+        static let timestampLabelForeground: Color = .init(uiColor: .systemGray)
     }
 }
 
 // MARK: - String
 
-public extension AppConstants.Strings {
+extension AppConstants.Strings {
     enum MediaItemView {
-        public static let saveActionImageSystemName = "square.and.arrow.down"
+        static let saveActionImageSystemName = "square.and.arrow.down"
     }
 }

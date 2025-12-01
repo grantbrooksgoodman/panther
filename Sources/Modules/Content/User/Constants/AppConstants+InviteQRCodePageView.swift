@@ -15,18 +15,18 @@ import AppSubsystem
 
 // MARK: - CGFloat
 
-public extension AppConstants.CGFloats {
+extension AppConstants.CGFloats {
     enum InviteQRCodePageView {
-        public static let imageBottomPadding: CGFloat = 50
-        public static let imageHorizontalPadding: CGFloat = 10
+        static let imageBottomPadding: CGFloat = 50
+        static let imageHorizontalPadding: CGFloat = 10
     }
 }
 
 // MARK: - Color
 
-public extension AppConstants.Colors {
+extension AppConstants.Colors {
     enum InviteQRCodePageView {
-        public static let navigationBarItemGlassTint: Color = ThemeService.isAppDefaultThemeApplied ? .init(uiColor: .systemBlue) : .accent
-        public static let tintedGlassToolbarButtonForeground: Color = .white
+        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        static let tintedGlassToolbarButtonForeground: Color = .white
     }
 }

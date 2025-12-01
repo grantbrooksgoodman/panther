@@ -13,16 +13,16 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public struct MediaFile: Codable, EncodedHashable, Hashable {
+struct MediaFile: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
-    public let fileExtension: MediaFileExtension
-    public let name: String
-    public let relativePath: String
+    let fileExtension: MediaFileExtension
+    let name: String
+    let relativePath: String
 
     // MARK: - Computed Properties
 
-    public var hashFactors: [String] {
+    var hashFactors: [String] {
         var factors = [fileExtension.rawValue]
 
         let dataFromURLResult = Data.fromURL(localPathURL)
@@ -34,20 +34,20 @@ public struct MediaFile: Codable, EncodedHashable, Hashable {
         return factors.sorted()
     }
 
-    public var hasThumbnail: Bool {
+    var hasThumbnail: Bool {
         @Dependency(\.fileManager) var fileManager: FileManager
         guard let thumbnailPath = localPathURL.thumbnailPath else { return false }
         return fileManager.fileExists(atPath: thumbnailPath.path())
     }
 
-    public var localPathURL: URL {
+    var localPathURL: URL {
         @Dependency(\.fileManager) var fileManager: FileManager
         return fileManager.documentsDirectoryURL.appending(path: relativePath)
     }
 
     // MARK: - Init
 
-    public init(
+    init(
         _ relativePath: String,
         name: String,
         fileExtension: MediaFileExtension
@@ -57,7 +57,7 @@ public struct MediaFile: Codable, EncodedHashable, Hashable {
         self.fileExtension = fileExtension
     }
 
-    public init?(_ relativePath: String) {
+    init?(_ relativePath: String) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
         let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
@@ -78,7 +78,7 @@ public struct MediaFile: Codable, EncodedHashable, Hashable {
 
     // MARK: - Hashable Conformance
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(hashFactors)
     }
 }

@@ -13,7 +13,7 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-public extension ChatInfoPageViewService {
+extension ChatInfoPageViewService {
     // MARK: - Present PenPals Sharing Data Confirmation Action Sheet
 
     /// `.penPalParticipantViewTapped`

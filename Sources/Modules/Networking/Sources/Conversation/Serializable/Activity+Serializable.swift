@@ -16,12 +16,12 @@ import Networking
 extension Activity: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = Activity
+    typealias T = Activity
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
 
-    public enum SerializationKeys: String {
+    enum SerializationKeys: String {
         case action
         case date
         case userID
@@ -29,7 +29,7 @@ extension Activity: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
             Keys.action.rawValue: action.rawValue,
@@ -40,7 +40,7 @@ extension Activity: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         guard let actionString = data[Keys.action.rawValue] as? String,
               Action(rawValue: actionString) != nil,
@@ -52,7 +52,7 @@ extension Activity: Serializable {
         return true
     }
 
-    public static func decode(from data: [String: Any]) async -> Callback<Activity, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<Activity, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard let actionString = data[Keys.action.rawValue] as? String,

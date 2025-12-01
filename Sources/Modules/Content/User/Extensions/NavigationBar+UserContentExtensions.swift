@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public extension NavigationBar {
+extension NavigationBar {
     static var height: CGFloat {
         @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
         return viewControllers

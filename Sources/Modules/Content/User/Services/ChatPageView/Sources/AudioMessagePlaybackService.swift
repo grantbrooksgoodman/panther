@@ -17,7 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-public final class AudioMessagePlaybackService {
+final class AudioMessagePlaybackService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService.AudioMessagePlayback
@@ -34,8 +34,8 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Properties
 
-    public private(set) var playingCell: AudioMessageCell?
-    public private(set) var playingMessage: Message?
+    private(set) var playingCell: AudioMessageCell?
+    private(set) var playingMessage: Message?
 
     private let viewController: ChatPageViewController
 
@@ -44,7 +44,7 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Init
 
-    public init(_ viewController: ChatPageViewController) {
+    init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
     }
 
@@ -58,7 +58,7 @@ public final class AudioMessagePlaybackService {
     // MARK: - Did Tap Play Button
 
     @objc
-    public func didTapPlayButton(_ sender: UITapGestureRecognizer) {
+    func didTapPlayButton(_ sender: UITapGestureRecognizer) {
         guard let cell = sender.view?.traversedSuperviews.compactMap({ $0 as? AudioMessageCell }).first else {
             Logger.log(.init(
                 "Failed to locate audio message cell in view hierarchy.",
@@ -117,13 +117,13 @@ public final class AudioMessagePlaybackService {
 
     // MARK: - Set Playing Cell
 
-    public func setPlayingCell(_ playingCell: AudioMessageCell) {
+    func setPlayingCell(_ playingCell: AudioMessageCell) {
         self.playingCell = playingCell
     }
 
     // MARK: - Stop Playback
 
-    public func stopPlayback() {
+    func stopPlayback() {
         Task { @MainActor in
             services.audio.playback.stopPlaying()
             resetVisibleCells()
@@ -156,7 +156,7 @@ public final class AudioMessagePlaybackService {
         return viewController.currentConversation?.messages?.itemAt(indexPath.section)
     }
 
-    public func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {
+    func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
         let nextIndexPath: IndexPath = .init(row: indexPath.row, section: indexPath.section + 1)
         return viewController.messagesCollectionView.cellForItem(at: nextIndexPath) as? AudioMessageCell

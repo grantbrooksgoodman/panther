@@ -16,7 +16,7 @@ import AppSubsystem
 /**
  Use this extension to build new UI themes.
  */
-public extension UITheme {
+extension UITheme {
     // MARK: - Type Aliases
 
     private typealias Item = UITheme.ColoredItem
@@ -24,7 +24,7 @@ public extension UITheme {
     // MARK: - Types
 
     struct List: AppSubsystem.Delegates.UIThemeListDelegate {
-        public var uiThemes: [UITheme] {
+        var uiThemes: [UITheme] {
             [
                 .appDefault,
                 .bluesky,
@@ -256,6 +256,6 @@ public extension UITheme {
     }
 }
 
-public extension ThemeService {
+extension ThemeService {
     static var isAppDefaultThemeApplied: Bool { currentTheme == UITheme.appDefault || currentTheme == UITheme.prevaricationMode }
 }

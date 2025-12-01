@@ -13,7 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct ReactionDetailsPageView: View {
+struct ReactionDetailsPageView: View {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ReactionDetailsPageView
@@ -26,14 +26,14 @@ public struct ReactionDetailsPageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
+    init(_ viewModel: ViewModel<ReactionDetailsPageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
         _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         ThemedView(redrawsOnAppearanceChange: true) {
             VStack {
                 GroupedListView(viewModel.listItems)

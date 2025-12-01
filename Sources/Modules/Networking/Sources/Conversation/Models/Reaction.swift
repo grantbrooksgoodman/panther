@@ -13,10 +13,10 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-public struct Reaction: Codable, Hashable {
+struct Reaction: Codable, Hashable {
     // MARK: - Types
 
-    public enum Style: String, CaseIterable, Codable, Hashable {
+    enum Style: String, CaseIterable, Codable, Hashable {
         // MARK: - Cases
 
         case dislike
@@ -28,14 +28,14 @@ public struct Reaction: Codable, Hashable {
 
         // MARK: - Properties
 
-        public static var orderedCases: [Style] = allCases.sorted(by: { $0.orderValue < $1.orderValue })
+        static var orderedCases: [Style] = allCases.sorted(by: { $0.orderValue < $1.orderValue })
 
         private static let emojiCaseMap: [String: Style] = Dictionary(uniqueKeysWithValues: Style.allCases.map { ($0.emojiValue, $0) })
 
         // MARK: - Computed Properties
 
         // String
-        public var emojiValue: String {
+        var emojiValue: String {
             switch self {
             case .dislike: "👎"
             case .emphasis: "‼️"
@@ -46,10 +46,10 @@ public struct Reaction: Codable, Hashable {
             }
         }
 
-        public var encodedValue: String { rawValue.uppercased() }
+        var encodedValue: String { rawValue.uppercased() }
 
         // Other
-        public var orderValue: Int {
+        var orderValue: Int {
             switch self {
             case .dislike: 2
             case .emphasis: 4
@@ -60,7 +60,7 @@ public struct Reaction: Codable, Hashable {
             }
         }
 
-        public var squareIconBackgroundColor: Color {
+        var squareIconBackgroundColor: Color {
             switch self {
             case .dislike: .init(uiColor: .init(hex: 0xFF5252))
             case .emphasis: .init(uiColor: .init(hex: 0x0FB9B1))
@@ -73,12 +73,12 @@ public struct Reaction: Codable, Hashable {
 
         // MARK: - Init
 
-        public init?(emojiValue: String) {
+        init?(emojiValue: String) {
             guard let matchingStyle = Style.emojiCaseMap[emojiValue] else { return nil }
             self = matchingStyle
         }
 
-        public init?(encodedValue: String) {
+        init?(encodedValue: String) {
             guard let matchingCase = Style.allCases.first(where: { $0.encodedValue == encodedValue }) else { return nil }
             self = matchingCase
         }
@@ -86,12 +86,12 @@ public struct Reaction: Codable, Hashable {
 
     // MARK: - Properties
 
-    public let style: Style
-    public let userID: String
+    let style: Style
+    let userID: String
 
     // MARK: - Init
 
-    public init(
+    init(
         _ style: Style,
         userID: String
     ) {
@@ -99,7 +99,7 @@ public struct Reaction: Codable, Hashable {
         self.userID = userID
     }
 
-    public init?(_ style: Style) {
+    init?(_ style: Style) {
         guard let currentUserID = User.currentUserID else { return nil }
         self = .init(style, userID: currentUserID)
     }

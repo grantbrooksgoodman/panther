@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public extension NewChatPageView {
+extension NewChatPageView {
     var headerCenterItem: HeaderView.CenterItemType {
         .text(
             .init(

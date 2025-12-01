@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-public extension UITheme {
+extension UITheme {
     var nonEnglishName: String? {
         switch name {
         case "Default":

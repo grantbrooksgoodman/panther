@@ -16,12 +16,12 @@ import Networking
 extension Conversation: Serializable {
     // MARK: - Type Aliases
 
-    public typealias T = Conversation
+    typealias T = Conversation
     private typealias Keys = SerializationKeys
 
     // MARK: - Types
 
-    public enum SerializationKeys: String {
+    enum SerializationKeys: String {
         case id
         case activities
         case encodedHash = "hash"
@@ -33,7 +33,7 @@ extension Conversation: Serializable {
 
     // MARK: - Properties
 
-    public var encoded: [String: Any] {
+    var encoded: [String: Any] {
         let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
         return [
@@ -49,7 +49,7 @@ extension Conversation: Serializable {
 
     // MARK: - Methods
 
-    public static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] is String,
               let encodedActivities = data[Keys.activities.rawValue] as? [[String: Any]],
               encodedActivities.allSatisfy({ Activity.canDecode(from: $0) }),
@@ -80,7 +80,7 @@ extension Conversation: Serializable {
     }
 
     // swiftlint:disable:next function_body_length
-    public static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
+    static func decode(from data: [String: Any]) async -> Callback<Conversation, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
 

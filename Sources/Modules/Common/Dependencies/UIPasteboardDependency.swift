@@ -13,13 +13,13 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public enum UIPasteboardDependency: DependencyKey {
-    public static func resolve(_: DependencyValues) -> UIPasteboard {
+enum UIPasteboardDependency: DependencyKey {
+    static func resolve(_: DependencyValues) -> UIPasteboard {
         .general
     }
 }
 
-public extension DependencyValues {
+extension DependencyValues {
     var uiPasteboard: UIPasteboard {
         get { self[UIPasteboardDependency.self] }
         set { self[UIPasteboardDependency.self] = newValue }

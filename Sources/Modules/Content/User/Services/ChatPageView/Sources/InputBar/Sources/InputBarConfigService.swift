@@ -13,7 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-public struct InputBarConfigService {
+struct InputBarConfigService {
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
@@ -26,7 +26,7 @@ public struct InputBarConfigService {
 
     // MARK: - Computed Properties
 
-    public var canShowRecordButton: Bool {
+    var canShowRecordButton: Bool {
         guard let currentUser = clientSession.user.currentUser,
               let conversation = clientSession.conversation.currentConversation else { return false }
 
@@ -35,14 +35,14 @@ public struct InputBarConfigService {
         return users.allSatisfy { currentUser.canSendAudioMessages(to: $0) /* TODO: Potential to be unlocked in removing this requirement. */ }
     }
 
-    // MARK: - Public
+    // MARK: - Internal
 
-    public func attachMediaButtonImage(isHighlighted: Bool) -> UIImage? {
+    func attachMediaButtonImage(isHighlighted: Bool) -> UIImage? {
         guard ThemeService.isDarkModeActive else { return .init(resource: isHighlighted ? .plusLightHighlighted : .plusLight) }
         return .init(resource: isHighlighted ? .plusDarkHighlighted : .plusDark)
     }
 
-    public func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
+    func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
         guard build.isOnline else { return .init(systemName: Strings.sendButtonOfflineImageSystemName) }
         guard forRecording else {
             guard !Application.isInPrevaricationMode,

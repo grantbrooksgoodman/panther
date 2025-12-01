@@ -14,7 +14,7 @@ import SwiftUI
 import AppSubsystem
 import ComponentKit
 
-public struct ChangeLanguagePageView: View {
+struct ChangeLanguagePageView: View {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChangeLanguagePageView
@@ -34,13 +34,13 @@ public struct ChangeLanguagePageView: View {
 
     // MARK: - Init
 
-    public init(_ viewModel: ViewModel<ChangeLanguagePageReducer>) {
+    init(_ viewModel: ViewModel<ChangeLanguagePageReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
     }
 
     // MARK: - View
 
-    public var body: some View {
+    var body: some View {
         StatefulView(
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground

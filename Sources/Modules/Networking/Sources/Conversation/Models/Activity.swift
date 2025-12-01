@@ -13,22 +13,22 @@ import Foundation
 import AppSubsystem
 import Translator
 
-public struct Activity: Codable, EncodedHashable, Equatable {
+struct Activity: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
-    public static let empty: Activity = .init(
+    static let empty: Activity = .init(
         .leftConversation,
         date: .init(timeIntervalSince1970: 0),
         userID: .bangQualifiedEmpty
     )
 
-    public let action: Action
-    public let date: Date
-    public let userID: String
+    let action: Action
+    let date: Date
+    let userID: String
 
     // MARK: - Computed Properties
 
-    public var description: String {
+    var description: String {
         switch action {
         case let .addedToConversation(userID: userID):
             var otherUserDisplayName = displayName(for: userID)
@@ -80,16 +80,16 @@ public struct Activity: Codable, EncodedHashable, Equatable {
         }
     }
 
-    public var hashFactors: [String] {
+    var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return [
             action.rawValue,
             dateFormatter.string(from: date),
             userID,
-        ]
+        ].sorted()
     }
 
-    public var message: Message {
+    var message: Message {
         .init(
             encodedHash,
             fromAccountID: CommonConstants.systemMessageID,
@@ -113,7 +113,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
 
     // MARK: - Init
 
-    public init(
+    init(
         _ action: Action,
         date: Date,
         userID: String,
@@ -123,7 +123,7 @@ public struct Activity: Codable, EncodedHashable, Equatable {
         self.userID = userID
     }
 
-    public init?(_ action: Action) {
+    init?(_ action: Action) {
         guard let currentUserID = User.currentUserID else { return nil }
         self.init(
             action,

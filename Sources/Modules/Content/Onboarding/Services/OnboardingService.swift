@@ -13,7 +13,7 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-public final class OnboardingService {
+final class OnboardingService {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices) private var services: CommonServices
@@ -22,40 +22,40 @@ public final class OnboardingService {
     // MARK: - Properties
 
     // String
-    public private(set) var authID: String?
-    public private(set) var languageCode: String?
-    public private(set) var regionCode: String?
-    public private(set) var userID: String?
+    private(set) var authID: String?
+    private(set) var languageCode: String?
+    private(set) var regionCode: String?
+    private(set) var userID: String?
 
     // Other
-    public private(set) var createdUserInCurrentAppSession = false
-    public private(set) var phoneNumber: PhoneNumber?
+    private(set) var createdUserInCurrentAppSession = false
+    private(set) var phoneNumber: PhoneNumber?
 
     // MARK: - Setters
 
-    public func setAuthID(_ authID: String) {
+    func setAuthID(_ authID: String) {
         self.authID = authID
     }
 
-    public func setLanguageCode(_ languageCode: String) {
+    func setLanguageCode(_ languageCode: String) {
         self.languageCode = languageCode
     }
 
-    public func setPhoneNumber(_ phoneNumber: PhoneNumber) {
+    func setPhoneNumber(_ phoneNumber: PhoneNumber) {
         self.phoneNumber = phoneNumber
     }
 
-    public func setRegionCode(_ regionCode: String) {
+    func setRegionCode(_ regionCode: String) {
         self.regionCode = regionCode
     }
 
-    public func setUserID(_ userID: String) {
+    func setUserID(_ userID: String) {
         self.userID = userID
     }
 
     // MARK: - Create User
 
-    public func createUser() async -> Exception? {
+    func createUser() async -> Exception? {
         guard let languageCode,
               let phoneNumber,
               let userID else {
@@ -88,7 +88,7 @@ public final class OnboardingService {
     // MARK: - Alert Presentation
 
     /// - Returns: `true` if the user selected the cancel option.
-    public func presentAccountDoesNotExistAlert() async -> Bool {
+    func presentAccountDoesNotExistAlert() async -> Bool {
         var cancelled = true
 
         let signUpAction: AKAction = .init("Sign Up", style: .preferred) { cancelled = false }
@@ -104,7 +104,7 @@ public final class OnboardingService {
     }
 
     /// - Returns: `true` if the user selected the cancel option.
-    public func presentAccountExistsAlert() async -> Bool {
+    func presentAccountExistsAlert() async -> Bool {
         var cancelled = true
 
         let signInAction: AKAction = .init("Sign In", style: .preferred) { cancelled = false }
@@ -120,7 +120,7 @@ public final class OnboardingService {
     }
 
     /// - Returns: `true` if the user selected the cancel option.
-    public func presentEULAAlert() async -> Bool {
+    func presentEULAAlert() async -> Bool {
         var cancelled = true
 
         let agreeAction: AKAction = .init("I Agree", style: .preferred) { cancelled = false }
@@ -138,7 +138,7 @@ public final class OnboardingService {
 
     // MARK: - Auxiliary
 
-    public func flushValues() {
+    func flushValues() {
         authID = nil
         languageCode = nil
         phoneNumber = nil

@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 extension ContextMenuViewController: ContextMenuAnimatable {
-    public func appearAnimation(completion: (() -> Void)? = nil) {
+    func appearAnimation(completion: (() -> Void)? = nil) {
         NSLayoutConstraint.activate(constraintsAlteringPreviewPosition)
         view.setNeedsLayout()
 
@@ -50,7 +50,7 @@ extension ContextMenuViewController: ContextMenuAnimatable {
         )
     }
 
-    public func disappearAnimation(completion: (() -> Void)? = nil) {
+    func disappearAnimation(completion: (() -> Void)? = nil) {
         NSLayoutConstraint.deactivate(constraintsAlteringPreviewPosition)
         view.setNeedsLayout()
 

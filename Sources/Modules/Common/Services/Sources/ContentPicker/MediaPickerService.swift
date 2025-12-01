@@ -14,7 +14,7 @@ import PhotosUI
 import AlertKit
 import AppSubsystem
 
-public final class MediaPickerService: PHPickerViewControllerDelegate {
+final class MediaPickerService: PHPickerViewControllerDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit) private var core: CoreKit
@@ -27,7 +27,7 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - Present
 
-    public func present() {
+    func present() {
         let viewController = PHPickerViewController(configuration: .init())
         viewController.delegate = self
         viewController.isModalInPresentation = true
@@ -36,13 +36,13 @@ public final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - On Dismiss
 
-    public func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
+    func onDismiss(_ perform: @escaping (Callback<ContentPickerResult, Exception>?) -> Void) {
         _onDismiss = perform
     }
 
     // MARK: - PHPickerViewControllerDelegate Conformance
 
-    public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         guard !results.isEmpty else {
             picker.dismiss(animated: true)
             _onDismiss?(nil)

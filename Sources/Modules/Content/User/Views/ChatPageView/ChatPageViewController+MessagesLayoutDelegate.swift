@@ -22,7 +22,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
 
     // MARK: - Cell Bottom Label Height
 
-    public func cellBottomLabelHeight(
+    func cellBottomLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -49,7 +49,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
 
     // MARK: - Cell Top Label Height
 
-    public func cellTopLabelHeight(
+    func cellTopLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
@@ -66,7 +66,7 @@ extension ChatPageViewController: MessagesLayoutDelegate {
 
     // MARK: - Message Top Label Height
 
-    public func messageTopLabelHeight(
+    func messageTopLabelHeight(
         for message: MessageType,
         at indexPath: IndexPath,
         in messagesCollectionView: MessagesCollectionView
