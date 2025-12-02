@@ -66,7 +66,10 @@ final class MediaActionHandlerService {
                 sourceItem: .custom(.view(
                     viewController.messageInputBar.leftStackView.attachMediaButton
                 ))
-            ).present(translating: [.actions()])
+            ).present(translating: [
+                .title,
+                .actions(),
+            ])
         }
     }
 

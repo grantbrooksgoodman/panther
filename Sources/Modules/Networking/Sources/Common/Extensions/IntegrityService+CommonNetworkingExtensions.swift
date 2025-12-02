@@ -46,7 +46,7 @@ extension IntegrityService {
             )
         }
 
-        guard hostedAppStoreBuildNumber <= build.appStoreBuildNumber else {
+        guard hostedAppStoreBuildNumber <= build.buildNumber else {
             return .init(
                 "Build must be updated before attempting database repair.",
                 metadata: .init(sender: self)
