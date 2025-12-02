@@ -16,18 +16,13 @@ final class MenuView: UIView {
     struct Style {
         /* MARK: Properties */
 
-        // AnimationParameters
         let appearAnimationParameters: AnimationParameters
-        let disappearAnimationParameters: AnimationParameters
-
-        // CGFloat
-        let cornerRadius: CGFloat
-        let disappearedScalingValue: CGFloat
-        let width: CGFloat
-
-        // Other
         let backgroundColor: UIColor
+        let cornerRadius: CGFloat
+        let disappearAnimationParameters: AnimationParameters
+        let disappearedScalingValue: CGFloat
         let element: MenuElementView.Style
+        let width: CGFloat
 
         /* MARK: Init */
 

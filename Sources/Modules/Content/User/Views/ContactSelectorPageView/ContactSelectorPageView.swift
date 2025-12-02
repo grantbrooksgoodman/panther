@@ -66,8 +66,10 @@ struct ContactSelectorPageView: View {
                     }
                 }
                 .if(UIApplication.v26FeaturesEnabled) {
-                    $0
-                        .padding(.bottom, NavigationBar.height)
+                    $0.padding(
+                        .bottom,
+                        NavigationBar.height
+                    )
                 }
             }
             .v26Header(

@@ -61,10 +61,6 @@ final class RegionDetailService {
     private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
     private var systemLocalizedLocale: Locale { Locale(languageCode: .init(RuntimeStorage.languageCode)) }
 
-    // MARK: - Init
-
-    init() {}
-
     // MARK: - Calling Codes
 
     func callingCode(regionCode: String) -> String? {

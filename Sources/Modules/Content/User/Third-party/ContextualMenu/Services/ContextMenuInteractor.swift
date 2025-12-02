@@ -20,7 +20,6 @@ final class ContextMenuInteractor {
 
     // MARK: - Properties
 
-    // Other
     static let kGesturePressDuration = TimeInterval(0.22)
     static let shared = ContextMenuInteractor()
 

@@ -60,38 +60,35 @@ struct SettingsPageReducer: Reducer {
 
         /* MARK: Properties */
 
-        // Array
-        var developerModeListItems: [ListRowView.Configuration]?
-        var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
-
-        // Bool
-        var isMessageRecipientConsentSwitchToggled = false
-        var isPenPalsParticipantSwitchToggled = false
-
-        fileprivate var traitCollectionChanged = false
-
-        // String
         let doneToolbarButtonText = Localized(.done).wrappedValue
         let navigationTitle = Localized(.settings).wrappedValue.removingOccurrences(of: ["…"])
 
+        var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
+        var cnContact: CNContact?
+        var contactDetailViewImage: UIImage?
         var contactDetailViewSubtitleLabelText: String?
         var contactDetailViewTitleLabelText = ""
-
-        // UUID
+        var developerModeListItems: [ListRowView.Configuration]?
         var groupedListViewsID = UUID()
+        var isMessageRecipientConsentSwitchToggled = false
+        var isPenPalsParticipantSwitchToggled = false
+        var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
         var viewID = UUID()
-
-        // Other
-        var buildInfoButtonStrings: BuildInfoButtonStrings = .init(.bundleVersionAndBuildNumber)
-        var contactDetailViewImage: UIImage?
-        var cnContact: CNContact?
         var viewState: StatefulView.ViewState = .loading
 
         fileprivate var timesEncounteredCopyrightText = 0
+        fileprivate var traitCollectionChanged = false
 
         /* MARK: Computed Properties */
 
-        // Bool
+        var blockedUsersButtonText: String {
+            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
+            return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
+        }
+
+        var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
+        var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
+
         var isBlockedUsersButtonEnabled: Bool {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
             return !(blockedUserIDs ?? []).isBangQualifiedEmpty
@@ -102,24 +99,10 @@ struct SettingsPageReducer: Reducer {
             return pendingThemeID == nil
         }
 
-        // UIImage
-        var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
-        var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
-
-        // Other
-        var blockedUsersButtonText: String {
-            @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
-            return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
-        }
-
         var navigationBarAppearance: NavigationBarAppearance {
             guard !Application.isInPrevaricationMode else { return .appDefault }
             return ThemeService.isAppDefaultThemeApplied ? .default() : .themed()
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

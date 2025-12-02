@@ -21,11 +21,7 @@ struct UserContentContainerReducer: Reducer {
 
     // MARK: - State
 
-    struct State: Equatable {
-        /* MARK: Init */
-
-        init() {}
-    }
+    struct State: Equatable {}
 
     // MARK: - Reduce
 

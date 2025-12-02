@@ -38,14 +38,11 @@ struct ChangeLanguagePageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Array
-        var languages: [String] = []
-        var strings: [TranslationOutputMap] = ChangeLanguagePageViewStrings.defaultOutputMap
-
-        // Other
         var instructionViewStrings: InstructionViewStrings = .empty
         var isConfirmButtonEnabled = false
+        var languages: [String] = []
         var selectedLanguageName = ""
+        var strings: [TranslationOutputMap] = ChangeLanguagePageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
@@ -56,10 +53,6 @@ struct ChangeLanguagePageReducer: Reducer {
                   let selectedLanguageCode = localizedLanguageCodeDictionary.keys(for: selectedLanguageName).first else { return RuntimeStorage.languageCode }
             return selectedLanguageCode
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

@@ -16,18 +16,13 @@ extension MenuElementView {
     struct Style {
         /* MARK: Properties */
 
-        // Dictionary
-        let defaultTitleAttributes: [NSAttributedString.Key: Any]
-        let destructiveTitleAttributes: [NSAttributedString.Key: Any]
-
-        // UIColor
         let backgroundColor: UIColor
         let defaultIconTint: UIColor
+        let defaultTitleAttributes: [NSAttributedString.Key: Any]
         let destructiveIconTint: UIColor
-        let highlightedBackgroundColor: UIColor
-
-        // Other
+        let destructiveTitleAttributes: [NSAttributedString.Key: Any]
         let height: CGFloat
+        let highlightedBackgroundColor: UIColor
         let iconSize: CGSize
 
         /* MARK: Init */

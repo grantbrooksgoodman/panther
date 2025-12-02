@@ -44,22 +44,13 @@ struct PermissionPageReducer: Reducer {
     // MARK: - State
 
     struct State: Equatable {
-        /* MARK: Properties */
-
-        // Bool
+        var instructionViewStrings: InstructionViewStrings = .empty
         var isBackButtonEnabled = true
         var isContactPermissionGranted: Bool?
         var isFinishButtonEnabled = false
         var isNotificationPermissionGranted: Bool?
-
-        // Other
-        var instructionViewStrings: InstructionViewStrings = .empty
         var strings: [TranslationOutputMap] = PermissionPageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

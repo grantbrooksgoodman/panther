@@ -22,12 +22,12 @@ struct MediaMessageService {
     // MARK: - Get Media Component
 
     func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
-        let commonParams = ["MessageID": message.id]
+        let userInfo = ["MessageID": message.id]
         guard let localMediaFilePath = message.localMediaFilePath else {
             return .failure(.init(
                 "Message does not have a media component.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         switch cachedMediaFile(for: message, localPath: localMediaFilePath) {
@@ -198,14 +198,14 @@ struct MediaMessageService {
         for message: Message,
         localPath: LocalMediaFilePath
     ) -> Callback<MediaFile, Exception> {
-        let commonParams = ["MessageID": message.id]
+        let userInfo = ["MessageID": message.id]
 
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Media message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(mediaFile)
@@ -215,13 +215,13 @@ struct MediaMessageService {
         for message: Message,
         localPath: LocalMediaFilePath
     ) async -> Callback<MediaFile, Exception> {
-        let commonParams = ["MessageID": message.id]
+        let userInfo = ["MessageID": message.id]
 
         if let exception = await networking.storage.downloadItem(
             at: localPath.relativePathString,
             to: localPath.localPathURL
         ) {
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         if let thumbnailPathString = localPath.relativeThumbnailPathString,
@@ -230,14 +230,14 @@ struct MediaMessageService {
                at: thumbnailPathString,
                to: thumbnailPathURL
            ) {
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Failed to generate media file.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(mediaFile)

@@ -160,13 +160,13 @@ struct AudioMessageService {
     }
 
     private func cachedAudioMessageReference(for message: Message) -> Callback<AudioMessageReference, Exception> {
-        let commonParams = ["MessageID": message.id]
+        let userInfo = ["MessageID": message.id]
 
         guard let localAudioFilePath = message.localAudioFilePath else {
             return .failure(.init(
                 "Message does not have an audio component.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
@@ -175,14 +175,14 @@ struct AudioMessageService {
                 "Audio message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         guard let translation = message.translation else {
             return .failure(.init(
                 "Message has no translation.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(.init(
@@ -194,13 +194,13 @@ struct AudioMessageService {
     }
 
     private func downloadAudioMessageReference(for message: Message) async -> Callback<AudioMessageReference, Exception> {
-        let commonParams = ["MessageID": message.id]
+        let userInfo = ["MessageID": message.id]
 
         guard let localAudioFilePath = message.localAudioFilePath else {
             return .failure(.init(
                 "Message does not have an audio component.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         let sourceFileURL = message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
@@ -210,7 +210,7 @@ struct AudioMessageService {
             at: message.isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
             to: sourceFileURL
         ) {
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         let dataFromURLResult = Data.fromURL(sourceFileURL)
@@ -221,11 +221,11 @@ struct AudioMessageService {
                 atPath: destinationFileURL,
                 data: data
             ) {
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
@@ -234,7 +234,7 @@ struct AudioMessageService {
             return .failure(.init(
                 "Failed to generate audio files or message has no translation.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(.init(

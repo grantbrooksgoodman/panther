@@ -16,19 +16,13 @@ import AppSubsystem
 struct ConversationMetadata: Codable, Equatable {
     // MARK: - Properties
 
-    // Array
-    // swiftlint:disable:next identifier_name
-    let messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]
-    let penPalsSharingData: [PenPalsSharingData]
-
-    // String
-    let name: String
-    let requiresConsentFromInitiator: String?
-
-    // Other
     let imageData: Data?
     let isPenPalsConversation: Bool
-    let lastModifiedDate: Date
+    let lastModifiedDate: Date // swiftlint:disable:next identifier_name
+    let messageRecipientConsentAcknowledgementData: [MessageRecipientConsentAcknowledgementData]
+    let name: String
+    let penPalsSharingData: [PenPalsSharingData]
+    let requiresConsentFromInitiator: String?
 
     // MARK: - Computed Properties
 

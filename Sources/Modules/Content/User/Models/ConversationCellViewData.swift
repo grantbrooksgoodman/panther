@@ -16,12 +16,6 @@ import AppSubsystem
 struct ConversationCellViewData: Equatable {
     // MARK: - Properties
 
-    // String
-    let dateLabelText: String
-    let subtitleLabelText: String
-    let titleLabelText: String
-
-    // Other
     static let empty: ConversationCellViewData = .init(
         titleLabelText: "",
         subtitleLabelText: "",
@@ -31,9 +25,12 @@ struct ConversationCellViewData: Equatable {
         thumbnailImage: nil
     )
 
+    let dateLabelText: String
     let isShowingUnreadIndicator: Bool
     let otherUser: User?
+    let subtitleLabelText: String
     let thumbnailImage: UIImage?
+    let titleLabelText: String
 
     // MARK: - Init
 

@@ -16,13 +16,10 @@ import Networking
 struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Properties
 
-    // String
     let inputFilePathString: String
+    let inputFilePathURL: URL
     let outputDirectoryPathString: String
     let outputFilePathString: String
-
-    // URL
-    let inputFilePathURL: URL
     let outputFilePathURL: URL
 
     // MARK: - Init

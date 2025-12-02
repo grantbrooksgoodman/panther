@@ -17,16 +17,6 @@ import Translator
 struct Message: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
-    // Array
-    let readReceipts: [ReadReceipt]?
-    let translationReferences: [TranslationReference]?
-    let translations: [Translation]?
-
-    // String
-    let fromAccountID: String
-    let id: String
-
-    // Other
     static let empty: Message = .init(
         "",
         fromAccountID: "",
@@ -39,29 +29,29 @@ struct Message: Codable, EncodedHashable, Hashable {
     )
 
     let contentType: HostedContentType
+    let fromAccountID: String
+    let id: String
+    let readReceipts: [ReadReceipt]?
     let richContent: RichMessageContent?
     let sentDate: Date
+    let translationReferences: [TranslationReference]?
+    let translations: [Translation]?
 
     // MARK: - Computed Properties
 
-    // Array
-    var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
-    var hashFactors: [String] { getHashFactors() }
-
-    // MediaFile
-    var documentComponent: MediaFile? { richContent?.documentComponent }
-    var imageComponent: MediaFile? { richContent?.imageComponent }
-    var videoComponent: MediaFile? { richContent?.videoComponent }
-
-    // Other
     var audioComponent: AudioMessageReference? { audioComponents?.first }
+    var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
     var currentUserReadReceipt: ReadReceipt? { getCurrentUserReadReceipt() }
+    var documentComponent: MediaFile? { richContent?.documentComponent }
+    var hashFactors: [String] { getHashFactors() }
+    var imageComponent: MediaFile? { richContent?.imageComponent }
     var localAudioFilePath: LocalAudioFilePath? { .init(self) }
     var localMediaFilePath: LocalMediaFilePath? { .init(self) }
     /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
     var reactions: [Reaction]? { getReactions() }
     /// The translation for this message in the current user's language code.
     var translation: Translation? { translations?.first }
+    var videoComponent: MediaFile? { richContent?.videoComponent }
 
     // MARK: - Init
 

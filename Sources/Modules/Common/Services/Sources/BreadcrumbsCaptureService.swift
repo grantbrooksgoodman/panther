@@ -55,7 +55,7 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
         set { @Persistent(.breadcrumbsCaptureHistory) var persistedValue: Set<String>?; persistedValue = newValue }
     }
 
-    private var commonParams: [String: String] {
+    private var userInfo: [String: String] {
         [
             "Build SKU": build.buildSKU,
             "Bundle Revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
@@ -260,7 +260,7 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
             additionalMetadata["NovelViews"] = novelViews.joined(separator: ", ")
         }
 
-        additionalMetadata = additionalMetadata.merging(commonParams) { _, new in new }
+        additionalMetadata = additionalMetadata.merging(userInfo) { _, new in new }
 
         // swiftlint:disable line_length
         let keyDescriptor = keyViewController.descriptor.components(separatedBy: "<").first ?? keyViewController.descriptor

@@ -16,12 +16,9 @@ struct ContextMenuStyle {
     struct Preview {
         /* MARK: Properties */
 
-        // CGFloat
         var bottomMargin: CGFloat
-        var topMargin: CGFloat
-
-        // Other
         var shadow: ShadowParameters
+        var topMargin: CGFloat
         var transform: CGAffineTransform
 
         /* MARK: Init */
@@ -41,16 +38,13 @@ struct ContextMenuStyle {
 
     // MARK: - Properties
 
-    // AnimationParameters
-    let appearAnimationParameters: AnimationParameters
-    let disappearAnimationParameters: AnimationParameters
-
-    // Other
     static let `default` = ContextMenuStyle()
 
-    let blurAlpha: CGFloat
+    let appearAnimationParameters: AnimationParameters
     let backgroundBlurStyle: UIBlurEffect.Style
     let backgroundColor: UIColor
+    let blurAlpha: CGFloat
+    let disappearAnimationParameters: AnimationParameters
     let menu: MenuView.Style
     let preview: Preview
     let windowLevel: UIWindow.Level

@@ -39,13 +39,10 @@ struct SelectLanguagePageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Array
-        var languages: [String] = []
-        var strings: [TranslationOutputMap] = SelectLanguagePageViewStrings.defaultOutputMap
-
-        // Other
         var instructionViewStrings: InstructionViewStrings = .empty
+        var languages: [String] = []
         var selectedLanguageName = ""
+        var strings: [TranslationOutputMap] = SelectLanguagePageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
@@ -58,10 +55,6 @@ struct SelectLanguagePageReducer: Reducer {
                 .first else { return RuntimeStorage.languageCode }
             return selectedLanguageCode
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

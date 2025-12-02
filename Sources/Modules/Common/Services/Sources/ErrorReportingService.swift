@@ -31,13 +31,9 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
 
     private(set) var reportedErrorCodes = [String]()
 
-    // MARK: - Init
-
-    init() {}
-
     // MARK: - Computed Properties
 
-    private var commonParams: [String: String] {
+    private var userInfo: [String: String] {
         var parameters = [
             "Build SKU": build.buildSKU,
             "Bundle Revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
@@ -127,7 +123,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                 metadata: .init(
                     filePath,
                     contentType: "text/plain",
-                    customValues: commonParams.plus(keys: [
+                    customValues: userInfo.plus(keys: [
                         "Error Description": exceptionDescriptor ?? error.description,
                     ]).plus(keys: userInfo)
                 )

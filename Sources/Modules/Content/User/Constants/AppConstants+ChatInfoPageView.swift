@@ -41,7 +41,6 @@ extension AppConstants.CGFloats {
         static let listViewYOffset: CGFloat = -8
         static let listViewAlternateYOffset: CGFloat = -30
 
-        static let participantViewDeleteActionComparator: CGFloat = 2
         static let penPalsListRowViewHorizontalPadding: CGFloat = 30
         static let penPalsListRowViewTopPadding: CGFloat = 5
 

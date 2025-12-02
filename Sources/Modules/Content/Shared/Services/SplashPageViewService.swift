@@ -31,12 +31,6 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Properties
 
-    // Bool
-    private var didAttemptDatabaseRepair = false
-    private var didAttemptUserConversion = false
-    private var didSurpassQuickLoadTimeoutDuration = false
-
-    // Other
     @Published
     var initializationProgress: CGFloat = 0 {
         didSet {
@@ -48,6 +42,9 @@ final class SplashPageViewService: ObservableObject {
     @Published
     private(set) var loadingLabelText = ""
 
+    private var didAttemptDatabaseRepair = false
+    private var didAttemptUserConversion = false
+    private var didSurpassQuickLoadTimeoutDuration = false
     private var initializationStartDate = Date(timeIntervalSince1970: 0)
 
     // MARK: - Computed Properties

@@ -392,10 +392,9 @@ struct ChatInfoPageView: View {
                         ) {
                             ChatParticipantView(
                                 participant,
-                                deleteAction: viewModel.visibleParticipants.count > Int(Floats.participantViewDeleteActionComparator) &&
-                                    viewModel.visibleParticipantsIncrement > 0 ? {
-                                        viewModel.send(.removeUserButtonTapped(participant))
-                                    } : nil,
+                                deleteAction: viewModel.showsRemoveUserSwipeAction ? {
+                                    viewModel.send(.removeUserButtonTapped(participant))
+                                } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
                                 } : nil,
@@ -408,10 +407,9 @@ struct ChatInfoPageView: View {
                         } label: {
                             ChatParticipantView(
                                 participant,
-                                deleteAction: viewModel.visibleParticipants.count > Int(Floats.participantViewDeleteActionComparator) &&
-                                    viewModel.visibleParticipantsIncrement > 0 ? {
-                                        viewModel.send(.removeUserButtonTapped(participant))
-                                    } : nil,
+                                deleteAction: viewModel.showsRemoveUserSwipeAction ? {
+                                    viewModel.send(.removeUserButtonTapped(participant))
+                                } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
                                 } : nil

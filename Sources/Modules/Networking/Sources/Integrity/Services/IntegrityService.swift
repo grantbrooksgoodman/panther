@@ -36,10 +36,6 @@ final class IntegrityService {
     private var malformedUserIDs: [String] { getMalformedUserIDs() }
     private var session: IntegrityServiceSession { getSession() }
 
-    // MARK: - Init
-
-    init() {}
-
     // MARK: - Resolve Session
 
     func resolveSession() async -> Exception? {

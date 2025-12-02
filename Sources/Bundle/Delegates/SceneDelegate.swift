@@ -106,7 +106,7 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
 
         services.analytics.logEvent(
             .touchUiElement,
-            userInfo: ["ui_element": view.descriptor]
+            additionalUserInfo: ["ui_element": view.descriptor]
         )
 
         return false

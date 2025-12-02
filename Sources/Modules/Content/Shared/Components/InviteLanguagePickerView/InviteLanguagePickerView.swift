@@ -59,8 +59,16 @@ struct InviteLanguagePickerView: View {
                            !viewModel.searchQuery.isBlank {
                             noResultsView
                         } else {
-                            listView(languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames)
+                            listView(
+                                languageNames: viewModel.queriedLanguageNames.isEmpty ? viewModel.localizedLanguageNames : viewModel.queriedLanguageNames
+                            )
                         }
+                    }
+                    .if(UIApplication.v26FeaturesEnabled) {
+                        $0.padding(
+                            .bottom,
+                            NavigationBar.height
+                        )
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.groupedContentBackground)

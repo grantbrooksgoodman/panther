@@ -28,15 +28,13 @@ extension ContextMenuInteractor {
     class Interaction {
         // MARK: - Properties
 
-        // Closure
-        private(set) var onInteractionBeganEffect: (() -> Void)?
-        private(set) var onInteractionEndedEffect: (() -> Void)?
-
-        // Other
         let gesture: UIGestureRecognizer
         let menuConfigurationProvider: MenuConfigurationProvider
         let style: ContextMenuStyle
         let targetedPreviewProvider: TargetedPreviewProvider
+
+        private(set) var onInteractionBeganEffect: (() -> Void)?
+        private(set) var onInteractionEndedEffect: (() -> Void)?
 
         // MARK: - Init
 

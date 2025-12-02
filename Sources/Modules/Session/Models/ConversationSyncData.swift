@@ -25,7 +25,7 @@ struct ConversationSyncData: Hashable {
         _ conversation: Conversation,
         newData: [String: Any]
     ) {
-        self.conversation = conversation
+        self.conversation = conversation.filteringSystemMessages
         self.newData = newData
     }
 
@@ -46,5 +46,20 @@ struct ConversationSyncData: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(conversation)
         hasher.combine(newData.count + newData.compactMapValues { $0 as? [String: Any] }.count)
+    }
+}
+
+private extension Conversation {
+    var filteringSystemMessages: Conversation {
+        .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages?.filteringSystemMessages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
     }
 }

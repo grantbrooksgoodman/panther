@@ -64,21 +64,17 @@ struct SignInPageReducer: Reducer {
 
         /* MARK: Properties */
 
-        // Bool
+        var configuration: Configuration = .phoneNumber
         var isBackButtonEnabled = true
         var isContinueButtonEnabled = false
-
-        // String
-        var authID = ""
         var phoneNumberString = ""
-        var selectedRegionCode = ""
-        var verificationCode = ""
-
-        // Other
-        var configuration: Configuration = .phoneNumber
         var regionMenuViewID = UUID()
+        var selectedRegionCode = ""
         var strings: [TranslationOutputMap] = SignInPageViewStrings.defaultOutputMap
+        var verificationCode = ""
         var viewState: StatefulView.ViewState = .loading
+
+        fileprivate var authID = ""
 
         /* MARK: Computed Properties */
 
@@ -90,12 +86,12 @@ struct SignInPageReducer: Reducer {
             strings.value(for: configuration == .phoneNumber ? .phoneNumberInstructionLabelText : .verificationCodeInstructionLabelText)
         }
 
-        var numberIsValidLength: Bool {
+        fileprivate var numberIsValidLength: Bool {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
             return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
         }
 
-        var phoneNumber: PhoneNumber {
+        fileprivate var phoneNumber: PhoneNumber {
             @Dependency(\.commonServices) var services: CommonServices
             return .init(
                 callingCode: services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? services.phoneNumber.deviceCallingCode,
@@ -105,10 +101,6 @@ struct SignInPageReducer: Reducer {
                 internalFormattedString: nil
             )
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

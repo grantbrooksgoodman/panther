@@ -21,17 +21,12 @@ struct GenericTextField: View {
 
     // MARK: - Properties
 
-    // Bool
-    private let isAutocorrectEnabled: Bool
-    private let isThemed: Bool
-
-    // CGFloat
-    private let dividerXOffset: CGFloat
-    private let dividerYOffset: CGFloat
-
-    // Other
     private let alignment: TextAlignment
     private let autocapitalization: TextInputAutocapitalization?
+    private let dividerXOffset: CGFloat
+    private let dividerYOffset: CGFloat
+    private let isAutocorrectEnabled: Bool
+    private let isThemed: Bool
     private let keyboardType: UIKeyboardType
     private let placeholderText: (string: String, color: Color)
     private let submitLabel: SubmitLabel

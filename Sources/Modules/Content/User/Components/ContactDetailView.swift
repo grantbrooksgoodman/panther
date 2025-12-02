@@ -23,12 +23,9 @@ struct ContactDetailView: View {
 
     // MARK: - Properties
 
-    // String
+    private let image: UIImage?
     private let subtitleLabelText: String?
     private let titleLabelText: String
-
-    // Other
-    private let image: UIImage?
 
     // MARK: - Init
 

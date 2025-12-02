@@ -154,11 +154,11 @@ struct MessageService {
     // MARK: - Retrieval by ID
 
     func getMessage(id: String) async -> Callback<Message, Exception> {
-        let commonParams = ["MessageID": id]
+        let userInfo = ["MessageID": id]
 
         guard !id.isBangQualifiedEmpty else {
             let exception = Exception("No ID provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.messages.rawValue)/\(id)")
@@ -170,7 +170,7 @@ struct MessageService {
                     "dictionary",
                     metadata: .init(sender: self)
                 )
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
             data["id"] = id
@@ -181,20 +181,20 @@ struct MessageService {
                 return .success(message)
 
             case let .failure(exception):
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
     func getMessages(ids: [String]) async -> Callback<[Message], Exception> {
-        let commonParams = ["MessageIDs": ids]
+        let userInfo = ["MessageIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
             let exception = Exception("No IDs provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         var messages = [Message]()
@@ -207,7 +207,7 @@ struct MessageService {
                 messages.append(message)
 
             case let .failure(exception):
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
         }
 
@@ -216,7 +216,7 @@ struct MessageService {
             return .failure(.init(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(messages)

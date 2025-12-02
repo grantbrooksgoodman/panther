@@ -288,13 +288,13 @@ struct NotificationService {
         conversationIDKey: String,
         isReaction: Bool
     ) async -> Exception? {
-        let commonParams = ["UserID": user.id]
+        let userInfo = ["UserID": user.id]
 
         guard let currentUser = clientSession.user.currentUser else {
             return .init(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams)
+            ).appending(userInfo: userInfo)
         }
 
         let newBadgeNumber = await user.hostedBadgeNumber + 1
@@ -306,7 +306,7 @@ struct NotificationService {
             return .init(
                 "The specified user has not registered for push notifications.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams)
+            ).appending(userInfo: userInfo)
         }
 
         let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
@@ -323,7 +323,7 @@ struct NotificationService {
                     "userNumberHash": userNumberHash,
                 ]
             ) {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
         }
 

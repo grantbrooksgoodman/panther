@@ -115,11 +115,11 @@ final class UserService {
     // MARK: - Retrieval by ID
 
     func getUser(id: String) async -> Callback<User, Exception> {
-        let commonParams = ["UserID": id]
+        let userInfo = ["UserID": id]
 
         guard !id.isBangQualifiedEmpty else {
             let exception = Exception("No ID provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         typealias Keys = User.SerializationKeys
@@ -148,7 +148,7 @@ final class UserService {
                     "dictionary",
                     metadata: .init(sender: self)
                 )
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
             data[Keys.id.rawValue] = id
@@ -164,18 +164,18 @@ final class UserService {
             return await User.decode(from: data)
 
         case let .failure(exception):
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
     func getUsers(ids: [String]) async -> Callback<[User], Exception> {
-        let commonParams = ["UserIDs": ids]
+        let userInfo = ["UserIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
             return .failure(.init(
                 "No ID keys provided.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         var users = [User]()
@@ -188,7 +188,7 @@ final class UserService {
                 users.append(user)
 
             case let .failure(exception):
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
         }
 
@@ -197,7 +197,7 @@ final class UserService {
             return .failure(.init(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(users)
@@ -206,7 +206,7 @@ final class UserService {
     // MARK: - Retrieval by Phone Number
 
     func getUser(phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
-        let commonParams = ["PhoneNumber": phoneNumber.encoded]
+        let userInfo = ["PhoneNumber": phoneNumber.encoded]
         let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
 
         switch getValuesResult {
@@ -215,7 +215,7 @@ final class UserService {
                 return .failure(.Networking.typecastFailed(
                     "dictionary",
                     metadata: .init(sender: self)
-                ).appending(userInfo: commonParams))
+                ).appending(userInfo: userInfo))
             }
 
             let getUsersResult = await networking.userService.getUsers(ids: Array(dictionary.keys))
@@ -227,17 +227,17 @@ final class UserService {
                         "No users with the provided phone number.",
                         isReportable: false,
                         metadata: .init(sender: self)
-                    ).appending(userInfo: commonParams))
+                    ).appending(userInfo: userInfo))
                 }
 
                 return .success(user)
 
             case let .failure(exception):
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 

@@ -42,10 +42,7 @@ extension SquareIconView {
 
         // MARK: - Properties
 
-        // Color
         let backgroundColor: Color
-
-        // Other
         let includesShadow: Bool
         let overlay: OverlayConfiguration
         let size: CGSize

@@ -55,10 +55,6 @@ struct InviteLanguagePickerReducer: Reducer {
                 $0.value.lowercasedTrimmingWhitespaceAndNewlines.contains(searchQuery.lowercasedTrimmingWhitespaceAndNewlines)
             }
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

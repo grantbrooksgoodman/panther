@@ -85,10 +85,6 @@ struct ReactionDetailsPageReducer: Reducer {
                 .sorted { $0.0.orderValue < $1.0.orderValue }
                 .map(\.1)
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

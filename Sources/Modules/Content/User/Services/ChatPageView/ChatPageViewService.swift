@@ -138,7 +138,10 @@ final class ChatPageViewService {
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
-        typingIndicator?.startCheckingForTypingIndicatorChanges()
+        Task { @MainActor in
+            typingIndicator?.startCheckingForTypingIndicatorChanges()
+        }
+
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
         guard configuration != .preview else {

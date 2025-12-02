@@ -36,16 +36,12 @@ struct SplashPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        var didAttemptAutomaticErrorRecovery = false
-        var exception: Exception?
+        fileprivate var didAttemptAutomaticErrorRecovery = false
+        fileprivate var exception: Exception?
 
         /* MARK: Computed Properties */
 
         var shouldShowProgressBar: Bool { User.currentUserID != nil }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

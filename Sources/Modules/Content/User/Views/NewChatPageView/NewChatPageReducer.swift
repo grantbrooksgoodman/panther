@@ -39,18 +39,13 @@ struct NewChatPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Bool
+        var conversation: Conversation = .empty
+        var doneToolbarButtonText = ""
         var isDoneToolbarButtonEnabled = true
+        var navigationTitle = ""
+        var penPalsToolbarButtonBackgroundColor: Color = .purple
         var shouldShowPenPalsToolbarButton = false
         var shouldUseBoldDoneToolbarButton = false
-
-        // String
-        var doneToolbarButtonText = ""
-        var navigationTitle = ""
-
-        // Other
-        var conversation: Conversation = .empty
-        var penPalsToolbarButtonBackgroundColor: Color = .purple
         var v26NavigationBarProxyViewID = UUID()
 
         /* MARK: Computed Properties */
@@ -64,10 +59,6 @@ struct NewChatPageReducer: Reducer {
                 .contentOffset
                 .y ?? 0) > 0 ? 0.8 : 0
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

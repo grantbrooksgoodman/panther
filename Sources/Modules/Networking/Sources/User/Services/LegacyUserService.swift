@@ -26,7 +26,7 @@ struct LegacyUserService {
     /// - Returns: An optional `Exception` describing the error encountered.
     /// - Warning: This method will clear all open conversations for the legacy user associated with the provided ID.
     func convertUser(id: String) async -> Exception? {
-        let commonParams = ["UserID": id]
+        let userInfo = ["UserID": id]
 
         let userPath = "\(NetworkPath.users.rawValue)/\(id)"
         let getValuesResult = await networking.database.getValues(at: userPath)
@@ -38,7 +38,7 @@ struct LegacyUserService {
                     "dictionary",
                     metadata: .init(sender: self)
                 )
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             dictionary[User.SerializationKeys.id.rawValue] = id
@@ -49,14 +49,14 @@ struct LegacyUserService {
                     isReportable: false,
                     metadata: .init(sender: self)
                 )
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             guard let callingCode = dictionary["callingCode"] as? String,
                   let nationalNumberString = dictionary["phoneNumber"] as? String,
                   let regionCode = dictionary["region"] as? String else {
                 let exception = Exception("Failed to decode number information.", metadata: .init(sender: self))
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             let newDictionary = [
@@ -66,33 +66,33 @@ struct LegacyUserService {
             ]
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             if let exception = await networking.database.setValue(
                 Array.bangQualifiedEmpty,
                 forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
             ) {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             if let exception = await networking.database.setValue(
                 Array.bangQualifiedEmpty,
                 forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
             ) {
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             Logger.log(
@@ -102,7 +102,7 @@ struct LegacyUserService {
             )
 
         case let .failure(exception):
-            return exception.appending(userInfo: commonParams)
+            return exception.appending(userInfo: userInfo)
         }
 
         return nil

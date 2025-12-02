@@ -17,8 +17,14 @@ import AppSubsystem
 struct Contact: Codable, EncodedHashable, Equatable {
     // MARK: - Properties
 
-    // Array
+    let firstName: String
+    let id: String
+    let imageData: Data?
+    let lastName: String
     let phoneNumbers: [PhoneNumber]
+
+    // MARK: - Computed Properties
+
     var hashFactors: [String] {
         [
             firstName,
@@ -28,16 +34,6 @@ struct Contact: Codable, EncodedHashable, Equatable {
             imageData?.base64EncodedString() ?? "",
         ].sorted()
     }
-
-    // Data
-    let imageData: Data?
-
-    // String
-    let firstName: String
-    let id: String
-    let lastName: String
-
-    // MARK: - Computed Properties
 
     var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
 

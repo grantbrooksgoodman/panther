@@ -149,6 +149,12 @@ private struct RegionPickerView: View {
                             noResultsView
                         }
                     }
+                    .if(UIApplication.v26FeaturesEnabled) {
+                        $0.padding(
+                            .bottom,
+                            NavigationBar.height
+                        )
+                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.groupedContentBackground)
                 }

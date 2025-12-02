@@ -17,7 +17,6 @@ import AppSubsystem
 final class ChatPageStateService {
     // MARK: - Properties
 
-    // Bool
     private(set) var isPresented: Bool {
         didSet { didSetIsPresented() }
     }
@@ -26,7 +25,6 @@ final class ChatPageStateService {
         didSet { didSetIsWaitingToUpdateConversations() }
     }
 
-    // Dictionary
     @LockIsolated private var uponIsPresentedChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()
     @LockIsolated private var uponIsPresentedChangedToTrue = [ChatPageStateServiceEffectID: () -> Void]()
     @LockIsolated private var uponIsWaitingToUpdateConversationsChangedToFalse = [ChatPageStateServiceEffectID: () -> Void]()

@@ -59,10 +59,6 @@ struct WelcomePageReducer: Reducer {
             guard let languageCodeDictionary = RuntimeStorage.languageCodeDictionary else { return [] }
             return Array(languageCodeDictionary.keys)
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

@@ -29,8 +29,6 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
     let previousLanguageCodes: [String]?
     let pushTokens: [String]?
 
-    private var isSettingConversations = false
-
     // MARK: - Computed Properties
 
     var canSendAudioMessages: Bool {
@@ -155,19 +153,8 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
         @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
-        guard !isSettingConversations else {
-            Logger.log(.init(
-                "Detected extraneous call to User.setConversations().",
-                isReportable: false,
-                metadata: .init(sender: self)
-            ))
-            return nil
-        }
-
         guard id == User.currentUserID,
               let conversationIDs else { return nil }
-
-        isSettingConversations = true
 
         var conversationsNeedingFetch = [ConversationID]()
         var conversationsNeedingUpdate = [Conversation]()
@@ -197,7 +184,6 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
-                self.isSettingConversations = false
             }
             return nil
         }
@@ -211,14 +197,12 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
                 decodedConversations.append(updatedConversation)
 
             case let .failure(exception):
-                isSettingConversations = false
                 return exception
             }
         }
 
         guard !conversationsNeedingFetch.isEmpty else {
             guard decodedConversations.count == conversationIDs.count else {
-                isSettingConversations = false
                 return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
@@ -227,7 +211,6 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
-                self.isSettingConversations = false
             }
             return nil
         }
@@ -239,7 +222,6 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
             decodedConversations.append(contentsOf: conversations)
 
             guard decodedConversations.count == conversationIDs.count else {
-                isSettingConversations = false
                 return .init("Mismatched ratio returned.", metadata: .init(sender: self))
             }
 
@@ -248,12 +230,10 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
                 self.conversationIDs = decodedConversations.map(\.id)
                 self.conversations = decodedConversations.sortedByLatestMessageSentDate
                 decodedConversations.forEach { conversationService.archive.addValue($0) }
-                self.isSettingConversations = false
             }
             return nil
 
         case let .failure(exception):
-            isSettingConversations = false
             return exception
         }
     }

@@ -41,21 +41,12 @@ struct AuthCodePageReducer: Reducer {
     // MARK: - State
 
     struct State: Equatable {
-        /* MARK: Properties */
-
-        // Bool
+        var instructionViewStrings: InstructionViewStrings = .empty
         var isBackButtonEnabled = true
         var isContinueButtonEnabled = false
-
-        // Other
-        var instructionViewStrings: InstructionViewStrings = .empty
         var strings: [TranslationOutputMap] = AuthCodePageViewStrings.defaultOutputMap
         var verificationCode = ""
         var viewState: StatefulView.ViewState = .loading
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

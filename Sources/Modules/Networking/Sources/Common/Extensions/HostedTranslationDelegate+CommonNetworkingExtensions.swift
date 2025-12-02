@@ -21,7 +21,7 @@ extension HostedTranslationDelegate {
         @Dependency(\.networking) var networking: NetworkServices
 
         let languagePair: LanguagePair = .system
-        let commonParams = ["LanguagePair": languagePair.string]
+        let userInfo = ["LanguagePair": languagePair.string]
 
         guard !languagePair.isIdempotent else { return nil }
 
@@ -29,7 +29,7 @@ extension HostedTranslationDelegate {
             languagePair: languagePair,
             metadata: .init(sender: self)
         ) {
-            return exception.appending(userInfo: commonParams)
+            return exception.appending(userInfo: userInfo)
         }
 
         let queryValuesResult = await networking.database.queryValues(
@@ -41,7 +41,7 @@ extension HostedTranslationDelegate {
         case let .success(values):
             guard let dictionary = values as? [String: String] else {
                 let exception: Exception = .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             for value in dictionary.values {
@@ -49,7 +49,7 @@ extension HostedTranslationDelegate {
                     return .Networking.decodingFailed(
                         data: value,
                         .init(sender: self)
-                    ).appending(userInfo: commonParams)
+                    ).appending(userInfo: userInfo)
                 }
 
                 let decoded: Translation = .init(
@@ -73,7 +73,7 @@ extension HostedTranslationDelegate {
             return nil
 
         case let .failure(exception):
-            let exception = exception.appending(userInfo: commonParams)
+            let exception = exception.appending(userInfo: userInfo)
             return .init(
                 exception.descriptor,
                 isReportable: false,

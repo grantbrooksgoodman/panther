@@ -29,12 +29,9 @@ final class ContactPairArchiveService {
 
     // MARK: - Properties
 
-    // Array
     @Cached(CacheKey.archive) private var cachedArchive: [ContactPair]?
-    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
-
-    // Dictionary
     @Cached(CacheKey.contactPairsForPhoneNumbers) private var cachedContactPairsForPhoneNumbers: [String: ContactPair]?
+    @Persistent(.contactPairArchive) private var persistedArchive: [ContactPair]?
 
     // MARK: - Computed Properties
 

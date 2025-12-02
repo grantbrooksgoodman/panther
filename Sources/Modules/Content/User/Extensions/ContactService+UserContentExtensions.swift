@@ -19,7 +19,7 @@ extension ContactService {
         returnForEmptyCachedCNContacts: Bool = false
     ) async -> Callback<CNContact, Exception> {
         @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
-        let commonParams = ["PhoneNumber": phoneNumber.encoded]
+        let userInfo = ["PhoneNumber": phoneNumber.encoded]
 
         guard let cachedCNContacts,
               !cachedCNContacts.isEmpty else {
@@ -28,11 +28,11 @@ extension ContactService {
                     "Empty contact list.",
                     isReportable: false,
                     metadata: .init(sender: self)
-                ).appending(userInfo: commonParams))
+                ).appending(userInfo: userInfo))
             }
 
             if let exception = await syncContactPairArchive() {
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
 
             return await firstCNContact(for: phoneNumber, returnForEmptyCachedCNContacts: true)
@@ -52,7 +52,7 @@ extension ContactService {
                 "No contacts found for provided phone number.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
+            ).appending(userInfo: userInfo))
         }
 
         return .success(match)

@@ -21,15 +21,12 @@ final class OnboardingService {
 
     // MARK: - Properties
 
-    // String
     private(set) var authID: String?
+    private(set) var createdUserInCurrentAppSession = false
     private(set) var languageCode: String?
+    private(set) var phoneNumber: PhoneNumber?
     private(set) var regionCode: String?
     private(set) var userID: String?
-
-    // Other
-    private(set) var createdUserInCurrentAppSession = false
-    private(set) var phoneNumber: PhoneNumber?
 
     // MARK: - Setters
 

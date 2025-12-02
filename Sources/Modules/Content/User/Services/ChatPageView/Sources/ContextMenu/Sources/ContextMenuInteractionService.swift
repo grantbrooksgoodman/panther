@@ -34,20 +34,17 @@ final class ContextMenuInteractionService {
 
     // MARK: - Properties
 
-    // Bool
     private(set) var isPresentingContextMenu = false {
         didSet { restoreSpeakingCellAttributes() }
     }
 
-    private var hadFirstResponderBeforeInteraction = false
-    private var lastMessageWasVisibleBeforeInteraction = false
-
-    // Other
     private(set) var selectedMessageID: String?
 
     private let viewController: ChatPageViewController
 
     private var contextMenuInteractionTimer: Timer?
+    private var hadFirstResponderBeforeInteraction = false
+    private var lastMessageWasVisibleBeforeInteraction = false
     private var scrollViewMaxContentOffsetY: CGFloat = 0
 
     // MARK: - Computed Properties

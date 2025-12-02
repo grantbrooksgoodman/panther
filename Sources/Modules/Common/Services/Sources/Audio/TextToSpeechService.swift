@@ -97,7 +97,7 @@ struct TextToSpeechService {
     // MARK: - Auxiliary
 
     private func convertToM4A(file url: URL, languageCode: String) async -> Callback<URL, Exception> {
-        let commonParams = ["FileURLString": url.absoluteString]
+        let userInfo = ["FileURLString": url.absoluteString]
 
         let fileName = "\(languageCode)-\(FileNames.outputM4A)"
         let outputURL = fileManager.documentsDirectoryURL.appending(path: fileName)
@@ -109,7 +109,7 @@ struct TextToSpeechService {
         ) else {
             return .failure(.init(
                 "Failed to create export session.",
-                userInfo: commonParams,
+                userInfo: userInfo,
                 metadata: .init(sender: self)
             ))
         }
@@ -119,7 +119,7 @@ struct TextToSpeechService {
                 try fileManager.removeItem(at: outputURL)
             } catch {
                 let exception = Exception(error, metadata: .init(sender: self))
-                return .failure(exception.appending(userInfo: commonParams))
+                return .failure(exception.appending(userInfo: userInfo))
             }
         }
 
@@ -130,7 +130,7 @@ struct TextToSpeechService {
             exportSession.metadata = try await asset.load(.metadata)
         } catch {
             let exception = Exception(error, metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: commonParams))
+            return .failure(exception.appending(userInfo: userInfo))
         }
 
         return await withCheckedContinuation { continuation in
@@ -141,7 +141,7 @@ struct TextToSpeechService {
                 }
 
                 let exception = Exception(error, metadata: .init(sender: self))
-                continuation.resume(returning: .failure(exception.appending(userInfo: commonParams)))
+                continuation.resume(returning: .failure(exception.appending(userInfo: userInfo)))
             }
         }
     }

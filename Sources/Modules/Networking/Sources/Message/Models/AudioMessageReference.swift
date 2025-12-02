@@ -15,14 +15,9 @@ import Translator
 struct AudioMessageReference: Codable, Equatable {
     // MARK: - Properties
 
-    // AudioFile
     let original: AudioFile
     let translated: AudioFile
-
-    // String
     let translatedDirectoryPath: String
-
-    // Translation
     let translation: Translation
 
     // MARK: - Init

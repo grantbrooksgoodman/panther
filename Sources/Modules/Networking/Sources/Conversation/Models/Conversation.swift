@@ -16,18 +16,6 @@ import Networking
 final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
-    // Array
-    let activities: [Activity]?
-    let messageIDs: [String]
-    let participants: [Participant]
-    let reactionMetadata: [ReactionMetadata]?
-
-    /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
-    private(set) var messages: [Message]?
-    /// When set, contains all users participating in this conversation, other than the current user.
-    private(set) var users: [User]?
-
-    // Other
     static let empty: Conversation = .init(
         .init(key: "", hash: ""),
         activities: nil,
@@ -39,8 +27,17 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         users: nil
     )
 
+    let activities: [Activity]?
     let id: ConversationID
+    let messageIDs: [String]
     let metadata: ConversationMetadata
+    let participants: [Participant]
+    let reactionMetadata: [ReactionMetadata]?
+
+    /// - Note: Will have an initial value of `nil` if the conversation does not include the current user.
+    private(set) var messages: [Message]?
+    /// When set, contains all users participating in this conversation, other than the current user.
+    private(set) var users: [User]?
 
     // MARK: - Computed Properties
 
@@ -50,9 +47,8 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs)
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
-        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? messageIDs)
+        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? [])
         factors.append(contentsOf: messages?.filteringSystemMessages.map(\.encodedHash) ?? [])
-
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(metadata.isPenPalsConversation.description)
@@ -60,7 +56,6 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         factors.append(contentsOf: metadata.messageRecipientConsentAcknowledgementData.map(\.encoded))
         factors.append(contentsOf: metadata.penPalsSharingData.map(\.encoded))
         factors.append(metadata.requiresConsentFromInitiator == nil ? .bangQualifiedEmpty : metadata.requiresConsentFromInitiator!.description)
-
         factors.append(contentsOf: participants.map(\.encoded))
         factors.append(contentsOf: reactionMetadata?.map(\.encodedHash) ?? [])
         return factors.sorted()
@@ -175,7 +170,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        let commonParams = ["ConversationID": id.encoded]
+        let userInfo = ["ConversationID": id.encoded]
         if !forceUpdate {
             guard users == nil else { return nil }
         }
@@ -186,7 +181,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 "No participants for this conversation.",
                 metadata: .init(sender: self)
             )
-            return exception.appending(userInfo: commonParams)
+            return exception.appending(userInfo: userInfo)
         }
 
         let getUsersResult = await networking.userService.getUsers(ids: userIDs)
@@ -196,7 +191,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             guard !users.isEmpty,
                   users.count == userIDs.count else {
                 let exception = Exception("Mismatched ratio returned.", metadata: .init(sender: self))
-                return exception.appending(userInfo: commonParams)
+                return exception.appending(userInfo: userInfo)
             }
 
             // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
@@ -215,7 +210,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             return nil
 
         case let .failure(exception):
-            return exception.appending(userInfo: commonParams)
+            return exception.appending(userInfo: userInfo)
         }
     }
 

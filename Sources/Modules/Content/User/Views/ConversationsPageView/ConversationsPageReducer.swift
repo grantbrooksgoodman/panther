@@ -55,18 +55,13 @@ struct ConversationsPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Array
-        var conversations = [Conversation]()
-        var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
-
-        // Bool
-        var isRefreshing = false
-        var isSearching = false
-
-        // Other
         var animationAmount: CGFloat = 1
         var conversationCellViewID = UUID()
+        var conversations = [Conversation]()
+        var isRefreshing = false
+        var isSearching = false
         var searchQuery = ""
+        var strings: [TranslationOutputMap] = ConversationsPageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
@@ -75,10 +70,6 @@ struct ConversationsPageReducer: Reducer {
             @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
             return Networking.config.environment == .staging && isDeveloperModeEnabled
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

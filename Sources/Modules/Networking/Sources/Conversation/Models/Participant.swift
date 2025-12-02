@@ -12,11 +12,8 @@ import Foundation
 struct Participant: Codable, Equatable {
     // MARK: - Properties
 
-    // Bool
     let hasDeletedConversation: Bool
     let isTyping: Bool
-
-    // String
     let userID: String
 
     // MARK: - Init

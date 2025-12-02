@@ -81,7 +81,7 @@ struct AnalyticsService {
 
     // MARK: - Properties
 
-    private var commonParams: [String: String] {
+    private var userInfo: [String: String] {
         var parameters = [
             "build_sku": build.buildSKU,
             "bundle_revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",
@@ -107,13 +107,16 @@ struct AnalyticsService {
 
     // MARK: - Log Event
 
-    func logEvent(_ event: AnalyticsEvent, userInfo: [String: String]? = nil) {
+    func logEvent(
+        _ event: AnalyticsEvent,
+        additionalUserInfo: [String: String]? = nil
+    ) {
         Task { @MainActor in
             guard AnalyticsService.shouldEnableDataCollection else { return }
 
-            var parameters = commonParams
-            if let userInfo {
-                userInfo.forEach { parameters[$0] = $1 }
+            var parameters = userInfo
+            if let additionalUserInfo {
+                additionalUserInfo.forEach { parameters[$0] = $1 }
             }
 
             for (key, value) in parameters {

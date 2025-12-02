@@ -25,14 +25,12 @@ final class ReactionSessionService {
 
     // MARK: - Properties
 
-    // Dictionary
-    @LockIsolated private var uponIsReactingToMessageChangedToFalse = [ReactionSessionServiceEffectID: () -> Void]()
-    @LockIsolated private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
-
-    // Other
     private(set) var isReactingToMessage = false {
         didSet { didSetIsReactingToMessage() }
     }
+
+    @LockIsolated private var uponIsReactingToMessageChangedToFalse = [ReactionSessionServiceEffectID: () -> Void]()
+    @LockIsolated private var uponIsReactingToMessageChangedToTrue = [ReactionSessionServiceEffectID: () -> Void]()
 
     // MARK: - Add Effect
 

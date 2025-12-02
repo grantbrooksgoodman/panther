@@ -65,28 +65,22 @@ struct ChatInfoPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Array
+        var chatInfoCellViewID = UUID()
         var chatParticipants = [ChatParticipant]()
-        var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
-        var visibleParticipants = [ChatParticipant]()
-
-        // Bool
-        var inputBarWasFirstResponder = false
+        @Localized(.done) var doneButtonText: String
         var isChangeMetadataButtonEnabled = true
         var isLeaveConversationButtonEnabled = true
         var isPenPalsSharingDataSwitchToggled = false
         var isPresentingCameraPickerSheet = false
         var isPresentingImagePickerSheet = false
-
-        // UUID
-        var chatInfoCellViewID = UUID()
-        var segmentedControlViewID = UUID()
-        var viewID = UUID()
-
-        // Other
-        @Localized(.done) var doneButtonText: String
         var segmentedControlSelectionIndex = 0
+        var segmentedControlViewID = UUID()
+        var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
+        var viewID = UUID()
         var viewState: StatefulView.ViewState = .loading
+        var visibleParticipants = [ChatParticipant]()
+
+        fileprivate var inputBarWasFirstResponder = false
 
         /* MARK: Computed Properties */
 
@@ -142,6 +136,14 @@ struct ChatInfoPageReducer: Reducer {
             conversation?.metadata.isPenPalsConversation == true && conversation?.participants.count == 2
         }
 
+        var showsRemoveUserSwipeAction: Bool {
+            // TODO: Remove the dependency on isDeveloperModeEnabled.
+            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+                  conversation?.metadata.requiresConsentFromInitiator == nil,
+                  visibleParticipants.count > 2 else { return false }
+            return true
+        }
+
         var singleCNContactContainer: CNContactContainer? {
             guard chatParticipants.count == 1,
                   conversation?.metadata.isPenPalsConversation == false else { return nil }
@@ -149,7 +151,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var visibleParticipantsIncrement: Int {
-            // FIXME: Remove the dependency on isDeveloperModeEnabled.
+            // TODO: Remove the dependency on isDeveloperModeEnabled.
             guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
                   !visibleParticipants.isEmpty,
@@ -167,10 +169,6 @@ struct ChatInfoPageReducer: Reducer {
             @Dependency(\.clientSession.conversation.fullConversation) var currentConversation: Conversation?
             return currentConversation
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

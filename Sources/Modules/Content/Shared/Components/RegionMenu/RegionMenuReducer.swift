@@ -39,14 +39,12 @@ struct RegionMenuReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Bool
-        var isPresented: Binding<Bool>
-
-        // String
         @Localized(.selectCallingCode) var headerLabelText
+        var isPresented: Binding<Bool>
         @Localized(.noResults) var noResultsLabelText
         var searchQuery = ""
-        var selectedRegionCode: Binding<String>
+
+        fileprivate var selectedRegionCode: Binding<String>
 
         /* MARK: Computed Properties */
 

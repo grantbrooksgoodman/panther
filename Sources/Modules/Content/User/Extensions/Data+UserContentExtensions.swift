@@ -14,7 +14,7 @@ import AppSubsystem
 
 extension Data {
     static func fromURL(_ url: URL) -> Callback<Data, Exception> {
-        let commonParams = ["URLPath": url.path()]
+        let userInfo = ["URLPath": url.path()]
 
         do {
             let data = try Data(contentsOf: url)
@@ -22,7 +22,7 @@ extension Data {
                 return .failure(.init(
                     "Found empty data at path.",
                     metadata: .init(sender: self)
-                ).appending(userInfo: commonParams))
+                ).appending(userInfo: userInfo))
             }
 
             return .success(data)
@@ -31,7 +31,7 @@ extension Data {
                 .init(
                     error,
                     metadata: .init(sender: self)
-                ).appending(userInfo: commonParams)
+                ).appending(userInfo: userInfo)
             )
         }
     }

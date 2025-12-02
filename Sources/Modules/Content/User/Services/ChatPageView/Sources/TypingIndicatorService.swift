@@ -25,13 +25,35 @@ final class TypingIndicatorService {
 
     // MARK: - Properties
 
-    // Bool
-    private var isUpdatingIsTypingForCurrentUser = false
-
-    // Other
     private let viewController: ChatPageViewController
 
+    private var isUpdatingIsTypingForCurrentUser = false
     private var typingIndicatorTimer: Timer?
+
+    // MARK: - Computed Properties
+
+    @MainActor
+    private var canSafelyToggleTypingIndicator: Bool {
+        guard let messagesDataSource = viewController
+            .messagesCollectionView
+            .messagesDataSource else { return false }
+
+        let sectionsFromCollectionView = viewController
+            .messagesCollectionView
+            .numberOfSections
+
+        let sectionsFromDataSource = messagesDataSource.numberOfSections(
+            in: viewController.messagesCollectionView
+        )
+
+        guard sectionsFromCollectionView > 0 else { return false }
+
+        if viewController.isTypingIndicatorHidden {
+            return sectionsFromDataSource == sectionsFromCollectionView
+        } else {
+            return sectionsFromDataSource == (sectionsFromCollectionView - 1)
+        }
+    }
 
     // MARK: - Init
 
@@ -124,7 +146,9 @@ final class TypingIndicatorService {
 
     // MARK: - Typing Indicator Timer
 
+    @MainActor
     func startCheckingForTypingIndicatorChanges() {
+        stopCheckingForTypingIndicatorChanges()
         typingIndicatorTimer = .scheduledTimer(
             timeInterval: .init(Floats.timerTimeInterval),
             target: self,
@@ -141,9 +165,11 @@ final class TypingIndicatorService {
 
     // MARK: - Auxiliary
 
+    @MainActor
     @objc
     private func checkForTypingIndicatorChanges() {
-        guard !chatPageState.isWaitingToUpdateConversations else { return }
+        guard !chatPageState.isWaitingToUpdateConversations,
+              canSafelyToggleTypingIndicator else { return }
 
         // FIXME: Still encounter crashing bugs with this. Seems to be a MessageKit issue.
         // https://github.com/MessageKit/MessageKit/issues/1788

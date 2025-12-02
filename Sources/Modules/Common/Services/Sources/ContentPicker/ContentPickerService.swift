@@ -10,21 +10,7 @@
 import Foundation
 
 struct ContentPickerService {
-    // MARK: - Properties
-
     let camera: CameraPickerService
     let document: DocumentPickerService
     let media: MediaPickerService
-
-    // MARK: - Init
-
-    init(
-        camera: CameraPickerService,
-        document: DocumentPickerService,
-        media: MediaPickerService
-    ) {
-        self.camera = camera
-        self.document = document
-        self.media = media
-    }
 }

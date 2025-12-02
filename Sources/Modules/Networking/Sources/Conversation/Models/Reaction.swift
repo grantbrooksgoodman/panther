@@ -34,7 +34,6 @@ struct Reaction: Codable, Hashable {
 
         // MARK: - Computed Properties
 
-        // String
         var emojiValue: String {
             switch self {
             case .dislike: "👎"
@@ -48,7 +47,6 @@ struct Reaction: Codable, Hashable {
 
         var encodedValue: String { rawValue.uppercased() }
 
-        // Other
         var orderValue: Int {
             switch self {
             case .dislike: 2

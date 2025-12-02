@@ -13,20 +13,17 @@ import UIKit
 final class ContextMenuViewController: UIViewController {
     // MARK: - Properties
 
-    // UIView
     let accessoryView: UIView?
-    let previewRendering: UIView
-
-    // Other
     let baseFrameInScreen: CGRect
     let interaction: ContextMenuInteractor.Interaction
+    let previewRendering: UIView
     let style: ContextMenuStyle
-
-    weak var delegate: ContextMenuViewControllerDelegate?
 
     var constraintsAlteringPreviewPosition = [NSLayoutConstraint]()
     var menuView: MenuView?
     var targetedPreview: UITargetedPreview?
+
+    weak var delegate: ContextMenuViewControllerDelegate?
 
     private let menuConfiguration: ContextMenuConfiguration?
 

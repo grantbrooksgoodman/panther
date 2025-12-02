@@ -43,10 +43,6 @@ struct InviteQRCodePageReducer: Reducer {
             @Dependency(\.inviteQRCodePageViewService) var viewService: InviteQRCodePageViewService
             return viewService.appShareQRCodeImage
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

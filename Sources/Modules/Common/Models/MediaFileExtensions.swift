@@ -40,7 +40,15 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
     /* MARK: Computed Properties */
 
-    // Boolean
+    var contentTypeString: String {
+        switch self {
+        case let .audio(fileExtension): fileExtension.contentTypeString
+        case let .document(fileExtension): fileExtension.contentTypeString
+        case let .image(fileExtension): fileExtension.contentTypeString
+        case let .video(fileExtension): fileExtension.contentTypeString
+        }
+    }
+
     var isAudio: Bool {
         switch self {
         case .audio: true
@@ -66,16 +74,6 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
         switch self {
         case .video: true
         default: false
-        }
-    }
-
-    // String
-    var contentTypeString: String {
-        switch self {
-        case let .audio(fileExtension): fileExtension.contentTypeString
-        case let .document(fileExtension): fileExtension.contentTypeString
-        case let .image(fileExtension): fileExtension.contentTypeString
-        case let .video(fileExtension): fileExtension.contentTypeString
         }
     }
 

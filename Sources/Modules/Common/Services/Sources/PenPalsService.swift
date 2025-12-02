@@ -32,10 +32,6 @@ struct PenPalsService {
         return selectedContactPairs?.users.map(\.id) ?? []
     }
 
-    // MARK: - Init
-
-    init() {}
-
     // MARK: - Is Known to Current User
 
     func isKnownToCurrentUser(_ userID: String) -> Bool {

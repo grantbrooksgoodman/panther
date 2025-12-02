@@ -33,14 +33,8 @@ struct PenPalsPermissionPageReducer: Reducer {
     // MARK: - State
 
     struct State: Equatable {
-        /* MARK: Properties */
-
         var strings: [TranslationOutputMap] = PenPalsPermissionPageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

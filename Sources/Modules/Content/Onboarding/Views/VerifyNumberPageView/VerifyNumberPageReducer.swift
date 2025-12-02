@@ -48,28 +48,26 @@ struct VerifyNumberPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        // Bool
+        var instructionViewStrings: InstructionViewStrings = .empty
         var isBackButtonEnabled = true
         var isContinueButtonEnabled = false
-
-        // String
         var phoneNumberString = ""
-        var selectedRegionCode = ""
-
-        // Other
-        var instructionViewStrings: InstructionViewStrings = .empty
         var regionMenuViewID = UUID()
+        var selectedRegionCode = ""
         var strings: [TranslationOutputMap] = VerifyNumberPageViewStrings.defaultOutputMap
         var viewState: StatefulView.ViewState = .loading
 
         /* MARK: Computed Properties */
 
-        var numberIsValidLength: Bool {
+        fileprivate var numberIsValidLength: Bool {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
-            return phoneNumberService.numberIsValidLength(phoneNumberString.digits.count, for: phoneNumber.callingCode)
+            return phoneNumberService.numberIsValidLength(
+                phoneNumberString.digits.count,
+                for: phoneNumber.callingCode
+            )
         }
 
-        var phoneNumber: PhoneNumber {
+        fileprivate var phoneNumber: PhoneNumber {
             @Dependency(\.commonServices) var services: CommonServices
             return .init(
                 callingCode: services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? services.phoneNumber.deviceCallingCode,
@@ -79,10 +77,6 @@ struct VerifyNumberPageReducer: Reducer {
                 internalFormattedString: nil
             )
         }
-
-        /* MARK: Init */
-
-        init() {}
     }
 
     // MARK: - Reduce

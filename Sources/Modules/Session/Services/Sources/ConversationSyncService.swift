@@ -23,6 +23,8 @@ final class ConversationSyncService {
 
     // MARK: - Properties
 
+    @LockIsolated private static var inFlightTasks = [String: Task<Callback<Conversation, Exception>, Never>]()
+
     @LockIsolated private var _syncData: ConversationSyncData = .empty
 
     // MARK: - Computed Properties
@@ -34,160 +36,27 @@ final class ConversationSyncService {
 
     // MARK: - Synchronization
 
-    // swiftlint:disable:next function_body_length
     func synchronizeConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        let commonParams: [String: Any] = [
-            "ConversationIDHash": conversation.id.hash,
-            "ConversationIDKey": conversation.id.key,
-        ]
+        if let existingTask = ConversationSyncService.inFlightTasks[conversation.id.key] {
+            return await existingTask.value
+        }
 
-        func resolveConversation() -> Callback<Conversation, Exception> {
-            defer { syncData = nil }
-            guard let conversation = syncData?.conversation else {
+        let task = Task { [weak self] () -> Callback<Conversation, Exception> in
+            guard let self else {
+                ConversationSyncService.inFlightTasks[conversation.id.key] = nil
                 return .failure(.init(
-                    "Failed to resolve updated conversation.",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: commonParams))
+                    "Service has been deallocated.",
+                    metadata: .init(sender: ConversationSyncService.self)
+                ))
             }
 
-            return .success(conversation.withHydratedMessages)
+            let synchronizeConversationResult = await self._synchronizeConversation(conversation)
+            ConversationSyncService.inFlightTasks[conversation.id.key] = nil
+            return synchronizeConversationResult
         }
 
-        func getConversationData() async -> Exception? {
-            let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-            let getValuesResult = await networking.database.getValues(at: conversationKeyPath, cacheStrategy: .disregardCache)
-
-            switch getValuesResult {
-            case let .success(values):
-                guard let newData = values as? [String: Any] else {
-                    return .Networking.typecastFailed(
-                        "dictionary",
-                        metadata: .init(sender: self)
-                    ).appending(userInfo: commonParams)
-                }
-
-                syncData = .init(conversation, newData: newData)
-                return nil
-
-            case let .failure(exception):
-                return exception.appending(userInfo: commonParams)
-            }
-        }
-
-        Logger.log(
-            "Synchronizing conversation with ID \(conversation.id.key).",
-            domain: .conversation,
-            sender: self
-        )
-
-        guard let currentUserParticipant = conversation.currentUserParticipant,
-              !currentUserParticipant.hasDeletedConversation else {
-            Logger.log(
-                .init(
-                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
-                    isReportable: false,
-                    userInfo: commonParams,
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
-            )
-
-            if let exception = await getConversationData() {
-                return .failure(exception.appending(userInfo: commonParams))
-            }
-
-            if let exception = await synchronizeData() {
-                return .failure(exception.appending(userInfo: commonParams))
-            }
-
-            return resolveConversation()
-        }
-
-        guard let currentMessages = conversation.messages?.uniquedByID else {
-            if let exception = await conversation.setMessages() {
-                return .failure(exception.appending(userInfo: commonParams))
-            }
-
-            return await synchronizeConversation(conversation)
-        }
-
-        if let exception = await getConversationData() {
-            return .failure(exception.appending(userInfo: commonParams))
-        }
-
-        guard let syncData else {
-            self.syncData = nil
-            return .failure(.init(
-                "Failed to resolve current sync data.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: commonParams))
-        }
-
-        guard let messageIDs = syncData.newData[Conversation.SerializationKeys.messages.rawValue] as? [String] else {
-            self.syncData = nil
-            return .failure(.Networking.decodingFailed(
-                data: syncData.newData,
-                .init(sender: self)
-            ).appending(userInfo: commonParams))
-        }
-
-        var filteredMessageIDs = messageIDs.filter { !currentMessages.map(\.id).contains($0) }
-        if filteredMessageIDs.isEmpty {
-            filteredMessageIDs = messageIDs.filter { !conversation.messageIDs.contains($0) }
-        }
-
-        filteredMessageIDs = filteredMessageIDs.unique
-        guard !filteredMessageIDs.isEmpty else {
-            if let exception = await synchronizeData() {
-                self.syncData = nil
-                return .failure(exception.appending(userInfo: commonParams))
-            }
-
-            // If metadata ostensibly didn't need an update, reload select or all messages.
-            guard let syncData = self.syncData,
-                  syncData.conversation.encodedHash != conversation.encodedHash else {
-                if let exception = await synchronizeMessages(messageIDs, lastTenOnly: true) {
-                    self.syncData = nil
-                    return .failure(exception.appending(userInfo: commonParams))
-                }
-
-                guard let syncData = self.syncData,
-                      syncData.conversation.encodedHash != conversation.encodedHash else {
-                    Logger.log(
-                        .init(
-                            "Resolving all messages to fully synchronize conversation.",
-                            isReportable: false,
-                            userInfo: commonParams,
-                            metadata: .init(sender: self)
-                        ),
-                        domain: .conversation
-                    )
-
-                    if let exception = await synchronizeMessages(messageIDs) {
-                        self.syncData = nil
-                        return .failure(exception.appending(userInfo: commonParams))
-                    }
-
-                    return resolveConversation()
-                }
-
-                return resolveConversation()
-            }
-
-            return resolveConversation()
-        }
-
-        if let exception = await synchronizeMessages(filteredMessageIDs) {
-            self.syncData = nil
-            return .failure(exception.appending(userInfo: commonParams))
-        }
-
-        if let exception = await synchronizeData() {
-            self.syncData = nil
-            return .failure(exception.appending(userInfo: commonParams))
-        }
-
-        return resolveConversation()
+        ConversationSyncService.inFlightTasks[conversation.id.key] = task
+        return await task.value
     }
 
     // MARK: - Auxiliary
@@ -230,6 +99,165 @@ final class ConversationSyncService {
         return nil
     }
 
+    // swiftlint:disable:next function_body_length
+    private func _synchronizeConversation(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
+        let userInfo: [String: Any] = [
+            "ConversationIDHash": conversation.id.hash,
+            "ConversationIDKey": conversation.id.key,
+        ]
+
+        func resolveConversation() -> Callback<Conversation, Exception> {
+            defer { syncData = nil }
+            guard let conversation = syncData?.conversation else {
+                return .failure(.init(
+                    "Failed to resolve updated conversation.",
+                    metadata: .init(sender: self)
+                ).appending(userInfo: userInfo))
+            }
+
+            return .success(conversation.withHydratedMessages)
+        }
+
+        func getConversationData() async -> Exception? {
+            let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
+            let getValuesResult = await networking.database.getValues(at: conversationKeyPath, cacheStrategy: .disregardCache)
+
+            switch getValuesResult {
+            case let .success(values):
+                guard let newData = values as? [String: Any] else {
+                    return .Networking.typecastFailed(
+                        "dictionary",
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: userInfo)
+                }
+
+                syncData = .init(conversation, newData: newData)
+                return nil
+
+            case let .failure(exception):
+                return exception.appending(userInfo: userInfo)
+            }
+        }
+
+        Logger.log(
+            "Synchronizing conversation with ID \(conversation.id.key).",
+            domain: .conversation,
+            sender: self
+        )
+
+        guard let currentUserParticipant = conversation.currentUserParticipant,
+              !currentUserParticipant.hasDeletedConversation else {
+            Logger.log(
+                .init(
+                    "Skipping message retrieval for conversation in which current user is not participating or has deleted.",
+                    isReportable: false,
+                    userInfo: userInfo,
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversation
+            )
+
+            if let exception = await getConversationData() {
+                return .failure(exception.appending(userInfo: userInfo))
+            }
+
+            if let exception = await synchronizeData() {
+                return .failure(exception.appending(userInfo: userInfo))
+            }
+
+            return resolveConversation()
+        }
+
+        guard let currentMessages = conversation
+            .messages?
+            .filteringSystemMessages
+            .uniquedByID else {
+            if let exception = await conversation.setMessages() {
+                return .failure(exception.appending(userInfo: userInfo))
+            }
+
+            return await _synchronizeConversation(conversation)
+        }
+
+        if let exception = await getConversationData() {
+            return .failure(exception.appending(userInfo: userInfo))
+        }
+
+        guard let syncData else {
+            self.syncData = nil
+            return .failure(.init(
+                "Failed to resolve current sync data.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo))
+        }
+
+        guard let messageIDs = syncData.newData[Conversation.SerializationKeys.messages.rawValue] as? [String] else {
+            self.syncData = nil
+            return .failure(.Networking.decodingFailed(
+                data: syncData.newData,
+                .init(sender: self)
+            ).appending(userInfo: userInfo))
+        }
+
+        var filteredMessageIDs = messageIDs.filter { !currentMessages.map(\.id).contains($0) }
+        if filteredMessageIDs.isEmpty {
+            filteredMessageIDs = messageIDs.filter { !conversation.messageIDs.contains($0) }
+        }
+
+        filteredMessageIDs = filteredMessageIDs.unique
+        guard !filteredMessageIDs.isEmpty else {
+            if let exception = await synchronizeData() {
+                self.syncData = nil
+                return .failure(exception.appending(userInfo: userInfo))
+            }
+
+            // If metadata ostensibly didn't need an update, reload select or all messages.
+            guard let syncData = self.syncData,
+                  syncData.conversation.encodedHash != conversation.encodedHash else {
+                if let exception = await synchronizeMessages(messageIDs, lastTenOnly: true) {
+                    self.syncData = nil
+                    return .failure(exception.appending(userInfo: userInfo))
+                }
+
+                guard let syncData = self.syncData,
+                      syncData.conversation.encodedHash != conversation.encodedHash else {
+                    Logger.log(
+                        .init(
+                            "Resolving all messages to fully synchronize conversation.",
+                            isReportable: false,
+                            userInfo: userInfo,
+                            metadata: .init(sender: self)
+                        ),
+                        domain: .conversation
+                    )
+
+                    if let exception = await synchronizeMessages(messageIDs) {
+                        self.syncData = nil
+                        return .failure(exception.appending(userInfo: userInfo))
+                    }
+
+                    return resolveConversation()
+                }
+
+                return resolveConversation()
+            }
+
+            return resolveConversation()
+        }
+
+        if let exception = await synchronizeMessages(filteredMessageIDs) {
+            self.syncData = nil
+            return .failure(exception.appending(userInfo: userInfo))
+        }
+
+        if let exception = await synchronizeData() {
+            self.syncData = nil
+            return .failure(exception.appending(userInfo: userInfo))
+        }
+
+        return resolveConversation()
+    }
+
     private func synchronizeData() async -> Exception? {
         if let exception = await synchronizeActivities() {
             return exception
@@ -251,21 +279,30 @@ final class ConversationSyncService {
     }
 
     private func synchronizeHash() -> Exception? {
-        guard let syncData,
-              let newHash = syncData.newData[Conversation.SerializationKeys.encodedHash.rawValue] as? String else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
+        guard let syncData else {
+            return .Networking.decodingFailed(
+                data: syncData?.newData ?? [:],
+                .init(sender: self)
+            )
         }
 
-        self.syncData = .init(.init(
-            .init(key: syncData.conversation.id.key, hash: newHash),
-            activities: syncData.conversation.activities,
-            messageIDs: syncData.conversation.messageIDs,
-            messages: syncData.conversation.messages,
-            metadata: syncData.conversation.metadata,
-            participants: syncData.conversation.participants,
-            reactionMetadata: syncData.conversation.reactionMetadata,
-            users: syncData.conversation.users
-        ), newData: syncData.newData)
+        self.syncData = .init(
+            .init(
+                .init(
+                    key: syncData.conversation.id.key,
+                    hash: syncData.conversation.encodedHash
+                ),
+                activities: syncData.conversation.activities,
+                messageIDs: syncData.conversation.messageIDs,
+                messages: syncData.conversation.messages,
+                metadata: syncData.conversation.metadata,
+                participants: syncData.conversation.participants,
+                reactionMetadata: syncData.conversation.reactionMetadata,
+                users: syncData.conversation.users
+            ),
+            newData: syncData.newData
+        )
+
         return nil
     }
 
@@ -284,7 +321,10 @@ final class ConversationSyncService {
 
         switch getMessagesResult {
         case let .success(messages):
-            let updatedMessages = ((conversation.messages ?? []) + messages).uniquedByID.sortedByAscendingSentDate
+            let updatedMessages = ((conversation.messages ?? []) + messages)
+                .filteringSystemMessages
+                .uniquedByID
+                .sortedByAscendingSentDate
             guard let conversation = conversation.modifyKey(.messages, withValue: updatedMessages) else {
                 return .Networking.typeMismatch(
                     key: Conversation.SerializationKeys.messages,
@@ -292,16 +332,12 @@ final class ConversationSyncService {
                 )
             }
 
-            let updateHashResult = await updateHash(conversation)
-
-            switch updateHashResult {
-            case let .success(conversation):
-                syncData = .init(conversation, newData: syncData?.newData ?? [:])
-                return synchronizeHash()
-
-            case let .failure(exception):
+            if let exception = await updateHash(conversation) {
                 return exception
             }
+
+            syncData = .init(conversation, newData: syncData?.newData ?? [:])
+            return synchronizeHash()
 
         case let .failure(exception):
             return exception
@@ -408,52 +444,13 @@ final class ConversationSyncService {
         return nil
     }
 
-    private func updateHash(_ conversation: Conversation) async -> Callback<Conversation, Exception> {
-        if let exception = await conversation.setUsers(forceUpdate: true) {
-            return .failure(exception)
-        }
-
-        guard var users = conversation.users else {
-            return .failure(.init(
-                "Failed to set users on conversation.",
-                metadata: .init(sender: self)
-            ))
-        }
-
-        if let currentUser {
-            users.append(currentUser)
-        }
-
+    private func updateHash(_ conversation: Conversation) async -> Exception? {
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/"
         let hashPath = conversationKeyPath + Conversation.SerializationKeys.encodedHash.rawValue
-        if let exception = await networking.database.setValue(
+        return await networking.database.setValue(
             conversation.encodedHash,
             forKey: hashPath
-        ) {
-            return .failure(exception)
-        }
-
-        for user in users {
-            guard var conversationIDs = user.conversationIDs,
-                  let index = conversationIDs.firstIndex(where: { $0.key == conversation.id.key }) else { continue }
-
-            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
-            conversationIDs.insert(conversation.id, at: index)
-
-            let updateValueResult = await user.updateValue(
-                conversationIDs,
-                forKey: .conversationIDs
-            )
-
-            switch updateValueResult {
-            case let .failure(exception):
-                return .failure(exception)
-
-            default: ()
-            }
-        }
-
-        return .success(conversation)
+        )
     }
 }
 
