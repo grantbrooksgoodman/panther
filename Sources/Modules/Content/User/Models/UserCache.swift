@@ -17,7 +17,7 @@ enum UserCache {
 
     // TODO: Clear on updatedCurrentUser & syncContactPairArchive.
     static var knownUsers: [User] {
-        if let cachedValue = _UserCache.users {
+        if let cachedValue = _UserCache.cachedUsers {
             return cachedValue
         }
 
@@ -60,7 +60,7 @@ enum UserCache {
             usersFromCurrentUserConversations +
             usersFromUnknownContactPairArchive).unique
 
-        _UserCache.users = uniqueUsers
+        _UserCache.cachedUsers = uniqueUsers
         return uniqueUsers
     }
 
@@ -80,11 +80,11 @@ private enum _UserCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.users) fileprivate static var users: [User]?
+    @Cached(CacheKey.users) fileprivate static var cachedUsers: [User]?
 
     // MARK: - Clear Cache
 
     fileprivate static func clearCache() {
-        users = nil
+        cachedUsers = nil
     }
 }

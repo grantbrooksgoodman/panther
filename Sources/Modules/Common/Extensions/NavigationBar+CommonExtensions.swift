@@ -79,7 +79,7 @@ extension NavigationBar {
         isObservingTraitCollectionChanges = true
 
         notificationCenter.addObserver(
-            UIApplication.shared,
+            uiApplication,
             name: .init("traitCollectionChangedNotification")
         ) { _ in
             guard isObservingTraitCollectionChanges else { return }
@@ -93,7 +93,7 @@ extension NavigationBar {
                 knownTintedItems = extantGlassViews
                 guard !extantGlassViews.isEmpty else {
                     notificationCenter.removeObserver(
-                        UIApplication.shared,
+                        uiApplication,
                         name: .init("traitCollectionChangedNotification"),
                         object: nil
                     )

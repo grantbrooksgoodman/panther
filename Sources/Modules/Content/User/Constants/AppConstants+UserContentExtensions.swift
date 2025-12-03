@@ -64,8 +64,8 @@ extension AppConstants.CGFloats {
 extension AppConstants.Colors {
     enum UserContentExtensions { // NIT: Using UIColor here.
         enum Date { // swiftlint:disable line_length
-            static let chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .gray
-            static let chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .gray // swiftlint:enable line_length
+            static let chatPageMessageSeparatorAttributedDateStringBoldAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .systemGray
+            static let chatPageMessageSeparatorAttributedDateStringStandardAttributesForeground: UIColor = ThemeService.isDarkModeActive ? .lightGray : .systemGray // swiftlint:enable line_length
         }
 
         enum Message {

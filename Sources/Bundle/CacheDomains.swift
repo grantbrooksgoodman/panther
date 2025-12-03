@@ -20,6 +20,7 @@ extension CacheDomain {
     struct List: AppSubsystem.Delegates.CacheDomainListDelegate {
         var appCacheDomains: [CacheDomain] {
             [
+                .activityDescription,
                 .chatInfoPageViewService,
                 .commonPropertyLists,
                 .contactImage,
@@ -39,6 +40,7 @@ extension CacheDomain {
                 .textToSpeechService,
                 .transcriptionService,
                 .user,
+                .userDisplayName,
                 .userService,
             ]
         }
@@ -46,6 +48,7 @@ extension CacheDomain {
 
     // MARK: - Properties
 
+    static let activityDescription: CacheDomain = .init("activityDescription") { clearActivityDescriptionCache() }
     static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService") { clearChatInfoPageViewServiceCache() }
     static let commonPropertyLists: CacheDomain = .init("commonPropertyLists") { clearCommonPropertyListsCache() }
     static let contactImage: CacheDomain = .init("contactImage") { clearContactImageCache() }
@@ -63,9 +66,14 @@ extension CacheDomain {
     static let textToSpeechService: CacheDomain = .init("textToSpeechService") { clearTextToSpeechServiceCache() }
     static let transcriptionService: CacheDomain = .init("transcriptionService") { clearTranscriptionServiceCache() }
     static let user: CacheDomain = .init("user") { clearUserCache() }
+    static let userDisplayName: CacheDomain = .init("userDisplayName") { clearUserDisplayNameCache() }
     static let userService: CacheDomain = .init("userService") { clearUserServiceCache() }
 
     // MARK: - Methods
+
+    private static func clearActivityDescriptionCache() {
+        ActivityDescriptionCache.clearCache()
+    }
 
     private static func clearChatInfoPageViewServiceCache() {
         @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
@@ -141,6 +149,10 @@ extension CacheDomain {
 
     private static func clearUserCache() {
         UserCache.clearCache()
+    }
+
+    private static func clearUserDisplayNameCache() {
+        UserDisplayNameCache.clearCache()
     }
 
     private static func clearUserServiceCache() {

@@ -22,12 +22,26 @@ extension User {
     var displayName: String {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
 
+        func cache(_ displayName: String) {
+            var cachedDisplayNamesForUserIDs = _UserDisplayNameCache.cachedDisplayNamesForUserIDs ?? [:]
+            cachedDisplayNamesForUserIDs[id] = displayName
+            _UserDisplayNameCache.cachedDisplayNamesForUserIDs = cachedDisplayNamesForUserIDs
+        }
+
+        if let cachedValue = _UserDisplayNameCache.cachedDisplayNamesForUserIDs?[id] {
+            return cachedValue
+        }
+
         if penPalsService.isObfuscatedPenPalWithCurrentUser(self),
            !penPalsService.isKnownToCurrentUser(id) {
+            let penPalsName = penPalsName
+            cache(penPalsName)
             return penPalsName
         }
 
-        return contactPair?.contact.fullName ?? phoneNumber.formattedString()
+        let displayName = contactPair?.contact.fullName ?? phoneNumber.formattedString()
+        cache(displayName)
+        return displayName
     }
 
     static var currentUserID: String? {
@@ -50,5 +64,29 @@ extension User {
         @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
         let localizedRegionName = regionDetailService.localizedRegionName(regionCode: phoneNumber.regionCode)
         return RuntimeStorage.languageCode == "en" ? "PenPal from \(localizedRegionName)" : "PenPal (\(localizedRegionName))"
+    }
+}
+
+enum UserDisplayNameCache {
+    static func clearCache() {
+        _UserDisplayNameCache.clearCache()
+    }
+}
+
+private enum _UserDisplayNameCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case displayNamesForUserIDs
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.displayNamesForUserIDs) fileprivate static var cachedDisplayNamesForUserIDs: [String: String]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedDisplayNamesForUserIDs = nil
     }
 }

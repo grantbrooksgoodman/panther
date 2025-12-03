@@ -29,6 +29,12 @@ struct Activity: Codable, EncodedHashable, Equatable {
     // MARK: - Computed Properties
 
     var description: String {
+        if let cachedValue = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes?[encodedHash] {
+            return cachedValue
+        }
+
+        var localizedString: String?
+
         switch action {
         case let .addedToConversation(userID: userID):
             var otherUserDisplayName = displayName(for: userID)
@@ -36,18 +42,18 @@ struct Activity: Codable, EncodedHashable, Equatable {
                 otherUserDisplayName = otherUserDisplayName.lowercased()
             }
 
-            return Localized(.addedToConversation)
+            localizedString = Localized(.addedToConversation)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
                 .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
 
         case .changedGroupPhoto:
-            return Localized(.changedGroupPhoto)
+            localizedString = Localized(.changedGroupPhoto)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
 
         case .leftConversation:
-            return Localized(.leftConversation)
+            localizedString = Localized(.leftConversation)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
 
@@ -57,27 +63,33 @@ struct Activity: Codable, EncodedHashable, Equatable {
                 otherUserDisplayName = otherUserDisplayName.lowercased()
             }
 
-            return Localized(.removedFromConversation)
+            localizedString = Localized(.removedFromConversation)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: self.userID))⌘")
                 .replacingOccurrences(of: "⁂", with: "⌘\(otherUserDisplayName)⌘")
 
         case .removedGroupPhoto:
-            return Localized(.removedGroupPhoto)
+            localizedString = Localized(.removedGroupPhoto)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
 
         case .removedName:
-            return Localized(.removedConversationName)
+            localizedString = Localized(.removedConversationName)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
 
         case let .renamedConversation(name: name):
-            return Localized(.renamedConversation)
+            localizedString = Localized(.renamedConversation)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
                 .replacingOccurrences(of: "⁂", with: "⌘\(name)⌘")
         }
+
+        guard let localizedString else { return "�" }
+        var cachedDescriptionsForEncodedHashes = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes ?? [:]
+        cachedDescriptionsForEncodedHashes[encodedHash] = localizedString
+        _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes = cachedDescriptionsForEncodedHashes
+        return localizedString
     }
 
     var hashFactors: [String] {
@@ -140,6 +152,30 @@ struct Activity: Codable, EncodedHashable, Equatable {
             .knownUsers
             .first(where: { $0.id == userID })?
             .displayName ?? Localized(.someone).wrappedValue
+    }
+}
+
+enum ActivityDescriptionCache {
+    static func clearCache() {
+        _ActivityDescriptionCache.clearCache()
+    }
+}
+
+private enum _ActivityDescriptionCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case descriptionsForEncodedHashes
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.descriptionsForEncodedHashes) fileprivate static var cachedDescriptionsForEncodedHashes: [String: String]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedDescriptionsForEncodedHashes = nil
     }
 }
 

@@ -89,10 +89,20 @@ struct SettingsPageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .interactiveDismissDisabled(true)
-        .preferredStatusBarStyle(
-            .conditionalLightContent,
-            restoreOnDisappear: !Application.isInPrevaricationMode
+        .interactiveDismissDisabled()
+        .if(
+            UIApplication.v26FeaturesEnabled,
+            { body in
+                body
+                    .background { statusBarBackgroundView }
+            },
+            else: { body in
+                body
+                    .preferredStatusBarStyle(
+                        .conditionalLightContent,
+                        restoreOnDisappear: !Application.isInPrevaricationMode
+                    )
+            }
         )
         .sheet(item: sheetBinding) { sheetView(for: $0) }
         .onFirstAppear {
@@ -237,5 +247,15 @@ struct SettingsPageView: View {
                 )
             )
         }
+    }
+
+    private var statusBarBackgroundView: some View {
+        Color.clear
+            .frame(width: .zero, height: .zero)
+            .preferredStatusBarStyle(
+                .conditionalLightContent,
+                restoreOnDisappear: !Application.isInPrevaricationMode
+            )
+            .redrawsOnTraitCollectionChange()
     }
 }
