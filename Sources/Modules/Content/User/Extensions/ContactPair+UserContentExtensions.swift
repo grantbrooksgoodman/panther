@@ -48,7 +48,7 @@ extension ContactPair {
         return (selectedContactPairs ?? []).contains(self)
     }
 
-    var users: [User] { numberPairs.map(\.users).reduce([], +) }
+    var users: [User] { numberPairs.flatMap(\.users) }
 
     // MARK: - Methods
 

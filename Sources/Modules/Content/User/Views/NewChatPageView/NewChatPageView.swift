@@ -179,6 +179,9 @@ struct NewChatPageView: View {
                 initialState: .init(.newChatPageView),
                 reducer: ContactSelectorPageReducer()
             ))
+
+        default:
+            EmptyView()
         }
     }
 }

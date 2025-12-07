@@ -206,6 +206,7 @@ final class ChatInfoPageViewService {
                       .title,
                   ]) else { return }
 
+            Observables.chatInfoPageLoadingStateUpdated.trigger()
             let removeFromConversationResult = await clientSession.activity.removeFromConversation(
                 currentUserID,
                 conversation: conversation

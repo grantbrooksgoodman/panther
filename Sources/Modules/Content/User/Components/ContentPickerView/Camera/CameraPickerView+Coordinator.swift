@@ -29,16 +29,18 @@ extension CameraPickerView {
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
             guard let image = info[.originalImage] as? UIImage else {
-                delegate.dismiss(.init("Failed to get image data.", metadata: .init(sender: self)))
-                return
+                return delegate.onDismiss(.init(
+                    "Failed to get image data.",
+                    metadata: .init(sender: self)
+                ))
             }
 
             delegate.onSelection(image)
-            delegate.dismiss()
+            delegate.onDismiss(nil)
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            delegate.dismiss()
+            delegate.onDismiss(nil)
         }
     }
 }

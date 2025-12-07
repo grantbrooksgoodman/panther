@@ -28,12 +28,10 @@ enum UserCache {
         @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
 
         let usersFromContactPairArchive = contactPairArchive?
-            .map(\.users)
-            .reduce([], +) ?? []
+            .flatMap(\.users) ?? []
 
         let usersFromConversationArchive = conversationArchive?
-            .compactMap(\.users)
-            .reduce([], +) ?? []
+            .flatMap { $0.users ?? [] } ?? []
 
         let usersFromCurrentConversation = clientSession
             .conversation
@@ -47,12 +45,10 @@ enum UserCache {
             .user
             .currentUser?
             .conversations?
-            .compactMap(\.users)
-            .reduce([], +) ?? []
+            .flatMap { $0.users ?? [] } ?? []
 
         let usersFromUnknownContactPairArchive = unknownContactPairArchive?
-            .map(\.users)
-            .reduce([], +) ?? []
+            .flatMap(\.users) ?? []
 
         let uniqueUsers = (usersFromContactPairArchive +
             usersFromConversationArchive +

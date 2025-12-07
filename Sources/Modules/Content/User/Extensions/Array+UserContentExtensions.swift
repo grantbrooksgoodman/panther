@@ -19,7 +19,9 @@ extension Array where Element == ContactPair {
         var contactPairs = [ContactPair]()
 
         for contactPair in self {
-            let phoneNumbers = contactPairs.map(\.contact.phoneNumbers.compiledNumberStrings).reduce([], +)
+            let phoneNumbers = contactPairs
+                .map(\.contact.phoneNumbers.compiledNumberStrings)
+                .flatMap { $0 }
             guard !contactPair.contact.phoneNumbers.compiledNumberStrings.contains(where: phoneNumbers.contains) else { continue }
             contactPairs.append(contactPair)
         }
@@ -27,7 +29,7 @@ extension Array where Element == ContactPair {
         return contactPairs
     }
 
-    var users: [User] { map(\.users).reduce([], +) }
+    var users: [User] { flatMap(\.users) }
 
     // MARK: - Methods
 

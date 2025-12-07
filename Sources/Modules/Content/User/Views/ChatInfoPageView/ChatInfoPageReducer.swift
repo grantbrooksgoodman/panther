@@ -34,30 +34,38 @@ struct ChatInfoPageReducer: Reducer {
         case viewDisappeared
 
         case addContactButtonTapped
+
+        case cameraPickerDismissed(Exception?)
+        case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
         case changeMetadataButtonTapped
         case chatInfoCellTapped
         case currentConversationMetadataChanged
-        case leaveConversationButtonTapped
-        case loadingStateUpdated
-        case mediaItemViewTapped(MediaItemView.Metadata)
-        case penPalsSharingDataSwitchToggledOn
-        case userInfoBadgeTapped(User?)
 
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
-        case penPalParticipantViewTapped(ChatParticipant)
+
+        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
+
+        case leaveConversationButtonTapped
+        case loadingStateUpdated
+
+        case mediaItemViewTapped(MediaItemView.Metadata)
+
+        case penPalParticipantViewTapped(ChatParticipant) // swiftlint:disable:next identifier_name
+        case penPalsSharingDataConfirmationActionSheetDismissed(ConversationMetadata?)
+        case penPalsSharingDataSwitchToggledOn
+        case photoPickerDismissed(Exception?)
+
         case removeUserButtonTapped(ChatParticipant)
+        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+
         case segmentedControlSelectionIndexChanged(Int)
+        case selectedImageChanged(UIImage)
+
         case traitCollectionChanged
 
-        case changeMetadataActionSheetDismissed(ChatInfoPageViewService.MetadataChangeType?)
-        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
-        case isPresentingCameraPickerSheetChanged(Bool, Exception?)
-        case isPresentingImagePickerSheetChanged(Bool, Exception?) // swiftlint:disable:next identifier_name
-        case penPalsSharingDataConfirmationActionSheetDismissed(ConversationMetadata?)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
-        case selectedImageChanged(UIImage)
         case updateMetadataReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
+        case userInfoBadgeTapped(User?)
     }
 
     // MARK: - State
@@ -71,8 +79,6 @@ struct ChatInfoPageReducer: Reducer {
         var isChangeMetadataButtonEnabled = true
         var isLeaveConversationButtonEnabled = true
         var isPenPalsSharingDataSwitchToggled = false
-        var isPresentingCameraPickerSheet = false
-        var isPresentingImagePickerSheet = false
         var segmentedControlSelectionIndex = 0
         var segmentedControlViewID = UUID()
         var strings: [TranslationOutputMap] = ChatInfoPageViewStrings.defaultOutputMap
@@ -197,6 +203,20 @@ struct ChatInfoPageReducer: Reducer {
         case .addContactButtonTapped:
             navigation.navigate(to: .chat(.sheet(.contactSelector)))
 
+        case let .cameraPickerDismissed(exception):
+            navigation.navigate(to: .chat(.sheet(.none)))
+
+            if let exception {
+                Logger.log(exception, with: .toast)
+            }
+
+            if !Application.isInPrevaricationMode,
+               !ThemeService.isDarkModeActive {
+                StatusBar.overrideStyle(.darkContent)
+            }
+
+            state.isChangeMetadataButtonEnabled = true
+
         case let .changeMetadataActionSheetDismissed(.name(newMetadata)):
             guard let conversation = state.conversation else {
                 state.isChangeMetadataButtonEnabled = true
@@ -237,10 +257,10 @@ struct ChatInfoPageReducer: Reducer {
             return .none
 
         case .changeMetadataActionSheetDismissed(.selectPhotoFromCamera):
-            state.isPresentingCameraPickerSheet = true
+            navigation.navigate(to: .chat(.sheet(.cameraPicker)))
 
         case .changeMetadataActionSheetDismissed(.selectPhotoFromLibrary):
-            state.isPresentingImagePickerSheet = true
+            navigation.navigate(to: .chat(.sheet(.photoPicker)))
 
         case .changeMetadataButtonTapped:
             state.isChangeMetadataButtonEnabled = false
@@ -281,32 +301,6 @@ struct ChatInfoPageReducer: Reducer {
         case let .getChatParticipantsReturned(.failure(exception)):
             Logger.log(exception)
             state.viewState = .error(exception)
-
-        case let .isPresentingCameraPickerSheetChanged(isPresentingCameraPickerSheet, exception):
-            if let exception {
-                Logger.log(exception, with: .toast)
-            }
-            state.isPresentingCameraPickerSheet = isPresentingCameraPickerSheet
-
-            if !Application.isInPrevaricationMode,
-               !isPresentingCameraPickerSheet,
-               !ThemeService.isDarkModeActive {
-                StatusBar.overrideStyle(.darkContent)
-            }
-            state.isChangeMetadataButtonEnabled = true
-
-        case let .isPresentingImagePickerSheetChanged(isPresentingImagePickerSheet, exception):
-            if let exception {
-                Logger.log(exception, with: .toast)
-            }
-            state.isPresentingImagePickerSheet = isPresentingImagePickerSheet
-
-            if !Application.isInPrevaricationMode,
-               !isPresentingImagePickerSheet,
-               !ThemeService.isDarkModeActive {
-                StatusBar.overrideStyle(.darkContent)
-            }
-            state.isChangeMetadataButtonEnabled = true
 
         case .leaveConversationButtonTapped:
             viewService.leaveConversationButtonTapped(state.conversation)
@@ -361,6 +355,20 @@ struct ChatInfoPageReducer: Reducer {
                 return .penPalsSharingDataConfirmationActionSheetDismissed(result)
             }
 
+        case let .photoPickerDismissed(exception):
+            navigation.navigate(to: .chat(.sheet(.none)))
+
+            if let exception {
+                Logger.log(exception, with: .toast)
+            }
+
+            if !Application.isInPrevaricationMode,
+               !ThemeService.isDarkModeActive {
+                StatusBar.overrideStyle(.darkContent)
+            }
+
+            state.isChangeMetadataButtonEnabled = true
+
         case let .removeUserButtonTapped(chatParticipant):
             viewService.removeUserButtonTapped(
                 chatParticipant,
@@ -407,6 +415,7 @@ struct ChatInfoPageReducer: Reducer {
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
             }
+
             state.isChangeMetadataButtonEnabled = true
             state.isPenPalsSharingDataSwitchToggled = togglePenPalsDataSharingSwitch
             state.viewID = UUID()

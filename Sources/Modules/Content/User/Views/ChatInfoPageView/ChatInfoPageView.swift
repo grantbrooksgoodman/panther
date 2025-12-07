@@ -34,20 +34,6 @@ struct ChatInfoPageView: View {
 
     // MARK: - Bindings
 
-    private var cameraPickerSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingCameraPickerSheet,
-            sendAction: { .isPresentingCameraPickerSheetChanged($0, nil) }
-        )
-    }
-
-    private var imagePickerSheetBinding: Binding<Bool> {
-        viewModel.binding(
-            for: \.isPresentingImagePickerSheet,
-            sendAction: { .isPresentingImagePickerSheetChanged($0, nil) }
-        )
-    }
-
     private var isPenPalsSharingDataSwitchToggledBinding: Binding<Bool> {
         viewModel.binding(
             for: \.isPenPalsSharingDataSwitchToggled,
@@ -97,20 +83,6 @@ struct ChatInfoPageView: View {
                         .id(viewModel.viewID)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.groupedContentBackground)
-                }
-                .sheet(isPresented: cameraPickerSheetBinding) {
-                    ContentPickerView<UIImage>(.camera) { image in
-                        viewModel.send(.selectedImageChanged(image))
-                    } onDismiss: { exception in
-                        viewModel.send(.isPresentingCameraPickerSheetChanged(false, exception))
-                    }
-                }
-                .sheet(isPresented: imagePickerSheetBinding) {
-                    ContentPickerView<UIImage>(.photoLibrary) { image in
-                        viewModel.send(.selectedImageChanged(image))
-                    } onDismiss: { exception in
-                        viewModel.send(.isPresentingImagePickerSheetChanged(false, exception))
-                    }
                 }
                 .sheet(item: sheetBinding) { sheetView(for: $0) }
             }
@@ -288,7 +260,7 @@ struct ChatInfoPageView: View {
                 text,
                 font: font,
                 usesShadow: false,
-                isInspectable: UIApplication.v26FeaturesEnabled,
+                isInspectable: true,
             ) { viewModel.send(.changeMetadataButtonTapped) }
         } else {
             Components.button(
@@ -470,11 +442,25 @@ struct ChatInfoPageView: View {
     @ViewBuilder
     private func sheetView(for path: ChatNavigatorState.SheetPaths) -> some View {
         switch path {
+        case .cameraPicker:
+            ContentPickerView<UIImage>(.camera) { image in
+                viewModel.send(.selectedImageChanged(image))
+            } onDismiss: { exception in
+                viewModel.send(.cameraPickerDismissed(exception))
+            }
+
         case .contactSelector:
             ContactSelectorPageView(.init(
                 initialState: .init(.chatInfoPageView),
                 reducer: ContactSelectorPageReducer()
             ))
+
+        case .photoPicker:
+            ContentPickerView<UIImage>(.photoLibrary) { image in
+                viewModel.send(.selectedImageChanged(image))
+            } onDismiss: { exception in
+                viewModel.send(.photoPickerDismissed(exception))
+            }
         }
     }
 }

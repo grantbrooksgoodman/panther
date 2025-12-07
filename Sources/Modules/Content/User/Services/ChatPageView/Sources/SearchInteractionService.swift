@@ -36,8 +36,7 @@ final class SearchInteractionService {
             .messagesCollectionView
             .cellForItem(at: .init(item: 0, section: focusedMessageIndex))?
             .traversedSubviews
-            .compactMap(\.gestureRecognizers)
-            .reduce([], +)
+            .flatMap { $0.gestureRecognizers ?? [] }
             .compactMap { $0 as? UILongPressGestureRecognizer }
             .first(where: { $0.minimumPressDuration == 0.22 })
     }

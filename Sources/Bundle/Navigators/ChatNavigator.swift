@@ -20,7 +20,9 @@ struct ChatNavigatorState: NavigatorState {
     enum SeguePaths: Paths {}
 
     enum SheetPaths: Paths {
+        case cameraPicker
         case contactSelector
+        case photoPicker
     }
 
     // MARK: - Properties

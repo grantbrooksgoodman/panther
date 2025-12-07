@@ -125,7 +125,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                     contentType: "text/plain",
                     customValues: userInfo.plus(keys: [
                         "Error Description": exceptionDescriptor ?? error.description,
-                    ]).plus(keys: userInfo)
+                    ]).plus(keys: self.userInfo)
                 )
             ) {
                 guard Logger.reportsErrorsAutomatically else {

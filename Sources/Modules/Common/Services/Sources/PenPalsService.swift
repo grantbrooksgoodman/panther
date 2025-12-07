@@ -24,7 +24,7 @@ struct PenPalsService {
 
     private var contactPairArchiveUserIDs: [String] {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        return contactPairArchive?.map(\.users).reduce([], +).map(\.id).unique ?? []
+        return contactPairArchive?.flatMap(\.users).map(\.id).unique ?? []
     }
 
     private var selectContactPairUserIDs: [String] {
@@ -185,16 +185,14 @@ struct PenPalsService {
 
         guard excludePenPalsConversations else {
             return visibleConversations?
-                .compactMap(\.users)
-                .reduce([], +)
+                .flatMap { $0.users ?? [] }
                 .map(\.id)
                 .unique ?? []
         }
 
         return visibleConversations?
             .filter { !$0.metadata.isPenPalsConversation }
-            .compactMap(\.users)
-            .reduce([], +)
+            .flatMap { $0.users ?? [] }
             .map(\.id)
             .unique ?? []
     }

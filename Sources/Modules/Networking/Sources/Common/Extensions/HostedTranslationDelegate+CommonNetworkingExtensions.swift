@@ -40,7 +40,10 @@ extension HostedTranslationDelegate {
         switch queryValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: String] else {
-                let exception: Exception = .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
+                let exception: Exception = .Networking.typecastFailed(
+                    "dictionary",
+                    metadata: .init(sender: self)
+                )
                 return exception.appending(userInfo: userInfo)
             }
 

@@ -100,9 +100,10 @@ final class RecipientBarTableViewService {
         if let knownUsers,
            let unknownUsers = conversations?
            .visibleForCurrentUser
-           .compactMap(\.users)
-           .reduce([], +)
-           .filter({ !knownUsers.users.contains($0) && !penPalsService.isObfuscatedPenPalWithCurrentUser($0) })
+           .flatMap({ $0.users ?? [] })
+           .filter({
+               !knownUsers.users.contains($0) && !penPalsService.isObfuscatedPenPalWithCurrentUser($0)
+           })
            .map({ ContactPair.withUser($0) }) {
             return (knownUsers + unknownUsers).uniquedByPhoneNumber
         }

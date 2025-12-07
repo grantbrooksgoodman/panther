@@ -233,7 +233,11 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
         let presentedViewControllers = uiApplication.presentedViewControllers
 
         let viewControllerDescriptors = Set(presentedViewControllers.map(\.descriptor))
-        let viewDescriptors = Set(presentedViewControllers.compactMap(\.view?.traversedSubviews).reduce([], +).map(\.descriptor))
+        let viewDescriptors = Set(
+            presentedViewControllers
+                .flatMap { $0.view?.traversedSubviews ?? [] }
+                .map(\.descriptor)
+        )
 
         let novelViewControllers = viewControllerDescriptors.subtracting(recordedViewControllers)
         let novelViews = viewDescriptors.subtracting(recordedViews)

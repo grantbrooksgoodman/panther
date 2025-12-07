@@ -25,7 +25,13 @@ extension TranslatedLabelStringCollection {
 
         // MARK: - Properties
 
-        var alternate: String? { nil }
+        var alternate: String? {
+            switch self {
+            case .subtitleLabelText: // swiftlint:disable:next line_length
+                "⌘PenPals⌘ enables cross-cultural communication between speakers of different languages.\n\nEnabling this feature allows you to connect fluently with a randomly-selected person at any time. In turn, your account will be entered into the pool of available ⌘PenPals⌘ for other people to connect with.\n\n⌘PenPals⌘ cannot view each other’s phone numbers unless explicitly allowed. Your participation in ⌘PenPals⌘ can be toggled at any time via Settings."
+            default: nil
+            }
+        }
     }
 }
 

@@ -81,8 +81,13 @@ struct ConversationsPageView: View {
                         .background(ThemeService.isAppDefaultThemeApplied ? Color.background : nil)
                         .id(viewModel.conversationCellViewID)
                         .listStyle(.plain)
-                        .refreshable {
-                            await viewModel.send(.pulledToRefresh, while: \.isRefreshing)
+                        .if(!viewModel.isSearching) {
+                            $0.refreshable {
+                                await viewModel.send(
+                                    .pulledToRefresh,
+                                    while: \.isRefreshing
+                                )
+                            }
                         }
                         .searchable(
                             text: searchQueryBinding,

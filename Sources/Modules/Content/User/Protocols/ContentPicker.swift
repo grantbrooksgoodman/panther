@@ -20,18 +20,13 @@ protocol ContentPicker<Content> {
     var onSelection: (Content) -> Void { get }
 }
 
-extension ContentPicker {
-    func dismiss(_ exception: Exception? = nil) {
-        @Dependency(\.uiApplication.keyViewController) var keyViewController: UIViewController?
-        keyViewController?.dismiss(animated: true)
-        onDismiss(exception)
-    }
-}
-
 extension Exception {
     static func contentPickerContentTypeMismatch(
         _ metadata: ExceptionMetadata
     ) -> Exception {
-        .init("Failed to typecast result to specified content.", metadata: metadata)
+        .init(
+            "Failed to typecast result to specified content.",
+            metadata: metadata
+        )
     }
 }

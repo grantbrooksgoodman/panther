@@ -134,7 +134,7 @@ extension Conversation {
     // swiftlint:disable:next identifier_name
     var withMessagesOffsetFromCurrentUserAdditionDate: Conversation {
         guard let currentUserAddedActivity = activities?
-            .first(where: \.action.isCurrentUserAdded) else { return self }
+            .last(where: \.action.isCurrentUserAdded) else { return self }
         return .init(
             id,
             activities: activities,

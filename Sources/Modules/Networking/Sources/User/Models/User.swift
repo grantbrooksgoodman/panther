@@ -131,8 +131,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         guard let conversations else { return 0 }
         return conversations
             .visibleForCurrentUser
-            .compactMap(\.messages)
-            .reduce([], +)
+            .flatMap { $0.messages ?? [] }
             .filteringSystemMessages
             .filter { !$0.isFromCurrentUser && $0.currentUserReadReceipt == nil }
             .count

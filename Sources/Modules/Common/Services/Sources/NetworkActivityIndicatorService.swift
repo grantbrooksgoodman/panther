@@ -22,7 +22,7 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
     // MARK: - Computed Properties
 
     var backgroundColor: Color {
-        .init(uiColor: .accentOrSystemBlue)
+        Application.isInPrevaricationMode ? .init(uiColor: .systemBlue) : .accent
     }
 
     var progressViewTintColor: Color {

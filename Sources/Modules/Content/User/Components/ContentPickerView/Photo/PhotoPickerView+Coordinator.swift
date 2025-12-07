@@ -34,7 +34,7 @@ extension PhotoPickerView {
 
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             var exception: Exception?
-            defer { delegate.dismiss(exception) }
+            defer { delegate.onDismiss(exception) }
 
             guard let itemProvider = results.first?.itemProvider,
                   itemProvider.canLoadObject(ofClass: UIImage.self) else { return }

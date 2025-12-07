@@ -310,19 +310,3 @@ final class UserSessionService {
         }
     }
 }
-
-private extension User {
-    static var empty: User {
-        .init(
-            "",
-            blockedUserIDs: nil,
-            conversationIDs: nil,
-            isPenPalsParticipant: false,
-            languageCode: "",
-            messageRecipientConsentRequired: false,
-            phoneNumber: .init(""),
-            previousLanguageCodes: nil,
-            pushTokens: nil
-        )
-    }
-}

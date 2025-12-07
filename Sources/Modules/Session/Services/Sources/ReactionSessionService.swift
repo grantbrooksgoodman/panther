@@ -68,8 +68,7 @@ final class ReactionSessionService {
 
         guard !reactionMetadata
             .filter({ $0.messageID == message.id })
-            .map(\.reactions)
-            .reduce([], +)
+            .flatMap(\.reactions)
             .filter({ $0.userID == currentUserID })
             .contains(where: { $0.style == reaction.style }) else {
             chatPageViewService.contextMenu?.dismissMenu()

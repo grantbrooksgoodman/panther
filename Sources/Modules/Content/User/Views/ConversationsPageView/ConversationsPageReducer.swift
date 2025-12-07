@@ -109,6 +109,7 @@ struct ConversationsPageReducer: Reducer {
             state.isSearching = isSearching
 
         case .pulledToRefresh:
+            guard !state.isSearching else { return .none }
             state.isRefreshing = true
             return .task {
                 let result = await viewService.reloadData()

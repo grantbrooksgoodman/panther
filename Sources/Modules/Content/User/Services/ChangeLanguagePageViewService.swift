@@ -163,11 +163,9 @@ private extension Array where Element == Conversation {
     func messageTranslations(
         fromCurrentUser: Bool
     ) -> [Translation] {
-        compactMap(\.messages)
-            .reduce([], +)
-            .filter { fromCurrentUser ? $0.isFromCurrentUser : !$0.isFromCurrentUser }
-            .compactMap(\.translations)
-            .reduce([], +)
+        flatMap { $0.messages ?? [] }
+            .filter { $0.isFromCurrentUser == fromCurrentUser }
+            .flatMap { $0.translations ?? [] }
             .unique
     }
 }
