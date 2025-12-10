@@ -65,7 +65,7 @@ final class RecipientBarLayoutService {
         configureToLabel()
         configureTextField()
 
-        guard UIApplication.v26FeaturesEnabled else { return }
+        guard UIApplication.isFullyV26Compatible else { return }
         recipientBarView?.center.x = viewController.view.center.x
 
         guard !hasLaidOutSubviewsOnce else { return }
@@ -146,7 +146,7 @@ final class RecipientBarLayoutService {
     }
 
     private func configureBackgroundColor() {
-        guard !UIApplication.v26FeaturesEnabled else {
+        guard !UIApplication.isFullyV26Compatible else {
             recipientBarView?.backgroundColor = .clear
             return
         }
@@ -158,7 +158,7 @@ final class RecipientBarLayoutService {
 
     /// - Returns: `true` if the glass effect view was configured.
     private func configureGlassEffectView() -> Bool {
-        guard UIApplication.v26FeaturesEnabled,
+        guard UIApplication.isFullyV26Compatible,
               let recipientBarView else { return false }
 
         let preExistingViews = recipientBarView.subviews(for: Strings.glassEffectViewSemanticTag)
@@ -186,7 +186,7 @@ final class RecipientBarLayoutService {
         selectContactButton.tag = core.ui.semTag(for: Strings.selectContactButtonSemanticTag)
         recipientBarView.addSubview(selectContactButton)
 
-        guard UIApplication.v26FeaturesEnabled else { return }
+        guard UIApplication.isFullyV26Compatible else { return }
         correctTextFieldWidth()
     }
 
@@ -248,7 +248,7 @@ final class RecipientBarLayoutService {
         guard let actionHandlerService = service?.actionHandler else { return nil }
 
         let selectContactButton: UIButton = .init(
-            type: UIApplication.v26FeaturesEnabled ? .custom : .contactAdd
+            type: UIApplication.isFullyV26Compatible ? .custom : .contactAdd
         )
 
         selectContactButton.imageView?.contentMode = .scaleAspectFit
@@ -300,7 +300,7 @@ final class RecipientBarLayoutService {
                 origin: .zero,
                 size: .init(
                     width: screenWidth - Floats.textFieldWidthDecrement,
-                    height: UIApplication.v26FeaturesEnabled ? Floats.v26TextFieldFrameHeight : Floats.frameHeight
+                    height: UIApplication.isFullyV26Compatible ? Floats.v26TextFieldFrameHeight : Floats.frameHeight
                 )
             )
         )
@@ -373,7 +373,7 @@ final class RecipientBarLayoutService {
                 .init(systemName: Strings.prevaricationModeSelectContactButtonImageSystemName),
                 for: .normal
             )
-        } else if UIApplication.v26FeaturesEnabled {
+        } else if UIApplication.isFullyV26Compatible {
             if ThemeService.isDarkModeActive {
                 selectContactButton.setImage(
                     .init(resource: .plusDark),

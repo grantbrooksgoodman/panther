@@ -65,22 +65,17 @@ struct ContactSelectorPageView: View {
                         noResultsView
                     }
                 }
-                .if(UIApplication.v26FeaturesEnabled) {
-                    $0.padding(
-                        .bottom,
-                        NavigationBar.height
-                    )
-                }
             }
-            .v26Header(
+            .header(
                 leftItem: viewModel.shouldShowInviteButton ? headerLeftItem : nil,
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: headerRightItem,
                 attributes: .init(
-                    appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
+                    restoreOnDisappear: !Application.isInPrevaricationMode,
                     showsDivider: false,
                     sizeClass: .sheet
-                )
+                ),
+                usesV26Attributes: !Application.isInPrevaricationMode
             )
             .if(viewModel.shouldShowInviteButton) {
                 $0.navigationBarItemGlassTint(
@@ -88,20 +83,6 @@ struct ContactSelectorPageView: View {
                     for: .leading
                 )
             }
-            .if(
-                viewModel.entryPoint == .newChatPageView,
-                { body in
-                    body
-                        .redrawsOnTraitCollectionChange()
-                },
-                else: { body in
-                    body
-                        .interfaceStyle(ThemeService.isDarkModeActive ? .dark : .light)
-                        .onTraitCollectionChange {
-                            viewModel.send(.traitCollectionChanged)
-                        }
-                }
-            )
         }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
@@ -137,21 +118,26 @@ struct ContactSelectorPageView: View {
 
     private var listView: some View {
         List {
-            ForEach(Array(viewModel.sections.keys).alphabeticallySorted, id: \.self) { letter in
+            ForEach(
+                Array(viewModel.sections.keys).alphabeticallySorted,
+                id: \.self
+            ) { letter in
                 if let pairsForLetter = viewModel.sections[letter] {
-                    Section(header: Components.text(letter)) {
-                        ForEach(0 ..< pairsForLetter.count, id: \.self) { index in
-                            if let contactPair = pairsForLetter.itemAt(index) {
-                                ContactPairCellView(
-                                    contactPair: contactPair,
-                                    isInspectable: UIApplication.v26FeaturesEnabled
-                                ) {
-                                    viewModel.send(.selectedContactPairChanged(contactPair))
+                    ThemedView(redrawsOnAppearanceChange: true) {
+                        Section(header: Components.text(letter)) {
+                            ForEach(0 ..< pairsForLetter.count, id: \.self) { index in
+                                if let contactPair = pairsForLetter.itemAt(index) {
+                                    ContactPairCellView(
+                                        contactPair: contactPair,
+                                        isInspectable: UIApplication.isFullyV26Compatible
+                                    ) {
+                                        viewModel.send(.selectedContactPairChanged(contactPair))
+                                    }
                                 }
                             }
                         }
+                        .id(letter)
                     }
-                    .id(letter)
                 }
             }
         }

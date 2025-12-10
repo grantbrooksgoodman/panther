@@ -79,7 +79,7 @@ struct ContactDetailView: View {
         }
         .padding()
         .if(
-            UIApplication.v26FeaturesEnabled,
+            UIApplication.isFullyV26Compatible,
             { $0.glassEffect(padding: Floats.glassEffectPadding) },
             else: {
                 $0

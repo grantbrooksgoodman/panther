@@ -294,9 +294,7 @@ struct ChatInfoPageReducer: Reducer {
             }
 
             state.viewState = .loaded
-            viewService.viewLoaded(
-                withSingleCNContactContainer: state.singleCNContactContainer != nil
-            )
+            viewService.viewLoaded()
 
         case let .getChatParticipantsReturned(.failure(exception)):
             Logger.log(exception)

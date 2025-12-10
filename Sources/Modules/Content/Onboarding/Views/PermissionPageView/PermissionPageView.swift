@@ -60,7 +60,7 @@ struct PermissionPageView: View {
                         viewModel.strings.value(for: .finishButtonText),
                         font: .systemSemibold,
                         foregroundColor: viewModel.isFinishButtonEnabled ? .background : .disabled,
-                        isInspectable: UIApplication.v26FeaturesEnabled
+                        isInspectable: UIApplication.isFullyV26Compatible
                     ) {
                         viewModel.send(.finishButtonTapped)
                     }

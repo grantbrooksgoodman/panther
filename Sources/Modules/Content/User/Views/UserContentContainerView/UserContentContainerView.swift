@@ -101,7 +101,7 @@ struct UserContentContainerView: View {
         .navigationTitle(ConversationCellViewData(conversation)?.titleLabelText ?? "")
         .toolbarRole(.editor)
 
-        if UIApplication.v26FeaturesEnabled {
+        if UIApplication.isFullyV26Compatible {
             ZStack {
                 ThemedView {
                     Color.clear

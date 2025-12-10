@@ -15,6 +15,7 @@ import AppSubsystem
 struct InviteLanguagePickerReducer: Reducer {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
 
@@ -22,6 +23,7 @@ struct InviteLanguagePickerReducer: Reducer {
 
     enum Action {
         case viewAppeared
+        case viewDisappeared
 
         case cancelHeaderItemTapped
         case doneHeaderItemTapped
@@ -89,6 +91,11 @@ struct InviteLanguagePickerReducer: Reducer {
         case let .selectedLanguageCodeChanged(selectedLanguageCode):
             state.selectedLanguageCode = selectedLanguageCode
             state.isDoneHeaderItemEnabled = true
+
+        case .viewDisappeared:
+            guard Application.isInPrevaricationMode,
+                  !chatPageState.isPresented else { return .none }
+            NavigationBar.setAppearance(.conversationsPageView)
         }
 
         return .none

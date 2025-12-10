@@ -40,7 +40,7 @@ struct MediaItemView: View {
         }
     }
 
-    // MARK: - Constants Accesors
+    // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.MediaItemView
     private typealias Floats = AppConstants.CGFloats.MediaItemView
@@ -94,7 +94,7 @@ struct MediaItemView: View {
                     Components.text(
                         metadata.senderLabelText,
                         font: .system(scale: .small),
-                        foregroundColor: Colors.senderLabelForegrround
+                        foregroundColor: Colors.senderLabelForeground
                     )
                     .padding(.top, 1)
                 }

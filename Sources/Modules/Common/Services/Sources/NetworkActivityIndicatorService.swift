@@ -28,7 +28,7 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
     var progressViewTintColor: Color {
         ThemeService.isAppDefaultThemeApplied &&
             ThemeService.isDarkModeActive &&
-            UIApplication.v26FeaturesEnabled ? .black : .white
+            UIApplication.isFullyV26Compatible ? .black : .white
     }
 
     // MARK: - Methods

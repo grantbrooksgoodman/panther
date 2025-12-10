@@ -16,7 +16,7 @@ import AppSubsystem
 extension UIColor {
     static var accentOrSystemBlue: UIColor {
         if Application.isInPrevaricationMode ||
-            (UIApplication.v26FeaturesEnabled && ThemeService.isAppDefaultThemeApplied) {
+            (ThemeService.isAppDefaultThemeApplied && UIApplication.isFullyV26Compatible) {
             return .systemBlue
         }
 

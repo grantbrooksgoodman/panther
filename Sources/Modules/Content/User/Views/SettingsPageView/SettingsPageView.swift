@@ -91,7 +91,7 @@ struct SettingsPageView: View {
         }
         .interactiveDismissDisabled()
         .if(
-            UIApplication.v26FeaturesEnabled,
+            UIApplication.isFullyV26Compatible,
             { body in
                 body
                     .background { statusBarBackgroundView }
@@ -172,7 +172,7 @@ struct SettingsPageView: View {
 
     private var doneToolbarButton: NavigationWindow.Toolbar.Item {
         .init(placement: .topBarTrailing) {
-            if UIApplication.v26FeaturesEnabled {
+            if UIApplication.isFullyV26Compatible {
                 Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)
                 }

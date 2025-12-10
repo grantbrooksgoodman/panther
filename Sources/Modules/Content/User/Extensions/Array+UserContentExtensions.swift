@@ -87,7 +87,11 @@ extension Array where Element == Conversation {
         }
 
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            let metadataContainsSearchTerm = conversation.metadata.name.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
+            let metadataContainsSearchTerm = conversation
+                .metadata
+                .name
+                .lowercasedTrimmingWhitespaceAndNewlines
+                .contains(searchTerm)
 
             // swiftlint:disable:next identifier_name
             let cellViewDataTitleLabelTextContainsSearchTerm = ConversationCellViewData(conversation)?
@@ -95,8 +99,16 @@ extension Array where Element == Conversation {
                 .lowercasedTrimmingWhitespaceAndNewlines
                 .contains(searchTerm) == true
 
-            guard let messages = conversation.messages else { return cellViewDataTitleLabelTextContainsSearchTerm || metadataContainsSearchTerm }
-            let messagesContainsSearchTerm = messages.contains(where: { $0.textContains(searchTerm) })
+            guard let messages = conversation
+                .withMessagesOffsetFromCurrentUserAdditionDate
+                .messages?
+                .filteringSystemMessages else {
+                return cellViewDataTitleLabelTextContainsSearchTerm || metadataContainsSearchTerm
+            }
+
+            let messagesContainsSearchTerm = messages
+                .contains(where: { $0.textContains(searchTerm) })
+
             return cellViewDataTitleLabelTextContainsSearchTerm || messagesContainsSearchTerm || metadataContainsSearchTerm
         }
 

@@ -20,3 +20,11 @@ extension AppConstants.CGFloats {
         static let hStackSpacing: CGFloat = 3.5
     }
 }
+
+// MARK: - Color
+
+extension AppConstants.Colors {
+    enum ContactPairCellView {
+        static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF3EDE6))
+    }
+}

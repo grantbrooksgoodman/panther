@@ -19,17 +19,31 @@ extension RecipientBar: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         @Dependency(\.chatPageViewService.recipientBar?.tableView) var tableViewService: RecipientBarTableViewService?
 
+        typealias Colors = AppConstants.Colors.ContactPairCellView
         typealias Strings = AppConstants.Strings.ChatPageViewService.RecipientBarService.Layout
-        let cell = tableView.dequeueReusableCell(withIdentifier: Strings.tableViewCellReuseIdentifier, for: indexPath)
 
-        guard let contactPair = tableViewService?.sections.itemAt(indexPath.section)?.contactPairs.itemAt(indexPath.row) else { return cell }
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: Strings.tableViewCellReuseIdentifier,
+            for: indexPath
+        )
+
+        guard let contactPair = tableViewService?
+            .sections
+            .itemAt(indexPath.section)?
+            .contactPairs
+            .itemAt(indexPath.row) else { return cell }
 
         cell.contentConfiguration = UIHostingConfiguration {
             ContactPairCellView(contactPair: contactPair)
                 .redrawsOnTraitCollectionChange()
         }
-        cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser || contactPair.containsCurrentUser || contactPair.isSelected)
 
+        cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser ||
+            contactPair.containsCurrentUser ||
+            contactPair.isSelected)
+
+        guard Application.isInPrevaricationMode else { return cell }
+        cell.backgroundColor = UIColor(Colors.prevaricationModeBackground)
         return cell
     }
 

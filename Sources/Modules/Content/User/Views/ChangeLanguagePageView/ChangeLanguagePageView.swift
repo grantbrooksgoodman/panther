@@ -62,7 +62,7 @@ struct ChangeLanguagePageView: View {
                         Components.capsuleButton(
                             viewModel.strings.value(for: .confirmButtonText),
                             font: .systemSemibold,
-                            isInspectable: UIApplication.v26FeaturesEnabled
+                            isInspectable: UIApplication.isFullyV26Compatible
                         ) {
                             viewModel.send(.confirmButtonTapped)
                         }
@@ -74,7 +74,7 @@ struct ChangeLanguagePageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.groupedContentBackground)
-                .if(UIApplication.v26FeaturesEnabled) {
+                .if(UIApplication.isFullyV26Compatible) {
                     $0.navigationTitle(viewModel.strings.value(for: .navigationTitle))
                 }
             }

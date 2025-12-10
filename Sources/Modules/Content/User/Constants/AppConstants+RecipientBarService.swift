@@ -41,7 +41,7 @@ extension AppConstants.CGFloats.ChatPageViewService {
 
             static let contactLabelSystemFontSize: CGFloat = 16
 
-            static let contactViewCornerRadius: CGFloat = UIApplication.v26FeaturesEnabled ? 12 : 6
+            static let contactViewCornerRadius: CGFloat = UIApplication.isFullyV26Compatible ? 12 : 6
             static let contactViewFrameHeight: CGFloat = 30
             static let contactViewFrameXOrigin: CGFloat = 40
             static let contactViewMaximumWidthDivisor: CGFloat = 2
@@ -70,9 +70,9 @@ extension AppConstants.CGFloats.ChatPageViewService {
             static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
 
             static let selectContactButtonMinXDecrement: CGFloat = 5
-            static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.v26FeaturesEnabled ? 40 : 10
-            static let selectContactButtonFrameHeight: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
-            static let selectContactButtonFrameWidth: CGFloat = UIApplication.v26FeaturesEnabled ? 22 : 26
+            static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.isFullyV26Compatible ? 40 : 10
+            static let selectContactButtonFrameHeight: CGFloat = UIApplication.isFullyV26Compatible ? 22 : 26
+            static let selectContactButtonFrameWidth: CGFloat = UIApplication.isFullyV26Compatible ? 22 : 26
 
             static let textFieldWidthDecrement: CGFloat = 85
             static let textFieldXOriginIncrement: CGFloat = 5

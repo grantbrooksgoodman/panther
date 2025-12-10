@@ -8,6 +8,7 @@
 
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
 import AppSubsystem
@@ -34,8 +35,6 @@ struct ContactSelectorPageReducer: Reducer {
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
-
-        case traitCollectionChanged
     }
 
     // MARK: - State
@@ -52,7 +51,6 @@ struct ContactSelectorPageReducer: Reducer {
         var viewState: StatefulView.ViewState = .loading
 
         fileprivate var foundContactPair: ContactPair?
-        fileprivate var traitCollectionDidChange = false
 
         /* MARK: Computed Properties */
 
@@ -175,13 +173,12 @@ struct ContactSelectorPageReducer: Reducer {
                 )
             }
 
-        case .traitCollectionChanged:
-            state.traitCollectionDidChange = true
-
         case .viewDisappeared:
-            guard state.entryPoint == .chatInfoPageView,
-                  state.traitCollectionDidChange else { return .none }
-            Observables.currentConversationMetadataChanged.trigger()
+            guard Application.isInPrevaricationMode,
+                  UIApplication.isFullyV26Compatible,
+                  state.entryPoint == .newChatPageView else { return .none }
+
+            NavigationBar.setAppearance(.newChatPageView)
         }
 
         return .none

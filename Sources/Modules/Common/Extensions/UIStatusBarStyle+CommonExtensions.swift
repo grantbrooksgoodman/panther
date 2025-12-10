@@ -24,12 +24,11 @@ extension UIStatusBarStyle {
         return !isAppDefaultThemeApplied ||
             isDarkModeActive ||
             (isInPrevaricationMode && !UIApplication.isFullyV26Compatible) ||
-            (isPresentingSheet && !UIApplication.v26FeaturesEnabled) ? .lightContent : .darkContent
+            (isPresentingSheet && !UIApplication.isFullyV26Compatible) ? .lightContent : .darkContent
     }
 
     static var conditionalLightContent: UIStatusBarStyle {
-        (!ThemeService.isDarkModeActive && UIApplication.v26FeaturesEnabled) ||
-            (Application.isInPrevaricationMode && UIApplication.isFullyV26Compatible)
-            ? .darkContent : .lightContent
+        guard UIApplication.isFullyV26Compatible else { return .lightContent }
+        return Application.isInPrevaricationMode || !ThemeService.isDarkModeActive ? .darkContent : .lightContent
     }
 }

@@ -48,7 +48,6 @@ final class ConversationsPageViewService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.uiApplication.presentedViewControllers) private var presentedViewControllers: [UIViewController]
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
@@ -141,10 +140,6 @@ final class ConversationsPageViewService {
 
         Task.delayed(by: .seconds(1)) { @MainActor in
             defer {
-                presentedViewControllers
-                    .compactMap(\.navigationItem.searchController)
-                    .forEach { $0.searchBar.searchTextField.clearButtonMode = .never }
-
                 startSettingSearchBarAppearance()
 
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
@@ -184,7 +179,12 @@ final class ConversationsPageViewService {
 
     func traitCollectionChanged() {
         guard !chatPageState.isPresented else {
-            return chatPageState.addEffectUponIsPresented(changedTo: false, id: .updateAppearance) { Observables.traitCollectionChanged.trigger() }
+            return chatPageState.addEffectUponIsPresented(
+                changedTo: false,
+                id: .updateAppearance
+            ) {
+                Observables.traitCollectionChanged.trigger()
+            }
         }
 
         guard navigation.state.userContent.sheet == nil else { return }
@@ -275,7 +275,7 @@ final class ConversationsPageViewService {
 
     /// - NOTE: Fixes a bug in which upon the initial appearance of the view (in iOS 26 GM), the search bar background would not render properly.
     private func fixInitialSearchBarAppearance() {
-        guard UIApplication.v26FeaturesEnabled else { return }
+        guard UIApplication.isFullyV26Compatible else { return }
         var searchBarTextFieldBackgroundColor: UIColor { .init(hex: ThemeService.isDarkModeActive ? 0x1F1F1F : 0xF5F5F5) }
         uiApplication.presentedViews
             .filter {
@@ -312,7 +312,7 @@ final class ConversationsPageViewService {
 
     private func startSettingSearchBarAppearance() {
         guard Application.isInPrevaricationMode,
-              !UIApplication.v26FeaturesEnabled else { return }
+              !UIApplication.isFullyV26Compatible else { return }
 
         var misconfiguredSearchFieldBackgroundViews: [UIView] {
             uiApplication.presentedViews

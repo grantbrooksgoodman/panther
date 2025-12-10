@@ -37,7 +37,9 @@ struct InviteQRCodePageView: View {
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground
         ) {
-            ThemedView(navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default()) {
+            ThemedView(
+                navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default()
+            ) {
                 VStack {
                     Components.text(
                         viewModel.strings.value(for: .instructionLabelText),
@@ -54,13 +56,14 @@ struct InviteQRCodePageView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .v26Header(
+                .header(
                     rightItem: .doneButton(
                         foregroundColor: UIApplication.isGlassTintingEnabled ? Colors.tintedGlassToolbarButtonForeground : .navigationBarButton
                     ) {
                         viewModel.send(.doneButtonTapped)
                     },
-                    attributes: .init(sizeClass: .sheet)
+                    attributes: .init(sizeClass: .sheet),
+                    usesV26Attributes: !Application.isInPrevaricationMode
                 )
             }
         }

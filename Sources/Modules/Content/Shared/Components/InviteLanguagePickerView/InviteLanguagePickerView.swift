@@ -64,18 +64,12 @@ struct InviteLanguagePickerView: View {
                             )
                         }
                     }
-                    .if(UIApplication.v26FeaturesEnabled) {
-                        $0.padding(
-                            .bottom,
-                            NavigationBar.height
-                        )
-                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.groupedContentBackground)
                 }
             }
         }
-        .v26Header(
+        .header(
             leftItem: .cancelButton(foregroundColor: .navigationBarButton) {
                 viewModel.send(.cancelHeaderItemTapped)
             },
@@ -87,7 +81,12 @@ struct InviteLanguagePickerView: View {
             ) {
                 viewModel.send(.doneHeaderItemTapped)
             },
-            attributes: .init(showsDivider: false, sizeClass: .sheet)
+            attributes: .init(
+                restoreOnDisappear: false, // TODO: Audit this.
+                showsDivider: false,
+                sizeClass: .sheet
+            ),
+            usesV26Attributes: !Application.isInPrevaricationMode
         )
         .background(Color.navigationBarBackground)
         .ignoresSafeArea()
@@ -98,6 +97,9 @@ struct InviteLanguagePickerView: View {
         )
         .onAppear {
             viewModel.send(.viewAppeared)
+        }
+        .onNavigationTransition(.didDisappear) { _ in
+            viewModel.send(.viewDisappeared)
         }
         .onTraitCollectionChange {
             let previousQuery = viewModel.searchQuery

@@ -197,7 +197,7 @@ extension SettingsPageView {
         .init(
             .button { viewModel.send(.signOutButtonTapped) },
             innerText: viewModel.strings.value(for: .signOutButtonText),
-            isInspectable: UIApplication.v26FeaturesEnabled,
+            isInspectable: UIApplication.isFullyV26Compatible,
             imageView: {
                 SquareIconView.image(
                     .init(

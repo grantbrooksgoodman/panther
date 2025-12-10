@@ -368,7 +368,7 @@ final class ChatPageViewService {
 
     private func startSettingNavigationBarButtonItemAppearance() {
         Task { @MainActor in
-            guard !UIApplication.v26FeaturesEnabled,
+            guard !UIApplication.isFullyV26Compatible,
                   chatPageState.isPresented else { return }
             guard let leafViewController = uiApplication.keyViewController?.leafViewController,
                   leafViewController.descriptor == Strings.leafViewControllerID else {

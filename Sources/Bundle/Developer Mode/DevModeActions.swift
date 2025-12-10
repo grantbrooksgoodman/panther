@@ -35,14 +35,6 @@ extension DevModeAction {
                 actions.insert(AppActions.createNewMessagesAction, at: 1)
             }
 
-            if UIApplication.isFullyV26Compatible {
-                actions.insert(AppActions.toggleV26FeaturesAction, at: 1)
-            }
-
-            if UIApplication.v26FeaturesEnabled {
-                actions.insert(AppActions.toggleGlassTintingAction, at: 1)
-            }
-
             return actions
         }
 
@@ -143,51 +135,6 @@ extension DevModeAction {
             }
 
             return .init(title: "Set Current User ID", perform: setCurrentUserID)
-        }
-
-        private static var toggleGlassTintingAction: DevModeAction {
-            func toggleGlassTintingAction() {
-                @Dependency(\.coreKit) var core: CoreKit
-
-                @Persistent(.isGlassTintingEnabled) var persistedValue: Bool?
-                Application.toggleGlassTinting(on: !(persistedValue == true))
-
-                core.hud.showSuccess(
-                    text: "Glass Tinting \(persistedValue == true ? "Enabled" : "Disabled")"
-                )
-            }
-
-            return .init(
-                title: "Toggle Glass Tinting",
-                perform: toggleGlassTintingAction
-            )
-        }
-
-        private static var toggleV26FeaturesAction: DevModeAction {
-            @Persistent(.v26FeaturesEnabled) var persistedValue: Bool?
-            let v26FeaturesEnabled = persistedValue == true
-
-            func toggleV26Features() {
-                @Dependency(\.coreKit) var core: CoreKit
-                @Dependency(\.userDefaults) var defaults: UserDefaults
-
-                persistedValue = !v26FeaturesEnabled
-                defaults.synchronize() // NIT: Trying to force sync.
-                core.hud.showSuccess(
-                    text: "v26 Features \(persistedValue == true ? "Enabled" : "Disabled")"
-                )
-
-                core.gcd.after(.seconds(1)) {
-                    StatusBar.setIsHidden(true)
-                    core.ui.addOverlay(activityIndicator: .largeWhite)
-                    core.gcd.after(.seconds(1)) { core.utils.exitGracefully() }
-                }
-            }
-
-            return .init(
-                title: "\(v26FeaturesEnabled ? "Disable" : "Enable") v26 Features",
-                perform: toggleV26Features
-            )
         }
 
         private static var triggerForcedUpdateModalAction: DevModeAction {

@@ -80,7 +80,7 @@ struct SearchBar: View {
             }
             .padding(.horizontal, Floats.innerHStackHorizontalPadding)
             .if(
-                UIApplication.v26FeaturesEnabled,
+                UIApplication.isFullyV26Compatible,
                 {
                     $0
                         .glassEffect(padding: Floats.glassEffectPadding)
@@ -93,8 +93,8 @@ struct SearchBar: View {
             )
         }
         .padding(.bottom, bottomPadding)
-        .padding(.horizontal, UIApplication.v26FeaturesEnabled ? Floats.v26HorizontalPadding : nil)
-        .background(UIApplication.v26FeaturesEnabled ? Color.clear : .navigationBarBackground)
+        .padding(.horizontal, UIApplication.isFullyV26Compatible ? Floats.v26HorizontalPadding : nil)
+        .background(UIApplication.isFullyV26Compatible ? Color.clear : .navigationBarBackground)
     }
 
     // MARK: - View Builder
@@ -107,9 +107,10 @@ struct SearchBar: View {
         onSubmit: ((String) -> Void)? = nil,
         content: @escaping () -> some View
     ) -> some View {
-        if UIApplication.v26FeaturesEnabled {
+        if UIApplication.isFullyV26Compatible {
             ZStack {
                 content()
+                    .padding(.bottom, NavigationBar.height)
 
                 VStack {
                     Spacer()

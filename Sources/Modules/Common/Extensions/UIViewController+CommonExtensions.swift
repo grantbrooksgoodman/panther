@@ -95,8 +95,8 @@ extension UIViewController {
                 height: navigationBarHeight
             ))
 
-            bottomOverlayView.backgroundColor = UIApplication.v26FeaturesEnabled ? .white : .init(hex: 0xF8F8F8)
-            topOverlayView.backgroundColor = UIApplication.v26FeaturesEnabled ? .white : .init(hex: 0xF8F8F8)
+            bottomOverlayView.backgroundColor = UIApplication.isFullyV26Compatible ? .white : .init(hex: 0xF8F8F8)
+            topOverlayView.backgroundColor = UIApplication.isFullyV26Compatible ? .white : .init(hex: 0xF8F8F8)
 
             bottomOverlayView.tag = coreUI.semTag(for: "SF_SAFARI_VIEW_CONTROLLER_OVERLAY_VIEW")
             topOverlayView.tag = coreUI.semTag(for: "SF_SAFARI_VIEW_CONTROLLER_OVERLAY_VIEW")

@@ -295,13 +295,8 @@ final class SplashPageViewService: ObservableObject {
               Networking.config.environment == .production,
               services.metadata.isPrevaricationModeEnabled == true else { return }
 
-        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
-        @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
-
-        isGlassTintingEnabled = false
-        v26FeaturesEnabled = false
-
         Application.isInPrevaricationMode = true
+        core.ui.toggleGlassTinting(on: false)
         Toast.overrideDefaultColorPalette(.init(
             background: .init(uiColor: .init(hex: 0xF8F8F8)),
         ))

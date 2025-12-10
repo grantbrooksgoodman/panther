@@ -49,7 +49,7 @@ extension UITheme {
     private static var appDefaultColoredItems: [Item] {
         let accent = Item(
             .accent,
-            set: UIApplication.v26FeaturesEnabled ? .init(.black, variant: .white) : .init(.systemBlue)
+            set: UIApplication.isFullyV26Compatible ? .init(.black, variant: .white) : .init(.systemBlue)
         )
 
         let background = Item(.background, set: .init(.white, variant: .black))
@@ -257,5 +257,7 @@ extension UITheme {
 }
 
 extension ThemeService {
-    static var isAppDefaultThemeApplied: Bool { currentTheme == UITheme.appDefault || currentTheme == UITheme.prevaricationMode }
+    static var isAppDefaultThemeApplied: Bool {
+        currentTheme == UITheme.appDefault || currentTheme == UITheme.prevaricationMode
+    }
 }

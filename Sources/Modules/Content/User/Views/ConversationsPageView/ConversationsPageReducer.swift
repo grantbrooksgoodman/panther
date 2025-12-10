@@ -142,10 +142,10 @@ struct ConversationsPageReducer: Reducer {
             defer { state.conversationCellViewID = UUID() }
             guard !searchQuery.isEmpty else {
                 state.conversations = conversations ?? state.conversations
-                return .task { .isSearchingChanged(false) }
+                return .none
             }
 
-            state.conversations = conversations?.queried(by: searchQuery) ?? state.conversations
+            state.conversations = (conversations ?? state.conversations).queried(by: searchQuery)
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))

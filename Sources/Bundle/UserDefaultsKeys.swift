@@ -20,8 +20,6 @@ extension UserDefaultsKey {
         let permanentKeys: [UserDefaultsKey] = [
             .application(.buildMilestoneString),
             .application(.hasRunOnce),
-            .application(.isGlassTintingEnabled),
-            .application(.v26FeaturesEnabled),
             .breadcrumbsCaptureService(.breadcrumbsCaptureHistory),
             .networking(.isNetworkActivityIndicatorEnabled),
             .networking(.networkEnvironment),

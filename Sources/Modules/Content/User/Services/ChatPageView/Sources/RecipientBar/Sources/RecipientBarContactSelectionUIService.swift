@@ -306,7 +306,7 @@ final class RecipientBarContactSelectionUIService {
             size: .init(width: 0, height: Floats.contactViewFrameHeight)
         ))
 
-        contactView.alpha = UIApplication.v26FeaturesEnabled ? Floats.v26ContactViewAlpha : 1
+        contactView.alpha = UIApplication.isFullyV26Compatible ? Floats.v26ContactViewAlpha : 1
         contactView.backgroundColor = contactViewSelectionColor
         contactView.center.y = toLabel.center.y
         contactView.isUserInteractionEnabled = true

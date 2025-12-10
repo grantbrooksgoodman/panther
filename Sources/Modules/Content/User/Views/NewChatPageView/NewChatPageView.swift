@@ -55,12 +55,12 @@ struct NewChatPageView: View {
                 ChatPageView(viewModel.conversation, configuration: .newChat)
                     .ignoresSafeArea(.keyboard)
                     .background(
-                        UIApplication.v26FeaturesEnabled && ThemeService.isDarkModeActive ? Color.groupedContentBackground : .background
+                        ThemeService.isDarkModeActive && UIApplication.isFullyV26Compatible ? Color.groupedContentBackground : .background
                     )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .if(
-                UIApplication.v26FeaturesEnabled,
+                UIApplication.isFullyV26Compatible,
                 { v26Layout($0) },
                 else: { preV26Layout($0) }
             )
@@ -144,7 +144,10 @@ struct NewChatPageView: View {
                     .frame(width: .zero, height: .zero)
                     .id(viewModel.v26NavigationBarProxyViewID)
                     .ignoresSafeArea(edges: .top)
-                    .navigationBarAppearance(.newChatPageView)
+                    .navigationBarAppearance(
+                        .newChatPageView,
+                        restoreOnDisappear: !Application.isInPrevaricationMode
+                    )
                     .if(viewModel.shouldUseBoldDoneToolbarButton) {
                         $0.navigationBarItemGlassTint(
                             Colors.navigationBarItemGlassTint,

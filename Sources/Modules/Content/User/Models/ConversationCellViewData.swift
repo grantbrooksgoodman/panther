@@ -131,12 +131,12 @@ struct ConversationCellViewData: Equatable {
             .messages?
             .filteringSystemMessages
 
-        var lastMessage = messages?.filteringSystemMessages.last
+        var lastMessage = messages?.last
         if let searchQuery,
            !searchQuery.isBlank {
-            lastMessage = messages?
-                .filteringSystemMessages
-                .last(where: { $0.textContains(searchQuery) }) ?? lastMessage
+            lastMessage = messages?.last(where: {
+                $0.textContains(searchQuery)
+            }) ?? lastMessage
         }
 
         if let lastMessage {

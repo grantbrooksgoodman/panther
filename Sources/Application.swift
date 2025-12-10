@@ -86,25 +86,5 @@ enum Application {
 
         UIViewController.swizzlePresent
         UIViewController.swizzleViewWillDisappear
-
-        /* MARK: v26 Features Setup */
-
-        @Persistent(.isGlassTintingEnabled) var isGlassTintingEnabled: Bool?
-        @Persistent(.v26FeaturesEnabled) var v26FeaturesEnabled: Bool?
-
-        guard UIApplication.isFullyV26Compatible else {
-            isGlassTintingEnabled = false
-            v26FeaturesEnabled = false
-            return
-        }
-
-        guard isDeveloperModeEnabled else {
-            isGlassTintingEnabled = true
-            v26FeaturesEnabled = true
-            return
-        }
-
-        isGlassTintingEnabled = isGlassTintingEnabled ?? true
-        v26FeaturesEnabled = v26FeaturesEnabled ?? true
     }
 }

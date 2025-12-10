@@ -22,7 +22,7 @@ extension NavigationBarAppearance {
                 barButtonItemColor: .navigationBarTitle,
                 showsDivider: true
             ))
-        } else if UIApplication.v26FeaturesEnabled {
+        } else if UIApplication.isFullyV26Compatible {
             return .default(scrollEdgeConfig: nil)
         } else {
             return .default(scrollEdgeConfig: .init(
@@ -35,7 +35,9 @@ extension NavigationBarAppearance {
     }
 
     static var chatPageView: NavigationBarAppearance {
-        guard UIApplication.v26FeaturesEnabled else { return .appDefault }
+        guard !Application.isInPrevaricationMode,
+              UIApplication.isFullyV26Compatible else { return .appDefault }
+
         return .custom(
             .init(
                 titleColor: .navigationBarTitle,
@@ -72,7 +74,9 @@ extension NavigationBarAppearance {
     }
 
     static var newChatPageView: NavigationBarAppearance {
-        guard UIApplication.v26FeaturesEnabled else { return .appDefault }
+        guard !Application.isInPrevaricationMode,
+              UIApplication.isFullyV26Compatible else { return .appDefault }
+
         return .custom(
             .v26ScrollEdgeConfig,
             scrollEdgeConfig: .v26ScrollEdgeConfig

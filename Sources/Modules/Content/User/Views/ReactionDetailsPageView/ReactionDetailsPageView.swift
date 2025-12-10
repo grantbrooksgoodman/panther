@@ -45,12 +45,13 @@ struct ReactionDetailsPageView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .id(viewModel.viewID)
             .background(Color.groupedContentBackground)
-            .v26Header(
+            .header(
                 .text(.init(viewModel.navigationTitle, foregroundColor: .navigationBarTitle)),
                 rightItem: .doneButton(
                     foregroundColor: Colors.doneHeaderItemForeground
                 ) { viewModel.send(.doneHeaderItemTapped) },
-                attributes: .init(sizeClass: .sheet)
+                attributes: .init(sizeClass: .sheet),
+                usesV26Attributes: !Application.isInPrevaricationMode
             )
             .navigationBarItemGlassTint(
                 Colors.navigationBarItemGlassTint,

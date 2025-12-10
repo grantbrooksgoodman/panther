@@ -54,7 +54,7 @@ struct RegionMenu: View {
 
                     Components.text(
                         "+\(services.regionDetail.callingCode(regionCode: selectedRegionCode) ?? "1")",
-                        foregroundColor: UIApplication.v26FeaturesEnabled ? .titleText : Colors.buttonLabelTextForeground
+                        foregroundColor: UIApplication.isFullyV26Compatible ? .titleText : Colors.buttonLabelTextForeground
                     )
                     .multilineTextAlignment(.center)
                 }
@@ -63,7 +63,7 @@ struct RegionMenu: View {
                     minHeight: Floats.buttonLabelVStackFrameMinHeight
                 )
                 .if(
-                    UIApplication.v26FeaturesEnabled,
+                    UIApplication.isFullyV26Compatible,
                     { body in
                         body.glassEffect(
                             padding: Floats.buttonLabelGlassEffectPadding,
@@ -149,17 +149,11 @@ private struct RegionPickerView: View {
                             noResultsView
                         }
                     }
-                    .if(UIApplication.v26FeaturesEnabled) {
-                        $0.padding(
-                            .bottom,
-                            NavigationBar.height
-                        )
-                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.groupedContentBackground)
                 }
             }
-            .v26Header(
+            .header(
                 .text(.init(viewModel.headerLabelText)),
                 attributes: .init(showsDivider: false, sizeClass: .sheet)
             )

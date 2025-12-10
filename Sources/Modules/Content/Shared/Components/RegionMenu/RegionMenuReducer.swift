@@ -108,7 +108,7 @@ struct RegionMenuReducer: Reducer {
                     proxy.scrollTo(selectedRegionTitle ?? selectedRegionCode, anchor: .top)
                 }
 
-                guard UIApplication.v26FeaturesEnabled else { return }
+                guard UIApplication.isFullyV26Compatible else { return }
                 showCurrentSelection()
             }
 

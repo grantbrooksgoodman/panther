@@ -69,22 +69,28 @@ struct ChatInfoPageView: View {
             viewModel.binding(for: \.viewState),
             progressPageViewBackgroundColor: .groupedContentBackground
         ) {
-            ThemedView(
-                navigationBarAppearance: Application.isInPrevaricationMode ? .appDefault : .default(),
-                redrawsOnAppearanceChange: viewModel.singleCNContactContainer != nil,
-                restoresNavigationBarAppearanceOnDisappear: false
-            ) {
-                NavigationWindow(
-                    displayMode: .inline,
-                    toolbarBackgroundColor: .navigationBarBackground,
-                    toolbarItems: [doneToolbarButton]
-                ) {
-                    contentView
-                        .id(viewModel.viewID)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.groupedContentBackground)
-                }
-                .sheet(item: sheetBinding) { sheetView(for: $0) }
+            ThemedView {
+                contentView
+                    .id(viewModel.viewID)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.groupedContentBackground)
+                    .header(
+                        rightItem: headerRightItem,
+                        attributes: .init(
+                            restoreOnDisappear: false, // TODO: Shouldn't be necessary.
+                            sizeClass: .sheet
+                        ),
+                        usesV26Attributes: !Application.isInPrevaricationMode
+                    )
+                    .sheet(item: sheetBinding) { sheetView(for: $0) }
+                    .if(!UIApplication.isFullyV26Compatible) { contentView in
+                        NavigationWindow(
+                            displayMode: .inline,
+                            toolbarItems: [doneToolbarButton]
+                        ) {
+                            contentView
+                        }
+                    }
             }
         }
         .preferredStatusBarStyle(
@@ -110,25 +116,6 @@ struct ChatInfoPageView: View {
             CNContactView(
                 cnContactContainer.cnContact,
                 isUnknown: cnContactContainer.isUnknown
-            )
-            .if(
-                UIApplication.v26FeaturesEnabled,
-                { contentView in
-                    NavigationWindow(
-                        displayMode: .inline,
-                        isBackButtonHidden: true
-                    ) { contentView }
-                },
-                else: { contentView in
-                    contentView
-                        .header(
-                            rightItem: headerRightItem,
-                            attributes: .init(
-                                appearance: Application.isInPrevaricationMode ? .custom(backgroundColor: .navigationBarBackground) : .themed,
-                                sizeClass: .sheet
-                            )
-                        )
-                }
             )
         } else {
             VStack {
@@ -216,17 +203,17 @@ struct ChatInfoPageView: View {
         Button {
             viewModel.send(.addContactButtonTapped)
         } label: {
-            HStack {
-                let imageView = Components.symbol(
-                    Strings.addContactButtonImageSystemName,
-                    foregroundColor: Colors.addContactButtonSymbolForeground,
-                    usesIntrinsicSize: false
-                ).frame(
-                    width: Floats.addContactButtonImageWidth,
-                    height: Floats.addContactButtonImageHeight
-                )
+            ThemedView {
+                HStack {
+                    let imageView = Components.symbol(
+                        Strings.addContactButtonImageSystemName,
+                        foregroundColor: Colors.addContactButtonSymbolForeground,
+                        usesIntrinsicSize: false
+                    ).frame(
+                        width: Floats.addContactButtonImageWidth,
+                        height: Floats.addContactButtonImageHeight
+                    )
 
-                ThemedView {
                     Circle()
                         .overlay(imageView, alignment: .center)
                         .frame(
@@ -237,12 +224,12 @@ struct ChatInfoPageView: View {
                             ThemeService.isDarkModeActive ? Colors.addContactButtonCircleDarkForeground : Colors.addContactButtonCircleLightForeground
                         )
                         .padding(.trailing, Floats.addContactButtonCircleTrailingPadding)
-                }
 
-                Components.text(
-                    viewModel.strings.value(for: .addContactButtonText),
-                    foregroundColor: Colors.addContactButtonLabelForeground
-                )
+                    Components.text(
+                        viewModel.strings.value(for: .addContactButtonText),
+                        foregroundColor: Colors.addContactButtonLabelForeground
+                    )
+                }
             }
         }
     }
@@ -252,10 +239,10 @@ struct ChatInfoPageView: View {
     @ViewBuilder
     private var changeMetadataButton: some View {
         let text = viewModel.strings.value(for: .changeMetadataButtonText) // swiftlint:disable:next line_length
-        let font: ComponentKit.Font = UIApplication.v26FeaturesEnabled ? .systemSemibold(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) : .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) // swiftlint:disable:next line_length
-        let foregroundColor = viewModel.isChangeMetadataButtonEnabled ? (UIApplication.v26FeaturesEnabled ? Color.background : Colors.changeMetadataButtonForeground) : .disabled
+        let font: ComponentKit.Font = UIApplication.isFullyV26Compatible ? .systemSemibold(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) : .system(scale: .custom(Floats.changeMetadataButtonLabelFontSize)) // swiftlint:disable:next line_length
+        let foregroundColor = viewModel.isChangeMetadataButtonEnabled ? (UIApplication.isFullyV26Compatible ? Color.background : Colors.changeMetadataButtonForeground) : .disabled
 
-        if UIApplication.v26FeaturesEnabled {
+        if UIApplication.isFullyV26Compatible {
             Components.capsuleButton(
                 text,
                 font: font,
@@ -311,7 +298,7 @@ struct ChatInfoPageView: View {
 
     private var doneToolbarButton: NavigationWindow.Toolbar.Item {
         .init(placement: .topBarTrailing) {
-            if UIApplication.v26FeaturesEnabled {
+            if UIApplication.isFullyV26Compatible {
                 Components.v26DoneButton {
                     viewModel.send(.doneToolbarButtonTapped)
                 }
@@ -330,7 +317,7 @@ struct ChatInfoPageView: View {
     // MARK: - Header Right Item
 
     private var headerRightItem: HeaderView.PeripheralButtonType {
-        if UIApplication.v26FeaturesEnabled {
+        if UIApplication.isFullyV26Compatible {
             return .v26DoneButton {
                 viewModel.send(.doneHeaderItemTapped)
             }

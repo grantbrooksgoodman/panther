@@ -15,7 +15,7 @@ import AppSubsystem
 import ComponentKit
 
 struct ChatParticipantView: View {
-    // MARK: - Constants Accesors
+    // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatParticipantView
     private typealias Floats = AppConstants.CGFloats.ChatParticipantView
@@ -57,7 +57,7 @@ struct ChatParticipantView: View {
                     Components.text(
                         participant.displayName,
                         font: .systemSemibold,
-                        isInspectable: UIApplication.v26FeaturesEnabled
+                        isInspectable: UIApplication.isFullyV26Compatible
                     )
 
                     if let firstUser = participant.firstUser {

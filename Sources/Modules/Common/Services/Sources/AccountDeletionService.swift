@@ -61,16 +61,6 @@ final class AccountDeletionService {
             exceptions.append(exception)
         }
 
-        // Enumerate messages sent by the current user.
-
-        var messageIDsFromCurrentUser = Set<String>()
-        let getMessageIDsFromResult = await getMessageIDsFrom(currentUserID)
-
-        switch getMessageIDsFromResult {
-        case let .success(messageIDs): messageIDsFromCurrentUser = messageIDs
-        case let .failure(exception): exceptions.append(exception)
-        }
-
         // Synchronize conversations.
 
         if let exception = await clientSession.user.currentUser?.setConversations() {
@@ -81,7 +71,7 @@ final class AccountDeletionService {
         let groupChats = conversations.filter { $0.participants.count > 2 }
         let oneToOneChats = conversations.filter { $0.participants.count == 2 }
 
-        let totalUnits = Double(groupChats.count + oneToOneChats.count + messageIDsFromCurrentUser.count)
+        let totalUnits = Double(groupChats.count + oneToOneChats.count)
 
         // Remove user from existing group chats.
 
@@ -106,18 +96,6 @@ final class AccountDeletionService {
             if let exception = await clientSession.conversation.deleteConversation(
                 oneToOneChat,
                 forced: true
-            ) {
-                exceptions.append(exception)
-            }
-
-            incrementProgress(forTotal: totalUnits)
-        }
-
-        // Delete all messages sent by current user.
-
-        for messageID in messageIDsFromCurrentUser {
-            if let exception = await networking.messageService.deleteMessage(
-                id: messageID
             ) {
                 exceptions.append(exception)
             }
@@ -206,31 +184,6 @@ final class AccountDeletionService {
         }
 
         return nil
-    }
-
-    private func getMessageIDsFrom(_ userID: String) async -> Callback<Set<String>, Exception> {
-        let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
-
-        switch resolveResult {
-        case let .success(session):
-            return .success(Set(
-                session
-                    .messageData
-                    .compactMapValues {
-                        ($0 as? [String: Any])?[
-                            Message
-                                .SerializationKeys
-                                .fromAccountID
-                                .rawValue
-                        ] as? String
-                    }
-                    .filter { $0.value == userID }
-                    .keys
-            ))
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
     }
 
     private func incrementProgress(forTotal total: Double) {

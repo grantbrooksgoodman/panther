@@ -61,7 +61,7 @@ struct ChatPageViewControllerFactory {
         viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = Floats.frameHeight
 
         let recipientBar = RecipientBar(service: service)
-        if UIApplication.v26FeaturesEnabled {
+        if UIApplication.isFullyV26Compatible {
             recipientBar.frame = .init(
                 origin: .zero,
                 size: .init(
@@ -83,7 +83,10 @@ struct ChatPageViewControllerFactory {
         }
 
         typealias Colors = AppConstants.Colors.ChatPageView
-        guard !Application.isInPrevaricationMode else { return setBackgroundColor(UIColor(Colors.messagesCollectionViewPrevaricationModeBackground)) }
+        guard !Application.isInPrevaricationMode else {
+            return setBackgroundColor(UIColor(Colors.messagesCollectionViewPrevaricationModeBackground))
+        }
+
         setBackgroundColor(.background)
     }
 

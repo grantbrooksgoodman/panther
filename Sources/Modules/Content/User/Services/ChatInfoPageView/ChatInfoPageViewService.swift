@@ -33,13 +33,11 @@ final class ChatInfoPageViewService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
-    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -53,8 +51,7 @@ final class ChatInfoPageViewService {
     // MARK: - Computed Properties
 
     private var uiSegmentBackgroundViewBackgroundColor: UIColor {
-        if UIApplication.v26FeaturesEnabled ||
-            Application.isInPrevaricationMode && UIApplication.isFullyV26Compatible {
+        if Application.isInPrevaricationMode || UIApplication.isFullyV26Compatible {
             return .init(hex: ThemeService.isDarkModeActive ? 0x313136 : 0xE2E2E6)
         }
 
@@ -72,10 +69,11 @@ final class ChatInfoPageViewService {
 
     /// `.viewAppeared`
     func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
-        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
-
-        guard let conversation = conversationSession.fullConversation else {
-            return .failure(.init("No current conversation.", metadata: .init(sender: self)))
+        guard let conversation = clientSession.conversation.fullConversation else {
+            return .failure(.init(
+                "No current conversation.",
+                metadata: .init(sender: self)
+            ))
         }
 
         guard let users = conversation.users,
@@ -84,7 +82,7 @@ final class ChatInfoPageViewService {
                 return .failure(exception)
             }
 
-            conversationSession.setCurrentConversation(conversation)
+            clientSession.conversation.setCurrentConversation(conversation)
             return await getChatParticipants()
         }
 
@@ -325,39 +323,17 @@ final class ChatInfoPageViewService {
     }
 
     /// `.getChatParticipantsReturned(.success)`
-    func viewLoaded(withSingleCNContactContainer isPresentingSingleUserContactInfo: Bool) {
-        defer {
-            coreGCD.after(.seconds(1)) {
-                self.uiSegmentBackgroundViews.forEach {
-                    $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
-                }
+    func viewLoaded() {
+        coreGCD.after(.seconds(1)) {
+            self.uiSegmentBackgroundViews.forEach {
+                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }
         }
-
-        guard isPresentingSingleUserContactInfo else { return }
-        hideAdditionalNavigationBarIfNeeded()
     }
 
     // MARK: - Clear Cache
 
     func clearCache() {
         cachedChatParticipantsForUserIDs = nil
-    }
-
-    // MARK: - Auxiliary
-
-    private func hideAdditionalNavigationBarIfNeeded() {
-        guard UIApplication.v26FeaturesEnabled,
-              chatPageState.isPresented,
-              uiApplication.isPresentingSheet else { return }
-
-        uiApplication
-            .presentedViewControllers
-            .filter { $0.activePresentationController is UISheetPresentationController }
-            .compactMap(\.navigationController)
-            .last?
-            .isNavigationBarHidden = true
-
-        coreGCD.after(.milliseconds(500)) { self.hideAdditionalNavigationBarIfNeeded() }
     }
 }

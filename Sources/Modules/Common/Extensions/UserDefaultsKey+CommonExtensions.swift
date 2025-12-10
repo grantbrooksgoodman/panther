@@ -16,8 +16,6 @@ extension UserDefaultsKey {
     enum ApplicationDefaultsKey: String {
         case buildMilestoneString
         case hasRunOnce
-        case isGlassTintingEnabled
-        case v26FeaturesEnabled
     }
 
     enum AudioServiceDefaultsKey: String {

@@ -57,11 +57,11 @@ extension AppConstants.Colors {
         static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
         static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
-        static let addContactButtonLabelForeground: Color = .init(uiColor: .accentOrSystemBlue)
-        static let addContactButtonSymbolForeground: Color = .init(uiColor: .accentOrSystemBlue)
-
         static let changeMetadataButtonForeground: Color = .init(uiColor: .accentOrSystemBlue)
         static let leaveConversationListRowViewForeground: Color = .red
+
+        static var addContactButtonLabelForeground: Color { .init(uiColor: .accentOrSystemBlue) }
+        static var addContactButtonSymbolForeground: Color { .init(uiColor: .accentOrSystemBlue) }
     }
 }
 

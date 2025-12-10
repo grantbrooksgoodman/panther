@@ -118,6 +118,10 @@ struct ConversationsPageView: View {
                 }
             }
         }
+        .if(Application.isInPrevaricationMode && UIApplication.isFullyV26Compatible) {
+            $0
+                .preferredStatusBarStyle(.darkContent)
+        }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
         }

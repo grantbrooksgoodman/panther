@@ -90,7 +90,7 @@ struct NewChatPageReducer: Reducer {
             state.shouldShowPenPalsToolbarButton = false
             state.shouldUseBoldDoneToolbarButton = true
 
-            guard UIApplication.v26FeaturesEnabled else { return .none }
+            guard UIApplication.isFullyV26Compatible else { return .none }
             state.v26NavigationBarProxyViewID = UUID()
 
         case .penPalsToolbarButtonTapped:

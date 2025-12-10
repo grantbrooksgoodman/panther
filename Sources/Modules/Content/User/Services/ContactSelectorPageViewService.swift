@@ -120,7 +120,7 @@ struct ContactSelectorPageViewService {
             }
 
             await AKActionSheet(
-                message: UIApplication.v26FeaturesEnabled ? nil : user.displayName,
+                message: UIApplication.isFullyV26Compatible ? nil : user.displayName,
                 actions: [addToConversationAction],
                 cancelButtonTitle: Localized(.cancel).wrappedValue,
                 sourceItem: .custom(.string(sourceItemString))
