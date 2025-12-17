@@ -19,6 +19,10 @@ struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
 
     typealias Content = UIImage
 
+    // MARK: - Dependencies
+
+    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+
     // MARK: - Properties
 
     var onDismiss: (Exception?) -> Void
@@ -52,5 +56,12 @@ struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Update UIViewController
 
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    func updateUIViewController(
+        _ uiViewController: PHPickerViewController,
+        context: Context
+    ) {
+        mainQueue.async {
+            uiViewController.parent?.presentationController?.delegate = context.coordinator
+        }
+    }
 }

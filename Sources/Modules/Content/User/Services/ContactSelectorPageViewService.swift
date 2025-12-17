@@ -94,11 +94,13 @@ struct ContactSelectorPageViewService {
                     self.navigation.navigate(to: .chat(.sheet(.none)))
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
+                    self.clientSession.user.stopObservingCurrentUserChanges()
                     let addToConversationResult = await self.clientSession.activity.addToConversation(
                         user.id,
                         conversation: conversation
                     )
 
+                    self.clientSession.user.startObservingCurrentUserChanges()
                     switch addToConversationResult {
                     case let .success(conversation):
                         self.clientSession.conversation.setCurrentConversation(conversation)

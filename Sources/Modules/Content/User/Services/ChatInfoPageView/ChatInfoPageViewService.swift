@@ -205,11 +205,13 @@ final class ChatInfoPageViewService {
                   ]) else { return }
 
             Observables.chatInfoPageLoadingStateUpdated.trigger()
+            clientSession.user.stopObservingCurrentUserChanges()
             let removeFromConversationResult = await clientSession.activity.removeFromConversation(
                 currentUserID,
                 conversation: conversation
             )
 
+            clientSession.user.startObservingCurrentUserChanges()
             switch removeFromConversationResult {
             case .success:
                 Application.dismissSheets()

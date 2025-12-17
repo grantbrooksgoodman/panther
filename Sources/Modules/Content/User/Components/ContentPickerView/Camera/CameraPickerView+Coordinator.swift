@@ -24,6 +24,10 @@ extension CameraPickerView {
 
         // MARK: - UIImagePickerControllerDelegate Conformance
 
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            delegate.onDismiss(nil)
+        }
+
         func imagePickerController(
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
@@ -38,9 +42,13 @@ extension CameraPickerView {
             delegate.onSelection(image)
             delegate.onDismiss(nil)
         }
+    }
+}
 
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            delegate.onDismiss(nil)
-        }
+extension CameraPickerView.Coordinator: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(
+        _ presentationController: UIPresentationController
+    ) {
+        delegate.onDismiss(nil)
     }
 }

@@ -112,24 +112,15 @@ final class ReactionSessionService {
         // Update conversation with new metadata
 
         chatPageViewService.contextMenu?.dismissMenu()
-        reactionMetadata = reactionMetadata.filter { $0 != .empty }.filter { !$0.reactions.isEmpty }
-        let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
-        isReactingToMessage = false
+        reactionMetadata = reactionMetadata
+            .filter { $0 != .empty }
+            .filter { !$0.reactions.isEmpty }
 
-        switch updateValueResult {
-        case let .success(updatedConversation):
-            if let exception = await updatedConversation.setMessages(ids: [message.id]) {
-                return exception
-            }
-
-            conversationSession.setCurrentConversation(updatedConversation)
-            chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
-            chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
-            return nil
-
-        case let .failure(exception):
-            return exception
-        }
+        return await updateConversation(
+            conversation,
+            messageData: (messageIndex, message),
+            reactionMetadata: reactionMetadata
+        )
     }
 
     // MARK: - Auxiliary
@@ -206,18 +197,52 @@ final class ReactionSessionService {
         }
 
         isReactingToMessage = true
-        let updateValueResult = await conversation.updateValue(reactionMetadata, forKey: .reactionMetadata)
-        isReactingToMessage = false
+        return await updateConversation(
+            conversation,
+            messageData: (messageIndex, message),
+            reactionMetadata: reactionMetadata
+        )
+    }
 
+    private func updateConversation(
+        _ conversation: Conversation,
+        messageData: (index: Int, message: Message),
+        reactionMetadata: [ReactionMetadata]
+    ) async -> Exception? {
+        let updateValueResult = await conversation.updateValue(
+            reactionMetadata,
+            forKey: .reactionMetadata
+        )
+
+        isReactingToMessage = false
         switch updateValueResult {
         case let .success(updatedConversation):
-            if let exception = await updatedConversation.setMessages(ids: [message.id]) {
+            if let exception = await updatedConversation.setMessages(ids: [
+                messageData.message.id,
+            ]) {
                 return exception
             }
 
             conversationSession.setCurrentConversation(updatedConversation)
-            chatPageViewService.reloadItemsWhenSafe(at: [.init(item: 0, section: messageIndex)])
-            chatPageViewService.contextMenu?.interaction.addContextMenuInteractionToVisibleCellsOnce()
+            chatPageViewService.reloadItemsWhenSafe(at: [.init(
+                item: 0,
+                section: messageData.index
+            )])
+
+            chatPageViewService
+                .contextMenu?
+                .interaction
+                .addContextMenuInteractionToVisibleCellsOnce()
+
+            guard messageData
+                .message
+                .contentType
+                .isAudio else { return nil }
+
+            chatPageViewService
+                .audioMessagePlayback?
+                .updateDurationLabelIfNeeded(forMessage: messageData.message)
+
             return nil
 
         case let .failure(exception):

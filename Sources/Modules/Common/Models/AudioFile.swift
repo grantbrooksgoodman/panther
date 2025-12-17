@@ -60,6 +60,11 @@ final class AudioFile: Codable, Equatable {
             contentDuration: 0
         )
 
+        if let cachedValue = _AudioFileDurationCache.cachedDurationsForLocalPaths?[url] {
+            contentDuration = cachedValue
+            return
+        }
+
         Task {
             if let exception = await setDuration() {
                 Logger.log(exception)
@@ -101,11 +106,41 @@ final class AudioFile: Codable, Equatable {
         do {
             let assetReader = try AVAssetReader(asset: .init(url: url))
             let duration: Float = try .init(await assetReader.asset.load(.duration).seconds)
+            guard duration > 0 else { return nil }
+
+            var cachedDurationsForLocalPaths = _AudioFileDurationCache.cachedDurationsForLocalPaths ?? [:]
+            cachedDurationsForLocalPaths[url] = duration
+            _AudioFileDurationCache.cachedDurationsForLocalPaths = cachedDurationsForLocalPaths
+
             contentDuration = duration
         } catch {
             return .init(error, metadata: .init(sender: self))
         }
 
         return nil
+    }
+}
+
+enum AudioFileDurationCache {
+    static func clearCache() {
+        _AudioFileDurationCache.clearCache()
+    }
+}
+
+private enum _AudioFileDurationCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case durationsForLocalPaths
+    }
+
+    // MARK: - Properties
+
+    @Cached(CacheKey.durationsForLocalPaths) fileprivate static var cachedDurationsForLocalPaths: [URL: Float]?
+
+    // MARK: - Clear Cache
+
+    fileprivate static func clearCache() {
+        cachedDurationsForLocalPaths = nil
     }
 }

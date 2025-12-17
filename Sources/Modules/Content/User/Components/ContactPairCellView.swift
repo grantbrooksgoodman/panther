@@ -83,7 +83,8 @@ struct ContactPairCellView: View {
                 if !contactPair.contact.firstName.isBlank {
                     Components.text(
                         contactPair.contact.firstName,
-                        foregroundColor: foregroundColor
+                        foregroundColor: foregroundColor,
+                        isInspectable: isInspectable
                     )
                 }
 

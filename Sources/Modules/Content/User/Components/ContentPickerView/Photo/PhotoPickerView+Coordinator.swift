@@ -32,7 +32,17 @@ extension PhotoPickerView {
 
         // MARK: - PHPickerViewControllerDelegate Conformance
 
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        func picker(
+            _ picker: PHPickerViewController,
+            didCancelWithError error: Error?
+        ) {
+            delegate.onDismiss(.init(error, metadata: .init(sender: self)))
+        }
+
+        func picker(
+            _ picker: PHPickerViewController,
+            didFinishPicking results: [PHPickerResult]
+        ) {
             var exception: Exception?
             defer { delegate.onDismiss(exception) }
 
@@ -48,5 +58,13 @@ extension PhotoPickerView {
                 self.mainQueue.async { self.delegate.onSelection(image) }
             }
         }
+    }
+}
+
+extension PhotoPickerView.Coordinator: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(
+        _ presentationController: UIPresentationController
+    ) {
+        delegate.onDismiss(nil)
     }
 }

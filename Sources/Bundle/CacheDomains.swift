@@ -21,6 +21,7 @@ extension CacheDomain {
         var appCacheDomains: [CacheDomain] {
             [
                 .activityDescription,
+                .audioFileDuration,
                 .chatInfoPageViewService,
                 .commonPropertyLists,
                 .contactImage,
@@ -49,6 +50,7 @@ extension CacheDomain {
     // MARK: - Properties
 
     static let activityDescription: CacheDomain = .init("activityDescription") { clearActivityDescriptionCache() }
+    static let audioFileDuration: CacheDomain = .init("audioFileDuration") { clearAudioFileDurationCache() }
     static let chatInfoPageViewService: CacheDomain = .init("chatInfoPageViewService") { clearChatInfoPageViewServiceCache() }
     static let commonPropertyLists: CacheDomain = .init("commonPropertyLists") { clearCommonPropertyListsCache() }
     static let contactImage: CacheDomain = .init("contactImage") { clearContactImageCache() }
@@ -73,6 +75,10 @@ extension CacheDomain {
 
     private static func clearActivityDescriptionCache() {
         ActivityDescriptionCache.clearCache()
+    }
+
+    private static func clearAudioFileDurationCache() {
+        AudioFileDurationCache.clearCache()
     }
 
     private static func clearChatInfoPageViewServiceCache() {

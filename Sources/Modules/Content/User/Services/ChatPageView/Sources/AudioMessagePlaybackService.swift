@@ -131,6 +131,35 @@ final class AudioMessagePlaybackService {
         }
     }
 
+    // MARK: - Update Duration Label If Needed
+
+    func updateDurationLabelIfNeeded(forMessage message: Message) {
+        guard let audioFile = audioFile(for: message) else { return }
+        notificationCenter.addObserver(
+            self,
+            name: .init(rawValue: AppConstants.Strings.AudioFile.setDurationNotificationName),
+            object: audioFile,
+            removeAfterFirstPost: true
+        ) { notification in
+            Task { @MainActor in
+                let conversation = self.viewController.currentConversation
+                let collectionView = self.viewController.messagesCollectionView
+
+                guard let messageIndex = conversation?.messages?.firstIndex(where: { $0.id == message.id }),
+                      let audioMessageCell = collectionView.cellForItem(at: .init(
+                          item: 0,
+                          section: messageIndex
+                      )) as? AudioMessageCell,
+                      let duration = notification.audioFileDuration,
+                      let url = notification.audioFileURL,
+                      audioFile.url == url,
+                      duration > 0 else { return }
+
+                audioMessageCell.durationLabel.text = duration.durationString
+            }
+        }
+    }
+
     // MARK: - Auxiliary
 
     @objc
@@ -148,7 +177,9 @@ final class AudioMessagePlaybackService {
 
     private func audioFile(for message: Message) -> AudioFile? {
         guard let localAudioFilePath = message.localAudioFilePath else { return nil }
-        return .init(message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL)
+        return .init(
+            message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
+        )
     }
 
     private func message(for cell: AudioMessageCell) -> Message? {
@@ -199,10 +230,8 @@ final class AudioMessagePlaybackService {
                 object: audioFile,
                 removeAfterFirstPost: true
             ) { notification in
-                typealias Strings = AppConstants.Strings.AudioFile
-                guard let userInfo = notification.userInfo,
-                      let duration = userInfo[Strings.durationNotificationUserInfoKey] as? Float,
-                      let url = userInfo[Strings.urlNotificationUserInfoKey] as? URL else { return }
+                guard let duration = notification.audioFileDuration,
+                      let url = notification.audioFileURL else { return }
 
                 Task { @MainActor in
                     for (audioFileURL, cell) in self.cellsAwaitingDurationLabelSet where audioFileURL == url {
@@ -230,5 +259,19 @@ final class AudioMessagePlaybackService {
     private func stopPlaybackTimer() {
         playbackTimer?.invalidate()
         playbackTimer = nil
+    }
+}
+
+private extension Notification {
+    var audioFileDuration: Float? {
+        userInfo?[
+            AppConstants.Strings.AudioFile.durationNotificationUserInfoKey
+        ] as? Float
+    }
+
+    var audioFileURL: URL? {
+        userInfo?[
+            AppConstants.Strings.AudioFile.urlNotificationUserInfoKey
+        ] as? URL
     }
 }

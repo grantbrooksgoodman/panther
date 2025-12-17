@@ -93,6 +93,21 @@ struct ContactSelectorPageReducer: Reducer {
             contactPairs.isEmpty || entryPoint == .newChatPageView
         }
 
+        fileprivate var queryMatchesFoundContactPair: Bool {
+            guard let foundContactPair else { return false }
+
+            let phoneNumbers = foundContactPair
+                .users
+                .compactMap(\.phoneNumber)
+
+            let numberStrings = (
+                phoneNumbers.compiledNumberStrings +
+                    phoneNumbers.map(\.nationalNumberString)
+            ).map(\.digits)
+
+            return numberStrings.contains(searchQuery)
+        }
+
         /* MARK: Init */
 
         init(_ entryPoint: ContactSelectorPageView.EntryPoint) {
@@ -160,7 +175,7 @@ struct ContactSelectorPageReducer: Reducer {
 
         case let .searchQueryChanged(searchQuery):
             state.searchQuery = searchQuery
-            guard searchQuery.isBlank else { return .none }
+            guard searchQuery.isBlank || !state.queryMatchesFoundContactPair else { return .none }
             state.foundContactPair = nil
 
         case let .selectedContactPairChanged(selectedContactPair):

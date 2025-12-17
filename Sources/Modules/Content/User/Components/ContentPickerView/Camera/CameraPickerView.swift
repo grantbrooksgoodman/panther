@@ -18,6 +18,10 @@ struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
 
     typealias Content = UIImage
 
+    // MARK: - Dependencies
+
+    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
+
     // MARK: - Properties
 
     var onDismiss: (Exception?) -> Void
@@ -50,5 +54,14 @@ struct CameraPickerView: UIViewControllerRepresentable, ContentPicker {
 
     // MARK: - Update UIViewController
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    // MARK: - Update UIViewController
+
+    func updateUIViewController(
+        _ uiViewController: UIImagePickerController,
+        context: Context
+    ) {
+        mainQueue.async {
+            uiViewController.parent?.presentationController?.delegate = context.coordinator
+        }
+    }
 }
