@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 
@@ -112,25 +114,19 @@ extension Conversation: Updatable {
 
     func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<Conversation, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         guard updatableKeys.contains(key) else {
-            return .failure(.Networking.notUpdatable(key: key, .init(sender: self)))
-        }
-
-        if let exception = await setUsers(forceUpdate: true) {
-            return .failure(exception)
-        }
-
-        guard var users else {
-            return .failure(.init(
-                "Failed to set users on conversation.",
-                metadata: .init(sender: self)
+            return .failure(.Networking.notUpdatable(
+                key: key,
+                .init(sender: self)
             ))
         }
 
         guard var updated = modifyKey(key, withValue: value) else {
-            return .failure(.Networking.typeMismatch(key: key, .init(sender: self)))
+            return .failure(.Networking.typeMismatch(
+                key: key,
+                .init(sender: self)
+            ))
         }
 
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/"
@@ -145,11 +141,14 @@ extension Conversation: Updatable {
 
             let updateIsTypingResult = await updateIsTyping(updated)
             switch updateIsTypingResult {
-            case let .success(updatedConversation): updated = updatedConversation
+            case let .success(conversation): updated = conversation
             case let .failure(exception): return .failure(exception)
             }
         } else if let serializable = value as? any Serializable {
-            if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
+            if let exception = await networking.database.setValue(
+                serializable.encoded,
+                forKey: valueKeyPath
+            ) {
                 return .failure(exception)
             }
         } else if let serializable = value as? [any Serializable] {
@@ -161,11 +160,17 @@ extension Conversation: Updatable {
                 return .failure(exception)
             }
         } else if networking.database.isEncodable(value) {
-            if let exception = await networking.database.setValue(value, forKey: valueKeyPath) {
+            if let exception = await networking.database.setValue(
+                value,
+                forKey: valueKeyPath
+            ) {
                 return .failure(exception)
             }
         } else {
-            return .failure(.Networking.notSerialized(data: [key.rawValue: value], .init(sender: self)))
+            return .failure(.Networking.notSerialized(
+                data: [key.rawValue: value],
+                .init(sender: self)
+            ))
         }
 
         guard updated.encodedHash != encodedHash else {
@@ -173,32 +178,72 @@ extension Conversation: Updatable {
         }
 
         let hashPath = conversationKeyPath + SerializationKeys.encodedHash.rawValue
-        if let exception = await networking.database.setValue(updated.encodedHash, forKey: hashPath) {
+        if let exception = await networking.database.setValue(
+            updated.encodedHash,
+            forKey: hashPath
+        ) {
             return .failure(exception)
         }
 
-        if let currentUser = userSession.currentUser {
-            users.append(currentUser)
-        }
-
-        for user in users {
-            guard var conversationIDs = user.conversationIDs,
-                  let index = conversationIDs.firstIndex(where: { $0.key == updated.id.key }) else { continue }
-
-            conversationIDs.removeAll(where: { $0.key == updated.id.key })
-            conversationIDs.insert(updated.id, at: index)
-
-            let updateValueResult = await user.updateValue(conversationIDs, forKey: .conversationIDs)
-
-            switch updateValueResult {
-            case let .failure(exception):
-                return .failure(exception)
-
-            default: ()
-            }
+        if let exception = await propagateUpdatesToUsers(in: updated) {
+            return .failure(exception)
         }
 
         if key == .activities {
+            if let exception = await updated.setUsers(forceUpdate: true) {
+                return .failure(exception)
+            }
+        }
+
+        // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
+        networking.conversationService.archive.addValue(updated)
+        return .success(updated)
+    }
+
+    // MARK: - Updates Values
+
+    func updateValues(
+        with data: [SerializationKeys: Any]
+    ) async -> Callback<Conversation, Exception> {
+        @Dependency(\.networking) var networking: NetworkServices
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        var updated = filteringSystemMessages
+        for keyPair in data {
+            guard updatableKeys.contains(keyPair.key) else {
+                return .failure(.Networking.notUpdatable(
+                    key: keyPair.key,
+                    .init(sender: self)
+                ))
+            }
+
+            guard let modified = updated.modifyKey(
+                keyPair.key,
+                withValue: keyPair.value
+            ) else {
+                return .failure(.Networking.typeMismatch(
+                    key: keyPair.key,
+                    .init(sender: self)
+                ))
+            }
+
+            updated = modified
+        }
+
+        // NIT: Can do updateChildValues with encoded filtering all not equal to keys in data.
+        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(updated.id.key)/"
+        if let exception = await networking.database.setValue(
+            updated.encoded.filter { $0.key != Conversation.SerializationKeys.id.rawValue },
+            forKey: conversationKeyPath
+        ) {
+            return .failure(exception)
+        }
+
+        if let exception = await propagateUpdatesToUsers(in: updated) {
+            return .failure(exception)
+        }
+
+        if data.keys.contains(.activities) {
             if let exception = await updated.setUsers(forceUpdate: true) {
                 return .failure(exception)
             }
@@ -238,6 +283,50 @@ extension Conversation: Updatable {
             forKey: messagesKeyPath
         ) {
             return exception
+        }
+
+        return nil
+    }
+
+    private func propagateUpdatesToUsers(
+        in conversation: Conversation
+    ) async -> Exception? {
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        if let exception = await conversation.setUsers(forceUpdate: true) {
+            return exception
+        }
+
+        guard var users else {
+            return .init(
+                "Failed to set users on conversation.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        if let currentUser = userSession.currentUser {
+            users.append(currentUser)
+        }
+
+        // NIT: Can do this on a .utility thread.
+        for user in users {
+            guard var conversationIDs = user.conversationIDs,
+                  let index = conversationIDs.firstIndex(where: {
+                      $0.key == conversation.id.key
+                  }) else { continue }
+
+            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
+            conversationIDs.insert(conversation.id, at: index)
+
+            let updateValueResult = await user.updateValue(
+                conversationIDs,
+                forKey: .conversationIDs
+            )
+
+            switch updateValueResult {
+            case let .failure(exception): return exception
+            default: ()
+            }
         }
 
         return nil
@@ -297,3 +386,20 @@ extension Conversation: Updatable {
         return .success(updatedConversation)
     }
 }
+
+private extension Conversation {
+    var filteringSystemMessages: Conversation {
+        .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages?.filteringSystemMessages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
+    }
+}
+
+// swiftlint:enable file_length

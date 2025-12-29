@@ -45,37 +45,32 @@ struct ActivitySessionService {
             .metadata
             .penPalsSharingData + [.init(userID: userID)]
 
-        let updateValueResult = await conversation.updateValue(
-            conversation.participants + [.init(userID: userID)],
-            forKey: .participants
+        let newMetadata = conversation.metadata.copyWith(
+            messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
+            penPalsSharingData: newPenPalsSharingData,
         )
 
-        switch updateValueResult {
+        let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
+        let newParticipants = conversation.participants + [.init(userID: userID)]
+
+        let updateValuesResult = await conversation.updateValues(
+            with: [
+                .activities: newActivities,
+                .metadata: newMetadata,
+                .participants: newParticipants,
+            ]
+        )
+
+        switch updateValuesResult {
         case let .success(conversation):
-            let newMetadata = conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
-                penPalsSharingData: newPenPalsSharingData,
-            )
-
-            let updateValueResult = await conversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
-
-            switch updateValueResult {
-            case let .success(conversation):
-                if let exception = await addUserToConversation(
-                    userID: userID,
-                    conversationID: conversation.id
-                ) {
-                    return .failure(exception)
-                }
-
-                return await conversation.logActivity(activity)
-
-            case let .failure(exception):
+            if let exception = await addUserToConversation(
+                userID: userID,
+                conversationID: conversation.id
+            ) {
                 return .failure(exception)
             }
+
+            return .success(conversation)
 
         case let .failure(exception):
             return .failure(exception)
@@ -121,48 +116,42 @@ struct ActivitySessionService {
             ))
         }
 
-        let updateValueResult = await conversation.updateValue(
-            conversation.participants.filter { $0.userID != userID },
-            forKey: .participants
+        let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
+        let newParticipants = conversation.participants.filter { $0.userID != userID }
+        let newMetadata = conversation.metadata.copyWith(
+            messageRecipientConsentAcknowledgementData: conversation
+                .metadata
+                .messageRecipientConsentAcknowledgementData
+                .filter { $0.userID != userID },
+            penPalsSharingData: conversation
+                .metadata
+                .penPalsSharingData
+                .filter { $0.userID != userID },
+            nilRequiresConsentFromInitiator: conversation
+                .metadata
+                .requiresConsentFromInitiator == userID
         )
 
-        switch updateValueResult {
+        let updateValuesResult = await conversation.updateValues(
+            with: [
+                .activities: newActivities,
+                .metadata: newMetadata,
+                .participants: newParticipants,
+            ]
+        )
+
+        switch updateValuesResult {
         case let .success(conversation):
-            let newMetadata = conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: conversation
-                    .metadata
-                    .messageRecipientConsentAcknowledgementData
-                    .filter { $0.userID != userID },
-                penPalsSharingData: conversation
-                    .metadata
-                    .penPalsSharingData
-                    .filter { $0.userID != userID },
-                nilRequiresConsentFromInitiator: conversation
-                    .metadata
-                    .requiresConsentFromInitiator == userID
-            )
-
-            let updateValueResult = await conversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
-
-            switch updateValueResult {
-            case let .success(conversation):
-                if removeFromUser {
-                    if let exception = await networking.conversationService.removeConversationFromUsers(
-                        userIDs: [userID],
-                        conversationIDKey: conversation.id.key
-                    ) {
-                        return .failure(exception)
-                    }
+            if removeFromUser {
+                if let exception = await networking.conversationService.removeConversationFromUsers(
+                    userIDs: [userID],
+                    conversationIDKey: conversation.id.key
+                ) {
+                    return .failure(exception)
                 }
-
-                return await conversation.logActivity(activity)
-
-            case let .failure(exception):
-                return .failure(exception)
             }
+
+            return .success(conversation)
 
         case let .failure(exception):
             return .failure(exception)

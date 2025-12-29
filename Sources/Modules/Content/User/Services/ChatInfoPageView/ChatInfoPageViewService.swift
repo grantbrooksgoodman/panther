@@ -305,18 +305,12 @@ final class ChatInfoPageViewService {
             ))
         }
 
-        let logActivityResult = await conversation.logActivity(activity)
-
-        switch logActivityResult {
-        case let .success(conversation):
-            return await conversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        return await conversation.updateValues(
+            with: [
+                .activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
+                .metadata: newMetadata,
+            ]
+        )
     }
 
     func viewAppeared() {
