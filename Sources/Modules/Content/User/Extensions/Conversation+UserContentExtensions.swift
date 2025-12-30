@@ -39,6 +39,21 @@ extension Conversation {
         messages?.contains(where: \.isConsentRequestMessage) == true
     }
 
+    var filteringSystemMessages: Conversation {
+        let messageIDs = messageIDs.filter { $0.hasPrefix("-") }
+        let messages = messages?.filteringSystemMessages
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs.isEmpty ? .bangQualifiedEmpty : messageIDs,
+            messages: messages?.isEmpty == true ? nil : messages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
+    }
+
     var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
     var isMock: Bool { id.key == CommonConstants.newConversationID }
 

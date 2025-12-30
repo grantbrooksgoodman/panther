@@ -20,6 +20,7 @@ enum ClientSessionDependency: DependencyKey {
             message: .init(),
             moderation: .init(),
             reaction: .init(),
+            storage: .init(),
             user: .init()
         )
     }

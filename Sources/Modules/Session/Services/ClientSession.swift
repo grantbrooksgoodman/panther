@@ -20,6 +20,7 @@ final class ClientSession {
     let message: MessageSessionService
     let moderation: ModerationSessionService
     let reaction: ReactionSessionService
+    let storage: StorageSessionService
     let user: UserSessionService
 
     private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
@@ -32,6 +33,7 @@ final class ClientSession {
         message: MessageSessionService,
         moderation: ModerationSessionService,
         reaction: ReactionSessionService,
+        storage: StorageSessionService,
         user: UserSessionService
     ) {
         self.activity = activity
@@ -39,6 +41,7 @@ final class ClientSession {
         self.message = message
         self.moderation = moderation
         self.reaction = reaction
+        self.storage = storage
         self.user = user
     }
 

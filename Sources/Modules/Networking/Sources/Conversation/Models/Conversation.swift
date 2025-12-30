@@ -99,6 +99,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             return exceptions.compiledException
         }
 
+        let messageIDs = filteringSystemMessages.messageIDs
         let getMessagesResult = await messageService.getMessages(ids: messageIDs)
 
         switch getMessagesResult {

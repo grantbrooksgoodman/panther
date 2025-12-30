@@ -34,6 +34,7 @@ extension LoggerDomain {
             .notifications,
             .penPals,
             .queue,
+            .storageSession,
             .translation,
             .user,
             .userSession,
@@ -51,6 +52,7 @@ extension LoggerDomain {
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")
     static let queue: LoggerDomain = .init("queue")
+    static let storageSession: LoggerDomain = .init("storageSession")
     static let user: LoggerDomain = .init("user")
     static let userSession: LoggerDomain = .init("userSession")
 }

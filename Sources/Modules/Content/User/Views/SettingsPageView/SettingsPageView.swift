@@ -70,6 +70,10 @@ struct SettingsPageView: View {
                             contactDetailView
                         }
 
+                        Components.text(
+                            "Data used: \(viewModel.dataUsageLabelText)"
+                        )
+
                         ScrollView {
                             groupedListViews
                                 .id(viewModel.groupedListViewsID)

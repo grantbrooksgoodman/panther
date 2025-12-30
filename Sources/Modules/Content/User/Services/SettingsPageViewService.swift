@@ -33,6 +33,7 @@ final class SettingsPageViewService {
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.clientSession.moderation) private var moderationSession: ModerationSessionService
     @Dependency(\.navigation) private var navigation: Navigation
@@ -41,7 +42,6 @@ final class SettingsPageViewService {
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
     @Dependency(\.uiPasteboard) private var uiPasteboard: UIPasteboard
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -320,7 +320,7 @@ final class SettingsPageViewService {
                         Logger.log(exception)
                     }
 
-                    if let currentUser = self.userSession.currentUser,
+                    if let currentUser = self.clientSession.user.currentUser,
                        let pushToken = self.services.pushToken.currentToken {
                         let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
                         let updateValueResult = await currentUser.updateValue(
@@ -367,7 +367,7 @@ final class SettingsPageViewService {
     func developerModeListItems() -> [ListRowView.Configuration]? {
         func overrideLanguageCodeButtonTapped() {
             guard RuntimeStorage.retrieve(.overriddenLanguageCode) == nil else {
-                guard let currentUser = userSession.currentUser else { return }
+                guard let currentUser = clientSession.user.currentUser else { return }
                 let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
 
                 alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
@@ -388,7 +388,7 @@ final class SettingsPageViewService {
         var items = [ListRowView.Configuration]()
 
         if build.isDeveloperModeEnabled,
-           let currentUser = userSession.currentUser,
+           let currentUser = clientSession.user.currentUser,
            currentUser.languageCode != "en" {
             let languageName = currentUser.languageCode.languageExonym ?? currentUser.languageCode.uppercased()
             let restoreLanguageCodeString = "\(Strings.restoreLanguageCodeButtonTextPrefix) \(languageName)"
@@ -442,7 +442,7 @@ final class SettingsPageViewService {
             return .success(cachedCNContactForCurrentUser)
         }
 
-        guard let currentUser = userSession.currentUser else {
+        guard let currentUser = clientSession.user.currentUser else {
             return .failure(.init(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
@@ -459,6 +459,13 @@ final class SettingsPageViewService {
         case let .failure(exception):
             return .failure(exception)
         }
+    }
+
+    // MARK: - Get User Data Footprint
+
+    /// `.viewAppeared`
+    func getUserDataFootprint() async -> Callback<Int, Exception> {
+        await clientSession.storage.getUserDataFootprint()
     }
 
     // MARK: - Clear Cache

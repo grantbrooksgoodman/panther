@@ -20,6 +20,7 @@
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A26DCA342EC6A70A00F08AA3 /* AccountDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */; };
+		A271D7C02F02F9BA00B874C5 /* StorageSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A271D7BF2F02F9BA00B874C5 /* StorageSessionService.swift */; };
 		A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
 		A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA982ED636FA00171C04 /* UserCache.swift */; };
@@ -775,6 +776,7 @@
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
 		A26DCA332EC6A70A00F08AA3 /* AccountDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionService.swift; sourceTree = "<group>"; };
+		A271D7BF2F02F9BA00B874C5 /* StorageSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSessionService.swift; sourceTree = "<group>"; };
 		A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActivityAction+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A29DFA962ED5749800171C04 /* ActivitySessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySessionService.swift; sourceTree = "<group>"; };
 		A29DFA982ED636FA00171C04 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
@@ -2072,6 +2074,7 @@
 				B9E1BB922B2F8F0100ADEA71 /* MessageSessionService.swift */,
 				B906C00F2C4709B700F414DA /* ModerationSessionService.swift */,
 				B9223D552CD6EB4F00C05BC6 /* ReactionSessionService.swift */,
+				A271D7BF2F02F9BA00B874C5 /* StorageSessionService.swift */,
 				B94388702B3219CE002D94FF /* UserSessionService.swift */,
 			);
 			path = Sources;
@@ -3473,8 +3476,8 @@
 				A2DF2C4E28199B660089DEA1 /* Frameworks */,
 				A2DF2C4F28199B660089DEA1 /* Resources */,
 				A2DF2CC228199F000089DEA1 /* Update Build Information */,
-				614E3D49AF00AB637D12C1C0 /* [CP] Embed Pods Frameworks */,
 				B9F560962B69A465009ABDD5 /* Embed Foundation Extensions */,
+				1ECE38A95ACC59EBF19471E0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -3919,7 +3922,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		614E3D49AF00AB637D12C1C0 /* [CP] Embed Pods Frameworks */ = {
+		1ECE38A95ACC59EBF19471E0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4392,6 +4395,7 @@
 				B9E00A522C2B85BC004E350E /* MediaFileExtensions.swift in Sources */,
 				A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */,
 				B943F2482C41EA610047EDD5 /* MediaMessagePreviewService.swift in Sources */,
+				A271D7C02F02F9BA00B874C5 /* StorageSessionService.swift in Sources */,
 				B900B54A2B1ADC3C00BA2F1D /* ContactService.swift in Sources */,
 				B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */,
 				B916E01A2D0B8A440079CDDF /* ChatInfoPageObserver.swift in Sources */,

@@ -6,8 +6,6 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length
-
 /* Native */
 import Foundation
 
@@ -386,20 +384,3 @@ extension Conversation: Updatable {
         return .success(updatedConversation)
     }
 }
-
-private extension Conversation {
-    var filteringSystemMessages: Conversation {
-        .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages?.filteringSystemMessages,
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
-    }
-}
-
-// swiftlint:enable file_length

@@ -34,7 +34,8 @@ extension Conversation: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        let messageIDs = messages?.map(\.id) ?? .bangQualifiedEmpty
+        // TODO: Audit filteringSystemMessages usage here.
+        let messageIDs = messages?.filteringSystemMessages.map(\.id) ?? .bangQualifiedEmpty
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
         return [
             Keys.id.rawValue: id.encoded,
