@@ -24,6 +24,8 @@
 		A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */; };
 		A29DFA972ED5749800171C04 /* ActivitySessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA962ED5749800171C04 /* ActivitySessionService.swift */; };
 		A29DFA992ED636FA00171C04 /* UserCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29DFA982ED636FA00171C04 /* UserCache.swift */; };
+		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
+		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
@@ -780,6 +782,8 @@
 		A28371A22ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActivityAction+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A29DFA962ED5749800171C04 /* ActivitySessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySessionService.swift; sourceTree = "<group>"; };
 		A29DFA982ED636FA00171C04 /* UserCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCache.swift; sourceTree = "<group>"; };
+		A2A7A13C2F03596E00E09921 /* DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageView.swift; sourceTree = "<group>"; };
+		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3323,6 +3327,7 @@
 				B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */,
 				B96EDD942B636A0500CB925B /* ContactDetailView.swift */,
 				B90071EA2B7C0CA800BE8654 /* ContactPairCellView.swift */,
+				A2A7A13C2F03596E00E09921 /* DataUsageView.swift */,
 				B9DD42C32E2F12FB009A318B /* MediaItemView.swift */,
 				B986C46F2CD3235500414E57 /* ReactionsViewController.swift */,
 				B90071F22B7C2E6300BE8654 /* RecipientBarTextField.swift */,
@@ -3347,6 +3352,7 @@
 				B9931B302B8D946F0042E07D /* AppConstants+ContactSelectorPageView.swift */,
 				B9F47B072B586D0100D86C67 /* AppConstants+ConversationCellView.swift */,
 				B995A45C2B5A2F680034ECD2 /* AppConstants+ConversationsPageView.swift */,
+				A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */,
 				B94262582C46D54D0026CDE8 /* AppConstants+InviteQRCodePageView.swift */,
 				B9DD42C72E2F143C009A318B /* AppConstants+MediaItemView.swift */,
 				B95DCE502D8CC968003730F9 /* AppConstants+NewChatPageView.swift */,
@@ -3930,9 +3936,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4137,6 +4147,7 @@
 				B9627C652B6ED056004EE9DA /* RecordButtonCommand.swift in Sources */,
 				B900B5442B1ACC6100BA2F1D /* Contact.swift in Sources */,
 				B9C5E9132AB161B6004D79DA /* EmptyReducer.swift in Sources */,
+				A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */,
 				B91C90472D8391C800959AEB /* NavigationCoordinatorDependency.swift in Sources */,
 				B9464F652CAF89FE00A11842 /* QueriedContactPairCache.swift in Sources */,
 				B9BF37F62B6DAEB800024548 /* DeliveryProgressIndicatorService.swift in Sources */,
@@ -4460,6 +4471,7 @@
 				B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
 				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
+				A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */,
 				B969165D2BAE1D1A00441472 /* ConversationMetadata.swift in Sources */,
 				B99551A22D13C8E40076F0A6 /* AppConstants+PenPalsPermissionPageView.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,

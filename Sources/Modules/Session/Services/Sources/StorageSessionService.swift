@@ -19,10 +19,10 @@ struct StorageSessionService {
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.networking.storage) private var storage: StorageDelegate
 
-    // MARK: - User Data Footprint
+    // MARK: - Current User Data Usage
 
-    func getUserDataFootprint() async -> Callback<Int, Exception> {
-        var dataFootprintInKilobytes = 0
+    func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        var dataUsageInKilobytes = 0
 
         if let exception = await populateValuesIfNeeded() {
             return .failure(exception)
@@ -33,13 +33,13 @@ struct StorageSessionService {
         let getSizeOfUserObjectResult = getSizeOfUserObject()
 
         switch getSizeOfUserObjectResult {
-        case let .success(sizeOfUserObject): dataFootprintInKilobytes += sizeOfUserObject
+        case let .success(sizeOfUserObject): dataUsageInKilobytes += sizeOfUserObject
         case let .failure(exception): return .failure(exception)
         }
 
         defer { Logger.closeStream(domain: .storageSession) }
         Logger.openStream(
-            message: "Size of user object: \(dataFootprintInKilobytes)kb",
+            message: "Size of user object: \(dataUsageInKilobytes)kb",
             domain: .storageSession,
             sender: self
         )
@@ -56,7 +56,7 @@ struct StorageSessionService {
                 line: #line
             )
 
-            dataFootprintInKilobytes += conversationDataSize
+            dataUsageInKilobytes += conversationDataSize
 
         case let .failure(exception):
             return .failure(exception)
@@ -74,7 +74,7 @@ struct StorageSessionService {
                 line: #line
             )
 
-            dataFootprintInKilobytes += messageDataSize
+            dataUsageInKilobytes += messageDataSize
 
         case let .failure(exception):
             return .failure(exception)
@@ -92,7 +92,7 @@ struct StorageSessionService {
                 line: #line
             )
 
-            dataFootprintInKilobytes += translationDataSize
+            dataUsageInKilobytes += translationDataSize
 
         case let .failure(exception):
             return .failure(exception)
@@ -110,7 +110,7 @@ struct StorageSessionService {
                 line: #line
             )
 
-            dataFootprintInKilobytes += combinedAudioSize
+            dataUsageInKilobytes += combinedAudioSize
 
         case let .failure(exception):
             return .failure(exception)
@@ -128,7 +128,7 @@ struct StorageSessionService {
                 line: #line
             )
 
-            dataFootprintInKilobytes += combinedMediaSize
+            dataUsageInKilobytes += combinedMediaSize
 
         case let .failure(exception):
             return .failure(exception)
@@ -143,16 +143,16 @@ struct StorageSessionService {
 
         let usageInMB = String(
             format: "%.2f",
-            Double(dataFootprintInKilobytes) / 1024
+            Double(dataUsageInKilobytes) / 1024
         )
 
         Logger.log(
-            "Total data usage: \(dataFootprintInKilobytes)kb / \(usageInMB)mb",
+            "Total data usage: \(dataUsageInKilobytes)kb / \(usageInMB)mb",
             domain: .storageSession,
             sender: self
         )
 
-        return .success(dataFootprintInKilobytes)
+        return .success(dataUsageInKilobytes)
     }
 
     // MARK: - Data Size Calculation

@@ -70,10 +70,6 @@ struct SettingsPageView: View {
                             contactDetailView
                         }
 
-                        Components.text(
-                            "Data used: \(viewModel.dataUsageLabelText)"
-                        )
-
                         ScrollView {
                             groupedListViews
                                 .id(viewModel.groupedListViewsID)
@@ -236,6 +232,13 @@ struct SettingsPageView: View {
         if let developerModeListItems = viewModel.developerModeListItems {
             GroupedListView(developerModeListItems)
         }
+
+        DataUsageView(
+            labelText: viewModel.strings.value(for: .dataUsageLabelText),
+            dataUsageInKilobytes: viewModel.dataUsageInKilobytes
+        )
+        .id(viewModel.dataUsageViewID)
+        .padding(.bottom, Floats.groupedListViewBottomPadding)
     }
 
     // MARK: - Auxiliary
@@ -261,5 +264,11 @@ struct SettingsPageView: View {
                 restoreOnDisappear: !Application.isInPrevaricationMode
             )
             .redrawsOnTraitCollectionChange()
+    }
+}
+
+private extension Array where Element == TranslationOutputMap {
+    func value(for key: TranslatedLabelStringCollection.SettingsPageViewStringKey) -> String {
+        (first(where: { $0.key == .settingsPageView(key) })?.value ?? key.rawValue).sanitized
     }
 }

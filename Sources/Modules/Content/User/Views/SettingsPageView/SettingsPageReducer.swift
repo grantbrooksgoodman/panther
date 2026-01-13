@@ -46,7 +46,7 @@ struct SettingsPageReducer: Reducer {
         case viewDisappeared
 
         case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
-        case getUserDataFootprintReturned(Callback<Int, Exception>)
+        case getCurrentUserDataUsageReturned(Callback<Int, Exception>)
         case messageRecipientConsentSwitchToggled(on: Bool)
         case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
@@ -69,7 +69,8 @@ struct SettingsPageReducer: Reducer {
         var contactDetailViewImage: UIImage?
         var contactDetailViewSubtitleLabelText: String?
         var contactDetailViewTitleLabelText = ""
-        var dataUsageLabelText = ""
+        var dataUsageInKilobytes = 0
+        var dataUsageViewID = UUID()
         var developerModeListItems: [ListRowView.Configuration]?
         var groupedListViewsID = UUID()
         var isMessageRecipientConsentSwitchToggled = false
@@ -123,9 +124,9 @@ struct SettingsPageReducer: Reducer {
                 return .fetchCNContactForCurrentUserReturned(result)
             }
 
-            let getUserDataFootprintTask: Effect<Action> = .task {
-                let result = await viewService.getUserDataFootprint()
-                return .getUserDataFootprintReturned(result)
+            let getCurrentUserDataUsageTask: Effect<Action> = .task {
+                let result = await viewService.getCurrentUserDataUsage()
+                return .getCurrentUserDataUsageReturned(result)
             }
 
             return .task {
@@ -133,7 +134,7 @@ struct SettingsPageReducer: Reducer {
                 return .resolveReturned(result)
             }
             .merge(with: fetchCNContactForCurrentUserTask)
-            .merge(with: getUserDataFootprintTask)
+            .merge(with: getCurrentUserDataUsageTask)
 
         case .blockedUsersButtonTapped:
             viewService.blockedUsersButtonTapped()
@@ -168,12 +169,12 @@ struct SettingsPageReducer: Reducer {
             state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
             Logger.log(exception)
 
-        case let .getUserDataFootprintReturned(.success(dataFootprintInKilobytes)):
-            let usageInMB = String(format: "%.2f", Double(dataFootprintInKilobytes) / 1024)
-            state.dataUsageLabelText = "\(dataFootprintInKilobytes)kb / \(usageInMB)mb"
+        case let .getCurrentUserDataUsageReturned(.success(dataUsageInKilobytes)):
+            state.dataUsageInKilobytes = dataUsageInKilobytes
+            state.dataUsageViewID = UUID()
 
-        case let .getUserDataFootprintReturned(.failure(exception)):
-            Logger.log(exception, with: .toast)
+        case let .getCurrentUserDataUsageReturned(.failure(exception)):
+            Logger.log(exception)
 
         case .inviteFriendsButtonTapped:
             viewService.inviteFriendsButtonTapped()

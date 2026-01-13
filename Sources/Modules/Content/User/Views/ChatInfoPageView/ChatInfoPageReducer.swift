@@ -115,7 +115,9 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var mediaItemMetadata: [MediaItemView.Metadata] {
-            conversation?.mediaItemMetadata ?? []
+            conversation?
+                .withMessagesOffsetFromCurrentUserAdditionDate
+                .mediaItemMetadata ?? []
         }
 
         var segmentedControlMaxWidth: CGFloat {

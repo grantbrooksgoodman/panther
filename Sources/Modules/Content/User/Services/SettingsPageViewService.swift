@@ -461,11 +461,11 @@ final class SettingsPageViewService {
         }
     }
 
-    // MARK: - Get User Data Footprint
+    // MARK: - Get Current User Data Usage
 
     /// `.viewAppeared`
-    func getUserDataFootprint() async -> Callback<Int, Exception> {
-        await clientSession.storage.getUserDataFootprint()
+    func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        await clientSession.storage.getCurrentUserDataUsage()
     }
 
     // MARK: - Clear Cache

@@ -20,6 +20,7 @@ extension TranslatedLabelStringCollection {
         case changeLanguage = "Change Language"
         case changeThemeButtonText = "Change Theme"
         case clearCachesButtonText = "Clear Caches"
+        case dataUsageLabelText = "Data usage"
         case deleteAccountButtonText = "Delete Account"
         case inviteFriendsButtonText = "Invite Friends"
         case leaveReviewButtonText = "Leave a Review"
