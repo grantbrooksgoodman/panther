@@ -27,6 +27,7 @@
 		A2A7A13D2F03596E00E09921 /* DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13C2F03596E00E09921 /* DataUsageView.swift */; };
 		A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
+		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
@@ -785,6 +786,7 @@
 		A2A7A13C2F03596E00E09921 /* DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageView.swift; sourceTree = "<group>"; };
 		A2A7A13E2F16DD3B00E09921 /* AppConstants+DataUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+DataUsageView.swift"; sourceTree = "<group>"; };
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
+		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
 		A2DF2C5128199B660089DEA1 /* Hello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2DF2C5428199B660089DEA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -1783,6 +1785,7 @@
 				B93DF6D32CE19A4000F992DF /* ConversationSyncData.swift */,
 				B906C0122C470A2100F414DA /* ModerationType.swift */,
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
+				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3966,7 +3969,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"$INFOPLIST_FILE\")\nBUILD_NUMBER=$(($BUILD_NUMBER + 1))\nbuild_date=`date +%s`\n\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $build_date\" \"$INFOPLIST_FILE\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST_FILE\"\n";
+			shellScript = "#!/bin/bash\n\nset -e\nPLIST=\"$INFOPLIST_FILE\"\n\n# Increment build number\nBUILD_NUMBER=$(/usr/libexec/PlistBuddy -c \"Print :CFBundleVersion\" \"$PLIST\")\nBUILD_NUMBER=$((BUILD_NUMBER + 1))\n\n# Current build timestamp\nBUILD_DATE=$(date +%s)\n\n# Update CFBuildDate and CFBundleVersion\n/usr/libexec/PlistBuddy -c \"Set :CFBuildDate $BUILD_DATE\" \"$PLIST\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$PLIST\"\n\n# Conditionally set CFFirstCompileDate\nPLACEHOLDER_FIRST_COMPILE_DATE=\"1183100400\"\nCURRENT_FIRST_COMPILE_DATE=$(/usr/libexec/PlistBuddy -c \"Print :CFFirstCompileDate\" \"$PLIST\" 2>/dev/null || echo \"\")\n\nif [[ \"$CURRENT_FIRST_COMPILE_DATE\" == \"$PLACEHOLDER_FIRST_COMPILE_DATE\" ]]; then\n  /usr/libexec/PlistBuddy -c \"Set :CFFirstCompileDate $BUILD_DATE\" \"$PLIST\"\nfi\n";
 		};
 		B98145F22AB4F34100937D37 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4222,6 +4225,7 @@
 				B9E6D7AF2B125FC0000BC88D /* User.swift in Sources */,
 				B99195932B47E88400BD5BBC /* VerifyNumberPageView.swift in Sources */,
 				B9C0D2582B79687F00119B85 /* NewChatPageReducer.swift in Sources */,
+				A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */,
 				B99880A52E2982C8002742A8 /* MessagesCollectionView+UserContentExtensions.swift in Sources */,
 				B95DCE512D8CC968003730F9 /* AppConstants+NewChatPageView.swift in Sources */,
 				A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */,

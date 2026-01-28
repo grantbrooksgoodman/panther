@@ -36,8 +36,8 @@ final class InputBarService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
-    @Dependency(\.clientSession.conversation.fullConversation) private var fullConversation: Conversation?
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
@@ -311,7 +311,8 @@ final class InputBarService {
     // MARK: - Computed Property Getters
 
     private func getShouldEnableAttachMediaButton() -> Bool {
-        guard build.isOnline else { return false }
+        guard build.isOnline,
+              !clientSession.storage.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -320,7 +321,7 @@ final class InputBarService {
     }
 
     private func getShouldEnableConsentButton() -> Bool {
-        guard let fullConversation else { return false }
+        guard let fullConversation = clientSession.conversation.fullConversation else { return false }
         if let selectedContactPairs = chatPageViewService
             .recipientBar?
             .contactSelectionUI
@@ -337,7 +338,8 @@ final class InputBarService {
     }
 
     private func getShouldEnableSendButton() -> Bool {
-        guard build.isOnline else { return false }
+        guard build.isOnline,
+              !clientSession.storage.atOrAboveDataUsageLimit else { return false }
 
         let isConversationEmpty = viewController.currentConversation?.isEmpty ?? true
         let isRecipientBarFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
@@ -383,7 +385,7 @@ final class InputBarService {
 
     private func showConsentButton() {
         guard let consentButton,
-              let fullConversation else { return }
+              let fullConversation = clientSession.conversation.fullConversation else { return }
 
         consentButton.addTarget(
             actionHandler,

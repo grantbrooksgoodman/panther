@@ -168,9 +168,8 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         fileprivate var cellViewData: ConversationCellViewData? {
-            guard let conversation,
-                  let cellViewData: ConversationCellViewData = .init(conversation) else { return nil }
-            return cellViewData
+            guard let conversation else { return nil }
+            return .init(conversation)
         }
 
         fileprivate var conversation: Conversation? {
@@ -328,12 +327,11 @@ struct ChatInfoPageReducer: Reducer {
 
             if let penPalsStatus = chatParticipant.penPalsStatus,
                penPalsStatus == .currentUserSharesData {
-                return .task {
+                return .fireAndForget {
                     await viewService.showPenPalsSharingStatusToast(
                         user.id,
                         displayName: chatParticipant.displayName
                     )
-                    return .none
                 }
             }
 
@@ -412,6 +410,8 @@ struct ChatInfoPageReducer: Reducer {
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             conversationSession.setCurrentConversation(conversation)
+            chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
+
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
             }

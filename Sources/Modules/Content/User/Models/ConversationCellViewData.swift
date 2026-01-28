@@ -62,10 +62,12 @@ struct ConversationCellViewData: Equatable {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     init?(
         _ conversation: Conversation,
-        searchQuery: String? = nil
+        searchQuery: String? = nil,
+        useCachedValue: Bool = true
     ) {
         let cacheQuery = (searchQuery == nil || searchQuery?.isBlank == true) ? String.bangQualifiedEmpty : searchQuery!
-        if !conversation.isMock,
+        if useCachedValue,
+           !conversation.isMock,
            let cachedValue = _ConversationCellViewDataCache
            .cachedDataByConversationIDForSearchQueries?[cacheQuery]?[conversation.id] {
             self = cachedValue

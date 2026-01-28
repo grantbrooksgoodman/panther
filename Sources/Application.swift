@@ -32,10 +32,6 @@ enum Application {
 
     @MainActor
     static func initialize() {
-        /* MARK: Dependencies */
-
-        @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
-
         /* MARK: App Subsystem Setup */
 
         AppSubsystem.delegates.register(
@@ -55,7 +51,6 @@ enum Application {
             appStoreBuildNumber: 31896,
             buildMilestone: buildMilestone,
             codeName: "Panther",
-            dmyFirstCompileDateString: "11112023",
             finalName: "Hello",
             languageCode: Locale.systemLanguageCode,
             loggingEnabled: buildMilestone != .generalRelease

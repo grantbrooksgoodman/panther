@@ -41,6 +41,7 @@ extension AppConstants.Colors {
         static let settingsToolbarButtonForeground: Color = .init(
             uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
         )
+        static let storageFullToolbarButtonForeground: Color = .red
     }
 }
 
@@ -52,5 +53,6 @@ extension AppConstants.Strings {
         static let createRandomMessagesToolbarButtonImageSystemName = "sparkles.2"
         static let deleteConversationsToolbarButtonImageSystemName = "trash"
         static let settingsToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape" // swiftlint:enable identifier_name line_length
+        static let storageFullToolbarButtonImageSystemName = "exclamationmark.triangle"
     }
 }

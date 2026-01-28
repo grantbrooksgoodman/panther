@@ -82,7 +82,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
             localizedString = Localized(.renamedConversation)
                 .wrappedValue
                 .replacingOccurrences(of: "⌘", with: "⌘\(displayName(for: userID))⌘")
-                .replacingOccurrences(of: "⁂", with: "⌘\(name)⌘")
+                .replacingOccurrences(of: "⁂", with: "⌘“\(name)”⌘")
         }
 
         guard let localizedString else { return "�" }

@@ -43,12 +43,17 @@ struct InputBarConfigService {
     }
 
     func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
-        guard build.isOnline else { return .init(systemName: Strings.sendButtonOfflineImageSystemName) }
-        guard forRecording else {
-            guard !Application.isInPrevaricationMode,
-                  ThemeService.isAppDefaultThemeApplied else { return isHighlighted ? .sendAlternateHighlighted : .sendAlternate }
+        if !build.isOnline {
+            return .init(systemName: Strings.sendButtonOfflineImageSystemName)
+        } else if clientSession.storage.atOrAboveDataUsageLimit {
+            return .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
+        } else if forRecording {
+            return isHighlighted ? .recordHighlighted : .record
+        } else if !Application.isInPrevaricationMode,
+                  ThemeService.isAppDefaultThemeApplied {
             return isHighlighted ? .sendHighlighted : .send
+        } else {
+            return isHighlighted ? .sendAlternateHighlighted : .sendAlternate
         }
-        return isHighlighted ? .recordHighlighted : .record
     }
 }

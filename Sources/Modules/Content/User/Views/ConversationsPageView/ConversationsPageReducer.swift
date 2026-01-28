@@ -70,6 +70,11 @@ struct ConversationsPageReducer: Reducer {
             @Dependency(\.build.isDeveloperModeEnabled) var isDeveloperModeEnabled: Bool
             return Networking.config.environment == .staging && isDeveloperModeEnabled
         }
+
+        var shouldShowStorageFullButton: Bool {
+            @Dependency(\.clientSession.storage.atOrAboveDataUsageLimit) var atOrAboveDataUsageLimit: Bool
+            return atOrAboveDataUsageLimit
+        }
     }
 
     // MARK: - Reduce
@@ -97,7 +102,11 @@ struct ConversationsPageReducer: Reducer {
             state.animationAmount = animationAmount
 
         case .composeToolbarButtonTapped:
-            navigation.navigate(to: .userContent(.sheet(.newChat)))
+            if state.shouldShowStorageFullButton {
+                viewService.storageFullButtonTapped()
+            } else {
+                navigation.navigate(to: .userContent(.sheet(.newChat)))
+            }
 
         case .createRandomMessagesToolbarButtonTapped:
             DevModeAction.AppActions.createNewMessagesAction.perform()

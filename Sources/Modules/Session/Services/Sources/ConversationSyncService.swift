@@ -24,10 +24,16 @@ final class ConversationSyncService {
     // MARK: - Properties
 
     @LockIsolated private static var inFlightTasks = [String: Task<Callback<Conversation, Exception>, Never>]()
+    @LockIsolated private static var _recentlyFailedSyncRecords: Set<SynchronizationRecord> = []
 
     @LockIsolated private var _syncData: ConversationSyncData = .empty
 
     // MARK: - Computed Properties
+
+    private var recentlyFailedSyncRecords: Set<SynchronizationRecord> {
+        get { ConversationSyncService._recentlyFailedSyncRecords.filter { !$0.isExpired } }
+        set { ConversationSyncService._recentlyFailedSyncRecords = newValue }
+    }
 
     private var syncData: ConversationSyncData? {
         get { _syncData == .empty ? nil : _syncData }
@@ -40,6 +46,10 @@ final class ConversationSyncService {
         if let existingTask = ConversationSyncService.inFlightTasks[conversation.id.key] {
             return await existingTask.value
         }
+
+        guard !recentlyFailedSyncRecords.contains(where: {
+            $0.conversationID == conversation.id
+        }) else { return .success(conversation) }
 
         let task = Task { [weak self] () -> Callback<Conversation, Exception> in
             guard let self else {
@@ -62,8 +72,13 @@ final class ConversationSyncService {
     // MARK: - Auxiliary
 
     private func synchronizeActivities() async -> Exception? {
-        guard let newActivities = syncData?.newData[Conversation.SerializationKeys.activities.rawValue] as? [[String: Any]] else {
-            return .Networking.decodingFailed(data: syncData?.newData ?? [:], .init(sender: self))
+        guard let newActivities = syncData?.newData[
+            Conversation.SerializationKeys.activities.rawValue
+        ] as? [[String: Any]] else {
+            return .Networking.decodingFailed(
+                data: syncData?.newData ?? [:],
+                .init(sender: self)
+            )
         }
 
         var updatedActivities = [Activity]()
@@ -72,11 +87,8 @@ final class ConversationSyncService {
             let decodeResult = await Activity.decode(from: activity)
 
             switch decodeResult {
-            case let .success(decodedActivity):
-                updatedActivities.append(decodedActivity)
-
-            case let .failure(exception):
-                return exception
+            case let .success(decodedActivity): updatedActivities.append(decodedActivity)
+            case let .failure(exception): return exception
             }
         }
 
@@ -88,14 +100,21 @@ final class ConversationSyncService {
             )
         }
 
-        guard let conversation = syncData?.conversation.modifyKey(.activities, withValue: updatedActivities) else {
+        guard let conversation = syncData?.conversation.modifyKey(
+            .activities,
+            withValue: updatedActivities
+        ) else {
             return .Networking.typeMismatch(
                 key: Conversation.SerializationKeys.activities.rawValue,
                 .init(sender: self)
             )
         }
 
-        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        syncData = .init(
+            conversation,
+            newData: syncData?.newData ?? [:]
+        )
+
         return nil
     }
 
@@ -231,6 +250,7 @@ final class ConversationSyncService {
                         domain: .conversation
                     )
 
+                    recentlyFailedSyncRecords.insert(.init(conversation.id))
                     if let exception = await synchronizeMessages(messageIDs) {
                         self.syncData = nil
                         return .failure(exception.appending(userInfo: userInfo))
@@ -445,6 +465,32 @@ final class ConversationSyncService {
     }
 
     private func updateHash(_ conversation: Conversation) async -> Exception? {
+        // TODO: Audit efficacy of this with multiple running instances.
+        if let currentUser,
+           var conversationIDs = currentUser.conversationIDs,
+           let index = conversationIDs.firstIndex(where: {
+               $0.key == conversation.id.key
+           }) {
+            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
+            conversationIDs.insert(
+                .init(
+                    key: conversation.id.key,
+                    hash: conversation.encodedHash
+                ),
+                at: index
+            )
+
+            let updateValueResult = await currentUser.updateValue(
+                conversationIDs,
+                forKey: .conversationIDs
+            )
+
+            switch updateValueResult {
+            case let .failure(exception): return exception
+            default: ()
+            }
+        }
+
         let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/"
         let hashPath = conversationKeyPath + Conversation.SerializationKeys.encodedHash.rawValue
         return await networking.database.setValue(

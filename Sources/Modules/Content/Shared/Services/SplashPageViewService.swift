@@ -23,11 +23,11 @@ final class SplashPageViewService: ObservableObject {
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.build) private var build: Build
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -81,13 +81,13 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {
-            if let exception = userSession.setOfflineCurrentUser() {
+            if let exception = clientSession.user.setOfflineCurrentUser() {
                 Logger.log(exception)
             }
 
             initializationProgress = 1
 
-            guard let currentUser = userSession.currentUser else { return nil }
+            guard let currentUser = clientSession.user.currentUser else { return nil }
             core.utils.setLanguageCode(currentUser.languageCode)
             return nil
         }
@@ -95,7 +95,7 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Language Code Resolution */
 
         if User.currentUserID != nil,
-           let exception = await userSession.resolveAndSetLanguageCode() {
+           let exception = await clientSession.user.resolveAndSetLanguageCode() {
             Logger.log(exception)
         }
 
@@ -165,13 +165,13 @@ final class SplashPageViewService: ObservableObject {
         @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         @Persistent(.init("translationArchive")) var translationArchive: [Translation]?
 
-        let resolveCurrentUserResult = await userSession.resolveCurrentUser()
+        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
         switch resolveCurrentUserResult {
         case .success:
             initializationProgress += 0.2
 
-            guard let currentUser = userSession.currentUser else {
+            guard let currentUser = clientSession.user.currentUser else {
                 return .init("Failed to set current user.", metadata: .init(sender: self))
             }
 
@@ -216,6 +216,8 @@ final class SplashPageViewService: ObservableObject {
             if let exception = await services.penPals.updateSharingDataForKnownUsers() {
                 return exception
             }
+
+            _ = await clientSession.storage.getCurrentUserDataUsage()
 
             initializationProgress = 1
             return nil

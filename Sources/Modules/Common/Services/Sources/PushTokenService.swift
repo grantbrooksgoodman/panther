@@ -34,7 +34,11 @@ final class PushTokenService {
     func updatePushTokensForCurrentUser() async -> Exception? {
         guard let currentUser = userSession.currentUser,
               let currentToken else {
-            return .init("Either current user or push token has not been set.", metadata: .init(sender: self))
+            return .init(
+                "Either current user or push token has not been set.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            )
         }
 
         var pushTokens = currentUser.pushTokens ?? []

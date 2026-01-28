@@ -178,7 +178,8 @@ final class ContextMenuInteractionService {
             guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
                   let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
                   let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-                  !message.isConsentMessage else { return }
+                  !message.isConsentMessage,
+                  !clientSession.storage.atOrAboveDataUsageLimit else { return }
 
             let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
             guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
@@ -265,10 +266,15 @@ final class ContextMenuInteractionService {
                     reactionsViewController.deselectAllReactions()
                     Task.delayed(by: .milliseconds(Floats.triggerExistingSelectionDelayMilliseconds)) { @MainActor in
                         self.triggerExistingSelection(reactionsViewController)
-                        reactionsViewController.view.alpha = message.isConsentMessage ? 0 : 1
+                        reactionsViewController.view.alpha = message.isConsentMessage ||
+                            self.clientSession.storage.atOrAboveDataUsageLimit ? 0 : 1
                     }
 
-                    reactionsViewController.view.isUserInteractionEnabled = message.isConsentMessage ? false : true
+                    reactionsViewController
+                        .view
+                        .isUserInteractionEnabled = message.isConsentMessage ||
+                        self.clientSession.storage.atOrAboveDataUsageLimit ? false : true
+
                     return ContextMenuConfiguration(
                         accessoryView: reactionsViewController.view,
                         menu: menu

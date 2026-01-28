@@ -21,9 +21,9 @@ final class UserSessionService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.clientSession.storage) private var storageSession: StorageSessionService
 
     // MARK: - Properties
 
@@ -297,6 +297,9 @@ final class UserSessionService {
                 domain: .userSession,
                 sender: self
             )
+
+            storageSession.invalidateDataUsageCalculation()
+            _ = await storageSession.getCurrentUserDataUsage()
 
             Observables.updatedCurrentUser.trigger()
             chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)

@@ -125,7 +125,12 @@ struct ConversationsPageObserver: Observer {
                 )
             }
 
-            if let exception = await clientSession.user.currentUser?.conversations?.visibleForCurrentUser.setUsers() {
+            if let exception = await clientSession
+                .user
+                .currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .setUsers() {
                 Logger.log(
                     exception,
                     domain: .conversation,
@@ -164,15 +169,33 @@ struct ConversationsPageObserver: Observer {
                   .filter({ !$0.isFromCurrentUser })
                   .filter({ $0.currentUserReadReceipt == nil }),
                   !missingMessages.isEmpty else {
-                guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
+                guard clientSession
+                    .conversation
+                    .currentConversation?
+                    .id
+                    .key == updatedConversation.id.key else { return }
+
+                // If a user was added/removed, resolve the users again.
+                if currentConversation.participants.count != updatedConversation.participants.count,
+                   let exception = await updatedConversation.setUsers(forceUpdate: true) {
+                    Logger.log(
+                        exception,
+                        domain: .conversation,
+                        with: .toastInPrerelease
+                    )
+                }
+
                 clientSession.conversation.setCurrentConversation(updatedConversation)
                 chatPageState.setIsWaitingToUpdateConversations(false) // Allow typing indicator to appear.
 
-                guard currentConversation.id.hash != updatedConversation.id.hash else { return }
-                if let navigationTitle = ConversationCellViewData(updatedConversation)?.titleLabelText {
+                if let navigationTitle = ConversationCellViewData(
+                    updatedConversation,
+                    useCachedValue: currentConversation.participants.count == updatedConversation.participants.count
+                )?.titleLabelText {
                     chatPageViewService.setNavigationTitle(navigationTitle)
                 }
 
+                guard currentConversation.id.hash != updatedConversation.id.hash else { return }
                 chatPageViewService.reloadCollectionView() // Reload to display updated read date / reactions.
                 configureInputBarIfNeeded()
                 Observables.currentConversationMetadataChanged.trigger()

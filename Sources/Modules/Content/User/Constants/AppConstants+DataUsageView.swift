@@ -17,7 +17,7 @@ import AppSubsystem
 
 extension AppConstants.CGFloats {
     enum DataUsageView {
-        static let defaultUsageLimit: CGFloat = 10240
+        static let defaultUsageLimit: CGFloat = StorageSessionService.storageLimitInKilobytes
         static let labelBottomPadding: CGFloat = 5
         static let lowUsageThreshold: CGFloat = 0.3
         static let mediumUsageThreshold: CGFloat = 0.6

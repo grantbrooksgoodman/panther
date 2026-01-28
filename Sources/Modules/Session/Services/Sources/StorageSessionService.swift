@@ -6,22 +6,56 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
+import UIKit
 
 /* Proprietary */
+import AlertKit
 import AppSubsystem
 import Networking
+import Translator
 
-struct StorageSessionService {
+final class StorageSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.networking.storage) private var storage: StorageDelegate
+    @Dependency(\.networking) private var networking: NetworkServices
+
+    // MARK: - Properties
+
+    static let storageLimitInKilobytes: Double = 10240
+
+    private let warningAlertRatio: Double = 0.6
+
+    private var lastDataUsageCalculation = 0
+
+    // MARK: - Computed Properties
+
+    var atOrAboveDataUsageLimit: Bool {
+        lastDataUsageCalculation >= Int(StorageSessionService.storageLimitInKilobytes)
+    }
+
+    var isApproachingDataUsageLimit: Bool {
+        lastDataUsageCalculation >= Int(StorageSessionService.storageLimitInKilobytes * warningAlertRatio)
+    }
 
     // MARK: - Current User Data Usage
 
+    @MainActor
     func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        guard lastDataUsageCalculation == 0 else {
+            Logger.log(
+                "Returning last known data usage calculation (\(lastDataUsageCalculation)kb).",
+                domain: .storageSession,
+                sender: self
+            )
+
+            return .success(lastDataUsageCalculation)
+        }
+
         var dataUsageInKilobytes = 0
 
         if let exception = await populateValuesIfNeeded() {
@@ -152,7 +186,47 @@ struct StorageSessionService {
             sender: self
         )
 
+        lastDataUsageCalculation = dataUsageInKilobytes
         return .success(dataUsageInKilobytes)
+    }
+
+    // MARK: - Invalidate Data Usage Calculation
+
+    func invalidateDataUsageCalculation() {
+        lastDataUsageCalculation = 0
+    }
+
+    // MARK: - Present Storage Warning Alert
+
+    func presentStorageWarningAlert() async {
+        guard ((try? (await getCurrentUserDataUsage()).get()) ?? 0) >= Int(
+            StorageSessionService.storageLimitInKilobytes * warningAlertRatio
+        ) else { return }
+
+        if atOrAboveDataUsageLimit {
+            let getStorageFullAlertResult = await getStorageFullAlert()
+
+            switch getStorageFullAlertResult {
+            case let .success(storageFullAlert):
+                await storageFullAlert.present(translating: [.title])
+
+            case let .failure(exception):
+                Logger.log(
+                    exception,
+                    domain: .storageSession,
+                    with: .toastInPrerelease
+                )
+            }
+        } else {
+            await AKAlert(
+                title: "Storage Almost Full",
+                message: "You can free up space by deleting conversations.",
+                actions: [.cancelAction(title: "OK")]
+            ).present(translating: [
+                .message,
+                .title,
+            ])
+        }
     }
 
     // MARK: - Data Size Calculation
@@ -170,6 +244,7 @@ struct StorageSessionService {
     private func getConversationDataSize() -> Callback<Int, Exception> {
         guard let encodedConversationData = currentUser?
             .conversations?
+            .visibleForCurrentUser
             .map(\.encoded) else {
             return .failure(.init(
                 "Failed to resolve encoded conversations.",
@@ -183,6 +258,7 @@ struct StorageSessionService {
     private func getMessageDataSize() -> Callback<Int, Exception> {
         guard let encodedMessageData = currentUser?
             .conversations?
+            .visibleForCurrentUser
             .flatMap({ $0.messages ?? [] })
             .filter({ $0.fromAccountID == User.currentUserID })
             .map(\.encoded) else {
@@ -209,6 +285,7 @@ struct StorageSessionService {
     private func getTranslationDataSize() -> Callback<Int, Exception> {
         guard let encodedTranslationData = currentUser?
             .conversations?
+            .visibleForCurrentUser
             .flatMap({ $0.messages ?? [] })
             .filter({ $0.fromAccountID == User.currentUserID })
             .flatMap({ $0.translationReferences ?? [] })
@@ -231,6 +308,7 @@ struct StorageSessionService {
     private func getAudioFilePaths() -> [String] {
         let localAudioFilePaths = currentUser?
             .conversations?
+            .visibleForCurrentUser
             .flatMap { $0.messages ?? [] }
             .filter { $0.fromAccountID == User.currentUserID }
             .compactMap(\.localAudioFilePath)
@@ -244,6 +322,7 @@ struct StorageSessionService {
     private func getMediaFilePaths() -> [String] {
         currentUser?
             .conversations?
+            .visibleForCurrentUser
             .flatMap { $0.messages ?? [] }
             .filter { $0.fromAccountID == User.currentUserID }
             .compactMap(\.richContent?.mediaComponent?.relativePath)
@@ -251,6 +330,59 @@ struct StorageSessionService {
     }
 
     // MARK: - Auxiliary
+
+    @MainActor
+    private func getStorageFullAlert() async -> Callback<AKAlert, Exception> {
+        let messagePrefixInput = TranslationInput("You can free up space by deleting conversations.")
+        let messageSuffixInput = TranslationInput("Until then, you will not be able to send new messages.")
+
+        let getTranslationsResult = await networking.hostedTranslation.getTranslations(
+            for: [
+                messagePrefixInput,
+                messageSuffixInput,
+            ],
+            languagePair: .system,
+            hud: nil
+        )
+
+        switch getTranslationsResult {
+        case let .success(translations):
+            let prefixOutput = translations.first(where: {
+                $0.input.value == messagePrefixInput.value
+            })?.output ?? messagePrefixInput.value
+
+            let suffixOutput = translations.first(where: {
+                $0.input.value == messageSuffixInput.value
+            })?.output ?? messageSuffixInput.value
+
+            let storageFullAlert = AKAlert(
+                title: "Storage Full",
+                message: "\(prefixOutput)\n\n\(suffixOutput)",
+                actions: [.cancelAction(title: "OK")]
+            )
+
+            let fontSize: CGFloat = UIApplication.isFullyV26Compatible ? 15 : 13
+            let attributedMessageFont: UIFont = .systemFont(ofSize: fontSize)
+
+            storageFullAlert.setMessageAttributes(
+                .init(
+                    [.font: attributedMessageFont],
+                    secondaryAttributes: [.init(
+                        [
+                            .font: attributedMessageFont,
+                            .foregroundColor: UIColor.red,
+                        ],
+                        stringRanges: [suffixOutput]
+                    )]
+                )
+            )
+
+            return .success(storageFullAlert)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
 
     private func populateValuesIfNeeded() async -> Exception? {
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
@@ -281,6 +413,10 @@ struct StorageSessionService {
             return nil
         }
 
+        if let exception = await currentUser.setConversations() {
+            return exception
+        }
+
         for conversation in (currentUser.conversations ?? [])
             .visibleForCurrentUser
             .filter({ satisfiesConstraints($0) }) {
@@ -289,7 +425,7 @@ struct StorageSessionService {
             }
         }
 
-        return await currentUser.setConversations()
+        return nil
     }
 
     private func sizeInKilobytes(of data: Any) -> Callback<Int, Exception> {
@@ -316,7 +452,7 @@ struct StorageSessionService {
         var totalSizeInKilobytes = 0
 
         for filePath in items {
-            let sizeInKilobytesResult = await storage.sizeInKilobytes(
+            let sizeInKilobytesResult = await networking.storage.sizeInKilobytes(
                 ofItemAt: filePath
             )
 
@@ -347,3 +483,5 @@ private extension TranslationReference {
         return nil
     }
 }
+
+// swiftlint:enable file_length type_body_length

@@ -87,6 +87,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
     func setMessages(ids: Set<String>? = nil) async -> Exception? {
+        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
@@ -106,10 +107,16 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         case let .success(messages):
             guard !messages.isEmpty,
                   messages.count == messageIDs.count else {
-                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
+                return .init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                )
             }
 
-            self.messages = messages.hydrated(with: activities)
+            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
+            coreGCD.syncOnMain {
+                self.messages = messages.hydrated(with: self.activities)
+            }
 
             Logger.log(
                 .init(
@@ -129,7 +136,9 @@ final class Conversation: Codable, EncodedHashable, Hashable {
     }
 
     private func updateMessage(id: String) async -> Exception? {
+        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
+
         let userInfo: [String: Any] = [
             "ConversationIDKey": self.id.key,
             "MessageID": id,
@@ -156,7 +165,8 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             }
 
             messages[messageIndex] = message
-            self.messages = messages
+            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
+            coreGCD.syncOnMain { self.messages = messages }
             return nil
 
         case let .failure(exception):

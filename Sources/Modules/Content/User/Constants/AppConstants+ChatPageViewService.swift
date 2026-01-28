@@ -222,7 +222,8 @@ extension AppConstants.Strings {
             static let consentButtonSemanticTag = "CONSENT_BUTTON"
             static let recordButtonSemanticTag = "RECORD_BUTTON"
             static let sendButtonOfflineImageSystemName = "wifi.slash"
-            static let sendButtonSemanticTag = "SEND_BUTTON"
+            static let sendButtonSemanticTag = "SEND_BUTTON" // swiftlint:disable:next identifier_name
+            static let sendButtonStorageLimitReachedImageSystemName = "externaldrive.trianglebadge.exclamationmark"
         }
 
         enum InputBarGestureRecognizer { // swiftlint:disable:next line_length

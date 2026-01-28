@@ -134,10 +134,13 @@ struct ConversationsPageView: View {
     }
 
     private var composeToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) { // swiftlint:disable:next line_length
+            let symbolName = viewModel.shouldShowStorageFullButton ? Strings.storageFullToolbarButtonImageSystemName : Strings.composeToolbarButtonImageSystemName
+            let foregroundColor = viewModel.shouldShowStorageFullButton ? Colors.storageFullToolbarButtonForeground : Colors.composeToolbarButtonForeground
+
             Components.button(
-                symbolName: Strings.composeToolbarButtonImageSystemName,
-                foregroundColor: Colors.composeToolbarButtonForeground,
+                symbolName: symbolName,
+                foregroundColor: foregroundColor,
                 secondaryForegroundColor: Application.isInPrevaricationMode ? .navigationBarTitle : nil,
                 usesIntrinsicSize: false
             ) {
@@ -147,7 +150,7 @@ struct ConversationsPageView: View {
                 minWidth: Floats.toolbarButtonFrameMinWidth,
                 minHeight: Floats.toolbarButtonFrameMinHeight
             )
-            .if(viewModel.conversations.isEmpty) {
+            .if(viewModel.conversations.isEmpty || viewModel.shouldShowStorageFullButton) {
                 $0
                     .scaleEffect(viewModel.animationAmount)
                     .animation(

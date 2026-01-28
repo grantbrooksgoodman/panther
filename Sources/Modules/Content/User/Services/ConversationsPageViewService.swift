@@ -15,6 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 final class ConversationsPageViewService {
     // MARK: - Types
 
@@ -45,12 +46,12 @@ final class ConversationsPageViewService {
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
+    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
-    @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Properties
 
@@ -60,7 +61,7 @@ final class ConversationsPageViewService {
 
     func viewAppeared() {
         NavigationBar.setAppearance(.conversationsPageView)
-        userSession.startObservingCurrentUserChanges()
+        clientSession.user.startObservingCurrentUserChanges()
 
         core.gcd.after(.milliseconds(500)) {
             StatusBar.overrideStyle(.appAware)
@@ -90,7 +91,7 @@ final class ConversationsPageViewService {
 
         /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
         func reloadIfNeeded() {
-            guard let currentUser = userSession.currentUser,
+            guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
                   currentUser.conversationIDs?.isEmpty == false else { return }
 
@@ -117,7 +118,7 @@ final class ConversationsPageViewService {
         }
 
         if build.milestone != .generalRelease {
-            let currentUser = userSession.currentUser
+            let currentUser = clientSession.user.currentUser
             let numberOfConversations = currentUser?
                 .conversations?
                 .visibleForCurrentUser
@@ -144,14 +145,16 @@ final class ConversationsPageViewService {
 
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
                 if !(presentedPenPalsPermissionPageAtStartup ?? false),
-                   userSession.currentUser?.isPenPalsParticipant == false {
+                   clientSession.user.currentUser?.isPenPalsParticipant == false {
                     presentedPenPalsPermissionPageAtStartup = true
                     RootSheets.present(.penPalsPermissionPageView)
                 }
             }
 
             @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-            if await services.permission.notificationPermissionStatus == .unknown {
+            if clientSession.storage.isApproachingDataUsageLimit {
+                await clientSession.storage.presentStorageWarningAlert()
+            } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = await services.permission.requestPermission(for: .notifications)
             } else if !(await services.invite.suggestInvitationIfNeeded()) {
                 services.review.promptToReview()
@@ -199,7 +202,7 @@ final class ConversationsPageViewService {
 
     func deleteConversationsToolbarButtonTapped() {
         func populateValuesIfNeeded() async -> Exception? {
-            guard let currentUser = userSession.currentUser,
+            guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil ||
                   currentUser.conversations?.isEmpty == true else { return nil }
             return await currentUser.setConversations()
@@ -224,9 +227,14 @@ final class ConversationsPageViewService {
     /// `.pulledToRefresh`
     func reloadData() async -> Callback<[Conversation], Exception> {
         func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
-            if let conversations = userSession.currentUser?.conversations?.visibleForCurrentUser.sortedByLatestMessageSentDate,
-               let firstConversation = conversations.first,
-               type == .full || type == .partial {
+            if let conversations = clientSession
+                .user
+                .currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .sortedByLatestMessageSentDate,
+                let firstConversation = conversations.first,
+                type == .full || type == .partial {
                 var array = [firstConversation]
                 if type == .full {
                     if conversations.count > 5 {
@@ -239,7 +247,7 @@ final class ConversationsPageViewService {
                 array.forEach { markStale(conversation: $0) }
             }
 
-            let resolveCurrentUserResult = await userSession.resolveCurrentUser()
+            let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
             currentReloadType = currentReloadType.next
 
             switch resolveCurrentUserResult {
@@ -269,6 +277,13 @@ final class ConversationsPageViewService {
         }
 
         return await reloadData(type: currentReloadType)
+    }
+
+    /// `.composeToolbarButtonTapped`
+    func storageFullButtonTapped() {
+        Task {
+            await clientSession.storage.presentStorageWarningAlert()
+        }
     }
 
     // MARK: - Auxiliary
