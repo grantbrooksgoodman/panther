@@ -14,6 +14,7 @@ import AppSubsystem
 
 struct CommonServices {
     let accountDeletion: AccountDeletionService
+    let aiEnhancedTranslation: AIEnhancedTranslationService
     let analytics: AnalyticsService
     let attributeDetection: AttributeDetectionService
     let audio: AudioService

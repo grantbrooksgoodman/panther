@@ -143,11 +143,30 @@ final class ConversationsPageViewService {
             defer {
                 startSettingSearchBarAppearance()
 
+                // swiftlint:disable:next identifier_name
+                @Persistent(.presentedAIEnhancedTranslationPermissionPageAtStartup) var presentedAIEnhancedTranslationPermissionPageAtStartup: Bool?
                 @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
-                if !(presentedPenPalsPermissionPageAtStartup ?? false),
+
+                let presentedAIPage = presentedAIEnhancedTranslationPermissionPageAtStartup ?? false
+                let presentedPenPalsPage = presentedPenPalsPermissionPageAtStartup ?? false
+
+                var configurations = [FeaturePermissionPageView.Configuration]()
+                if !presentedAIPage,
+                   clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == false {
+                    configurations.append(.aiEnhancedTranslations)
+                    presentedAIEnhancedTranslationPermissionPageAtStartup = true
+                }
+
+                if !presentedPenPalsPage,
                    clientSession.user.currentUser?.isPenPalsParticipant == false {
+                    configurations.append(.penPals)
                     presentedPenPalsPermissionPageAtStartup = true
-                    RootSheets.present(.penPalsPermissionPageView)
+                }
+
+                if !configurations.isEmpty {
+                    RootSheets.present(
+                        .featurePermissionPageView(configurations)
+                    )
                 }
             }
 

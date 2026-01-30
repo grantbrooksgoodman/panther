@@ -17,8 +17,8 @@ extension TranslatedLabelStringCollection {
         // MARK: - Cases
 
         // swiftlint:disable:next line_length
-        case aiEnhanceTranslationsListRowFooterText = "Allow translations to be AI-enhanced for clarity without changing meaning. The content of your messages will be sent through an LLM."
-        case aiEnhanceTranslationsListRowInnerText = "AI-enhance translations"
+        case aiEnhanceTranslationsListRowFooterText = "Allow translations to be AI-enhanced for clarity without changing meaning. The content of your messages may be sent through an LLM."
+        case aiEnhanceTranslationsListRowInnerText = "AI-enhanced translations"
         case blockedUsersButtonText = "Blocked Users"
         case changeLanguage = "Change Language"
         case changeThemeButtonText = "Change Theme"

@@ -14,6 +14,17 @@ import SwiftUI
 import AppSubsystem
 
 extension SquareIconView.Configuration {
+    static func aiEnhancedTranslationsIcon(
+        backgroundColor: Color = .init(uiColor: .systemBlue),
+        includesShadow: Bool = false
+    ) -> SquareIconView.Configuration {
+        .init(
+            backgroundColor: backgroundColor,
+            overlay: .symbol(name: "sparkles"),
+            includesShadow: includesShadow
+        )
+    }
+
     static func penPalsIcon(
         backgroundColor: Color = .purple,
         includesShadow: Bool = false

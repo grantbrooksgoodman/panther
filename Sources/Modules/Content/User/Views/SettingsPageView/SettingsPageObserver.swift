@@ -21,6 +21,7 @@ struct SettingsPageObserver: Observer {
 
     let id = UUID()
     let observedValues: [any ObservableProtocol] = [
+        Observables.didGrantAIEnhancedTranslationPermission,
         Observables.didGrantPenPalsPermission,
         Observables.traitCollectionChanged,
     ]
@@ -46,6 +47,10 @@ struct SettingsPageObserver: Observer {
         )
 
         switch observable.key {
+        case .didGrantAIEnhancedTranslationPermission:
+            guard let value = observable.value as? Bool else { return }
+            send(.aiEnhancedTranslationsSwitchToggled(on: value))
+
         case .didGrantPenPalsPermission:
             guard let value = observable.value as? Bool else { return }
             send(.penPalsParticipantSwitchToggled(on: value))

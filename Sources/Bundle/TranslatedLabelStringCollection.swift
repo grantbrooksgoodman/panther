@@ -21,7 +21,6 @@ extension TranslatedLabelStringCollection {
     static func contactSelectorPageView(_ key: ContactSelectorPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func conversationsPageView(_ key: ConversationsPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func inviteQRCodePageView(_ key: InviteQRCodePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
-    static func penPalsPermissionPageView(_ key: PenPalsPermissionPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func permissionPageView(_ key: PermissionPageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func samplePageView(_ key: SamplePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }
     static func selectLanguagePageView(_ key: SelectLanguagePageViewStringKey) -> TranslatedLabelStringCollection { .init(key.rawValue) }

@@ -24,7 +24,7 @@ extension SettingsPageView {
 
     var aiEnhancedTranslationsListItem: ListRowView.Configuration {
         .init(
-            .switch(isToggled: isMessageRecipientConsentSwitchToggledBinding),
+            .switch(isToggled: isAIEnhancedTranslationsSwitchToggledBinding),
             innerText: viewModel.strings.value(for: .aiEnhanceTranslationsListRowInnerText),
             footerText: viewModel.strings.value(for: .aiEnhanceTranslationsListRowFooterText),
             imageView: {
@@ -226,6 +226,14 @@ extension SettingsPageView {
     }
 
     // MARK: - Bindings
+
+    // swiftlint:disable:next identifier_name
+    private var isAIEnhancedTranslationsSwitchToggledBinding: Binding<Bool> {
+        viewModel.binding(
+            for: \.isAIEnhancedTranslationsSwitchToggled,
+            sendAction: { .aiEnhancedTranslationsSwitchToggled(on: $0, fromBinding: true) }
+        )
+    }
 
     // swiftlint:disable:next identifier_name
     private var isMessageRecipientConsentSwitchToggledBinding: Binding<Bool> {

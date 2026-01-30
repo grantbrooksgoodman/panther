@@ -2947,6 +2947,161 @@
 		<key>zh</key>
 		<string>完毕</string>
 	</dict>
+	<key>enable</key>
+	<dict>
+		<key>af</key>
+		<string>Aktiveer</string>
+		<key>ar</key>
+		<string>تفعيل</string>
+		<key>az</key>
+		<string>Aktivləşdirin</string>
+		<key>be</key>
+		<string>Уключыць</string>
+		<key>bg</key>
+		<string>Активирайте</string>
+		<key>bn</key>
+		<string>সক্ষম করুন</string>
+		<key>bs</key>
+		<string>Omogući</string>
+		<key>ca</key>
+		<string>Activar</string>
+		<key>cs</key>
+		<string>Umožnit</string>
+		<key>cy</key>
+		<string>Galluogi</string>
+		<key>da</key>
+		<string>Aktivér</string>
+		<key>de</key>
+		<string>Aktivieren</string>
+		<key>el</key>
+		<string>Ενεργοποίηση</string>
+		<key>en</key>
+		<string>Enable</string>
+		<key>eo</key>
+		<string>Ebligi</string>
+		<key>es</key>
+		<string>Permitir</string>
+		<key>et</key>
+		<string>Luba</string>
+		<key>eu</key>
+		<string>Gaitu</string>
+		<key>fa</key>
+		<string>فعال کردن</string>
+		<key>fi</key>
+		<string>Ota käyttöön</string>
+		<key>fr</key>
+		<string>Activer</string>
+		<key>ga</key>
+		<string>Cumasaigh</string>
+		<key>gd</key>
+		<string>Dèan comas</string>
+		<key>gl</key>
+		<string>Activar</string>
+		<key>gu</key>
+		<string>સક્ષમ કરો</string>
+		<key>he</key>
+		<string>לְאַפשֵׁר</string>
+		<key>hi</key>
+		<string>सक्षम करें</string>
+		<key>hr</key>
+		<string>Omogućiti</string>
+		<key>ht</key>
+		<string>Aktive</string>
+		<key>hu</key>
+		<string>Engedélyezés</string>
+		<key>hy</key>
+		<string>Միացնել</string>
+		<key>id</key>
+		<string>Memungkinkan</string>
+		<key>is</key>
+		<string>Virkja</string>
+		<key>it</key>
+		<string>Abilitare</string>
+		<key>ja</key>
+		<string>有効にする</string>
+		<key>ka</key>
+		<string>Ჩართვა</string>
+		<key>kk</key>
+		<string>Қосу</string>
+		<key>kn</key>
+		<string>ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
+		<key>ko</key>
+		<string>할 수 있게 하다</string>
+		<key>ky</key>
+		<string>Иштетүү</string>
+		<key>lt</key>
+		<string>Įgalinti</string>
+		<key>mg</key>
+		<string>Tadiavo</string>
+		<key>mi</key>
+		<string>Whakahohe</string>
+		<key>mk</key>
+		<string>Овозможи</string>
+		<key>ml</key>
+		<string>പ്രവർത്തനക്ഷമമാക്കുക</string>
+		<key>mn</key>
+		<string>Идэвхжүүлэх</string>
+		<key>mt</key>
+		<string>Ippermetti</string>
+		<key>ne</key>
+		<string>सक्षम पार्नुहोस्</string>
+		<key>nl</key>
+		<string>Inschakelen</string>
+		<key>no</key>
+		<string>Aktiver</string>
+		<key>pa</key>
+		<string>ਯੋਗ ਬਣਾਓ</string>
+		<key>pl</key>
+		<string>Włączać</string>
+		<key>pt</key>
+		<string>Habilitar</string>
+		<key>ro</key>
+		<string>Activare</string>
+		<key>ru</key>
+		<string>Давать возможность</string>
+		<key>si</key>
+		<string>සබල කරන්න</string>
+		<key>sk</key>
+		<string>Povoliť</string>
+		<key>sl</key>
+		<string>Omogoči</string>
+		<key>sq</key>
+		<string>Aktivizo</string>
+		<key>sr</key>
+		<string>Омогући</string>
+		<key>su</key>
+		<string>Aktipkeun</string>
+		<key>sv</key>
+		<string>Aktivera</string>
+		<key>sw</key>
+		<string>Washa</string>
+		<key>ta</key>
+		<string>இயக்கு</string>
+		<key>te</key>
+		<string>ప్రారంభించు</string>
+		<key>tg</key>
+		<string>Фаъол кардан</string>
+		<key>th</key>
+		<string>เปิดใช้งาน</string>
+		<key>tl</key>
+		<string>Paganahin</string>
+		<key>tr</key>
+		<string>Olanak vermek</string>
+		<key>tt</key>
+		<string>Килеш</string>
+		<key>uk</key>
+		<string>Увімкнути</string>
+		<key>ur</key>
+		<string>قابل بنائیں</string>
+		<key>uz</key>
+		<string>Yoqish</string>
+		<key>vi</key>
+		<string>Cho phép</string>
+		<key>yi</key>
+		<string>אַקטיווירן</string>
+		<key>zh</key>
+		<string>使能够</string>
+	</dict>
 	<key>error_reported</key>
 	<dict>
 		<key>af</key>
@@ -6956,6 +7111,161 @@ Hãy kết nối với Internet và cố gắng một lần nữa.</string>
 		<string>קיין רייד דיטעקטאַד</string>
 		<key>zh</key>
 		<string>未检测到语音</string>
+	</dict>
+	<key>not_now</key>
+	<dict>
+		<key>af</key>
+		<string>Nie nou nie</string>
+		<key>ar</key>
+		<string>ليس الآن</string>
+		<key>az</key>
+		<string>İndi yox</string>
+		<key>be</key>
+		<string>Не цяпер</string>
+		<key>bg</key>
+		<string>Не сега</string>
+		<key>bn</key>
+		<string>এখন না</string>
+		<key>bs</key>
+		<string>Ne sada</string>
+		<key>ca</key>
+		<string>Ara no</string>
+		<key>cs</key>
+		<string>Teď ne</string>
+		<key>cy</key>
+		<string>Nid nawr</string>
+		<key>da</key>
+		<string>Ikke nu</string>
+		<key>de</key>
+		<string>Jetzt nicht</string>
+		<key>el</key>
+		<string>Όχι τώρα</string>
+		<key>en</key>
+		<string>Not Now</string>
+		<key>eo</key>
+		<string>Ne nun</string>
+		<key>es</key>
+		<string>Ahora no</string>
+		<key>et</key>
+		<string>Mitte praegu</string>
+		<key>eu</key>
+		<string>Orain ez</string>
+		<key>fa</key>
+		<string>الان نه</string>
+		<key>fi</key>
+		<string>Ei nyt</string>
+		<key>fr</key>
+		<string>Pas maintenant</string>
+		<key>ga</key>
+		<string>Ní anois</string>
+		<key>gd</key>
+		<string>Chan ann an-dràsta</string>
+		<key>gl</key>
+		<string>Agora non</string>
+		<key>gu</key>
+		<string>હમણાં નહીં</string>
+		<key>he</key>
+		<string>לא עכשיו</string>
+		<key>hi</key>
+		<string>अभी नहीं</string>
+		<key>hr</key>
+		<string>Ne sada</string>
+		<key>ht</key>
+		<string>Pa kounye a</string>
+		<key>hu</key>
+		<string>Most nem</string>
+		<key>hy</key>
+		<string>Ոչ հիմա</string>
+		<key>id</key>
+		<string>Bukan sekarang</string>
+		<key>is</key>
+		<string>Ekki núna</string>
+		<key>it</key>
+		<string>Non adesso</string>
+		<key>ja</key>
+		<string>今じゃない</string>
+		<key>ka</key>
+		<string>Ახლა არა</string>
+		<key>kk</key>
+		<string>Қазір емес</string>
+		<key>kn</key>
+		<string>ಈಗಲ್ಲ</string>
+		<key>ko</key>
+		<string>지금은 아님</string>
+		<key>ky</key>
+		<string>Азыр эмес</string>
+		<key>lt</key>
+		<string>Ne dabar</string>
+		<key>mg</key>
+		<string>Tsy izao</string>
+		<key>mi</key>
+		<string>Kāore i nāianei</string>
+		<key>mk</key>
+		<string>Не сега</string>
+		<key>ml</key>
+		<string>ഇപ്പോൾ വേണ്ട</string>
+		<key>mn</key>
+		<string>Одоо биш</string>
+		<key>mt</key>
+		<string>Mhux issa</string>
+		<key>ne</key>
+		<string>अहिले होइन</string>
+		<key>nl</key>
+		<string>Niet nu</string>
+		<key>no</key>
+		<string>Ikke nå</string>
+		<key>pa</key>
+		<string>ਹਾਲੇ ਨਹੀਂ</string>
+		<key>pl</key>
+		<string>Nie teraz</string>
+		<key>pt</key>
+		<string>Agora não</string>
+		<key>ro</key>
+		<string>Nu acum</string>
+		<key>ru</key>
+		<string>Не сейчас</string>
+		<key>si</key>
+		<string>දැන් නොවේ</string>
+		<key>sk</key>
+		<string>Teraz nie</string>
+		<key>sl</key>
+		<string>Ne zdaj</string>
+		<key>sq</key>
+		<string>Jo tani</string>
+		<key>sr</key>
+		<string>Не сада</string>
+		<key>su</key>
+		<string>Henteu ayeuna</string>
+		<key>sv</key>
+		<string>Inte nu</string>
+		<key>sw</key>
+		<string>Sio sasa</string>
+		<key>ta</key>
+		<string>இப்போது இல்லை</string>
+		<key>te</key>
+		<string>ఇప్పుడు కాదు</string>
+		<key>tg</key>
+		<string>Ҳозир не</string>
+		<key>th</key>
+		<string>ไม่ใช่ตอนนี้</string>
+		<key>tl</key>
+		<string>Hindi ngayon</string>
+		<key>tr</key>
+		<string>Şimdi değil</string>
+		<key>tt</key>
+		<string>Хәзер түгел</string>
+		<key>uk</key>
+		<string>Не зараз</string>
+		<key>ur</key>
+		<string>اب نہیں</string>
+		<key>uz</key>
+		<string>Hozir emas</string>
+		<key>vi</key>
+		<string>Không phải bây giờ</string>
+		<key>yi</key>
+		<string>נישט איצט</string>
+		<key>zh</key>
+		<string>现在不要</string>
 	</dict>
 	<key>offline_mode</key>
 	<dict>

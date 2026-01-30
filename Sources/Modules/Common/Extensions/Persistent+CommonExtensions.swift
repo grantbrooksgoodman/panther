@@ -17,6 +17,10 @@ extension Persistent {
         self.init(.application(applicationKey))
     }
 
+    convenience init(_ aiEnhancedTranslationServiceKey: UserDefaultsKey.AIEnhancedTranslationServiceDefaultsKey) {
+        self.init(.aiEnhancedTranslationService(aiEnhancedTranslationServiceKey))
+    }
+
     convenience init(_ audioServiceKey: UserDefaultsKey.AudioServiceDefaultsKey) {
         self.init(.audioService(audioServiceKey))
     }

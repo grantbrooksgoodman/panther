@@ -51,6 +51,27 @@ final class SettingsPageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    func aiEnhancedTranslationsSwitchToggled(on: Bool) {
+        Task { @MainActor in
+            guard on else {
+                if let exception = await services
+                    .aiEnhancedTranslation
+                    .setDidGrantAIEnhancedTranslationPermission(false) {
+                    Logger.log(
+                        exception,
+                        with: .toast
+                    )
+                }
+
+                return
+            }
+
+            RootSheets.present(
+                .featurePermissionPageView([.aiEnhancedTranslations])
+            )
+        }
+    }
+
     func blockedUsersButtonTapped() {
         Task {
             guard let exception = await moderationSession.unblockUsers() else { return }
@@ -239,7 +260,9 @@ final class SettingsPageViewService {
                 ).present(translating: [.actions([confirmAction]), .message, .title])
             }
 
-            RootSheets.present(.penPalsPermissionPageView)
+            RootSheets.present(
+                .featurePermissionPageView([.penPals])
+            )
         }
     }
 

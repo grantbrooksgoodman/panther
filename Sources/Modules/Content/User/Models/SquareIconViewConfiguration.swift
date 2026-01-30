@@ -15,7 +15,7 @@ import AppSubsystem
 import ComponentKit
 
 extension SquareIconView {
-    struct Configuration: EncodedHashable {
+    struct Configuration: EncodedHashable, Hashable {
         // MARK: - Types
 
         enum OverlayConfiguration {
@@ -79,6 +79,18 @@ extension SquareIconView {
             self.backgroundColor = backgroundColor
             self.overlay = overlay
             self.includesShadow = includesShadow
+        }
+
+        // MARK: - Equatable Conformance
+
+        static func == (left: Configuration, right: Configuration) -> Bool {
+            left.encodedHash == right.encodedHash
+        }
+
+        // MARK: - Hashable Conformance
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(encodedHash)
         }
     }
 }

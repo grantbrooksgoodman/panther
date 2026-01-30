@@ -39,6 +39,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case document
     case done
 
+    case enable
     case errorReported
     case errorReportedSuccessfully
 
@@ -70,6 +71,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case noInternetTitle
     case noResults
     case noSpeechDetected
+    case notNow
 
     case offlineMode
     case originalInLanguage

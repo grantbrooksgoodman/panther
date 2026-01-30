@@ -401,7 +401,8 @@ struct MessageSessionService {
     ) -> EnhancementConfiguration? { // swiftlint:disable:next line_length
         let audioMessageContext = "This is the transcription of an audio message. If you spot any red flags grammatically or coherence-wise, please correct them."
 
-        guard userCount == 1,
+        guard clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == true,
+              userCount == 1,
               let messageReadout = conversation?.messageReadout else {
             return isAudioMessage ? .init(additionalContext: audioMessageContext) : nil
         }

@@ -31,6 +31,7 @@ extension UserDefaultsKey {
     /* Add values here for each new defaults key. */
 
     static func application(_ key: ApplicationDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
+    static func aiEnhancedTranslationService(_ key: AIEnhancedTranslationServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func audioService(_ key: AudioServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func breadcrumbsCaptureService(_ key: BreadcrumbsCaptureServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }
     static func contactPairArchiveService(_ key: ContactPairArchiveServiceDefaultsKey) -> UserDefaultsKey { .init(key.rawValue) }

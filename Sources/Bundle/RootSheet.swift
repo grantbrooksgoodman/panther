@@ -14,7 +14,7 @@ import AppSubsystem
 
 @MainActor
 extension RootSheet {
-    /* Add values here to expose new views for presentation on the root sheet. */
+    // MARK: - Properties
 
     static let chatInfoPageView: RootSheet = .init(.init(
         ChatInfoPageView(
@@ -32,14 +32,6 @@ extension RootSheet {
             ))
     ))
 
-    static let penPalsPermissionPageView: RootSheet = .init(.init(
-        PenPalsPermissionPageView(
-            .init(
-                initialState: .init(),
-                reducer: PenPalsPermissionPageReducer()
-            ))
-    ))
-
     static let reactionDetailsPageView: RootSheet = .init(.init(
         ReactionDetailsPageView(
             .init(
@@ -48,4 +40,18 @@ extension RootSheet {
             )
         )
     ))
+
+    // MARK: - Methods
+
+    static func featurePermissionPageView(
+        _ configurations: [FeaturePermissionPageView.Configuration]
+    ) -> RootSheet {
+        .init(.init(
+            FeaturePermissionPageView(
+                .init(
+                    initialState: .init(configurations),
+                    reducer: FeaturePermissionPageReducer()
+                ))
+        ))
+    }
 }

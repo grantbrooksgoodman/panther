@@ -45,6 +45,7 @@ struct SettingsPageReducer: Reducer {
         case traitCollectionChanged
         case viewDisappeared
 
+        case aiEnhancedTranslationsSwitchToggled(on: Bool, fromBinding: Bool = false)
         case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
         case getCurrentUserDataUsageReturned(Callback<Int, Exception>)
         case messageRecipientConsentSwitchToggled(on: Bool)
@@ -73,6 +74,7 @@ struct SettingsPageReducer: Reducer {
         var dataUsageViewID = UUID()
         var developerModeListItems: [ListRowView.Configuration]?
         var groupedListViewsID = UUID()
+        var isAIEnhancedTranslationsSwitchToggled = false
         var isMessageRecipientConsentSwitchToggled = false
         var isPenPalsParticipantSwitchToggled = false
         var strings: [TranslationOutputMap] = SettingsPageViewStrings.defaultOutputMap
@@ -115,6 +117,8 @@ struct SettingsPageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             state.developerModeListItems = viewService.developerModeListItems()
+
+            state.isAIEnhancedTranslationsSwitchToggled = userSession.currentUser?.aiEnhancedTranslationsEnabled ?? false
             state.isMessageRecipientConsentSwitchToggled = userSession.currentUser?.messageRecipientConsentRequired ?? false
             state.isPenPalsParticipantSwitchToggled = userSession.currentUser?.isPenPalsParticipant ?? false
 
@@ -135,6 +139,11 @@ struct SettingsPageReducer: Reducer {
             }
             .merge(with: fetchCNContactForCurrentUserTask)
             .merge(with: getCurrentUserDataUsageTask)
+
+        case let .aiEnhancedTranslationsSwitchToggled(on, fromBinding):
+            state.isAIEnhancedTranslationsSwitchToggled = on
+            guard fromBinding else { return .none }
+            viewService.aiEnhancedTranslationsSwitchToggled(on: on)
 
         case .blockedUsersButtonTapped:
             viewService.blockedUsersButtonTapped()

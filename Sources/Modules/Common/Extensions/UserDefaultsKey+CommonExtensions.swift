@@ -18,6 +18,10 @@ extension UserDefaultsKey {
         case hasRunOnce
     }
 
+    enum AIEnhancedTranslationServiceDefaultsKey: String { // swiftlint:disable:next identifier_name
+        case presentedAIEnhancedTranslationPermissionPageAtStartup
+    }
+
     enum AudioServiceDefaultsKey: String {
         case acknowledgedAudioMessagesUnsupported
     }
