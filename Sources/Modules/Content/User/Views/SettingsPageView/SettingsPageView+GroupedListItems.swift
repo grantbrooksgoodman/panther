@@ -22,6 +22,22 @@ extension SettingsPageView {
 
     // MARK: - Properties
 
+    var aiEnhancedTranslationsListItem: ListRowView.Configuration {
+        .init(
+            .switch(isToggled: isMessageRecipientConsentSwitchToggledBinding),
+            innerText: viewModel.strings.value(for: .aiEnhanceTranslationsListRowInnerText),
+            footerText: viewModel.strings.value(for: .aiEnhanceTranslationsListRowFooterText),
+            imageView: {
+                SquareIconView.image(
+                    .init(
+                        backgroundColor: Colors.aiEnhanceTranslationsButtonImageBackground,
+                        overlay: .symbol(name: Strings.aiEnhanceTranslationsButtonImageSystemName)
+                    )
+                ).swiftUIImage
+            }
+        )
+    }
+
     var blockedUsersListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.blockedUsersButtonTapped) },

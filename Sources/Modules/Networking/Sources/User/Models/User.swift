@@ -20,6 +20,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
     private(set) var conversationIDs: [ConversationID]?
     private(set) var conversations: [Conversation]?
 
+    let aiEnhancedTranslationsEnabled: Bool
     let blockedUserIDs: [String]?
     let id: String
     let isPenPalsParticipant: Bool
@@ -38,6 +39,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     var hashFactors: [String] {
         var factors = [String]()
+        factors.append(aiEnhancedTranslationsEnabled.description)
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
         factors.append(contentsOf: conversations?.map(\.encodedHash) ?? []) // TODO: Audit this.
@@ -82,6 +84,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     init(
         _ id: String,
+        aiEnhancedTranslationsEnabled: Bool,
         blockedUserIDs: [String]?,
         conversationIDs: [ConversationID]?,
         isPenPalsParticipant: Bool,
@@ -92,6 +95,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         pushTokens: [String]?
     ) {
         self.id = id
+        self.aiEnhancedTranslationsEnabled = aiEnhancedTranslationsEnabled
         self.blockedUserIDs = blockedUserIDs
         self.conversationIDs = conversationIDs
         self.isPenPalsParticipant = isPenPalsParticipant

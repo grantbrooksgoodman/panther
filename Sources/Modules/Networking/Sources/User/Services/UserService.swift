@@ -60,6 +60,7 @@ final class UserService {
 
         let mockUser: User = .init(
             id,
+            aiEnhancedTranslationsEnabled: false,
             blockedUserIDs: nil,
             conversationIDs: nil,
             isPenPalsParticipant: false,

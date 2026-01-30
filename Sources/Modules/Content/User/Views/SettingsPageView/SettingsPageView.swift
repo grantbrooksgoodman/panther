@@ -229,6 +229,9 @@ struct SettingsPageView: View {
         ListRowView(messageRecipientConsentListItem)
             .padding(.bottom, Floats.groupedListViewBottomPadding)
 
+        ListRowView(aiEnhancedTranslationsListItem)
+            .padding(.bottom, Floats.groupedListViewBottomPadding)
+
         if let developerModeListItems = viewModel.developerModeListItems {
             GroupedListView(developerModeListItems)
         }

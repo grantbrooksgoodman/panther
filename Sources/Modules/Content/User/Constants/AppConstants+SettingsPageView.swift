@@ -45,7 +45,8 @@ extension AppConstants.CGFloats {
 // MARK: - Color
 
 extension AppConstants.Colors {
-    enum SettingsPageView {
+    enum SettingsPageView { // swiftlint:disable identifier_name
+        static let aiEnhanceTranslationsButtonImageBackground: Color = .init(uiColor: .systemBlue)
         static let blockedUsersButtonImageBackground: Color = .init(uiColor: .systemGray)
         static let changeLanguageButtonImageBackground: Color = .pink
         static let changeLanguageButtonImageForeground: Color = .white
@@ -53,39 +54,38 @@ extension AppConstants.Colors {
         static let clearCachesButtonImageBackground: Color = .mint
         static let deleteAccountButtonImageBackground: Color = .orange
         static let inviteFriendsButtonImageBackground: Color = .blue
-        static let leaveReviewButtonImageBackground: Color = .yellow // swiftlint:disable:next identifier_name
-        static let messageRecipientConsentButtonImageBackground: Color = .green // swiftlint:disable:next identifier_name
+        static let leaveReviewButtonImageBackground: Color = .yellow
+        static let messageRecipientConsentButtonImageBackground: Color = .green
         static let overrideLanguageCodeButtonImageBackground: Color = .mint
         static let sendFeedbackButtonImageBackground: Color = .indigo
         static let signOutButtonImageBackground: Color = .red
         static let toggleDeveloperModeButtonImageBackground: Color = .yellow
+        // swiftlint:enable identifier_name
     }
 }
 
 // MARK: - String
 
 extension AppConstants.Strings {
-    enum SettingsPageView {
-        // swiftlint:disable:next identifier_name
-        static let buildInfoButtonDarkBackgroundImageSystemName = "NT (White).png" // swiftlint:disable:next identifier_name
-        static let buildInfoButtonLightBackgroundImageSystemName = "NT (Black).png"
-
+    enum SettingsPageView { // swiftlint:disable identifier_name
+        static let aiEnhanceTranslationsButtonImageSystemName = "sparkles"
         static let blockedUsersButtonImageSystemName = "flag.fill"
+        static let buildInfoButtonDarkBackgroundImageSystemName = "NT (White).png"
+        static let buildInfoButtonLightBackgroundImageSystemName = "NT (Black).png"
         static let changeThemeButtonImageSystemName = "eye.fill"
         static let clearCachesButtonImageSystemName = "command"
         static let deleteAccountButtonImageSystemName = "trash.fill"
         static let inviteFriendsButtonImageSystemName = "location.fill"
-        static let leaveReviewButtonImageSystemName = "star.fill" // swiftlint:disable:next identifier_name
-        static let messageRecipientConsentButtonImageSystemName = "shield.pattern.checkered" // swiftlint:disable:next identifier_name
+        static let leaveReviewButtonImageSystemName = "star.fill"
+        static let messageRecipientConsentButtonImageSystemName = "shield.pattern.checkered"
         static let overrideLanguageCodeButtonImageSystemName = "square.text.square.fill"
+        static let overrideLanguageCodeButtonText = "Override Language Code to English"
+        static let restoreLanguageCodeButtonTextPrefix = "Restore Language to"
+        static let reviewOnAppStoreURLString = "https://apps.apple.com/app/id1662674065?action=write-review"
         static let sendFeedbackButtonImageSystemName = "info"
         static let signOutButtonImageSystemName = "hand.raised.fill"
         static let toggleDeveloperModeButtonImageSystemName = "command"
-
-        static let overrideLanguageCodeButtonText = "Override Language Code to English"
-        static let restoreLanguageCodeButtonTextPrefix = "Restore Language to"
         static let toggleDeveloperModeButtonText = "Toggle Developer Mode"
-
-        static let reviewOnAppStoreURLString = "https://apps.apple.com/app/id1662674065?action=write-review"
+        // swiftlint:enable identifier_name
     }
 }

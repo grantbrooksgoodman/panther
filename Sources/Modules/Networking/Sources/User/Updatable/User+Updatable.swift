@@ -23,6 +23,7 @@ extension User: Updatable {
 
     var updatableKeys: [SerializationKeys] {
         [
+            .aiEnhancedTranslationsEnabled,
             .blockedUserIDs,
             .conversationIDs,
             .isPenPalsParticipant,
@@ -34,6 +35,7 @@ extension User: Updatable {
 
     // MARK: - Modify Key
 
+    // swiftlint:disable:next function_body_length
     func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
         switch key {
         case .badgeNumber,
@@ -42,10 +44,26 @@ extension User: Updatable {
              .phoneNumber:
             return nil
 
+        case .aiEnhancedTranslationsEnabled:
+            guard let value = value as? Bool else { return nil }
+            return .init(
+                id,
+                aiEnhancedTranslationsEnabled: value,
+                blockedUserIDs: blockedUserIDs,
+                conversationIDs: conversationIDs,
+                isPenPalsParticipant: isPenPalsParticipant,
+                languageCode: languageCode,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
+                phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
+                pushTokens: pushTokens
+            )
+
         case .blockedUserIDs:
             guard let value = value as? [String] else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: value.isBangQualifiedEmpty ? nil : value,
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
@@ -61,6 +79,7 @@ extension User: Updatable {
             guard let value = value as? [ConversationID] else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: value,
                 isPenPalsParticipant: isPenPalsParticipant,
@@ -75,6 +94,7 @@ extension User: Updatable {
             guard let value = value as? Bool else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: value,
@@ -89,6 +109,7 @@ extension User: Updatable {
             guard let value = value as? Bool else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: value,
@@ -103,6 +124,7 @@ extension User: Updatable {
             guard let value = value as? [String] else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
@@ -117,6 +139,7 @@ extension User: Updatable {
             guard let value = value as? [String] else { return nil }
             return .init(
                 id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,

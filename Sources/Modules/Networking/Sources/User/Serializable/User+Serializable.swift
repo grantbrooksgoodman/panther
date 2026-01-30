@@ -23,6 +23,7 @@ extension User: Serializable {
 
     enum SerializationKeys: String {
         case id
+        case aiEnhancedTranslationsEnabled
         case badgeNumber
         case blockedUserIDs
         case conversationIDs = "openConversations"
@@ -40,6 +41,7 @@ extension User: Serializable {
         let conversationIDs = (conversationIDs ?? .init()).map { $0.encoded }
         return [
             Keys.id.rawValue: id,
+            Keys.aiEnhancedTranslationsEnabled.rawValue: aiEnhancedTranslationsEnabled,
             Keys.blockedUserIDs.rawValue: blockedUserIDs ?? .bangQualifiedEmpty,
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
             Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
@@ -55,6 +57,7 @@ extension User: Serializable {
 
     static func canDecode(from data: [String: Any]) -> Bool {
         guard data[Keys.id.rawValue] is String,
+              data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,
               data[Keys.blockedUserIDs.rawValue] is [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               conversationIDStrings.isBangQualifiedEmpty || conversationIDStrings.allSatisfy({ ConversationID.canDecode(from: $0) }),
@@ -71,6 +74,7 @@ extension User: Serializable {
 
     static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
         guard let id = data[Keys.id.rawValue] as? String,
+              let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
               let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
               let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
@@ -112,6 +116,7 @@ extension User: Serializable {
 
         return .success(.init(
             id,
+            aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
             blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
             isPenPalsParticipant: isPenPalsParticipant,

@@ -67,6 +67,7 @@ extension ContactPair {
                     users: [
                         .init(
                             "",
+                            aiEnhancedTranslationsEnabled: false,
                             blockedUserIDs: nil,
                             conversationIDs: nil,
                             isPenPalsParticipant: false,
