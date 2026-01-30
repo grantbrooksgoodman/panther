@@ -349,7 +349,7 @@ final class ContextMenuActionHandlerService {
         ]
 
         let translation = message.translation
-        let containsLetters = translation?.input.value.containsLetters == true || translation?.output.containsLetters == true
+        let containsLetters = translation?.input.value.containsLetters == true || translation?.output.sanitized.containsLetters == true
         let isDisplayingAlternate = chatPageViewService
             .alternateMessage?
             .isDisplayingAlternateText(for: message) == true

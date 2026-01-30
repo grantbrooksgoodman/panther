@@ -40,6 +40,8 @@ extension ChatPageViewController: MessagesLayoutDelegate {
                   indexPath.section == messages.count - 1,
                   message.isFromCurrentUser {
             return Floats.cellBottomLabelHeight
+        } else if message.translation?.isAIEnhanced == true {
+            return Floats.cellBottomLabelHeight
         } else if message.reactions != nil {
             return Floats.cellBottomLabelHeight
         }

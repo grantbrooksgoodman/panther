@@ -271,10 +271,14 @@ struct NotificationService {
             }
 
             if let translations = message.translations {
-                body = translations.first(where: { $0.languagePair.to == user.languageCode })?.output
-                if body == nil {
-                    body = translations.first(where: { $0.languagePair.from == user.languageCode })?.input.value.sanitized
-                }
+                body = translations
+                    .first(where: { $0.languagePair.to == user.languageCode })?
+                    .output
+                    .sanitized ?? translations
+                    .first(where: { $0.languagePair.from == user.languageCode })?
+                    .input
+                    .value
+                    .sanitized
             }
         }
 

@@ -23,7 +23,7 @@ extension String {
         return translationArchive.getValue(
             inputValueEncodedHash: encodedHash,
             languagePair: .system
-        )?.output ?? self
+        )?.output.sanitized ?? self
     }
 
     var shortCode: String { "\(prefix(2))\(suffix(2))".uppercased() }

@@ -347,13 +347,13 @@ final class StorageSessionService {
 
         switch getTranslationsResult {
         case let .success(translations):
-            let prefixOutput = translations.first(where: {
+            let prefixOutput = (translations.first(where: {
                 $0.input.value == messagePrefixInput.value
-            })?.output ?? messagePrefixInput.value
+            })?.output ?? messagePrefixInput.value).sanitized
 
-            let suffixOutput = translations.first(where: {
+            let suffixOutput = (translations.first(where: {
                 $0.input.value == messageSuffixInput.value
-            })?.output ?? messageSuffixInput.value
+            })?.output ?? messageSuffixInput.value).sanitized
 
             let storageFullAlert = AKAlert(
                 title: "Storage Full",

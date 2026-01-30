@@ -72,14 +72,17 @@ struct InviteService {
         let translateResult = await translator.translate(
             .init(promptMessage),
             with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
-            hud: (.zero, true)
+            hud: (.zero, true),
+            enhance: .init(
+                additionalContext: "You are translating an invitation message."
+            )
         )
 
         switch translateResult {
         case let .success(translation):
             presentActivityViewController(
                 appShareLink: appShareLink,
-                text: translation.output
+                text: translation.output.sanitized
             )
 
             return nil

@@ -301,7 +301,7 @@ struct UserTestingService {
         switch translateResult {
         case let .success(translation):
             let sendTextMessageResult = await clientSession.message.sendTextMessage(
-                translation.output,
+                translation.output.sanitized,
                 toUsers: users,
                 inConversation: (conversation, false)
             )

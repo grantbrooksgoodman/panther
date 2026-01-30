@@ -32,6 +32,7 @@ extension CacheDomain {
                 .conversationCellViewData,
                 .mediaMessagePreviewService,
                 .Networking.database,
+                .Networking.gemini,
                 .Networking.storage,
                 .queriedContactPairs,
                 .queriedConversations,

@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class MetadataService {
+final class MetadataService: GeminiAPIKeyDelegate {
     // MARK: - Types
 
     private enum MetadataServiceKey: String {
@@ -21,6 +21,7 @@ final class MetadataService {
 
         case appShareLink
         case appStoreBuildNumber
+        case geminiAPIKey = "geminiApiKey"
         case isPrevaricationModeEnabled
         case redirectionKey
         case shouldForceUpdate
@@ -39,12 +40,25 @@ final class MetadataService {
 
     // MARK: - Properties
 
+    static let shared = MetadataService()
+
     private(set) var appShareLink: URL?
     private(set) var appStoreBuildNumber: Int?
+    private(set) var geminiAPIKey: String?
     private(set) var isPrevaricationModeEnabled: Bool?
     private(set) var redirectionKey: String?
     private(set) var shouldForceUpdate: Bool?
     private(set) var storageReferenceURL: URL?
+
+    // MARK: - Computed Properties
+
+    var apiKey: String { geminiAPIKey ?? "" }
+
+    // MARK: - Init
+
+    private init() {
+        Networking.config.registerGeminiAPIKeyDelegate(self)
+    }
 
     // MARK: - Resolve All Values
 
@@ -67,6 +81,18 @@ final class MetadataService {
             switch getAppStoreBuildNumberResult {
             case let .success(appStoreBuildNumber):
                 self.appStoreBuildNumber = appStoreBuildNumber
+
+            case let .failure(exception):
+                return exception
+            }
+        }
+
+        if geminiAPIKey == nil {
+            let getGeminiAPIKeyResult = await getGeminiAPIKey()
+
+            switch getGeminiAPIKeyResult {
+            case let .success(geminiAPIKey):
+                self.geminiAPIKey = geminiAPIKey
 
             case let .failure(exception):
                 return exception
@@ -159,6 +185,25 @@ final class MetadataService {
             }
 
             return .success(appStoreBuildNumber)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
+    private func getGeminiAPIKey() async -> Callback<String, Exception> {
+        let getValuesResult = await database.getValues(
+            at: MetadataServiceKey.geminiAPIKey.path,
+            prependingEnvironment: false
+        )
+
+        switch getValuesResult {
+        case let .success(values):
+            guard let geminiAPIKey = values as? String else {
+                return .failure(.Networking.typecastFailed("string", metadata: .init(sender: self)))
+            }
+
+            return .success(geminiAPIKey)
 
         case let .failure(exception):
             return .failure(exception)

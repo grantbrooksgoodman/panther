@@ -190,8 +190,8 @@ struct MessageRetranslationService {
             let exception = Exception(
                 "A mistranslation has been reported (\(translationReferenceHostingKey.shortCode)).",
                 userInfo: [
-                    "HostedOverrideErrorCode": "CA45",
                     "Descriptor": "A mistranslation has been reported.",
+                    "HostedOverrideErrorCode": "CA45",
                     "ReferenceHostingKey": translationReferenceHostingKey,
                 ],
                 metadata: .init(sender: self)

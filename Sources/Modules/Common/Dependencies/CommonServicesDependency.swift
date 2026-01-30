@@ -44,7 +44,7 @@ enum CommonServicesDependency: DependencyKey {
             invite: .init(),
             messageRecipientConsent: .init(),
             messageRetranslation: .init(),
-            metadata: .init(),
+            metadata: .shared,
             networkActivityIndicator: .init(),
             notification: .init(),
             penPals: .init(),

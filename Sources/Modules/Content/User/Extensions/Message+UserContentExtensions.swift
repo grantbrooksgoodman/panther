@@ -48,7 +48,7 @@ extension Message: MessageType {
 
                 return .attributedText(
                     .messageCellString(
-                        isFromCurrentUser ? translation.input.value.sanitized : translation.output,
+                        isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized,
                         foregroundColor: attributedStringForegroundColor,
                         italicized: true
                     )
@@ -70,8 +70,8 @@ extension Message: MessageType {
         guard let translation else { return .text("�") }
 
         let isDisplayingAlternateText = alternateMessageService?.isDisplayingAlternateText(for: self) ?? false
-        let primaryText = isFromCurrentUser ? translation.input.value.sanitized : translation.output
-        let alternateText = isFromCurrentUser ? translation.output : translation.input.value.sanitized
+        let primaryText = isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized
+        let alternateText = isFromCurrentUser ? translation.output.sanitized : translation.input.value.sanitized
 
         let consentAcknowledgementMessage = Localized(.messageRecipientConsentAcknowledgementMessage).wrappedValue
         let consentRequestMessage = Localized(.messageRecipientConsentRequestMessage).wrappedValue
@@ -233,7 +233,7 @@ extension Message {
     func textContains(_ searchTerm: String) -> Bool {
         guard let translation else { return false }
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
-        let comparator = isFromCurrentUser ? translation.input.value : translation.output
+        let comparator = isFromCurrentUser ? translation.input.value : translation.output.sanitized
         return comparator.lowercasedTrimmingWhitespaceAndNewlines.contains(searchTerm)
     }
 }

@@ -48,7 +48,7 @@ extension ChatPageViewController: MessagesDataSource {
     func cellBottomLabelAttributedText(
         for message: MessageType,
         at indexPath: IndexPath
-    ) -> NSAttributedString? {
+    ) -> NSAttributedString? { // TODO: Refactor this method.
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
         guard let currentConversation,
               let messages = currentConversation.messages,
@@ -77,24 +77,38 @@ extension ChatPageViewController: MessagesDataSource {
 
         var reactionsString = ""
         if let reactions = message.reactions {
-            reactionsString += reactions.map(\.style).sorted(by: { $0.orderValue < $1.orderValue }).map(\.emojiValue).joined()
+            reactionsString += reactions
+                .map(\.style)
+                .sorted(by: { $0.orderValue < $1.orderValue })
+                .map(\.emojiValue)
+                .joined()
         }
 
         let fromLanguageExonym = message.translation?.languagePair.from.languageExonym ?? .bangQualifiedEmpty
         let toLanguageExonym = message.translation?.languagePair.to.languageExonym ?? .bangQualifiedEmpty
+        // TODO: Replace with localized string.
+        let aiEnhancedString = "✨AI-enhanced" // Localized(.aiEnhanced).wrappedValue
+
         let attributedStringConfig: AttributedStringConfig = .init(
             standardAttributes,
             secondaryAttributes: [
                 .init(
                     boldAttributes,
                     stringRanges: [
+                        aiEnhancedString,
                         fromLanguageExonym,
                         toLanguageExonym,
                         Localized(.delivered).wrappedValue,
                         Localized(.read).wrappedValue,
                     ]
                 ),
-                .init(emojiAttributes, stringRanges: [reactionsString]),
+                .init(
+                    emojiAttributes,
+                    stringRanges: [
+                        "✨",
+                        reactionsString,
+                    ]
+                ),
             ]
         )
 
@@ -102,22 +116,45 @@ extension ChatPageViewController: MessagesDataSource {
            alternateMessageService.isDisplayingAlternateText(for: message),
            !fromLanguageExonym.isBangQualifiedEmpty,
            !toLanguageExonym.isBangQualifiedEmpty {
-            let originalString = Localized(.originalInLanguage).wrappedValue.replacingOccurrences(of: "⌘", with: fromLanguageExonym)
-            let translationString = Localized(.translationInLanguage).wrappedValue.replacingOccurrences(of: "⌘", with: toLanguageExonym)
+            let originalString = Localized(.originalInLanguage)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: fromLanguageExonym)
+            let translationString = Localized(.translationInLanguage)
+                .wrappedValue
+                .replacingOccurrences(of: "⌘", with: toLanguageExonym)
             let alternateMessageString = message.isFromCurrentUser ? translationString : originalString
             reactionsString = "\(reactionsString.isBlank ? "" : "\(reactionsString) | ")\(alternateMessageString)"
+        }
+
+        if alternateMessageService == nil ||
+            alternateMessageService?.isDisplayingAlternateText(for: message) == false,
+            indexPath.section < messages.count - 1 || !message.isFromCurrentUser,
+            message.translation?.isAIEnhanced == true {
+            return "\(reactionsString.isBlank ? "" : "\(reactionsString) | ")\(aiEnhancedString)"
+                .attributed(attributedStringConfig)
         }
 
         guard currentConversation.participants.count == 2,
               indexPath.section == messages.count - 1,
               message.isFromCurrentUser,
               !reactionsString.contains("|") else {
-            guard reactionsString.contains(where: \.isLetter) else { return reactionsString.attributed(.init(emojiAttributes)) }
+            guard reactionsString.contains(where: \.isLetter) else {
+                return reactionsString.attributed(.init(emojiAttributes))
+            }
+
             return reactionsString.attributed(attributedStringConfig)
         }
 
-        let prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
-        guard let readDate = message.readReceipts?.first(where: { $0.userID != User.currentUserID })?.readDate else {
+        var prefix = reactionsString.isBangQualifiedEmpty ? "" : "\(reactionsString) |"
+        if prefix.isBlank,
+           message.translation?.isAIEnhanced == true {
+            prefix = "\(aiEnhancedString) |"
+        }
+
+        guard let readDate = message
+            .readReceipts?
+            .first(where: { $0.userID != User.currentUserID })?
+            .readDate else {
             return "\(prefix) \(Localized(.delivered).wrappedValue)".attributed(attributedStringConfig)
         }
 

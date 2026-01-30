@@ -161,7 +161,7 @@ struct ConversationCellViewData: Equatable {
 
                 let resolvedText = lastMessage.isConsentMessage ? (
                     lastMessage.isConsentAcknowledgementMessage ? consentAcknowledgementMessage : consentRequestMessage
-                ).sanitized.trimmingBorderedWhitespace : (isLastMessageFromCurrentUser ? translation.input.value.sanitized : translation.output)
+                ).sanitized.trimmingBorderedWhitespace : (isLastMessageFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized)
 
                 subtitleLabelText = resolvedText
             }
