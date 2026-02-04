@@ -20,7 +20,7 @@ struct ModerationSessionService {
 
     @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Content Moderation
@@ -99,7 +99,10 @@ struct ModerationSessionService {
 
         switch updateValueResult {
         case let .success(user):
-            return userSession.setCurrentUser(user)
+            return userSession.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception
@@ -186,7 +189,7 @@ struct ModerationSessionService {
         if dataSource.conversation?.metadata.isPenPalsConversation == true || dataSource.users != nil,
            let currentUserConversations = userSession.currentUser?.conversations?.filter({ !($0.currentUserParticipant?.hasDeletedConversation ?? true) }) {
             for user in users where currentUserConversations.contains(where: {
-                !$0.userSharesPenPalsDataWithCurrentUser(user) && !services.penPals.isKnownToCurrentUser(user.id)
+                !$0.userSharesPenPalsDataWithCurrentUser(user) && !penPalsService.isKnownToCurrentUser(user.id)
             }) {
                 guard let index = contactPairs.firstIndex(where: { $0.users.contains(user) }) else { continue }
                 contactPairs[index] = .withUser(user, name: user.penPalsName)
@@ -244,17 +247,11 @@ struct ModerationSessionService {
     private func populateValuesIfNeeded() async -> Exception? {
         var exceptions = [Exception]()
 
-        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
-           services.permission.contactPermissionStatus == .granted,
-           let exception = await services.contact.syncContactPairArchive() {
+        if let exception = await ContactService.populateValuesIfNeeded() {
             exceptions.append(exception)
         }
 
-        guard let currentUser = userSession.currentUser,
-              currentUser.conversations == nil || currentUser.conversations?.isEmpty == true else { return exceptions.compiledException }
-
-        if let exception = await currentUser.setConversations() {
+        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
             exceptions.append(exception)
         }
 
@@ -320,7 +317,10 @@ struct ModerationSessionService {
 
         switch updateValueResult {
         case let .success(user):
-            return userSession.setCurrentUser(user)
+            return userSession.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception

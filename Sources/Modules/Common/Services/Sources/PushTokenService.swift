@@ -51,11 +51,17 @@ final class PushTokenService {
         }
 
         pushTokens.append(currentToken)
-        let updateValueResult = await currentUser.updateValue(pushTokens.unique, forKey: .pushTokens)
+        let updateValueResult = await currentUser.updateValue(
+            pushTokens.unique,
+            forKey: .pushTokens
+        )
 
         switch updateValueResult {
         case let .success(user):
-            return userSession.setCurrentUser(user)
+            return userSession.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception

@@ -22,14 +22,14 @@ final class ConversationArchiveService {
 
     // MARK: - Properties
 
-    @LockIsolated private var archive = [Conversation]() {
+    @LockIsolated private var archive = Set<Conversation>() {
         didSet {
             persistedArchive = archive.isEmpty ? nil : archive
             persistValuesForNotificationExtension()
         }
     }
 
-    @Persistent(.conversationArchive) private var persistedArchive: [Conversation]?
+    @Persistent(.conversationArchive) private var persistedArchive: Set<Conversation>?
 
     // MARK: - Init
 
@@ -38,16 +38,30 @@ final class ConversationArchiveService {
     // MARK: - Addition
 
     func addValue(_ conversation: Conversation) {
-        guard !archive.contains(conversation) else { return }
-        archive.removeAll(where: { $0.id.key == conversation.id.key })
-        archive.append(conversation)
+        archive.insert(conversation)
 
         Logger.log(
             .init(
                 "Added conversation to persisted archive.",
                 isReportable: false,
-                userInfo: ["ConversationIDKey": conversation.id.key,
-                           "ConversationIDHash": conversation.id.hash],
+                userInfo: [
+                    "ConversationIDKey": conversation.id.key,
+                    "ConversationIDHash": conversation.id.hash,
+                ],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversation
+        )
+    }
+
+    func addValues(_ conversations: Set<Conversation>) {
+        archive.formUnion(conversations)
+
+        Logger.log(
+            .init(
+                "Added multiple conversations to persisted archive.",
+                isReportable: false,
+                userInfo: ["ConversationIDs": conversations.map(\.id.encoded)],
                 metadata: .init(sender: self)
             ),
             domain: .conversation
@@ -61,8 +75,9 @@ final class ConversationArchiveService {
     }
 
     func removeValue(idKey: String) {
-        guard archive.contains(where: { $0.id.key == idKey }) else { return }
-        archive.removeAll(where: { $0.id.key == idKey })
+        if let value = archive.first(where: { $0.id.key == idKey }) {
+            archive.remove(value)
+        }
 
         Logger.log(
             .init(
@@ -98,7 +113,10 @@ final class ConversationArchiveService {
             }
 
             guard let encoded = try? jsonEncoder.encode(conversationNameMap) else { return }
-            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName)
+            appGroupDefaults.set(
+                encoded,
+                forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
+            )
         }
     }
 }

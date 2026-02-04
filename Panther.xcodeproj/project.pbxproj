@@ -17,6 +17,7 @@
 		A23CB3ED2ED3E5270060DFD7 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3EC2ED3E5270060DFD7 /* Activity.swift */; };
 		A23CB3F12ED3E6D40060DFD7 /* Activity+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */; };
 		A23CB3F52ED3EB300060DFD7 /* ActivityAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */; };
+		A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A26D734C2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */; };
@@ -33,6 +34,7 @@
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
+		A2C689792F313DC800CF2860 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A2C689782F313DC800CF2860 /* Networking */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
@@ -206,7 +208,6 @@
 		B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2D82CAC8085004CD880 /* UserContentContainerReducer.swift */; };
 		B947F2DB2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DA2CAC8354004CD880 /* AppConstants+UserContentContainerView.swift */; };
 		B947F2DD2CAC8AD9004CD880 /* ReadReceiptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B947F2DC2CAC8AD9004CD880 /* ReadReceiptService.swift */; };
-		B949DB7D2E1D5E4300795467 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = B949DB7C2E1D5E4300795467 /* Networking */; };
 		B94A80082DFFE086003E2483 /* ComponentKit+SharedContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94A80072DFFE086003E2483 /* ComponentKit+SharedContentExtensions.swift */; };
 		B94D767E2BBB5A2E002B4BC6 /* SignInPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767D2BBB5A2E002B4BC6 /* SignInPageView.swift */; };
 		B94D76802BBB5A38002B4BC6 /* SignInPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94D767F2BBB5A38002B4BC6 /* SignInPageReducer.swift */; };
@@ -656,7 +657,7 @@
 		B9DCCAA12B34FB6C00532B12 /* Persistent+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */; };
 		B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */; };
 		B9DCCAA52B34FC4700532B12 /* UserDefaultsKey+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA42B34FC4700532B12 /* UserDefaultsKey+CommonNetworkingExtensions.swift */; };
-		B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */; };
+		B9DCCAA72B34FC8D00532B12 /* UserDefaultsKey+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA62B34FC8D00532B12 /* UserDefaultsKey+SessionExtensions.swift */; };
 		B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */; };
 		B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */; };
 		B9DD42C02E2F0B7C009A318B /* ChatParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */; };
@@ -778,6 +779,7 @@
 		A23CB3EC2ED3E5270060DFD7 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Activity+Serializable.swift"; sourceTree = "<group>"; };
 		A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityAction.swift; sourceTree = "<group>"; };
+		A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageCalculation.swift; sourceTree = "<group>"; };
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
 		A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+FeaturePermissionPageView.swift"; sourceTree = "<group>"; };
@@ -1490,7 +1492,7 @@
 		B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+SessionExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA42B34FC4700532B12 /* UserDefaultsKey+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKey+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
-		B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKeyDomain+SessionExtensions.swift"; sourceTree = "<group>"; };
+		B9DCCAA62B34FC8D00532B12 /* UserDefaultsKey+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaultsKey+SessionExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+Updatable.swift"; sourceTree = "<group>"; };
 		B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+Updatable.swift"; sourceTree = "<group>"; };
 		B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipantView.swift; sourceTree = "<group>"; };
@@ -1580,7 +1582,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B949DB7D2E1D5E4300795467 /* Networking in Frameworks */,
+				A2C689792F313DC800CF2860 /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -1796,6 +1798,7 @@
 			isa = PBXGroup;
 			children = (
 				B93DF6D32CE19A4000F992DF /* ConversationSyncData.swift */,
+				A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */,
 				B906C0122C470A2100F414DA /* ModerationType.swift */,
 				B92617712CD8990900877ECE /* ReactionSessionServiceEffectID.swift */,
 				A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */,
@@ -3000,7 +3003,7 @@
 			children = (
 				B9223D572CD702D500C05BC6 /* Array+SessionExtensions.swift */,
 				B9DCCAA02B34FB6C00532B12 /* Persistent+SessionExtensions.swift */,
-				B9DCCAA62B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift */,
+				B9DCCAA62B34FC8D00532B12 /* UserDefaultsKey+SessionExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3505,7 +3508,7 @@
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
-				B949DB7C2E1D5E4300795467 /* Networking */,
+				A2C689782F313DC800CF2860 /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3633,7 +3636,7 @@
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
-				B949DB7B2E1D5E4300795467 /* XCRemoteSwiftPackageReference "networking" */,
+				A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3945,13 +3948,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4135,6 +4134,7 @@
 				B90071F32B7C2E6300BE8654 /* RecipientBarTextField.swift in Sources */,
 				B963F1C42B23D62E0087DB83 /* Conversation.swift in Sources */,
 				B947F2D62CAC7D14004CD880 /* UserContentContainerView.swift in Sources */,
+				A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */,
 				B903389B2E02862800C21A5B /* HeaderView+SharedContentExtensions.swift in Sources */,
 				B9F47AF32B585FBF00D86C67 /* AvatarImageView.swift in Sources */,
 				B9E6D7B42B126188000BC88D /* PhoneNumberService.swift in Sources */,
@@ -4342,7 +4342,7 @@
 				B9F47B062B5864F500D86C67 /* ConversationCellView.swift in Sources */,
 				B943886F2B321951002D94FF /* ClientSessionDependency.swift in Sources */,
 				B9E6D7D42B12850D000BC88D /* CNContactStoreDependency.swift in Sources */,
-				B9DCCAA72B34FC8D00532B12 /* UserDefaultsKeyDomain+SessionExtensions.swift in Sources */,
+				B9DCCAA72B34FC8D00532B12 /* UserDefaultsKey+SessionExtensions.swift in Sources */,
 				B9C6CAD42C2A09CE0095B42C /* IntegrityServiceSession.swift in Sources */,
 				B94388712B3219CE002D94FF /* UserSessionService.swift in Sources */,
 				B9E6D7DC2B1288B2000BC88D /* WelcomePageView.swift in Sources */,
@@ -4871,20 +4871,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.4.0;
-			};
-		};
-		B949DB7B2E1D5E4300795467 /* XCRemoteSwiftPackageReference "networking" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
-			requirement = {
-				branch = main;
-				kind = branch;
 			};
 		};
 		B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */ = {
@@ -4906,6 +4906,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A2C689782F313DC800CF2860 /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */;
+			productName = Networking;
+		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -4915,11 +4920,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		B949DB7C2E1D5E4300795467 /* Networking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B949DB7B2E1D5E4300795467 /* XCRemoteSwiftPackageReference "networking" */;
-			productName = Networking;
 		};
 		B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */ = {
 			isa = XCSwiftPackageProductDependency;

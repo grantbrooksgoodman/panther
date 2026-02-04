@@ -29,7 +29,7 @@ struct FeaturePermissionPageView: View {
     private var currentIndexBinding: Binding<Int> {
         viewModel.binding(
             for: \.currentIndex,
-            sendAction: { .pageChanged($0) }
+            sendAction: { .currentIndexChanged($0) }
         )
     }
 
@@ -92,6 +92,7 @@ struct FeaturePermissionPageView: View {
                     viewModel.titleText,
                     font: .systemBold(scale: .custom(Floats.titleLabelFontScale))
                 )
+                .minimumScaleFactor(Floats.titleLabelMinimumScaleFactor)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, Floats.titleLabelBottomPadding)
                 .padding(.horizontal, Floats.labelHorizontalPadding)

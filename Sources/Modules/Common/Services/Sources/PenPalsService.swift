@@ -171,7 +171,10 @@ struct PenPalsService {
         switch updateValueResult {
         case let .success(user):
             Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
-            return userSession.setCurrentUser(user)
+            return userSession.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception
@@ -198,20 +201,13 @@ struct PenPalsService {
     }
 
     private func populateValuesIfNeeded() async -> Exception? {
-        @Dependency(\.commonServices.permission.contactPermissionStatus) var contactPermissionStatus: PermissionService.PermissionStatus
         var exceptions = [Exception]()
 
-        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
-           contactPermissionStatus == .granted,
-           let exception = await contactService.syncContactPairArchive() {
+        if let exception = await ContactService.populateValuesIfNeeded() {
             exceptions.append(exception)
         }
 
-        guard let currentUser = userSession.currentUser,
-              currentUser.conversations == nil || currentUser.conversations?.isEmpty == true else { return exceptions.compiledException }
-
-        if let exception = await currentUser.setConversations() {
+        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
             exceptions.append(exception)
         }
 

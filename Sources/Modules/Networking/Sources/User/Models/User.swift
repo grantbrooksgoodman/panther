@@ -159,17 +159,17 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         guard id == User.currentUserID,
               let conversationIDs else { return nil }
 
-        var conversationsNeedingFetch = [ConversationID]()
-        var conversationsNeedingUpdate = [Conversation]()
-        var decodedConversations = [Conversation]()
+        var conversationsNeedingFetch = Set<ConversationID>()
+        var conversationsNeedingUpdate = Set<Conversation>()
+        var decodedConversations = Set<Conversation>()
 
         for conversationID in conversationIDs {
             if let value = conversationService.archive.getValue(id: conversationID) {
-                decodedConversations.append(value)
+                decodedConversations.insert(value)
             } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
-                conversationsNeedingUpdate.append(value)
+                conversationsNeedingUpdate.insert(value)
             } else {
-                conversationsNeedingFetch.append(conversationID)
+                conversationsNeedingFetch.insert(conversationID)
             }
         }
 
@@ -185,8 +185,8 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
             // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
-                conversations = decodedConversations.sortedByLatestMessageSentDate
-                decodedConversations.forEach { conversationService.archive.addValue($0) }
+                conversations = Array(decodedConversations).sortedByLatestMessageSentDate
+                conversationService.archive.addValues(decodedConversations)
             }
             return nil
         }
@@ -196,8 +196,10 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
             switch synchronizeConversationResult {
             case let .success(updatedConversation):
-                decodedConversations.removeAll(where: { $0.id.key == updatedConversation.id.key })
-                decodedConversations.append(updatedConversation)
+                decodedConversations = decodedConversations.filter {
+                    $0.id.key != updatedConversation.id.key
+                }
+                decodedConversations.insert(updatedConversation)
 
             case let .failure(exception):
                 return exception
@@ -206,33 +208,41 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
         guard !conversationsNeedingFetch.isEmpty else {
             guard decodedConversations.count == conversationIDs.count else {
-                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
+                return .init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                )
             }
 
             // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
-                conversations = decodedConversations.sortedByLatestMessageSentDate
-                decodedConversations.forEach { conversationService.archive.addValue($0) }
+                conversations = Array(decodedConversations).sortedByLatestMessageSentDate
+                conversationService.archive.addValues(decodedConversations)
             }
             return nil
         }
 
-        let getConversationsResult = await conversationService.getConversations(idKeys: conversationsNeedingFetch.map(\.key))
+        let getConversationsResult = await conversationService.getConversations(
+            idKeys: conversationsNeedingFetch.map(\.key)
+        )
 
         switch getConversationsResult {
         case let .success(conversations):
-            decodedConversations.append(contentsOf: conversations)
+            decodedConversations.formUnion(conversations)
 
             guard decodedConversations.count == conversationIDs.count else {
-                return .init("Mismatched ratio returned.", metadata: .init(sender: self))
+                return .init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                )
             }
 
             // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
             serialQueue.sync {
                 self.conversationIDs = decodedConversations.map(\.id)
-                self.conversations = decodedConversations.sortedByLatestMessageSentDate
-                decodedConversations.forEach { conversationService.archive.addValue($0) }
+                self.conversations = Array(decodedConversations).sortedByLatestMessageSentDate
+                conversationService.archive.addValues(decodedConversations)
             }
             return nil
 

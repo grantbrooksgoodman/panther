@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKeyDomain+SessionExtensions.swift
+//  UserDefaultsKey+SessionExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.

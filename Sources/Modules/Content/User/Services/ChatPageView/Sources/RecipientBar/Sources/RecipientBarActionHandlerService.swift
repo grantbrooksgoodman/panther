@@ -110,9 +110,7 @@ final class RecipientBarActionHandlerService {
                 return
             }
 
-            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-
-            guard !(contactPairArchive ?? []).isEmpty else {
+            guard services.contact.hasContactsBesidesCurrentUser else {
                 selectContactButton?.isEnabled = false
                 core.hud.showProgress(isModal: true)
 
@@ -121,7 +119,7 @@ final class RecipientBarActionHandlerService {
                     Logger.log(exception, with: .toast)
                 }
 
-                guard (contactPairArchive ?? []).isEmpty else {
+                guard !services.contact.hasContactsBesidesCurrentUser else {
                     chatPageViewService.recipientBar?.tableView.resolveContactPairs()
                     selectContactButtonTapped()
                     return

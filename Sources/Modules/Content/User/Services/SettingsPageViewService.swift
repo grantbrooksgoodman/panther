@@ -318,18 +318,23 @@ final class SettingsPageViewService {
 
     func sendFeedbackButtonTapped() {
         Task {
+            let reportBugAction: AKAction = .init("Report Bug") {
+                self.reportDelegate.reportBug()
+            }
+
             await AKActionSheet(
                 title: "File a Report",
                 actions: [
                     .init(Localized(.sendFeedback).wrappedValue) {
                         self.reportDelegate.sendFeedback()
                     },
-                    .init("Report Bug") {
-                        self.reportDelegate.reportBug()
-                    },
+                    reportBugAction,
                 ],
                 cancelButtonTitle: Localized(.cancel).wrappedValue
-            ).present(translating: [.actions([]), .title])
+            ).present(translating: [
+                .actions([reportBugAction]),
+                .title,
+            ])
         }
     }
 

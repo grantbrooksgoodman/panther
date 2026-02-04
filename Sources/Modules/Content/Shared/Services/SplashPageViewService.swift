@@ -99,6 +99,8 @@ final class SplashPageViewService: ObservableObject {
             Logger.log(exception)
         }
 
+        core.utils.setIsEnhancedDialogTranslationEnabled(true)
+        core.utils.setEnhancedTranslationStatusVerbosity(.successOnly)
         initializationProgress += 0.01
 
         /* MARK: MetadataService Setup */
@@ -175,6 +177,10 @@ final class SplashPageViewService: ObservableObject {
                 return .init("Failed to set current user.", metadata: .init(sender: self))
             }
 
+            core.utils.setIsEnhancedDialogTranslationEnabled(
+                currentUser.aiEnhancedTranslationsEnabled
+            )
+
             checkPrevaricationMode(currentUser.phoneNumber)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
@@ -216,8 +222,6 @@ final class SplashPageViewService: ObservableObject {
             if let exception = await services.penPals.updateSharingDataForKnownUsers() {
                 return exception
             }
-
-            _ = await clientSession.storage.getCurrentUserDataUsage()
 
             initializationProgress = 1
             return nil

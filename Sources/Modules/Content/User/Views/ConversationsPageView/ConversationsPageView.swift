@@ -146,6 +146,7 @@ struct ConversationsPageView: View {
             ) {
                 viewModel.send(.composeToolbarButtonTapped)
             }
+            .id(viewModel.composeToolbarButtonViewID)
             .frame(
                 minWidth: Floats.toolbarButtonFrameMinWidth,
                 minHeight: Floats.toolbarButtonFrameMinHeight

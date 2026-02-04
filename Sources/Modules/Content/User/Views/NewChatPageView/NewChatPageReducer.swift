@@ -112,7 +112,9 @@ struct NewChatPageReducer: Reducer {
                 case let .failure(exception):
                     Logger.log(
                         exception,
-                        with: .toast(style: exception.isEqual(to: .penPalResolutionFailed) ? .info : .error)
+                        with: .toast(
+                            style: exception.isEqual(to: .penPalResolutionFailed) ? .info : .error
+                        )
                     )
                 }
             }

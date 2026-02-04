@@ -29,14 +29,13 @@ struct InviteService {
     // MARK: - Properties
 
     @Persistent(.appOpenCount) private var appOpenCount: Int?
-    @Persistent(.contactPairArchive) private var contactPairArchive: [ContactPair]?
 
     // MARK: - Computed Properties
 
     private var canSuggestInvitation: Bool {
         let sufficientAppOpenCount = (appOpenCount ?? 0) == 0 || appOpenCount == 1 || (appOpenCount ?? 0) % 2 == 0
         guard services.permission.contactPermissionStatus == .granted,
-              (contactPairArchive ?? []).isEmpty,
+              !services.contact.hasContactsBesidesCurrentUser,
               currentUser?.conversations == nil || currentUser?.conversations?.isEmpty == true,
               currentUser?.conversationIDs == nil || currentUser?.conversationIDs?.isEmpty == true,
               createdUserInCurrentAppSession || sufficientAppOpenCount else { return false }
@@ -144,7 +143,7 @@ struct InviteService {
             return false
         }
 
-        guard (contactPairArchive ?? []).isEmpty else { return false }
+        guard !services.contact.hasContactsBesidesCurrentUser else { return false }
         await presentInvitationSuggestionPrompt()
         return true
     }

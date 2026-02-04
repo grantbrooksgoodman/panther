@@ -25,6 +25,7 @@ struct FeaturePermissionPageReducer: Reducer {
 
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.utils.isEnhancedDialogTranslationEnabled) private var isEnhancedDialogTranslationEnabled: Bool
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions
@@ -32,10 +33,10 @@ struct FeaturePermissionPageReducer: Reducer {
     enum Action {
         case viewAppeared
 
+        case currentIndexChanged(Int)
         case declineButtonTapped
         case enableButtonTapped
         case getTranslationsReturned(Callback<[Translation], Exception>)
-        case pageChanged(Int)
         case pageIndicatorTapped
     }
 
@@ -65,15 +66,13 @@ struct FeaturePermissionPageReducer: Reducer {
         }
 
         var subtitleText: String {
-            resolvedSubtitleText
-                .itemAt(currentIndex)?
-                .sanitized ?? currentConfig.subtitleText
+            (resolvedSubtitleText.itemAt(currentIndex) ??
+                currentConfig.subtitleText).sanitized
         }
 
         var titleText: String {
-            resolvedTitleText
-                .itemAt(currentIndex)?
-                .sanitized ?? currentConfig.titleText
+            (resolvedTitleText.itemAt(currentIndex) ??
+                currentConfig.titleText).sanitized
         }
 
         fileprivate var currentConfig: FeaturePermissionPageView.Configuration {
@@ -101,21 +100,26 @@ struct FeaturePermissionPageReducer: Reducer {
 
             let titleTextInputs = state
                 .configurations
-                .map(\.titleText)
-                .map(TranslationInput.init)
+                .map { TranslationInput($0.titleText) }
 
             let subtitleTextInputs = state
                 .configurations
-                .map(\.subtitleText)
-                .map(TranslationInput.init)
+                .map { TranslationInput($0.subtitleText) }
 
             return .task {
                 let result = await translator.getTranslations(
                     for: titleTextInputs + subtitleTextInputs,
                     languagePair: .system,
+                    enhance: isEnhancedDialogTranslationEnabled ? .init(
+                        additionalContext: nil
+                    ) : nil
                 )
                 return .getTranslationsReturned(result)
             }
+
+        case let .currentIndexChanged(currentIndex):
+            state.currentIndex = currentIndex
+            state.isButtonInteractionEnabled = !state.previouslyEnabledIndices.contains(currentIndex)
 
         case .declineButtonTapped:
             state.currentConfig.declineButtonAction?()
@@ -138,13 +142,9 @@ struct FeaturePermissionPageReducer: Reducer {
                 return .none
             }
 
-            let titleText = translations[
-                0 ... translations.count / 2
-            ].map(\.output)
-
-            let subtitleText = translations[
-                translations.count / 2 ... translations.count - 1
-            ].map(\.output)
+            let arrayMidpoint = translations.count / 2
+            let titleText = translations[..<arrayMidpoint].map(\.output)
+            let subtitleText = translations[arrayMidpoint...].map(\.output)
 
             state.resolvedTitleText = titleText
             state.resolvedSubtitleText = subtitleText
@@ -153,12 +153,10 @@ struct FeaturePermissionPageReducer: Reducer {
 
         case let .getTranslationsReturned(.failure(exception)):
             Logger.log(exception)
+
+            state.resolvedTitleText = state.configurations.map(\.titleText)
             state.resolvedSubtitleText = state.configurations.map(\.subtitleText)
             state.viewState = .loaded
-
-        case let .pageChanged(index):
-            state.currentIndex = index
-            state.isButtonInteractionEnabled = !state.previouslyEnabledIndices.contains(index)
 
         case .pageIndicatorTapped:
             navigate(

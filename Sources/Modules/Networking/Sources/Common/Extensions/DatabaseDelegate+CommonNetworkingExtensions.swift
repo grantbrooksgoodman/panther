@@ -56,7 +56,10 @@ extension DatabaseDelegate {
             Logger.log(
                 "Established database snapshot.",
                 domain: .Networking.database,
-                with: .toastInPrerelease,
+                with: .toastInPrerelease(
+                    style: .info,
+                    isPersistent: false
+                ),
                 sender: self
             )
 

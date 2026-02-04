@@ -41,6 +41,7 @@ extension AppConstants.CGFloats {
 
         static let titleLabelBottomPadding: CGFloat = 20
         static let titleLabelFontScale: CGFloat = 34
+        static let titleLabelMinimumScaleFactor: CGFloat = 0.5
         static let titleLabelTopPadding: CGFloat = 60
     }
 }

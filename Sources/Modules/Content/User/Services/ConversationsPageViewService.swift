@@ -130,9 +130,9 @@ final class ConversationsPageViewService {
             let secondsPerConversation = String(format: "%.2f", Float(secondsToLoad) / Float(numberOfConversations))
             let addendum = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
 
+            Toast.hide()
             Toast.show(.init(
-                message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "").",
-                perpetuation: .ephemeral(.seconds(5))
+                message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "")."
             ))
         }
 
@@ -170,8 +170,9 @@ final class ConversationsPageViewService {
                 }
             }
 
-            @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+            _ = await clientSession.storage.getCurrentUserDataUsage()
             if clientSession.storage.isApproachingDataUsageLimit {
+                Observables.traitCollectionChanged.trigger()
                 await clientSession.storage.presentStorageWarningAlert()
             } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = await services.permission.requestPermission(for: .notifications)
@@ -279,9 +280,10 @@ final class ConversationsPageViewService {
                     return .failure(exception)
                 }
 
-                @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
                 var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
-                guard (contactPairArchive ?? []).isEmpty || randomBool else { return .success(user.conversations ?? []) }
+                guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
+                    return .success(user.conversations ?? [])
+                }
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {

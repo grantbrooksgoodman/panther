@@ -13,6 +13,29 @@ import Foundation
 import AppSubsystem
 
 extension FeaturePermissionPageView.Configuration {
+    static var aiEnhancedTranslations: FeaturePermissionPageView.Configuration {
+        .init(
+            titleText: "AI-Enhanced Translations", // swiftlint:disable:next line_length
+            subtitleText: "Make translations feel more natural across languages.\n\nWhen enabled, an obfuscated version of your message may be sent to a large language model (LLM) to refine the translation. Personal identifiers are removed or masked before processing, and only what’s needed to improve the result is shared.\n\nYou can turn this feature on or off at any time via Settings.",
+            accentColor: .init(uiColor: .systemBlue),
+            iconConfig: .aiEnhancedTranslationsIcon(includesShadow: true),
+            enableButtonAction: {
+                Task {
+                    @Dependency(\.commonServices.aiEnhancedTranslation) var aiEnhancedTranslationService: AIEnhancedTranslationService
+                    if let exception = await aiEnhancedTranslationService.setDidGrantAIEnhancedTranslationPermission(true) {
+                        Logger.log(
+                            exception,
+                            with: .toastInPrerelease
+                        )
+                    }
+                }
+            },
+            declineButtonAction: {
+                Observables.didGrantAIEnhancedTranslationPermission.value = false
+            }
+        )
+    }
+
     static var penPals: FeaturePermissionPageView.Configuration {
         .init(
             titleText: "Introducing ⌘PenPals⌘", // swiftlint:disable:next line_length
@@ -33,29 +56,6 @@ extension FeaturePermissionPageView.Configuration {
             },
             declineButtonAction: {
                 Observables.didGrantPenPalsPermission.value = false
-            }
-        )
-    }
-
-    static var aiEnhancedTranslations: FeaturePermissionPageView.Configuration {
-        .init(
-            titleText: "AI-Enhanced Translations", // swiftlint:disable:next line_length
-            subtitleText: "Make translations feel more natural across languages.\n\nWhen enabled, an obfuscated version of your message may be sent to a large language model (LLM) to refine the translation. Personal identifiers are removed or masked before processing, and only what’s needed to improve the result is shared.\n\nYou can turn this feature on or off at any time via Settings.",
-            accentColor: .init(uiColor: .systemBlue),
-            iconConfig: .aiEnhancedTranslationsIcon(includesShadow: true),
-            enableButtonAction: {
-                Task {
-                    @Dependency(\.commonServices.aiEnhancedTranslation) var aiEnhancedTranslationService: AIEnhancedTranslationService
-                    if let exception = await aiEnhancedTranslationService.setDidGrantAIEnhancedTranslationPermission(true) {
-                        Logger.log(
-                            exception,
-                            with: .toastInPrerelease
-                        )
-                    }
-                }
-            },
-            declineButtonAction: {
-                Observables.didGrantAIEnhancedTranslationPermission.value = false
             }
         )
     }

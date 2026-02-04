@@ -56,6 +56,7 @@ struct ConversationsPageReducer: Reducer {
         /* MARK: Properties */
 
         var animationAmount: CGFloat = 1
+        var composeToolbarButtonViewID = UUID()
         var conversationCellViewID = UUID()
         var conversations = [Conversation]()
         var isRefreshing = false
@@ -154,12 +155,15 @@ struct ConversationsPageReducer: Reducer {
                 return .none
             }
 
-            state.conversations = (conversations ?? state.conversations).queried(by: searchQuery)
+            state.conversations = (conversations ?? state.conversations)
+                .queried(by: searchQuery)
+                .filteredAndSorted
 
         case .settingsToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.settings)))
 
         case .traitCollectionChanged:
+            state.composeToolbarButtonViewID = UUID()
             viewService.traitCollectionChanged()
 
         case .updatedCurrentUser:

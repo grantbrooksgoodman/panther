@@ -43,6 +43,9 @@ extension TranslatedLabelStringCollection {
             case .leaveReviewButtonText:
                 return "Rate the App"
 
+            case .recipientConsentListRowInnerText:
+                return "Require Recipient Consent"
+
             case .signOutButtonText:
                 return "Log Out"
 

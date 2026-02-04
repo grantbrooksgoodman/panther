@@ -94,10 +94,11 @@ struct ChangeLanguagePageViewService {
 
         for conversation in (currentUser.conversations ?? [])
             .visibleForCurrentUser
+            .map(\.filteringSystemMessages)
             .filter({
                 !$0.messageIDs.isBangQualifiedEmpty &&
                     ($0.messages == nil || $0.messages?.isEmpty == true) ||
-                    $0.messageIDs.count != $0.messages?.filteringSystemMessages.count
+                    $0.messageIDs.count != $0.messages?.count
             }) {
             if let exception = await conversation.setMessages() {
                 return exception

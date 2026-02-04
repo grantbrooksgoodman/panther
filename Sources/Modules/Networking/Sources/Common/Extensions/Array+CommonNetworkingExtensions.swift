@@ -17,19 +17,26 @@ extension Array where Element == Conversation {
     // MARK: - Properties
 
     var sortedByLatestMessageSentDate: [Conversation] {
-        let filtered = filter { $0.messages?.isEmpty == false }
-        var sorted = filtered.map { conversation in
-            (
+        var withSentDate: [(Conversation, Date)] = []
+        var withoutSentDate: [Conversation] = []
+
+        for conversation in self {
+            guard let messages = conversation.messages,
+                  !messages.isEmpty,
+                  let latestMessage = messages.max(by: { $0.sentDate < $1.sentDate }) else {
+                withoutSentDate.append(conversation)
+                continue
+            }
+
+            withSentDate.append((
                 conversation,
-                conversation
-                    .messages!
-                    .filteringSystemMessages
-                    .max(by: { $0.sentDate < $1.sentDate })!
-                    .sentDate
-            )
-        }.sorted(by: { $0.1 > $1.1 }).map { $0.0 }
-        sorted += filter { $0.messages == nil || $0.messages?.isEmpty == true }
-        return sorted
+                latestMessage.sentDate
+            ))
+        }
+
+        return withSentDate
+            .sorted { $0.1 > $1.1 }
+            .map(\.0) + withoutSentDate
     }
 
     /// The conversations among the array in which the current user is participating, has not deleted, and which do not contain any participants the user has blocked.

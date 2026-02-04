@@ -100,7 +100,10 @@ final class MessageRecipientConsentService {
 
         switch updateValueResult {
         case let .success(user):
-            return clientSession.user.setCurrentUser(user)
+            return clientSession.user.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception

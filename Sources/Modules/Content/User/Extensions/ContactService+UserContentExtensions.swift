@@ -14,6 +14,17 @@ import Foundation
 import AppSubsystem
 
 extension ContactService {
+    // MARK: - Properties
+
+    var hasContactsBesidesCurrentUser: Bool {
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        guard let contactPairArchive,
+              !contactPairArchive.isEmpty else { return true }
+        return !contactPairArchive.filter { !$0.containsCurrentUser }.isEmpty
+    }
+
+    // MARK: - Methods
+
     func firstCNContact(
         for phoneNumber: PhoneNumber,
         returnForEmptyCachedCNContacts: Bool = false
@@ -56,5 +67,18 @@ extension ContactService {
         }
 
         return .success(match)
+    }
+
+    static func populateValuesIfNeeded() async -> Exception? {
+        @Dependency(\.commonServices) var services: CommonServices
+
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+           services.permission.contactPermissionStatus == .granted,
+           let exception = await services.contact.syncContactPairArchive() {
+            return exception
+        }
+
+        return nil
     }
 }

@@ -210,13 +210,6 @@ extension Conversation {
         )
     }
 
-    func logActivity(_ activity: Activity) async -> Callback<Conversation, Exception> {
-        await updateValue(
-            ((activities ?? []) + [activity]).filter { $0 != .empty },
-            forKey: .activities
-        )
-    }
-
     func mutuallySharedPenPalsDataBetweenCurrentUserAnd(_ user: User) -> Bool {
         guard metadata.isPenPalsConversation else { return true }
         return currentUserSharesPenPalsData(with: user) && userSharesPenPalsDataWithCurrentUser(user)

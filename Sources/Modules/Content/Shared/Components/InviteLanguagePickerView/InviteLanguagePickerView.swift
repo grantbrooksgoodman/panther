@@ -88,7 +88,7 @@ struct InviteLanguagePickerView: View {
             ),
             usesV26Attributes: !Application.isInPrevaricationMode
         )
-        .background(Color.navigationBarBackground)
+        .background(Color.groupedContentBackground)
         .ignoresSafeArea()
         .interactiveDismissDisabled(true)
         .preferredStatusBarStyle(

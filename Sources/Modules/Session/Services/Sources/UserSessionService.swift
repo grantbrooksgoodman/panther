@@ -115,7 +115,26 @@ final class UserSessionService {
 
     // MARK: - Set Current User
 
-    func setCurrentUser(_ user: User?) -> Exception? {
+    func setCurrentUser(
+        _ user: User?,
+        repopulateValuesIfNeeded: Bool = false
+    ) -> Exception? {
+        defer { // NIT: This seems fishy/unsafe.
+            Task {
+                guard repopulateValuesIfNeeded,
+                      currentUser != nil,
+                      user?.id == currentUserID else { return }
+
+                if let exception = await User.populateCurrentUserConversationsIfNeeded() {
+                    Logger.log(
+                        exception,
+                        domain: .userSession,
+                        with: .toast
+                    )
+                }
+            }
+        }
+
         if let user {
             guard let currentUserID,
                   user.id == currentUserID else {

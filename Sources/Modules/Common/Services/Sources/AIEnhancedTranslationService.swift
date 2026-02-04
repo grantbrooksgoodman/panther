@@ -15,6 +15,7 @@ import AppSubsystem
 struct AIEnhancedTranslationService {
     // MARK: - Dependencies
 
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Set Did Grant AI-Enhanced Translation Permission
@@ -35,7 +36,15 @@ struct AIEnhancedTranslationService {
         switch updateValueResult {
         case let .success(user):
             Observables.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
-            return userSession.setCurrentUser(user)
+
+            coreUtilities.setIsEnhancedDialogTranslationEnabled(
+                didGrantAIEnhancedTranslationPermission
+            )
+
+            return userSession.setCurrentUser(
+                user,
+                repopulateValuesIfNeeded: true
+            )
 
         case let .failure(exception):
             return exception

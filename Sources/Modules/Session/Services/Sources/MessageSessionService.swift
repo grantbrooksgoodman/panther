@@ -28,6 +28,7 @@ struct MessageSessionService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.networking) private var networking: NetworkServices
+    @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Send Audio Message
@@ -56,7 +57,7 @@ struct MessageSessionService {
         case let .failure(exception): return .failure(exception)
         }
 
-        NotificationCenter.default.post(
+        notificationCenter.post(
             name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
             object: self,
             userInfo: [
@@ -398,11 +399,16 @@ struct MessageSessionService {
         for conversation: Conversation?,
         isAudioMessage: Bool,
         userCount: Int,
-    ) -> EnhancementConfiguration? { // swiftlint:disable:next line_length
+    ) -> EnhancementConfiguration? {
+        guard clientSession
+            .user
+            .currentUser?
+            .aiEnhancedTranslationsEnabled == true else { return nil }
+
+        // swiftlint:disable:next line_length
         let audioMessageContext = "This is the transcription of an audio message. If you spot any red flags grammatically or coherence-wise, please correct them."
 
-        guard clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == true,
-              userCount == 1,
+        guard userCount == 1,
               let messageReadout = conversation?.messageReadout else {
             return isAudioMessage ? .init(additionalContext: audioMessageContext) : nil
         }
@@ -412,7 +418,7 @@ struct MessageSessionService {
             additionalContext: "\(additionalContext)\n" + """
             Attached is a readout of the most recent messages in this conversation, sorted by latest (descending) send date.
             Ensure the addressee is spoken to with pronouns consistent in gender and number used in previous messages from 'You'.
-            If needed, use the participant names to infer the proper gender to use, but ONLY after not having reached a definitive conclusion based on the gender used in previous messages.
+            If needed, use the participant names to infer the proper gender to employ, but ONLY after not having reached a definitive conclusion based on the gender used in previous messages.
             Maintain the same register and tone as used by 'You' throughout the conversation.
             -----
             BEGIN MESSAGE READOUT:

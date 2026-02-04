@@ -22,6 +22,7 @@ final class StorageSessionService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.coreKit.utils.isEnhancedDialogTranslationEnabled) private var isEnhancedDialogTranslationEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -30,35 +31,44 @@ final class StorageSessionService {
 
     private let warningAlertRatio: Double = 0.6
 
-    private var lastDataUsageCalculation = 0
+    @LockIsolated private var isCalculatingDataUsage = false
+    private var lastDataUsageCalculation: DataUsageCalculation = .empty
 
     // MARK: - Computed Properties
 
     var atOrAboveDataUsageLimit: Bool {
-        lastDataUsageCalculation >= Int(StorageSessionService.storageLimitInKilobytes)
+        lastDataUsageCalculation.dataUsageInKilobytes >= Int(
+            StorageSessionService.storageLimitInKilobytes
+        )
     }
 
     var isApproachingDataUsageLimit: Bool {
-        lastDataUsageCalculation >= Int(StorageSessionService.storageLimitInKilobytes * warningAlertRatio)
+        lastDataUsageCalculation.dataUsageInKilobytes >= Int(
+            StorageSessionService.storageLimitInKilobytes * warningAlertRatio
+        )
     }
 
     // MARK: - Current User Data Usage
 
-    @MainActor
+    @MainActor // swiftlint:disable:next function_body_length
     func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
-        guard lastDataUsageCalculation == 0 else {
-            Logger.log(
-                "Returning last known data usage calculation (\(lastDataUsageCalculation)kb).",
+        guard !isCalculatingDataUsage,
+              lastDataUsageCalculation == DataUsageCalculation.empty ||
+              lastDataUsageCalculation.isExpired else {
+            Logger.log( // swiftlint:disable:next line_length
+                "Returning last known data usage calculation (\(lastDataUsageCalculation.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.date.seconds(from: .now)))s ago.",
                 domain: .storageSession,
                 sender: self
             )
 
-            return .success(lastDataUsageCalculation)
+            return .success(lastDataUsageCalculation.dataUsageInKilobytes)
         }
 
+        isCalculatingDataUsage = true
+        defer { isCalculatingDataUsage = false }
         var dataUsageInKilobytes = 0
 
-        if let exception = await populateValuesIfNeeded() {
+        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
             return .failure(exception)
         }
 
@@ -186,14 +196,14 @@ final class StorageSessionService {
             sender: self
         )
 
-        lastDataUsageCalculation = dataUsageInKilobytes
+        lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes)
         return .success(dataUsageInKilobytes)
     }
 
     // MARK: - Invalidate Data Usage Calculation
 
     func invalidateDataUsageCalculation() {
-        lastDataUsageCalculation = 0
+        lastDataUsageCalculation = .empty
     }
 
     // MARK: - Present Storage Warning Alert
@@ -342,7 +352,10 @@ final class StorageSessionService {
                 messageSuffixInput,
             ],
             languagePair: .system,
-            hud: nil
+            hud: nil,
+            enhance: isEnhancedDialogTranslationEnabled ? .init(
+                additionalContext: nil
+            ) : nil
         )
 
         switch getTranslationsResult {
@@ -382,50 +395,6 @@ final class StorageSessionService {
         case let .failure(exception):
             return .failure(exception)
         }
-    }
-
-    private func populateValuesIfNeeded() async -> Exception? {
-        func satisfiesConstraints(_ conversation: Conversation) -> Bool {
-            if !conversation.messageIDs.isBangQualifiedEmpty,
-               conversation.messages == nil ||
-               conversation.messages?.filteringSystemMessages.isEmpty == true {
-                return true
-            } else if conversation.messageIDs.count != conversation.messages?.filteringSystemMessages.count {
-                return true
-            }
-
-            return false
-        }
-
-        guard let currentUser else {
-            return .init(
-                "Current user has not been set.",
-                metadata: .init(sender: self)
-            )
-        }
-
-        guard currentUser.conversations == nil ||
-            currentUser.conversations?.isEmpty == true ||
-            currentUser
-            .conversations?
-            .visibleForCurrentUser
-            .contains(where: { satisfiesConstraints($0) }) == true else {
-            return nil
-        }
-
-        if let exception = await currentUser.setConversations() {
-            return exception
-        }
-
-        for conversation in (currentUser.conversations ?? [])
-            .visibleForCurrentUser
-            .filter({ satisfiesConstraints($0) }) {
-            if let exception = await conversation.setMessages() {
-                return exception
-            }
-        }
-
-        return nil
     }
 
     private func sizeInKilobytes(of data: Any) -> Callback<Int, Exception> {
