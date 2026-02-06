@@ -27,8 +27,8 @@ extension UserDefaultsKey {
     }
 
     enum BreadcrumbsCaptureServiceDefaultsKey: String {
-        case breadcrumbsCaptureHistory
         case breadcrumbsCaptureFrequency
+        case breadcrumbsCaptureHistory
     }
 
     enum ContactPairArchiveServiceDefaultsKey: String {

@@ -35,6 +35,7 @@ extension LoggerDomain {
             .penPals,
             .queue,
             .storageSession,
+            .task,
             .translation,
             .user,
             .userSession,

@@ -171,10 +171,10 @@ extension Conversation: Updatable {
             ))
         }
 
-        guard updated.encodedHash != encodedHash else {
-            return .success(updated)
-        }
+        // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
+        defer { networking.conversationService.archive.addValue(updated) }
 
+        guard updated.encodedHash != encodedHash else { return .success(updated) }
         let hashPath = conversationKeyPath + SerializationKeys.encodedHash.rawValue
         if let exception = await networking.database.setValue(
             updated.encodedHash,
@@ -193,8 +193,6 @@ extension Conversation: Updatable {
             }
         }
 
-        // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
-        networking.conversationService.archive.addValue(updated)
         return .success(updated)
     }
 
@@ -295,7 +293,7 @@ extension Conversation: Updatable {
             return exception
         }
 
-        guard var users else {
+        guard var users = conversation.users else {
             return .init(
                 "Failed to set users on conversation.",
                 metadata: .init(sender: self)

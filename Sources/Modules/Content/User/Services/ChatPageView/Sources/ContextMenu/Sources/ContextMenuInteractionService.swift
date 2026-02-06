@@ -185,7 +185,7 @@ final class ContextMenuInteractionService {
             guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
             hapticsService.generateFeedback(.heavy)
 
-            Task {
+            Task { @MainActor in
                 if let reaction = Reaction(.love),
                    let exception = await self.clientSession.reaction.react(reaction, to: message) {
                     Logger.log(exception, with: .toast)

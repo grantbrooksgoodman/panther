@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1770236710</string>
+	<string>1770419619</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -30,7 +30,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>33099</string>
+	<string>33301</string>
 	<key>CFFirstCompileDate</key>
 	<string>1699689600</string>
 	<key>CFTargetName</key>
@@ -40,7 +40,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Hello needs access to your camera to select media to send. Your image data is never shared with anyone but the chat participants.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Hello needs access to your contacts to find friends with accounts. Your contacts' information never leaves your device.</string>
+	<string>Hello needs access to your contacts to find friends with accounts. Your contacts&apos; information never leaves your device.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hello needs access to your microphone for audio messages. Your audio data is never shared with anyone but the message recipients.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -74,6 +74,8 @@ struct MediaMessageService {
                 )
             }
 
+            guard (try? (await multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
+
             if let exception = await networking.storage.deleteItem(
                 at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
             ) {
@@ -241,5 +243,33 @@ struct MediaMessageService {
         }
 
         return .success(mediaFile)
+    }
+
+    private func multipleMessagesReference(_ mediaFilePath: String) async -> Callback<Bool, Exception> {
+        let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
+
+        switch resolveResult {
+        case let .success(session):
+            return .success(
+                session
+                    .messageData
+                    .values
+                    .compactMap {
+                        HostedContentType(
+                            hostedValue: (($0 as? [String: Any])?[
+                                Message
+                                    .SerializationKeys
+                                    .contentType
+                                    .rawValue
+                            ] as? String) ?? ""
+                        )
+                    }
+                    .compactMap(\.mediaFilePath)
+                    .count(of: mediaFilePath) > 1
+            )
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
     }
 }

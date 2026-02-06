@@ -19,6 +19,7 @@ final class ConversationArchiveService {
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
+    @Dependency(\.build.loggingEnabled) private var loggingEnabled: Bool
 
     // MARK: - Properties
 
@@ -38,6 +39,7 @@ final class ConversationArchiveService {
     // MARK: - Addition
 
     func addValue(_ conversation: Conversation) {
+        archive = archive.filter { $0.id.key != conversation.id.key }
         archive.insert(conversation)
 
         Logger.log(
@@ -55,17 +57,34 @@ final class ConversationArchiveService {
     }
 
     func addValues(_ conversations: Set<Conversation>) {
+        let incomingKeys = conversations.map(\.id.key)
+        archive = archive.filter { !incomingKeys.contains($0.id.key) }
         archive.formUnion(conversations)
 
-        Logger.log(
-            .init(
-                "Added multiple conversations to persisted archive.",
-                isReportable: false,
-                userInfo: ["ConversationIDs": conversations.map(\.id.encoded)],
-                metadata: .init(sender: self)
-            ),
-            domain: .conversation
-        )
+        if loggingEnabled {
+            Logger.log(
+                .init(
+                    "Added multiple conversations to persisted archive.",
+                    isReportable: false,
+                    userInfo: conversations.reduce(
+                        into: [String: String]()
+                    ) { partialResult, conversation in
+                        partialResult[conversation.id.key] = conversation.id.hash
+                    },
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversation
+            )
+        } else {
+            Logger.log(
+                .init(
+                    "Added multiple conversations to persisted archive.",
+                    isReportable: false,
+                    metadata: .init(sender: self)
+                ),
+                domain: .conversation
+            )
+        }
     }
 
     // MARK: - Removal
@@ -75,10 +94,10 @@ final class ConversationArchiveService {
     }
 
     func removeValue(idKey: String) {
-        if let value = archive.first(where: { $0.id.key == idKey }) {
-            archive.remove(value)
-        }
+        let shouldLogRemoval = archive.contains(where: { $0.id.key == idKey })
+        archive = archive.filter { $0.id.key != idKey }
 
+        guard shouldLogRemoval else { return }
         Logger.log(
             .init(
                 "Removed conversation from persisted archive.",

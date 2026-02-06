@@ -172,7 +172,6 @@ final class ConversationsPageViewService {
 
             _ = await clientSession.storage.getCurrentUserDataUsage()
             if clientSession.storage.isApproachingDataUsageLimit {
-                Observables.traitCollectionChanged.trigger()
                 await clientSession.storage.presentStorageWarningAlert()
             } else if await services.permission.notificationPermissionStatus == .unknown {
                 _ = await services.permission.requestPermission(for: .notifications)

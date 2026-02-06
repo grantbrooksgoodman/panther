@@ -39,13 +39,15 @@ final class Conversation: Codable, EncodedHashable, Hashable {
     /// When set, contains all users participating in this conversation, other than the current user.
     private(set) var users: [User]?
 
+    private static let coalescer = KeyedCoalescer<String, Exception?>()
+
     // MARK: - Computed Properties
 
     var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         var factors = [id.key]
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
-        factors.append(contentsOf: messageIDs)
+        factors.append(contentsOf: messageIDs.filter { $0.hasPrefix("-") })
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
         factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? [])
         factors.append(contentsOf: messages?.filteringSystemMessages.map(\.encodedHash) ?? [])
@@ -176,7 +178,21 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Set Users
 
+    // TODO: Audit efficacy of using coalescer here.
     func setUsers(forceUpdate: Bool = false) async -> Exception? {
+        await Self.coalescer(id.key) { [weak self] in
+            guard let self else {
+                return .init(
+                    "Conversation has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                )
+            }
+
+            return await self._setUsers(forceUpdate: forceUpdate)
+        }
+    }
+
+    private func _setUsers(forceUpdate: Bool) async -> Exception? {
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
@@ -185,6 +201,10 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         if !forceUpdate {
             guard users == nil else { return nil }
         }
+
+        // NIT: Don't know if this is strictly necessary.
+        networking.database.setGlobalCacheStrategy(.disregardCache)
+        defer { networking.database.setGlobalCacheStrategy(nil) }
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {
@@ -252,7 +272,10 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             var readReceipts = unreadMessage.readReceipts?.filter { $0.userID != currentUserID } ?? []
             readReceipts.append(readReceipt)
 
-            let updateValueResult = await unreadMessage.updateValue(readReceipts.unique, forKey: .readReceipts)
+            let updateValueResult = await unreadMessage.updateValue(
+                readReceipts.unique,
+                forKey: .readReceipts
+            )
 
             switch updateValueResult {
             case let .success(readMessage):

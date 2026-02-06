@@ -219,7 +219,7 @@ extension Conversation: Serializable {
                 conversationID,
                 activities: activities,
                 messageIDs: .bangQualifiedEmpty,
-                messages: .init(),
+                messages: nil,
                 metadata: metadata,
                 participants: participants,
                 reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
@@ -235,7 +235,10 @@ extension Conversation: Serializable {
         case let .success(messages):
             guard !messages.isEmpty,
                   messages.count == messageIDs.count else {
-                return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
+                return .failure(.init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                ))
             }
 
             let decoded: Conversation = .init(

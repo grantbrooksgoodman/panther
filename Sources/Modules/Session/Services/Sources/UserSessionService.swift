@@ -16,7 +16,14 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
+// swiftlint:disable:next type_body_length
 final class UserSessionService {
+    // MARK: - Types
+
+    private enum TaskID: Hashable {
+        case getDataUsage
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
@@ -69,7 +76,10 @@ final class UserSessionService {
 
     deinit {
         if let exception = stopObservingCurrentUserChanges() {
-            Logger.log(exception, domain: .userSession)
+            Logger.log(
+                exception,
+                domain: .userSession
+            )
         }
     }
 
@@ -230,51 +240,62 @@ final class UserSessionService {
         currentUserDatabaseReference.observe(.value) { snapshot in
             guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {
-                Logger.log(
-                    .Networking.typecastFailed("dictionary", metadata: .init(sender: self)),
+                return Logger.log(
+                    .Networking.typecastFailed(
+                        "dictionary",
+                        metadata: .init(sender: self)
+                    ),
                     domain: .userSession
                 )
-                return
             }
 
-            func updateCurrentUser() {
-                Task {
-                    if let exception = await self.updateCurrentUser() {
-                        Logger.log(exception, domain: .user)
-                    }
-                }
-            }
+            guard let updatedConversationIDStrings = (dictionary[
+                User.SerializationKeys.conversationIDs.rawValue
+            ] as? [String])?.sorted() else { return }
 
-            guard let updatedConversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { return }
-            guard let currentConversationIDStrings = currentUser.conversationIDs?.map(\.encoded) else {
-                updateCurrentUser()
-                return
-            }
+            guard let currentConversationIDStrings = currentUser
+                .conversationIDs?
+                .map(\.encoded)
+                .sorted() else { return self.updateCurrentUser() }
 
-            guard currentConversationIDStrings.sorted() != updatedConversationIDStrings.sorted() else {
-                guard let updatedBlockedUserIDs = dictionary[User.SerializationKeys.blockedUserIDs.rawValue] as? [String] else { return }
-                let currentBlockedUserIDs = currentUser.blockedUserIDs ?? .bangQualifiedEmpty
-                guard currentBlockedUserIDs.sorted() != updatedBlockedUserIDs.sorted() else {
-                    Logger.log(
+            switch currentConversationIDStrings == updatedConversationIDStrings {
+            case true: // No changes to conversations.
+                guard let updatedBlockedUserIDs = (dictionary[
+                    User.SerializationKeys.blockedUserIDs.rawValue
+                ] as? [String])?.sorted() else { return }
+
+                let currentBlockedUserIDs = (currentUser.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
+                if currentBlockedUserIDs == updatedBlockedUserIDs {
+                    return Logger.log(
                         "Skipping current user update as conversation ID values do not appear to have changed.",
-                        domain: .user,
+                        domain: .userSession,
                         sender: self
                     )
-                    return
                 }
 
-                updateCurrentUser()
-                return
-            }
+                self.updateCurrentUser()
 
-            // Remove deleted conversations
-            for id in currentConversationIDStrings where !updatedConversationIDStrings.contains(id) {
-                self.networking.conversationService.archive.removeValue(idKey: id)
-            }
+            case false:
+                // Remove deleted conversations.
+                for idKey in currentConversationIDStrings
+                    .map(\.idKey) where !updatedConversationIDStrings
+                    .map(\.idKey)
+                    .contains(idKey) {
+                    self.networking.conversationService.archive.removeValue(
+                        idKey: idKey
+                    )
+                }
 
-            updateCurrentUser()
+                self.updateCurrentUser()
+            }
         } withCancel: { error in
-            Logger.log(.init(error, metadata: .init(sender: self)), domain: .userSession)
+            Logger.log(
+                .init(
+                    error,
+                    metadata: .init(sender: self)
+                ),
+                domain: .userSession
+            )
         }
     }
 
@@ -296,39 +317,54 @@ final class UserSessionService {
 
     // MARK: - Auxiliary
 
-    private func updateCurrentUser() async -> Exception? {
-        guard !isUpdatingCurrentUser else {
-            Logger.log(
-                "Skipping current user update because an update is already occurring.",
-                domain: .userSession,
-                sender: self
-            )
-            return nil
+    private func updateCurrentUser() {
+        Task {
+            guard !isUpdatingCurrentUser else {
+                return Logger.log(
+                    "Skipping current user update because an update is already occurring.",
+                    domain: .userSession,
+                    sender: self
+                )
+            }
+
+            isUpdatingCurrentUser = true
+            let resolveCurrentUserResult = await resolveCurrentUser()
+
+            switch resolveCurrentUserResult {
+            case .success:
+                Logger.log(
+                    "Updated current user.",
+                    domain: .userSession,
+                    sender: self
+                )
+
+                Task.debounced(
+                    TaskID.getDataUsage,
+                    delay: .seconds(5),
+                    priority: .utility
+                ) {
+                    _ = await self.storageSession.getCurrentUserDataUsage()
+                }
+
+                Observables.updatedCurrentUser.trigger()
+                chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
+
+                isUpdatingCurrentUser = false
+
+            case let .failure(exception):
+                Logger.log(
+                    exception,
+                    domain: .userSession
+                )
+
+                isUpdatingCurrentUser = false
+            }
         }
+    }
+}
 
-        isUpdatingCurrentUser = true
-        let resolveCurrentUserResult = await resolveCurrentUser()
-
-        switch resolveCurrentUserResult {
-        case .success:
-            Logger.log(
-                "Updated current user.",
-                domain: .userSession,
-                sender: self
-            )
-
-            storageSession.invalidateDataUsageCalculation()
-            _ = await storageSession.getCurrentUserDataUsage()
-
-            Observables.updatedCurrentUser.trigger()
-            chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
-
-            isUpdatingCurrentUser = false
-            return nil
-
-        case let .failure(exception):
-            isUpdatingCurrentUser = false
-            return exception
-        }
+private extension String {
+    var idKey: String {
+        components(separatedBy: " ").first ?? self
     }
 }

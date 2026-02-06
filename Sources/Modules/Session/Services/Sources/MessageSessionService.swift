@@ -465,8 +465,9 @@ private extension Conversation {
             messageStrings.append("\(userDisplayName): '\(messageText)'")
         }
 
+        guard !messageStrings.isEmpty else { return nil }
         messageStrings.removeFirst()
-        return messageStrings.joined(separator: "\n")
+        return messageStrings.isEmpty ? nil : messageStrings.joined(separator: "\n")
     }
 }
 

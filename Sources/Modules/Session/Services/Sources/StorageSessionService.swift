@@ -21,6 +21,7 @@ import Translator
 final class StorageSessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.coreKit.utils.isEnhancedDialogTranslationEnabled) private var isEnhancedDialogTranslationEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
@@ -29,6 +30,7 @@ final class StorageSessionService {
 
     static let storageLimitInKilobytes: Double = 10240
 
+    private static let coalescer = SingleSlotCoalescer<Callback<Int, Exception>>()
     private let warningAlertRatio: Double = 0.6
 
     @LockIsolated private var isCalculatingDataUsage = false
@@ -50,8 +52,21 @@ final class StorageSessionService {
 
     // MARK: - Current User Data Usage
 
-    @MainActor // swiftlint:disable:next function_body_length
     func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        await Self.coalescer { [weak self] in
+            guard let self else {
+                return .failure(.init(
+                    "Service has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                ))
+            }
+
+            return await self._getCurrentUserDataUsage()
+        }
+    }
+
+    @MainActor // swiftlint:disable:next function_body_length
+    private func _getCurrentUserDataUsage() async -> Callback<Int, Exception> {
         guard !isCalculatingDataUsage,
               lastDataUsageCalculation == DataUsageCalculation.empty ||
               lastDataUsageCalculation.isExpired else {
@@ -196,14 +211,20 @@ final class StorageSessionService {
             sender: self
         )
 
-        lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes)
+        defer { lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes) }
+        guard chatPageState.isPresented else {
+            Observables.updatedContactPairArchive.trigger()
+            return .success(dataUsageInKilobytes)
+        }
+
+        chatPageState.addEffectUponIsPresented(
+            changedTo: false,
+            id: .updateAppearance
+        ) {
+            Observables.updatedContactPairArchive.trigger()
+        }
+
         return .success(dataUsageInKilobytes)
-    }
-
-    // MARK: - Invalidate Data Usage Calculation
-
-    func invalidateDataUsageCalculation() {
-        lastDataUsageCalculation = .empty
     }
 
     // MARK: - Present Storage Warning Alert

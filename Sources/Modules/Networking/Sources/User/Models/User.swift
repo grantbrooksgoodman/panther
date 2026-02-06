@@ -30,6 +30,8 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
     let previousLanguageCodes: [String]?
     let pushTokens: [String]?
 
+    private static let coalescer = SingleSlotCoalescer<Exception?>()
+
     // MARK: - Computed Properties
 
     var canSendAudioMessages: Bool {
@@ -152,20 +154,42 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     /// - Note: Returns `nil` if called on a user other than the current user.
     func setConversations() async -> Exception? {
+        await Self.coalescer(
+            mode: .lastCallerWins
+        ) { [weak self] in
+            guard let self else {
+                return .init(
+                    "User has been deallocated.",
+                    metadata: .init(sender: User.self)
+                )
+            }
+
+            return await self._setConversations()
+        }
+    }
+
+    private func _setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
         @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
-        @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
-        guard id == User.currentUserID,
-              let conversationIDs else { return nil }
+        guard !Task.isCancelled,
+              id == User.currentUserID,
+              var conversationIDs else { return nil }
 
         var conversationsNeedingFetch = Set<ConversationID>()
         var conversationsNeedingUpdate = Set<Conversation>()
         var decodedConversations = Set<Conversation>()
 
+        @Persistent(.conversationArchive) var conversationArchive: Set<Conversation>?
+        let ignoredConversations = conversationArchive?
+            .filter { !$0.isVisibleForCurrentUser }
+            .map(\.id.key) ?? []
+        conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
+
         for conversationID in conversationIDs {
+            guard !Task.isCancelled else { return nil }
             if let value = conversationService.archive.getValue(id: conversationID) {
-                decodedConversations.insert(value)
+                decodedConversations.merge(with: [value])
             } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
                 conversationsNeedingUpdate.insert(value)
             } else {
@@ -173,33 +197,29 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
             }
         }
 
+        guard !Task.isCancelled else { return nil }
         Logger.log(
             // swiftlint:disable:next line_length
-            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nDecoded conversations: \(decodedConversations.count)",
+            "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
             domain: .user,
             sender: self
         )
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
-            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
-            serialQueue.sync {
-                self.conversationIDs = decodedConversations.map(\.id)
-                conversations = Array(decodedConversations).sortedByLatestMessageSentDate
-                conversationService.archive.addValues(decodedConversations)
-            }
+            commitToMemory(decodedConversations)
             return nil
         }
 
         for conversation in conversationsNeedingUpdate {
-            let synchronizeConversationResult = await conversationSession.sync.synchronizeConversation(conversation)
+            guard !Task.isCancelled else { return nil }
+            let synchronizeConversationResult = await conversationSession
+                .sync
+                .synchronizeConversation(conversation)
 
             switch synchronizeConversationResult {
             case let .success(updatedConversation):
-                decodedConversations = decodedConversations.filter {
-                    $0.id.key != updatedConversation.id.key
-                }
-                decodedConversations.insert(updatedConversation)
+                decodedConversations.merge(with: [updatedConversation])
 
             case let .failure(exception):
                 return exception
@@ -207,43 +227,33 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         }
 
         guard !conversationsNeedingFetch.isEmpty else {
-            guard decodedConversations.count == conversationIDs.count else {
-                return .init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                )
+            if let exception = validateRatio(
+                decodedConversations,
+                conversationIDs
+            ) {
+                return exception
             }
 
-            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
-            serialQueue.sync {
-                self.conversationIDs = decodedConversations.map(\.id)
-                conversations = Array(decodedConversations).sortedByLatestMessageSentDate
-                conversationService.archive.addValues(decodedConversations)
-            }
+            commitToMemory(decodedConversations)
             return nil
         }
 
+        guard !Task.isCancelled else { return nil }
         let getConversationsResult = await conversationService.getConversations(
             idKeys: conversationsNeedingFetch.map(\.key)
         )
 
         switch getConversationsResult {
         case let .success(conversations):
-            decodedConversations.formUnion(conversations)
-
-            guard decodedConversations.count == conversationIDs.count else {
-                return .init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                )
+            decodedConversations.merge(with: conversations)
+            if let exception = validateRatio(
+                decodedConversations,
+                conversationIDs
+            ) {
+                return exception
             }
 
-            // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
-            serialQueue.sync {
-                self.conversationIDs = decodedConversations.map(\.id)
-                self.conversations = Array(decodedConversations).sortedByLatestMessageSentDate
-                conversationService.archive.addValues(decodedConversations)
-            }
+            commitToMemory(decodedConversations)
             return nil
 
         case let .failure(exception):
@@ -261,5 +271,35 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(encodedHash)
+    }
+
+    // MARK: - Auxiliary
+
+    private func commitToMemory(_ conversations: Set<Conversation>) {
+        @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
+        @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
+
+        guard !Task.isCancelled else { return }
+
+        // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
+        serialQueue.sync {
+            conversationIDs = conversations.map(\.id)
+            self.conversations = Array(conversations).sortedByLatestMessageSentDate
+            conversationArchive.addValues(conversations)
+        }
+    }
+
+    private func validateRatio(
+        _ firstComparator: any Collection,
+        _ secondComparator: any Collection
+    ) -> Exception? {
+        guard firstComparator.count == secondComparator.count else {
+            return .init(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        return nil
     }
 }
