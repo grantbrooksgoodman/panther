@@ -86,8 +86,7 @@ extension ChatPageViewController: MessagesDataSource {
 
         let fromLanguageExonym = message.translation?.languagePair.from.languageExonym ?? .bangQualifiedEmpty
         let toLanguageExonym = message.translation?.languagePair.to.languageExonym ?? .bangQualifiedEmpty
-        // TODO: Replace with localized string.
-        let aiEnhancedString = "✨AI-enhanced" // Localized(.aiEnhanced).wrappedValue
+        let aiEnhancedString = "✨\(Localized(.aiEnhanced).wrappedValue)"
 
         let attributedStringConfig: AttributedStringConfig = .init(
             standardAttributes,

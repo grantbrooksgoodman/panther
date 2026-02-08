@@ -19,6 +19,7 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
 
     case acknowledgeConsent
     case addedToConversation
+    case aiEnhanced
     case attachment
     case audioMessage
     case awaitingConsent

@@ -188,7 +188,7 @@ struct ConversationsPageReducer: Reducer {
 
             guard !refreshUsersIfNeeded() else { return .none }
 
-            state.conversations = conversations ?? state.conversations
+            state.conversations = conversations ?? state.conversations.filteredAndSorted
             state.isSearching = false
             state.searchQuery = ""
             core.utils.clearCaches([.queriedConversations])

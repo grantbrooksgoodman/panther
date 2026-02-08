@@ -43,13 +43,15 @@ enum PLISTGenerator {
 
     static func translate(
         text: String,
+        useEnhancedTranslation: Bool = false,
         completion: @escaping (Callback<String, Exception>) -> Void
     ) {
         Task {
             completion(
                 await translate(
                     text: text,
-                    toLanguages: .init(RuntimeStorage.languageCodeDictionary!.keys)
+                    toLanguages: .init(RuntimeStorage.languageCodeDictionary!.keys),
+                    useEnhancedTranslation: useEnhancedTranslation
                 )
             )
         }
@@ -58,7 +60,7 @@ enum PLISTGenerator {
     static func translate(
         text: String,
         toLanguages: [String],
-        useEnhancedTranslation: Bool = false
+        useEnhancedTranslation: Bool
     ) async -> Callback<String, Exception> {
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.networking.hostedTranslation) var hostedTranslator: HostedTranslationDelegate

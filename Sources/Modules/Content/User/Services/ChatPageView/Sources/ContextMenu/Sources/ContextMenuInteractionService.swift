@@ -6,7 +6,10 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
+import AudioToolbox
 import Foundation
 import UIKit
 
@@ -16,7 +19,6 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-// swiftlint:disable:next type_body_length
 final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
 
@@ -28,6 +30,7 @@ final class ContextMenuInteractionService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
+    @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -136,14 +139,13 @@ final class ContextMenuInteractionService {
 
     // MARK: - React to Selected Message
 
-    @objc
+    @MainActor @objc
     func reactToSelectedMessage(_ sender: Any) {
         guard !clientSession.reaction.isReactingToMessage else {
-            clientSession.reaction.addEffectUponIsReactingToMessage(
+            return clientSession.reaction.addEffectUponIsReactingToMessage(
                 changedTo: false,
                 id: .init("\(Int.random(in: 1 ... 1_000_000))")
             ) { self.reactToSelectedMessage(sender) }
-            return
         }
 
         guard let conversation = viewController.currentConversation else { return }
@@ -156,7 +158,10 @@ final class ContextMenuInteractionService {
 
             guard conversation.messages?.last?.id == message.id else { return }
             guard clientSession.reaction.isReactingToMessage else { return scrollToLastItem() }
-            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .scrollToLastItem) { scrollToLastItem() }
+            clientSession.reaction.addEffectUponIsReactingToMessage(
+                changedTo: false,
+                id: .scrollToLastItem
+            ) { scrollToLastItem() }
         }
 
         if let message = conversation.messages?.first(where: { $0.id == selectedMessageID }),
@@ -165,30 +170,58 @@ final class ContextMenuInteractionService {
            buttonText.components.count == 1,
            let reactionStyle = Reaction.Style(emojiValue: buttonText),
            let reaction = Reaction(reactionStyle) {
-            Task {
-                if let exception = await clientSession.reaction.react(reaction, to: message) {
-                    Logger.log(exception, with: .toast)
+            playReactionSound()
+            hapticsService.generateFeedback(.medium)
+
+            Task { @MainActor in
+                if let exception = await clientSession.reaction.react(
+                    reaction,
+                    to: message
+                ) {
+                    Logger.log(
+                        exception,
+                        with: .toast
+                    )
                 }
 
                 scrollToLastItemIfNeeded(message)
             }
         } else if let gestureRecognizer = sender as? UITapGestureRecognizer {
             let touchPoint = gestureRecognizer.location(in: viewController.messagesCollectionView)
-
-            guard let indexPath = viewController.messagesCollectionView.indexPathForItem(at: touchPoint),
-                  let selectedCell = viewController.messagesCollectionView.cellForItem(at: indexPath) as? MessageContentCell,
-                  let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
-                  !message.isConsentMessage,
-                  !clientSession.storage.atOrAboveDataUsageLimit else { return }
-
-            let convertedTouchPoint = viewController.messagesCollectionView.convert(touchPoint, to: selectedCell.messageContainerView)
-            guard selectedCell.messageContainerView.bounds.contains(convertedTouchPoint) else { return }
-            hapticsService.generateFeedback(.heavy)
-
             Task { @MainActor in
+                guard let indexPath = viewController
+                    .messagesCollectionView
+                    .indexPathForItem(at: touchPoint),
+                    let selectedCell = viewController
+                    .messagesCollectionView
+                    .cellForItem(at: indexPath) as? MessageContentCell,
+                    let message = viewController
+                    .currentConversation?
+                    .messages?
+                    .itemAt(indexPath.section),
+                    !message.isConsentMessage,
+                    !clientSession.storage.atOrAboveDataUsageLimit else { return }
+
+                let convertedTouchPoint = viewController.messagesCollectionView.convert(
+                    touchPoint,
+                    to: selectedCell.messageContainerView
+                )
+
+                guard selectedCell
+                    .messageContainerView
+                    .bounds
+                    .contains(convertedTouchPoint) else { return }
+
+                hapticsService.generateFeedback(.medium)
                 if let reaction = Reaction(.love),
-                   let exception = await self.clientSession.reaction.react(reaction, to: message) {
-                    Logger.log(exception, with: .toast)
+                   let exception = await self.clientSession.reaction.react(
+                       reaction,
+                       to: message
+                   ) {
+                    Logger.log(
+                        exception,
+                        with: .toast
+                    )
                 }
 
                 scrollToLastItemIfNeeded(message)
@@ -335,6 +368,21 @@ final class ContextMenuInteractionService {
         viewController.messagesCollectionView.indexPath(for: cell)
     }
 
+    private func playReactionSound() {
+        guard let url = mainBundle.url(
+            forResource: "Reaction",
+            withExtension: "caf"
+        ) else { return }
+
+        var soundID: SystemSoundID = 0
+        AudioServicesCreateSystemSoundID(
+            url as CFURL,
+            &soundID
+        )
+
+        AudioServicesPlaySystemSound(soundID)
+    }
+
     private func restoreSpeakingCellAttributes() {
         guard let speakingCell = chatPageViewService.contextMenu?.actionHandler.speakingCell as? TextMessageCell,
               let speakingMessage = chatPageViewService.contextMenu?.actionHandler.speakingMessage,
@@ -385,3 +433,5 @@ private extension UICollectionViewCell {
 private extension UIScrollView {
     var maxContentOffsetY: CGFloat { contentSize.height - bounds.height + contentInset.bottom }
 }
+
+// swiftlint:enable file_length type_body_length

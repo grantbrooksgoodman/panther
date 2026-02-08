@@ -467,6 +467,161 @@
 		<key>zh</key>
 		<string>⌘ 向对话中添加了 ⁂。</string>
 	</dict>
+	<key>ai_enhanced</key>
+	<dict>
+		<key>af</key>
+		<string>KI-versterk</string>
+		<key>ar</key>
+		<string>معزز بالذكاء الاصطناعي</string>
+		<key>az</key>
+		<string>Süni intellektlə gücləndirilmiş</string>
+		<key>be</key>
+		<string>Палепшаны штучным інтэлектам</string>
+		<key>bg</key>
+		<string>Подобрено с изкуствен интелект</string>
+		<key>bn</key>
+		<string>এআই-উন্নত</string>
+		<key>bs</key>
+		<string>Poboljšano umjetnom inteligencijom</string>
+		<key>ca</key>
+		<string>Millorat per IA</string>
+		<key>cs</key>
+		<string>Vylepšeno umělou inteligencí</string>
+		<key>cy</key>
+		<string>Wedi&apos;i wella gan AI</string>
+		<key>da</key>
+		<string>AI-forbedret</string>
+		<key>de</key>
+		<string>KI-gestützt</string>
+		<key>el</key>
+		<string>Βελτιωμένο με τεχνητή νοημοσύνη</string>
+		<key>en</key>
+		<string>AI-enhanced</string>
+		<key>eo</key>
+		<string>AI-plibonigita</string>
+		<key>es</key>
+		<string>Mejorado con IA</string>
+		<key>et</key>
+		<string>Tehisintellektiga täiustatud</string>
+		<key>eu</key>
+		<string>Adimen artifizialarekin hobetua</string>
+		<key>fa</key>
+		<string>هوش مصنوعی ارتقا یافته</string>
+		<key>fi</key>
+		<string>Tekoälyllä parannettu</string>
+		<key>fr</key>
+		<string>Amélioré par l&apos;IA</string>
+		<key>ga</key>
+		<string>Feabhsaithe ag AI</string>
+		<key>gd</key>
+		<string>Leasaichte le AI</string>
+		<key>gl</key>
+		<string>Mellorado por IA</string>
+		<key>gu</key>
+		<string>એઆઈ-ઉન્નત</string>
+		<key>he</key>
+		<string>משופר על ידי בינה מלאכותית</string>
+		<key>hi</key>
+		<string>AI-संवर्धित</string>
+		<key>hr</key>
+		<string>Poboljšano umjetnom inteligencijom</string>
+		<key>ht</key>
+		<string>Amelyore pa IA</string>
+		<key>hu</key>
+		<string>Mesterséges intelligencia által fejlesztett</string>
+		<key>hy</key>
+		<string>Արհեստական ​​բանականությամբ բարելավված</string>
+		<key>id</key>
+		<string>Ditingkatkan dengan AI</string>
+		<key>is</key>
+		<string>Gervigreindarbætt</string>
+		<key>it</key>
+		<string>Migliorato dall&apos;intelligenza artificiale</string>
+		<key>ja</key>
+		<string>AIによる強化</string>
+		<key>ka</key>
+		<string>Ხელოვნური ინტელექტით გაუმჯობესებული</string>
+		<key>kk</key>
+		<string>Жасанды интеллектпен жақсартылған</string>
+		<key>kn</key>
+		<string>AI- ವರ್ಧಿತ</string>
+		<key>ko</key>
+		<string>AI 기반</string>
+		<key>ky</key>
+		<string>Жасалма интеллект менен жакшыртылган</string>
+		<key>lt</key>
+		<string>Patobulinta dirbtinio intelekto pagalba</string>
+		<key>mg</key>
+		<string>Nohatsaraina tamin&apos;ny AI</string>
+		<key>mi</key>
+		<string>Whakarei ake i te AI</string>
+		<key>mk</key>
+		<string>Подобрено со вештачка интелигенција</string>
+		<key>ml</key>
+		<string>AI- മെച്ചപ്പെടുത്തിയത്</string>
+		<key>mn</key>
+		<string>Хиймэл оюун ухаанаар сайжруулсан</string>
+		<key>mt</key>
+		<string>Imtejjeb bl-AI</string>
+		<key>ne</key>
+		<string>एआई-बृद्धि गरिएको</string>
+		<key>nl</key>
+		<string>Verbeterd door AI</string>
+		<key>no</key>
+		<string>AI-forbedret</string>
+		<key>pa</key>
+		<string>ਏਆਈ-ਵਧਾਇਆ ਗਿਆ</string>
+		<key>pl</key>
+		<string>Ulepszone dzięki sztucznej inteligencji</string>
+		<key>pt</key>
+		<string>Aprimorado por IA</string>
+		<key>ro</key>
+		<string>Îmbunătățit cu inteligență artificială</string>
+		<key>ru</key>
+		<string>С использованием искусственного интеллекта</string>
+		<key>si</key>
+		<string>AI-වැඩිදියුණු කළ</string>
+		<key>sk</key>
+		<string>Vylepšené umelou inteligenciou</string>
+		<key>sl</key>
+		<string>Izboljšano z umetno inteligenco</string>
+		<key>sq</key>
+		<string>I përmirësuar me inteligjencë artificiale</string>
+		<key>sr</key>
+		<string>Побољшано вештачком интелигенцијом</string>
+		<key>su</key>
+		<string>AI-ditingkatkeun</string>
+		<key>sv</key>
+		<string>AI-förstärkt</string>
+		<key>sw</key>
+		<string>Imeboreshwa na AI</string>
+		<key>ta</key>
+		<string>AI மூலம் மேம்படுத்தப்பட்டது</string>
+		<key>te</key>
+		<string>AI-మెరుగుపరచబడింది</string>
+		<key>tg</key>
+		<string>Такмилёфтаи зеҳни сунъӣ</string>
+		<key>th</key>
+		<string>ปรับปรุงด้วย AI</string>
+		<key>tl</key>
+		<string>Pinahusay ng AI</string>
+		<key>tr</key>
+		<string>Yapay zeka ile geliştirilmiş</string>
+		<key>tt</key>
+		<string>Ясалма интеллект белән яхшыртылган</string>
+		<key>uk</key>
+		<string>Покращено штучним інтелектом</string>
+		<key>ur</key>
+		<string>AI بڑھا ہوا</string>
+		<key>uz</key>
+		<string>Sun&apos;iy intellekt bilan takomillashtirilgan</string>
+		<key>vi</key>
+		<string>Được tăng cường bởi trí tuệ nhân tạo</string>
+		<key>yi</key>
+		<string>קינסטלעך אינטעליגענץ-פארשטארקט</string>
+		<key>zh</key>
+		<string>人工智能增强</string>
+	</dict>
 	<key>attachment</key>
 	<dict>
 		<key>af</key>

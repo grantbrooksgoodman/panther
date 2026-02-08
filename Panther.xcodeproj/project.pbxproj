@@ -20,6 +20,8 @@
 		A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
+		A26C65E92F370002005BFDEC /* Reaction.caf in Resources */ = {isa = PBXBuildFile; fileRef = A26C65E82F370002005BFDEC /* Reaction.caf */; };
+		A26C65EB2F370030005BFDEC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26C65EA2F370030005BFDEC /* NotificationService.swift */; };
 		A26D734C2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */; };
 		A26D734E2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734D2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift */; };
 		A26D73502F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734F2F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift */; };
@@ -41,8 +43,6 @@
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
 		A2DF2C5B28199B670089DEA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C5A28199B670089DEA1 /* Assets.xcassets */; };
-		A2DF2C7328199C3C0089DEA1 /* Chime.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C7228199C3C0089DEA1 /* Chime.mp3 */; };
-		A2DF2C7628199C400089DEA1 /* Chord.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C7528199C400089DEA1 /* Chord.mp3 */; };
 		A2DF2CA128199CE20089DEA1 /* San Francisco (Heavy Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9528199CE20089DEA1 /* San Francisco (Heavy Italic).otf */; };
 		A2DF2CA228199CE20089DEA1 /* San Francisco (Bold Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9628199CE20089DEA1 /* San Francisco (Bold Italic).otf */; };
 		A2DF2CA328199CE20089DEA1 /* San Francisco (Heavy).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9728199CE20089DEA1 /* San Francisco (Heavy).otf */; };
@@ -56,6 +56,7 @@
 		A2DF2CAB28199CE20089DEA1 /* San Francisco (Bold).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */; };
 		A2DF2CAC28199CE20089DEA1 /* San Francisco (Light Italic).otf in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */; };
 		A2E494942EA98398009A1D62 /* UIViewController+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */; };
+		A2EDDB8A2F370DB7006B1D10 /* Selection.caf in Resources */ = {isa = PBXBuildFile; fileRef = A2EDDB892F370DB7006B1D10 /* Selection.caf */; };
 		A2FE37622EA7354000931829 /* MessageRetranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FE37612EA7354000931829 /* MessageRetranslationService.swift */; };
 		B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */; };
 		B90071D02B7B348200BE8654 /* RecipientBarActionHandlerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */; };
@@ -300,7 +301,6 @@
 		B991957F2B47CB4000BD5BBC /* InstructionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B991957E2B47CB4000BD5BBC /* InstructionView.swift */; };
 		B99195812B47CB6F00BD5BBC /* InstructionViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195802B47CB6F00BD5BBC /* InstructionViewStrings.swift */; };
 		B99195842B47D1D300BD5BBC /* OnboardingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195832B47D1D300BD5BBC /* OnboardingService.swift */; };
-		B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195872B47D76900BD5BBC /* NotificationService.swift */; };
 		B991958B2B47E03B00BD5BBC /* OnboardingServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B991958A2B47E03B00BD5BBC /* OnboardingServiceDependency.swift */; };
 		B991958D2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B991958C2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift */; };
 		B99195932B47E88400BD5BBC /* VerifyNumberPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99195922B47E88400BD5BBC /* VerifyNumberPageView.swift */; };
@@ -783,6 +783,8 @@
 		A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageCalculation.swift; sourceTree = "<group>"; };
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
+		A26C65E82F370002005BFDEC /* Reaction.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Reaction.caf; sourceTree = "<group>"; };
+		A26C65EA2F370030005BFDEC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+FeaturePermissionPageView.swift"; sourceTree = "<group>"; };
 		A26D734D2F2C7C9500D43FA1 /* FeaturePermissionPageViewConfiguration+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeaturePermissionPageViewConfiguration+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A26D734F2F2C7E4C00D43FA1 /* AIEnhancedTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancedTranslationService.swift; sourceTree = "<group>"; };
@@ -805,8 +807,6 @@
 		A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A2DF2C5A28199B670089DEA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2DF2C6228199B670089DEA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A2DF2C7228199C3C0089DEA1 /* Chime.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Chime.mp3; sourceTree = "<group>"; };
-		A2DF2C7528199C400089DEA1 /* Chord.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Chord.mp3; sourceTree = "<group>"; };
 		A2DF2C9528199CE20089DEA1 /* San Francisco (Heavy Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Heavy Italic).otf"; sourceTree = "<group>"; };
 		A2DF2C9628199CE20089DEA1 /* San Francisco (Bold Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Bold Italic).otf"; sourceTree = "<group>"; };
 		A2DF2C9728199CE20089DEA1 /* San Francisco (Heavy).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Heavy).otf"; sourceTree = "<group>"; };
@@ -820,6 +820,7 @@
 		A2DF2C9F28199CE20089DEA1 /* San Francisco (Bold).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Bold).otf"; sourceTree = "<group>"; };
 		A2DF2CA028199CE20089DEA1 /* San Francisco (Light Italic).otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "San Francisco (Light Italic).otf"; sourceTree = "<group>"; };
 		A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+CommonExtensions.swift"; sourceTree = "<group>"; };
+		A2EDDB892F370DB7006B1D10 /* Selection.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Selection.caf; sourceTree = "<group>"; };
 		A2FE37612EA7354000931829 /* MessageRetranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRetranslationService.swift; sourceTree = "<group>"; };
 		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStatusBarStyle+CommonExtensions.swift"; sourceTree = "<group>"; };
@@ -1137,7 +1138,6 @@
 		B991957E2B47CB4000BD5BBC /* InstructionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionView.swift; sourceTree = "<group>"; };
 		B99195802B47CB6F00BD5BBC /* InstructionViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionViewStrings.swift; sourceTree = "<group>"; };
 		B99195832B47D1D300BD5BBC /* OnboardingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingService.swift; sourceTree = "<group>"; };
-		B99195872B47D76900BD5BBC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B991958A2B47E03B00BD5BBC /* OnboardingServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingServiceDependency.swift; sourceTree = "<group>"; };
 		B991958C2B47E12300BD5BBC /* AppConstants+SelectLanguagePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SelectLanguagePageView.swift"; sourceTree = "<group>"; };
 		B99195922B47E88400BD5BBC /* VerifyNumberPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyNumberPageView.swift; sourceTree = "<group>"; };
@@ -1667,8 +1667,8 @@
 		A2DF2C7128199C260089DEA1 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				A2DF2C7228199C3C0089DEA1 /* Chime.mp3 */,
-				A2DF2C7528199C400089DEA1 /* Chord.mp3 */,
+				A26C65E82F370002005BFDEC /* Reaction.caf */,
+				A2EDDB892F370DB7006B1D10 /* Selection.caf */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -2439,7 +2439,7 @@
 				B90285E82DB70442006DD790 /* MessageRecipientConsentService.swift */,
 				A2FE37612EA7354000931829 /* MessageRetranslationService.swift */,
 				B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */,
-				B99195872B47D76900BD5BBC /* NotificationService.swift */,
+				A26C65EA2F370030005BFDEC /* NotificationService.swift */,
 				B92FC6B62D1B94AA006E91C0 /* PenPalsService.swift */,
 				B9E6D7CB2B1284EC000BC88D /* PermissionService.swift */,
 				B9E6D7B22B126188000BC88D /* PhoneNumberService.swift */,
@@ -3701,6 +3701,7 @@
 				B9D0D8F72B0300B100078A93 /* vi.png in Resources */,
 				B9D0D8242B0300B000078A93 /* bg.png in Resources */,
 				B9D0D8462B0300B000078A93 /* lk.png in Resources */,
+				A26C65E92F370002005BFDEC /* Reaction.caf in Resources */,
 				B9D0D8C42B0300B000078A93 /* ua.png in Resources */,
 				B9D0D82D2B0300B000078A93 /* za.png in Resources */,
 				B9D0D88F2B0300B000078A93 /* ca.png in Resources */,
@@ -3777,7 +3778,6 @@
 				B9D0D8162B0300B000078A93 /* na.png in Resources */,
 				B9D0D8A62B0300B000078A93 /* ie.png in Resources */,
 				B9D0D8212B0300B000078A93 /* xk.png in Resources */,
-				A2DF2C7328199C3C0089DEA1 /* Chime.mp3 in Resources */,
 				B9D0D8EE2B0300B100078A93 /* to.png in Resources */,
 				B9D0D8FA2B0300B100078A93 /* pe.png in Resources */,
 				B9D0D9022B0300B100078A93 /* mr.png in Resources */,
@@ -3786,7 +3786,6 @@
 				A2DF2CA828199CE20089DEA1 /* San Francisco (Semibold).otf in Resources */,
 				B9D0D8A42B0300B000078A93 /* mn.png in Resources */,
 				B9D0D8422B0300B000078A93 /* nf.png in Resources */,
-				A2DF2C7628199C400089DEA1 /* Chord.mp3 in Resources */,
 				B9D0D8BE2B0300B000078A93 /* gn.png in Resources */,
 				B9D0D8492B0300B000078A93 /* ws.png in Resources */,
 				B9D0D89E2B0300B000078A93 /* dj.png in Resources */,
@@ -3882,6 +3881,7 @@
 				B9D0D88E2B0300B000078A93 /* kh.png in Resources */,
 				B9D0D8EB2B0300B100078A93 /* bt.png in Resources */,
 				B9D0D89A2B0300B000078A93 /* ke.png in Resources */,
+				A2EDDB8A2F370DB7006B1D10 /* Selection.caf in Resources */,
 				B9D0D8D82B0300B100078A93 /* re.png in Resources */,
 				B9D0D8CC2B0300B100078A93 /* kz.png in Resources */,
 				B9D0D81C2B0300B000078A93 /* kg.png in Resources */,
@@ -4094,6 +4094,7 @@
 				B98FA6332D8E1F9C00EE7024 /* PenPalsSharingData+UserContentExtensions.swift in Sources */,
 				B906C0132C470A2100F414DA /* ModerationType.swift in Sources */,
 				B93BD4F62C90399F00E8D242 /* Application.swift in Sources */,
+				A26C65EB2F370030005BFDEC /* NotificationService.swift in Sources */,
 				B947F2D92CAC8085004CD880 /* UserContentContainerReducer.swift in Sources */,
 				B98D30A92E7DF6F700B36D1B /* DevModeActions+Breadcrumbs.swift in Sources */,
 				B96969232B1829B100ADA875 /* Persistent+CommonExtensions.swift in Sources */,
@@ -4386,7 +4387,6 @@
 				B9CFA7FF2D99C6CB0075E02D /* ReactionDetailsPageReducer.swift in Sources */,
 				B9CFA7FD2D99C6C20075E02D /* ReactionDetailsPageView.swift in Sources */,
 				B9F47AEC2B576F3B00D86C67 /* ConversationsPageViewStrings.swift in Sources */,
-				B99195882B47D76900BD5BBC /* NotificationService.swift in Sources */,
 				B99B1DBA29E4C2AF00117D42 /* CustomColors.swift in Sources */,
 				B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */,
 				B9DEB7B42C1CE93F0098DAAB /* ConnectionStatusServiceEffectID.swift in Sources */,

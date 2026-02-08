@@ -23,22 +23,33 @@ struct NotificationService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.commonServices.regionDetail) var regionDetailService: RegionDetailService
+    @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.urlSession) private var urlSession: URLSession
     @Dependency(\.userNotificationCenter) private var userNotificationCenter: UNUserNotificationCenter
 
     // MARK: - Set Badge Number
 
-    func setBadgeNumber(_ badgeNumber: Int, updateHostedValue: Bool = true) async -> Exception? {
+    func setBadgeNumber(
+        _ badgeNumber: Int,
+        updateHostedValue: Bool = true
+    ) async -> Exception? {
         do {
-            try await userNotificationCenter.setBadgeCount(badgeNumber < 0 ? 0 : badgeNumber)
+            try await userNotificationCenter.setBadgeCount(
+                badgeNumber < 0 ? 0 : badgeNumber
+            )
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            return .init(
+                error,
+                metadata: .init(sender: self)
+            )
         }
 
         guard updateHostedValue,
               let currentUser = clientSession.user.currentUser else { return nil }
-        return await updateHostedBadgeNumber(badgeNumber < 0 ? 0 : badgeNumber, user: currentUser)
+        return await updateHostedBadgeNumber(
+            badgeNumber < 0 ? 0 : badgeNumber,
+            user: currentUser
+        )
     }
 
     // MARK: - Notify Users of Message
@@ -69,7 +80,9 @@ struct NotificationService {
                     conversationIDKey: conversationIDKey,
                     isReaction: false
                 ) {
-                    guard !exception.isEqual(to: .notRegisteredForPushNotifications) else { continue }
+                    guard !exception.isEqual(
+                        to: .notRegisteredForPushNotifications
+                    ) else { continue }
                     return exception
                 }
             }
@@ -78,7 +91,10 @@ struct NotificationService {
         }
 
         for user in users {
-            let reactedString = Localized(.reacted, languageCode: user.languageCode).wrappedValue
+            let reactedString = Localized(
+                .reacted,
+                languageCode: user.languageCode
+            ).wrappedValue
             let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
             let title = "\(titlePrefix) \(reactedString) \(reaction.style.emojiValue)"
 
@@ -95,7 +111,9 @@ struct NotificationService {
                 conversationIDKey: conversationIDKey,
                 isReaction: true
             ) {
-                guard !exception.isEqual(to: .notRegisteredForPushNotifications) else { continue }
+                guard !exception.isEqual(
+                    to: .notRegisteredForPushNotifications
+                ) else { continue }
                 return exception
             }
         }
@@ -105,7 +123,10 @@ struct NotificationService {
 
     // MARK: - Notify of Prevarication Mode Analytics Event
 
-    func notifyOfPrevaricationModeAnalyticsEvent(_ title: String, body: String) async -> Exception? {
+    func notifyOfPrevaricationModeAnalyticsEvent(
+        _ title: String,
+        body: String
+    ) async -> Exception? {
         let getValuesResult = await networking.database.getValues(
             at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)",
             prependingEnvironment: false
@@ -114,12 +135,17 @@ struct NotificationService {
         switch getValuesResult {
         case let .success(values):
             guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
+                return .Networking.typecastFailed(
+                    "dictionary",
+                    metadata: .init(sender: self)
+                )
             }
 
             let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in
                 if let userData = keyPair.value as? [String: Any],
-                   let pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
+                   let pushTokens = userData[
+                       User.SerializationKeys.pushTokens.rawValue
+                   ] as? [String],
                    !pushTokens.isBangQualifiedEmpty {
                     partialResult.append(contentsOf: pushTokens)
                 }
@@ -132,11 +158,13 @@ struct NotificationService {
                     body: body,
                     badgeNumber: 0,
                     pushToken: pushToken,
-                    userInfo: [:]
+                    userInfo: [:],
+                    isReaction: false
                 ) {
                     exceptions.append(exception)
                 }
             }
+
             return exceptions.compiledException
 
         case let .failure(exception):
@@ -148,8 +176,9 @@ struct NotificationService {
 
     @MainActor
     func respondToInAppNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
+        let notificationContent = notification.request.content
         Logger.log(
-            "Received notification.\n\"\(notification.request.content.body)\"",
+            "Received notification.\n\"\(notificationContent.body)\"",
             domain: .notifications,
             sender: self
         )
@@ -162,8 +191,9 @@ struct NotificationService {
             ))
         }
 
-        guard let conversationIDKey = notification.request.content.userInfo["conversationIDKey"] as? String,
-              let recipientUserID = notification.request.content.userInfo["recipientUserID"] as? String else {
+        guard let conversationIDKey = notificationContent.userInfo["conversationIDKey"] as? String,
+              let isReactionString = notificationContent.userInfo["isReaction"] as? String,
+              let recipientUserID = notificationContent.userInfo["recipientUserID"] as? String else {
             return .failure(.init(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
@@ -178,28 +208,36 @@ struct NotificationService {
             ))
         }
 
-        guard let conversationIDKeys = currentUser.conversations?.visibleForCurrentUser.map({ $0.id.key }),
-              conversationIDKeys.contains(conversationIDKey) else {
+        guard let conversation = networking
+            .conversationService
+            .archive
+            .getValue(idKey: conversationIDKey),
+            conversation.isVisibleForCurrentUser else {
             return .failure(.init(
-                "Current user is not participating in the conversation associated with this notification.",
+                "Conversation associated with this notification is not visible to the current user.",
                 isReportable: false,
                 metadata: .init(sender: self)
             ))
         }
 
-        guard clientSession.conversation.currentConversation?.id.key != conversationIDKey else { return .success([.sound]) }
+        guard !(
+            chatPageState.isPresented && clientSession
+                .conversation
+                .currentConversation?
+                .id
+                .key == conversationIDKey
+        ) else {
+            guard isReactionString == "true" else { return .success([]) }
+            services.haptics.generateFeedback(.medium)
+            return .success([])
+        }
 
         let toast: Toast = .init(
             .capsule(),
-            title: notification.request.content.title.isBlank ? nil : notification.request.content.title,
-            message: notification.request.content.body,
+            title: notificationContent.title.isBlank ? nil : notificationContent.title,
+            message: notificationContent.body,
             perpetuation: .ephemeral(.seconds(5))
         )
-
-        guard let conversation = currentUser.conversations?.first(where: { $0.id.key == conversationIDKey }) else {
-            Toast.show(toast)
-            return .success([.sound])
-        }
 
         Toast.show(toast) {
             @Dependency(\.navigation) var navigation: Navigation
@@ -208,7 +246,10 @@ struct NotificationService {
             }
 
             navigation.navigate(to: .userContent(.stack([])))
-            self.chatPageState.addEffectUponIsPresented(changedTo: false, id: .deeplinkToOtherChat) {
+            self.chatPageState.addEffectUponIsPresented(
+                changedTo: false,
+                id: .deeplinkToOtherChat
+            ) {
                 navigation.navigate(to: .userContent(.push(.chat(conversation))))
             }
         }
@@ -231,16 +272,26 @@ struct NotificationService {
 
             guard let accessToken = String(data: dataResult.0, encoding: .utf8),
                   let urlResponse = dataResult.1 as? HTTPURLResponse,
-                  urlResponse.statusCode == 200 else {
+                  (200 ..< 300).contains(urlResponse.statusCode) else {
                 return .failure(.init(
                     "Failed to decode URL response or status did not indicate success.",
+                    userInfo: [
+                        "ResponseBody": String(
+                            data: dataResult.0,
+                            encoding: .utf8
+                        ) ?? "<non-utf8>",
+                        "URLResponseCode": (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1,
+                    ],
                     metadata: .init(sender: self)
                 ))
             }
 
             return .success(accessToken)
         } catch {
-            return .failure(.init(error, metadata: .init(sender: self)))
+            return .failure(.init(
+                error,
+                metadata: .init(sender: self)
+            ))
         }
     }
 
@@ -271,14 +322,12 @@ struct NotificationService {
             }
 
             if let translations = message.translations {
-                body = translations
+                body = (translations
                     .first(where: { $0.languagePair.to == user.languageCode })?
-                    .output
-                    .sanitized ?? translations
+                    .output ?? translations
                     .first(where: { $0.languagePair.from == user.languageCode })?
                     .input
-                    .value
-                    .sanitized
+                    .value)?.sanitized
             }
         }
 
@@ -302,7 +351,10 @@ struct NotificationService {
         }
 
         let newBadgeNumber = await user.hostedBadgeNumber + 1
-        if let exception = await updateHostedBadgeNumber(newBadgeNumber, user: user) {
+        if let exception = await updateHostedBadgeNumber(
+            newBadgeNumber,
+            user: user
+        ) {
             return exception
         }
 
@@ -325,7 +377,8 @@ struct NotificationService {
                     "isReaction": isReaction ? "true" : "false",
                     "recipientUserID": user.id,
                     "userNumberHash": userNumberHash,
-                ]
+                ],
+                isReaction: isReaction
             ) {
                 return exception.appending(userInfo: userInfo)
             }
@@ -336,19 +389,21 @@ struct NotificationService {
 
     private func penPalsName(for otherUser: User) -> String {
         guard let currentUser = clientSession.user.currentUser else { return "PenPal" }
-        let localizedRegionName = regionDetailService.localizedRegionName(
+        let localizedRegionName = services.regionDetail.localizedRegionName(
             regionCode: currentUser.phoneNumber.regionCode,
             languageCode: otherUser.languageCode
         )
         return otherUser.languageCode == "en" ? "PenPal from \(localizedRegionName)" : "PenPal (\(localizedRegionName))"
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func sendNotification(
         title: String,
         body: String,
         badgeNumber: Int,
         pushToken: String,
-        userInfo: [String: String]
+        userInfo: [String: String],
+        isReaction: Bool
     ) async -> Exception? {
         let generateAccessTokenResult = await generateAccessToken()
 
@@ -364,18 +419,30 @@ struct NotificationService {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
 
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+            request.setValue(
+                "application/json",
+                forHTTPHeaderField: "Content-Type"
+            )
+
+            request.setValue(
+                "Bearer \(accessToken)",
+                forHTTPHeaderField: "Authorization"
+            )
 
             var notificationParameters = ["title": title]
             if !body.isBangQualifiedEmpty { notificationParameters["body"] = body }
 
             let payload: [String: Any] = [
                 "message": [
-                    "apns": ["payload": ["aps": [
-                        "badge": badgeNumber,
-                        "mutable-content": 1,
-                    ]]],
+                    "apns": [
+                        "payload": [
+                            "aps": [
+                                "badge": badgeNumber,
+                                "mutable-content": 1,
+                                "sound": isReaction ? "Reaction.caf" : "default",
+                            ],
+                        ],
+                    ],
                     "data": userInfo,
                     "notification": notificationParameters,
                     "token": pushToken,
@@ -387,16 +454,28 @@ struct NotificationService {
                 let dataResult = try await urlSession.data(for: request)
 
                 guard let urlResponse = dataResult.1 as? HTTPURLResponse,
-                      urlResponse.statusCode == 200 else {
+                      (200 ..< 300).contains(urlResponse.statusCode) else {
+                    let responseBody = String(
+                        data: dataResult.0,
+                        encoding: .utf8
+                    ) ?? "<non-utf8>"
+                    let responseCode = (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1
                     return .init(
                         "Failed to decode URL response or status did not indicate success.",
+                        userInfo: [
+                            "ResponseBody": responseBody,
+                            "URLResponseCode": responseCode,
+                        ],
                         metadata: .init(sender: self)
                     )
                 }
 
                 return nil
             } catch {
-                return .init(error, metadata: .init(sender: self))
+                return .init(
+                    error,
+                    metadata: .init(sender: self)
+                )
             }
 
         case let .failure(exception):

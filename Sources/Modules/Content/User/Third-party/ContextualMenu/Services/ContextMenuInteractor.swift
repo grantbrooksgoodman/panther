@@ -7,6 +7,7 @@
 //
 
 /* Native */
+import AudioToolbox
 import Foundation
 import UIKit
 
@@ -17,6 +18,8 @@ final class ContextMenuInteractor {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu) private var contextMenuService: ContextMenuService?
+    @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
+    @Dependency(\.mainBundle) private var mainBundle: Bundle
 
     // MARK: - Properties
 
@@ -126,6 +129,21 @@ final class ContextMenuInteractor {
 
     // MARK: - Auxiliary
 
+    private func playSelectionSound() {
+        guard let url = mainBundle.url(
+            forResource: "Selection",
+            withExtension: "caf"
+        ) else { return }
+
+        var soundID: SystemSoundID = 0
+        AudioServicesCreateSystemSoundID(
+            url as CFURL,
+            &soundID
+        )
+
+        AudioServicesPlaySystemSound(soundID)
+    }
+
     private func restoreWindow() {
         window.rootViewController = nil
         window.isHidden = true
@@ -155,7 +173,8 @@ final class ContextMenuInteractor {
         window.windowScene = viewOriginalWindow?.windowScene
         window.rootViewController = contextMenuController
 
-        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        playSelectionSound()
+        hapticsService.generateFeedback(.heavy)
 
         window.makeKeyAndVisible()
         contextMenuController.appearAnimation()
