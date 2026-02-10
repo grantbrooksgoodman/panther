@@ -54,7 +54,7 @@ enum UserCache {
             usersFromConversationArchive +
             usersFromCurrentConversation +
             usersFromCurrentUserConversations +
-            usersFromUnknownContactPairArchive).unique
+            usersFromUnknownContactPairArchive).uniquedByID
 
         _UserCache.cachedUsers = uniqueUsers
         return uniqueUsers

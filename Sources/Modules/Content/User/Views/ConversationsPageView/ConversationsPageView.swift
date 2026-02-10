@@ -87,6 +87,9 @@ struct ConversationsPageView: View {
                                     .pulledToRefresh,
                                     while: \.isRefreshing
                                 )
+                            } // NIT: Not sure why this works to restore the refresh control.
+                            .if(UIApplication.isFullyV26Compatible) {
+                                $0.background(EmptyUIView())
                             }
                         }
                         .searchable(

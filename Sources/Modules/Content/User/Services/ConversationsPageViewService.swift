@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 /* Native */
 import Foundation
 import UIKit
@@ -14,6 +16,23 @@ import UIKit
 import AlertKit
 import AppSubsystem
 import Networking
+
+struct ConversationSource {
+    // MARK: - Properties
+
+    let name: String
+    let conversations: [Conversation]
+
+    // MARK: - Init
+
+    init(
+        _ name: String,
+        conversations: [Conversation]
+    ) {
+        self.name = name
+        self.conversations = conversations
+    }
+}
 
 // swiftlint:disable:next type_body_length
 final class ConversationsPageViewService {
@@ -65,7 +84,7 @@ final class ConversationsPageViewService {
 
         core.gcd.after(.milliseconds(500)) {
             StatusBar.overrideStyle(.appAware)
-            self.fixInitialSearchBarAppearance()
+            self.fixSearchBarAppearance()
         }
 
         Task {
@@ -214,6 +233,7 @@ final class ConversationsPageViewService {
         Task { @MainActor in
             NavigationBar.setAppearance(.conversationsPageView)
             StatusBar.overrideStyle(.appAware)
+            fixSearchBarAppearance()
         }
     }
 
@@ -306,13 +326,97 @@ final class ConversationsPageViewService {
         }
     }
 
+    /// `.reloadDataReturned(.success)`
+    /// `.updatedCurrentUser`
+    /// `.viewAppeared`
+    func updateConversationsList(
+        with providedConversations: [Conversation]? = nil,
+        state: inout ConversationsPageReducer.State
+    ) {
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        let currentStateConversations = state.conversations
+        let currentUserConversations = clientSession.user.currentUser?.conversations
+
+        let dataSources: [ConversationSource] = [
+            ConversationSource(
+                "provided conversations",
+                conversations: providedConversations ?? []
+            ),
+            ConversationSource(
+                "current user conversations",
+                conversations: currentUserConversations ?? []
+            ),
+            ConversationSource(
+                "current state conversations",
+                conversations: currentStateConversations
+            ),
+            ConversationSource(
+                "conversation archive",
+                conversations: conversationArchive ?? []
+            ),
+        ]
+        .map {
+            .init(
+                $0.name,
+                conversations: $0.conversations.filteredAndSorted.map(\.injectingCachedUsers)
+            )
+        }
+        .filter { !$0.conversations.isEmpty }
+
+        let currentUserConversationHashes = Set(
+            clientSession
+                .user
+                .currentUser?
+                .conversationIDs?
+                .compactMap(\.hash) ?? []
+        )
+
+        guard !currentUserConversationHashes.isEmpty else { return }
+        guard let bestCandidate = dataSources.bestAligned(
+            with: currentUserConversationHashes,
+            andMatchingPredicate: \.isWellFormed
+        ) else {
+            return Logger.log(
+                .init(
+                    "No conversation data source was well-formed.",
+                    metadata: .init(sender: self),
+                ),
+                domain: .conversation,
+                with: .toastInPrerelease
+            )
+        }
+
+        if build.milestone != .generalRelease,
+           bestCandidate.name != "provided conversations",
+           bestCandidate.name != "current user conversations" {
+            Toast.hide()
+            Logger.log(
+                "Best candidate was \(bestCandidate.name).",
+                domain: .conversation,
+                with: .toastInPrerelease(
+                    style: .warning,
+                    isPersistent: false
+                ),
+                sender: self
+            )
+        }
+
+        state.conversations = bestCandidate.conversations
+    }
+
     // MARK: - Auxiliary
 
     /// - NOTE: Fixes a bug in which upon the initial appearance of the view (in iOS 26 GM), the search bar background would not render properly.
-    private func fixInitialSearchBarAppearance() {
+    private func fixSearchBarAppearance() {
         guard UIApplication.isFullyV26Compatible else { return }
-        var searchBarTextFieldBackgroundColor: UIColor { .init(hex: ThemeService.isDarkModeActive ? 0x1F1F1F : 0xF5F5F5) }
-        uiApplication.presentedViews
+        var searchBarTextFieldBackgroundColor: UIColor {
+            .init(
+                hex: ThemeService.isDarkModeActive ? 0x1F1F1F : 0xF5F5F5
+            )
+        }
+
+        uiApplication
+            .presentedViews
             .filter {
                 $0.descriptor == "UISearchBarTextField" &&
                     $0.backgroundColor != searchBarTextFieldBackgroundColor
@@ -365,3 +469,104 @@ final class ConversationsPageViewService {
         core.gcd.after(.milliseconds(10)) { self.startSettingSearchBarAppearance() }
     }
 }
+
+extension Conversation: Validatable {
+    var isWellFormed: Bool {
+        guard !id.key.isBlank,
+              !id.hash.isBlank else { return false }
+
+        if isVisibleForCurrentUser {
+            guard let messages,
+                  !messages.isEmpty,
+                  messages.filteringSystemMessages.count == messageIDs.count,
+                  let users,
+                  !users.isEmpty else { return false }
+        }
+
+        return true
+    }
+}
+
+private extension Array where Element == ConversationSource {
+    func bestAligned(
+        with canonicalHashes: Set<String>,
+        andMatchingPredicate predicate: (Conversation) -> Bool
+    ) -> ConversationSource? {
+        func score(_ source: ConversationSource) -> (Int, Int) {
+            let sourceHashes = Set(source.conversations.map(\.id.hash))
+
+            let intersectingHashes = sourceHashes.intersection(canonicalHashes).count
+            let extraHashes = sourceHashes.subtracting(canonicalHashes).count
+            let missingHashes = canonicalHashes.subtracting(sourceHashes).count
+
+            let countMatchingPredicate = source
+                .conversations
+                .lazy
+                .filter(predicate)
+                .count
+
+            let alignmentScore = (intersectingHashes * 10) -
+                (extraHashes * 50) -
+                (missingHashes * 10)
+
+            return (alignmentScore, countMatchingPredicate)
+        }
+
+        guard let first else { return nil }
+        var bestCandidate = first
+        var bestScore = score(first)
+
+        defer { Logger.closeStream(domain: .conversation) }
+        Logger.openStream(
+            message: "Alignment score for \(first.name): \(bestScore.0 + bestScore.1)",
+            domain: .conversation,
+            sender: self
+        )
+
+        for dataSource in dropFirst() {
+            let alignmentScore = score(dataSource)
+            Logger.logToStream(
+                "Alignment score for \(dataSource.name): \(alignmentScore.0 + alignmentScore.1)",
+                domain: .conversation,
+                line: #line
+            )
+
+            guard alignmentScore > bestScore else { continue }
+            bestScore = alignmentScore
+            bestCandidate = dataSource
+        }
+
+        return bestCandidate
+    }
+}
+
+private extension Conversation {
+    var injectingCachedUsers: Conversation {
+        guard isVisibleForCurrentUser,
+              (users?.count ?? 0) == 0 else { return self }
+
+        let participantUserIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
+        let resolvedUsers = UserCache.knownUsers.reduce(into: [User]()) { partialResult, user in
+            if participantUserIDs.contains(user.id) {
+                partialResult.append(user)
+            }
+        }.uniquedByID
+
+        guard resolvedUsers.map(\.id).containsAllStrings(
+            in: participantUserIDs
+        ) else { return self }
+
+        return .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: resolvedUsers
+        )
+    }
+}
+
+// swiftlint:enable file_length

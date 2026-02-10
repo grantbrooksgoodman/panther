@@ -41,6 +41,7 @@ struct ConversationCellReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
+        let conversation: Conversation
         let subtitleLabelTextForegroundColor: Color = .init(
             uiColor: .subtitleText.lighter(
                 by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
@@ -49,7 +50,6 @@ struct ConversationCellReducer: Reducer {
 
         @Localized(.blockUser) var blockUsersButtonText: String
         var cellViewData: ConversationCellViewData = .empty
-        var conversation: Conversation
         @Localized(.delete) var deleteConversationButtonText: String
         @Localized(.reportUser) var reportUsersButtonText: String
 

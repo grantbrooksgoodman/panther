@@ -17,6 +17,7 @@ import Networking
 struct ConversationsPageReducer: Reducer {
     // MARK: - Dependencies
 
+    // TODO: Audit continued necessity of the below dependency.
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
@@ -84,8 +85,8 @@ struct ConversationsPageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.viewState = .loading
-            state.conversations = conversations ?? []
 
+            viewService.updateConversationsList(state: &state)
             viewService.viewAppeared()
 
             return .task {
@@ -128,7 +129,10 @@ struct ConversationsPageReducer: Reducer {
 
         case let .reloadDataReturned(.success(conversations)):
             state.isRefreshing = false
-            state.conversations = conversations.filteredAndSorted
+            viewService.updateConversationsList(
+                with: conversations,
+                state: &state
+            )
 
         case let .reloadDataReturned(.failure(exception)):
             state.isRefreshing = false
@@ -151,7 +155,7 @@ struct ConversationsPageReducer: Reducer {
 
             defer { state.conversationCellViewID = UUID() }
             guard !searchQuery.isEmpty else {
-                state.conversations = conversations ?? state.conversations
+                viewService.updateConversationsList(state: &state)
                 return .none
             }
 
@@ -188,7 +192,7 @@ struct ConversationsPageReducer: Reducer {
 
             guard !refreshUsersIfNeeded() else { return .none }
 
-            state.conversations = conversations ?? state.conversations.filteredAndSorted
+            viewService.updateConversationsList(state: &state)
             state.isSearching = false
             state.searchQuery = ""
             core.utils.clearCaches([.queriedConversations])

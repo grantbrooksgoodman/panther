@@ -191,7 +191,8 @@ extension CoreKit.Utilities {
             ).get()) == true,
                 let exception = await networking.storage.deleteAllItems(
                     at: NetworkPath.audioMessageInputs.rawValue,
-                    includeItemsInSubdirectories: true
+                    includeItemsInSubdirectories: true,
+                    timeout: .seconds(600)
                 ) {
                 return exception
             }
@@ -202,7 +203,8 @@ extension CoreKit.Utilities {
             ).get()) == true,
                 let exception = await networking.storage.deleteAllItems(
                     at: NetworkPath.media.rawValue,
-                    includeItemsInSubdirectories: true
+                    includeItemsInSubdirectories: true,
+                    timeout: .seconds(600)
                 ) {
                 return exception
             }

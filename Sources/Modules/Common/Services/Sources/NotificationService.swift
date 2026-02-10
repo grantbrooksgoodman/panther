@@ -250,6 +250,7 @@ struct NotificationService {
                 changedTo: false,
                 id: .deeplinkToOtherChat
             ) {
+                Application.dismissSheets()
                 navigation.navigate(to: .userContent(.push(.chat(conversation))))
             }
         }
@@ -295,7 +296,10 @@ struct NotificationService {
         }
     }
 
-    private func notificationBody(for message: Message, user: User) -> String? {
+    private func notificationBody(
+        for message: Message,
+        user: User
+    ) -> String? {
         var body: String?
 
         switch message.contentType {
@@ -483,7 +487,10 @@ struct NotificationService {
         }
     }
 
-    private func updateHostedBadgeNumber(_ badgeNumber: Int? = nil, user: User) async -> Exception? {
+    private func updateHostedBadgeNumber(
+        _ badgeNumber: Int? = nil,
+        user: User
+    ) async -> Exception? {
         switch user.id == User.currentUserID {
         case true:
             var newBadgeNumber = badgeNumber

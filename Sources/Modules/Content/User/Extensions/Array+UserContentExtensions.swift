@@ -71,6 +71,7 @@ extension Array where Element == Conversation {
     /// sorted by latest message sent date, and hydrated with system messages.
     var filteredAndSorted: [Conversation] {
         visibleForCurrentUser
+            .map(\.filteringSystemMessages)
             .sortedByLatestMessageSentDate
             .unique
             .map(\.withHydratedMessages)
@@ -189,5 +190,12 @@ extension Array where Element == String {
         }
 
         return alphabetical.sorted() + notAlphabetical.sorted()
+    }
+}
+
+extension Array where Element == User {
+    var uniquedByID: [User] {
+        var set = Set<String>()
+        return filter { set.insert($0.id).inserted }
     }
 }

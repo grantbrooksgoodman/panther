@@ -120,13 +120,6 @@ struct ReactionDetailsPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == User {
-    var uniquedByID: [User] {
-        var set = Set<String>()
-        return filter { set.insert($0.id).inserted }
-    }
-}
-
 private extension User {
     var reactionDisplayName: String {
         id == User.currentUserID ? Localized(.you).wrappedValue : displayName
