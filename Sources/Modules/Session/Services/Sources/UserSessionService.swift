@@ -343,6 +343,7 @@ final class UserSessionService {
                     delay: .seconds(5),
                     priority: .utility
                 ) {
+                    self.core.utils.clearCaches([.user])
                     _ = await self.storageSession.getCurrentUserDataUsage()
                 }
 

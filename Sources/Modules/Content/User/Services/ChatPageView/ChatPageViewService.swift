@@ -146,15 +146,15 @@ final class ChatPageViewService {
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(Floats.scrollDelayMilliseconds)) {
-                if let focusedMessageID = self.configuration.focusedMessageID {
-                    self.viewController?.messagesCollectionView.scrollTo(
+            core.gcd.after(.milliseconds(Floats.scrollDelayMilliseconds)) { [weak self] in
+                if let focusedMessageID = self?.configuration.focusedMessageID {
+                    self?.viewController?.messagesCollectionView.scrollTo(
                         messageID: focusedMessageID,
                         at: .centeredVertically,
                         animated: false
                     )
                 } else {
-                    self.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+                    self?.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
                 }
             }
             return
@@ -182,13 +182,13 @@ final class ChatPageViewService {
             UIView.animate(
                 withDuration: Floats.inputBarAppearanceAnimationDuration,
                 delay: Floats.inputBarAppearanceAnimationDuration
-            ) {
-                self.viewController?.messageInputBar.alpha = 1
+            ) { [weak self] in
+                self?.viewController?.messageInputBar.alpha = 1
             }
         }
 
-        services.connectionStatus.addEffectUponConnectionChanged(id: .configureInputBar) {
-            self.inputBar?.configureInputBar(forceUpdate: true)
+        services.connectionStatus.addEffectUponConnectionChanged(id: .configureInputBar) { [weak self] in
+            self?.inputBar?.configureInputBar(forceUpdate: true)
         }
 
         Task {
@@ -304,23 +304,44 @@ final class ChatPageViewService {
         }
     }
 
-    func reloadItemsWhenSafe(at indexPaths: [IndexPath]) {
-        func reloadItems() {
-            Task { @MainActor in
-                guard let viewController,
-                      chatPageState.isPresented else { return }
-                let indexPaths = indexPaths.filter { !viewController.isSectionReservedForTypingIndicator($0.section) }
-                guard !indexPaths.isEmpty else { return }
-                viewController.messagesCollectionView.reloadItems(at: indexPaths)
-            }
-        }
-
+    @MainActor
+    func reloadItemsWhenSafe(
+        at indexPaths: [IndexPath],
+        animated isAnimated: Bool = true
+    ) {
         if clientSession.reaction.isReactingToMessage {
-            clientSession.reaction.addEffectUponIsReactingToMessage(changedTo: false, id: .reloadCollectionView) { self.reloadItemsWhenSafe(at: indexPaths) }
+            clientSession.reaction.addEffectUponIsReactingToMessage(
+                changedTo: false,
+                id: .reloadCollectionView
+            ) { [weak self] in
+                self?.reloadItemsWhenSafe(
+                    at: indexPaths,
+                    animated: isAnimated
+                )
+            }
         } else if messageDeliveryService.isSendingMessage {
-            messageDeliveryService.addEffectUponIsSendingMessage(changedTo: false, id: .reloadCollectionView) { self.reloadItemsWhenSafe(at: indexPaths) }
+            messageDeliveryService.addEffectUponIsSendingMessage(
+                changedTo: false,
+                id: .reloadCollectionView
+            ) { [weak self] in
+                self?.reloadItemsWhenSafe(
+                    at: indexPaths,
+                    animated: isAnimated
+                )
+            }
         } else {
-            reloadItems()
+            safelyReload(
+                indexPaths: indexPaths,
+                conversationIDKey: clientSession
+                    .conversation
+                    .currentConversation?
+                    .id
+                    .key,
+                structure: viewController == nil ? nil : (0 ..< viewController!.messagesCollectionView.numberOfSections).map {
+                    viewController!.messagesCollectionView.numberOfItems(inSection: $0)
+                },
+                animated: isAnimated
+            )
         }
     }
 
@@ -340,8 +361,8 @@ final class ChatPageViewService {
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
-        core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) {
-            guard let viewController = self.viewController,
+        core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) { [weak self] in
+            guard let viewController = self?.viewController,
                   viewController.messagesCollectionView.numberOfSections > 0 else { return }
             viewController.messagesCollectionView.scrollToItem(
                 at: .init(row: 0, section: 0),
@@ -364,6 +385,66 @@ final class ChatPageViewService {
         )
 
         configuration = .preview
+    }
+
+    @MainActor
+    private func safelyReload(
+        indexPaths: [IndexPath],
+        conversationIDKey previousConversationIDKey: String?,
+        structure previousStructure: [Int]?,
+        animated isAnimated: Bool
+    ) {
+        guard let previousConversationIDKey,
+              let previousStructure else { return }
+
+        @MainActor
+        func reloadItem(
+            collectionView: MessagesCollectionView,
+            viewController: ChatPageViewController
+        ) {
+            let currentStructure = (0 ..< collectionView.numberOfSections).map {
+                collectionView.numberOfItems(inSection: $0)
+            }
+
+            guard currentStructure == previousStructure,
+                  chatPageState.isPresented,
+                  previousConversationIDKey == clientSession
+                  .conversation
+                  .currentConversation?
+                  .id
+                  .key else { return }
+
+            let validIndexPaths = indexPaths.filter {
+                !viewController.isSectionReservedForTypingIndicator($0.section) &&
+                    $0.section >= 0 &&
+                    $0.section < collectionView.numberOfSections &&
+                    $0.item >= 0 &&
+                    $0.item < collectionView.numberOfItems(inSection: $0.section)
+            }
+
+            guard !validIndexPaths.isEmpty else { return }
+            collectionView.reloadItems(at: validIndexPaths)
+        }
+
+        guard isAnimated else {
+            guard let viewController else { return }
+            return reloadItem(
+                collectionView: viewController.messagesCollectionView,
+                viewController: viewController
+            )
+        }
+
+        let collectionView = viewController?.messagesCollectionView
+        collectionView?
+            .performBatchUpdates(nil) { [weak self, weak collectionView] _ in
+                guard let collectionView,
+                      let viewController = self?.viewController else { return }
+
+                reloadItem(
+                    collectionView: collectionView,
+                    viewController: viewController
+                )
+            }
     }
 
     private func startSettingNavigationBarButtonItemAppearance() {

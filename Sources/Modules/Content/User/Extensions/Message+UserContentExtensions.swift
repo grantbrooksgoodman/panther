@@ -70,8 +70,8 @@ extension Message: MessageType {
         guard let translation else { return .text("�") }
 
         let isDisplayingAlternateText = alternateMessageService?.isDisplayingAlternateText(for: self) ?? false
-        let primaryText = isFromCurrentUser ? translation.input.value.sanitized : translation.output.sanitized
-        let alternateText = isFromCurrentUser ? translation.output.sanitized : translation.input.value.sanitized
+        let primaryText = isFromCurrentUser ? translation.input.value : translation.output
+        let alternateText = isFromCurrentUser ? translation.output : translation.input.value
 
         let consentAcknowledgementMessage = Localized(.messageRecipientConsentAcknowledgementMessage).wrappedValue
         let consentRequestMessage = Localized(.messageRecipientConsentRequestMessage).wrappedValue
@@ -82,7 +82,7 @@ extension Message: MessageType {
 
         return .attributedText(
             .messageCellString(
-                resolvedText,
+                resolvedText.sanitized,
                 foregroundColor: attributedStringForegroundColor,
                 italicized: isConsentMessage || isDisplayingAlternateText
             )

@@ -30,6 +30,6 @@ struct ContactPair: Codable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(contact.id)
         hasher.combine(numberPairs.map(\.phoneNumber.compiledNumberString))
-        hasher.combine(numberPairs.map { $0.users.map(\.id) }.flatMap { $0 })
+        hasher.combine(numberPairs.map { $0.users.map(\.id) }.flatMap(\.self))
     }
 }

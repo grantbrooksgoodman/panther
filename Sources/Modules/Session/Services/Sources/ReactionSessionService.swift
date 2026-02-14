@@ -17,6 +17,7 @@ import Networking
 final class ReactionSessionService {
     // MARK: - Dependencies
 
+    @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
@@ -204,6 +205,7 @@ final class ReactionSessionService {
         )
     }
 
+    @MainActor
     private func updateConversation(
         _ conversation: Conversation,
         messageData: (index: Int, message: Message),
@@ -222,6 +224,12 @@ final class ReactionSessionService {
             ]) {
                 return exception
             }
+
+            guard chatPageState.isPresented,
+                  conversationSession
+                  .currentConversation?
+                  .id
+                  .key == conversation.id.key else { return nil }
 
             conversationSession.setCurrentConversation(updatedConversation)
             chatPageViewService.reloadItemsWhenSafe(at: [.init(

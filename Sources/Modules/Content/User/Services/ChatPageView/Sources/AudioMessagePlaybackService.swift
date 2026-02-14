@@ -187,7 +187,7 @@ final class AudioMessagePlaybackService {
         return viewController.currentConversation?.messages?.itemAt(indexPath.section)
     }
 
-    func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {
+    private func nextAudioMessageCell(after cell: AudioMessageCell) -> AudioMessageCell? {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell) else { return nil }
         let nextIndexPath: IndexPath = .init(row: indexPath.row, section: indexPath.section + 1)
         return viewController.messagesCollectionView.cellForItem(at: nextIndexPath) as? AudioMessageCell

@@ -19,6 +19,7 @@ extension DatabaseDelegate {
     }
 
     func populateTemporaryCaches() async -> Exception? {
+        @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
         let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
 
         switch resolveResult {
@@ -53,13 +54,17 @@ extension DatabaseDelegate {
                 )
             }
 
+            if buildMilestone != .generalRelease {
+                Toast.show(.init(
+                    .capsule(style: .info),
+                    message: "Established database snapshot.",
+                    perpetuation: .ephemeral(.seconds(5))
+                ))
+            }
+
             Logger.log(
                 "Established database snapshot.",
                 domain: .Networking.database,
-                with: .toastInPrerelease(
-                    style: .info,
-                    isPersistent: false
-                ),
                 sender: self
             )
 

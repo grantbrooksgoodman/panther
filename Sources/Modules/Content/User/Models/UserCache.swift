@@ -15,7 +15,6 @@ import AppSubsystem
 enum UserCache {
     // MARK: - Properties
 
-    // TODO: Clear on updatedCurrentUser & syncContactPairArchive.
     static var knownUsers: [User] {
         if let cachedValue = _UserCache.cachedUsers {
             return cachedValue

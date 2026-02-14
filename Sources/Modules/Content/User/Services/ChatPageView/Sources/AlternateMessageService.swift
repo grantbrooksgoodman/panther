@@ -92,7 +92,14 @@ final class AlternateMessageService {
             }
         }
 
-        defer { chatPageViewService.reloadItemsWhenSafe(at: [indexPath]) }
+        defer {
+            Task { @MainActor in
+                chatPageViewService.reloadItemsWhenSafe(
+                    at: [indexPath],
+                    animated: false
+                )
+            }
+        }
 
         switch type {
         case .alternateText:

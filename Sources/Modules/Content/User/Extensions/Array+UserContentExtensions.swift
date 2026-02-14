@@ -21,7 +21,7 @@ extension Array where Element == ContactPair {
         for contactPair in self {
             let phoneNumbers = contactPairs
                 .map(\.contact.phoneNumbers.compiledNumberStrings)
-                .flatMap { $0 }
+                .flatMap(\.self)
             guard !contactPair.contact.phoneNumbers.compiledNumberStrings.contains(where: phoneNumbers.contains) else { continue }
             contactPairs.append(contactPair)
         }

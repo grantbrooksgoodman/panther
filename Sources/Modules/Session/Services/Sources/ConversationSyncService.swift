@@ -473,20 +473,20 @@ final class ConversationSyncService {
             return resolveConversation(userInfo)
         }
 
-        // If no messages to update, synchronize metadata until hashes match.
+        // If no messages to update, synchronize metadata until hashes are sufficiently mismatched.
 
         if let exception = await synchronizeData() {
             self.syncData = nil
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        // If metadata ostensibly didn't need an update, reload select or all messages.
-
         guard self
             .syncData?
             .conversation
             .encodedHash == conversation
             .encodedHash else { return resolveConversation(userInfo) }
+
+        // If metadata ostensibly didn't need an update, reload select or all messages.
 
         if let exception = await synchronizeMessages(
             messageIDs,

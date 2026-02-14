@@ -93,6 +93,9 @@ struct NewChatPageReducer: Reducer {
             guard UIApplication.isFullyV26Compatible else { return .none }
             state.v26NavigationBarProxyViewID = UUID()
 
+        case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
+            state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
+
         case .penPalsToolbarButtonTapped:
             Task { @MainActor in
                 let getRandomPenPalsParticipantResult = await services.penPals.getRandomPenPalsParticipant()
@@ -118,9 +121,6 @@ struct NewChatPageReducer: Reducer {
                     )
                 }
             }
-
-        case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
-            state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
         }
 
         return .none

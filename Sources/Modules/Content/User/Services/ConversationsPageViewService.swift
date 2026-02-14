@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length
+// swiftlint:disable type_body_length file_length
 
 /* Native */
 import Foundation
@@ -17,26 +17,25 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-struct ConversationSource {
-    // MARK: - Properties
-
-    let name: String
-    let conversations: [Conversation]
-
-    // MARK: - Init
-
-    init(
-        _ name: String,
-        conversations: [Conversation]
-    ) {
-        self.name = name
-        self.conversations = conversations
-    }
-}
-
-// swiftlint:disable:next type_body_length
 final class ConversationsPageViewService {
     // MARK: - Types
+
+    fileprivate struct ConversationSource {
+        /* MARK: Properties */
+
+        let conversations: [Conversation]
+        let name: String
+
+        /* MARK: Init */
+
+        init(
+            _ name: String,
+            conversations: [Conversation]
+        ) {
+            self.name = name
+            self.conversations = conversations
+        }
+    }
 
     private enum ReloadType: String {
         /* MARK: Cases */
@@ -100,122 +99,16 @@ final class ConversationsPageViewService {
 
     /// `.resolveReturned`
     func viewLoaded() {
-        func showOfflineModeToast() {
-            Toast.show(.init(
-                .capsule(style: .warning),
-                message: Localized(.offlineMode).wrappedValue,
-                perpetuation: .ephemeral(.seconds(10))
-            ))
-        }
-
-        /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
-        func reloadIfNeeded() {
-            guard let currentUser = clientSession.user.currentUser,
-                  currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
-                  currentUser.conversationIDs?.isEmpty == false else { return }
-
-            Logger.log(
-                "Intercepted empty initial conversations list bug.",
-                domain: .bugPrevention,
-                sender: self
-            )
-
-            Observables.updatedCurrentUser.trigger()
-        }
-
-        /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.
-        func updateAppearance() {
-            Logger.log(
-                "Intercepted offline startup navigation bar appearance bug.",
-                domain: .bugPrevention,
-                sender: self
-            )
-
-            core.gcd.after(.milliseconds(500)) {
-                Observables.traitCollectionChanged.trigger()
-            }
-        }
-
-        if build.milestone != .generalRelease {
-            let currentUser = clientSession.user.currentUser
-            let numberOfConversations = currentUser?
-                .conversations?
-                .visibleForCurrentUser
-                .count ?? currentUser?
-                .conversationIDs?
-                .count ?? 1
-            let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
-
-            let secondsPerConversation = String(format: "%.2f", Float(secondsToLoad) / Float(numberOfConversations))
-            let addendum = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
-
-            Toast.hide()
-            Toast.show(.init(
-                message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "")."
-            ))
-        }
-
+        showSecondsToLoadToastIfNeeded()
         networking.database.clearTemporaryCaches()
         reloadIfNeeded()
 
         Task.delayed(by: .seconds(1)) { @MainActor in
-            defer {
-                startSettingSearchBarAppearance()
-
-                // swiftlint:disable:next identifier_name
-                @Persistent(.presentedAIEnhancedTranslationPermissionPageAtStartup) var presentedAIEnhancedTranslationPermissionPageAtStartup: Bool?
-                @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
-
-                let presentedAIPage = presentedAIEnhancedTranslationPermissionPageAtStartup ?? false
-                let presentedPenPalsPage = presentedPenPalsPermissionPageAtStartup ?? false
-
-                var configurations = [FeaturePermissionPageView.Configuration]()
-                if !presentedAIPage,
-                   clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == false {
-                    configurations.append(.aiEnhancedTranslations)
-                    presentedAIEnhancedTranslationPermissionPageAtStartup = true
-                }
-
-                if !presentedPenPalsPage,
-                   clientSession.user.currentUser?.isPenPalsParticipant == false {
-                    configurations.append(.penPals)
-                    presentedPenPalsPermissionPageAtStartup = true
-                }
-
-                if !configurations.isEmpty {
-                    RootSheets.present(
-                        .featurePermissionPageView(configurations)
-                    )
-                }
-            }
-
-            _ = await clientSession.storage.getCurrentUserDataUsage()
-            if clientSession.storage.isApproachingDataUsageLimit {
-                await clientSession.storage.presentStorageWarningAlert()
-            } else if await services.permission.notificationPermissionStatus == .unknown {
-                _ = await services.permission.requestPermission(for: .notifications)
-            } else if !(await services.invite.suggestInvitationIfNeeded()) {
-                services.review.promptToReview()
-            }
+            await showPromptsIfNeeded()
+            startSettingSearchBarAppearance()
         }
 
-        services.connectionStatus.addEffectUponConnectionChanged(id: .checkForUpdates) {
-            guard self.build.isOnline else { return }
-            Task {
-                if let exception = await self.services.update.promptToUpdateIfNeeded() {
-                    Logger.log(exception, with: .toastInPrerelease)
-                }
-            }
-        }
-
-        services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
-            guard !self.build.isOnline else { return }
-            showOfflineModeToast()
-        }
-
-        guard !build.isOnline else { return }
-        updateAppearance()
-        showOfflineModeToast()
+        enableOfflineModeSideEffects()
     }
 
     func traitCollectionChanged() {
@@ -336,7 +229,15 @@ final class ConversationsPageViewService {
         @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
         let currentStateConversations = state.conversations
         let currentUserConversations = clientSession.user.currentUser?.conversations
+        let currentUserConversationHashes = Set(
+            clientSession
+                .user
+                .currentUser?
+                .conversationIDs?
+                .compactMap(\.hash) ?? []
+        )
 
+        guard !currentUserConversationHashes.isEmpty else { return }
         let dataSources: [ConversationSource] = [
             ConversationSource(
                 "provided conversations",
@@ -363,15 +264,6 @@ final class ConversationsPageViewService {
         }
         .filter { !$0.conversations.isEmpty }
 
-        let currentUserConversationHashes = Set(
-            clientSession
-                .user
-                .currentUser?
-                .conversationIDs?
-                .compactMap(\.hash) ?? []
-        )
-
-        guard !currentUserConversationHashes.isEmpty else { return }
         guard let bestCandidate = dataSources.bestAligned(
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
@@ -386,25 +278,71 @@ final class ConversationsPageViewService {
             )
         }
 
-        if build.milestone != .generalRelease,
-           bestCandidate.name != "provided conversations",
-           bestCandidate.name != "current user conversations" {
+        guard build.milestone != .generalRelease else {
+            return state.conversations = bestCandidate.conversations
+        }
+
+        if bestCandidate.name != "current user conversations",
+           bestCandidate.name != "provided conversations" {
             Toast.hide()
-            Logger.log(
-                "Best candidate was \(bestCandidate.name).",
-                domain: .conversation,
-                with: .toastInPrerelease(
-                    style: .warning,
-                    isPersistent: false
-                ),
-                sender: self
-            )
+            Toast.show(.init(
+                .capsule(style: .warning),
+                message: "Best candidate was \(bestCandidate.name).",
+                perpetuation: .ephemeral(.seconds(3))
+            ))
+        } else {
+            Toast.show(.init(
+                .capsule(style: .success),
+                message: "Set to reliable data source.",
+                perpetuation: .ephemeral(.seconds(2))
+            ))
         }
 
         state.conversations = bestCandidate.conversations
     }
 
     // MARK: - Auxiliary
+
+    private func enableOfflineModeSideEffects() {
+        func showOfflineModeToast() {
+            Toast.show(.init(
+                .capsule(style: .warning),
+                message: Localized(.offlineMode).wrappedValue,
+                perpetuation: .ephemeral(.seconds(10))
+            ))
+        }
+
+        /// - NOTE: Fixes a bug in which an offline startup would fail to properly set the navigation bar appearance.
+        func updateAppearance() {
+            Logger.log(
+                "Intercepted offline startup navigation bar appearance bug.",
+                domain: .bugPrevention,
+                sender: self
+            )
+
+            core.gcd.after(.milliseconds(500)) {
+                Observables.traitCollectionChanged.trigger()
+            }
+        }
+
+        services.connectionStatus.addEffectUponConnectionChanged(id: .checkForUpdates) {
+            guard self.build.isOnline else { return }
+            Task {
+                if let exception = await self.services.update.promptToUpdateIfNeeded() {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
+            }
+        }
+
+        services.connectionStatus.addEffectUponConnectionChanged(id: .showOfflineModeToast) {
+            guard !self.build.isOnline else { return }
+            showOfflineModeToast()
+        }
+
+        guard !build.isOnline else { return }
+        updateAppearance()
+        showOfflineModeToast()
+    }
 
     /// - NOTE: Fixes a bug in which upon the initial appearance of the view (in iOS 26 GM), the search bar background would not render properly.
     private func fixSearchBarAppearance() {
@@ -449,12 +387,105 @@ final class ConversationsPageViewService {
         networking.conversationService.archive.addValue(newConversation)
     }
 
+    /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
+    private func reloadIfNeeded() {
+        guard let currentUser = clientSession.user.currentUser,
+              currentUser.conversations == nil || currentUser.conversations?.isEmpty == true,
+              (currentUser.conversationIDs?.count ?? 0) > 0 else { return }
+
+        Logger.log(
+            "Intercepted empty initial conversations list bug.",
+            domain: .bugPrevention,
+            sender: self
+        )
+
+        Observables.updatedCurrentUser.trigger()
+    }
+
+    /// Evaluates several user-facing prompts in priority order.
+    ///
+    /// The flow is as follows:
+    /// 1. If the user is approaching their data-usage limit, presents a storage warning alert.
+    /// 2. Otherwise, if notification permission has not been determined, requests notification permission.
+    /// 3. Otherwise, suggests inviting friends, if appropriate.
+    /// 4. If no invite is suggested, prompts the user for an App Store review, if appropriate.
+    ///
+    /// After the flow completes, either via alert dismissal or no cases having been met,
+    /// a `FeaturePermissionPageView` may be presented when one or more feature permission pages are eligible.
+    /// Eligible pages are assembled in this order:
+    /// - `.aiEnhancedTranslations` (only once per install; if disabled for the current user)
+    /// - `.penPals` (only once per install; if the user is not a participant)
+    ///
+    /// If no pages are eligible, no sheet is presented.
+    @MainActor
+    private func showPromptsIfNeeded() async {
+        _ = await clientSession.storage.getCurrentUserDataUsage()
+        if clientSession.storage.isApproachingDataUsageLimit {
+            await clientSession.storage.presentStorageWarningAlert()
+        } else if await services.permission.notificationPermissionStatus == .unknown {
+            _ = await services.permission.requestPermission(for: .notifications)
+        } else if !(await services.invite.suggestInvitationIfNeeded()) {
+            services.review.promptToReview()
+        }
+
+        // swiftlint:disable:next identifier_name
+        @Persistent(.presentedAIEnhancedTranslationPermissionPageAtStartup) var presentedAIEnhancedTranslationPermissionPageAtStartup: Bool?
+        @Persistent(.presentedPenPalsPermissionPageAtStartup) var presentedPenPalsPermissionPageAtStartup: Bool?
+
+        let presentedAIPage = presentedAIEnhancedTranslationPermissionPageAtStartup ?? false
+        let presentedPenPalsPage = presentedPenPalsPermissionPageAtStartup ?? false
+
+        var configurations = [FeaturePermissionPageView.Configuration]()
+        if !presentedAIPage,
+           clientSession.user.currentUser?.aiEnhancedTranslationsEnabled == false {
+            configurations.append(.aiEnhancedTranslations)
+            presentedAIEnhancedTranslationPermissionPageAtStartup = true
+        }
+
+        if !presentedPenPalsPage,
+           clientSession.user.currentUser?.isPenPalsParticipant == false {
+            configurations.append(.penPals)
+            presentedPenPalsPermissionPageAtStartup = true
+        }
+
+        if !configurations.isEmpty {
+            RootSheets.present(
+                .featurePermissionPageView(configurations)
+            )
+        }
+    }
+
+    private func showSecondsToLoadToastIfNeeded() {
+        guard build.milestone != .generalRelease else { return }
+        let currentUser = clientSession.user.currentUser
+        let numberOfConversations = currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .count ?? currentUser?
+            .conversationIDs?
+            .count ?? 1
+
+        let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
+        let secondsPerConversation = String(
+            format: "%.2f",
+            Float(secondsToLoad) / Float(numberOfConversations)
+        )
+
+        let addendum = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+
+        Toast.show(.init(
+            message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "").",
+            perpetuation: .ephemeral(.seconds(10))
+        ))
+    }
+
     private func startSettingSearchBarAppearance() {
         guard Application.isInPrevaricationMode,
               !UIApplication.isFullyV26Compatible else { return }
 
         var misconfiguredSearchFieldBackgroundViews: [UIView] {
-            uiApplication.presentedViews
+            uiApplication
+                .presentedViews
                 .compactMap { $0 as? UISearchBar }
                 .flatMap(\.traversedSubviews)
                 .filter { $0.descriptor == "_UISearchBarSearchFieldBackgroundView" }
@@ -487,12 +518,12 @@ extension Conversation: Validatable {
     }
 }
 
-private extension Array where Element == ConversationSource {
+private extension Array where Element == ConversationsPageViewService.ConversationSource {
     func bestAligned(
         with canonicalHashes: Set<String>,
         andMatchingPredicate predicate: (Conversation) -> Bool
-    ) -> ConversationSource? {
-        func score(_ source: ConversationSource) -> (Int, Int) {
+    ) -> ConversationsPageViewService.ConversationSource? {
+        func score(_ source: ConversationsPageViewService.ConversationSource) -> (Int, Int) {
             let sourceHashes = Set(source.conversations.map(\.id.hash))
 
             let intersectingHashes = sourceHashes.intersection(canonicalHashes).count
@@ -518,7 +549,7 @@ private extension Array where Element == ConversationSource {
 
         defer { Logger.closeStream(domain: .conversation) }
         Logger.openStream(
-            message: "Alignment score for \(first.name): \(bestScore.0 + bestScore.1)",
+            message: "Alignment score for \(first.name): \(bestScore.0)/\(bestScore.1)",
             domain: .conversation,
             sender: self
         )
@@ -526,7 +557,7 @@ private extension Array where Element == ConversationSource {
         for dataSource in dropFirst() {
             let alignmentScore = score(dataSource)
             Logger.logToStream(
-                "Alignment score for \(dataSource.name): \(alignmentScore.0 + alignmentScore.1)",
+                "Alignment score for \(dataSource.name): \(alignmentScore.0)/\(alignmentScore.1)",
                 domain: .conversation,
                 line: #line
             )
@@ -546,11 +577,10 @@ private extension Conversation {
               (users?.count ?? 0) == 0 else { return self }
 
         let participantUserIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
-        let resolvedUsers = UserCache.knownUsers.reduce(into: [User]()) { partialResult, user in
-            if participantUserIDs.contains(user.id) {
-                partialResult.append(user)
-            }
-        }.uniquedByID
+        let resolvedUsers = UserCache
+            .knownUsers
+            .filter { participantUserIDs.contains($0.id) }
+            .uniquedByID
 
         guard resolvedUsers.map(\.id).containsAllStrings(
             in: participantUserIDs
@@ -569,4 +599,4 @@ private extension Conversation {
     }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable type_body_length file_length

@@ -35,7 +35,10 @@ extension Array where Element == Conversation {
         }
 
         return withSentDate
-            .sorted { $0.1 > $1.1 }
+            .sorted { left, right in
+                if left.1 != right.1 { return left.1 > right.1 }
+                return left.0.id.key < right.0.id.key
+            }
             .map(\.0) + withoutSentDate
     }
 
