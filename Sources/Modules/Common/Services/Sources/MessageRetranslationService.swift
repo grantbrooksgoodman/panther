@@ -37,7 +37,7 @@ struct MessageRetranslationService {
 
     // MARK: - Retranslate Message in Current Conversation
 
-    @MainActor
+    @MainActor // swiftlint:disable:next function_body_length
     func retranslateMessageInCurrentConversation(
         _ message: Message,
         indexPath: IndexPath
@@ -120,7 +120,11 @@ struct MessageRetranslationService {
                 }
 
                 clientSession.conversation.setCurrentConversation(conversation)
-                chatPageViewService.reloadItemsWhenSafe(at: [indexPath])
+                chatPageViewService.reloadItemsWhenSafe(
+                    at: [indexPath],
+                    animated: false
+                )
+
                 chatPageState.addEffectUponIsPresented(
                     changedTo: false,
                     id: .markConversationStale

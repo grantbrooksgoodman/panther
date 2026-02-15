@@ -199,9 +199,6 @@ struct MessageSessionService {
             ))
         }
 
-        let users = users.filter { $0 != currentUser }
-        var translations = [Translation]()
-
         var text = text
         if build.isDeveloperModeEnabled,
            await languageRecognitionService.matchConfidence(
@@ -224,42 +221,82 @@ struct MessageSessionService {
             }
         }
 
-        for languageCode in users.map(\.languageCode).unique {
-            let translateResult = await networking.hostedTranslation.translate(
-                .init(text),
-                with: .init(from: currentUser.languageCode, to: languageCode),
-                enhance: getEnhancementConfiguration(
-                    for: conversation.value,
-                    isAudioMessage: false,
-                    userCount: users.count
-                )
-            )
-
-            incrementDeliveryProgress(
-                in: conversation.value,
-                by: Floats.translationDeliveryProgressIncrement
-            )
-
-            switch translateResult {
-            case let .success(translation): translations.append(translation)
-            case let .failure(exception): return .failure(exception)
-            }
-        }
-
-        guard translations.isWellFormed else {
-            return .failure(.init(
-                "Translations fail validation.",
-                metadata: .init(sender: self)
-            ))
-        }
-
-        return await createMessageAndAddToConversation(
-            conversation: conversation,
-            initiatingUser: currentUser,
-            otherUsers: users,
-            richContent: nil,
-            translations: translations
+        let users = users.filter { $0 != currentUser }
+        let uniqueLanguageCodes = users.map(\.languageCode).unique
+        let enhancementConfig = getEnhancementConfiguration(
+            for: conversation.value,
+            isAudioMessage: false,
+            userCount: users.count
         )
+
+        var aggregatedTranslations: [Translation?] = Array(
+            repeating: nil,
+            count: uniqueLanguageCodes.count
+        )
+
+        let taskGroupResult: Callback<[Translation], Exception> = await withTaskGroup(
+            of: (Int, Callback<Translation, Exception>).self
+        ) { taskGroup in
+            for (index, languageCode) in uniqueLanguageCodes.enumerated() {
+                taskGroup.addTask {
+                    let translateResult = await networking.hostedTranslation.translate(
+                        .init(text),
+                        with: .init(
+                            from: currentUser.languageCode,
+                            to: languageCode
+                        ),
+                        enhance: enhancementConfig
+                    )
+
+                    return (index, translateResult)
+                }
+            }
+
+            var exception: Exception?
+            while let (index, translateResult) = await taskGroup.next() {
+                incrementDeliveryProgress(
+                    in: conversation.value,
+                    by: Floats.translationDeliveryProgressIncrement / Float(max(
+                        1,
+                        uniqueLanguageCodes.count
+                    ))
+                )
+
+                switch translateResult {
+                case let .success(translation):
+                    aggregatedTranslations[index] = translation
+
+                // swiftlint:disable:next identifier_name
+                case let .failure(_exception):
+                    exception = _exception
+                    taskGroup.cancelAll()
+                }
+            }
+
+            if let exception { return .failure(exception) }
+            return .success(aggregatedTranslations.compactMap(\.self))
+        }
+
+        switch taskGroupResult {
+        case let .success(translations):
+            guard translations.isWellFormed else {
+                return .failure(.init(
+                    "Translations fail validation.",
+                    metadata: .init(sender: self)
+                ))
+            }
+
+            return await createMessageAndAddToConversation(
+                conversation: conversation,
+                initiatingUser: currentUser,
+                otherUsers: users,
+                richContent: nil,
+                translations: translations
+            )
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
     }
 
     // MARK: - Auxiliary

@@ -244,8 +244,8 @@ final class MessageDeliveryService {
         var messages = conversation.messages ?? []
 
         let mockTranslation: Translation = .init(
-            input: .init(text ?? ""),
-            output: text ?? "",
+            input: .init(text?.trimmingTrailingWhitespace ?? ""),
+            output: text?.trimmingTrailingWhitespace ?? "",
             languagePair: .init(
                 from: currentUser.languageCode,
                 to: currentUser.languageCode

@@ -134,7 +134,14 @@ struct TextToSpeechService {
         }
 
         return await withCheckedContinuation { continuation in
+            let timeout = Timeout(after: .seconds(10)) {
+                continuation.resume(returning: .failure(.timedOut(
+                    metadata: .init(sender: self)
+                ).appending(userInfo: userInfo)))
+            }
+
             exportSession.exportAsynchronously {
+                timeout.cancel()
                 guard let error = exportSession.error else {
                     continuation.resume(returning: .success(outputURL))
                     return
@@ -162,6 +169,13 @@ struct TextToSpeechService {
         }
 
         return await withCheckedContinuation { continuation in
+            let timeout = Timeout(after: .seconds(10)) {
+                guard canComplete else { return }
+                continuation.resume(returning: .failure(.timedOut(
+                    metadata: .init(sender: self)
+                )))
+            }
+
             avSpeechSynthesizer.write(utterance) { buffer in
                 guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
                     continuation.resume(returning: .failure(.init(
@@ -195,6 +209,7 @@ struct TextToSpeechService {
                         }
 
                         coreGCD.after(.milliseconds(500)) {
+                            timeout.cancel()
                             continuation.resume(returning: .success(output.url))
                         }
                     } catch {
@@ -207,6 +222,7 @@ struct TextToSpeechService {
 
                 guard canComplete else { return }
                 coreGCD.after(.milliseconds(500)) {
+                    timeout.cancel()
                     continuation.resume(returning: .success(output.url))
                 }
             }
@@ -238,3 +254,5 @@ private enum _TextToSpeechServiceCache {
         cachedTextToSpeechSupportForLanguageCodes = nil
     }
 }
+
+extension Timeout: @unchecked @retroactive Sendable {}
