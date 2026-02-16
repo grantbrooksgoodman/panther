@@ -21,12 +21,14 @@ struct TextToSpeechService {
     // MARK: - Dependencies
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
 
     // MARK: - Read to File
 
-    func readToFile(text: String, languageCode: String) async -> Callback<URL, Exception> {
+    func readToFile(
+        text: String,
+        languageCode: String
+    ) async -> Callback<URL, Exception> {
         guard isTextToSpeechSupported(for: languageCode) else {
             return .failure(.init(
                 "Text to speech is not supported for the specified language code.",
@@ -35,19 +37,17 @@ struct TextToSpeechService {
             ))
         }
 
-        let getAudioFileResult = await getAudioFile(from: text, languageCode: languageCode)
+        let getAudioFileResult = await getAudioFile(
+            from: text,
+            languageCode: languageCode
+        )
 
         switch getAudioFileResult {
         case let .success(url):
-            let convertToM4AResult = await convertToM4A(file: url, languageCode: languageCode)
-
-            switch convertToM4AResult {
-            case let .success(url):
-                return .success(url)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
+            return await convertToM4A(
+                file: url,
+                languageCode: languageCode
+            )
 
         case let .failure(exception):
             return .failure(exception)
@@ -71,9 +71,22 @@ struct TextToSpeechService {
             return true
         }
 
-        return AVSpeechSynthesisVoice.speechVoices()
-            .filter { $0.language.lowercased().hasPrefix(languageCode.lowercased()) }
-            .first(where: { satisfiesConstraints($0) }) ?? .init(language: languageCode)
+        if let cachedValue = _TextToSpeechServiceCache.cachedVoicesForLanguageCodes?[languageCode] {
+            return cachedValue
+        }
+
+        if let voiceForLanguageCode = AVSpeechSynthesisVoice
+            .speechVoices()
+            .filter({ $0.language.lowercased().hasPrefix(languageCode.lowercased()) })
+            .first(where: { satisfiesConstraints($0) }) ?? .init(language: languageCode) {
+            var cachedVoicesForLanguageCodes = _TextToSpeechServiceCache.cachedVoicesForLanguageCodes ?? [:]
+            cachedVoicesForLanguageCodes[languageCode] = voiceForLanguageCode
+            _TextToSpeechServiceCache.cachedVoicesForLanguageCodes = cachedVoicesForLanguageCodes
+
+            return voiceForLanguageCode
+        }
+
+        return nil
     }
 
     // MARK: - Capabilities
@@ -96,7 +109,10 @@ struct TextToSpeechService {
 
     // MARK: - Auxiliary
 
-    private func convertToM4A(file url: URL, languageCode: String) async -> Callback<URL, Exception> {
+    private func convertToM4A(
+        file url: URL,
+        languageCode: String
+    ) async -> Callback<URL, Exception> {
         let userInfo = ["FileURLString": url.absoluteString]
 
         let fileName = "\(languageCode)-\(FileNames.outputM4A)"
@@ -114,12 +130,18 @@ struct TextToSpeechService {
             ))
         }
 
-        if fileManager.fileExists(atPath: fileManager.pathToFileInDocuments(named: fileName)) {
+        if fileManager.fileExists(
+            atPath: fileManager.pathToFileInDocuments(named: fileName)
+        ) {
             do {
                 try fileManager.removeItem(at: outputURL)
             } catch {
-                let exception = Exception(error, metadata: .init(sender: self))
-                return .failure(exception.appending(userInfo: userInfo))
+                return .failure(
+                    .init(
+                        error,
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: userInfo)
+                )
             }
         }
 
@@ -135,61 +157,76 @@ struct TextToSpeechService {
 
         return await withCheckedContinuation { continuation in
             let timeout = Timeout(after: .seconds(10)) {
-                continuation.resume(returning: .failure(.timedOut(
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo)))
+                continuation.resume(returning: .failure(
+                    .timedOut(
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: userInfo))
+                )
             }
 
             exportSession.exportAsynchronously {
                 timeout.cancel()
                 guard let error = exportSession.error else {
-                    continuation.resume(returning: .success(outputURL))
-                    return
+                    return continuation.resume(returning: .success(outputURL))
                 }
 
-                let exception = Exception(error, metadata: .init(sender: self))
-                continuation.resume(returning: .failure(exception.appending(userInfo: userInfo)))
+                continuation.resume(returning: .failure(
+                    .init(
+                        error,
+                        metadata: .init(sender: self)
+                    ).appending(userInfo: userInfo)
+                ))
             }
         }
     }
 
-    private func getAudioFile(from text: String, languageCode: String) async -> Callback<URL, Exception> {
-        let filePath = fileManager.documentsDirectoryURL.appending(path: "\(languageCode)-\(FileNames.outputCAF)")
+    private func getAudioFile(
+        from text: String,
+        languageCode: String
+    ) async -> Callback<URL, Exception> {
+        await TextToSpeechWriteGate.shared.run {
+            let filePath = fileManager.documentsDirectoryURL.appending(
+                path: "\(languageCode)-\(FileNames.outputCAF)"
+            )
 
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = highestQualityVoice(languageCode, mustIncludeAudioFileSettings: true)
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.voice = highestQualityVoice(
+                languageCode,
+                mustIncludeAudioFileSettings: true
+            )
 
-        var output: AVAudioFile?
+            var output: AVAudioFile?
+            var timeout: Timeout?
 
-        var didComplete = false
-        var canComplete: Bool {
-            guard !didComplete else { return false }
-            didComplete = true
-            return true
-        }
-
-        return await withCheckedContinuation { continuation in
-            let timeout = Timeout(after: .seconds(10)) {
-                guard canComplete else { return }
-                continuation.resume(returning: .failure(.timedOut(
-                    metadata: .init(sender: self)
-                )))
+            var didComplete = false
+            var canComplete: Bool {
+                guard !didComplete else { return false }
+                didComplete = true
+                return true
             }
 
-            avSpeechSynthesizer.write(utterance) { buffer in
-                guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-                    continuation.resume(returning: .failure(.init(
-                        "Failed to typecast buffer to AVAudioPCMBuffer.",
+            return await withCheckedContinuation { continuation in
+                timeout = Timeout(after: .seconds(10)) {
+                    guard canComplete else { return }
+                    continuation.resume(returning: .failure(.timedOut(
                         metadata: .init(sender: self)
                     )))
-                    return
                 }
 
-                guard pcmBuffer.frameLength <= 1,
-                      let output else {
+                avSpeechSynthesizer.write(utterance) { buffer in
+                    guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
+                        guard canComplete else { return }
+                        timeout?.cancel()
+
+                        return continuation.resume(returning: .failure(.init(
+                            "Failed to typecast buffer to AVAudioPCMBuffer.",
+                            metadata: .init(sender: self)
+                        )))
+                    }
+
                     do {
                         if output == nil {
-                            output = try .init(
+                            output = try AVAudioFile(
                                 forWriting: filePath,
                                 settings: pcmBuffer.format.settings,
                                 commonFormat: .pcmFormatFloat32,
@@ -197,33 +234,30 @@ struct TextToSpeechService {
                             )
                         }
 
+                        if pcmBuffer.frameLength == 0 {
+                            guard canComplete else { return }
+                            timeout?.cancel()
+
+                            guard let output else {
+                                return continuation.resume(returning: .failure(.init(
+                                    "Failed to generate output.",
+                                    metadata: .init(sender: self)
+                                )))
+                            }
+
+                            return continuation.resume(returning: .success(output.url))
+                        }
+
                         try output?.write(from: pcmBuffer)
-
-                        guard canComplete else { return }
-                        guard let output else {
-                            continuation.resume(returning: .failure(.init(
-                                "Failed to generate output.",
-                                metadata: .init(sender: self)
-                            )))
-                            return
-                        }
-
-                        coreGCD.after(.milliseconds(500)) {
-                            timeout.cancel()
-                            continuation.resume(returning: .success(output.url))
-                        }
                     } catch {
                         guard canComplete else { return }
-                        continuation.resume(returning: .failure(.init(error, metadata: .init(sender: self))))
+                        timeout?.cancel()
+
+                        continuation.resume(returning: .failure(.init(
+                            error,
+                            metadata: .init(sender: self)
+                        )))
                     }
-
-                    return
-                }
-
-                guard canComplete else { return }
-                coreGCD.after(.milliseconds(500)) {
-                    timeout.cancel()
-                    continuation.resume(returning: .success(output.url))
                 }
             }
         }
@@ -241,17 +275,51 @@ private enum _TextToSpeechServiceCache {
 
     private enum CacheKey: String, CaseIterable {
         case textToSpeechSupportForLanguageCodes
+        case voicesForLanguageCodes
     }
 
     // MARK: - Properties
 
     // swiftlint:disable:next identifier_name
     @Cached(CacheKey.textToSpeechSupportForLanguageCodes) fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]?
+    @Cached(CacheKey.voicesForLanguageCodes) fileprivate static var cachedVoicesForLanguageCodes: [String: AVSpeechSynthesisVoice]?
 
     // MARK: - Clear Cache
 
     fileprivate static func clearCache() {
         cachedTextToSpeechSupportForLanguageCodes = nil
+        cachedVoicesForLanguageCodes = nil
+    }
+}
+
+private actor TextToSpeechWriteGate {
+    // MARK: - Properties
+
+    static let shared = TextToSpeechWriteGate()
+
+    private var isRunning = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    // MARK: - Run
+
+    func run<T>(_ work: () async -> T) async -> T {
+        await acquire()
+        defer { release() }
+        return await work()
+    }
+
+    // MARK: - Auxiliary
+
+    private func acquire() async {
+        guard isRunning else { return isRunning = true }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            waiters.append(continuation)
+        }
+    }
+
+    private func release() {
+        guard !waiters.isEmpty else { return isRunning = false }
+        waiters.removeFirst().resume()
     }
 }
 

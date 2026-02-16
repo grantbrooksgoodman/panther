@@ -449,9 +449,13 @@ final class ConversationsPageViewService {
         }
 
         if !configurations.isEmpty {
-            RootSheets.present(
-                .featurePermissionPageView(configurations)
-            )
+            Application.dismissSheets()
+            uiApplication.resignFirstResponders()
+            Task.delayed(by: .milliseconds(350)) { @MainActor in
+                RootSheets.present(
+                    .featurePermissionPageView(configurations)
+                )
+            }
         }
     }
 

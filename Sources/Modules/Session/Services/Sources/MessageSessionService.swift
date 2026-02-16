@@ -72,94 +72,143 @@ struct MessageSessionService {
         }
 
         let users = users.filter { $0 != currentUser }
-        var translations = [Translation]()
-        var audioComponents = [AudioMessageReference]()
+        let uniqueLanguageCodes = users.map(\.languageCode).unique
+        let enhancementConfig = getEnhancementConfiguration(
+            for: conversation.value,
+            isAudioMessage: true,
+            userCount: users.count
+        )
 
-        for languageCode in users.map(\.languageCode).unique {
-            let translateResult = await networking.hostedTranslation.translate(
-                .init(transcription),
-                with: .init(from: currentUser.languageCode, to: languageCode),
-                enhance: getEnhancementConfiguration(
-                    for: conversation.value,
-                    isAudioMessage: true,
-                    userCount: users.count
-                )
-            )
+        var aggregatedTranslations: [Translation?] = Array(
+            repeating: nil,
+            count: uniqueLanguageCodes.count
+        )
 
-            incrementDeliveryProgress(
-                in: conversation.value,
-                by: Floats.translationDeliveryProgressIncrement / .init(users.count)
-            )
+        var aggregatedAudioComponents: [AudioMessageReference?] = Array(
+            repeating: nil,
+            count: uniqueLanguageCodes.count
+        )
 
-            var translation: Translation!
-            switch translateResult { // swiftlint:disable:next identifier_name
-            case let .success(_translation):
-                translation = _translation
-                translations.append(_translation)
+        let taskGroupResult: Callback<Void, Exception> = await withTaskGroup(
+            of: (Int, Callback<(Translation, AudioMessageReference), Exception>).self
+        ) { taskGroup in
+            for (index, languageCode) in uniqueLanguageCodes.enumerated() {
+                taskGroup.addTask {
+                    let translateResult = await networking.hostedTranslation.translate(
+                        .init(transcription),
+                        with: .init(
+                            from: currentUser.languageCode,
+                            to: languageCode
+                        ),
+                        enhance: enhancementConfig
+                    )
 
-            case let .failure(exception):
-                return .failure(exception)
-            }
+                    switch translateResult {
+                    case let .success(translation):
+                        if await networking.messageService.audio.preRecordedOutputExists(
+                            for: translation
+                        ) {
+                            let audioComponent = AudioMessageReference(
+                                translation: translation,
+                                original: inputFile,
+                                translated: inputFile,
+                                translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+                            )
 
-            if await networking.messageService.audio.preRecordedOutputExists(for: translation) {
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.readToFileDeliveryProgressIncrement / .init(users.count)
-                )
+                            return (index, .success((translation, audioComponent)))
+                        } else {
+                            let readToFileResult = await services.audio.textToSpeech.readToFile(
+                                text: translation.output.sanitized,
+                                languageCode: languageCode
+                            )
 
-                audioComponents.append(.init(
-                    translation: translation,
-                    original: inputFile,
-                    translated: inputFile,
-                    translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-                ))
-            } else {
-                let readToFileResult = await services.audio.textToSpeech.readToFile(
-                    text: translation.output.sanitized,
-                    languageCode: languageCode
-                )
+                            switch readToFileResult {
+                            case let .success(url):
+                                guard let outputFile = AudioFile(url) else {
+                                    return (index, .failure(.init(
+                                        "Failed to generate output audio file.",
+                                        metadata: .init(sender: self)
+                                    )))
+                                }
 
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.readToFileDeliveryProgressIncrement / .init(users.count)
-                )
+                                let audioComponent = AudioMessageReference(
+                                    translation: translation,
+                                    original: inputFile,
+                                    translated: outputFile,
+                                    translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+                                )
 
-                switch readToFileResult {
-                case let .success(url):
-                    guard let outputFile = AudioFile(url) else {
-                        return .failure(.init(
-                            "Failed to generate output audio file.",
-                            metadata: .init(sender: self)
-                        ))
+                                return (index, .success((translation, audioComponent)))
+
+                            case let .failure(exception):
+                                return (index, .failure(exception))
+                            }
+                        }
+
+                    case let .failure(exception):
+                        return (index, .failure(exception))
                     }
-
-                    audioComponents.append(.init(
-                        translation: translation,
-                        original: inputFile,
-                        translated: outputFile,
-                        translatedDirectoryPath: "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-                    ))
-
-                case let .failure(exception):
-                    return .failure(exception)
                 }
             }
+
+            var exception: Exception?
+            while let (index, result) = await taskGroup.next() {
+                incrementDeliveryProgress(
+                    in: conversation.value,
+                    by: Floats.translationDeliveryProgressIncrement / Float(max(
+                        1,
+                        uniqueLanguageCodes.count
+                    ))
+                )
+
+                switch result {
+                case let .success((translation, audioComponent)):
+                    aggregatedTranslations[index] = translation
+                    aggregatedAudioComponents[index] = audioComponent
+
+                    // TODO: Audit necessity of this when pre-recorded output exists.
+                    incrementDeliveryProgress(
+                        in: conversation.value,
+                        by: Floats.readToFileDeliveryProgressIncrement / Float(max(
+                            1,
+                            uniqueLanguageCodes.count
+                        ))
+                    )
+
+                // swiftlint:disable:next identifier_name
+                case let .failure(_exception):
+                    exception = _exception
+                    taskGroup.cancelAll()
+                }
+            }
+
+            if let exception { return .failure(exception) }
+            return .success(())
         }
 
-        guard translations.isWellFormed else {
-            return .failure(.init(
-                "Translations fail validation.",
-                metadata: .init(sender: self)
-            ))
-        }
+        switch taskGroupResult {
+        case .success:
+            let translations = aggregatedTranslations.compactMap(\.self)
+            let audioComponents = aggregatedAudioComponents.compactMap(\.self)
 
-        return await createMessageAndAddToConversation(
-            conversation: conversation,
-            initiatingUser: currentUser,
-            otherUsers: users,
-            richContent: .audio(audioComponents),
-            translations: translations
-        )
+            guard translations.isWellFormed else {
+                return .failure(.init(
+                    "Translations fail validation.",
+                    metadata: .init(sender: self)
+                ))
+            }
+
+            return await createMessageAndAddToConversation(
+                conversation: conversation,
+                initiatingUser: currentUser,
+                otherUsers: users,
+                richContent: .audio(audioComponents),
+                translations: translations
+            )
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
     }
 
     // MARK: - Send Media Message
@@ -437,17 +486,19 @@ struct MessageSessionService {
         isAudioMessage: Bool,
         userCount: Int,
     ) -> EnhancementConfiguration? {
-        guard clientSession
-            .user
-            .currentUser?
-            .aiEnhancedTranslationsEnabled == true else { return nil }
+        guard userCount == 1,
+              clientSession
+              .user
+              .currentUser?
+              .aiEnhancedTranslationsEnabled == true else { return nil }
 
         // swiftlint:disable:next line_length
         let audioMessageContext = "This is the transcription of an audio message. If you spot any red flags grammatically or coherence-wise, please correct them."
 
-        guard userCount == 1,
-              let messageReadout = conversation?.messageReadout else {
-            return isAudioMessage ? .init(additionalContext: audioMessageContext) : nil
+        guard let messageReadout = conversation?.messageReadout else {
+            return isAudioMessage ? .init(
+                additionalContext: audioMessageContext
+            ) : nil
         }
 
         let additionalContext = isAudioMessage ? audioMessageContext : ""

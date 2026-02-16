@@ -158,7 +158,7 @@ final class UserService {
             cachedValues.append(
                 .init(
                     data: data,
-                    expiryThreshold: .milliseconds(100)
+                    expiryThreshold: .milliseconds(200)
                 )
             )
             cachedUserDataSnapshots = cachedValues

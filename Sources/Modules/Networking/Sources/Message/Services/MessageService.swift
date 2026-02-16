@@ -99,7 +99,10 @@ struct MessageService {
                 ))
             }
 
-            if let exception = await audio.uploadAudioComponents(audioComponents, for: mockMessage) {
+            if let exception = await audio.uploadAudioComponents(
+                audioComponents,
+                for: mockMessage
+            ) {
                 return .failure(exception)
             }
 

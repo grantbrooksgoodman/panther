@@ -60,6 +60,7 @@ struct AudioMessageService {
         _ audioComponents: [AudioMessageReference],
         for message: Message
     ) async -> Exception? {
+        var didMoveInputFile = false
         var lastUploadedInput: AudioFile?
 
         func uploadInput(_ audioFile: AudioFile) async -> Exception? {
@@ -113,12 +114,16 @@ struct AudioMessageService {
                 return exception
             }
 
-            let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(audioComponent.original.fileExtension.rawValue)"
-            if let exception = fileManager.move(
-                fileAt: audioComponent.original.url,
-                toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
-            ) {
-                Logger.log(exception)
+            if !didMoveInputFile {
+                let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(audioComponent.original.fileExtension.rawValue)"
+                if let exception = fileManager.move(
+                    fileAt: audioComponent.original.url,
+                    toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
+                ) {
+                    Logger.log(exception)
+                } else {
+                    didMoveInputFile = true
+                }
             }
 
             guard !audioComponent.translation.languagePair.isIdempotent else { continue }

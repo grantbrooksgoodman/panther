@@ -49,13 +49,7 @@ struct FeaturePermissionPageReducer: Reducer {
 
         var currentIndex = 0
         var isButtonInteractionEnabled = true
-        var viewState: StatefulView.ViewState = .loading {
-            didSet {
-                @Dependency(\.uiApplication) var uiApplication: UIApplication
-                guard viewState == .loaded else { return }
-                uiApplication.resignFirstResponders()
-            }
-        }
+        var viewState: StatefulView.ViewState = .loading
 
         fileprivate var previouslyEnabledIndices = [Int]()
         fileprivate var resolvedSubtitleText = [String]()
