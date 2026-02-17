@@ -198,6 +198,11 @@ final class ContactService {
         }
 
         guard canComplete else { return }
-        completion(.success(contactPairs.unique.sorted(by: { $0.contact.firstName < $1.contact.firstName })))
+        completion(.success(
+            contactPairs
+                .unique
+                .sorted(by: { $0.contact.firstName < $1.contact.firstName })
+                .uniquedByPhoneNumber
+        ))
     }
 }

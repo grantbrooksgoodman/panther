@@ -41,9 +41,15 @@ extension User {
             return penPalsName
         }
 
-        let displayName = contactPair?.contact.fullName ?? phoneNumber.formattedString()
-        cache(displayName)
-        return displayName
+        if let contactPairName = contactPair?.contact.fullName,
+           !contactPairName.isBlank {
+            cache(contactPairName)
+            return contactPairName
+        }
+
+        let formattedPhoneNumberString = phoneNumber.formattedString()
+        cache(formattedPhoneNumberString)
+        return formattedPhoneNumberString
     }
 
     static var currentUserID: String? {

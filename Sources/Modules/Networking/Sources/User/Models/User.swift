@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class User: Codable, EncodedHashable, Equatable, Hashable {
+final class User: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.

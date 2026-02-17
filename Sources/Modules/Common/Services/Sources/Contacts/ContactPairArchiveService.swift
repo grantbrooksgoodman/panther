@@ -98,7 +98,8 @@ final class ContactPairArchiveService {
         }
 
         guard let valueForPhoneNumber = archive
-            .first(where: { $0.contact.phoneNumbers.compiledNumberStrings.contains(phoneNumber.compiledNumberString)
+            .first(where: {
+                $0.compiledNumberStrings.contains(phoneNumber.compiledNumberString)
             }) else { return nil }
 
         var newCacheValue = cachedContactPairsForPhoneNumbers ?? [:]
@@ -115,7 +116,10 @@ final class ContactPairArchiveService {
             var notificationExtensionArchive = [[String]: String]()
 
             archive.forEach { contactPair in
-                let possibleHashes = phoneNumberService.possibleHashes(for: contactPair.contact.phoneNumbers.compiledNumberStrings.unique) ?? []
+                let possibleHashes = phoneNumberService.possibleHashes(
+                    for: contactPair.compiledNumberStrings.unique
+                ) ?? []
+
                 notificationExtensionArchive[possibleHashes] = contactPair.contact.fullName
             }
 

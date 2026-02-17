@@ -116,6 +116,15 @@ final class SettingsPageViewService {
     func clearCachesButtonTapped() {
         @Sendable
         func clearCaches() async {
+            @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+            if let exception = userSession.stopObservingCurrentUserChanges() {
+                Logger.log(
+                    exception,
+                    domain: .userSession
+                )
+            }
+
             services.analytics.logEvent(.clearCaches)
             Application.reset(preserveCurrentUserID: true)
 
@@ -361,6 +370,10 @@ final class SettingsPageViewService {
                     }
 
                     guard let currentUser = self.clientSession.user.currentUser else { return }
+
+                    if let exception = self.clientSession.user.stopObservingCurrentUserChanges() {
+                        Logger.log(exception)
+                    }
 
                     if let exception = await currentUser.removeCurrentPushToken() {
                         Logger.log(exception)

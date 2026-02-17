@@ -15,6 +15,10 @@ import AppSubsystem
 extension ContactPair {
     // MARK: - Properties
 
+    var compiledNumberStrings: [String] {
+        contact.phoneNumbers.compiledNumberStrings
+    }
+
     var containsBlockedUser: Bool {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else { return false }

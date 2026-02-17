@@ -141,7 +141,7 @@ enum PLISTGenerator {
         You are translating text as part of standard, user-facing system dialogs\(dynamicContextSuffix)
         Be sure to use an appropriate, respectful, and neutral tone.
         Ensure consistency in pronoun usage and grammatical correctness.
-        Use infinitive forms for user actions where it makes sense (e.g., use 'Cerrar' in place of 'Cierra' for Spanish).
+        Use infinitive forms for user actions where it makes sense (e.g., use 'cerrar' in place of 'cierra' for Spanish).
         """
     }
 }

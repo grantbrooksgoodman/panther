@@ -10,7 +10,7 @@
 import Foundation
 
 // NIT: Need to either use phone number strings or conform PhoneNumber to not auto-resolve a calling code.
-struct NumberPair: Codable, Equatable {
+struct NumberPair: Codable, Hashable {
     // MARK: - Properties
 
     let phoneNumber: PhoneNumber
@@ -22,5 +22,12 @@ struct NumberPair: Codable, Equatable {
         assert(!users.isEmpty, "Initialized NumberPair with empty User array")
         self.phoneNumber = phoneNumber
         self.users = users
+    }
+
+    // MARK: - Hashable Conformance
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(phoneNumber)
+        hasher.combine(users)
     }
 }

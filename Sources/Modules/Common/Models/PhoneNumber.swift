@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
-final class PhoneNumber: Codable, EncodedHashable, Equatable {
+final class PhoneNumber: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     let callingCode: String
@@ -237,5 +237,11 @@ final class PhoneNumber: Codable, EncodedHashable, Equatable {
 
     static func == (left: PhoneNumber, right: PhoneNumber) -> Bool {
         left.hashFactors == right.hashFactors
+    }
+
+    // MARK: - Hashable Conformance
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(hashFactors)
     }
 }
