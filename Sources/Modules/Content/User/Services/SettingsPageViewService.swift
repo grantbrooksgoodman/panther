@@ -342,34 +342,34 @@ final class SettingsPageViewService {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task {
-                    Application.reset()
-
-                    if let exception = await self.services.notification.setBadgeNumber(0, updateHostedValue: false) {
+                    if let exception = await self.services.notification.setBadgeNumber(
+                        0,
+                        updateHostedValue: false
+                    ) {
                         Logger.log(exception)
                     }
 
-                    if let currentUser = self.clientSession.user.currentUser,
-                       let pushToken = self.services.pushToken.currentToken {
-                        let filteredPushTokens = (currentUser.pushTokens ?? []).filter { $0 != pushToken }
-                        let updateValueResult = await currentUser.updateValue(
-                            filteredPushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredPushTokens,
-                            forKey: .pushTokens
-                        )
+                    defer {
+                        Application.dismissSheets()
+                        Application.reset()
+                        self.services.analytics.logEvent(.logOut)
 
-                        switch updateValueResult {
-                        case let .failure(exception):
-                            Logger.log(exception)
-
-                        default: ()
+                        self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
+                            self.navigation.navigate(to: .onboarding(.stack([])))
+                            self.navigation.navigate(to: .root(.modal(.onboarding)))
                         }
                     }
 
-                    Application.dismissSheets()
-                    self.services.analytics.logEvent(.logOut)
+                    guard let currentUser = self.clientSession.user.currentUser else { return }
 
-                    self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
-                        self.navigation.navigate(to: .onboarding(.stack([])))
-                        self.navigation.navigate(to: .root(.modal(.onboarding)))
+                    if let exception = await currentUser.removeCurrentPushToken() {
+                        Logger.log(exception)
+                    }
+
+                    if let exception = await currentUser.updateLastSignedInDate(
+                        to: .init(timeIntervalSince1970: 0)
+                    ) {
+                        Logger.log(exception)
                     }
                 }
             }

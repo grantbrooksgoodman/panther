@@ -27,6 +27,7 @@ extension User: Updatable {
             .blockedUserIDs,
             .conversationIDs,
             .isPenPalsParticipant,
+            .lastSignedIn,
             .messageRecipientConsentRequired,
             .previousLanguageCodes,
             .pushTokens,
@@ -36,7 +37,10 @@ extension User: Updatable {
     // MARK: - Modify Key
 
     // swiftlint:disable:next function_body_length
-    func modifyKey(_ key: SerializationKeys, withValue value: Any) -> User? {
+    func modifyKey(
+        _ key: SerializationKeys,
+        withValue value: Any
+    ) -> User? {
         switch key {
         case .badgeNumber,
              .id,
@@ -53,6 +57,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -68,6 +73,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -84,6 +90,7 @@ extension User: Updatable {
                 conversationIDs: value,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -99,6 +106,23 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: value,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
+                messageRecipientConsentRequired: messageRecipientConsentRequired,
+                phoneNumber: phoneNumber,
+                previousLanguageCodes: previousLanguageCodes,
+                pushTokens: pushTokens
+            )
+
+        case .lastSignedIn:
+            guard let value = value as? Date else { return nil }
+            return .init(
+                id,
+                aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
+                blockedUserIDs: blockedUserIDs,
+                conversationIDs: conversationIDs,
+                isPenPalsParticipant: isPenPalsParticipant,
+                languageCode: languageCode,
+                lastSignedIn: value == .init(timeIntervalSince1970: 0) ? nil : value,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -114,6 +138,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: value,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: value,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -129,6 +154,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: value.isBangQualifiedEmpty ? nil : value,
@@ -144,6 +170,7 @@ extension User: Updatable {
                 conversationIDs: conversationIDs,
                 isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
+                lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: messageRecipientConsentRequired,
                 phoneNumber: phoneNumber,
                 previousLanguageCodes: previousLanguageCodes,
@@ -154,22 +181,44 @@ extension User: Updatable {
 
     // MARK: - Upate Value
 
-    func updateValue(_ value: Any, forKey key: SerializationKeys) async -> Callback<User, Exception> {
+    func updateValue(
+        _ value: Any,
+        forKey key: SerializationKeys
+    ) async -> Callback<User, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard updatableKeys.contains(key) else {
-            return .failure(.Networking.notUpdatable(key: key, .init(sender: self)))
+            return .failure(.Networking.notUpdatable(
+                key: key,
+                .init(sender: self)
+            ))
         }
 
-        guard let updated = modifyKey(key, withValue: value) else {
-            return .failure(.Networking.typeMismatch(key: key, .init(sender: self)))
+        guard let updated = modifyKey(
+            key,
+            withValue: value
+        ) else {
+            return .failure(.Networking.typeMismatch(
+                key: key,
+                .init(sender: self)
+            ))
         }
 
         let userKeyPath = "\(NetworkPath.users.rawValue)/\(id)/"
         let valueKeyPath = userKeyPath + key.rawValue
 
-        if let serializable = value as? any Serializable {
-            if let exception = await networking.database.setValue(serializable.encoded, forKey: valueKeyPath) {
+        if let date = value as? Date {
+            if let exception = await networking.database.setValue(
+                Date.timestampFromOptional(date: date),
+                forKey: valueKeyPath,
+            ) {
+                return .failure(exception)
+            }
+        } else if let serializable = value as? any Serializable {
+            if let exception = await networking.database.setValue(
+                serializable.encoded,
+                forKey: valueKeyPath
+            ) {
                 return .failure(exception)
             }
         } else if let serializable = value as? [any Serializable] {
@@ -181,11 +230,17 @@ extension User: Updatable {
                 return .failure(exception)
             }
         } else if networking.database.isEncodable(value) {
-            if let exception = await networking.database.setValue(value, forKey: valueKeyPath) {
+            if let exception = await networking.database.setValue(
+                value,
+                forKey: valueKeyPath
+            ) {
                 return .failure(exception)
             }
         } else {
-            return .failure(.Networking.notSerialized(data: [key.rawValue: value], .init(sender: self)))
+            return .failure(.Networking.notSerialized(
+                data: [key.rawValue: value],
+                .init(sender: self)
+            ))
         }
 
         return .success(updated)

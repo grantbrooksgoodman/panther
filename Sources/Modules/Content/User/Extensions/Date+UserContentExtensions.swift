@@ -13,7 +13,10 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-extension Date { // swiftlint:disable:next identifier_name
+extension Date {
+    // MARK: - Properties
+
+    // swiftlint:disable:next identifier_name
     var chatPageMessageSeparatorAttributedDateString: NSAttributedString? {
         typealias Floats = AppConstants.CGFloats.UserContentExtensions.Date
 
@@ -88,5 +91,22 @@ extension Date { // swiftlint:disable:next identifier_name
 
         let string = "\(overYearString) \(timeString)"
         return attributedForChatPageMessageSeparator(string, separatorIndex: overYearStringSeparatorIndex + 1)
+    }
+
+    // MARK: - Methods
+
+    func isWithinSameSecond(as other: Date) -> Bool {
+        @Dependency(\.currentCalendar) var calendar: Calendar
+        return calendar.compare(
+            self,
+            to: other,
+            toGranularity: .second
+        ) == .orderedSame
+    }
+
+    static func timestampFromOptional(date: Date?) -> String {
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+        let date = date ?? .init(timeIntervalSince1970: 0)
+        return timestampDateFormatter.string(from: date)
     }
 }

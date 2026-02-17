@@ -174,7 +174,14 @@ final class SplashPageViewService: ObservableObject {
             initializationProgress += 0.2
 
             guard let currentUser = clientSession.user.currentUser else {
-                return .init("Failed to set current user.", metadata: .init(sender: self))
+                return .init(
+                    "Failed to resolve current user.",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            if let exception = await currentUser.updateLastSignedInDate() {
+                return exception
             }
 
             core.utils.setIsEnhancedDialogTranslationEnabled(

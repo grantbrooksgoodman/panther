@@ -6,6 +6,8 @@
 //  Copyright © NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -16,7 +18,6 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
-// swiftlint:disable:next type_body_length
 final class UserSessionService {
     // MARK: - Types
 
@@ -31,6 +32,7 @@ final class UserSessionService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.storage) private var storageSession: StorageSessionService
+    @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
 
     // MARK: - Properties
 
@@ -238,7 +240,6 @@ final class UserSessionService {
         )
 
         currentUserDatabaseReference.observe(.value) { snapshot in
-            guard let currentUser = self.currentUser else { return }
             guard let dictionary = snapshot.value as? [String: Any] else {
                 return Logger.log(
                     .Networking.typecastFailed(
@@ -249,45 +250,18 @@ final class UserSessionService {
                 )
             }
 
-            guard let updatedConversationIDStrings = (dictionary[
-                User.SerializationKeys.conversationIDs.rawValue
-            ] as? [String])?.sorted() else { return }
-
-            guard let currentConversationIDStrings = currentUser
-                .conversationIDs?
-                .map(\.encoded)
-                .sorted() else { return self.updateCurrentUser() }
-
-            switch currentConversationIDStrings == updatedConversationIDStrings {
-            case true: // No changes to conversations.
-                guard let updatedBlockedUserIDs = (dictionary[
-                    User.SerializationKeys.blockedUserIDs.rawValue
-                ] as? [String])?.sorted() else { return }
-
-                let currentBlockedUserIDs = (currentUser.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
-                if currentBlockedUserIDs == updatedBlockedUserIDs {
-                    return Logger.log(
-                        "Skipping current user update as conversation ID values do not appear to have changed.",
-                        domain: .userSession,
-                        sender: self
-                    )
-                }
-
-                self.updateCurrentUser()
-
-            case false:
-                // Remove deleted conversations.
-                for idKey in currentConversationIDStrings
-                    .map(\.idKey) where !updatedConversationIDStrings
-                    .map(\.idKey)
-                    .contains(idKey) {
-                    self.networking.conversationService.archive.removeValue(
-                        idKey: idKey
-                    )
-                }
-
-                self.updateCurrentUser()
+            if self.blockedUserIDsDidChange(dictionary) ||
+                self.conversationsDidChange(dictionary) {
+                return self.updateCurrentUser()
+            } else if self.lastSignedInDateDidChange(dictionary) {
+                return self.signOutToPreserveSingleActiveUser()
             }
+
+            return Logger.log(
+                "Skipping current user update as relevant values do not appear to have changed.",
+                domain: .userSession,
+                sender: self
+            )
         } withCancel: { error in
             Logger.log(
                 .init(
@@ -316,6 +290,66 @@ final class UserSessionService {
     }
 
     // MARK: - Auxiliary
+
+    private func blockedUserIDsDidChange(_ dictionary: [String: Any]) -> Bool {
+        let currentBlockedUserIDs = (currentUser?.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
+
+        guard let updatedBlockedUserIDs = (dictionary[
+            User.SerializationKeys.blockedUserIDs.rawValue
+        ] as? [String])?.sorted() else { return false }
+
+        return currentBlockedUserIDs != updatedBlockedUserIDs
+    }
+
+    private func conversationsDidChange(_ dictionary: [String: Any]) -> Bool {
+        guard let currentConversationIDStrings = currentUser?
+            .conversationIDs?
+            .map(\.encoded)
+            .sorted() else { return true }
+
+        guard let updatedConversationIDStrings = (dictionary[
+            User.SerializationKeys.conversationIDs.rawValue
+        ] as? [String])?.sorted() else { return false }
+
+        // Remove deleted conversations.
+        for idKey in currentConversationIDStrings
+            .map(\.idKey) where !updatedConversationIDStrings
+            .map(\.idKey)
+            .contains(idKey) {
+            networking.conversationService.archive.removeValue(
+                idKey: idKey
+            )
+        }
+
+        return currentConversationIDStrings != updatedConversationIDStrings
+    }
+
+    private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
+        let currentLastSignedInDate = currentUser?.lastSignedIn
+        let updatedLastSignedInString = dictionary[
+            User.SerializationKeys.lastSignedIn.rawValue
+        ] as? String
+
+        guard let updatedLastSignedInString,
+              let updatedLastSignedInDate = timestampDateFormatter.date(
+                  from: updatedLastSignedInString
+              ) else { return false }
+
+        return !(currentLastSignedInDate?.isWithinSameSecond(as: updatedLastSignedInDate) ?? true)
+    }
+
+    private func signOutToPreserveSingleActiveUser() {
+        Toast.show(
+            .init(
+                .banner(style: .info),
+                title: "You have been signed out.",
+                message: "A sign-in was detected from another device."
+            ),
+            translating: Toast.TranslationOptionKey.allCases
+        )
+
+        return Application.reset(onCompletion: .navigateToSplash)
+    }
 
     private func updateCurrentUser() {
         Task {
@@ -369,3 +403,5 @@ private extension String {
         components(separatedBy: " ").first ?? self
     }
 }
+
+// swiftlint:enable file_length type_body_length

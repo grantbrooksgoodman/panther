@@ -29,6 +29,7 @@ extension User: Serializable {
         case conversationIDs = "openConversations"
         case isPenPalsParticipant
         case languageCode
+        case lastSignedIn
         case messageRecipientConsentRequired
         case phoneNumber
         case previousLanguageCodes
@@ -46,6 +47,7 @@ extension User: Serializable {
             Keys.conversationIDs.rawValue: conversationIDs.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDs,
             Keys.isPenPalsParticipant.rawValue: isPenPalsParticipant,
             Keys.languageCode.rawValue: languageCode,
+            Keys.lastSignedIn.rawValue: Date.timestampFromOptional(date: lastSignedIn),
             Keys.messageRecipientConsentRequired.rawValue: messageRecipientConsentRequired,
             Keys.phoneNumber.rawValue: phoneNumber.encoded,
             Keys.previousLanguageCodes.rawValue: previousLanguageCodes ?? .bangQualifiedEmpty,
@@ -56,6 +58,8 @@ extension User: Serializable {
     // MARK: - Methods
 
     static func canDecode(from data: [String: Any]) -> Bool {
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
         guard data[Keys.id.rawValue] is String,
               data[Keys.aiEnhancedTranslationsEnabled.rawValue] is Bool,
               data[Keys.blockedUserIDs.rawValue] is [String],
@@ -66,6 +70,8 @@ extension User: Serializable {
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               PhoneNumber.canDecode(from: encodedPhoneNumber),
               data[Keys.languageCode.rawValue] is String,
+              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
+              timestampDateFormatter.date(from: lastSignedInString) != nil,
               data[Keys.previousLanguageCodes.rawValue] is [String],
               data[Keys.pushTokens.rawValue] is [String] else { return false }
 
@@ -73,6 +79,8 @@ extension User: Serializable {
     }
 
     static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
         guard let id = data[Keys.id.rawValue] as? String,
               let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
               let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
@@ -80,6 +88,8 @@ extension User: Serializable {
               let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
               let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
               let languageCode = data[Keys.languageCode.rawValue] as? String,
+              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
+              let lastSignedIn = timestampDateFormatter.date(from: lastSignedInString),
               let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
               let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
               let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
@@ -121,6 +131,7 @@ extension User: Serializable {
             conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
             isPenPalsParticipant: isPenPalsParticipant,
             languageCode: languageCode,
+            lastSignedIn: lastSignedIn,
             messageRecipientConsentRequired: messageRecipientConsentRequired,
             phoneNumber: phoneNumber,
             previousLanguageCodes: previousLanguageCodes.isBangQualifiedEmpty ? nil : previousLanguageCodes,

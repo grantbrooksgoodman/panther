@@ -25,6 +25,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
     let id: String
     let isPenPalsParticipant: Bool
     let languageCode: String
+    let lastSignedIn: Date?
     let messageRecipientConsentRequired: Bool
     let phoneNumber: PhoneNumber
     let previousLanguageCodes: [String]?
@@ -48,6 +49,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         factors.append(id)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
+        factors.append(Date.timestampFromOptional(date: lastSignedIn))
         factors.append(messageRecipientConsentRequired.description)
         factors.append(phoneNumber.encodedHash)
         factors.append(contentsOf: previousLanguageCodes ?? [])
@@ -91,6 +93,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         conversationIDs: [ConversationID]?,
         isPenPalsParticipant: Bool,
         languageCode: String,
+        lastSignedIn: Date?,
         messageRecipientConsentRequired: Bool,
         phoneNumber: PhoneNumber,
         previousLanguageCodes: [String]?,
@@ -102,6 +105,7 @@ final class User: Codable, EncodedHashable, Equatable, Hashable {
         self.conversationIDs = conversationIDs
         self.isPenPalsParticipant = isPenPalsParticipant
         self.languageCode = languageCode
+        self.lastSignedIn = lastSignedIn
         self.messageRecipientConsentRequired = messageRecipientConsentRequired
         self.phoneNumber = phoneNumber
         self.previousLanguageCodes = previousLanguageCodes

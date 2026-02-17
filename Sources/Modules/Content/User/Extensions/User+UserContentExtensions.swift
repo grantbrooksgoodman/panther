@@ -117,6 +117,45 @@ extension User {
 
         return nil
     }
+
+    /// - Note: Will set the current user to the result returned by `updateValue`.
+    func removeCurrentPushToken() async -> Exception? {
+        @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+
+        guard let currentPushToken else { return nil }
+
+        var filteredPushTokens = (pushTokens ?? []).filter { $0 != currentPushToken }
+        if filteredPushTokens.isBangQualifiedEmpty {
+            filteredPushTokens = .bangQualifiedEmpty
+        }
+
+        let updateValueResult = await updateValue(
+            filteredPushTokens,
+            forKey: .pushTokens
+        )
+
+        switch updateValueResult {
+        case let .success(user): return userSession.setCurrentUser(user)
+        case let .failure(exception): return exception
+        }
+    }
+
+    /// - Note: Will set the current user to the result returned by `updateValue`.
+    func updateLastSignedInDate(
+        to date: Date = .now
+    ) async -> Exception? {
+        @Dependency(\.clientSession.user) var userSession: UserSessionService
+        let updateValueResult = await updateValue(
+            date,
+            forKey: .lastSignedIn
+        )
+
+        switch updateValueResult {
+        case let .success(user): return userSession.setCurrentUser(user)
+        case let .failure(exception): return exception
+        }
+    }
 }
 
 enum UserDisplayNameCache {
