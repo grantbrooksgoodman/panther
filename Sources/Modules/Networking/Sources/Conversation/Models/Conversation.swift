@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
@@ -178,7 +179,6 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Set Users
 
-    // TODO: Audit efficacy of using coalescer here.
     func setUsers(forceUpdate: Bool = false) async -> Exception? {
         await Self.coalescer(id.key) { [weak self] in
             guard let self else {
@@ -198,13 +198,17 @@ final class Conversation: Codable, EncodedHashable, Hashable {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         let userInfo = ["ConversationID": id.encoded]
-        if !forceUpdate {
+        if forceUpdate {
+            networking.database.setGlobalCacheStrategy(.disregardCache)
+        } else {
             guard users == nil else { return nil }
         }
 
-        // NIT: Don't know if this is strictly necessary.
-        networking.database.setGlobalCacheStrategy(.disregardCache)
-        defer { networking.database.setGlobalCacheStrategy(nil) }
+        defer {
+            if forceUpdate {
+                networking.database.setGlobalCacheStrategy(nil)
+            }
+        }
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {

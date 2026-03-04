@@ -15,9 +15,21 @@ import AlertKit
 import AppSubsystem
 
 protocol AttributeDetectionServiceDelegate: AnyObject {
-    func didSelectDate(_ date: Date, inText text: String)
-    func didSelectPhoneNumber(_ phoneNumber: String)
-    func didSelectURL(_ url: URL, inText text: String)
+    func didSelectDate(
+        _ date: Date,
+        at substring: String,
+        inText fullText: String
+    )
+
+    func didSelectPhoneNumber(
+        _ phoneNumber: String
+    )
+
+    func didSelectURL(
+        _ url: URL,
+        at substring: String,
+        inText fullText: String
+    )
 }
 
 final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate {
@@ -35,12 +47,17 @@ final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceD
 
     // MARK: - Did Select Date
 
-    func didSelectDate(_ date: Date, inText text: String) {
+    func didSelectDate(
+        _ date: Date,
+        at substring: String,
+        inText fullText: String
+    ) {
         guard let url = URL(string: "calshow:\(date.timeIntervalSinceReferenceDate)") else { return }
         let nonEnglishTitle = "Show in the calendar"
         confirmSelection(
             RuntimeStorage.languageCode == "en" ? "Show in Calendar" : nonEnglishTitle,
-            text: text,
+            message: substring,
+            fullText: fullText,
             url: url
         )
     }
@@ -54,10 +71,15 @@ final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceD
 
     // MARK: - Did Select URL
 
-    func didSelectURL(_ url: URL, inText text: String) {
+    func didSelectURL(
+        _ url: URL,
+        at substring: String,
+        inText fullText: String
+    ) {
         confirmSelection(
             "Open in \(RuntimeStorage.languageCode == "en" ? "Safari" : "browser")",
-            text: text,
+            message: substring,
+            fullText: fullText,
             url: url
         )
     }
@@ -66,14 +88,23 @@ final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceD
 
     private func confirmSelection(
         _ actionTitle: String,
-        text: String,
+        message: String,
+        fullText: String,
         url: URL
     ) {
-        Task { // NIT: Can use sourceItem here.
+        Task { @MainActor in
+            let matchingLabels = uiApplication
+                .presentedViews
+                .compactMap { $0 as? UILabel }
+                .filter { $0.text == fullText }
+
             await AKActionSheet(
-                message: text,
+                message: message,
                 actions: [.init(actionTitle) { self.openURL(url) }],
-                cancelButtonTitle: Localized(.cancel).wrappedValue
+                cancelButtonTitle: Localized(.cancel).wrappedValue,
+                sourceItem: .custom(.view(
+                    matchingLabels.count > 1 ? nil : matchingLabels.first
+                ))
             ).present(translating: [.actions([])])
         }
     }

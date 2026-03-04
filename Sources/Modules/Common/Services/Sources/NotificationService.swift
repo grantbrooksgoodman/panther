@@ -466,6 +466,7 @@ struct NotificationService {
                     let responseCode = (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1
                     return .init(
                         "Failed to decode URL response or status did not indicate success.",
+                        isReportable: !responseBody.contains("UNREGISTERED"),
                         userInfo: [
                             "ResponseBody": responseBody,
                             "URLResponseCode": responseCode,
