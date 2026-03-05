@@ -460,7 +460,6 @@ final class ConversationsPageViewService {
     }
 
     private func showSecondsToLoadToastIfNeeded() {
-        guard build.milestone != .generalRelease else { return }
         let currentUser = clientSession.user.currentUser
         let numberOfConversations = currentUser?
             .conversations?
@@ -475,10 +474,29 @@ final class ConversationsPageViewService {
             Float(secondsToLoad) / Float(numberOfConversations)
         )
 
-        let addendum = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+        let messageCount = currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .compactMap(\.messages)
+            .flatMap(\.self)
+            .uniquedByID
+            .count ?? 0
 
+        var addendum = ""
+        if messageCount > 0 {
+            addendum = "\nUser has \(messageCount) total messages."
+        }
+
+        Logger.log(
+            "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
+            domain: .conversation,
+            sender: self
+        )
+
+        guard build.milestone != .generalRelease else { return }
         Toast.show(.init(
-            message: "Loaded content in \(secondsToLoad) seconds\(addendum ?? "").",
+            message: "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
             perpetuation: .ephemeral(.seconds(10))
         ))
     }

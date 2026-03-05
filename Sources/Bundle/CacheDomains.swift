@@ -36,6 +36,7 @@ extension CacheDomain {
                 .Networking.storage,
                 .queriedContactPairs,
                 .queriedConversations,
+                .readReceipt,
                 .regionDetailService,
                 .settingsPageViewService,
                 .squareIconImage,
@@ -63,6 +64,7 @@ extension CacheDomain {
     static let mediaMessagePreviewService: CacheDomain = .init("mediaMessagePreviewService") { clearMediaMessagePreviewServiceCache() }
     static let queriedContactPairs: CacheDomain = .init("queriedContactPairs") { clearQueriedContactPairsCache() }
     static let queriedConversations: CacheDomain = .init("queriedConversations") { clearQueriedConversationCache() }
+    static let readReceipt: CacheDomain = .init("readReceipt") { clearReadReceiptCache() }
     static let regionDetailService: CacheDomain = .init("regionDetailService") { clearRegionDetailServiceCache() }
     static let settingsPageViewService: CacheDomain = .init("settingsPageViewService") { clearSettingsPageViewServiceCache() }
     static let squareIconImage: CacheDomain = .init("squareIconImage") { clearSquareIconImageCache() }
@@ -130,6 +132,10 @@ extension CacheDomain {
 
     private static func clearQueriedConversationCache() {
         QueriedConversationCache.clearCache()
+    }
+
+    private static func clearReadReceiptCache() {
+        ReadReceiptCache.clearCache()
     }
 
     private static func clearRegionDetailServiceCache() {

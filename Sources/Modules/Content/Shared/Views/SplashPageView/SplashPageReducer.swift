@@ -41,6 +41,11 @@ struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        var shouldShowPercentageLabel: Bool {
+            @Dependency(\.build) var build: Build
+            return build.isDeveloperModeEnabled
+        }
+
         var shouldShowProgressBar: Bool { User.currentUserID != nil }
     }
 

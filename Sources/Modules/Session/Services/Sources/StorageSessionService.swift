@@ -279,6 +279,7 @@ final class StorageSessionService {
             .map(\.encoded) else {
             return .failure(.init(
                 "Failed to resolve encoded conversations.",
+                isReportable: false,
                 metadata: .init(sender: self)
             ))
         }

@@ -178,7 +178,9 @@ extension Message: Serializable {
         }
     }
 
-    private static func getTranslations(references: [TranslationReference]) async -> Callback<[Translation], Exception> {
+    private static func getTranslations(
+        references: [TranslationReference]
+    ) async -> Callback<[Translation], Exception> {
         func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
             let decodeResult = await Translation.decode(from: reference)
 
@@ -205,34 +207,64 @@ extension Message: Serializable {
             ))
         }
 
-        var translations = [Translation]()
-        for reference in references {
-            let getTranslationResult = await getTranslation(reference)
+        var aggregatedTranslations: [Translation?] = Array(
+            repeating: nil,
+            count: references.count
+        )
 
-            switch getTranslationResult {
-            case let .success(translation):
-                translations.append(translation)
+        let taskGroupResult: Callback<[Translation], Exception> = await withTaskGroup(
+            of: (Int, Callback<Translation, Exception>).self
+        ) { taskGroup in
+            for (index, reference) in references.enumerated() {
+                taskGroup.addTask {
+                    let getTranslationResult = await getTranslation(reference)
+                    return (index, getTranslationResult)
+                }
+            }
 
-            case let .failure(exception):
+            var exceptions = [Exception]()
+
+            while let (index, getTranslationResult) = await taskGroup.next() {
+                switch getTranslationResult {
+                case let .success(translation):
+                    aggregatedTranslations[index] = translation
+
+                case let .failure(exception):
+                    exceptions.append(exception)
+                    taskGroup.cancelAll()
+                }
+            }
+
+            if let exception = exceptions.compiledException {
                 return .failure(exception)
             }
+
+            return .success(
+                aggregatedTranslations.compactMap(\.self)
+            )
         }
 
-        guard translations.count == references.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ))
-        }
+        switch taskGroupResult {
+        case let .success(translations):
+            guard translations.count == references.count else {
+                return .failure(.init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                ))
+            }
 
-        guard translations.isWellFormed else {
-            return .failure(.init(
-                "Translations fail validation.",
-                metadata: .init(sender: self)
-            ))
-        }
+            guard translations.isWellFormed else {
+                return .failure(.init(
+                    "Translations fail validation.",
+                    metadata: .init(sender: self)
+                ))
+            }
 
-        return .success(translations)
+            return .success(translations)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
     }
 }
 

@@ -34,13 +34,14 @@ final class SplashPageViewService: ObservableObject {
     @Published
     var initializationProgress: CGFloat = 0 {
         didSet {
+            percentageLabelText = "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
             core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
         }
     }
 
-    @Published
-    private(set) var loadingLabelText = ""
+    @Published private(set) var loadingLabelText = ""
+    @Published private(set) var percentageLabelText = ""
 
     private var didAttemptDatabaseRepair = false
     private var didAttemptUserConversion = false
@@ -318,6 +319,14 @@ final class SplashPageViewService: ObservableObject {
             UITheme.prevaricationMode,
             checkStyle: false
         )
+    }
+}
+
+private extension CGFloat {
+    var roundedString: String {
+        String(describing: Darwin.round(self * 100))
+            .components(separatedBy: ".")
+            .first ?? "0"
     }
 }
 
