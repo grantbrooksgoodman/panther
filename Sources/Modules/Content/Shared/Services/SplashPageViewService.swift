@@ -181,8 +181,12 @@ final class SplashPageViewService: ObservableObject {
                 )
             }
 
-            if let exception = await currentUser.updateLastSignedInDate() {
-                return exception
+            if !RuntimeStorage.updatedLastSignInDate {
+                if let exception = await currentUser.updateLastSignedInDate() {
+                    return exception
+                } else {
+                    RuntimeStorage.store(true, as: .updatedLastSignInDate)
+                }
             }
 
             core.utils.setIsEnhancedDialogTranslationEnabled(

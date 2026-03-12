@@ -23,13 +23,7 @@ final class ConversationArchiveService {
 
     // MARK: - Properties
 
-    @LockIsolated private var archive = Set<Conversation>() {
-        didSet {
-            persistedArchive = archive.isEmpty ? nil : archive
-            persistValuesForNotificationExtension()
-        }
-    }
-
+    @LockIsolated private var archive = Set<Conversation>()
     @Persistent(.conversationArchive) private var persistedArchive: Set<Conversation>?
 
     // MARK: - Init
@@ -39,9 +33,12 @@ final class ConversationArchiveService {
     // MARK: - Addition
 
     func addValue(_ conversation: Conversation) {
-        archive = archive.filter { $0.id.key != conversation.id.key }
-        archive.insert(conversation)
+        $archive.withValue { archive in
+            archive = archive.filter { $0.id.key != conversation.id.key }
+            archive.insert(conversation)
+        }
 
+        persistArchive()
         Logger.log(
             .init(
                 "Added conversation to persisted archive.",
@@ -58,9 +55,12 @@ final class ConversationArchiveService {
 
     func addValues(_ conversations: Set<Conversation>) {
         let incomingKeys = conversations.map(\.id.key)
-        archive = archive.filter { !incomingKeys.contains($0.id.key) }
-        archive.formUnion(conversations)
+        $archive.withValue { archive in
+            archive = archive.filter { !incomingKeys.contains($0.id.key) }
+            archive.formUnion(conversations)
+        }
 
+        persistArchive()
         if loggingEnabled {
             Logger.log(
                 .init(
@@ -91,12 +91,17 @@ final class ConversationArchiveService {
 
     func clearArchive() {
         archive = []
+        persistArchive()
     }
 
     func removeValue(idKey: String) {
-        let shouldLogRemoval = archive.contains(where: { $0.id.key == idKey })
-        archive = archive.filter { $0.id.key != idKey }
+        var shouldLogRemoval = false
+        $archive.withValue { archive in
+            shouldLogRemoval = archive.contains(where: { $0.id.key == idKey })
+            archive = archive.filter { $0.id.key != idKey }
+        }
 
+        persistArchive()
         guard shouldLogRemoval else { return }
         Logger.log(
             .init(
@@ -112,20 +117,24 @@ final class ConversationArchiveService {
     // MARK: - Retrieval
 
     func getValue(id: ConversationID) -> Conversation? {
-        archive.first(where: { $0.id == id })
+        $archive.withValue { archive in
+            archive.first(where: { $0.id == id })
+        }
     }
 
     func getValue(idKey: String) -> Conversation? {
-        archive.first(where: { $0.id.key == idKey })
+        $archive.withValue { archive in
+            archive.first(where: { $0.id.key == idKey })
+        }
     }
 
     // MARK: - Persist Values for Notification Extension
 
-    private func persistValuesForNotificationExtension() {
+    private func persistValuesForNotificationExtension(_ values: Set<Conversation>) {
         Task { @MainActor in
             var conversationNameMap = [String: String]()
 
-            for conversation in archive where conversation.participants.count > 2 {
+            for conversation in values where conversation.participants.count > 2 {
                 guard let titleLabelText = ConversationCellViewData(conversation)?.titleLabelText,
                       !titleLabelText.isBangQualifiedEmpty else { continue }
                 conversationNameMap[conversation.id.key] = titleLabelText
@@ -137,5 +146,13 @@ final class ConversationArchiveService {
                 forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
             )
         }
+    }
+
+    // MARK: - Auxiliary
+
+    private func persistArchive() {
+        let archiveSnapshot = archive
+        persistedArchive = archiveSnapshot.isEmpty ? nil : archiveSnapshot
+        persistValuesForNotificationExtension(archiveSnapshot)
     }
 }

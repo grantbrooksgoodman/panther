@@ -54,7 +54,7 @@ struct MessageRetranslationService {
         }
 
         let targetLanguageCode = translation.languagePair.to
-        if languageRecognitionService.matchConfidence(
+        if await languageRecognitionService.matchConfidence(
             for: translation.output,
             inLanguage: targetLanguageCode
         ) == 1 {
@@ -100,7 +100,7 @@ struct MessageRetranslationService {
 
             switch translateResult {
             case let .success(newTranslation):
-                guard !isLowQualityTranslationResult(
+                guard await !isLowQualityTranslationResult(
                     old: translation,
                     new: newTranslation,
                     targetLanguageCode: targetLanguageCode
@@ -169,9 +169,9 @@ struct MessageRetranslationService {
         old oldTranslation: Translation,
         new newTranslation: Translation,
         targetLanguageCode: String
-    ) -> Bool {
+    ) async -> Bool {
         guard oldTranslation.output.normalized != newTranslation.output.normalized else { return true }
-        return languageRecognitionService.matchConfidence(
+        return await languageRecognitionService.matchConfidence(
             for: newTranslation.output,
             inLanguage: targetLanguageCode
         ) < 0.8

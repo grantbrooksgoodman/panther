@@ -38,13 +38,13 @@ final class ConnectionStatusService {
 
         notificationCenter.addObserver(self, name: .reachabilityChanged) { _ in
             guard self.build.isOnline else {
-                self.uponConnectionChanged.values.forEach { $0() }
+                self.runEffects()
                 self.isAwaitingConnectionRestoration = true
                 return
             }
 
             guard self.isAwaitingConnectionRestoration else { return }
-            self.uponConnectionChanged.values.forEach { $0() }
+            self.runEffects()
             self.isAwaitingConnectionRestoration = false
         }
     }
@@ -68,7 +68,7 @@ final class ConnectionStatusService {
         id: ConnectionStatusServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        uponConnectionChanged[id] = effect
+        $uponConnectionChanged[id] = effect
     }
 
     func clearAllEffects() {
@@ -76,6 +76,13 @@ final class ConnectionStatusService {
     }
 
     func removeEffect(_ id: ConnectionStatusServiceEffectID) {
-        uponConnectionChanged[id] = nil
+        $uponConnectionChanged[id] = nil
+    }
+
+    // MARK: - Auxiliary
+
+    private func runEffects() {
+        let effects = $uponConnectionChanged.withValue { Array($0.values) }
+        effects.forEach { $0() }
     }
 }

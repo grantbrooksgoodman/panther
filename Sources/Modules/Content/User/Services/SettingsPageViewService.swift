@@ -359,6 +359,7 @@ final class SettingsPageViewService {
                     }
 
                     defer {
+                        RuntimeStorage.store(false, as: .updatedLastSignInDate)
                         Application.dismissSheets()
                         Application.reset()
                         self.services.analytics.logEvent(.logOut)

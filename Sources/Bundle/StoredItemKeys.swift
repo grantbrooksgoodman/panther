@@ -13,11 +13,13 @@ import Foundation
 import AppSubsystem
 
 extension StoredItemKey {
-    static let `default`: StoredItemKey = .init("default")
+    static let updatedLastSignInDate: StoredItemKey = .init("updatedLastSignInDate")
 }
 
 extension RuntimeStorage {
     /* Add new static properties here for quick access. */
 
-    static var `default`: String? { retrieve(.default) as? String }
+    static var updatedLastSignInDate: Bool {
+        retrieve(.updatedLastSignInDate) as? Bool ?? false
+    }
 }

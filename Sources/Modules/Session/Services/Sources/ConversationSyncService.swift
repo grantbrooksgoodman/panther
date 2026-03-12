@@ -25,20 +25,19 @@ final class ConversationSyncService {
 
     private static let coalescer = KeyedCoalescer<String, Callback<Conversation, Exception>>()
 
-    @LockIsolated private static var _recentlyFailedSyncRecords: Set<SynchronizationRecord> = []
+    @LockIsolated private static var recentlyFailedSyncRecords: Set<SynchronizationRecord> = []
 
     @LockIsolated private var _syncData: ConversationSyncData = .empty
 
     // MARK: - Computed Properties
 
-    private var recentlyFailedSyncRecords: Set<SynchronizationRecord> {
-        get { ConversationSyncService._recentlyFailedSyncRecords.filter { !$0.isExpired } }
-        set { ConversationSyncService._recentlyFailedSyncRecords = newValue }
-    }
-
     private var syncData: ConversationSyncData? {
-        get { _syncData == .empty ? nil : _syncData }
-        set { _syncData = newValue ?? .empty }
+        get {
+            $_syncData.withValue { $0 == .empty ? nil : $0 }
+        }
+        set {
+            _syncData = newValue ?? .empty
+        }
     }
 
     // MARK: - Synchronize Conversation
@@ -54,7 +53,7 @@ final class ConversationSyncService {
                 ))
             }
 
-            guard !self.recentlyFailedSyncRecords.contains(where: {
+            guard !Self.recentlyFailedSyncRecords.contains(where: {
                 $0.conversationID == conversation.id
             }) else { return .success(conversation) }
             return await self._synchronizeConversation(conversation)
@@ -509,7 +508,11 @@ final class ConversationSyncService {
                 domain: .conversation
             )
 
-            recentlyFailedSyncRecords.insert(.init(conversation.id))
+            Self.$recentlyFailedSyncRecords.withValue {
+                $0 = $0.filter { !$0.isExpired }
+                $0.insert(.init(conversation.id))
+            }
+
             if let exception = await synchronizeMessages(messageIDs) {
                 self.syncData = nil
                 return .failure(exception.appending(userInfo: userInfo))

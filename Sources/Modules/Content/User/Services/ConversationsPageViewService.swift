@@ -475,17 +475,22 @@ final class ConversationsPageViewService {
         )
 
         let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
-        let messageCount = currentUser?
+
+        let allMessages = currentUser?
             .conversations?
             .visibleForCurrentUser
             .compactMap(\.messages)
-            .flatMap(\.self)
-            .uniquedByID
-            .count ?? 0
+            .flatMap(\.self) ?? []
+
+        let audioMessageCount = allMessages.filter(\.contentType.isAudio).uniquedByID.count
+        let mediaMessageCount = allMessages.filter(\.contentType.isMedia).uniquedByID.count
+        let totalMessageCount = allMessages.uniquedByID.count
+        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
 
         var addendum = ""
-        if messageCount > 0 {
-            addendum = "\nUser has \(messageCount) total messages."
+        if totalMessageCount > 0 {
+            addendum = "\nUser has \(totalMessageCount) total messages."
+            addendum += "\n\(textMessageCount) text, \(audioMessageCount) audio, \(mediaMessageCount) media."
         }
 
         Logger.log(

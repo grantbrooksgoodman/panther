@@ -348,6 +348,7 @@ final class UserSessionService {
             translating: Toast.TranslationOptionKey.allCases
         )
 
+        RuntimeStorage.store(false, as: .updatedLastSignInDate)
         return Application.reset(onCompletion: .navigateToSplash)
     }
 

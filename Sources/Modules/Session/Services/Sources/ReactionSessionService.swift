@@ -41,12 +41,8 @@ final class ReactionSessionService {
         id: ReactionSessionServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else {
-            uponIsReactingToMessageChangedToFalse[id] = effect
-            return
-        }
-
-        uponIsReactingToMessageChangedToTrue[id] = effect
+        guard state else { return $uponIsReactingToMessageChangedToFalse[id] = effect }
+        $uponIsReactingToMessageChangedToTrue[id] = effect
     }
 
     // MARK: - React to Message
@@ -130,6 +126,7 @@ final class ReactionSessionService {
         switch isReactingToMessage {
         case true:
             ContextMenuInteraction.setCanBegin(false)
+            let uponIsReactingToMessageChangedToTrue = drainEffects($uponIsReactingToMessageChangedToTrue)
             guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
 
             Logger.log(.init(
@@ -139,11 +136,11 @@ final class ReactionSessionService {
                 metadata: .init(sender: self)
             ))
 
-            uponIsReactingToMessageChangedToTrue.values.forEach { $0() }
-            uponIsReactingToMessageChangedToTrue = .init()
+            runEffects(uponIsReactingToMessageChangedToTrue)
 
         case false:
             ContextMenuInteraction.setCanBegin(true)
+            let uponIsReactingToMessageChangedToFalse = drainEffects($uponIsReactingToMessageChangedToFalse)
             guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
 
             Logger.log(.init(
@@ -153,8 +150,18 @@ final class ReactionSessionService {
                 metadata: .init(sender: self)
             ))
 
-            uponIsReactingToMessageChangedToFalse.values.forEach { $0() }
-            uponIsReactingToMessageChangedToFalse = .init()
+            runEffects(uponIsReactingToMessageChangedToFalse)
+        }
+    }
+
+    private func drainEffects(
+        _ effects: LockIsolatedProjection<[ReactionSessionServiceEffectID: () -> Void]>
+    ) -> [ReactionSessionServiceEffectID: () -> Void] {
+        effects.withValue {
+            guard !$0.isEmpty else { return [:] }
+            let drained = $0
+            $0 = [:]
+            return drained
         }
     }
 
@@ -203,6 +210,10 @@ final class ReactionSessionService {
             messageData: (messageIndex, message),
             reactionMetadata: reactionMetadata
         )
+    }
+
+    private func runEffects(_ effects: [ReactionSessionServiceEffectID: () -> Void]) {
+        effects.values.forEach { $0() }
     }
 
     @MainActor

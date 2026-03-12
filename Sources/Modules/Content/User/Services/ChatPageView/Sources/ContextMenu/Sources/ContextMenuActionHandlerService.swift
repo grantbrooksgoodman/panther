@@ -217,11 +217,11 @@ final class ContextMenuActionHandlerService {
             let notCurrentUserUtteranceLanguageCode = isDisplayingAlternateText ? languagePair.from : languagePair.to
 
             var utteranceLanguageCode = selectedMessage.isFromCurrentUser ? currentUserUtteranceLanguageCode : notCurrentUserUtteranceLanguageCode
-            if languageRecognitionService.matchConfidence(
+            if await languageRecognitionService.matchConfidence(
                 for: messageLabelText,
                 inLanguage: utteranceLanguageCode
             ) <= .init(Floats.languageRecognitionMatchConfidenceThreshold),
-                languageRecognitionService.matchConfidence(
+                await languageRecognitionService.matchConfidence(
                     for: messageLabelText,
                     inLanguage: notCurrentUserUtteranceLanguageCode
                 ) >= .init(Floats.languageRecognitionMatchConfidenceThreshold),

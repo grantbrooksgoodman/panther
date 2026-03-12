@@ -55,12 +55,8 @@ final class ChatPageStateService {
         id: ChatPageStateServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else {
-            uponIsPresentedChangedToFalse[id] = effect
-            return
-        }
-
-        uponIsPresentedChangedToTrue[id] = effect
+        guard state else { return $uponIsPresentedChangedToFalse[id] = effect }
+        $uponIsPresentedChangedToTrue[id] = effect
     }
 
     /// Adds an effect to be run once, upon a change in value of `isWaitingToUpdateConversations`.
@@ -69,12 +65,8 @@ final class ChatPageStateService {
         id: ChatPageStateServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else {
-            uponIsWaitingToUpdateConversationsChangedToFalse[id] = effect
-            return
-        }
-
-        uponIsWaitingToUpdateConversationsChangedToTrue[id] = effect
+        guard state else { return $uponIsWaitingToUpdateConversationsChangedToFalse[id] = effect }
+        $uponIsWaitingToUpdateConversationsChangedToTrue[id] = effect
     }
 
     // MARK: - Did Set
@@ -82,6 +74,7 @@ final class ChatPageStateService {
     private func didSetIsPresented() {
         switch isPresented {
         case true:
+            let uponIsPresentedChangedToTrue = drainEffects($uponIsPresentedChangedToTrue)
             guard !uponIsPresentedChangedToTrue.isEmpty else { return }
 
             Logger.log(
@@ -94,10 +87,10 @@ final class ChatPageStateService {
                 domain: .chatPageState
             )
 
-            uponIsPresentedChangedToTrue.values.forEach { $0() }
-            uponIsPresentedChangedToTrue = .init()
+            runEffects(uponIsPresentedChangedToTrue)
 
         case false:
+            let uponIsPresentedChangedToFalse = drainEffects($uponIsPresentedChangedToFalse)
             guard !uponIsPresentedChangedToFalse.isEmpty else { return }
 
             Logger.log(
@@ -110,14 +103,14 @@ final class ChatPageStateService {
                 domain: .chatPageState
             )
 
-            uponIsPresentedChangedToFalse.values.forEach { $0() }
-            uponIsPresentedChangedToFalse = .init()
+            runEffects(uponIsPresentedChangedToFalse)
         }
     }
 
     private func didSetIsWaitingToUpdateConversations() {
         switch isWaitingToUpdateConversations {
         case true:
+            let uponIsWaitingToUpdateConversationsChangedToTrue = drainEffects($uponIsWaitingToUpdateConversationsChangedToTrue)
             guard !uponIsWaitingToUpdateConversationsChangedToTrue.isEmpty else { return }
 
             Logger.log(
@@ -130,10 +123,10 @@ final class ChatPageStateService {
                 domain: .chatPageState
             )
 
-            uponIsWaitingToUpdateConversationsChangedToTrue.values.forEach { $0() }
-            uponIsWaitingToUpdateConversationsChangedToTrue = .init()
+            runEffects(uponIsWaitingToUpdateConversationsChangedToTrue)
 
         case false:
+            let uponIsWaitingToUpdateConversationsChangedToFalse = drainEffects($uponIsWaitingToUpdateConversationsChangedToFalse)
             guard !uponIsWaitingToUpdateConversationsChangedToFalse.isEmpty else { return }
 
             Logger.log(
@@ -146,9 +139,25 @@ final class ChatPageStateService {
                 domain: .chatPageState
             )
 
-            uponIsWaitingToUpdateConversationsChangedToFalse.values.forEach { $0() }
-            uponIsWaitingToUpdateConversationsChangedToFalse = .init()
+            runEffects(uponIsWaitingToUpdateConversationsChangedToFalse)
         }
+    }
+
+    // MARK: - Auxiliary
+
+    private func drainEffects(
+        _ effects: LockIsolatedProjection<[ChatPageStateServiceEffectID: () -> Void]>
+    ) -> [ChatPageStateServiceEffectID: () -> Void] {
+        effects.withValue {
+            guard !$0.isEmpty else { return [:] }
+            let drained = $0
+            $0 = [:]
+            return drained
+        }
+    }
+
+    private func runEffects(_ effects: [ChatPageStateServiceEffectID: () -> Void]) {
+        effects.values.forEach { $0() }
     }
 }
 

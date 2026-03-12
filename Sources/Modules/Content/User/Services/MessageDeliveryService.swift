@@ -62,12 +62,8 @@ final class MessageDeliveryService {
         id: MessageDeliveryServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else {
-            uponIsSendingMessageChangedToFalse[id] = effect
-            return
-        }
-
-        uponIsSendingMessageChangedToTrue[id] = effect
+        guard state else { return $uponIsSendingMessageChangedToFalse[id] = effect }
+        $uponIsSendingMessageChangedToTrue[id] = effect
     }
 
     // MARK: - Send Audio Message
@@ -325,6 +321,7 @@ final class MessageDeliveryService {
         switch isSendingMessage {
         case true:
             ContextMenuInteraction.setCanBegin(false)
+            let uponIsSendingMessageChangedToTrue = drainEffects($uponIsSendingMessageChangedToTrue)
             guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
 
             Logger.log(.init(
@@ -334,11 +331,11 @@ final class MessageDeliveryService {
                 metadata: .init(sender: self)
             ))
 
-            uponIsSendingMessageChangedToTrue.values.forEach { $0() }
-            uponIsSendingMessageChangedToTrue = .init()
+            runEffects(uponIsSendingMessageChangedToTrue)
 
         case false:
             ContextMenuInteraction.setCanBegin(true)
+            let uponIsSendingMessageChangedToFalse = drainEffects($uponIsSendingMessageChangedToFalse)
             guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
 
             Logger.log(.init(
@@ -348,8 +345,18 @@ final class MessageDeliveryService {
                 metadata: .init(sender: self)
             ))
 
-            uponIsSendingMessageChangedToFalse.values.forEach { $0() }
-            uponIsSendingMessageChangedToFalse = .init()
+            runEffects(uponIsSendingMessageChangedToFalse)
+        }
+    }
+
+    private func drainEffects(
+        _ effects: LockIsolatedProjection<[MessageDeliveryServiceEffectID: () -> Void]>
+    ) -> [MessageDeliveryServiceEffectID: () -> Void] {
+        effects.withValue {
+            guard !$0.isEmpty else { return [:] }
+            let drained = $0
+            $0 = [:]
+            return drained
         }
     }
 
@@ -377,5 +384,9 @@ final class MessageDeliveryService {
             text: nil,
             isPenPalsConversation: isPenPalsConversation
         )
+    }
+
+    private func runEffects(_ effects: [MessageDeliveryServiceEffectID: () -> Void]) {
+        effects.values.forEach { $0() }
     }
 }
