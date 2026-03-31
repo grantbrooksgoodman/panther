@@ -51,7 +51,8 @@ extension RootSheet {
                 .init(
                     initialState: .init(configurations),
                     reducer: FeaturePermissionPageReducer()
-                ))
+                )
+            )
         ))
     }
 }

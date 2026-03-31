@@ -326,12 +326,4 @@ final class SplashPageViewService: ObservableObject {
     }
 }
 
-private extension CGFloat {
-    var roundedString: String {
-        String(describing: Darwin.round(self * 100))
-            .components(separatedBy: ".")
-            .first ?? "0"
-    }
-}
-
 // swiftlint:enable cyclomatic_complexity function_body_length

@@ -49,7 +49,7 @@ final class ConversationArchiveService {
                 ],
                 metadata: .init(sender: self)
             ),
-            domain: .conversation
+            domain: .conversationArchive
         )
     }
 
@@ -73,16 +73,13 @@ final class ConversationArchiveService {
                     },
                     metadata: .init(sender: self)
                 ),
-                domain: .conversation
+                domain: .conversationArchive
             )
         } else {
             Logger.log(
-                .init(
-                    "Added multiple conversations to persisted archive.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
+                "Added multiple conversations to persisted archive.",
+                domain: .conversationArchive,
+                sender: self
             )
         }
     }
@@ -110,7 +107,7 @@ final class ConversationArchiveService {
                 userInfo: ["ConversationIDKey": idKey],
                 metadata: .init(sender: self)
             ),
-            domain: .conversation
+            domain: .conversationArchive
         )
     }
 

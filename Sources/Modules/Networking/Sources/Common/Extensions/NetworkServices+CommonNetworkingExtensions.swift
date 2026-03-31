@@ -14,12 +14,11 @@ import AppSubsystem
 import Networking
 
 extension NetworkServices {
-    enum NetworkServiceStore {
+    private enum NetworkServiceStore {
         static let conversationService = ConversationService(archive: .init())
         static let integrityService = IntegrityService()
         static let messageService = MessageService(
             audio: .init(),
-            legacy: .init(),
             media: .init()
         )
         static let userService = UserService(

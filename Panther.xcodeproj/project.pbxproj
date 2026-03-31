@@ -20,6 +20,7 @@
 		A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
+		A2543E122F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2543E112F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift */; };
 		A26C65E92F370002005BFDEC /* Reaction.caf in Resources */ = {isa = PBXBuildFile; fileRef = A26C65E82F370002005BFDEC /* Reaction.caf */; };
 		A26C65EB2F370030005BFDEC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26C65EA2F370030005BFDEC /* NotificationService.swift */; };
 		A26D734C2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */; };
@@ -84,7 +85,6 @@
 		B9018A402CD9C15700B72B18 /* TapGestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */; };
 		B9018A432CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */; };
 		B9018A452CD9CAE300B72B18 /* AttributeDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */; };
-		B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90244062B27C84E00448809 /* LegacyMessageService.swift */; };
 		B90249C02B573A4500D62855 /* AuthCodePageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249BF2B573A4500D62855 /* AuthCodePageReducer.swift */; };
 		B90249C42B573A5800D62855 /* AuthCodePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249C32B573A5800D62855 /* AuthCodePageView.swift */; };
 		B90249C62B573A6200D62855 /* AuthCodePageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90249C52B573A6200D62855 /* AuthCodePageViewStrings.swift */; };
@@ -784,6 +784,7 @@
 		A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUsageCalculation.swift; sourceTree = "<group>"; };
 		A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMessageCell.swift; sourceTree = "<group>"; };
 		A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFlowLayout.swift; sourceTree = "<group>"; };
+		A2543E112F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BinaryFloatingPoint+CommonExtensions.swift"; sourceTree = "<group>"; };
 		A26C65E82F370002005BFDEC /* Reaction.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Reaction.caf; sourceTree = "<group>"; };
 		A26C65EA2F370030005BFDEC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		A26D734B2F2C6C3B00D43FA1 /* AppConstants+FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+FeaturePermissionPageView.swift"; sourceTree = "<group>"; };
@@ -850,7 +851,6 @@
 		B9018A3F2CD9C15700B72B18 /* TapGestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapGestureRecognizerService.swift; sourceTree = "<group>"; };
 		B9018A422CD9CAA500B72B18 /* AttributeDetectionServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeDetectionServiceDelegate.swift; sourceTree = "<group>"; };
 		B9018A442CD9CAE300B72B18 /* AttributeDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributeDetectionService.swift; sourceTree = "<group>"; };
-		B90244062B27C84E00448809 /* LegacyMessageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMessageService.swift; sourceTree = "<group>"; };
 		B90249BF2B573A4500D62855 /* AuthCodePageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCodePageReducer.swift; sourceTree = "<group>"; };
 		B90249C32B573A5800D62855 /* AuthCodePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCodePageView.swift; sourceTree = "<group>"; };
 		B90249C52B573A6200D62855 /* AuthCodePageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCodePageViewStrings.swift; sourceTree = "<group>"; };
@@ -3068,7 +3068,6 @@
 			isa = PBXGroup;
 			children = (
 				B9E0E1032B20FE7100C14274 /* AudioMessageService.swift */,
-				B90244062B27C84E00448809 /* LegacyMessageService.swift */,
 				B9E00A532C2B8C7F004E350E /* MediaMessageService.swift */,
 				B9E0E1052B20FE8600C14274 /* MessageService.swift */,
 			);
@@ -3141,6 +3140,7 @@
 			children = (
 				B9BD04512E14939100B68246 /* Application+CommonExtensions.swift */,
 				B900B53F2B1AC96000BA2F1D /* Array+CommonExtensions.swift */,
+				A2543E112F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift */,
 				B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */,
 				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
 				A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */,
@@ -3954,9 +3954,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4462,6 +4466,7 @@
 				B9223D2F2CD584DA00C05BC6 /* Menu.swift in Sources */,
 				B9223D302CD584DA00C05BC6 /* AnimationParameters.swift in Sources */,
 				B9223D312CD584DA00C05BC6 /* ContextMenuAnimatable.swift in Sources */,
+				A2543E122F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift in Sources */,
 				B9223D332CD584DA00C05BC6 /* MenuElementView.swift in Sources */,
 				B9223D342CD584DA00C05BC6 /* ContextMenuConfiguration.swift in Sources */,
 				B9223D362CD584DA00C05BC6 /* ContextMenuStyle.swift in Sources */,
@@ -4491,7 +4496,6 @@
 				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
 				B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
-				B90244072B27C84E00448809 /* LegacyMessageService.swift in Sources */,
 				A2A7A13F2F16DD3B00E09921 /* AppConstants+DataUsageView.swift in Sources */,
 				B969165D2BAE1D1A00441472 /* ConversationMetadata.swift in Sources */,
 				B990F5A62B81C60300C7BE00 /* ContactSelectorPageView.swift in Sources */,

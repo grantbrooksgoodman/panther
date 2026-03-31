@@ -24,19 +24,16 @@ struct MessageService {
     // MARK: - Properties
 
     let audio: AudioMessageService
-    let legacy: LegacyMessageService
     let media: MediaMessageService
 
     // MARK: - Init
 
     init(
         audio: AudioMessageService,
-        legacy: LegacyMessageService,
         media: MediaMessageService
     ) {
         self.audio = audio
         self.media = media
-        self.legacy = legacy
     }
 
     // MARK: - Message Creation

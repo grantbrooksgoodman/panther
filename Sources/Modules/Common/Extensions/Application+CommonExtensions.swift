@@ -60,10 +60,10 @@ extension Application {
         defaults.synchronize()
 
         guard let procedure else { return }
+        Application.dismissSheets()
+
         switch procedure {
         case .exitGracefully:
-            Application.dismissSheets()
-
             StatusBar.setIsHidden(true)
             core.ui.addOverlay(activityIndicator: .largeWhite)
 
@@ -71,7 +71,6 @@ extension Application {
             core.gcd.after(.seconds(1)) { core.utils.exitGracefully() }
 
         case .navigateToSplash:
-            Application.dismissSheets()
             navigation.navigate(to: .userContent(.stack([])))
             navigation.navigate(to: .root(.modal(.splash)))
         }

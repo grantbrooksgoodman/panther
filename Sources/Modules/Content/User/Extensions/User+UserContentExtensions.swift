@@ -84,7 +84,8 @@ extension User {
                filteringSystemMessages.messages == nil ||
                filteringSystemMessages.messages?.isEmpty == true {
                 return true
-            } else if filteringSystemMessages.messageIDs.count != filteringSystemMessages.messages?.count {
+            } else if !filteringSystemMessages.messageIDs.isBangQualifiedEmpty,
+                      filteringSystemMessages.messageIDs.count != filteringSystemMessages.messages?.count {
                 return true
             }
 

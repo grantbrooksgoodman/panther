@@ -199,19 +199,10 @@ final class AccountDeletionService {
                 .first(where: { $0.text?.contains(statusString) == true })
 
             let roundedValue = completionPercent.roundedString
-            guard let integer = Int(roundedValue),
-                  integer < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
+            guard completionPercent < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
 
             progressLabel?.text = "\(statusString) (\(roundedValue)%)"
             progressLabel?.adjustsFontSizeToFitWidth = true
         }
-    }
-}
-
-private extension Double {
-    var roundedString: String {
-        String(Darwin.round(self * 100))
-            .components(separatedBy: ".")
-            .first ?? "0"
     }
 }

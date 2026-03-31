@@ -28,6 +28,7 @@ extension LoggerDomain {
             .chatPageState,
             .contacts,
             .conversation,
+            .conversationArchive,
             .dataIntegrity,
             .general,
             .Networking.hostedTranslation,
@@ -48,6 +49,7 @@ extension LoggerDomain {
     static let bugPrevention: LoggerDomain = .init("bugPrevention")
     static let chatPageState: LoggerDomain = .init("chatPageState")
     static let contacts: LoggerDomain = .init("contacts")
+    static let conversationArchive: LoggerDomain = .init("conversationArchive")
     static let conversation: LoggerDomain = .init("conversation")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
     static let notifications: LoggerDomain = .init("notifications")

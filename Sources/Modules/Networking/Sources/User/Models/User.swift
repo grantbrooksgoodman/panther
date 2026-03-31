@@ -129,7 +129,13 @@ final class User: Codable, EncodedHashable, Hashable {
             guard let conversations,
                   !conversations.isEmpty else { return 0 }
 
-            for conversation in conversations.visibleForCurrentUser.filter({ $0.messages == nil }) {
+            for conversation in conversations
+                .visibleForCurrentUser
+                .filter({
+                    $0.messages == nil ||
+                        $0.messages?.isEmpty == true ||
+                        $0.filteringSystemMessages.messages?.count != $0.filteringSystemMessages.messageIDs.count
+                }) {
                 if let exception = await conversation.setMessages() {
                     Logger.log(exception, domain: .user)
                 }

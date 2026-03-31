@@ -284,18 +284,17 @@ final class ConversationsPageViewService {
 
         if bestCandidate.name != "current user conversations",
            bestCandidate.name != "provided conversations" {
-            Toast.hide()
-            Toast.show(.init(
-                .capsule(style: .warning),
-                message: "Best candidate was \(bestCandidate.name).",
-                perpetuation: .ephemeral(.seconds(3))
-            ))
+            Logger.log(
+                "⚠️ Best candidate for conversation list update was \(bestCandidate.name).",
+                domain: .conversation,
+                sender: self
+            )
         } else {
-            Toast.show(.init(
-                .capsule(style: .success),
-                message: "Set to reliable data source.",
-                perpetuation: .ephemeral(.seconds(2))
-            ))
+            Logger.log(
+                "✅ Set to reliable data source.",
+                domain: .conversation,
+                sender: self
+            )
         }
 
         state.conversations = bestCandidate.conversations
@@ -487,10 +486,15 @@ final class ConversationsPageViewService {
         let totalMessageCount = allMessages.uniquedByID.count
         let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
 
+        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
+        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
+        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
+        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
+
         var addendum = ""
         if totalMessageCount > 0 {
             addendum = "\nUser has \(totalMessageCount) total messages."
-            addendum += "\n\(textMessageCount) text, \(audioMessageCount) audio, \(mediaMessageCount) media."
+            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
         }
 
         Logger.log(
