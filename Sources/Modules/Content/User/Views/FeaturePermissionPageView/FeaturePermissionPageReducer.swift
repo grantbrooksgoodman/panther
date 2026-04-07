@@ -25,7 +25,6 @@ struct FeaturePermissionPageReducer: Reducer {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils.isEnhancedDialogTranslationEnabled) private var isEnhancedDialogTranslationEnabled: Bool
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
     // MARK: - Actions
@@ -110,7 +109,7 @@ struct FeaturePermissionPageReducer: Reducer {
                 let result = await translator.getTranslations(
                     for: titleTextInputs + subtitleTextInputs,
                     languagePair: .system,
-                    enhance: isEnhancedDialogTranslationEnabled ? .init(
+                    enhance: Networking.config.isEnhancedDialogTranslationEnabled ? .init(
                         additionalContext: nil
                     ) : nil
                 )

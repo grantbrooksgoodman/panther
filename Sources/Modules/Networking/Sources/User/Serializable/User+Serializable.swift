@@ -39,7 +39,7 @@ extension User: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        let conversationIDs = (conversationIDs ?? .init()).map { $0.encoded }
+        let conversationIDs = (conversationIDs ?? .init()).map(\.encoded)
         return [
             Keys.id.rawValue: id,
             Keys.aiEnhancedTranslationsEnabled.rawValue: aiEnhancedTranslationsEnabled,

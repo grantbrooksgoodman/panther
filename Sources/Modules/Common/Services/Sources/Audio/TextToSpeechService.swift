@@ -11,7 +11,7 @@ import AVFoundation
 import Foundation
 
 /* Proprietary */
-import AppSubsystem
+@preconcurrency import AppSubsystem
 
 struct TextToSpeechService {
     // MARK: - Type Aliases
@@ -322,5 +322,3 @@ private actor TextToSpeechWriteGate {
         waiters.removeFirst().resume()
     }
 }
-
-extension Timeout: @unchecked @retroactive Sendable {}

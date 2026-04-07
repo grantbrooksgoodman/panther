@@ -30,16 +30,28 @@ struct MediaMessageService {
             ).appending(userInfo: userInfo))
         }
 
-        switch cachedMediaFile(for: message, localPath: localMediaFilePath) {
+        switch cachedMediaFile(
+            for: message,
+            localPath: localMediaFilePath
+        ) {
         case let .success(mediaFile):
-            return .success(appendMediaComponent(mediaFile, to: message))
+            return .success(appendMediaComponent(
+                mediaFile,
+                to: message
+            ))
 
         case .failure:
-            let downloadMediaFileResult = await downloadMediaFile(for: message, localPath: localMediaFilePath)
+            let downloadMediaFileResult = await downloadMediaFile(
+                for: message,
+                localPath: localMediaFilePath
+            )
 
             switch downloadMediaFileResult {
             case let .success(mediaFile):
-                return .success(appendMediaComponent(mediaFile, to: message))
+                return .success(appendMediaComponent(
+                    mediaFile,
+                    to: message
+                ))
 
             case let .failure(exception):
                 return .failure(exception.appending(userInfo: ["MessageID": message.id]))

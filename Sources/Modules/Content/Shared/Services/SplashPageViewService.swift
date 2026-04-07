@@ -34,7 +34,7 @@ final class SplashPageViewService: ObservableObject {
     @Published
     var initializationProgress: CGFloat = 0 {
         didSet {
-            percentageLabelText = "\(initializationProgress.roundedString)%"
+            percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
             core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
         }
@@ -59,6 +59,8 @@ final class SplashPageViewService: ObservableObject {
     @MainActor
     func initializeBundle() async -> Exception? {
         /* MARK: Service Setup */
+
+        Toast.hide()
 
         didSurpassQuickLoadTimeoutDuration = false
         initializationProgress = initializationProgress == 1 ? 0 : initializationProgress
@@ -100,8 +102,8 @@ final class SplashPageViewService: ObservableObject {
             Logger.log(exception)
         }
 
-        core.utils.setIsEnhancedDialogTranslationEnabled(true)
-        core.utils.setEnhancedTranslationStatusVerbosity(.successOnly)
+        Networking.config.setIsEnhancedDialogTranslationEnabled(true)
+        Networking.config.setEnhancedTranslationStatusVerbosity(.successOnly)
         initializationProgress += 0.01
 
         /* MARK: MetadataService Setup */
@@ -189,21 +191,18 @@ final class SplashPageViewService: ObservableObject {
                 }
             }
 
-            core.utils.setIsEnhancedDialogTranslationEnabled(
+            Networking.config.setIsEnhancedDialogTranslationEnabled(
                 currentUser.aiEnhancedTranslationsEnabled
             )
 
             checkPrevaricationMode(currentUser.phoneNumber)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-            if (currentUser.conversationIDs ?? []).count > 3,
+            if (currentUser.conversationIDs ?? []).count > 5,
                (conversationArchive ?? []).isEmpty {
                 if let exception = await networking.database.populateTemporaryCaches() {
                     Logger.log(exception)
                 }
-
-                // Allow temporary cache population to settle before moving on.
-                try? await Task.sleep(for: .milliseconds(500))
 
                 if Networking.config.environment != .staging,
                    let exception = await services.pushToken.prunePushTokensForCurrentUser() {

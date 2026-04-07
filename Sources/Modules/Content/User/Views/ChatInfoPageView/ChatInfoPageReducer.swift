@@ -97,7 +97,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var chatInfoCellSubtitleLabelText: String {
-            chatParticipants.map { $0.displayName }.joined(separator: ", ")
+            chatParticipants.map(\.displayName).joined(separator: ", ")
         }
 
         var chatInfoCellTitleLabelText: String {

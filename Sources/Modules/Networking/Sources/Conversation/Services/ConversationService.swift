@@ -106,29 +106,32 @@ struct ConversationService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        var conversations = [Conversation]()
-
-        for id in idKeys {
-            let getConversationResult = await getConversation(idKey: id)
-
-            switch getConversationResult {
-            case let .success(conversation):
-                conversations.append(conversation)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
+        return await withTaskGroup(of: Callback<Conversation, Exception>.self) { taskGroup in
+            for idKey in idKeys {
+                taskGroup.addTask {
+                    await self.getConversation(idKey: idKey)
+                }
             }
-        }
 
-        guard !conversations.isEmpty,
-              conversations.count == idKeys.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
+            var conversations = [Conversation]()
 
-        return .success(conversations)
+            for await getConversationResult in taskGroup {
+                switch getConversationResult {
+                case let .success(conversation): conversations.append(conversation)
+                case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
+                }
+            }
+
+            guard !conversations.isEmpty,
+                  conversations.count == idKeys.count else {
+                return .failure(.init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                ).appending(userInfo: userInfo))
+            }
+
+            return .success(conversations)
+        }
     }
 
     private func getConversation(idKey: String) async -> Callback<Conversation, Exception> {

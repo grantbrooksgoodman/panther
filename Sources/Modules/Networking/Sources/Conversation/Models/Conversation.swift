@@ -90,6 +90,19 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
     func setMessages(ids: Set<String>? = nil) async -> Exception? {
+        await Self.coalescer("\(id.key)_MESSAGES") { [weak self] in
+            guard let self else {
+                return .init(
+                    "Conversation has been deallocated.",
+                    metadata: .init(sender: Self.self)
+                )
+            }
+
+            return await self._setMessages(ids: ids)
+        }
+    }
+
+    private func _setMessages(ids: Set<String>?) async -> Exception? {
         @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
@@ -180,7 +193,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
     // MARK: - Set Users
 
     func setUsers(forceUpdate: Bool = false) async -> Exception? {
-        await Self.coalescer(id.key) { [weak self] in
+        await Self.coalescer("\(id.key)_USERS") { [weak self] in
             guard let self else {
                 return .init(
                     "Conversation has been deallocated.",

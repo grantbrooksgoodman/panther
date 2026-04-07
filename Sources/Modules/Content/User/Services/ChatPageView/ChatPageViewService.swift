@@ -453,7 +453,9 @@ final class ChatPageViewService {
                   chatPageState.isPresented else { return }
             guard let leafViewController = uiApplication.keyViewController?.leafViewController,
                   leafViewController.descriptor == Strings.leafViewControllerID else {
-                Task.delayed(by: .seconds(1)) { startSettingNavigationBarButtonItemAppearance() }
+                Task.delayed(by: .seconds(1)) { [weak self] in
+                    self?.startSettingNavigationBarButtonItemAppearance()
+                }
                 return
             }
 

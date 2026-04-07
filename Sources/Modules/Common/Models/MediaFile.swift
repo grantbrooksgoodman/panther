@@ -28,7 +28,7 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
         let dataFromURLResult = Data.fromURL(localPathURL)
         switch dataFromURLResult {
         case let .success(data): factors.append(data.hash)
-        case let .failure(exception): Logger.log(exception, with: .toastInPrerelease)
+        case let .failure(exception): Logger.log(exception)
         }
 
         return factors.sorted()

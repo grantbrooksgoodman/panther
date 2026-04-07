@@ -132,7 +132,7 @@ struct PenPalsService {
         switch getAllUsersResult {
         case let .success(users):
             guard let randomPenPalsParticipant = users
-                .filter({ $0.isPenPalsParticipant })
+                .filter(\.isPenPalsParticipant)
                 .filter({ $0.languageCode != userSession.currentUser?.languageCode })
                 .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
                 .filter({ !contactPairArchiveUserIDs.contains($0.id) })

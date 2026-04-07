@@ -285,7 +285,7 @@ final class ConversationsPageViewService {
         if bestCandidate.name != "current user conversations",
            bestCandidate.name != "provided conversations" {
             Logger.log(
-                "⚠️ Best candidate for conversation list update was \(bestCandidate.name).",
+                "⚠️ Best candidate for list update was \(bestCandidate.name).",
                 domain: .conversation,
                 sender: self
             )

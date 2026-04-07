@@ -23,7 +23,6 @@ final class StorageSessionService {
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.coreKit.utils.isEnhancedDialogTranslationEnabled) private var isEnhancedDialogTranslationEnabled: Bool
     @Dependency(\.networking) private var networking: NetworkServices
 
     // MARK: - Properties
@@ -375,7 +374,7 @@ final class StorageSessionService {
             ],
             languagePair: .system,
             hud: nil,
-            enhance: isEnhancedDialogTranslationEnabled ? .init(
+            enhance: Networking.config.isEnhancedDialogTranslationEnabled ? .init(
                 additionalContext: nil
             ) : nil
         )

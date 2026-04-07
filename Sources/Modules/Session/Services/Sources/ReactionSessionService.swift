@@ -101,9 +101,13 @@ final class ReactionSessionService {
 
         // Notify users of reaction to message
 
-        Task.background {
-            guard let exception = await notifyUsers(ofReaction: reaction, to: message) else { return }
-            Logger.log(exception)
+        Task(priority: .utility) {
+            if let exception = await notifyUsers(
+                ofReaction: reaction,
+                to: message
+            ) {
+                Logger.log(exception)
+            }
         }
 
         // Update conversation with new metadata
@@ -165,7 +169,11 @@ final class ReactionSessionService {
         }
     }
 
-    private func notifyUsers(ofReaction reaction: Reaction, to message: Message) async -> Exception? {
+    private func notifyUsers(
+        ofReaction reaction: Reaction,
+        to message: Message
+    ) async -> Exception? {
+        guard message.fromAccountID != User.currentUserID else { return nil }
         guard let conversation = conversationSession.currentConversation,
               let currentUserID = User.currentUserID,
               let user = conversation

@@ -55,16 +55,17 @@ final class AccountDeletionService {
             isModal: true
         )
 
-        // Add to deleted users.
+        // Add to deleted users + synchronize conversations.
 
-        if let exception = await addToDeletedUsers(currentUserID) {
-            exceptions.append(exception)
-        }
+        await withTaskGroup(of: Exception?.self) { taskGroup in
+            taskGroup.addTask { await self.addToDeletedUsers(currentUserID) }
+            taskGroup.addTask { await self.clientSession.user.currentUser?.setConversations() ?? nil }
 
-        // Synchronize conversations.
-
-        if let exception = await clientSession.user.currentUser?.setConversations() {
-            exceptions.append(exception)
+            for await exception in taskGroup {
+                if let exception {
+                    exceptions.append(exception)
+                }
+            }
         }
 
         let conversations = clientSession.user.currentUser?.conversations ?? []
@@ -73,45 +74,57 @@ final class AccountDeletionService {
 
         let totalUnits = Double(groupChats.count + oneToOneChats.count)
 
-        // Remove user from existing group chats.
+        // Remove from group chats, delete 1:1 chats, and zero-out conversation IDs.
 
-        for groupChat in groupChats {
-            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
-                currentUserID,
-                conversation: groupChat,
-                removeFromUser: false
-            )
+        await withTaskGroup(of: (exception: Exception?, trackProgress: Bool).self) { taskGroup in
+            for groupChat in groupChats {
+                taskGroup.addTask {
+                    let removeFromConversationResult = await self.clientSession.activity.removeFromConversation(
+                        currentUserID,
+                        conversation: groupChat,
+                        removeFromUser: false
+                    )
 
-            switch removeFromConversationResult {
-            case .success: continue
-            case let .failure(exception): exceptions.append(exception)
+                    switch removeFromConversationResult {
+                    case .success: return (nil, true)
+                    case let .failure(exception): return (exception, true)
+                    }
+                }
             }
 
-            incrementProgress(forTotal: totalUnits)
-        }
-
-        // Delete 1:1 conversations.
-
-        for oneToOneChat in oneToOneChats {
-            if let exception = await clientSession.conversation.deleteConversation(
-                oneToOneChat,
-                forced: true
-            ) {
-                exceptions.append(exception)
+            for oneToOneChat in oneToOneChats {
+                taskGroup.addTask {
+                    (
+                        await self.clientSession.conversation.deleteConversation(
+                            oneToOneChat,
+                            forced: true
+                        ),
+                        true
+                    )
+                }
             }
 
-            incrementProgress(forTotal: totalUnits)
-        }
+            taskGroup.addTask {
+                do {
+                    _ = try (await self.clientSession.user.currentUser?.updateValue(
+                        [],
+                        forKey: .conversationIDs
+                    ))?.get()
+                    return (nil, false)
+                } catch {
+                    return (.init(error, metadata: .init(sender: self)), false)
+                }
+            }
 
-        // Zero-out all open conversation references for the current user.
+            for await(exception, trackProgress) in taskGroup {
+                if let exception {
+                    exceptions.append(exception)
+                }
 
-        do {
-            _ = try (await clientSession.user.currentUser?.updateValue(
-                [],
-                forKey: .conversationIDs
-            ))?.get()
-        } catch {
-            exceptions.append(.init(error, metadata: .init(sender: self)))
+                if trackProgress {
+                    incrementProgress(forTotal: totalUnits)
+                }
+            }
         }
 
         // Validate database integrity.
@@ -199,7 +212,8 @@ final class AccountDeletionService {
                 .first(where: { $0.text?.contains(statusString) == true })
 
             let roundedValue = completionPercent.roundedString
-            guard completionPercent < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
+            guard let integer = Int(roundedValue),
+                  integer < 100 else { return progressLabel?.text = Localized(.finishingUp).wrappedValue }
 
             progressLabel?.text = "\(statusString) (\(roundedValue)%)"
             progressLabel?.adjustsFontSizeToFitWidth = true

@@ -197,29 +197,32 @@ struct MessageService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        var messages = [Message]()
-
-        for id in ids {
-            let getMessageResult = await getMessage(id: id)
-
-            switch getMessageResult {
-            case let .success(message):
-                messages.append(message)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
+        return await withTaskGroup(of: Callback<Message, Exception>.self) { taskGroup in
+            for id in ids {
+                taskGroup.addTask {
+                    await getMessage(id: id)
+                }
             }
-        }
 
-        guard !messages.isEmpty,
-              messages.count == ids.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
+            var messages = [Message]()
 
-        return .success(messages)
+            for await getMessageResult in taskGroup {
+                switch getMessageResult {
+                case let .success(message): messages.append(message)
+                case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
+                }
+            }
+
+            guard !messages.isEmpty,
+                  messages.count == ids.count else {
+                return .failure(.init(
+                    "Mismatched ratio returned.",
+                    metadata: .init(sender: self)
+                ).appending(userInfo: userInfo))
+            }
+
+            return .success(messages)
+        }
     }
 
     // MARK: - Deletion

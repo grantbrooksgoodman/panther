@@ -71,15 +71,16 @@ extension IntegrityService {
             return exception
         }
 
-        // Prune Deleted Users
+        // Prune Deleted Users & Invalidated Caches
 
-        if let exception = await pruneDeletedUsers() {
+        async let pruneDeletedUsersException = pruneDeletedUsers()
+        async let pruneInvalidatedCachesException = pruneInvalidatedCaches()
+
+        if let exception = await pruneDeletedUsersException {
             exceptions.append(exception)
         }
 
-        // Prune Invalidated Caches
-
-        if let exception = await pruneInvalidatedCaches() {
+        if let exception = await pruneInvalidatedCachesException {
             exceptions.append(exception)
         }
 

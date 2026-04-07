@@ -80,7 +80,7 @@ final class IntegrityServiceSession {
         self.translationData = translationData
         self.userData = userData
 
-        indices = IntegrityServiceSession.resolveIndices(
+        indices = Self.resolveIndices(
             conversationData: conversationData,
             messageData: messageData,
             translationData: translationData,
@@ -90,6 +90,7 @@ final class IntegrityServiceSession {
 
     // MARK: - Resolve
 
+    // swiftlint:disable:next function_body_length
     static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
         @Dependency(\.networking) var networking: NetworkServices
 
@@ -103,9 +104,32 @@ final class IntegrityServiceSession {
             metadata: .init(sender: self)
         )
 
-        // Get Conversation Values
+        // Fetch all data concurrently
 
-        let getConversationValuesResult = await networking.database.getValues(at: NetworkPath.conversations.rawValue)
+        async let getConversationValues = networking.database.getValues(
+            at: NetworkPath.conversations.rawValue
+        )
+
+        async let getMessageValues = networking.database.getValues(
+            at: NetworkPath.messages.rawValue
+        )
+
+        async let getTranslationValues = networking.database.getValues(
+            at: NetworkPath.translations.rawValue
+        )
+
+        async let getUserValues = networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
+
+        let (
+            getConversationValuesResult,
+            getMessageValuesResult,
+            getTranslationValuesResult,
+            getUserValuesResult
+        ) = await(getConversationValues, getMessageValues, getTranslationValues, getUserValues)
+
+        // Process conversation values
 
         switch getConversationValuesResult {
         case let .success(values):
@@ -129,9 +153,7 @@ final class IntegrityServiceSession {
             conversationData = .init()
         }
 
-        // Get Message Values
-
-        let getMessageValuesResult = await networking.database.getValues(at: NetworkPath.messages.rawValue)
+        // Process message values
 
         switch getMessageValuesResult {
         case let .success(values):
@@ -155,9 +177,7 @@ final class IntegrityServiceSession {
             messageData = .init()
         }
 
-        // Get Translation Values
-
-        let getTranslationValuesResult = await networking.database.getValues(at: NetworkPath.translations.rawValue)
+        // Process translation values
 
         switch getTranslationValuesResult {
         case let .success(values):
@@ -181,9 +201,7 @@ final class IntegrityServiceSession {
             translationData = .init()
         }
 
-        // Get User Values
-
-        let getUserValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
+        // Process user values
 
         switch getUserValuesResult {
         case let .success(values):

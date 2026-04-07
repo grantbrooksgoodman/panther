@@ -58,7 +58,7 @@ extension DatabaseDelegate {
                 Toast.show(.init(
                     .capsule(style: .info),
                     message: "Established database snapshot.",
-                    perpetuation: .ephemeral(.seconds(5))
+                    perpetuation: .ephemeral(.milliseconds(1500))
                 ))
             }
 

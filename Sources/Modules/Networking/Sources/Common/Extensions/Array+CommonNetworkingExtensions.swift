@@ -51,24 +51,40 @@ extension Array where Element == Conversation {
 
     @discardableResult
     func setMessages() async -> Exception? {
-        for conversation in self {
-            if let exception = await conversation.setMessages() {
-                return exception
+        await withTaskGroup(of: Exception?.self) { taskGroup in
+            for conversation in self {
+                taskGroup.addTask {
+                    await conversation.setMessages()
+                }
             }
-        }
 
-        return nil
+            for await exception in taskGroup {
+                if let exception {
+                    return exception
+                }
+            }
+
+            return nil
+        }
     }
 
     @discardableResult
     func setUsers() async -> Exception? {
-        for conversation in self {
-            if let exception = await conversation.setUsers() {
-                return exception
+        await withTaskGroup(of: Exception?.self) { taskGroup in
+            for conversation in self {
+                taskGroup.addTask {
+                    await conversation.setUsers()
+                }
             }
-        }
 
-        return nil
+            for await exception in taskGroup {
+                if let exception {
+                    return exception
+                }
+            }
+
+            return nil
+        }
     }
 }
 

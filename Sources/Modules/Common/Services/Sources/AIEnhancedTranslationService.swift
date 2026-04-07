@@ -11,11 +11,11 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 struct AIEnhancedTranslationService {
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
 
     // MARK: - Set Did Grant AI-Enhanced Translation Permission
@@ -37,7 +37,7 @@ struct AIEnhancedTranslationService {
         case let .success(user):
             Observables.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
 
-            coreUtilities.setIsEnhancedDialogTranslationEnabled(
+            Networking.config.setIsEnhancedDialogTranslationEnabled(
                 didGrantAIEnhancedTranslationPermission
             )
 
