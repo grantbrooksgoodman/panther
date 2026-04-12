@@ -16,7 +16,8 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
+@MainActor
+final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
     private lazy var sizeCalculator = SizeCalculator(layout: self)
@@ -43,7 +44,8 @@ final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
     }
 }
 
-private final class SizeCalculator: MessageSizeCalculator {
+@MainActor
+private final class SizeCalculator: @MainActor MessageSizeCalculator {
     // MARK: - Init
 
     override init(layout: MessagesCollectionViewFlowLayout? = nil) {

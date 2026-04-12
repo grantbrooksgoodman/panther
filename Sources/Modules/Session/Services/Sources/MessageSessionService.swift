@@ -73,7 +73,7 @@ struct MessageSessionService: @unchecked Sendable {
 
         let users = users.filter { $0 != currentUser }
         let uniqueLanguageCodes = users.map(\.languageCode).unique
-        let enhancementConfig = getEnhancementConfiguration(
+        let enhancementConfig = await getEnhancementConfiguration(
             for: conversation.value,
             isAudioMessage: true,
             userCount: users.count
@@ -272,7 +272,7 @@ struct MessageSessionService: @unchecked Sendable {
 
         let users = users.filter { $0 != currentUser }
         let uniqueLanguageCodes = users.map(\.languageCode).unique
-        let enhancementConfig = getEnhancementConfiguration(
+        let enhancementConfig = await getEnhancementConfiguration(
             for: conversation.value,
             isAudioMessage: false,
             userCount: users.count
@@ -481,6 +481,7 @@ struct MessageSessionService: @unchecked Sendable {
         }
     }
 
+    @MainActor
     private func getEnhancementConfiguration(
         for conversation: Conversation?,
         isAudioMessage: Bool,
@@ -494,9 +495,7 @@ struct MessageSessionService: @unchecked Sendable {
         // swiftlint:disable:next line_length
         let audioMessageContext = "This is the transcription of an audio message. If you spot any red flags grammatically or coherence-wise, please correct them."
 
-        // FIXME: Audit this.
-        let messageReadout = MainActor.assumeIsolated { conversation?.messageReadout }
-        guard let messageReadout else {
+        guard let messageReadout = conversation?.messageReadout else {
             return isAudioMessage ? .init(
                 additionalContext: audioMessageContext
             ) : nil

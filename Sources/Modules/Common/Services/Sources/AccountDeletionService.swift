@@ -107,7 +107,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
             taskGroup.addTask {
                 do {
-                    _ = await try (self.clientSession.user.currentUser?.updateValue(
+                    _ = try await (self.clientSession.user.currentUser?.updateValue(
                         [],
                         forKey: .conversationIDs
                     ))?.get()
