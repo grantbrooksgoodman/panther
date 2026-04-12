@@ -107,7 +107,7 @@ final class TypingIndicatorService {
 
     @MainActor
     func textViewDidChange(to text: String) async -> Exception? {
-        return await withUnsafeContinuation { continuation in
+        await withUnsafeContinuation { continuation in
             _textViewDidChange(to: text) { exception in
                 continuation.resume(returning: exception)
             }

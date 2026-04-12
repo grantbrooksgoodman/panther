@@ -34,19 +34,19 @@ struct BuildInfoButtonStrings: Equatable {
     var next: BuildInfoButtonStrings {
         switch key {
         case .bundleVersionAndBuildNumber:
-            return .init(.buildSKU)
+            .init(.buildSKU)
 
         case .buildSKU:
-            return .init(.projectID)
+            .init(.projectID)
 
         case .projectID:
-            return .init(.userIDAndNetworkEnvironment)
+            .init(.userIDAndNetworkEnvironment)
 
         case .userIDAndNetworkEnvironment:
-            return .init(.copyright)
+            .init(.copyright)
 
         case .copyright:
-            return .init(.bundleVersionAndBuildNumber)
+            .init(.bundleVersionAndBuildNumber)
         }
     }
 

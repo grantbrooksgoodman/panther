@@ -86,7 +86,7 @@ struct MediaMessageService {
                 )
             }
 
-            guard (try? (await multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
+            guard await (try? (multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
 
             if let exception = await networking.storage.deleteItem(
                 at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
@@ -115,9 +115,9 @@ struct MediaMessageService {
         let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        if (try? await networking.storage.itemExists(at: relativePath).get()) == true {
+        if await (try? networking.storage.itemExists(at: relativePath).get()) == true {
             guard mediaComponent.hasThumbnail,
-                  (try? await networking.storage.itemExists(at: thumbnailRelativePath).get()) == false else {
+                  await (try? networking.storage.itemExists(at: thumbnailRelativePath).get()) == false else {
                 if let exception = fileManager.move(
                     fileAt: mediaComponent.localPathURL,
                     toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)

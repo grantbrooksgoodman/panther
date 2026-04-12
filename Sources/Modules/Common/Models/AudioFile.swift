@@ -142,7 +142,7 @@ final class AudioFile: Codable, Equatable, Sendable {
     private func setDuration() async -> Exception? {
         do {
             let assetReader = try AVAssetReader(asset: .init(url: url))
-            let duration: Float = await try .init(assetReader.asset.load(.duration).seconds)
+            let duration: Float = try await .init(assetReader.asset.load(.duration).seconds)
             guard duration > 0 else { return nil }
 
             var cachedDurationsForLocalPaths = _AudioFileDurationCache.cachedDurationsForLocalPaths ?? [:]

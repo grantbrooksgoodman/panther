@@ -81,7 +81,7 @@ struct InviteQRCodePageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.InviteQRCodePageViewStringKey) -> String {
         (first(where: { $0.key == .inviteQRCodePageView(key) })?.value ?? key.rawValue).sanitized
     }

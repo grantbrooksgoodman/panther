@@ -38,19 +38,19 @@ extension TranslatedLabelStringCollection {
         var alternate: String? {
             switch self {
             case .changeThemeButtonText:
-                return "Change Appearance"
+                "Change Appearance"
 
             case .leaveReviewButtonText:
-                return "Rate the App"
+                "Rate the App"
 
             case .recipientConsentListRowInnerText:
-                return "Require Recipient Consent"
+                "Require Recipient Consent"
 
             case .signOutButtonText:
-                return "Log Out"
+                "Log Out"
 
             default:
-                return nil
+                nil
             }
         }
     }

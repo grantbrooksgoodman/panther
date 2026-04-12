@@ -28,7 +28,7 @@ struct UserContentContainerReducer: Reducer {
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .chatInfoToolbarButtonTapped:
-            return .fireAndForget {
+            .fireAndForget {
                 Task { @MainActor in
                     RootSheets.present(.chatInfoPageView)
                 }

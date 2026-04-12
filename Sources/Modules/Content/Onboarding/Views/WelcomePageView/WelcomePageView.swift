@@ -82,7 +82,7 @@ struct WelcomePageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.WelcomePageViewStringKey) -> String {
         (first(where: { $0.key == .welcomePageView(key) })?.value ?? key.rawValue).sanitized
     }

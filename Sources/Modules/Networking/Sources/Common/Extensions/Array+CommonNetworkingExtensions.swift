@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
-extension Array where Element == Conversation {
+extension [Conversation] {
     // MARK: - Properties
 
     var sortedByLatestMessageSentDate: [Conversation] {
@@ -88,7 +88,7 @@ extension Array where Element == Conversation {
     }
 }
 
-extension Array where Element == Message {
+extension [Message] {
     /// The unique messages among the array according to their `id` value, where those with populated `readReceipts` fields take priority.
     var uniquedByID: [Message] {
         let withReadDate = filter { $0.readReceipts != nil }
@@ -108,7 +108,7 @@ extension Array where Element == Message {
     }
 }
 
-extension Array where Element == String {
+extension [String] {
     /// An empty array qualified by a single value of "!".
     static var bangQualifiedEmpty: [String] { ["!"] }
     var isBangQualifiedEmpty: Bool { isEmpty || allSatisfy(\.isBangQualifiedEmpty) }

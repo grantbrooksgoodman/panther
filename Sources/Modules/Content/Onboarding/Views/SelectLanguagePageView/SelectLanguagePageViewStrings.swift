@@ -29,10 +29,10 @@ extension TranslatedLabelStringCollection {
         var alternate: String? {
             switch self {
             case .backButtonText:
-                return "Go back"
+                "Go back"
 
             default:
-                return nil
+                nil
             }
         }
     }

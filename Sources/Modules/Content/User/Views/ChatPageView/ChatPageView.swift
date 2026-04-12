@@ -37,9 +37,9 @@ struct ChatPageView: UIViewControllerRepresentable {
 
         var focusedMessageID: String? {
             switch self {
-            case let .default(focusedMessageID): return focusedMessageID
-            case let .preview(focusedMessageID): return focusedMessageID
-            default: return nil
+            case let .default(focusedMessageID): focusedMessageID
+            case let .preview(focusedMessageID): focusedMessageID
+            default: nil
             }
         }
 

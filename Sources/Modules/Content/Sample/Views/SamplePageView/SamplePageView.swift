@@ -48,7 +48,7 @@ struct SamplePageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SamplePageViewStringKey) -> String {
         (first(where: { $0.key == .samplePageView(key) })?.value ?? key.rawValue).sanitized
     }

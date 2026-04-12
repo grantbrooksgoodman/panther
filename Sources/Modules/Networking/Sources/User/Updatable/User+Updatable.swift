@@ -222,7 +222,8 @@ extension User: Updatable {
                 return .failure(exception)
             }
         } else if let serializable = value as? [any Serializable] {
-            let encoded = serializable.map { $0.encoded }
+            // swiftformat:disable all
+            let encoded = serializable.map { $0.encoded } // swiftformat:enable all
             if let exception = await networking.database.setValue(
                 encoded.isEmpty ? Array.bangQualifiedEmpty : encoded,
                 forKey: valueKeyPath

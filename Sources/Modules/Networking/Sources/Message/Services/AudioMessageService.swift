@@ -76,7 +76,7 @@ struct AudioMessageService {
                 return nil
             }
 
-            guard !(await preRecordedInputExists(for: audioFile)) else {
+            guard await !preRecordedInputExists(for: audioFile) else {
                 lastUploadedInput = audioFile
                 return nil
             }
@@ -128,7 +128,7 @@ struct AudioMessageService {
 
             guard !audioComponent.translation.languagePair.isIdempotent else { continue }
             defer { moveOutputFile() }
-            guard !(await preRecordedOutputExists(for: audioComponent.translation)) else { continue }
+            guard await !preRecordedOutputExists(for: audioComponent.translation) else { continue }
 
             if let exception = await upload(
                 audioFile: audioComponent.translated,
@@ -251,7 +251,7 @@ struct AudioMessageService {
     }
 
     private func preRecordedInputExists(for audioFile: AudioFile) async -> Bool {
-        (try? await networking.storage.itemExists(
+        await (try? networking.storage.itemExists(
             at: "\(NetworkPath.audioMessageInputs.rawValue)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
         ).get()) == true
     }
@@ -259,7 +259,7 @@ struct AudioMessageService {
     func preRecordedOutputExists(for translation: Translation) async -> Bool {
         let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
         let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
-        return (try? await networking.storage.itemExists(
+        return await (try? networking.storage.itemExists(
             at: "\(outputDirectoryPath)/\(outputFileName)"
         ).get()) == true
     }

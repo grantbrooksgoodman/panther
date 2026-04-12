@@ -13,13 +13,13 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-extension Array where Element == CNLabeledValue<CNPhoneNumber> {
+extension [CNLabeledValue<CNPhoneNumber>] {
     var asPhoneNumbers: [PhoneNumber] {
         map { PhoneNumber($0) }
     }
 }
 
-extension Array where Element == PhoneNumber {
+extension [PhoneNumber] {
     var compiledNumberStrings: [String] {
         map(\.compiledNumberString)
     }

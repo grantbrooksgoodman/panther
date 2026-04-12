@@ -117,7 +117,7 @@ struct SelectLanguagePageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SelectLanguagePageViewStringKey) -> String {
         (first(where: { $0.key == .selectLanguagePageView(key) })?.value ?? key.rawValue).sanitized
     }

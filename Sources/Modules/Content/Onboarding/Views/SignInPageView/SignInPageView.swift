@@ -132,7 +132,7 @@ struct SignInPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SignInPageViewStringKey) -> String {
         (first(where: { $0.key == .signInPageView(key) })?.value ?? key.rawValue).sanitized
     }

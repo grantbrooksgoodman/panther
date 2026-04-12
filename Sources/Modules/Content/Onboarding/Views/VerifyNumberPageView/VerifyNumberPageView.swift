@@ -113,7 +113,7 @@ struct VerifyNumberPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.VerifyNumberPageViewStringKey) -> String {
         (first(where: { $0.key == .verifyNumberPageView(key) })?.value ?? key.rawValue).sanitized
     }

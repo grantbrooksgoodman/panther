@@ -502,7 +502,7 @@ struct UserTestingService {
               let imageData = await randomImageData else { return }
 
         do {
-            _ = await try (conversation.updateValue(
+            _ = try await (conversation.updateValue(
                 conversation.metadata.copyWith(imageData: imageData),
                 forKey: .metadata
             )).get()
@@ -538,7 +538,7 @@ struct UserTestingService {
         } // swiftlint:enable duplicate_conditions
 
         do {
-            _ = await try (conversation.updateValue(
+            _ = try await (conversation.updateValue(
                 conversation.metadata.copyWith(name: randomTitle),
                 forKey: .metadata
             )).get()

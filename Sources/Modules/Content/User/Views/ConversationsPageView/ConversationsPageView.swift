@@ -220,7 +220,7 @@ struct ConversationsPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ConversationsPageViewStringKey) -> String {
         (first(where: { $0.key == .conversationsPageView(key) })?.value ?? key.rawValue).sanitized
     }

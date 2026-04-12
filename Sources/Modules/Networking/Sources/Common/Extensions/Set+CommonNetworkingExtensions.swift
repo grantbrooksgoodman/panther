@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-extension Set where Element == Conversation {
+extension Set<Conversation> {
     // NIT: May be inefficient.
     mutating func merge(with conversations: any Collection<Conversation>) {
         let incomingKeys = conversations.map(\.id.key)

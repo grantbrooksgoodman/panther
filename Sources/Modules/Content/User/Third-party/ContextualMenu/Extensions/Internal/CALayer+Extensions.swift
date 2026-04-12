@@ -11,8 +11,8 @@ import Foundation
 import UIKit
 
 extension CALayer {
-    func animate<Value>(
-        keyPath: WritableKeyPath<CALayer, Value>, toValue: Float, duration: TimeInterval
+    func animate(
+        keyPath: WritableKeyPath<CALayer, some Any>, toValue: Float, duration: TimeInterval
     ) {
         let keyString = NSExpression(forKeyPath: keyPath).keyPath
         let animation = CABasicAnimation(keyPath: keyString)
