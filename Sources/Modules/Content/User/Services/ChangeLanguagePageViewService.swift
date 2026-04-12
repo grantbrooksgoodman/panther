@@ -68,10 +68,11 @@ struct ChangeLanguagePageViewService {
 
         defer { core.hud.hide() }
 
-        var loadedData = false
+        final class BoolBox: @unchecked Sendable { var value = false }
+        let loadedData = BoolBox()
         let timeout = Timeout(after: .seconds(1)) {
             Task { @MainActor in
-                guard !loadedData else { return }
+                guard !loadedData.value else { return }
                 core.ui.addOverlay(
                     alpha: 0.5,
                     activityIndicator: nil,
@@ -133,7 +134,7 @@ struct ChangeLanguagePageViewService {
             forKey: .previousLanguageCodes
         )
 
-        loadedData = true
+        loadedData.value = true
         timeout.cancel()
 
         switch updateValueResult {
@@ -149,10 +150,12 @@ struct ChangeLanguagePageViewService {
                 return exception
             }
 
-            Application.reset(
-                preserveCurrentUserID: true,
-                onCompletion: .exitGracefully
-            )
+            await MainActor.run {
+                Application.reset(
+                    preserveCurrentUserID: true,
+                    onCompletion: .exitGracefully
+                )
+            }
 
         case let .failure(exception):
             return exception
@@ -162,7 +165,7 @@ struct ChangeLanguagePageViewService {
     }
 }
 
-private extension Array where Element == Conversation {
+private extension [Conversation] {
     func messageTranslations(
         fromCurrentUser: Bool
     ) -> [Translation] {

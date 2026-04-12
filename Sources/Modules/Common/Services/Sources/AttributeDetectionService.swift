@@ -10,6 +10,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 final class AttributeDetectionService {
     // MARK: - Properties
 

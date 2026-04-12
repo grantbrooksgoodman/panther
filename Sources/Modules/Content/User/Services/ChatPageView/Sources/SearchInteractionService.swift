@@ -17,7 +17,6 @@ final class SearchInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.chatPageStateService.isPresented) private var isChatPagePresented: Bool
     @Dependency(\.clientSession.conversation.currentConversation?.messages) private var messages: [Message]?
 
@@ -30,6 +29,7 @@ final class SearchInteractionService {
 
     // MARK: - Computed Properties
 
+    @MainActor
     private var focusedMessageCellGestureRecognizer: UILongPressGestureRecognizer? {
         guard let focusedMessageIndex = messages?.firstIndex(where: { $0.id == focusedMessageID }) else { return nil }
         return viewController
@@ -69,7 +69,9 @@ final class SearchInteractionService {
         guard isChatPagePresented,
               let focusedMessageCellGestureRecognizer else {
             guard retryOnFailure else { return }
-            coreGCD.after(.milliseconds(500)) { self.triggerCellInteraction(false) }
+            Task.delayed(by: .milliseconds(500)) { @MainActor in
+                self.triggerCellInteraction(false)
+            }
             return
         }
 

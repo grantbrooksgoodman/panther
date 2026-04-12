@@ -16,7 +16,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct MessageSessionService {
+struct MessageSessionService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.MessageSessionService
@@ -68,7 +68,7 @@ struct MessageSessionService {
         )
 
         if shouldAnimateDeliveryProgress(in: conversation.value) {
-            clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+            await clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
         }
 
         let users = users.filter { $0 != currentUser }
@@ -93,7 +93,7 @@ struct MessageSessionService {
             of: (Int, Callback<(Translation, AudioMessageReference), Exception>).self
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
-                taskGroup.addTask {
+                taskGroup.addTask { [self, transcription = transcription as String] in
                     let translateResult = await networking.hostedTranslation.translate(
                         .init(transcription),
                         with: .init(
@@ -287,7 +287,7 @@ struct MessageSessionService {
             of: (Int, Callback<Translation, Exception>).self
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
-                taskGroup.addTask {
+                taskGroup.addTask { [self, text] in
                     let translateResult = await networking.hostedTranslation.translate(
                         .init(text),
                         with: .init(
@@ -494,7 +494,9 @@ struct MessageSessionService {
         // swiftlint:disable:next line_length
         let audioMessageContext = "This is the transcription of an audio message. If you spot any red flags grammatically or coherence-wise, please correct them."
 
-        guard let messageReadout = conversation?.messageReadout else {
+        // FIXME: Audit this.
+        let messageReadout = MainActor.assumeIsolated { conversation?.messageReadout }
+        guard let messageReadout else {
             return isAudioMessage ? .init(
                 additionalContext: audioMessageContext
             ) : nil
@@ -516,7 +518,9 @@ struct MessageSessionService {
 
     private func incrementDeliveryProgress(in conversation: Conversation?, by: Float) {
         guard shouldAnimateDeliveryProgress(in: conversation) else { return }
-        clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
+        Task { @MainActor in
+            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
+        }
     }
 
     private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {
@@ -524,6 +528,7 @@ struct MessageSessionService {
     }
 }
 
+@MainActor
 private extension Conversation {
     var messageReadout: String? {
         guard let messages else { return nil }

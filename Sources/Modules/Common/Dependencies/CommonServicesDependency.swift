@@ -14,11 +14,12 @@ import AppSubsystem
 
 enum CommonServicesDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> CommonServices {
-        .init(
+        @MainActorIsolated var attributeDetectionService = AttributeDetectionService.shared
+        return .init(
             accountDeletion: .init(),
             aiEnhancedTranslation: .init(),
             analytics: .init(),
-            attributeDetection: .shared,
+            attributeDetection: attributeDetectionService,
             audio: .init(
                 playback: .init(),
                 recording: .init(),
@@ -34,14 +35,7 @@ enum CommonServicesDependency: DependencyKey {
                 media: .init()
             ),
             documentExport: .init(),
-            haptics: .init(
-                heavyImpactFeedbackGenerator: .init(style: .heavy),
-                lightImpactFeedbackGenerator: .init(style: .light),
-                mediumImpactFeedbackGenerator: .init(style: .medium),
-                rigidImpactFeedbackGenerator: .init(style: .rigid),
-                selectionFeedbackGenerator: .init(),
-                softImpactFeedbackGenerator: .init(style: .soft)
-            ),
+            haptics: .init(),
             invite: .init(),
             messageRecipientConsent: .init(),
             messageRetranslation: .init(),

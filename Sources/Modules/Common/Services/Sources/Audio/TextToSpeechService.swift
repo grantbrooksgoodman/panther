@@ -271,18 +271,22 @@ enum TextToSpeechServiceCache {
 }
 
 private enum _TextToSpeechServiceCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case textToSpeechSupportForLanguageCodes
-        case voicesForLanguageCodes
-    }
-
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name
-    @Cached(CacheKey.textToSpeechSupportForLanguageCodes) fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]?
-    @Cached(CacheKey.voicesForLanguageCodes) fileprivate static var cachedVoicesForLanguageCodes: [String: AVSpeechSynthesisVoice]?
+    // swiftlint:disable identifier_name
+    fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]? {
+        get { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue }
+        set { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue = newValue }
+    }
+
+    fileprivate static var cachedVoicesForLanguageCodes: [String: AVSpeechSynthesisVoice]? {
+        get { _cachedVoicesForLanguageCodes.wrappedValue }
+        set { _cachedVoicesForLanguageCodes.wrappedValue = newValue }
+    }
+
+    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
+    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(wrappedValue: nil)
+    // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 
@@ -322,3 +326,5 @@ private actor TextToSpeechWriteGate {
         waiters.removeFirst().resume()
     }
 }
+
+extension AVAssetExportSession: @retroactive @unchecked Sendable {}

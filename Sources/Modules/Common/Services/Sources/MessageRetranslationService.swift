@@ -16,7 +16,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct MessageRetranslationService {
+struct MessageRetranslationService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -91,7 +91,7 @@ struct MessageRetranslationService {
             )
 
             attemptedPlatforms.insert(platform)
-            if var retranslatedMessageIDs = retranslatedMessageIDs {
+            if var retranslatedMessageIDs {
                 retranslatedMessageIDs[message.id] = attemptedPlatforms
                 self.retranslatedMessageIDs = retranslatedMessageIDs
             } else {
@@ -187,7 +187,7 @@ struct MessageRetranslationService {
             message = "No changes were made. Tap to report a mistranslation."
         }
 
-        var toastAction: (() -> Void)? {
+        var toastAction: (@Sendable () -> Void)? {
             guard sameRetranslationResult,
                   let reportDelegate = alertKitConfig.reportDelegate else { return nil }
 
@@ -201,10 +201,12 @@ struct MessageRetranslationService {
                 metadata: .init(sender: self)
             )
 
-            return { reportDelegate.fileReport(exception) }
+            return { @Sendable in
+                reportDelegate.fileReport(exception)
+            }
         }
 
-        core.gcd.after(.milliseconds(500)) {
+        Task.delayed(by: .milliseconds(500)) { @MainActor in
             Toast.show(
                 .init(
                     .banner(style: .success),

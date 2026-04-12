@@ -28,7 +28,7 @@ struct Reaction: Codable, Hashable {
 
         // MARK: - Properties
 
-        static var orderedCases: [Style] = allCases.sorted(by: { $0.orderValue < $1.orderValue })
+        static let orderedCases: [Style] = allCases.sorted(by: { $0.orderValue < $1.orderValue })
 
         private static let emojiCaseMap: [String: Style] = Dictionary(uniqueKeysWithValues: Style.allCases.map { ($0.emojiValue, $0) })
 

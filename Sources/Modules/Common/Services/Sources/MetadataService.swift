@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class MetadataService: GeminiAPIKeyDelegate {
+final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
     // MARK: - Types
 
     private enum MetadataServiceKey: String {

@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct ContextMenuConfiguration {
+struct ContextMenuConfiguration: @unchecked Sendable {
     // MARK: - Properties
 
     let menu: Menu
@@ -19,6 +19,7 @@ struct ContextMenuConfiguration {
 
     // MARK: - Computed Properties
 
+    @MainActor
     var uiContextMenuConfiguration: UIContextMenuConfiguration {
         .init(
             actionProvider: { _ -> UIMenu? in

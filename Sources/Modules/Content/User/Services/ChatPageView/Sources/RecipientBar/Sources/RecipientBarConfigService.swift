@@ -14,6 +14,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarConfigService {
     // MARK: - Types
 
@@ -71,7 +72,7 @@ final class RecipientBarConfigService {
             var shouldReload = false
 
             func setInsetsAndReload() {
-                Task { @MainActor in
+                Task { @MainActor [shouldReload] in
                     chatPageViewService.alternateMessage?.restoreAllAlternateTextMessageIDs()
                     chatPageViewService.alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
 

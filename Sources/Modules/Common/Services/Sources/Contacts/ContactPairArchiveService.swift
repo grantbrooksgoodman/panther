@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class ContactPairArchiveService {
+final class ContactPairArchiveService: @unchecked Sendable {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {

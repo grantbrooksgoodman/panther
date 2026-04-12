@@ -16,7 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+@MainActor // swiftlint:disable:next type_body_length
 final class ChatInfoPageViewService {
     // MARK: - Types
 
@@ -37,7 +37,6 @@ final class ChatInfoPageViewService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -47,6 +46,10 @@ final class ChatInfoPageViewService {
     private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Computed Properties
 
@@ -283,7 +286,7 @@ final class ChatInfoPageViewService {
     }
 
     func traitCollectionChanged() {
-        coreGCD.after(.milliseconds(100)) {
+        Task.delayed(by: .milliseconds(100)) { @MainActor in
             self.uiSegmentBackgroundViews.forEach {
                 $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }
@@ -320,7 +323,7 @@ final class ChatInfoPageViewService {
 
     /// `.getChatParticipantsReturned(.success)`
     func viewLoaded() {
-        coreGCD.after(.seconds(1)) {
+        Task.delayed(by: .seconds(1)) { @MainActor in
             self.uiSegmentBackgroundViews.forEach {
                 $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }

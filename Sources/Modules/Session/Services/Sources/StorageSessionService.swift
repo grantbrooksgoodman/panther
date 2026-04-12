@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class StorageSessionService {
+final class StorageSessionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -60,7 +60,7 @@ final class StorageSessionService {
                 ))
             }
 
-            return await self._getCurrentUserDataUsage()
+            return await _getCurrentUserDataUsage()
         }
     }
 
@@ -229,7 +229,7 @@ final class StorageSessionService {
     // MARK: - Present Storage Warning Alert
 
     func presentStorageWarningAlert() async {
-        guard ((try? (await getCurrentUserDataUsage()).get()) ?? 0) >= Int(
+        guard await ((try? (getCurrentUserDataUsage()).get()) ?? 0) >= Int(
             StorageSessionService.storageLimitInKilobytes * warningAlertRatio
         ) else { return }
 

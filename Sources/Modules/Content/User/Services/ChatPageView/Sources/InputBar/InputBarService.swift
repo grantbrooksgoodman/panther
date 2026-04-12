@@ -18,6 +18,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+@MainActor
 final class InputBarService {
     // MARK: - Types
 
@@ -40,7 +41,6 @@ final class InputBarService {
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
-    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
 
     // MARK: - Properties
@@ -79,105 +79,103 @@ final class InputBarService {
         forRecording: Bool? = nil,
         forceUpdate: Bool = false
     ) {
-        mainQueue.async {
-            guard !self.shouldShowConsentButton else { return self.showConsentButton() }
-            if self.inputBar.inputTextView.alpha == 0 {
-                UIView.animate(withDuration: Floats.transitionAnimationDuration) {
-                    self.consentButton?.alpha = 0
-                    self.inputBar.inputTextView.alpha = 1
-                    self.inputBar.leftStackView.alpha = 1
-                    self.inputBar.sendButton.alpha = 1
-                }
+        guard !shouldShowConsentButton else { return showConsentButton() }
+        if inputBar.inputTextView.alpha == 0 {
+            UIView.animate(withDuration: Floats.transitionAnimationDuration) {
+                self.consentButton?.alpha = 0
+                self.inputBar.inputTextView.alpha = 1
+                self.inputBar.leftStackView.alpha = 1
+                self.inputBar.sendButton.alpha = 1
             }
+        }
 
-            let forRecording = forRecording ?? self.shouldShowRecordButton
-            if !forceUpdate {
-                switch forRecording {
-                case true:
-                    guard !self.inputBar.sendButton.isRecordButton else { return }
-
-                case false:
-                    guard self.inputBar.sendButton.isRecordButton else {
-                        self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
-                        self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
-                        return
-                    }
-                }
-            }
-
-            self.inputBar.sendButton.centerYAnchor.constraint(
-                equalTo: self.inputBar.contentView.centerYAnchor,
-                constant: 0
-            ).isActive = true
-
-            self.inputBar.sendButton.trailingAnchor.constraint(
-                equalTo: self.inputBar.contentView.trailingAnchor,
-                constant: -(self.inputBar.sendButton.frame.width - Floats.sendButtonTrailingAnchorConstraintConstantDecrement)
-            ).isActive = true
-
+        let forRecording = forRecording ?? shouldShowRecordButton
+        if !forceUpdate {
             switch forRecording {
             case true:
-                self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.recordButtonSemanticTag)
-
-                UIView.transition(
-                    with: self.inputBar.sendButton,
-                    duration: Floats.transitionAnimationDuration,
-                    options: [.transitionCrossDissolve]
-                ) {
-                    self.inputBar.sendButton.setImage(
-                        self.inputBarConfigService.sendButtonImage(
-                            forRecording: forRecording,
-                            isHighlighted: false
-                        ),
-                        for: .normal
-                    )
-                    self.inputBar.sendButton.setImage(
-                        self.inputBarConfigService.sendButtonImage(
-                            forRecording: forRecording,
-                            isHighlighted: true
-                        ),
-                        for: .highlighted
-                    )
-
-                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
-
-                    self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
-                    self.inputBar.sendButton.alpha = 1
-                } completion: { _ in
-                    self.chatPageViewService.inputBarGestureRecognizer?.configureGestureRecognizers()
-                }
+                guard !inputBar.sendButton.isRecordButton else { return }
 
             case false:
-                self.inputBar.sendButton.tag = self.core.ui.semTag(for: Strings.sendButtonSemanticTag)
-                self.chatPageViewService.inputBarGestureRecognizer?.removeInputBarGestureRecognizers()
-
-                UIView.transition(
-                    with: self.inputBar.sendButton,
-                    duration: Floats.transitionAnimationDuration,
-                    options: [.transitionCrossDissolve]
-                ) {
-                    self.inputBar.sendButton.setImage(
-                        self.inputBarConfigService.sendButtonImage(
-                            forRecording: forRecording,
-                            isHighlighted: false
-                        ),
-                        for: .normal
-                    )
-                    self.inputBar.sendButton.setImage(
-                        self.inputBarConfigService.sendButtonImage(
-                            forRecording: forRecording,
-                            isHighlighted: true
-                        ),
-                        for: .highlighted
-                    )
-
-                    self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
-                    self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
-
-                    self.inputBar.sendButton.tintColor = .accent
-                    self.inputBar.sendButton.alpha = 1
+                guard inputBar.sendButton.isRecordButton else {
+                    inputBar.leftStackView.attachMediaButton?.isEnabled = shouldEnableAttachMediaButton
+                    inputBar.sendButton.isEnabled = shouldEnableSendButton
+                    return
                 }
+            }
+        }
+
+        inputBar.sendButton.centerYAnchor.constraint(
+            equalTo: inputBar.contentView.centerYAnchor,
+            constant: 0
+        ).isActive = true
+
+        inputBar.sendButton.trailingAnchor.constraint(
+            equalTo: inputBar.contentView.trailingAnchor,
+            constant: -(inputBar.sendButton.frame.width - Floats.sendButtonTrailingAnchorConstraintConstantDecrement)
+        ).isActive = true
+
+        switch forRecording {
+        case true:
+            inputBar.sendButton.tag = core.ui.semTag(for: Strings.recordButtonSemanticTag)
+
+            UIView.transition(
+                with: inputBar.sendButton,
+                duration: Floats.transitionAnimationDuration,
+                options: [.transitionCrossDissolve]
+            ) {
+                self.inputBar.sendButton.setImage(
+                    self.inputBarConfigService.sendButtonImage(
+                        forRecording: forRecording,
+                        isHighlighted: false
+                    ),
+                    for: .normal
+                )
+                self.inputBar.sendButton.setImage(
+                    self.inputBarConfigService.sendButtonImage(
+                        forRecording: forRecording,
+                        isHighlighted: true
+                    ),
+                    for: .highlighted
+                )
+
+                self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+
+                self.inputBar.sendButton.tintColor = UIColor(Colors.sendButtonRecordTint)
+                self.inputBar.sendButton.alpha = 1
+            } completion: { _ in
+                self.chatPageViewService.inputBarGestureRecognizer?.configureGestureRecognizers()
+            }
+
+        case false:
+            inputBar.sendButton.tag = core.ui.semTag(for: Strings.sendButtonSemanticTag)
+            chatPageViewService.inputBarGestureRecognizer?.removeInputBarGestureRecognizers()
+
+            UIView.transition(
+                with: inputBar.sendButton,
+                duration: Floats.transitionAnimationDuration,
+                options: [.transitionCrossDissolve]
+            ) {
+                self.inputBar.sendButton.setImage(
+                    self.inputBarConfigService.sendButtonImage(
+                        forRecording: forRecording,
+                        isHighlighted: false
+                    ),
+                    for: .normal
+                )
+                self.inputBar.sendButton.setImage(
+                    self.inputBarConfigService.sendButtonImage(
+                        forRecording: forRecording,
+                        isHighlighted: true
+                    ),
+                    for: .highlighted
+                )
+
+                self.inputBar.leftStackView.attachMediaButton?.isEnabled = self.shouldEnableAttachMediaButton
+                self.inputBar.sendButton.isEnabled = self.shouldEnableSendButton
+
+                self.inputBar.sendButton.tintColor = .accent
+                self.inputBar.sendButton.alpha = 1
             }
         }
     }
@@ -211,7 +209,7 @@ final class InputBarService {
         )
 
         becomeFirstResponder()
-        core.gcd.after(.milliseconds(Floats.forceAppearanceDelayMilliseconds)) {
+        Task.delayed(by: .milliseconds(Floats.forceAppearanceDelayMilliseconds)) { @MainActor in
             let startDate = Date.now
             while self.chatPageState.isPresented,
                   !textField.isFirstResponder,
@@ -236,49 +234,43 @@ final class InputBarService {
     // MARK: - Set Attach Media Button Is Enabled
 
     func setAttachMediaButtonIsEnabled(_ isEnabled: Bool) {
-        mainQueue.async {
-            if !self.isForcingAppearance {
-                guard self.inputBar.leftStackView.attachMediaButton?.isEnabled != isEnabled else { return }
-            }
+        if !isForcingAppearance {
+            guard inputBar.leftStackView.attachMediaButton?.isEnabled != isEnabled else { return }
+        }
 
-            guard let attachMediaButton = self.inputBar.leftStackView.attachMediaButton else { return }
+        guard let attachMediaButton = inputBar.leftStackView.attachMediaButton else { return }
 
-            UIView.transition(
-                with: attachMediaButton,
-                duration: Floats.transitionAnimationDuration,
-                options: [.transitionCrossDissolve]
-            ) {
-                attachMediaButton.isEnabled = isEnabled
-            }
+        UIView.transition(
+            with: attachMediaButton,
+            duration: Floats.transitionAnimationDuration,
+            options: [.transitionCrossDissolve]
+        ) {
+            attachMediaButton.isEnabled = isEnabled
         }
     }
 
     // MARK: - Set Consent Button Is Enabled
 
     func setConsentButtonIsEnabled(_ isEnabled: Bool) {
-        mainQueue.async {
-            guard let consentButton = self.consentButton else { return }
-            consentButton.isEnabled = isEnabled
-            consentButton.isUserInteractionEnabled = isEnabled
-            consentButton.setTitleColor(isEnabled ? .accentOrSystemBlue : .disabled, for: .normal)
-        }
+        guard let consentButton else { return }
+        consentButton.isEnabled = isEnabled
+        consentButton.isUserInteractionEnabled = isEnabled
+        consentButton.setTitleColor(isEnabled ? .accentOrSystemBlue : .disabled, for: .normal)
     }
 
     // MARK: - Set Send Button Is Enabled
 
     func setSendButtonIsEnabled(_ isEnabled: Bool) {
-        mainQueue.async {
-            if !self.isForcingAppearance {
-                guard self.inputBar.sendButton.isEnabled != isEnabled else { return }
-            }
+        if !isForcingAppearance {
+            guard inputBar.sendButton.isEnabled != isEnabled else { return }
+        }
 
-            UIView.transition(
-                with: self.inputBar.sendButton,
-                duration: Floats.transitionAnimationDuration,
-                options: [.transitionCrossDissolve]
-            ) {
-                self.inputBar.sendButton.isEnabled = isEnabled
-            }
+        UIView.transition(
+            with: inputBar.sendButton,
+            duration: Floats.transitionAnimationDuration,
+            options: [.transitionCrossDissolve]
+        ) {
+            self.inputBar.sendButton.isEnabled = isEnabled
         }
     }
 
@@ -288,24 +280,22 @@ final class InputBarService {
         on: Bool,
         clearInputTextViewText: Bool = true
     ) {
-        mainQueue.async {
-            if on {
-                defer {
-                    self.inputBar.sendButton.startAnimating()
-                    self.setAttachMediaButtonIsEnabled(false)
-                }
-
-                guard clearInputTextViewText else { return }
-                self.inputBar.inputTextView.text = ""
-            } else {
-                self.inputBar.sendButton.stopAnimating()
-                self.setAttachMediaButtonIsEnabled(self.shouldEnableAttachMediaButton)
+        if on {
+            defer {
+                inputBar.sendButton.startAnimating()
+                setAttachMediaButtonIsEnabled(false)
             }
 
-            self.inputBar.inputTextView.tintColor = UIColor(on ? Colors.inputTextViewAlternateTint : Colors.inputTextViewTint)
-            self.inputBar.leftStackView.attachMediaButton?.isUserInteractionEnabled = !on
-            self.inputBar.sendButton.isUserInteractionEnabled = !on
+            guard clearInputTextViewText else { return }
+            inputBar.inputTextView.text = ""
+        } else {
+            inputBar.sendButton.stopAnimating()
+            setAttachMediaButtonIsEnabled(shouldEnableAttachMediaButton)
         }
+
+        inputBar.inputTextView.tintColor = UIColor(on ? Colors.inputTextViewAlternateTint : Colors.inputTextViewTint)
+        inputBar.leftStackView.attachMediaButton?.isUserInteractionEnabled = !on
+        inputBar.sendButton.isUserInteractionEnabled = !on
     }
 
     // MARK: - Computed Property Getters

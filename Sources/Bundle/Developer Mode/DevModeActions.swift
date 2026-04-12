@@ -41,6 +41,7 @@ extension DevModeAction {
         // MARK: - Top-level Actions
 
         static var createNewMessagesAction: DevModeAction {
+            @Sendable
             func createNewMessages() {
                 Task { @MainActor in
                     @Dependency(\.networking.userService.testing) var userTestingService: UserTestingService
@@ -69,6 +70,7 @@ extension DevModeAction {
         }
 
         private static var dangerZoneAction: DevModeAction {
+            @Sendable
             func dangerZone() {
                 Task {
                     @Dependency(\.clientSession.user.currentUser) var currentUser: User?
@@ -110,8 +112,9 @@ extension DevModeAction {
         }
 
         private static var setCurrentUserIDAction: DevModeAction {
+            @Sendable
             func setCurrentUserID() {
-                Task {
+                Task { @MainActor in
                     @Dependency(\.navigation) var navigation: Navigation
                     @Persistent(.currentUserID) var currentUserID: String?
 
@@ -138,6 +141,7 @@ extension DevModeAction {
         }
 
         private static var triggerForcedUpdateModalAction: DevModeAction {
+            @Sendable
             func triggerForcedUpdateModal() {
                 @Dependency(\.commonServices.update) var updateService: UpdateService
                 updateService.isForcedUpdateRequiredSubject.send(true)
@@ -147,6 +151,7 @@ extension DevModeAction {
         }
 
         private static var validateDatabaseIntegrityAction: DevModeAction {
+            @Sendable
             func validateDatabaseIntegrity() {
                 Task {
                     @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD

@@ -15,7 +15,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
+final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @unchecked Sendable {
     // MARK: - Types
 
     enum UpdateType {

@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class User: Codable, EncodedHashable, Hashable {
+final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
@@ -174,7 +174,7 @@ final class User: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setConversations()
+            return await _setConversations()
         }
     }
 
@@ -217,7 +217,7 @@ final class User: Codable, EncodedHashable, Hashable {
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
-            commitToMemory(decodedConversations)
+            await commitToMemory(decodedConversations)
             return nil
         }
 
@@ -244,7 +244,7 @@ final class User: Codable, EncodedHashable, Hashable {
                 return exception
             }
 
-            commitToMemory(decodedConversations)
+            await commitToMemory(decodedConversations)
             return nil
         }
 
@@ -263,7 +263,7 @@ final class User: Codable, EncodedHashable, Hashable {
                 return exception
             }
 
-            commitToMemory(decodedConversations)
+            await commitToMemory(decodedConversations)
             return nil
 
         case let .failure(exception):
@@ -285,18 +285,17 @@ final class User: Codable, EncodedHashable, Hashable {
 
     // MARK: - Auxiliary
 
-    private func commitToMemory(_ conversations: Set<Conversation>) {
+    private func commitToMemory(_ conversations: Set<Conversation>) async {
         @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
-        @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
 
         guard !Task.isCancelled else { return }
 
-        // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
-        serialQueue.sync {
+        await MainActor.run {
             conversationIDs = conversations.map(\.id)
             self.conversations = Array(conversations).sortedByLatestMessageSentDate
-            conversationArchive.addValues(conversations)
         }
+
+        conversationArchive.addValues(conversations)
     }
 
     private func validateRatio(

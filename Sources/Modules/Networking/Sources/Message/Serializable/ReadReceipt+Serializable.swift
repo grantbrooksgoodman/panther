@@ -41,7 +41,7 @@ extension ReadReceipt: Serializable {
     static func decode(from data: String) async -> Callback<ReadReceipt, Exception> {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
-        if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings?[data] {
+        if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings.wrappedValue?[data] {
             return .success(cachedValue)
         }
 
@@ -57,9 +57,11 @@ extension ReadReceipt: Serializable {
             readDate: readDate
         )
 
-        var cachedReadReceiptsForEncodedStrings = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings ?? [:]
-        cachedReadReceiptsForEncodedStrings[data] = decoded
-        _ReadReceiptCache.cachedReadReceiptsForEncodedStrings = cachedReadReceiptsForEncodedStrings
+        _ReadReceiptCache.cachedReadReceiptsForEncodedStrings.projectedValue.withValue {
+            var cachedReadReceiptsForEncodedStrings = $0 ?? [:]
+            cachedReadReceiptsForEncodedStrings[data] = decoded
+            $0 = cachedReadReceiptsForEncodedStrings
+        }
 
         return .success(decoded)
     }
@@ -72,19 +74,13 @@ enum ReadReceiptCache {
 }
 
 private enum _ReadReceiptCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case readReceiptsForEncodedStrings
-    }
-
     // MARK: - Properties
 
-    @Cached(CacheKey.readReceiptsForEncodedStrings) fileprivate static var cachedReadReceiptsForEncodedStrings: [String: ReadReceipt]?
+    fileprivate static let cachedReadReceiptsForEncodedStrings = LockIsolated<[String: ReadReceipt]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 
     fileprivate static func clearCache() {
-        cachedReadReceiptsForEncodedStrings = nil
+        cachedReadReceiptsForEncodedStrings.wrappedValue = nil
     }
 }

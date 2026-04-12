@@ -20,6 +20,7 @@
 		A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
+		A24E3F982F8B7F7C00F821FA /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A24E3F972F8B7F7C00F821FA /* Networking */; };
 		A2543E122F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2543E112F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift */; };
 		A26C65E92F370002005BFDEC /* Reaction.caf in Resources */ = {isa = PBXBuildFile; fileRef = A26C65E82F370002005BFDEC /* Reaction.caf */; };
 		A26C65EB2F370030005BFDEC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26C65EA2F370030005BFDEC /* NotificationService.swift */; };
@@ -39,7 +40,6 @@
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
-		A2C689792F313DC800CF2860 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A2C689782F313DC800CF2860 /* Networking */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
@@ -1586,7 +1586,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2C689792F313DC800CF2860 /* Networking in Frameworks */,
+				A24E3F982F8B7F7C00F821FA /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -3514,7 +3514,7 @@
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
-				A2C689782F313DC800CF2860 /* Networking */,
+				A24E3F972F8B7F7C00F821FA /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3642,7 +3642,7 @@
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
-				A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */,
+				A24E3F962F8B7F7C00F821FA /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3954,9 +3954,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4749,7 +4753,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.jaguar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = singlefile;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -4776,7 +4780,7 @@
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = us.neotechnica.jaguar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -4809,7 +4813,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -4841,7 +4845,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -4879,11 +4883,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */ = {
+		A24E3F962F8B7F7C00F821FA /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
-				branch = main;
+				branch = "swift-6";
 				kind = branch;
 			};
 		};
@@ -4914,9 +4918,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A2C689782F313DC800CF2860 /* Networking */ = {
+		A24E3F972F8B7F7C00F821FA /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A2C689772F313DC800CF2860 /* XCRemoteSwiftPackageReference "networking" */;
+			package = A24E3F962F8B7F7C00F821FA /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
 		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {

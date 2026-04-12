@@ -17,6 +17,7 @@ import AppSubsystem
 import InputBarAccessoryView
 import MessageKit
 
+@MainActor
 struct ChatPageViewControllerFactory {
     // MARK: - Dependencies
 

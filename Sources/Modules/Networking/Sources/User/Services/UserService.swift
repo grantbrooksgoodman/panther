@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class UserService {
+final class UserService: @unchecked Sendable {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {

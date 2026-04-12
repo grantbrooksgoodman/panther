@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct MenuElement {
+struct MenuElement: @unchecked Sendable {
     // MARK: - Types
 
     struct Attributes: OptionSet {
@@ -49,8 +49,9 @@ struct MenuElement {
 
     // MARK: - Computed Properties
 
+    @MainActor
     var uiAction: UIAction {
-        return .init(
+        .init(
             title: title,
             image: image,
             identifier: identifier,

@@ -180,7 +180,12 @@ private enum _UserDisplayNameCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.displayNamesForUserIDs) fileprivate static var cachedDisplayNamesForUserIDs: [String: String]?
+    fileprivate static var cachedDisplayNamesForUserIDs: [String: String]? {
+        get { _cachedDisplayNamesForUserIDs.wrappedValue }
+        set { _cachedDisplayNamesForUserIDs.wrappedValue = newValue }
+    }
+
+    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

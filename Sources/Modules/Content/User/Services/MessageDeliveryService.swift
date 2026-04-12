@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 
@@ -13,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Translator
 
-// swiftlint:disable:next type_body_length
+@MainActor
 final class MessageDeliveryService {
     // MARK: - Dependencies
 
@@ -45,6 +47,7 @@ final class MessageDeliveryService {
 
     // MARK: - Object Lifecycle
 
+    @MainActor
     deinit {
         typealias Strings = AppConstants.Strings.MessageSessionService
         notificationCenter.removeObserver(
@@ -72,8 +75,14 @@ final class MessageDeliveryService {
         guard !users.isEmpty else { return nil }
 
         isSendingMessage = true
-        chatPageViewService.inputBar?.toggleSendingUI(on: true)
-        chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
+        await MainActor.run {
+            chatPageViewService.inputBar?.toggleSendingUI(on: true)
+        }
+
+        Task { @MainActor in
+            @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
+            recipientBarLayoutService?.setIsUserInteractionEnabled(false)
+        }
 
         typealias Strings = AppConstants.Strings.MessageSessionService
         notificationCenter.addObserver(
@@ -101,8 +110,11 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        await MainActor.run {
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        }
+
         isSendingMessage = false
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
@@ -122,7 +134,10 @@ final class MessageDeliveryService {
             return nil
 
         case let .failure(exception):
-            chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
+            Task { @MainActor in
+                @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
+                recipientBarLayoutService?.setIsUserInteractionEnabled(true)
+            }
             return exception
         }
     }
@@ -141,7 +156,13 @@ final class MessageDeliveryService {
         )
 
         isSendingMessage = true
-        chatPageViewService.inputBar?.toggleSendingUI(on: true, clearInputTextViewText: false)
+        await MainActor.run {
+            chatPageViewService.inputBar?.toggleSendingUI(
+                on: true,
+                clearInputTextViewText: false
+            )
+        }
+
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
         let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
@@ -150,8 +171,11 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        await MainActor.run {
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        }
+
         isSendingMessage = false
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
@@ -190,7 +214,10 @@ final class MessageDeliveryService {
         )
 
         isSendingMessage = true
-        chatPageViewService.inputBar?.toggleSendingUI(on: true)
+        await MainActor.run {
+            chatPageViewService.inputBar?.toggleSendingUI(on: true)
+        }
+
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
@@ -199,8 +226,11 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        await MainActor.run {
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
+        }
+
         isSendingMessage = false
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
@@ -312,7 +342,10 @@ final class MessageDeliveryService {
         }
 
         clientSession.conversation.setCurrentConversation(newConversation)
-        chatPageViewService.recipientBar?.layout.removeFromSuperview()
+        Task { @MainActor in
+            @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
+            recipientBarLayoutService?.removeFromSuperview()
+        }
         chatPageViewService.reloadCollectionView()
         Observables.firstMessageSentInNewChat.trigger()
     }
@@ -320,7 +353,7 @@ final class MessageDeliveryService {
     private func didSetIsSendingMessage() {
         switch isSendingMessage {
         case true:
-            ContextMenuInteraction.setCanBegin(false)
+            Task { @MainActor in ContextMenuInteraction.setCanBegin(false) }
             let uponIsSendingMessageChangedToTrue = drainEffects($uponIsSendingMessageChangedToTrue)
             guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
 
@@ -334,7 +367,10 @@ final class MessageDeliveryService {
             runEffects(uponIsSendingMessageChangedToTrue)
 
         case false:
-            ContextMenuInteraction.setCanBegin(true)
+            Task { @MainActor in
+                ContextMenuInteraction.setCanBegin(true)
+            }
+
             let uponIsSendingMessageChangedToFalse = drainEffects($uponIsSendingMessageChangedToFalse)
             guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
 
@@ -390,3 +426,5 @@ final class MessageDeliveryService {
         effects.values.forEach { $0() }
     }
 }
+
+// swiftlint:enable file_length type_body_length

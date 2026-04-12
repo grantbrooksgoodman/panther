@@ -13,6 +13,7 @@ import SwiftUI
 /* Proprietary */
 import ComponentKit
 
+@MainActor
 extension ComponentKit {
     func v26DoneButton(
         foregroundColor: Color = .navigationBarButton,

@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension UIColor {
     static var accentOrSystemBlue: UIColor {
         if Application.isInPrevaricationMode ||

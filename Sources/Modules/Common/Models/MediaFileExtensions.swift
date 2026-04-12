@@ -28,7 +28,7 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
         .video(.mp4),
     ]
 
-    static var allCases: [MediaFileExtension] = [
+    static let allCases: [MediaFileExtension] = [
         .audio(.caf),
         .audio(.m4a),
         .document(.pdf),
@@ -112,7 +112,7 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
 // MARK: - Audio File Extension
 
-enum AudioFileExtension: String, Codable, Equatable {
+enum AudioFileExtension: String, Codable, Equatable, Sendable {
     /* MARK: Cases */
 
     case caf

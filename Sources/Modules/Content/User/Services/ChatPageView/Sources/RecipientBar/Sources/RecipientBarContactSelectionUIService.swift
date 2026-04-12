@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarContactSelectionUIService {
     // MARK: - Constants Accessors
 
@@ -53,7 +54,7 @@ final class RecipientBarContactSelectionUIService {
     func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
         for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
-        core.gcd.after(.milliseconds(100)) {
+        Task.delayed(by: .milliseconds(100)) { @MainActor in
             self.chatPageViewService.inputBar?.configureInputBar()
             guard self.selectedContactPairs.isEmpty else { return }
             self.viewController.messageInputBar.inputTextView.placeholder = nil
@@ -130,7 +131,9 @@ final class RecipientBarContactSelectionUIService {
             textField.text = nil
 
             configService.reconfigureCollectionView()
-            core.gcd.after(.milliseconds(100)) { self.chatPageViewService.inputBar?.configureInputBar() }
+            Task.delayed(by: .milliseconds(100)) { @MainActor in
+                self.chatPageViewService.inputBar?.configureInputBar()
+            }
 
             guard !contactPair.isMock else { return }
             viewController.messageInputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"

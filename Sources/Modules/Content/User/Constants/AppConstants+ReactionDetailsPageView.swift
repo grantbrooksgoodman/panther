@@ -26,8 +26,14 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ReactionDetailsPageView {
-        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        @MainActor
+        static var navigationBarItemGlassTint: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
 
-        static var doneHeaderItemForeground: Color { UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton }
+        @MainActor
+        static var doneHeaderItemForeground: Color {
+            UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
+        }
     }
 }

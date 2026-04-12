@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension NSAttributedString {
     static func messageCellString(
         _ text: String,

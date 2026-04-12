@@ -13,6 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension HeaderView.PeripheralButtonType {
     static func v26DoneButton(_ action: @escaping () -> Void) -> HeaderView.PeripheralButtonType {
         .image(

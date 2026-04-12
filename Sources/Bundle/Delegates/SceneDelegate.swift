@@ -17,9 +17,9 @@ import Networking
 final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.clientSession.user.currentUser?.phoneNumber) private var currentUserPhoneNumber: PhoneNumber?
 
     // MARK: - Properties
 
@@ -60,8 +60,10 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
         Task.background {
+            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+            @Dependency(\.commonServices.notification) var notificationService: NotificationService
             if let badgeNumber = await currentUser?.calculateBadgeNumber(),
-               let exception = await services.notification.setBadgeNumber(badgeNumber) {
+               let exception = await notificationService.setBadgeNumber(badgeNumber) {
                 Logger.log(exception)
             }
         }
@@ -99,12 +101,12 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         guard build.milestone == .generalRelease,
               Networking.config.environment == .production,
               let view = touch.view,
-              let currentUser,
+              let currentUserPhoneNumber,
               ["15555555555", "18888888888"].contains(
-                  currentUser.phoneNumber.compiledNumberString
+                  currentUserPhoneNumber.compiledNumberString
               ) else { return false }
 
-        services.analytics.logEvent(
+        analyticsService.logEvent(
             .touchUiElement,
             additionalUserInfo: ["ui_element": view.descriptor]
         )

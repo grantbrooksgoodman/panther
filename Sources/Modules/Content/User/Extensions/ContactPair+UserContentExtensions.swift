@@ -47,6 +47,7 @@ extension ContactPair {
         return true
     }
 
+    @MainActor
     var isSelected: Bool {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
         return (selectedContactPairs ?? []).contains(self)

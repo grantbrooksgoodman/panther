@@ -18,7 +18,7 @@ import MessageKit
 
 // swiftformat:disable acronyms
 
-extension Message: MessageType {
+extension Message: @preconcurrency MessageType {
     // MARK: - Types
 
     struct Sender: SenderType {
@@ -28,6 +28,7 @@ extension Message: MessageType {
 
     // MARK: - Properties
 
+    @MainActor
     var kind: MessageKind {
         @Dependency(\.chatPageViewService.alternateMessage) var alternateMessageService: AlternateMessageService?
 
@@ -98,6 +99,12 @@ extension Message: MessageType {
 extension Message {
     // MARK: - Properties
 
+    static var consentRequestMessageID: String? {
+        get { _consentRequestMessageIDCache.wrappedValue }
+        set { _consentRequestMessageIDCache.wrappedValue = newValue }
+    }
+
+    @MainActor
     var attributedSystemString: NSAttributedString? {
         typealias Colors = AppConstants.Colors.SystemMessageCell
         typealias Floats = AppConstants.CGFloats.SystemMessageCell
@@ -140,9 +147,10 @@ extension Message {
         return combinedString
     }
 
-    var backgroundColor: UIColor { isFromCurrentUser ? .senderBubble : .receiverBubble }
-
-    static var consentRequestMessageID: String?
+    @MainActor
+    var backgroundColor: UIColor {
+        isFromCurrentUser ? .senderBubble : .receiverBubble
+    }
 
     var isConsentAcknowledgementMessage: Bool {
         guard let translation else { return false }
@@ -182,6 +190,7 @@ extension Message {
 
     var isMock: Bool { id == CommonConstants.newMessageID }
 
+    @MainActor
     var isPlayingMessage: Bool {
         @Dependency(\.chatPageViewService.audioMessagePlayback?.playingMessage) var playingMessage: Message?
         guard contentType.isAudio,
@@ -190,6 +199,7 @@ extension Message {
         return playingMessage.id == id
     }
 
+    @MainActor
     var isSpeakingMessage: Bool {
         @Dependency(\.chatPageViewService.contextMenu?.actionHandler.speakingMessage) var speakingMessage: Message?
         guard let speakingMessage else { return false }
@@ -201,6 +211,7 @@ extension Message {
     }
 
     /// - Returns: The provided system message, hydrated with localized strings.
+    @MainActor
     var systemLocalized: Message {
         @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
         guard isSystemMessage,
@@ -227,6 +238,8 @@ extension Message {
             sentDate: activity.date
         )
     }
+
+    private static let _consentRequestMessageIDCache = LockIsolated<String?>(wrappedValue: nil)
 
     // MARK: - Methods
 

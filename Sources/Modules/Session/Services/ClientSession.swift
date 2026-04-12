@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class ClientSession {
+final class ClientSession: @unchecked Sendable {
     // MARK: - Properties
 
     let activity: ActivitySessionService

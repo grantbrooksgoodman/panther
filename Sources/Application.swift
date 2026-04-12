@@ -17,9 +17,22 @@ import Networking
 enum Application {
     // MARK: - Properties
 
-    static var isInPrevaricationMode = false
-    static var loadStartDate: Date = .now
+    private static let _isInPrevaricationMode = LockIsolated(wrappedValue: false)
+    private static let _loadStartDate = LockIsolated<Date>(wrappedValue: .now)
 
+    // MARK: - Computed Properties
+
+    static var isInPrevaricationMode: Bool {
+        get { _isInPrevaricationMode.wrappedValue }
+        set { _isInPrevaricationMode.wrappedValue = newValue }
+    }
+
+    static var loadStartDate: Date {
+        get { _loadStartDate.wrappedValue }
+        set { _loadStartDate.wrappedValue = newValue }
+    }
+
+    @MainActor
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
         var buildMilestone: Build.Milestone = UIDevice.isSimulator ? .beta : .generalRelease
@@ -72,7 +85,7 @@ enum Application {
 
         /* MARK: Theme Setup */
 
-        Task.delayed(by: .seconds(1)) {
+        Task.delayed(by: .seconds(1)) { @MainActor in
             guard ThemeService.currentTheme == UITheme.default else { return }
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
         }

@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-struct ConversationService {
+struct ConversationService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
@@ -109,7 +109,7 @@ struct ConversationService {
         return await withTaskGroup(of: Callback<Conversation, Exception>.self) { taskGroup in
             for idKey in idKeys {
                 taskGroup.addTask {
-                    await self.getConversation(idKey: idKey)
+                    await getConversation(idKey: idKey)
                 }
             }
 

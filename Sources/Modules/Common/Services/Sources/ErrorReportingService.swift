@@ -15,13 +15,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class ErrorReportingService: AlertKit.ReportDelegate {
+final class ErrorReportingService: AlertKit.ReportDelegate, @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.commonServices.metadata) private var metadataService: MetadataService
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.errorReportingDateFormatter) private var serviceDateFormatter: DateFormatter
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -118,7 +117,8 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                         $0.key != "StaticErrorCode"
                 }
 
-            if let exception = await networking.storage.upload(
+            @Dependency(\.networking.storage) var storage: StorageDelegate
+            if let exception = await storage.upload(
                 loggerSessionRecordData,
                 metadata: .init(
                     filePath,
@@ -143,7 +143,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
             guard showsToastOnSuccess,
                   !Logger.reportsErrorsAutomatically else { return }
 
-            var toastAction: (() -> Void)? {
+            var toastAction: (@Sendable () -> Void)? {
                 guard self.build.isDeveloperModeEnabled,
                       let urlStringPrefix = self.metadataService.storageReferenceURL?.absoluteString else { return nil }
 
@@ -157,7 +157,7 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                 }.joined(separator: "~2F")
 
                 guard let url = URL(string: urlString) else { return nil }
-                return {
+                return { @Sendable in
                     self.uiApplication.open(url)
                     self.uiPasteboard.string = url.absoluteString
                 }

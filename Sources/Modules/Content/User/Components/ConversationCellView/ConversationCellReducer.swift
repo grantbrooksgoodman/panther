@@ -17,8 +17,8 @@ struct ConversationCellReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
-    @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.navigation) private var navigation: Navigation
+    @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.conversationCellViewService) private var viewService: ConversationCellViewService
 
     // MARK: - Actions
@@ -42,11 +42,6 @@ struct ConversationCellReducer: Reducer {
         /* MARK: Properties */
 
         let conversation: Conversation
-        let subtitleLabelTextForegroundColor: Color = .init(
-            uiColor: .subtitleText.lighter(
-                by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
-            ) ?? .subtitleText
-        )
 
         @Localized(.blockUser) var blockUsersButtonText: String
         var cellViewData: ConversationCellViewData = .empty
@@ -57,6 +52,7 @@ struct ConversationCellReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var chevronImageForegroundColor: Color {
             guard ThemeService.isDarkModeActive else {
                 return .init(
@@ -71,6 +67,15 @@ struct ConversationCellReducer: Reducer {
 
         var focusedMessageID: String? {
             conversation.messages?.last(where: { $0.textContains(searchQuery) })?.id
+        }
+
+        @MainActor
+        var subtitleLabelTextForegroundColor: Color {
+            .init(
+                uiColor: .subtitleText.lighter(
+                    by: AppConstants.CGFloats.ConversationCellView.subtitleLabelForegroundColorAdjustmentPercentage
+                ) ?? .subtitleText
+            )
         }
 
         /* MARK: Init */
@@ -123,7 +128,7 @@ struct ConversationCellReducer: Reducer {
             }
 
         case let .deleteConversationReturned(exception):
-            defer { clientSession.user.startObservingCurrentUserChanges() }
+            defer { userSession.startObservingCurrentUserChanges() }
 
             guard let exception else {
                 analyticsService.logEvent(.deleteConversation)
@@ -135,10 +140,11 @@ struct ConversationCellReducer: Reducer {
         case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }
 
-            clientSession.user.stopObservingCurrentUserChanges()
+            userSession.stopObservingCurrentUserChanges()
             let conversation = state.conversation
             return .task {
-                let result = await clientSession.conversation.deleteConversation(conversation)
+                @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
+                let result = await conversationSession.deleteConversation(conversation)
                 return .deleteConversationReturned(result)
             }
 

@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct ChatParticipant: Equatable {
+struct ChatParticipant: Equatable, @unchecked Sendable {
     // MARK: - Types
 
     enum PenPalsStatus {
@@ -28,6 +28,8 @@ struct ChatParticipant: Equatable {
     // MARK: - Computed Properties
 
     var firstUser: User? { contactPair.users.first }
+
+    @MainActor
     var thumbnailImage: UIImage? {
         penPalsStatus != nil ? SquareIconView.image(
             .penPalsIcon(

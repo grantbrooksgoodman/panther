@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 enum UserCache {
     // MARK: - Properties
 
@@ -66,6 +67,7 @@ enum UserCache {
     }
 }
 
+@MainActor
 private enum _UserCache {
     // MARK: - Types
 

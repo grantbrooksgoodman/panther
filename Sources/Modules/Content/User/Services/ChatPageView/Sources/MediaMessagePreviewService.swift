@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class MediaMessagePreviewService {
+final class MediaMessagePreviewService: @unchecked Sendable {
     // MARK: - Types
 
     enum CacheKey: String, CaseIterable {
@@ -27,7 +27,6 @@ final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -43,6 +42,7 @@ final class MediaMessagePreviewService {
 
     // MARK: - Computed Properties
 
+    @MainActor
     private var mediaPaths: [String] {
         viewController
             .currentConversation?
@@ -58,6 +58,7 @@ final class MediaMessagePreviewService {
 
     // MARK: - Configure Gesture Recognizers
 
+    @MainActor
     func configureGestureRecognizers() {
         let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
             target: self,
@@ -68,6 +69,7 @@ final class MediaMessagePreviewService {
 
     // MARK: - Did Tap Image
 
+    @MainActor
     func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
@@ -117,6 +119,7 @@ final class MediaMessagePreviewService {
     // MARK: - Auxiliary
 
     /// - NOTE: Fixes a bug in which a dismissal of the `QuickViewer` would cause the view's user interaction to become disabled.
+    @MainActor
     private func enableUserInteraction() {
         Logger.log(
             "Intercepted QuickViewer dismissal user interaction bug.",
@@ -127,11 +130,20 @@ final class MediaMessagePreviewService {
         InteractivePopGestureRecognizer.setIsEnabled(true)
         viewController.view.isUserInteractionEnabled = true
 
-        coreGCD.after(.seconds(1)) { self.viewController.view.isUserInteractionEnabled = true }
-        coreGCD.after(.seconds(2)) { self.viewController.view.isUserInteractionEnabled = true }
-        coreGCD.after(.seconds(3)) { self.viewController.view.isUserInteractionEnabled = true }
+        Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
+
+        Task.delayed(by: .seconds(2)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
+
+        Task.delayed(by: .seconds(3)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
     }
 
+    @MainActor
     @objc
     private func pinchGestureRecognized(recognizer: UIPinchGestureRecognizer) {
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)

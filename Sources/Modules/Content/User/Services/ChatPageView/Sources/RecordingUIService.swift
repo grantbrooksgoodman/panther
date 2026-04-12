@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+@MainActor
 final class RecordingUIService {
     // MARK: - Constants Accessors
 
@@ -53,6 +54,7 @@ final class RecordingUIService {
 
     // MARK: - Object Lifecycle
 
+    @MainActor
     deinit {
         resetSession()
     }

@@ -15,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class ContactService {
+final class ContactService: @unchecked Sendable {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {
@@ -94,6 +94,7 @@ final class ContactService {
 
     // MARK: - Auxiliary
 
+    @MainActor
     private func fetchContactPairs(for users: [User]) async -> Callback<[ContactPair], Exception> {
         await withCheckedContinuation { continuation in
             fetchContactPairsWithCompletion(for: users) { callback in
@@ -102,6 +103,7 @@ final class ContactService {
         }
     }
 
+    @MainActor
     private func fetchContactPairsWithCompletion(
         for users: [User],
         completion: @escaping (_ callback: Callback<[ContactPair], Exception>) -> Void

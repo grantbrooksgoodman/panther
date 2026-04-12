@@ -14,7 +14,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-final class RecipientBarActionHandlerService {
+final class RecipientBarActionHandlerService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ActionHandler
@@ -39,6 +39,7 @@ final class RecipientBarActionHandlerService {
 
     // MARK: - On Superfluous Backspace
 
+    @MainActor
     func onSuperflousBackspace() {
         guard let service = chatPageViewService.recipientBar else { return }
 
@@ -76,8 +77,8 @@ final class RecipientBarActionHandlerService {
     func selectContactButtonTapped() {
         Task { @MainActor in
             func presentCTA() {
-                core.gcd.after(.milliseconds(500)) {
-                    Task { await self.services.permission.presentCTA(for: .contacts) }
+                Task.delayed(by: .milliseconds(500)) {
+                    await self.services.permission.presentCTA(for: .contacts)
                 }
             }
 
@@ -134,6 +135,7 @@ final class RecipientBarActionHandlerService {
         }
     }
 
+    @MainActor
     @objc
     func textFieldChanged(_ textField: UITextField) {
         chatPageViewService.recipientBar?.tableView.setQuery(textField.text ?? "")
@@ -155,7 +157,7 @@ final class RecipientBarActionHandlerService {
 
                 contactSelectionUIService.unhighlightAllViews()
                 contactSelectionUIService.deselectMockContactPairs()
-                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
+                Task.delayed(by: .milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) { @MainActor in
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
                 return

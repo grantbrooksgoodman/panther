@@ -14,7 +14,8 @@ import AppSubsystem
 
 enum ChatPageViewControllerFactoryDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> ChatPageViewControllerFactory {
-        .init()
+        @MainActorIsolated var chatPageViewControllerFactory = ChatPageViewControllerFactory()
+        return chatPageViewControllerFactory
     }
 }
 

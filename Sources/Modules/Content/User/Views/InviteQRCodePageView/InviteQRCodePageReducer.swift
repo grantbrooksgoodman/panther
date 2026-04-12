@@ -39,6 +39,7 @@ struct InviteQRCodePageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var qrCodeImage: UIImage? {
             @Dependency(\.inviteQRCodePageViewService) var viewService: InviteQRCodePageViewService
             return viewService.appShareQRCodeImage

@@ -183,7 +183,10 @@ struct ConversationsPageReducer: Reducer {
                         sender: self
                     )
 
-                    core.gcd.after(.milliseconds(250)) { Observables.updatedCurrentUser.trigger() }
+                    Task.delayed(by: .milliseconds(250)) { @MainActor in
+                        Observables.updatedCurrentUser.trigger()
+                    }
+
                     return true
                 }
 

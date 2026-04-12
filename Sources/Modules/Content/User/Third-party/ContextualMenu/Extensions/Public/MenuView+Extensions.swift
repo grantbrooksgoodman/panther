@@ -25,10 +25,10 @@ extension MenuView: ContextMenuAnimatable {
             options: [.beginFromCurrentState, .allowUserInteraction],
             animations: { [weak self] in
                 guard let self else { return }
-                self.alpha = 1
-                self.applyTransform(
+                alpha = 1
+                applyTransform(
                     scale: 1,
-                    anchorPoint: self.anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
+                    anchorPoint: anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
                 )
             },
             completion: { _ in
@@ -46,10 +46,10 @@ extension MenuView: ContextMenuAnimatable {
             options: [.beginFromCurrentState, .allowUserInteraction],
             animations: { [weak self] in
                 guard let self else { return }
-                self.alpha = 0
-                self.applyTransform(
-                    scale: self.style.disappearedScalingValue,
-                    anchorPoint: self.anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
+                alpha = 0
+                applyTransform(
+                    scale: style.disappearedScalingValue,
+                    anchorPoint: anchorPointAlignment == .leading ? .zero : .init(x: 1, y: 0)
                 )
             },
             completion: { _ in
@@ -59,7 +59,7 @@ extension MenuView: ContextMenuAnimatable {
     }
 }
 
-extension MenuView: MenuElementViewDelegate {
+extension MenuView: @preconcurrency MenuElementViewDelegate {
     func menuElementViewTapped(menuElementView: MenuElementView) {
         delegate?.dismissMenuView(menuView: self, uponTapping: menuElementView.element)
     }

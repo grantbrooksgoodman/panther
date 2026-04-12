@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class SplashPageViewService: ObservableObject {
+final class SplashPageViewService: ObservableObject, @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -36,7 +36,9 @@ final class SplashPageViewService: ObservableObject {
         didSet {
             percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
-            core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
+            Task.delayed(by: .seconds(2)) { @MainActor in
+                initializationProgress = 0
+            }
         }
     }
 
@@ -272,7 +274,10 @@ final class SplashPageViewService: ObservableObject {
         } else if !didAttemptDatabaseRepair {
             return await attemptDatabaseRepair()
         } else {
-            Application.reset()
+            Task { @MainActor in
+                Application.reset()
+            }
+
             didAttemptDatabaseRepair = false
         }
 
@@ -301,6 +306,7 @@ final class SplashPageViewService: ObservableObject {
         ).present(translating: translationOptionKeys)
     }
 
+    @MainActor
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
         let isUsingTestAccount = [
             "15555555555",

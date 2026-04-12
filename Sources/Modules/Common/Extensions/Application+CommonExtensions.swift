@@ -23,6 +23,7 @@ extension Application {
 
     // MARK: - Methods
 
+    @MainActor
     static func dismissSheets() {
         @Dependency(\.navigation) var navigation: Navigation
         @Dependency(\.uiApplication) var uiApplication: UIApplication
@@ -35,6 +36,7 @@ extension Application {
         uiApplication.dismissSheets()
     }
 
+    @MainActor
     static func reset(
         preserveCurrentUserID: Bool = false,
         onCompletion procedure: ResetCompletionProcedure? = nil
@@ -68,7 +70,9 @@ extension Application {
             core.ui.addOverlay(activityIndicator: .largeWhite)
 
             navigation.navigate(to: .root(.modal(.splash)))
-            core.gcd.after(.seconds(1)) { core.utils.exitGracefully() }
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                core.utils.exitGracefully()
+            }
 
         case .navigateToSplash:
             navigation.navigate(to: .userContent(.stack([])))

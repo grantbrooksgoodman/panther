@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
-final class PhoneNumber: Codable, EncodedHashable, Hashable {
+final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     let callingCode: String

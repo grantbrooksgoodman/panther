@@ -155,14 +155,22 @@ extension AppConstants.Colors {
         }
 
         enum InputBar {
+            /* MARK: Properties */
+
             static let inputTextViewAlternateTint: Color = .init(uiColor: .clear)
             static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
-            static let inputTextViewTint: Color = .init(uiColor: .accentOrSystemBlue)
 
             static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
 
             static let sendButtonRecordTint: Color = .init(uiColor: .red)
             static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
+
+            /* MARK: Computed Properties */
+
+            @MainActor
+            static var inputTextViewTint: Color {
+                .init(uiColor: .accentOrSystemBlue)
+            }
         }
 
         enum RecordingUI {

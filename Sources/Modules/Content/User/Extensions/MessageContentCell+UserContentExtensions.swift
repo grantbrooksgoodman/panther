@@ -14,7 +14,7 @@ import UIKit
 /* 3rd-party */
 import MessageKit
 
-private var contextMenuMessageIDKey: UInt8 = 0
+private nonisolated(unsafe) var contextMenuMessageIDKey: UInt8 = 0
 
 extension MessageContentCell {
     var contextMenuMessageID: String? {

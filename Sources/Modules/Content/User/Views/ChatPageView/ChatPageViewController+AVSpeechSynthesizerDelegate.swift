@@ -17,7 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-extension ChatPageViewController: AVSpeechSynthesizerDelegate {
+extension ChatPageViewController: @preconcurrency AVSpeechSynthesizerDelegate {
     // MARK: - Did Cancel Utterance
 
     func speechSynthesizer(

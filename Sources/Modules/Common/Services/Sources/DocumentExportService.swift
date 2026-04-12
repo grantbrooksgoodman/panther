@@ -24,6 +24,10 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
     private var temporaryFilePath: URL?
     private var _onDismiss: ((Bool) -> Void)?
 
+    // MARK: - Init
+
+    override nonisolated init() {}
+
     // MARK: - Present Export Controller
 
     func presentExportController(forFileAt url: URL) -> Exception? {

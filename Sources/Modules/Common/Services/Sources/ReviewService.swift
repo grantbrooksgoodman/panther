@@ -48,6 +48,7 @@ struct ReviewService {
         appOpenCount = (appOpenCount ?? 0) + 1
     }
 
+    @MainActor
     func promptToReview() {
         guard canPromptToReview,
               let windowScene = uiApplication.mainWindow?.windowScene else { return }

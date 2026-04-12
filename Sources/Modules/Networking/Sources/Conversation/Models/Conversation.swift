@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 
 // swiftlint:disable:next type_body_length
-final class Conversation: Codable, EncodedHashable, Hashable {
+final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     static let empty: Conversation = .init(
@@ -98,12 +98,11 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setMessages(ids: ids)
+            return await _setMessages(ids: ids)
         }
     }
 
     private func _setMessages(ids: Set<String>?) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
@@ -129,8 +128,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
-            coreGCD.syncOnMain {
+            await MainActor.run {
                 self.messages = messages.hydrated(with: self.activities)
             }
 
@@ -152,7 +150,6 @@ final class Conversation: Codable, EncodedHashable, Hashable {
     }
 
     private func updateMessage(id: String) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         let userInfo: [String: Any] = [
@@ -180,9 +177,9 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            messages[messageIndex] = message
-            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
-            coreGCD.syncOnMain { self.messages = messages }
+            messages[messageIndex] = message // swiftlint:disable:next identifier_name
+            let _messages = messages
+            await MainActor.run { self.messages = _messages }
             return nil
 
         case let .failure(exception):
@@ -201,12 +198,11 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setUsers(forceUpdate: forceUpdate)
+            return await _setUsers(forceUpdate: forceUpdate)
         }
     }
 
     private func _setUsers(forceUpdate: Bool) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -242,8 +238,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 return exception.appending(userInfo: userInfo)
             }
 
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            coreGCD.syncOnMain { self.users = users }
+            await MainActor.run { self.users = users }
 
             Logger.log(
                 .init(

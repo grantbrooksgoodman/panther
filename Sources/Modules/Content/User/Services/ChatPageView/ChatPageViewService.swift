@@ -19,7 +19,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class ChatPageViewService {
+final class ChatPageViewService: @unchecked Sendable {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService
@@ -61,6 +61,7 @@ final class ChatPageViewService {
 
     // MARK: - Computed Properties
 
+    @MainActor
     private var shouldRespondToViewLifecycleEvent: Bool {
         guard !chatInfoPageViewService.isPreviewingMedia,
               mediaActionHandler?.isPresentingPickerController != true,
@@ -71,6 +72,7 @@ final class ChatPageViewService {
 
     // MARK: - Instantiate View Controller
 
+    @MainActor
     func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
@@ -114,6 +116,7 @@ final class ChatPageViewService {
 
     // MARK: - View Controller Lifecycle Handlers
 
+    @MainActor
     func onViewWillAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -135,18 +138,15 @@ final class ChatPageViewService {
         startSettingNavigationBarButtonItemAppearance()
     }
 
+    @MainActor
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
-
-        Task { @MainActor in
-            typingIndicator?.startCheckingForTypingIndicatorChanges()
-        }
-
+        typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(Floats.scrollDelayMilliseconds)) { [weak self] in
+            Task.delayed(by: .milliseconds(Floats.scrollDelayMilliseconds)) { @MainActor [weak self] in
                 if let focusedMessageID = self?.configuration.focusedMessageID {
                     self?.viewController?.messagesCollectionView.scrollTo(
                         messageID: focusedMessageID,
@@ -211,6 +211,7 @@ final class ChatPageViewService {
         }
     }
 
+    @MainActor
     func onViewWillDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -220,6 +221,7 @@ final class ChatPageViewService {
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
+    @MainActor
     func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -252,6 +254,7 @@ final class ChatPageViewService {
 
     // MARK: - UIScrollView
 
+    @MainActor
     func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
         loadMoreMessages(fromScrollToTop: false)
@@ -262,12 +265,14 @@ final class ChatPageViewService {
         searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
 
+    @MainActor
     func onScrollViewDidScrollToTop() {
         loadMoreMessages(fromScrollToTop: true)
     }
 
     // MARK: - UITraitCollection
 
+    @MainActor
     func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
         redrawForAppearanceChange()
@@ -275,33 +280,35 @@ final class ChatPageViewService {
 
     // MARK: - Auxiliary
 
+    @MainActor
     func redrawForAppearanceChange() {
-        Task { @MainActor in
-            inputBar?.configureInputBar(forceUpdate: true)
-            inputBar?.setAttachMediaButtonImage()
-            recipientBar?.layout.layoutSubviews()
-            recipientBar?.contactSelectionUI.unhighlightAllViews()
+        inputBar?.configureInputBar(forceUpdate: true)
+        inputBar?.setAttachMediaButtonImage()
+        recipientBar?.layout.layoutSubviews()
+        recipientBar?.contactSelectionUI.unhighlightAllViews()
 
-            if configuration == .newChat {
-                NavigationBar.setAppearance(.newChatPageView)
-            } else if !uiApplication.isPresentingSheet {
-                NavigationBar.setAppearance(.chatPageView)
-            }
-
-            StatusBar.overrideStyle(.appAware)
-            UIView.dismissCurrentContextMenu()
-            viewController?.navigationController?.isNavigationBarHidden = true
-            viewController?.navigationController?.isNavigationBarHidden = false
-            updateCollectionViewBackgroundColor()
-            reloadCollectionView()
+        if configuration == .newChat {
+            NavigationBar.setAppearance(.newChatPageView)
+        } else if !uiApplication.isPresentingSheet {
+            NavigationBar.setAppearance(.chatPageView)
         }
+
+        StatusBar.overrideStyle(.appAware)
+        UIView.dismissCurrentContextMenu()
+        viewController?.navigationController?.isNavigationBarHidden = true
+        viewController?.navigationController?.isNavigationBarHidden = false
+        updateCollectionViewBackgroundColor()
+        reloadCollectionView()
     }
 
+    @MainActor
     func reloadCollectionView() {
-        Task { @MainActor in
-            guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
-            viewController?.messagesCollectionView.reloadData()
+        guard viewController?.currentConversation?.messages?.count == 1 else {
+            viewController?.messagesCollectionView.reloadDataAndKeepOffset()
+            return
         }
+
+        viewController?.messagesCollectionView.reloadData()
     }
 
     @MainActor
@@ -345,13 +352,13 @@ final class ChatPageViewService {
         }
     }
 
+    @MainActor
     func setNavigationTitle(_ navigationTitle: String) {
-        Task { @MainActor in
-            guard let parent = viewController?.parent else { return }
-            parent.navigationItem.title = navigationTitle
-        }
+        guard let parent = viewController?.parent else { return }
+        parent.navigationItem.title = navigationTitle
     }
 
+    @MainActor
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !messageDeliveryService.isSendingMessage else { return }
 
@@ -361,7 +368,7 @@ final class ChatPageViewService {
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
-        core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) { [weak self] in
+        Task.delayed(by: .milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) { @MainActor [weak self] in
             guard let viewController = self?.viewController,
                   viewController.messagesCollectionView.numberOfSections > 0 else { return }
             viewController.messagesCollectionView.scrollToItem(
@@ -373,6 +380,7 @@ final class ChatPageViewService {
     }
 
     /// - NOTE: Fixes a bug in which a recent dismissal of the chat page would cause the next preview to incorrectly use the `.default` configuration.
+    @MainActor
     private func modifyConfigurationIfNeeded() {
         let presentedViewControllerIDs = uiApplication.presentedViewControllers.map { String(type(of: $0.self)) }
         guard presentedViewControllerIDs.contains(Strings.chatPageViewPreviewHostingControllerID),
@@ -472,6 +480,7 @@ final class ChatPageViewService {
         }
     }
 
+    @MainActor
     private func updateCollectionViewBackgroundColor() {
         guard !Application.isInPrevaricationMode else { return }
         var backgroundColor = ThemeService.isAppDefaultThemeApplied ? UIColor.background : UIColor(Colors.messagesCollectionViewPrimaryDarkBackground)

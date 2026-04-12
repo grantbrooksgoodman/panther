@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class AlternateMessageService {
     // MARK: - Types
 

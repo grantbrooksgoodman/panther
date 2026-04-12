@@ -32,7 +32,7 @@ protocol AttributeDetectionServiceDelegate: AnyObject {
     )
 }
 
-final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate {
+final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate, @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.uiApplication) private var uiApplication: UIApplication

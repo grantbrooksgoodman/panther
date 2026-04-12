@@ -17,6 +17,7 @@ import AppSubsystem
 
 extension AppConstants.CGFloats {
     enum SettingsPageView {
+        /* MARK: Properties */
         static let buildInfoButtonImageBottomPadding: CGFloat = 2
 
         static let buildInfoButtonImageFrameHeight: CGFloat = (515 / 20)
@@ -31,7 +32,6 @@ extension AppConstants.CGFloats {
         static let signOutNavigationDelayMilliseconds: CGFloat = 500
 
         static let groupedListViewBottomPadding: CGFloat = 20
-        static let groupedListViewHorizontalPadding: CGFloat = UIApplication.isFullyV26Compatible ? 25 : 20
 
         // swiftlint:disable identifier_name
         static let changeLanguageButtonOverlayFramePercentOfTotalSize: CGFloat = 0.7
@@ -39,6 +39,13 @@ extension AppConstants.CGFloats {
         static let clearCachesButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
         static let toggleDeveloperModeButtonOverlayFramePercentOfTotalSize: CGFloat = 0.6
         // swiftlint:enable identifier_name
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var groupedListViewHorizontalPadding: CGFloat {
+            UIApplication.isFullyV26Compatible ? 25 : 20
+        }
     }
 }
 

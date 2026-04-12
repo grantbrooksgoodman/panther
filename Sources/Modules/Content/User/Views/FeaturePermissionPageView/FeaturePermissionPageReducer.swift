@@ -56,6 +56,7 @@ struct FeaturePermissionPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var accentColor: Color {
             currentConfig.accentColor ?? .init(uiColor: .accentOrSystemBlue)
         }

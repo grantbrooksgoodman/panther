@@ -85,8 +85,10 @@ extension CacheDomain {
     }
 
     private static func clearChatInfoPageViewServiceCache() {
-        @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
-        chatInfoPageViewService.clearCache()
+        Task { @MainActor in
+            @Dependency(\.chatInfoPageViewService) var chatInfoPageViewService: ChatInfoPageViewService
+            chatInfoPageViewService.clearCache()
+        }
     }
 
     private static func clearCommonPropertyListsCache() {
@@ -99,7 +101,9 @@ extension CacheDomain {
     }
 
     private static func clearContactInitialsImageCache() {
-        ContactInitialsImageCache.clearCache()
+        Task { @MainActor in
+            ContactInitialsImageCache.clearCache()
+        }
     }
 
     private static func clearContactPairArchiveCache() {
@@ -118,20 +122,28 @@ extension CacheDomain {
     }
 
     private static func clearConversationCellViewDataCache() {
-        ConversationCellViewDataCache.clearCache()
+        Task { @MainActor in
+            ConversationCellViewDataCache.clearCache()
+        }
     }
 
     private static func clearMediaMessagePreviewServiceCache() {
-        @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
-        mediaMessagePreviewService?.clearCache()
+        Task { @MainActor in
+            @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
+            mediaMessagePreviewService?.clearCache()
+        }
     }
 
     private static func clearQueriedContactPairsCache() {
-        QueriedContactPairCache.clearCache()
+        Task { @MainActor in
+            QueriedContactPairCache.clearCache()
+        }
     }
 
     private static func clearQueriedConversationCache() {
-        QueriedConversationCache.clearCache()
+        Task { @MainActor in
+            QueriedConversationCache.clearCache()
+        }
     }
 
     private static func clearReadReceiptCache() {
@@ -144,8 +156,10 @@ extension CacheDomain {
     }
 
     private static func clearSettingsPageViewServiceCache() {
-        @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
-        settingsPageViewService.clearCache()
+        Task { @MainActor in
+            @Dependency(\.settingsPageViewService) var settingsPageViewService: SettingsPageViewService
+            settingsPageViewService.clearCache()
+        }
     }
 
     private static func clearSquareIconImageCache() {
@@ -161,7 +175,9 @@ extension CacheDomain {
     }
 
     private static func clearUserCache() {
-        UserCache.clearCache()
+        Task { @MainActor in
+            UserCache.clearCache()
+        }
     }
 
     private static func clearUserDisplayNameCache() {

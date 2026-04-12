@@ -62,17 +62,19 @@ struct ConversationsPageObserver: Observer {
             send(.traitCollectionChanged)
 
         case .updatedCurrentUser:
-            guard chatPageState.isPresented else { return updateConversations() }
+            Task { @MainActor in
+                guard chatPageState.isPresented else { return updateConversations() }
 
-            chatPageState.addEffectUponIsPresented(
-                changedTo: false,
-                id: .updateCurrentUser
-            ) { send(.updatedCurrentUser) }
+                chatPageState.addEffectUponIsPresented(
+                    changedTo: false,
+                    id: .updateCurrentUser
+                ) { send(.updatedCurrentUser) }
 
-            chatPageState.addEffectUponIsWaitingToUpdateConversations(
-                changedTo: true,
-                id: .updateConversations
-            ) { updateConversations() }
+                chatPageState.addEffectUponIsWaitingToUpdateConversations(
+                    changedTo: true,
+                    id: .updateConversations
+                ) { updateConversations() }
+            }
 
         default: ()
         }
@@ -86,6 +88,7 @@ struct ConversationsPageObserver: Observer {
 
     // MARK: - Auxiliary
 
+    @MainActor
     private func updateConversations() {
         guard !chatPageState.isPresented || !messageDeliveryService.isSendingMessage else {
             Logger.log(

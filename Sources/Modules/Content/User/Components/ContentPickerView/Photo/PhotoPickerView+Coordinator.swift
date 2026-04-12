@@ -16,10 +16,6 @@ import AppSubsystem
 
 extension PhotoPickerView {
     final class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        // MARK: - Dependencies
-
-        @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
-
         // MARK: - Properties
 
         private let delegate: any ContentPicker<UIImage>
@@ -36,26 +32,34 @@ extension PhotoPickerView {
             _ picker: PHPickerViewController,
             didCancelWithError error: Error?
         ) {
-            delegate.onDismiss(.init(error, metadata: .init(sender: self)))
+            delegate.onDismiss(.init(
+                error,
+                metadata: .init(sender: self)
+            ))
         }
 
         func picker(
             _ picker: PHPickerViewController,
             didFinishPicking results: [PHPickerResult]
         ) {
-            var exception: Exception?
-            defer { delegate.onDismiss(exception) }
-
             guard let itemProvider = results.first?.itemProvider,
                   itemProvider.canLoadObject(ofClass: UIImage.self) else { return }
 
             itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                 guard let image = object as? UIImage else {
-                    exception = .init(error, metadata: .init(sender: self))
+                    Task { @MainActor [weak self] in
+                        self?.delegate.onDismiss(.init(
+                            error,
+                            metadata: .init(sender: Self.self)
+                        ))
+                    }
                     return
                 }
 
-                self.mainQueue.async { self.delegate.onSelection(image) }
+                Task { @MainActor [weak self] in
+                    self?.delegate.onSelection(image)
+                    self?.delegate.onDismiss(nil)
+                }
             }
         }
     }

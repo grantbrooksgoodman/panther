@@ -30,9 +30,14 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum DataUsageView {
+        /* MARK: Properties */
+
         static let highUsage: Color = .init(uiColor: .systemRed)
         static let lowUsage: Color = .init(uiColor: .systemBlue)
 
+        /* MARK: Computed Properties */
+
+        @MainActor
         static var mediumUsage: Color {
             .init(
                 uiColor: ThemeService.isDarkModeActive ? .systemYellow : .systemOrange

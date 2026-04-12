@@ -73,6 +73,7 @@ extension Conversation {
         return true
     }
 
+    @MainActor
     var mediaItemMetadata: [MediaItemView.Metadata] {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 

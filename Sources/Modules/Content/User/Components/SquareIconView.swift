@@ -135,16 +135,16 @@ enum SquareIconImageCache {
 }
 
 private enum _SquareIconImageCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable { // swiftlint:disable:next identifier_name
-        case squareIconImagesForConfigurationEncodedHashes
-    }
-
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name line_length
-    @Cached(CacheKey.squareIconImagesForConfigurationEncodedHashes) fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]?
+    // swiftlint:disable identifier_name
+    fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]? {
+        get { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue }
+        set { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue = newValue }
+    }
+
+    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
+    // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

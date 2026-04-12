@@ -71,6 +71,7 @@ extension DevModeAction.AppActions {
         }
 
         static var deleteConversationsAction: DevModeAction {
+            @Sendable
             func deleteConversations() {
                 Task {
                     @Dependency(\.clientSession.user.currentUser) var currentUser: User?
@@ -194,7 +195,7 @@ extension DevModeAction.AppActions {
 
                 func showSuccessAndReset() {
                     core.hud.flash(image: .success)
-                    core.gcd.after(.seconds(1)) {
+                    Task.delayed(by: .seconds(1)) { @MainActor in
                         Application.reset(
                             preserveCurrentUserID: true,
                             onCompletion: .navigateToSplash

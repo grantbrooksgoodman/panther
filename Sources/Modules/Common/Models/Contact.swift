@@ -110,7 +110,12 @@ private enum _ContactImageCache {
 
     // MARK: - Properties
 
-    @Cached(CacheKey.imagesForContactIDs) fileprivate static var cachedImagesForContactIDs: [String: UIImage]?
+    fileprivate static var cachedImagesForContactIDs: [String: UIImage]? {
+        get { _cachedImagesForContactIDs.wrappedValue }
+        set { _cachedImagesForContactIDs.wrappedValue = newValue }
+    }
+
+    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

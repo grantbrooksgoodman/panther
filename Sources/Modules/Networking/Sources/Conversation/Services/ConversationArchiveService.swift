@@ -14,7 +14,7 @@ import AppSubsystem
 
 // FIXME: Previously saw data races using mainQueue/serialQueue.sync. Still occur with NSLock, but with less frequency. Audit new behavior.
 // NIT: Maybe fixed with @LockIsolated?
-final class ConversationArchiveService {
+final class ConversationArchiveService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults

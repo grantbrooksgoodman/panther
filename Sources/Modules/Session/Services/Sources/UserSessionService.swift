@@ -18,7 +18,7 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
-final class UserSessionService {
+final class UserSessionService: @unchecked Sendable {
     // MARK: - Types
 
     private enum TaskID: Hashable {
@@ -104,11 +104,11 @@ final class UserSessionService {
 
         switch getUserResult {
         case let .success(user):
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            core.gcd.syncOnMain {
+            await MainActor.run {
                 self.currentUser = user
                 self.currentUserID = user.id
             }
+
             isUpdatingCurrentUser = false
             return .success(user)
 
@@ -339,17 +339,19 @@ final class UserSessionService {
     }
 
     private func signOutToPreserveSingleActiveUser() {
-        Toast.show(
-            .init(
-                .banner(style: .info),
-                title: "You have been signed out.",
-                message: "A sign-in was detected from another device."
-            ),
-            translating: Toast.TranslationOptionKey.allCases
-        )
+        Task { @MainActor in
+            Toast.show(
+                .init(
+                    .banner(style: .info),
+                    title: "You have been signed out.",
+                    message: "A sign-in was detected from another device."
+                ),
+                translating: Toast.TranslationOptionKey.allCases
+            )
 
-        RuntimeStorage.store(false, as: .updatedLastSignInDate)
-        return Application.reset(onCompletion: .navigateToSplash)
+            RuntimeStorage.store(false, as: .updatedLastSignInDate)
+            Application.reset(onCompletion: .navigateToSplash)
+        }
     }
 
     private func updateCurrentUser() {

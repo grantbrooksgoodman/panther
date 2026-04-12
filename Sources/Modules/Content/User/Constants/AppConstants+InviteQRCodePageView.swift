@@ -26,7 +26,15 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum InviteQRCodePageView {
-        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        /* MARK: Properties */
+
         static let tintedGlassToolbarButtonForeground: Color = .white
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var navigationBarItemGlassTint: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
     }
 }

@@ -45,12 +45,21 @@ extension RecipientBar: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
-        typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.UITextFieldDelegate
-        coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) {
+        typealias Floats = AppConstants
+            .CGFloats
+            .ChatPageViewService
+            .RecipientBarService
+            .UITextFieldDelegate
+
+        Task.delayed(by: .milliseconds(
+            Floats.toggleLabelRepresentationDelayMilliseconds
+        )) { @MainActor in
             guard chatPageViewService.inputBar?.isFirstResponder == false,
                   chatPageViewService.inputBar?.isForcingAppearance == false else { return }
-            chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: true)
+            chatPageViewService
+                .recipientBar?
+                .contactSelectionUI
+                .toggleLabelRepresentation(on: true)
         }
     }
 }

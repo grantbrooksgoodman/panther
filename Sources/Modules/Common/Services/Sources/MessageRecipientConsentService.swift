@@ -15,19 +15,19 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class MessageRecipientConsentService {
+final class MessageRecipientConsentService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
-    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Send Consent Message in Current Conversation
 
     @MainActor
     func sendConsentMessageInCurrentConversation() async -> Exception? {
+        @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
             return .init(
@@ -63,7 +63,9 @@ final class MessageRecipientConsentService {
         }
 
         let cancelAction: AKAction = .init(Localized(.cancel).wrappedValue, style: .cancel) {
-            self.inputBarService?.setConsentButtonIsEnabled(true)
+            Task { @MainActor in
+                self.inputBarService?.setConsentButtonIsEnabled(true)
+            }
         }
 
         await AKActionSheet(
@@ -149,11 +151,13 @@ final class MessageRecipientConsentService {
         }
     }
 
+    @MainActor
     private func isSendingMessageFalseEffect() {
         inputBarService?.configureInputBar()
         Message.consentRequestMessageID = nil
     }
 
+    @MainActor
     private func isSendingMessageTrueEffect() {
         inputBarService?.setConsentButtonIsEnabled(false)
         Task.delayed(by: .seconds(1)) { @MainActor in

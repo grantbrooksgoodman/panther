@@ -15,6 +15,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
 

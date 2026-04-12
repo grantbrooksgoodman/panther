@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Constants Accessors
 
@@ -21,9 +22,7 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
-    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
 
     // MARK: - Properties
 
@@ -44,6 +43,7 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
         self.viewController = viewController
     }
 
+    @MainActor
     deinit {
         appearanceTimer?.invalidate()
         appearanceTimer = nil
@@ -55,35 +55,29 @@ final class DeliveryProgressIndicatorService: DeliveryProgressIndicator {
     // MARK: - Internal
 
     func incrementDeliveryProgress(by: Float) {
-        mainQueue.async {
-            guard let progressView = self.progressView else { return }
-            UIView.animate(withDuration: Floats.animationDuration) {
-                progressView.setProgress(progressView.progress + by, animated: true)
-            }
+        guard let progressView else { return }
+        UIView.animate(withDuration: Floats.animationDuration) {
+            progressView.setProgress(progressView.progress + by, animated: true)
         }
     }
 
     func startAnimatingDeliveryProgress() {
-        mainQueue.async {
-            self.instantiateDeliveryProgressTimer(Floats.hiddenTimerTimeInterval)
-            self.instantiateAppearanceTimer()
-        }
+        instantiateDeliveryProgressTimer(Floats.hiddenTimerTimeInterval)
+        instantiateAppearanceTimer()
     }
 
     func stopAnimatingDeliveryProgress() {
         deliveryProgressTimer?.invalidate()
         deliveryProgressTimer = nil
 
-        mainQueue.async {
-            self.progressView?.setProgress(1, animated: true)
-            UIView.animate(
-                withDuration: Floats.animationDuration,
-                delay: Floats.animationDelay
-            ) {
-                self.progressView?.alpha = 0
-            } completion: { _ in
-                self.progressView?.progress = 0
-            }
+        progressView?.setProgress(1, animated: true)
+        UIView.animate(
+            withDuration: Floats.animationDuration,
+            delay: Floats.animationDelay
+        ) {
+            self.progressView?.alpha = 0
+        } completion: { _ in
+            self.progressView?.progress = 0
         }
     }
 

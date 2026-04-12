@@ -241,7 +241,8 @@ extension Conversation: Serializable {
                 ))
             }
 
-            let decoded: Conversation = .init(
+            // FIXME: Audit why this is needed.
+            @LockIsolated var decoded: Conversation = .init(
                 conversationID,
                 activities: activities,
                 messageIDs: messageIDs,

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-struct ConversationSyncData: Hashable {
+struct ConversationSyncData: Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     let conversation: Conversation

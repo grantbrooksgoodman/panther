@@ -9,6 +9,7 @@
 /* Native */
 import Foundation
 
+@MainActor
 protocol ContextMenuAnimatable {
     func appearAnimation(completion: (() -> Void)?)
     func disappearAnimation(completion: (() -> Void)?)

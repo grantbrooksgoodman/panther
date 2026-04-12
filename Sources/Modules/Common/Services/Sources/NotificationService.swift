@@ -240,18 +240,23 @@ struct NotificationService {
         )
 
         Toast.show(toast) {
-            @Dependency(\.navigation) var navigation: Navigation
-            guard self.chatPageState.isPresented else {
-                return navigation.navigate(to: .userContent(.push(.chat(conversation))))
-            }
+            Task { @MainActor in
+                @Dependency(\.navigation) var navigation: Navigation
+                guard chatPageState.isPresented else {
+                    navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                    return
+                }
 
-            navigation.navigate(to: .userContent(.stack([])))
-            self.chatPageState.addEffectUponIsPresented(
-                changedTo: false,
-                id: .deeplinkToOtherChat
-            ) {
-                Application.dismissSheets()
-                navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                navigation.navigate(to: .userContent(.stack([])))
+                chatPageState.addEffectUponIsPresented(
+                    changedTo: false,
+                    id: .deeplinkToOtherChat
+                ) {
+                    Task { @MainActor in
+                        Application.dismissSheets()
+                        navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                    }
+                }
             }
         }
 

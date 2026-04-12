@@ -44,11 +44,11 @@ enum PLISTGenerator {
     static func translate(
         text: String,
         useEnhancedTranslation: Bool = false,
-        completion: @escaping (Callback<String, Exception>) -> Void
+        completion: @escaping @Sendable (Callback<String, Exception>) -> Void
     ) {
         Task {
-            completion(
-                await translate(
+            await completion(
+                translate(
                     text: text,
                     toLanguages: .init(RuntimeStorage.languageCodeDictionary!.keys),
                     useEnhancedTranslation: useEnhancedTranslation

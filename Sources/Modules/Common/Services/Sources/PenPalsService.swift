@@ -27,9 +27,15 @@ struct PenPalsService {
         return contactPairArchive?.flatMap(\.users).map(\.id).unique ?? []
     }
 
+    @MainActor
     private var selectContactPairUserIDs: [String] {
-        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
-        return selectedContactPairs?.users.map(\.id) ?? []
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        return chatPageViewService
+            .recipientBar?
+            .contactSelectionUI
+            .selectedContactPairs
+            .users
+            .map(\.id) ?? []
     }
 
     // MARK: - Is Known to Current User
@@ -127,6 +133,7 @@ struct PenPalsService {
             Logger.log(exception, domain: .penPals)
         }
 
+        let selectContactPairUserIDs = await MainActor.run { self.selectContactPairUserIDs }
         let getAllUsersResult = await userService.getAllUsers() // TODO: Will need to be a limited query once user numbers pick up.
 
         switch getAllUsersResult {

@@ -30,6 +30,9 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum SystemMessageCell { // NIT: Using UIColor for this.
-        static let activityStringForeground: UIColor = ThemeService.isDarkModeActive ? UIColor.lightGray : .systemGray
+        @MainActor
+        static var activityStringForeground: UIColor {
+            ThemeService.isDarkModeActive ? UIColor.lightGray : .systemGray
+        }
     }
 }

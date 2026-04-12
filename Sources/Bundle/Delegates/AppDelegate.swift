@@ -19,7 +19,7 @@ import FirebaseCore
 import FirebaseMessaging
 
 @main
-final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency MessagingDelegate, @preconcurrency UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
@@ -71,7 +71,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, 
     ) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
     func application(

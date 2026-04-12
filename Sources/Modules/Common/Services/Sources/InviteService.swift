@@ -15,14 +15,13 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-struct InviteService {
+struct InviteService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.uiApplication.keyViewController?.view) private var keyView: UIView?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
@@ -105,7 +104,7 @@ struct InviteService {
         }
 
         Application.dismissSheets()
-        core.gcd.after(.seconds(2)) {
+        Task.delayed(by: .seconds(2)) { @MainActor in
             RootSheets.present(.inviteLanguagePicker)
         }
 
@@ -114,13 +113,14 @@ struct InviteService {
 
     // MARK: - Present Invitation Suggestion Prompt
 
+    @MainActor
     func presentInvitationSuggestionPrompt() async {
         let inviteAction: AKAction = .init(
             "Send Invite",
             style: .preferred
         ) {
-            Task {
-                if let exception = await self.presentInvitationPrompt() {
+            Task { @MainActor in
+                if let exception = await presentInvitationPrompt() {
                     Logger.log(exception, with: .toast)
                 }
             }
@@ -155,6 +155,7 @@ struct InviteService {
         appShareLink: URL,
         text: String
     ) {
+        @Dependency(\.uiApplication.keyViewController?.view) var keyView: UIView?
         let activityVC = UIActivityViewController(
             activityItems: [appShareLink, text],
             applicationActivities: nil
@@ -165,16 +166,20 @@ struct InviteService {
     }
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
+    @MainActor
     private func presentTranslationAlert() async -> Bool? {
-        var shouldTranslate: Bool?
+        // Use a reference-type box to hold the result; AKAction handlers run on main actor.
+        final class BoolBox: @unchecked Sendable { var value: Bool? }
+        let shouldTranslate = BoolBox()
 
-        let acceptTranslationAction: AKAction = .init("Yes, translate", style: .preferred) {
-            shouldTranslate = true
-        }
+        let acceptTranslationAction: AKAction = .init(
+            "Yes, translate",
+            style: .preferred
+        ) { shouldTranslate.value = true }
 
-        let rejectTranslationAction: AKAction = .init("No, don't translate") {
-            shouldTranslate = false
-        }
+        let rejectTranslationAction: AKAction = .init(
+            "No, don't translate"
+        ) { shouldTranslate.value = false }
 
         await AKAlert(
             title: "Translate Invitation",
@@ -190,6 +195,6 @@ struct InviteService {
             .title,
         ])
 
-        return shouldTranslate
+        return shouldTranslate.value
     }
 }

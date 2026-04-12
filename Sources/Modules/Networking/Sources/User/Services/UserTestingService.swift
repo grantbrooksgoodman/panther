@@ -120,7 +120,7 @@ struct UserTestingService {
 
         navigation.navigate(to: .root(.modal(.splash)))
         core.ui.removeOverlay()
-        core.gcd.after(.seconds(1)) {
+        Task.delayed(by: .seconds(1)) { @MainActor in
             core.hud.showSuccess(
                 text: "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
             )
@@ -140,7 +140,7 @@ struct UserTestingService {
         let originalCurrentUserID = currentUserID
         defer { currentUserID = originalCurrentUserID }
 
-        currentUserID = (randomBool && randomBool && randomBool) ? (await randomUserID) : currentUserID
+        currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
         let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
@@ -152,7 +152,7 @@ struct UserTestingService {
 
             guard randomBool else {
                 if currentUserID != originalCurrentUserID {
-                    Application.reset(preserveCurrentUserID: true)
+                    await MainActor.run { Application.reset(preserveCurrentUserID: true) }
                     if let exception = await networking.database.populateTemporaryCaches() {
                         return exception
                     }
@@ -321,23 +321,27 @@ struct UserTestingService {
     private func getIsOnProperEnvironment() -> Bool {
         guard Networking.config.environment == .production else { return true }
 
-        alertKitConfig.registerPresentationDelegate(DummyPresentationDelegate.shared)
-        core.ui.addOverlay(activityIndicator: nil)
-        updateService.isForcedUpdateRequiredSubject.send(true)
+        Task { @MainActor in
+            alertKitConfig.registerPresentationDelegate(DummyPresentationDelegate.shared)
+            core.ui.addOverlay(activityIndicator: nil)
+            updateService.isForcedUpdateRequiredSubject.send(true)
+        }
 
         Task.delayed(by: .milliseconds(300)) { @MainActor in
-            self.core.ui.removeOverlay()
-            self.core.ui.addOverlay(
+            core.ui.removeOverlay()
+            core.ui.addOverlay(
                 activityIndicator: nil,
                 isModal: false
             )
 
-            self.alertKitConfig.registerPresentationDelegate(self.core)
+            alertKitConfig.registerPresentationDelegate(core)
             let resetAction: AKAction = .init(
                 "Reset Application",
                 style: .destructivePreferred
             ) {
-                Application.reset(onCompletion: .exitGracefully)
+                Task { @MainActor in
+                    Application.reset(onCompletion: .exitGracefully)
+                }
             }
 
             let environmentIntrusionAlert = AKAlert(
@@ -382,7 +386,7 @@ struct UserTestingService {
     }
 
     private func getRandomImageData() async -> Data? {
-        await(randomBool ? UIImage.appIcon : SquareIconView.image(
+        await (randomBool ? UIImage.appIcon : SquareIconView.image(
             .init(
                 backgroundColor: .random,
                 overlay: .text(
@@ -498,7 +502,7 @@ struct UserTestingService {
               let imageData = await randomImageData else { return }
 
         do {
-            _ = try (await conversation.updateValue(
+            _ = await try (conversation.updateValue(
                 conversation.metadata.copyWith(imageData: imageData),
                 forKey: .metadata
             )).get()
@@ -534,7 +538,7 @@ struct UserTestingService {
         } // swiftlint:enable duplicate_conditions
 
         do {
-            _ = try (await conversation.updateValue(
+            _ = await try (conversation.updateValue(
                 conversation.metadata.copyWith(name: randomTitle),
                 forKey: .metadata
             )).get()

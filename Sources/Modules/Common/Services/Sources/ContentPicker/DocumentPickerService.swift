@@ -24,6 +24,10 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
     private var timeout: Timeout?
     private var _onDismiss: ((Callback<ContentPickerResult, Exception>?) -> Void)?
 
+    // MARK: - Init
+
+    override nonisolated init() {}
+
     // MARK: - Present
 
     func present() {

@@ -97,16 +97,16 @@ enum TranscriptionServiceCache {
 }
 
 private enum _TranscriptionServiceCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case transcriptionSupportForLanguageCodes
-    }
-
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name
-    @Cached(CacheKey.transcriptionSupportForLanguageCodes) fileprivate static var cachedTranscriptionSupportForLanguageCodes: [String: Bool]?
+    // swiftlint:disable identifier_name
+    fileprivate static var cachedTranscriptionSupportForLanguageCodes: [String: Bool]? {
+        get { _cachedTranscriptionSupportForLanguageCodes.wrappedValue }
+        set { _cachedTranscriptionSupportForLanguageCodes.wrappedValue = newValue }
+    }
+
+    private static let _cachedTranscriptionSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
+    // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

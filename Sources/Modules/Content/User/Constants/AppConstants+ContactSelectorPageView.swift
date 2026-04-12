@@ -27,9 +27,17 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ContactSelectorPageView {
-        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        /* MARK: Properties */
+
         static let noResultsLabelAlternateForeground: Color = .init(uiColor: .systemBlue)
         static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
         static let tintedGlassToolbarButtonForeground: Color = .white
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var navigationBarItemGlassTint: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
     }
 }

@@ -140,6 +140,7 @@ extension CoreKit.Utilities {
         return nil
     }
 
+    @MainActor
     func destroyConversationDatabase() async -> Exception? {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
@@ -185,7 +186,7 @@ extension CoreKit.Utilities {
                 }
             }
 
-            if (try? await networking.storage.itemExists(
+            if await (try? networking.storage.itemExists(
                 as: .directory,
                 at: NetworkPath.audioMessageInputs.rawValue,
             ).get()) == true,
@@ -197,7 +198,7 @@ extension CoreKit.Utilities {
                 return exception
             }
 
-            if (try? await networking.storage.itemExists(
+            if await (try? networking.storage.itemExists(
                 as: .directory,
                 at: NetworkPath.media.rawValue,
             ).get()) == true,

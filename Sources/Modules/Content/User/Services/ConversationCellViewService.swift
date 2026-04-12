@@ -30,8 +30,11 @@ struct ConversationCellViewService {
     /// `.deleteConversationButtonTapped`
     /// - Returns: `true` if the user selected the cancel option.
     func presentDeletionActionSheet(_ title: String) async -> Bool {
-        var cancelled = true
-        let deleteAction: AKAction = .init("Delete", style: .destructive) { cancelled = false }
+        let cancelled = LockIsolated(wrappedValue: true)
+        let deleteAction: AKAction = .init("Delete", style: .destructive) {
+            cancelled.wrappedValue = false
+        }
+
         await AKActionSheet(
             title: title,
             message: "Are you sure you'd like to delete this conversation?\nThis operation cannot be undone.",
@@ -39,12 +42,12 @@ struct ConversationCellViewService {
             cancelButtonTitle: Localized(.cancel).wrappedValue
         ).present(translating: [.actions(), .message])
 
-        return cancelled
+        return cancelled.wrappedValue
     }
 
     /// `.userInfoBadgeTapped`
     func presentUserInfoAlert(_ cellViewData: ConversationCellViewData) {
-        Task {
+        Task { @MainActor in
             guard let user = cellViewData.otherUser else { return }
 
             var languageName = user.languageCode.uppercased()
@@ -58,14 +61,16 @@ struct ConversationCellViewService {
             var actions: [AKAction] = [.cancelAction(title: Localized(.dismiss).wrappedValue)]
             if build.isDeveloperModeEnabled {
                 let setToCurrentUserAction: AKAction = .init("Set to Current User", style: .preferred) {
-                    Application.reset()
-                    Application.dismissSheets()
+                    Task { @MainActor in
+                        Application.reset()
+                        Application.dismissSheets()
 
-                    @Persistent(.currentUserID) var currentUserID: String?
-                    currentUserID = user.id
+                        @Persistent(.currentUserID) var currentUserID: String?
+                        currentUserID = user.id
 
-                    navigation.navigate(to: .userContent(.stack([])))
-                    navigation.navigate(to: .root(.modal(.splash)))
+                        navigation.navigate(to: .userContent(.stack([])))
+                        navigation.navigate(to: .root(.modal(.splash)))
+                    }
                 }
 
                 actions.append(setToCurrentUserAction)

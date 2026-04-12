@@ -178,28 +178,30 @@ extension Message: Serializable {
         }
     }
 
+    private static func getTranslation(
+        _ reference: TranslationReference
+    ) async -> Callback<Translation, Exception> {
+        let decodeResult = await Translation.decode(from: reference)
+
+        switch decodeResult {
+        case let .success(translation):
+            if let exception = TranslationValidator.validate(
+                translation: translation,
+                metadata: .init(sender: self)
+            ) {
+                return .failure(exception)
+            }
+
+            return .success(translation)
+
+        case let .failure(exception):
+            return .failure(exception)
+        }
+    }
+
     private static func getTranslations(
         references: [TranslationReference]
     ) async -> Callback<[Translation], Exception> {
-        func getTranslation(_ reference: TranslationReference) async -> Callback<Translation, Exception> {
-            let decodeResult = await Translation.decode(from: reference)
-
-            switch decodeResult {
-            case let .success(translation):
-                if let exception = TranslationValidator.validate(
-                    translation: translation,
-                    metadata: .init(sender: self)
-                ) {
-                    return .failure(exception)
-                }
-
-                return .success(translation)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
         guard !references.isEmpty else {
             return .failure(.init(
                 "No translation references provided.",
@@ -217,7 +219,7 @@ extension Message: Serializable {
         ) { taskGroup in
             for (index, reference) in references.enumerated() {
                 taskGroup.addTask {
-                    let getTranslationResult = await getTranslation(reference)
+                    let getTranslationResult = await Self.getTranslation(reference)
                     return (index, getTranslationResult)
                 }
             }

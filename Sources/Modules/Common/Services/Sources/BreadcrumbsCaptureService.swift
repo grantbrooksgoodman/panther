@@ -15,7 +15,7 @@ import AppSubsystem
 import Networking
 
 @MainActor
-final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
+final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
     // MARK: - Types
 
     enum CaptureGranularity {

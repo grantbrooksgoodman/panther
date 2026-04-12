@@ -38,6 +38,7 @@ struct ContextMenuStyle {
 
     // MARK: - Properties
 
+    @MainActor
     static let `default` = ContextMenuStyle()
 
     let appearAnimationParameters: AnimationParameters

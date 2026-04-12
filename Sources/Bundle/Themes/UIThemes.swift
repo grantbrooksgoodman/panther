@@ -16,6 +16,7 @@ import AppSubsystem
 /**
  Use this extension to build new UI themes.
  */
+@MainActor
 extension UITheme {
     // MARK: - Type Aliases
 
@@ -23,7 +24,8 @@ extension UITheme {
 
     // MARK: - Types
 
-    struct List: AppSubsystem.Delegates.UIThemeListDelegate {
+    @MainActor
+    struct List: @MainActor AppSubsystem.Delegates.UIThemeListDelegate {
         var uiThemes: [UITheme] {
             [
                 .appDefault,

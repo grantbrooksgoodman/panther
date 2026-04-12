@@ -17,6 +17,8 @@ import AppSubsystem
 
 extension AppConstants.CGFloats {
     enum FeaturePermissionPageView {
+        /* MARK: Properties */
+
         static let animationDuration: CGFloat = 0.35
 
         static let dismissButtonBottomPadding: CGFloat = 70
@@ -25,7 +27,6 @@ extension AppConstants.CGFloats {
         static let enableButtonLabelCornerRadius: CGFloat = 16
         static let enableButtonLabelFrameHeight: CGFloat = 50
         static let enableButtonLabelFrameMinWidth: CGFloat = 200
-        static let enableButtonLabelHorizontalPadding: CGFloat = UIApplication.isFullyV26Compatible ? 50 : 40
         static let enableButtonLabelShadowColorOpacity: CGFloat = 0.2
         static let enableButtonLabelShadowRadius: CGFloat = 10
         static let enableButtonLabelShadowYOffset: CGFloat = 4
@@ -43,6 +44,13 @@ extension AppConstants.CGFloats {
         static let titleLabelFontScale: CGFloat = 34
         static let titleLabelMinimumScaleFactor: CGFloat = 0.5
         static let titleLabelTopPadding: CGFloat = 60
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var enableButtonLabelHorizontalPadding: CGFloat {
+            UIApplication.isFullyV26Compatible ? 50 : 40
+        }
     }
 }
 
@@ -50,11 +58,18 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum FeaturePermissionPageView {
-        static let accent: Color = .init(uiColor: .accentOrSystemBlue)
+        /* MARK: Properties */
 
         static let enableButtonLabelOverlayTextForeground: Color = .white
         static let enableButtonLabelShadow: Color = .black
 
         static let lightBackground: Color = .white
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var accent: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
     }
 }

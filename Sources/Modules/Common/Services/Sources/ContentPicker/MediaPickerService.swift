@@ -8,12 +8,14 @@
 
 /* Native */
 import Foundation
-import PhotosUI
+
+@preconcurrency import PhotosUI
 
 /* Proprietary */
 import AlertKit
 import AppSubsystem
 
+@MainActor
 final class MediaPickerService: PHPickerViewControllerDelegate {
     // MARK: - Dependencies
 
@@ -24,6 +26,10 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
 
     private var timeout: Timeout?
     private var _onDismiss: ((Callback<ContentPickerResult, Exception>?) -> Void)?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Present
 
@@ -51,7 +57,7 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
         }
 
         let confirmAction: AKAction = .init("Confirm", style: .preferred) {
-            self.core.gcd.after(.milliseconds(250)) {
+            Task.delayed(by: .milliseconds(250)) { @MainActor in
                 picker.dismiss(animated: true)
 
                 guard let itemProvider = results.first?.itemProvider else { return self._onDismiss = nil }
@@ -87,38 +93,43 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
 
     private func loadImage(_ itemProvider: NSItemProvider) {
         itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-            self.timeout?.cancel()
-            self.core.hud.hide()
+            let image = object as? UIImage
+            Task { @MainActor in
+                self.timeout?.cancel()
+                self.core.hud.hide()
 
-            guard let image = object as? UIImage else {
-                return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+                guard let image else {
+                    return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+                }
+
+                self._onDismiss?(.success(.image(image)))
+                self._onDismiss = nil
             }
-
-            self._onDismiss?(.success(.image(image)))
-            self._onDismiss = nil
         }
     }
 
     private func loadVideo(_ itemProvider: NSItemProvider) {
         itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
-            self.timeout?.cancel()
-            self.core.hud.hide()
+            Task { @MainActor in
+                self.timeout?.cancel()
+                self.core.hud.hide()
 
-            guard let url else {
-                return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
-            }
+                guard let url else {
+                    return self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+                }
 
-            typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
-            let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
-            let temporaryFilePath = self.fileManager.temporaryDirectory.appending(path: temporaryFileName)
-            try? self.fileManager.removeItem(atPath: temporaryFilePath.path())
+                typealias Strings = AppConstants.Strings.ChatPageViewService.MediaActionHandler
+                let temporaryFileName = "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
+                let temporaryFilePath = self.fileManager.temporaryDirectory.appending(path: temporaryFileName)
+                try? self.fileManager.removeItem(atPath: temporaryFilePath.path())
 
-            do {
-                try self.fileManager.copyItem(at: url, to: temporaryFilePath)
-                self._onDismiss?(.success(.video(temporaryFilePath)))
-                self._onDismiss = nil
-            } catch {
-                self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+                do {
+                    try self.fileManager.copyItem(at: url, to: temporaryFilePath)
+                    self._onDismiss?(.success(.video(temporaryFilePath)))
+                    self._onDismiss = nil
+                } catch {
+                    self.dismissReturningFailure(.init(error, metadata: .init(sender: self)))
+                }
             }
         }
     }

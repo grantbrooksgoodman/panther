@@ -21,6 +21,7 @@ import Translator
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class ContextMenuActionHandlerService {
     // MARK: - Constants Accessors
 

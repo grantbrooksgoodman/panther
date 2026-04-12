@@ -41,6 +41,7 @@ struct ReactionDetailsPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var listItems: [ListRowView.Configuration] {
             @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
             @Dependency(\.clientSession) var clientSession: ClientSession

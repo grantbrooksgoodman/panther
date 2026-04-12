@@ -22,7 +22,6 @@ struct AnalyticsService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter
-    @Dependency(\.uiApplication.keyViewController?.leafViewController) private var leafViewController: UIViewController?
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
 
     // MARK: - Types
@@ -81,7 +80,9 @@ struct AnalyticsService {
 
     // MARK: - Properties
 
+    @MainActor
     private var userInfo: [String: String] {
+        @Dependency(\.uiApplication.keyViewController?.leafViewController) var leafViewController: UIViewController?
         var parameters = [
             "build_sku": build.buildSKU,
             "bundle_revision": "\(build.bundleRevision) (\(build.revisionBuildNumber))",

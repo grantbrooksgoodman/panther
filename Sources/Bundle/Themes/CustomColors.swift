@@ -25,6 +25,7 @@ extension ColoredItemType {
 /**
  Use this extension to create custom `UIColor` types based on the current theme.
  */
+@MainActor
 extension UIColor {
     static var navigationBarButton: UIColor { ThemeService.currentTheme.color(for: .navigationBarButton) }
     static var receiverBubble: UIColor { ThemeService.currentTheme.color(for: .receiverBubble) }
@@ -34,6 +35,7 @@ extension UIColor {
 /**
  Provided to create convenience initializers for custom `Color` types.
  */
+@MainActor
 extension Color {
     static var navigationBarButton: Color { .init(uiColor: .navigationBarButton) }
     static var receiverBubble: Color { .init(uiColor: .receiverBubble) }

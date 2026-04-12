@@ -23,9 +23,14 @@ extension ChatInfoPageViewService {
         }
     }
 
-    private func presentChangeMetadataActionSheet(completion: @escaping (MetadataChangeType?) -> Void) {
+    private func presentChangeMetadataActionSheet(
+        completion: @escaping @Sendable (MetadataChangeType?) -> Void
+    ) {
         Task { @MainActor in
+            @Sendable
             func presentChangeNameAlert() async -> MetadataChangeType? {
+                @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+
                 var conversationName: String?
                 if let name = conversation?.metadata.name,
                    !name.isBangQualifiedEmpty {
@@ -55,15 +60,17 @@ extension ChatInfoPageViewService {
                 )
             }
 
+            @Sendable
             func presentChangePhotoAlert() async -> MetadataChangeType? {
-                var photoChangeType: MetadataChangeType?
+                final class MetadataChangeTypeBox: @unchecked Sendable { var value: MetadataChangeType? }
 
+                let photoChangeType = MetadataChangeTypeBox()
                 let takePhotoAction: AKAction = .init("Take photo") {
-                    photoChangeType = .selectPhotoFromCamera
+                    photoChangeType.value = .selectPhotoFromCamera
                 }
 
                 let chooseFromLibraryAction: AKAction = .init("Choose photo from library") {
-                    photoChangeType = .selectPhotoFromLibrary
+                    photoChangeType.value = .selectPhotoFromLibrary
                 }
 
                 await AKActionSheet(
@@ -73,7 +80,7 @@ extension ChatInfoPageViewService {
                         "Change name and photo".localized
                     ))
                 ).present(translating: [.actions()])
-                return photoChangeType
+                return photoChangeType.value
             }
 
             @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
@@ -86,16 +93,16 @@ extension ChatInfoPageViewService {
             }
 
             let changeNameAction: AKAction = .init("Change name") {
-                Task {
+                Task { @MainActor in
                     guard canComplete else { return }
-                    completion(await presentChangeNameAlert())
+                    await completion(presentChangeNameAlert())
                 }
             }
 
             let changePhotoAction: AKAction = .init("Change photo") {
-                Task {
+                Task { @MainActor in
                     guard canComplete else { return }
-                    completion(await presentChangePhotoAlert())
+                    await completion(presentChangePhotoAlert())
                 }
             }
 

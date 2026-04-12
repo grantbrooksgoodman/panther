@@ -10,15 +10,16 @@
 import Foundation
 import UIKit
 
-struct Menu {
+struct Menu: @unchecked Sendable {
     // MARK: - Properties
 
     let children: [MenuElement]
 
     // MARK: - Computed Properties
 
+    @MainActor
     var uiMenu: UIMenu {
-        .init(children: children.map { $0.uiAction })
+        .init(children: children.map(\.uiAction))
     }
 
     // MARK: - Init

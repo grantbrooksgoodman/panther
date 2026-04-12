@@ -37,11 +37,11 @@ extension AppConstants.CGFloats.ChatPageViewService {
         }
 
         enum ContactSelectionUI {
+            /* MARK: Properties */
+
             static let adjacentViewSpacing: CGFloat = 2
 
             static let contactLabelSystemFontSize: CGFloat = 16
-
-            static let contactViewCornerRadius: CGFloat = UIApplication.isFullyV26Compatible ? 12 : 6
             static let contactViewFrameHeight: CGFloat = 30
             static let contactViewFrameXOrigin: CGFloat = 40
             static let contactViewMaximumWidthDivisor: CGFloat = 2
@@ -57,9 +57,18 @@ extension AppConstants.CGFloats.ChatPageViewService {
             static let sublevelCount: CGFloat = 10
 
             static let v26ContactViewAlpha: CGFloat = 0.85
+
+            /* MARK: Computed Properties */
+
+            @MainActor
+            static var contactViewCornerRadius: CGFloat {
+                UIApplication.isFullyV26Compatible ? 12 : 6
+            }
         }
 
         enum Layout {
+            /* MARK: Properties */
+
             static let borderHeight: CGFloat = 0.3
 
             static let frameHeight: CGFloat = 54
@@ -70,9 +79,6 @@ extension AppConstants.CGFloats.ChatPageViewService {
             static let lightBackgroundColorAlphaComponent: CGFloat = 0.98
 
             static let selectContactButtonMinXDecrement: CGFloat = 5
-            static let selectContactButtonXOriginDecrement: CGFloat = UIApplication.isFullyV26Compatible ? 40 : 10
-            static let selectContactButtonFrameHeight: CGFloat = UIApplication.isFullyV26Compatible ? 22 : 26
-            static let selectContactButtonFrameWidth: CGFloat = UIApplication.isFullyV26Compatible ? 22 : 26
 
             static let textFieldWidthDecrement: CGFloat = 85
             static let textFieldXOriginIncrement: CGFloat = 5
@@ -82,6 +88,23 @@ extension AppConstants.CGFloats.ChatPageViewService {
             static let v26FrameWidthDecrement: CGFloat = 50
             static let v26TextFieldFrameHeight: CGFloat = 24
             static let v26YOriginIncrement: CGFloat = 10
+
+            /* MARK: Computed Properties */
+
+            @MainActor
+            static var selectContactButtonXOriginDecrement: CGFloat {
+                UIApplication.isFullyV26Compatible ? 40 : 10
+            }
+
+            @MainActor
+            static var selectContactButtonFrameHeight: CGFloat {
+                UIApplication.isFullyV26Compatible ? 22 : 26
+            }
+
+            @MainActor
+            static var selectContactButtonFrameWidth: CGFloat {
+                UIApplication.isFullyV26Compatible ? 22 : 26
+            }
         }
 
         enum UITextFieldDelegate { // swiftlint:disable:next identifier_name

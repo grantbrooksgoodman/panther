@@ -50,6 +50,7 @@ struct NewChatPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var navigationBarOpacity: CGFloat {
             @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
             return (viewControllers

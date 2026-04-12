@@ -86,9 +86,11 @@ final class OnboardingService {
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentAccountDoesNotExistAlert() async -> Bool {
-        var cancelled = true
+        let cancelled = LockIsolated(wrappedValue: true)
+        let signUpAction: AKAction = .init("Sign Up", style: .preferred) {
+            cancelled.wrappedValue = false
+        }
 
-        let signUpAction: AKAction = .init("Sign Up", style: .preferred) { cancelled = false }
         await AKAlert(
             message: "There is no account registered with this phone number. Please sign up instead.",
             actions: [
@@ -97,14 +99,16 @@ final class OnboardingService {
             ]
         ).present(translating: [.actions([signUpAction]), .message])
 
-        return cancelled
+        return cancelled.wrappedValue
     }
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentAccountExistsAlert() async -> Bool {
-        var cancelled = true
+        let cancelled = LockIsolated(wrappedValue: true)
+        let signInAction: AKAction = .init("Sign In", style: .preferred) {
+            cancelled.wrappedValue = false
+        }
 
-        let signInAction: AKAction = .init("Sign In", style: .preferred) { cancelled = false }
         await AKAlert(
             message: "There is already an account registered with this phone number. Please sign in instead.",
             actions: [
@@ -113,14 +117,16 @@ final class OnboardingService {
             ]
         ).present(translating: [.actions([signInAction]), .message])
 
-        return cancelled
+        return cancelled.wrappedValue
     }
 
     /// - Returns: `true` if the user selected the cancel option.
     func presentEULAAlert() async -> Bool {
-        var cancelled = true
+        let cancelled = LockIsolated(wrappedValue: true)
+        let agreeAction: AKAction = .init("I Agree", style: .preferred) {
+            cancelled.wrappedValue = false
+        }
 
-        let agreeAction: AKAction = .init("I Agree", style: .preferred) { cancelled = false }
         await AKActionSheet(
             message: "I agree to help maintain a community of respect towards others via my personal conduct on this app.",
             actions: [agreeAction],
@@ -130,7 +136,7 @@ final class OnboardingService {
             ))
         ).present()
 
-        return cancelled
+        return cancelled.wrappedValue
     }
 
     // MARK: - Auxiliary

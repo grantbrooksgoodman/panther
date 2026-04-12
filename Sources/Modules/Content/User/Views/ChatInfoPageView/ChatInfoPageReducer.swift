@@ -29,7 +29,7 @@ struct ChatInfoPageReducer: Reducer {
 
     // MARK: - Actions
 
-    enum Action { // TODO: Make all models Sendable where possible. Good preparation for Swift 6 language mode.
+    enum Action: @unchecked Sendable {
         case viewAppeared
         case viewDisappeared
 
@@ -90,6 +90,7 @@ struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var avatarImage: UIImage? { cellViewData?.thumbnailImage }
 
         var chatInfoCellImageSystemName: String {
@@ -104,6 +105,7 @@ struct ChatInfoPageReducer: Reducer {
             "\(chatParticipants.count) \(strings.value(for: .participantCountLabelText))"
         }
 
+        @MainActor
         var chatTitleLabelText: String {
             guard let cellViewData else { return "" }
             return cellViewData.titleLabelText
@@ -114,12 +116,14 @@ struct ChatInfoPageReducer: Reducer {
             return build.isDeveloperModeEnabled
         }
 
+        @MainActor
         var mediaItemMetadata: [MediaItemView.Metadata] {
             conversation?
                 .withMessagesOffsetFromCurrentUserAdditionDate
                 .mediaItemMetadata ?? []
         }
 
+        @MainActor
         var segmentedControlMaxWidth: CGFloat {
             Dependency(\.uiApplication.mainScreen.bounds.width).wrappedValue * (2 / 3)
         }
@@ -167,6 +171,7 @@ struct ChatInfoPageReducer: Reducer {
             return 1
         }
 
+        @MainActor
         fileprivate var cellViewData: ConversationCellViewData? {
             guard let conversation else { return nil }
             return .init(conversation)
@@ -442,7 +447,7 @@ struct ChatInfoPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ChatInfoPageViewStringKey) -> String {
         (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }

@@ -17,6 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+@MainActor
 final class ConversationsPageViewService {
     // MARK: - Types
 
@@ -81,13 +82,14 @@ final class ConversationsPageViewService {
         NavigationBar.setAppearance(.conversationsPageView)
         clientSession.user.startObservingCurrentUserChanges()
 
-        core.gcd.after(.milliseconds(500)) {
+        Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
             StatusBar.overrideStyle(.appAware)
-            self.fixSearchBarAppearance()
+            self?.fixSearchBarAppearance()
         }
 
         Task {
-            if let exception = await services.pushToken.updatePushTokensForCurrentUser() {
+            @Dependency(\.commonServices.pushToken) var pushTokenService: PushTokenService
+            if let exception = await pushTokenService.updatePushTokensForCurrentUser() {
                 Logger.log(exception)
             }
         }
@@ -319,7 +321,7 @@ final class ConversationsPageViewService {
                 sender: self
             )
 
-            core.gcd.after(.milliseconds(500)) {
+            Task.delayed(by: .milliseconds(500)) { @MainActor in
                 Observables.traitCollectionChanged.trigger()
             }
         }
@@ -423,7 +425,7 @@ final class ConversationsPageViewService {
             await clientSession.storage.presentStorageWarningAlert()
         } else if await services.permission.notificationPermissionStatus == .unknown {
             _ = await services.permission.requestPermission(for: .notifications)
-        } else if !(await services.invite.suggestInvitationIfNeeded()) {
+        } else if await !(services.invite.suggestInvitationIfNeeded()) {
             services.review.promptToReview()
         }
 
@@ -528,7 +530,9 @@ final class ConversationsPageViewService {
             misconfiguredSearchFieldBackgroundViews.forEach { $0.backgroundColor = .init(hex: 0xE7E7E9) }
         }
 
-        core.gcd.after(.milliseconds(10)) { self.startSettingSearchBarAppearance() }
+        Task.delayed(by: .milliseconds(10)) { @MainActor [weak self] in
+            self?.startSettingSearchBarAppearance()
+        }
     }
 }
 
@@ -549,7 +553,9 @@ extension Conversation: Validatable {
     }
 }
 
-private extension Array where Element == ConversationsPageViewService.ConversationSource {
+private extension [ConversationsPageViewService.ConversationSource] {
+    // FIXME: Really bad. Shouldn't have to do this to prevent Logger data races.
+//    @MainActor
     func bestAligned(
         with canonicalHashes: Set<String>,
         andMatchingPredicate predicate: (Conversation) -> Bool
@@ -603,6 +609,7 @@ private extension Array where Element == ConversationsPageViewService.Conversati
 }
 
 private extension Conversation {
+    @MainActor
     var injectingCachedUsers: Conversation {
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }

@@ -14,13 +14,12 @@ import UIKit
 import AppSubsystem
 import Networking
 
-final class AccountDeletionService {
+final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Properties
 
@@ -44,11 +43,13 @@ final class AccountDeletionService {
         clientSession.user.stopObservingCurrentUserChanges()
         defer { core.hud.hide() }
 
-        core.ui.addOverlay(
-            alpha: 0.5,
-            activityIndicator: nil,
-            isModal: false
-        )
+        await MainActor.run {
+            core.ui.addOverlay(
+                alpha: 0.5,
+                activityIndicator: nil,
+                isModal: false
+            )
+        }
 
         core.hud.showProgress(
             text: Localized(.deletingData).wrappedValue,
@@ -94,8 +95,8 @@ final class AccountDeletionService {
 
             for oneToOneChat in oneToOneChats {
                 taskGroup.addTask {
-                    (
-                        await self.clientSession.conversation.deleteConversation(
+                    await (
+                        self.clientSession.conversation.deleteConversation(
                             oneToOneChat,
                             forced: true
                         ),
@@ -106,7 +107,7 @@ final class AccountDeletionService {
 
             taskGroup.addTask {
                 do {
-                    _ = try (await self.clientSession.user.currentUser?.updateValue(
+                    _ = await try (self.clientSession.user.currentUser?.updateValue(
                         [],
                         forKey: .conversationIDs
                     ))?.get()
@@ -116,7 +117,7 @@ final class AccountDeletionService {
                 }
             }
 
-            for await(exception, trackProgress) in taskGroup {
+            for await (exception, trackProgress) in taskGroup {
                 if let exception {
                     exceptions.append(exception)
                 }
@@ -206,6 +207,7 @@ final class AccountDeletionService {
 
     private func updateHUDLabel() {
         Task { @MainActor in
+            @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
             let statusString = Localized(.deletingData).wrappedValue
             let progressLabel = presentedViews
                 .compactMap { $0 as? UILabel }

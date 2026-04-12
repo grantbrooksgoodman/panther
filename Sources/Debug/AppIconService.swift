@@ -12,6 +12,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class AppIconService {
     // MARK: - Types
 
@@ -29,6 +30,10 @@ final class AppIconService {
     private(set) var lastIconSet: AppIcon?
 
     private var alertDismissalTimer: Timer?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Set App Icon
 

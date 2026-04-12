@@ -129,7 +129,10 @@ final class ReactionSessionService {
     private func didSetIsReactingToMessage() {
         switch isReactingToMessage {
         case true:
-            ContextMenuInteraction.setCanBegin(false)
+            Task { @MainActor in
+                ContextMenuInteraction.setCanBegin(false)
+            }
+
             let uponIsReactingToMessageChangedToTrue = drainEffects($uponIsReactingToMessageChangedToTrue)
             guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
 
@@ -143,7 +146,10 @@ final class ReactionSessionService {
             runEffects(uponIsReactingToMessageChangedToTrue)
 
         case false:
-            ContextMenuInteraction.setCanBegin(true)
+            Task { @MainActor in
+                ContextMenuInteraction.setCanBegin(true)
+            }
+
             let uponIsReactingToMessageChangedToFalse = drainEffects($uponIsReactingToMessageChangedToFalse)
             guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
 

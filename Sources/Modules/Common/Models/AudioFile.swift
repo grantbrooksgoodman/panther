@@ -13,10 +13,19 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class AudioFile: Codable, Equatable {
+final class AudioFile: Codable, Equatable, Sendable {
     // MARK: - Constants Accessors
 
     private typealias Strings = AppConstants.Strings.AudioFile
+
+    // MARK: - Types
+
+    private enum CodingKeys: String, CodingKey {
+        case contentDuration
+        case fileExtension
+        case name
+        case url
+    }
 
     // MARK: - Properties
 
@@ -24,8 +33,13 @@ final class AudioFile: Codable, Equatable {
     let name: String
     let url: URL
 
-    private(set) var contentDuration: Float? {
-        didSet { didSetDuration() }
+    private let _contentDuration = LockIsolated<Float?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
+    var contentDuration: Float? {
+        get { _contentDuration.wrappedValue }
+        set { _contentDuration.wrappedValue = newValue; didSetDuration() }
     }
 
     // MARK: - Init
@@ -72,6 +86,29 @@ final class AudioFile: Codable, Equatable {
         }
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        fileExtension = try container.decode(AudioFileExtension.self, forKey: .fileExtension)
+        name = try container.decode(String.self, forKey: .name)
+        url = try container.decode(URL.self, forKey: .url)
+
+        _contentDuration.wrappedValue = try container.decode(
+            Float.self,
+            forKey: .contentDuration
+        )
+    }
+
+    // MARK: - Codable Conformance
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(contentDuration ?? 0, forKey: .contentDuration)
+        try container.encode(fileExtension, forKey: .fileExtension)
+        try container.encode(name, forKey: .name)
+        try container.encode(url, forKey: .url)
+    }
+
     // MARK: - Equatable Conformance
 
     static func == (left: AudioFile, right: AudioFile) -> Bool {
@@ -105,7 +142,7 @@ final class AudioFile: Codable, Equatable {
     private func setDuration() async -> Exception? {
         do {
             let assetReader = try AVAssetReader(asset: .init(url: url))
-            let duration: Float = try .init(await assetReader.asset.load(.duration).seconds)
+            let duration: Float = await try .init(assetReader.asset.load(.duration).seconds)
             guard duration > 0 else { return nil }
 
             var cachedDurationsForLocalPaths = _AudioFileDurationCache.cachedDurationsForLocalPaths ?? [:]
@@ -128,15 +165,14 @@ enum AudioFileDurationCache {
 }
 
 private enum _AudioFileDurationCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case durationsForLocalPaths
-    }
-
     // MARK: - Properties
 
-    @Cached(CacheKey.durationsForLocalPaths) fileprivate static var cachedDurationsForLocalPaths: [URL: Float]?
+    fileprivate static var cachedDurationsForLocalPaths: [URL: Float]? {
+        get { _cachedDurationsForLocalPaths.wrappedValue }
+        set { _cachedDurationsForLocalPaths.wrappedValue = newValue }
+    }
+
+    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

@@ -17,7 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class IntegrityService {
+final class IntegrityService: @unchecked Sendable {
     // MARK: - Types
 
     private struct MediaFileReference {
@@ -70,7 +70,7 @@ final class IntegrityService {
 
     private func resolveSession(
         _ failureStrategy: BatchFailureStrategy = .returnOnFailure,
-        completion: @escaping (Exception?) -> Void
+        completion: @escaping @Sendable (Exception?) -> Void
     ) {
         Task { @MainActor in
             let resolveResult = await IntegrityServiceSession.resolve(failureStrategy)
@@ -355,22 +355,28 @@ final class IntegrityService {
                 }
             }
 
-            defer {
-                Task {
-                    if let exception = await networking.database.setValue(
-                        NSNull(),
-                        forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-                    ) {
-                        exceptions.append(exception)
-                    }
+            // FIXME: Audit this change.
+            guard let dictionary = session.userData[userID] as? [String: Any],
+                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else {
+                if let exception = await networking.database.setValue(
+                    NSNull(),
+                    forKey: "\(NetworkPath.users.rawValue)/\(userID)"
+                ) {
+                    exceptions.append(exception)
                 }
+                continue
             }
 
-            guard let dictionary = session.userData[userID] as? [String: Any],
-                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
             conversationIDKeys = conversationIDKeys.compactMap { $0.components(separatedBy: " | ").first }
 
             if let exception = await repairMalformedConversations(conversationIDKeys).exception {
+                exceptions.append(exception)
+            }
+
+            if let exception = await networking.database.setValue(
+                NSNull(),
+                forKey: "\(NetworkPath.users.rawValue)/\(userID)"
+            ) {
                 exceptions.append(exception)
             }
         }
@@ -662,8 +668,8 @@ final class IntegrityService {
             for path in uniquePaths {
                 taskGroup.addTask {
                     switch await self.networking.storage.itemExists(at: path) {
-                    case let .success(itemExists): return (path, itemExists, nil)
-                    case let .failure(exception): return (path, false, exception)
+                    case let .success(itemExists): (path, itemExists, nil)
+                    case let .failure(exception): (path, false, exception)
                     }
                 }
             }

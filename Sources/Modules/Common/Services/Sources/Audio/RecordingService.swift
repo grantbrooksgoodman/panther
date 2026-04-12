@@ -13,6 +13,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecordingService: NSObject {
     // MARK: - Type Aliases
 
@@ -35,8 +36,13 @@ final class RecordingService: NSObject {
 
     var isRecording: Bool { audioRecorder?.isRecording ?? false }
 
+    // MARK: - Init
+
+    override nonisolated init() {}
+
     // MARK: - Object Lifecycle
 
+    @MainActor
     deinit {
         stopObservingInterruptions()
     }
@@ -122,11 +128,11 @@ final class RecordingService: NSObject {
 
             switch type {
             case .began:
-                switch self.stopRecording() {
-                case let .failure(exception):
-                    Logger.log(exception)
-
-                default: ()
+                Task { @MainActor in
+                    switch self.stopRecording() {
+                    case let .failure(exception): Logger.log(exception)
+                    default: ()
+                    }
                 }
 
             default: ()
@@ -146,26 +152,36 @@ final class RecordingService: NSObject {
 /* MARK: AVAudioRecorderDelegate Conformance */
 
 extension RecordingService: AVAudioRecorderDelegate {
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        guard flag else {
-            switch stopRecording() {
-            case let .failure(exception):
-                Logger.log(exception)
-
-            default: ()
+    nonisolated func audioRecorderDidFinishRecording(
+        _ recorder: AVAudioRecorder,
+        successfully flag: Bool
+    ) {
+        Task { @MainActor in
+            guard flag else {
+                switch stopRecording() {
+                case let .failure(exception): Logger.log(exception)
+                default: ()
+                }
+                return
             }
-
-            return
         }
     }
 
-    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
-        switch stopRecording() {
-        case .success:
-            Logger.log(.init(error, metadata: .init(sender: self)))
+    nonisolated func audioRecorderEncodeErrorDidOccur(
+        _ recorder: AVAudioRecorder,
+        error: Error?
+    ) {
+        Task { @MainActor in
+            switch stopRecording() {
+            case .success:
+                Logger.log(.init(
+                    error,
+                    metadata: .init(sender: self)
+                ))
 
-        case let .failure(exception):
-            Logger.log(exception)
+            case let .failure(exception):
+                Logger.log(exception)
+            }
         }
     }
 }

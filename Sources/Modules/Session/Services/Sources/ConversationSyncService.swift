@@ -15,7 +15,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class ConversationSyncService {
+final class ConversationSyncService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
@@ -24,8 +24,7 @@ final class ConversationSyncService {
     // MARK: - Properties
 
     private static let coalescer = KeyedCoalescer<String, Callback<Conversation, Exception>>()
-
-    @LockIsolated private static var recentlyFailedSyncRecords: Set<SynchronizationRecord> = []
+    private static let recentlyFailedSyncRecords = LockIsolated<Set<SynchronizationRecord>>(wrappedValue: [])
 
     @LockIsolated private var _syncData: ConversationSyncData = .empty
 
@@ -53,10 +52,10 @@ final class ConversationSyncService {
                 ))
             }
 
-            guard !Self.recentlyFailedSyncRecords.contains(where: {
+            guard !Self.recentlyFailedSyncRecords.wrappedValue.contains(where: {
                 $0.conversationID == conversation.id
             }) else { return .success(conversation) }
-            return await self._synchronizeConversation(conversation)
+            return await _synchronizeConversation(conversation)
         }
     }
 
@@ -508,7 +507,7 @@ final class ConversationSyncService {
                 domain: .conversation
             )
 
-            Self.$recentlyFailedSyncRecords.withValue {
+            Self.recentlyFailedSyncRecords.projectedValue.withValue {
                 $0 = $0.filter { !$0.isExpired }
                 $0.insert(.init(conversation.id))
             }

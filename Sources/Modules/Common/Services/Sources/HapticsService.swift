@@ -10,6 +10,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 struct HapticsService {
     // MARK: - Types
 
@@ -22,59 +23,16 @@ struct HapticsService {
         case soft
     }
 
-    // MARK: - Properties
-
-    // UIImpactFeedbackGenerator
-    private let heavyImpactFeedbackGenerator: UIImpactFeedbackGenerator
-    private let lightImpactFeedbackGenerator: UIImpactFeedbackGenerator
-    private let mediumImpactFeedbackGenerator: UIImpactFeedbackGenerator
-    private let rigidImpactFeedbackGenerator: UIImpactFeedbackGenerator
-    private let softImpactFeedbackGenerator: UIImpactFeedbackGenerator
-
-    // UISelectionFeedbackGenerator
-    private let selectionFeedbackGenerator: UISelectionFeedbackGenerator
-
-    // MARK: - Init
-
-    init(
-        heavyImpactFeedbackGenerator: UIImpactFeedbackGenerator,
-        lightImpactFeedbackGenerator: UIImpactFeedbackGenerator,
-        mediumImpactFeedbackGenerator: UIImpactFeedbackGenerator,
-        rigidImpactFeedbackGenerator: UIImpactFeedbackGenerator,
-        selectionFeedbackGenerator: UISelectionFeedbackGenerator,
-        softImpactFeedbackGenerator: UIImpactFeedbackGenerator
-    ) {
-        self.heavyImpactFeedbackGenerator = heavyImpactFeedbackGenerator
-        self.lightImpactFeedbackGenerator = lightImpactFeedbackGenerator
-        self.mediumImpactFeedbackGenerator = mediumImpactFeedbackGenerator
-        self.rigidImpactFeedbackGenerator = rigidImpactFeedbackGenerator
-        self.selectionFeedbackGenerator = selectionFeedbackGenerator
-        self.softImpactFeedbackGenerator = softImpactFeedbackGenerator
-    }
-
     // MARK: - Methods
 
     func generateFeedback(_ style: HapticFeedbackStyle) {
-        Task { @MainActor in
-            switch style {
-            case .heavy:
-                heavyImpactFeedbackGenerator.impactOccurred()
-
-            case .light:
-                lightImpactFeedbackGenerator.impactOccurred()
-
-            case .medium:
-                mediumImpactFeedbackGenerator.impactOccurred()
-
-            case .rigid:
-                rigidImpactFeedbackGenerator.impactOccurred()
-
-            case .selection:
-                selectionFeedbackGenerator.selectionChanged()
-
-            case .soft:
-                softImpactFeedbackGenerator.impactOccurred()
-            }
+        switch style {
+        case .heavy: UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        case .light: UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        case .medium: UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        case .rigid: UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        case .selection: UISelectionFeedbackGenerator().selectionChanged()
+        case .soft: UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         }
     }
 }
