@@ -36,15 +36,25 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    // NIT: Should probably be actor-isolated.
-    private(set) var currentUser: User?
-
     @Persistent(.currentUserID) private var currentUserID: String?
+    private var _currentUser = LockIsolated<User?>(wrappedValue: nil)
     @LockIsolated private var isUpdatingCurrentUser = false
 
     // MARK: - Computed Properties
 
-    var offlineCurrentUser: User? {
+    private(set) var currentUser: User? {
+        get { _currentUser.wrappedValue }
+        set { _currentUser.wrappedValue = newValue }
+    }
+
+    private var currentUserDatabaseReference: DatabaseReference? {
+        guard let currentUser else { return nil }
+        return Database.database().reference().child(
+            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
+        )
+    }
+
+    private var offlineCurrentUser: User? {
         get {
             @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
 
@@ -67,13 +77,6 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    private var currentUserDatabaseReference: DatabaseReference? {
-        guard let currentUser else { return nil }
-        return Database.database().reference().child(
-            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
-        )
-    }
-
     // MARK: - Object Lifecycle
 
     deinit {
@@ -87,7 +90,9 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Resolve Current User
 
-    func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
+    func resolveCurrentUser(
+        _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
+    ) async -> Callback<User, Exception> {
         guard let currentUserID else {
             return .failure(.init("Current user ID has not been set.", metadata: .init(sender: self)))
         }
@@ -356,6 +361,12 @@ final class UserSessionService: @unchecked Sendable {
 
     private func updateCurrentUser() {
         Task {
+            var isUpdatingCurrentUser = false
+            $isUpdatingCurrentUser.withValue {
+                isUpdatingCurrentUser = $0
+                if !$0 { $0 = true }
+            }
+
             guard !isUpdatingCurrentUser else {
                 return Logger.log(
                     "Skipping current user update because an update is already occurring.",
@@ -364,7 +375,6 @@ final class UserSessionService: @unchecked Sendable {
                 )
             }
 
-            isUpdatingCurrentUser = true
             let resolveCurrentUserResult = await resolveCurrentUser()
 
             switch resolveCurrentUserResult {
@@ -387,7 +397,7 @@ final class UserSessionService: @unchecked Sendable {
                 Observables.updatedCurrentUser.trigger()
                 chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
 
-                isUpdatingCurrentUser = false
+                self.isUpdatingCurrentUser = false
 
             case let .failure(exception):
                 Logger.log(
@@ -395,7 +405,7 @@ final class UserSessionService: @unchecked Sendable {
                     domain: .userSession
                 )
 
-                isUpdatingCurrentUser = false
+                self.isUpdatingCurrentUser = false
             }
         }
     }

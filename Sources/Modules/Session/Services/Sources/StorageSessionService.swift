@@ -439,20 +439,27 @@ final class StorageSessionService: @unchecked Sendable {
     }
 
     private func totalSizeInKilobytes(of items: [String]) async -> Callback<Int, Exception> {
-        var totalSizeInKilobytes = 0
-
-        for filePath in items {
-            let sizeInKilobytesResult = await networking.storage.sizeInKilobytes(
-                ofItemAt: filePath
-            )
-
-            switch sizeInKilobytesResult {
-            case let .success(sizeInKilobytes): totalSizeInKilobytes += sizeInKilobytes
-            case let .failure(exception): return .failure(exception)
+        await withTaskGroup(of: Callback<Int, Exception>.self) { taskGroup in
+            for filePath in items {
+                taskGroup.addTask {
+                    await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
+                }
             }
-        }
 
-        return .success(totalSizeInKilobytes)
+            var totalSizeInKilobytes = 0
+            while let result = await taskGroup.next() {
+                switch result {
+                case let .success(sizeInKilobytes):
+                    totalSizeInKilobytes += sizeInKilobytes
+
+                case let .failure(exception):
+                    taskGroup.cancelAll()
+                    return .failure(exception)
+                }
+            }
+
+            return .success(totalSizeInKilobytes)
+        }
     }
 }
 

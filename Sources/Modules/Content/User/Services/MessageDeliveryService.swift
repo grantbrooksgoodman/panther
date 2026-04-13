@@ -75,9 +75,7 @@ final class MessageDeliveryService {
         guard !users.isEmpty else { return nil }
 
         isSendingMessage = true
-        await MainActor.run {
-            chatPageViewService.inputBar?.toggleSendingUI(on: true)
-        }
+        chatPageViewService.inputBar?.toggleSendingUI(on: true)
 
         Task { @MainActor in
             @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
@@ -110,12 +108,10 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        await MainActor.run {
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
-        }
-
         isSendingMessage = false
+        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
@@ -156,12 +152,10 @@ final class MessageDeliveryService {
         )
 
         isSendingMessage = true
-        await MainActor.run {
-            chatPageViewService.inputBar?.toggleSendingUI(
-                on: true,
-                clearInputTextViewText: false
-            )
-        }
+        chatPageViewService.inputBar?.toggleSendingUI(
+            on: true,
+            clearInputTextViewText: false
+        )
 
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
@@ -171,12 +165,10 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        await MainActor.run {
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
-        }
-
         isSendingMessage = false
+        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
@@ -214,9 +206,7 @@ final class MessageDeliveryService {
         )
 
         isSendingMessage = true
-        await MainActor.run {
-            chatPageViewService.inputBar?.toggleSendingUI(on: true)
-        }
+        chatPageViewService.inputBar?.toggleSendingUI(on: true)
 
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
@@ -226,12 +216,10 @@ final class MessageDeliveryService {
             inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
         )
 
-        await MainActor.run {
-            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-            chatPageViewService.inputBar?.toggleSendingUI(on: false)
-        }
-
         isSendingMessage = false
+        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+        chatPageViewService.inputBar?.toggleSendingUI(on: false)
+
         if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
             chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
         }
@@ -345,8 +333,9 @@ final class MessageDeliveryService {
         Task { @MainActor in
             @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
             recipientBarLayoutService?.removeFromSuperview()
+            chatPageViewService.reloadCollectionView()
         }
-        chatPageViewService.reloadCollectionView()
+
         Observables.firstMessageSentInNewChat.trigger()
     }
 

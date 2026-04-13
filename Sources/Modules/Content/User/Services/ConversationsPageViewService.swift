@@ -554,8 +554,6 @@ extension Conversation: Validatable {
 }
 
 private extension [ConversationsPageViewService.ConversationSource] {
-    // FIXME: Really bad. Shouldn't have to do this to prevent Logger data races.
-//    @MainActor
     func bestAligned(
         with canonicalHashes: Set<String>,
         andMatchingPredicate predicate: (Conversation) -> Bool
@@ -608,8 +606,8 @@ private extension [ConversationsPageViewService.ConversationSource] {
     }
 }
 
+@MainActor
 private extension Conversation {
-    @MainActor
     var injectingCachedUsers: Conversation {
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }

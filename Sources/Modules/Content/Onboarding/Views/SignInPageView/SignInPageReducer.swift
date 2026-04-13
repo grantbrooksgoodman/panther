@@ -195,13 +195,18 @@ struct SignInPageReducer: Reducer {
             }
 
         case .continueButtonTapped:
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
+            let continueButtonEffect: Effect<Action> = .task(delay: .milliseconds(100)) {
                 .runContinueButtonEffect
             }
 
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }.merge(with: continueButtonEffect)
+
         case .didSwipeDown:
-            uiApplication.resignFirstResponders()
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }
 
         case let .phoneNumberStringChanged(phoneNumberString):
             state.phoneNumberString = phoneNumberString
