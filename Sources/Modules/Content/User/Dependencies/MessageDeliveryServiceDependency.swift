@@ -14,7 +14,8 @@ import AppSubsystem
 
 enum MessageDeliveryServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> MessageDeliveryService {
-        .init()
+        @MainActorIsolated var messageDeliveryService = MessageDeliveryService()
+        return messageDeliveryService
     }
 }
 

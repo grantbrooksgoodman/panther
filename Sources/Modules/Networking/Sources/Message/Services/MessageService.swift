@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct MessageService: @unchecked Sendable {
+struct MessageService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter

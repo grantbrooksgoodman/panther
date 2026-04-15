@@ -23,7 +23,14 @@ final class ClientSession: @unchecked Sendable {
     let storage: StorageSessionService
     let user: UserSessionService
 
-    private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
+    private let _deliveryProgressIndicator = LockIsolated<DeliveryProgressIndicator?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
+    var deliveryProgressIndicator: DeliveryProgressIndicator? {
+        get { _deliveryProgressIndicator.wrappedValue }
+        set { _deliveryProgressIndicator.wrappedValue = newValue }
+    }
 
     // MARK: - Init
 

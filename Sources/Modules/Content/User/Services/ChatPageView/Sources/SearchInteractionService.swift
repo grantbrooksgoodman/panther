@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class SearchInteractionService {
     // MARK: - Dependencies
 
@@ -29,7 +30,6 @@ final class SearchInteractionService {
 
     // MARK: - Computed Properties
 
-    @MainActor
     private var focusedMessageCellGestureRecognizer: UILongPressGestureRecognizer? {
         guard let focusedMessageIndex = messages?.firstIndex(where: { $0.id == focusedMessageID }) else { return nil }
         return viewController
@@ -53,7 +53,6 @@ final class SearchInteractionService {
 
     // MARK: - Trigger Focused Message Cell Interaction
 
-    @MainActor
     func triggerFocusedMessageCellInteractionIfNeeded() {
         guard isChatPagePresented,
               !hasTriggeredInteractionOnce else { return }
@@ -64,7 +63,6 @@ final class SearchInteractionService {
         triggerCellInteraction()
     }
 
-    @MainActor
     private func triggerCellInteraction(_ retryOnFailure: Bool = true) {
         guard isChatPagePresented,
               let focusedMessageCellGestureRecognizer else {

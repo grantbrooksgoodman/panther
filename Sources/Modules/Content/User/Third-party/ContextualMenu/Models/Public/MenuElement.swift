@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct MenuElement: @unchecked Sendable {
+struct MenuElement {
     // MARK: - Types
 
     struct Attributes: OptionSet {

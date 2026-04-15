@@ -172,20 +172,16 @@ enum UserDisplayNameCache {
 }
 
 private enum _UserDisplayNameCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case displayNamesForUserIDs
-    }
-
     // MARK: - Properties
+
+    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
 
     fileprivate static var cachedDisplayNamesForUserIDs: [String: String]? {
         get { _cachedDisplayNamesForUserIDs.wrappedValue }
         set { _cachedDisplayNamesForUserIDs.wrappedValue = newValue }
     }
-
-    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

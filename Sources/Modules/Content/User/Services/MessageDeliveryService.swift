@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable type_body_length
 
 /* Native */
 import Foundation
@@ -30,8 +30,8 @@ final class MessageDeliveryService {
         didSet { didSetIsSendingMessage() }
     }
 
-    @LockIsolated private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
-    @LockIsolated private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
+    private var uponIsSendingMessageChangedToFalse = [MessageDeliveryServiceEffectID: () -> Void]()
+    private var uponIsSendingMessageChangedToTrue = [MessageDeliveryServiceEffectID: () -> Void]()
 
     // MARK: - Computed Properties
 
@@ -65,8 +65,8 @@ final class MessageDeliveryService {
         id: MessageDeliveryServiceEffectID,
         _ effect: @escaping () -> Void
     ) {
-        guard state else { return $uponIsSendingMessageChangedToFalse[id] = effect }
-        $uponIsSendingMessageChangedToTrue[id] = effect
+        guard state else { return uponIsSendingMessageChangedToFalse[id] = effect }
+        uponIsSendingMessageChangedToTrue[id] = effect
     }
 
     // MARK: - Send Audio Message
@@ -207,7 +207,6 @@ final class MessageDeliveryService {
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
-
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
         let sendTextMessageResult = await clientSession.message.sendTextMessage(
@@ -342,8 +341,7 @@ final class MessageDeliveryService {
     private func didSetIsSendingMessage() {
         switch isSendingMessage {
         case true:
-            Task { @MainActor in ContextMenuInteraction.setCanBegin(false) }
-            let uponIsSendingMessageChangedToTrue = drainEffects($uponIsSendingMessageChangedToTrue)
+            ContextMenuInteraction.setCanBegin(false)
             guard !uponIsSendingMessageChangedToTrue.isEmpty else { return }
 
             Logger.log(.init(
@@ -353,14 +351,11 @@ final class MessageDeliveryService {
                 metadata: .init(sender: self)
             ))
 
-            runEffects(uponIsSendingMessageChangedToTrue)
+            uponIsSendingMessageChangedToTrue.values.forEach { $0() }
+            uponIsSendingMessageChangedToTrue = .init()
 
         case false:
-            Task { @MainActor in
-                ContextMenuInteraction.setCanBegin(true)
-            }
-
-            let uponIsSendingMessageChangedToFalse = drainEffects($uponIsSendingMessageChangedToFalse)
+            ContextMenuInteraction.setCanBegin(true)
             guard !uponIsSendingMessageChangedToFalse.isEmpty else { return }
 
             Logger.log(.init(
@@ -370,18 +365,8 @@ final class MessageDeliveryService {
                 metadata: .init(sender: self)
             ))
 
-            runEffects(uponIsSendingMessageChangedToFalse)
-        }
-    }
-
-    private func drainEffects(
-        _ effects: LockIsolatedProjection<[MessageDeliveryServiceEffectID: () -> Void]>
-    ) -> [MessageDeliveryServiceEffectID: () -> Void] {
-        effects.withValue {
-            guard !$0.isEmpty else { return [:] }
-            let drained = $0
-            $0 = [:]
-            return drained
+            uponIsSendingMessageChangedToFalse.values.forEach { $0() }
+            uponIsSendingMessageChangedToFalse = .init()
         }
     }
 
@@ -410,10 +395,6 @@ final class MessageDeliveryService {
             isPenPalsConversation: isPenPalsConversation
         )
     }
-
-    private func runEffects(_ effects: [MessageDeliveryServiceEffectID: () -> Void]) {
-        effects.values.forEach { $0() }
-    }
 }
 
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable type_body_length

@@ -212,10 +212,16 @@ enum ConversationCellViewDataCache {
 
 @MainActor
 private enum _ConversationCellViewDataCache {
+    // MARK: - Types
+
+    private enum CacheKey: String, CaseIterable {
+        case dataByConversationIDForSearchQueries
+    }
+
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name
-    fileprivate static var cachedDataByConversationIDForSearchQueries: [String: [ConversationID: ConversationCellViewData]]?
+    // swiftlint:disable:next identifier_name line_length
+    @Cached(CacheKey.dataByConversationIDForSearchQueries) fileprivate static var cachedDataByConversationIDForSearchQueries: [String: [ConversationID: ConversationCellViewData]]?
 
     // MARK: - Clear Cache
 

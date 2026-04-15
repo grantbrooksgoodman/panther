@@ -66,7 +66,6 @@ final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices

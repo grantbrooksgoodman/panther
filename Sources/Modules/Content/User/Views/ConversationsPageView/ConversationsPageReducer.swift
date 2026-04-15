@@ -19,7 +19,7 @@ struct ConversationsPageReducer: Reducer {
 
     // TODO: Audit continued necessity of the below dependency.
     @Dependency(\.clientSession.user.currentUser?.conversations?.filteredAndSorted) private var conversations: [Conversation]?
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices.review) private var reviewService: ReviewService
@@ -198,7 +198,7 @@ struct ConversationsPageReducer: Reducer {
             viewService.updateConversationsList(state: &state)
             state.isSearching = false
             state.searchQuery = ""
-            core.utils.clearCaches([.queriedConversations])
+            coreUtilities.clearCaches([.queriedConversations])
 
             return .task {
                 .composeToolbarButtonAnimationAmountSet(1)

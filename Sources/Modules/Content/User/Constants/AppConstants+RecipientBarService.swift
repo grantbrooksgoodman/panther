@@ -132,7 +132,11 @@ extension AppConstants.Colors.ChatPageViewService {
             static let darkBorder: Color = .init(uiColor: .init(hex: 0x3C3C_434A))
             static let lightBorder: Color = .init(uiColor: .init(hex: 0xDCDCDD))
 
-            static let lightBackground: Color = .init(uiColor: Application.isInPrevaricationMode ? .init(hex: 0xF8F8F8) : .white)
+            @MainActor
+            static let lightBackground: Color = .init(
+                uiColor: Application.isInPrevaricationMode ? .init(hex: 0xF8F8F8) : .white
+            )
+
             static let toLabelText: Color = .init(uiColor: .gray)
         }
     }

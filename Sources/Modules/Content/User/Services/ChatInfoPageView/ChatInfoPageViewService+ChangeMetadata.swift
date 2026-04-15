@@ -62,9 +62,7 @@ extension ChatInfoPageViewService {
 
             @Sendable
             func presentChangePhotoAlert() async -> MetadataChangeType? {
-                final class MetadataChangeTypeBox: @unchecked Sendable { var value: MetadataChangeType? }
-
-                let photoChangeType = MetadataChangeTypeBox()
+                let photoChangeType = LockBox<MetadataChangeType>()
                 let takePhotoAction: AKAction = .init("Take photo") {
                     photoChangeType.value = .selectPhotoFromCamera
                 }

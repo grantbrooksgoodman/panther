@@ -19,7 +19,8 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class ChatPageViewService: @unchecked Sendable {
+@MainActor
+final class ChatPageViewService {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageViewService
@@ -34,7 +35,6 @@ final class ChatPageViewService: @unchecked Sendable {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -61,7 +61,6 @@ final class ChatPageViewService: @unchecked Sendable {
 
     // MARK: - Computed Properties
 
-    @MainActor
     private var shouldRespondToViewLifecycleEvent: Bool {
         guard !chatInfoPageViewService.isPreviewingMedia,
               mediaActionHandler?.isPresentingPickerController != true,
@@ -72,8 +71,10 @@ final class ChatPageViewService: @unchecked Sendable {
 
     // MARK: - Instantiate View Controller
 
-    @MainActor
-    func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
+    func instantiateViewController(
+        _ conversation: Conversation,
+        configuration: ChatPageView.Configuration
+    ) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
 
@@ -116,7 +117,6 @@ final class ChatPageViewService: @unchecked Sendable {
 
     // MARK: - View Controller Lifecycle Handlers
 
-    @MainActor
     func onViewWillAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -138,7 +138,6 @@ final class ChatPageViewService: @unchecked Sendable {
         startSettingNavigationBarButtonItemAppearance()
     }
 
-    @MainActor
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
         typingIndicator?.startCheckingForTypingIndicatorChanges()
@@ -191,13 +190,15 @@ final class ChatPageViewService: @unchecked Sendable {
             self?.inputBar?.configureInputBar(forceUpdate: true)
         }
 
-        Task {
-            if let exception = await readReceipts?.updateReadDateForUnreadMessages() {
-                Logger.log(exception, with: .toastInPrerelease)
-            }
+        if let readReceipts {
+            Task { @MainActor in
+                if let exception = await readReceipts.updateReadDateForUnreadMessages() {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
 
-            if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toastInPrerelease)
+                if let exception = await typingIndicator?.textViewDidChange(to: "") {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
             }
         }
 
@@ -211,7 +212,6 @@ final class ChatPageViewService: @unchecked Sendable {
         }
     }
 
-    @MainActor
     func onViewWillDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
@@ -221,14 +221,13 @@ final class ChatPageViewService: @unchecked Sendable {
         typingIndicator?.stopCheckingForTypingIndicatorChanges()
     }
 
-    @MainActor
     func onViewDidDisappear() {
         guard shouldRespondToViewLifecycleEvent else { return }
 
         chatPageState.setIsPresented(false)
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
-        Task.background {
+        Task.background { @MainActor in
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
                 Logger.log(exception)
             }
@@ -254,25 +253,21 @@ final class ChatPageViewService: @unchecked Sendable {
 
     // MARK: - UIScrollView
 
-    @MainActor
     func onScrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard scrollView.panGestureRecognizer.translation(in: scrollView.superview).y > 0 else { return }
         loadMoreMessages(fromScrollToTop: false)
     }
 
-    @MainActor
     func onScrollViewDidEndScrollingAnimation() {
         searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
 
-    @MainActor
     func onScrollViewDidScrollToTop() {
         loadMoreMessages(fromScrollToTop: true)
     }
 
     // MARK: - UITraitCollection
 
-    @MainActor
     func onTraitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         guard previousTraitCollection?.userInterfaceStyle != viewController?.traitCollection.userInterfaceStyle else { return }
         redrawForAppearanceChange()
@@ -280,7 +275,6 @@ final class ChatPageViewService: @unchecked Sendable {
 
     // MARK: - Auxiliary
 
-    @MainActor
     func redrawForAppearanceChange() {
         inputBar?.configureInputBar(forceUpdate: true)
         inputBar?.setAttachMediaButtonImage()
@@ -301,7 +295,6 @@ final class ChatPageViewService: @unchecked Sendable {
         reloadCollectionView()
     }
 
-    @MainActor
     func reloadCollectionView() {
         guard viewController?.currentConversation?.messages?.count == 1 else {
             viewController?.messagesCollectionView.reloadDataAndKeepOffset()
@@ -311,7 +304,6 @@ final class ChatPageViewService: @unchecked Sendable {
         viewController?.messagesCollectionView.reloadData()
     }
 
-    @MainActor
     func reloadItemsWhenSafe(
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
@@ -352,13 +344,11 @@ final class ChatPageViewService: @unchecked Sendable {
         }
     }
 
-    @MainActor
     func setNavigationTitle(_ navigationTitle: String) {
         guard let parent = viewController?.parent else { return }
         parent.navigationItem.title = navigationTitle
     }
 
-    @MainActor
     private func loadMoreMessages(fromScrollToTop: Bool) {
         guard !messageDeliveryService.isSendingMessage else { return }
 
@@ -380,7 +370,6 @@ final class ChatPageViewService: @unchecked Sendable {
     }
 
     /// - NOTE: Fixes a bug in which a recent dismissal of the chat page would cause the next preview to incorrectly use the `.default` configuration.
-    @MainActor
     private func modifyConfigurationIfNeeded() {
         let presentedViewControllerIDs = uiApplication.presentedViewControllers.map { String(type(of: $0.self)) }
         guard presentedViewControllerIDs.contains(Strings.chatPageViewPreviewHostingControllerID),
@@ -395,7 +384,6 @@ final class ChatPageViewService: @unchecked Sendable {
         configuration = .preview
     }
 
-    @MainActor
     private func safelyReload(
         indexPaths: [IndexPath],
         conversationIDKey previousConversationIDKey: String?,
@@ -405,7 +393,6 @@ final class ChatPageViewService: @unchecked Sendable {
         guard let previousConversationIDKey,
               let previousStructure else { return }
 
-        @MainActor
         func reloadItem(
             collectionView: MessagesCollectionView,
             viewController: ChatPageViewController
@@ -456,31 +443,28 @@ final class ChatPageViewService: @unchecked Sendable {
     }
 
     private func startSettingNavigationBarButtonItemAppearance() {
-        Task { @MainActor in
-            guard !UIApplication.isFullyV26Compatible,
-                  chatPageState.isPresented else { return }
-            guard let leafViewController = uiApplication.keyViewController?.leafViewController,
-                  leafViewController.descriptor == Strings.leafViewControllerID else {
-                Task.delayed(by: .seconds(1)) { [weak self] in
-                    self?.startSettingNavigationBarButtonItemAppearance()
-                }
-                return
+        guard !UIApplication.isFullyV26Compatible,
+              chatPageState.isPresented else { return }
+        guard let leafViewController = uiApplication.keyViewController?.leafViewController,
+              leafViewController.descriptor == Strings.leafViewControllerID else {
+            Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+                self?.startSettingNavigationBarButtonItemAppearance()
             }
+            return
+        }
 
-            let misconfiguredBarButtonItemViews: [UIButton] = uiApplication
-                .presentedViews
-                .compactMap { $0 as? UIButton }
-                .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
-                .filter { $0.tintColor != (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) }
+        let misconfiguredBarButtonItemViews: [UIButton] = uiApplication
+            .presentedViews
+            .compactMap { $0 as? UIButton }
+            .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
+            .filter { $0.tintColor != (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) }
 
-            misconfiguredBarButtonItemViews.forEach { $0.tintColor = Application.isInPrevaricationMode ? .navigationBarTitle : .accent }
-            Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) {
-                startSettingNavigationBarButtonItemAppearance()
-            }
+        misconfiguredBarButtonItemViews.forEach { $0.tintColor = Application.isInPrevaricationMode ? .navigationBarTitle : .accent }
+        Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) { @MainActor in
+            startSettingNavigationBarButtonItemAppearance()
         }
     }
 
-    @MainActor
     private func updateCollectionViewBackgroundColor() {
         guard !Application.isInPrevaricationMode else { return }
         var backgroundColor = ThemeService.isAppDefaultThemeApplied ? UIColor.background : UIColor(Colors.messagesCollectionViewPrimaryDarkBackground)

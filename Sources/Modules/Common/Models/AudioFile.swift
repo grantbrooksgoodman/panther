@@ -167,12 +167,14 @@ enum AudioFileDurationCache {
 private enum _AudioFileDurationCache {
     // MARK: - Properties
 
+    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
     fileprivate static var cachedDurationsForLocalPaths: [URL: Float]? {
         get { _cachedDurationsForLocalPaths.wrappedValue }
         set { _cachedDurationsForLocalPaths.wrappedValue = newValue }
     }
-
-    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

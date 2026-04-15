@@ -22,14 +22,13 @@ struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
 
-    enum Action: @unchecked Sendable {
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -112,8 +111,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var isDeveloperModeEnabled: Bool {
-            @Dependency(\.build) var build: Build
-            return build.isDeveloperModeEnabled
+            Dependency(\.build.isDeveloperModeEnabled).wrappedValue
         }
 
         @MainActor
@@ -149,8 +147,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var showsRemoveUserSwipeAction: Bool {
-            // TODO: Remove the dependency on isDeveloperModeEnabled.
-            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+            guard conversation?.metadata.isPenPalsConversation == false,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
                   visibleParticipants.count > 2 else { return false }
             return true
@@ -163,8 +160,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var visibleParticipantsIncrement: Int {
-            // TODO: Remove the dependency on isDeveloperModeEnabled.
-            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+            guard conversation?.metadata.isPenPalsConversation == false,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
                   !visibleParticipants.isEmpty,
                   visibleParticipants.count < 10 else { return 0 }

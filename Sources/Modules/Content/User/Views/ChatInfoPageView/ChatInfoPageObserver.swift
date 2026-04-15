@@ -35,10 +35,6 @@ struct ChatInfoPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(ChatInfoPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -57,12 +53,6 @@ struct ChatInfoPageObserver: Observer {
             send(.currentConversationMetadataChanged)
 
         default: ()
-        }
-    }
-
-    func send(_ action: ChatInfoPageReducer.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
         }
     }
 }

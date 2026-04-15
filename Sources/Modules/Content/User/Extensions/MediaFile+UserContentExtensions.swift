@@ -16,11 +16,24 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-extension MediaFile: MediaItem {
-    var image: UIImage? { image(.thumbnail) }
-    var placeholderImage: UIImage { .missing }
-    var size: CGSize { image?.size ?? .zero }
-    var url: URL? { localPathURL }
+extension MediaFile: @MainActor MediaItem {
+    @MainActor
+    var image: UIImage? {
+        image(.thumbnail)
+    }
+
+    var placeholderImage: UIImage {
+        .missing
+    }
+
+    @MainActor
+    var size: CGSize {
+        image?.size ?? .zero
+    }
+
+    var url: URL? {
+        localPathURL
+    }
 }
 
 extension MediaFile {
@@ -37,6 +50,7 @@ extension MediaFile {
 
     // MARK: - Methods
 
+    @MainActor
     func image(_ quality: ImageQuality) -> UIImage? {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?

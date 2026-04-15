@@ -35,10 +35,6 @@ struct NewChatPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(NewChatPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -58,12 +54,6 @@ struct NewChatPageObserver: Observer {
             sendWithAnimation(.animatePenPalsToolbarButtonBackgroundColor)
 
         default: ()
-        }
-    }
-
-    func send(_ action: NewChatPageReducer.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
         }
     }
 

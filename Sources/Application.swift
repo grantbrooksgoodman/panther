@@ -14,25 +14,13 @@ import UIKit
 import AppSubsystem
 import Networking
 
+@MainActor
 enum Application {
     // MARK: - Properties
 
-    private static let _isInPrevaricationMode = LockIsolated(wrappedValue: false)
-    private static let _loadStartDate = LockIsolated<Date>(wrappedValue: .now)
+    static var isInPrevaricationMode = false
+    static var loadStartDate = Date.now
 
-    // MARK: - Computed Properties
-
-    static var isInPrevaricationMode: Bool {
-        get { _isInPrevaricationMode.wrappedValue }
-        set { _isInPrevaricationMode.wrappedValue = newValue }
-    }
-
-    static var loadStartDate: Date {
-        get { _loadStartDate.wrappedValue }
-        set { _loadStartDate.wrappedValue = newValue }
-    }
-
-    @MainActor
     private static var buildMilestone: Build.Milestone {
         @Persistent(.buildMilestoneString) var persistedMilestoneString: String?
         var buildMilestone: Build.Milestone = UIDevice.isSimulator ? .beta : .generalRelease
@@ -43,7 +31,6 @@ enum Application {
 
     // MARK: - Initialize
 
-    @MainActor
     static func initialize() {
         /* MARK: App Subsystem Setup */
 

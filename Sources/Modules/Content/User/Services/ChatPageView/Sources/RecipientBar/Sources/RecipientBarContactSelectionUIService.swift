@@ -24,7 +24,7 @@ final class RecipientBarContactSelectionUIService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
 
     // MARK: - Properties
 
@@ -343,8 +343,8 @@ final class RecipientBarContactSelectionUIService {
         contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
         contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
 
-        contactView.tag = core.ui.semTag(for: Strings.contactViewSemanticTag)
-        contactLabel.tag = core.ui.semTag(for: Strings.contactLabelSemanticTag)
+        contactView.tag = coreUI.semTag(for: Strings.contactViewSemanticTag)
+        contactLabel.tag = coreUI.semTag(for: Strings.contactLabelSemanticTag)
 
         return contactView
     }

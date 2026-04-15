@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-struct ConversationService: @unchecked Sendable {
+struct ConversationService {
     // MARK: - Dependencies
 
     @Dependency(\.timestampDateFormatter) private var dateFormatter: DateFormatter

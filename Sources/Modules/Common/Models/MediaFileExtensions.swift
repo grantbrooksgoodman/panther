@@ -112,7 +112,7 @@ enum MediaFileExtension: Codable, Equatable, CaseIterable {
 
 // MARK: - Audio File Extension
 
-enum AudioFileExtension: String, Codable, Equatable, Sendable {
+enum AudioFileExtension: String, Codable, Equatable {
     /* MARK: Cases */
 
     case caf

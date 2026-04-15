@@ -35,10 +35,6 @@ struct SettingsPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(SettingsPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -59,12 +55,6 @@ struct SettingsPageObserver: Observer {
             send(.traitCollectionChanged)
 
         default: ()
-        }
-    }
-
-    func send(_ action: R.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
         }
     }
 }

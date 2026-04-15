@@ -59,8 +59,6 @@ private final class SizeCalculator: @MainActor MessageSizeCalculator {
         @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
 
         guard let layout else { return .zero }
-
-        // TODO: Audit this.
         return MainActor.assumeIsolated {
             typealias Floats = AppConstants.CGFloats.SystemMessageCell
 

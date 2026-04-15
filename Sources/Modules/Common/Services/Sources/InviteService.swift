@@ -15,13 +15,15 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-struct InviteService: @unchecked Sendable {
+@MainActor
+struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
+    @Dependency(\.uiApplication.keyViewController?.view) private var keyView: UIView?
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
 
@@ -43,7 +45,6 @@ struct InviteService: @unchecked Sendable {
 
     // MARK: - Compose Invitation
 
-    @MainActor
     func composeInvitation(languageCode: String?) async -> Exception? {
         guard let appShareLink = services.metadata.appShareLink else {
             if let exception = await services.metadata.resolveValues() {
@@ -92,7 +93,6 @@ struct InviteService: @unchecked Sendable {
 
     // MARK: - Present Invitation Prompt
 
-    @MainActor
     func presentInvitationPrompt() async -> Exception? {
         guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else { return nil }
         guard shouldPresentInviteLanguagePicker else {
@@ -113,7 +113,6 @@ struct InviteService: @unchecked Sendable {
 
     // MARK: - Present Invitation Suggestion Prompt
 
-    @MainActor
     func presentInvitationSuggestionPrompt() async {
         let inviteAction: AKAction = .init(
             "Send Invite",
@@ -150,28 +149,22 @@ struct InviteService: @unchecked Sendable {
 
     // MARK: - Auxiliary
 
-    @MainActor
     private func presentActivityViewController(
         appShareLink: URL,
         text: String
     ) {
-        @Dependency(\.uiApplication.keyViewController?.view) var keyView: UIView?
         let activityVC = UIActivityViewController(
             activityItems: [appShareLink, text],
             applicationActivities: nil
         )
 
         activityVC.popoverPresentationController?.sourceView = keyView
-        core.ui.present(activityVC)
+        coreUI.present(activityVC)
     }
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
-    @MainActor
     private func presentTranslationAlert() async -> Bool? {
-        // Use a reference-type box to hold the result; AKAction handlers run on main actor.
-        final class BoolBox: @unchecked Sendable { var value: Bool? }
-        let shouldTranslate = BoolBox()
-
+        let shouldTranslate = LockBox<Bool>()
         let acceptTranslationAction: AKAction = .init(
             "Yes, translate",
             style: .preferred

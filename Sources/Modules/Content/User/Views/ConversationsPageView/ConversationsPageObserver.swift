@@ -45,10 +45,6 @@ struct ConversationsPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(ConversationsPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
         Logger.log(
             "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
@@ -70,6 +66,11 @@ struct ConversationsPageObserver: Observer {
                     id: .updateCurrentUser
                 ) { send(.updatedCurrentUser) }
 
+                // The signal may have already fired before this Task ran.
+                // If it did, call updateConversations() directly rather than
+                // waiting for a transition that already happened.
+                guard !chatPageState.isWaitingToUpdateConversations else { return updateConversations() }
+
                 chatPageState.addEffectUponIsWaitingToUpdateConversations(
                     changedTo: true,
                     id: .updateConversations
@@ -77,12 +78,6 @@ struct ConversationsPageObserver: Observer {
             }
 
         default: ()
-        }
-    }
-
-    func send(_ action: ConversationsPageReducer.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
         }
     }
 

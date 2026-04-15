@@ -14,7 +14,8 @@ import AppSubsystem
 
 enum ChatPageViewServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> ChatPageViewService {
-        .init()
+        @MainActorIsolated var chatPageViewService = ChatPageViewService()
+        return chatPageViewService
     }
 }
 

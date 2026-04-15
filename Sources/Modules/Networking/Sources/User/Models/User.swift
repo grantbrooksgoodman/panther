@@ -16,10 +16,6 @@ import Networking
 final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
-    // NIT: Should be @LockIsolated, but would lose Codable conformance.
-    private(set) var conversationIDs: [ConversationID]?
-    private(set) var conversations: [Conversation]?
-
     let aiEnhancedTranslationsEnabled: Bool
     let blockedUserIDs: [String]?
     let id: String
@@ -30,6 +26,10 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     let phoneNumber: PhoneNumber
     let previousLanguageCodes: [String]?
     let pushTokens: [String]?
+
+    // NIT: Should be @LockIsolated, but would lose Codable conformance.
+    private(set) var conversationIDs: [ConversationID]?
+    private(set) var conversations: [Conversation]?
 
     private static let coalescer = SingleSlotCoalescer<Exception?>()
 
@@ -45,7 +45,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         factors.append(aiEnhancedTranslationsEnabled.description)
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
-        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? []) // TODO: Audit this.
+        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? [])
         factors.append(id)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
@@ -180,7 +180,6 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     private func _setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
-        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
 
         guard !Task.isCancelled,
               id == User.currentUserID,
@@ -221,19 +220,38 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
             return nil
         }
 
-        for conversation in conversationsNeedingUpdate {
-            guard !Task.isCancelled else { return nil }
-            let synchronizeConversationResult = await conversationSession
-                .sync
-                .synchronizeConversation(conversation)
-
-            switch synchronizeConversationResult {
-            case let .success(updatedConversation):
-                decodedConversations.merge(with: [updatedConversation])
-
-            case let .failure(exception):
-                return exception
+        let synchronizeResult: Callback<Set<Conversation>, Exception> = await withTaskGroup(
+            of: Callback<Conversation, Exception>.self
+        ) { taskGroup in
+            for conversation in conversationsNeedingUpdate {
+                taskGroup.addTask {
+                    @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+                    return await conversationSyncService.synchronizeConversation(conversation)
+                }
             }
+
+            var synchronizedConversations = Set<Conversation>()
+            while let synchronizeConversationResult = await taskGroup.next() {
+                switch synchronizeConversationResult {
+                case let .success(updatedConversation):
+                    synchronizedConversations.insert(updatedConversation)
+
+                case let .failure(exception):
+                    taskGroup.cancelAll()
+                    return .failure(exception)
+                }
+            }
+
+            return .success(synchronizedConversations)
+        }
+
+        guard !Task.isCancelled else { return nil }
+        switch synchronizeResult {
+        case let .success(synchronizedConversations):
+            decodedConversations.merge(with: synchronizedConversations)
+
+        case let .failure(exception):
+            return exception
         }
 
         guard !conversationsNeedingFetch.isEmpty else {

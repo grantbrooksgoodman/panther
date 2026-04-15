@@ -27,9 +27,9 @@ final class UserSessionService: @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.storage) private var storageSession: StorageSessionService
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
@@ -103,23 +103,15 @@ final class UserSessionService: @unchecked Sendable {
             return .success(currentUser)
         }
 
-        isUpdatingCurrentUser = true
-
         let getUserResult = await networking.userService.getUser(id: currentUserID)
 
         switch getUserResult {
         case let .success(user):
-            await MainActor.run {
-                self.currentUser = user
-                self.currentUserID = user.id
-            }
-
-            isUpdatingCurrentUser = false
+            currentUser = user
+            await MainActor.run { self.currentUserID = user.id }
             return .success(user)
 
         case let .failure(exception):
-            isUpdatingCurrentUser = false
-
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
@@ -161,11 +153,11 @@ final class UserSessionService: @unchecked Sendable {
                 )
             }
 
-            core.gcd.syncOnMain { self.currentUser = user }
+            currentUser = user
             return nil
         }
 
-        core.gcd.syncOnMain { self.currentUser = user }
+        currentUser = user
         return nil
     }
 
@@ -177,7 +169,7 @@ final class UserSessionService: @unchecked Sendable {
 
     @discardableResult
     func setOfflineCurrentUser() -> Exception? {
-        guard !build.isOnline else {
+        guard !isOnline else {
             return .init(
                 "Internet connection is not offline.",
                 isReportable: false,
@@ -224,7 +216,7 @@ final class UserSessionService: @unchecked Sendable {
                 sender: self
             )
 
-            core.utils.setLanguageCode(string)
+            coreUtilities.setLanguageCode(string)
             return nil
 
         case let .failure(exception):
@@ -390,7 +382,7 @@ final class UserSessionService: @unchecked Sendable {
                     delay: .seconds(5),
                     priority: .utility
                 ) {
-                    self.core.utils.clearCaches([.user])
+                    self.coreUtilities.clearCaches([.user])
                     _ = await self.storageSession.getCurrentUserDataUsage()
                 }
 

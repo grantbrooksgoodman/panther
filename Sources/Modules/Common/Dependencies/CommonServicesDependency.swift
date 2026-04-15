@@ -15,6 +15,10 @@ import AppSubsystem
 enum CommonServicesDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> CommonServices {
         @MainActorIsolated var attributeDetectionService = AttributeDetectionService.shared
+        @MainActorIsolated var contactService = ContactService(contactPairArchive: .init())
+        @MainActorIsolated var inviteService = InviteService()
+        @MainActorIsolated var messageRecipientConsentService = MessageRecipientConsentService()
+        @MainActorIsolated var messageRetranslationService = MessageRetranslationService()
         return .init(
             accountDeletion: .init(),
             aiEnhancedTranslation: .init(),
@@ -28,7 +32,7 @@ enum CommonServicesDependency: DependencyKey {
             ),
             breadcrumbsCapture: .shared,
             connectionStatus: .init(),
-            contact: .init(contactPairArchive: .init()),
+            contact: contactService,
             contentPicker: .init(
                 camera: .init(),
                 document: .init(),
@@ -36,9 +40,9 @@ enum CommonServicesDependency: DependencyKey {
             ),
             documentExport: .init(),
             haptics: .init(),
-            invite: .init(),
-            messageRecipientConsent: .init(),
-            messageRetranslation: .init(),
+            invite: inviteService,
+            messageRecipientConsent: messageRecipientConsentService,
+            messageRetranslation: messageRetranslationService,
             metadata: .shared,
             networkActivityIndicator: .init(),
             notification: .init(),

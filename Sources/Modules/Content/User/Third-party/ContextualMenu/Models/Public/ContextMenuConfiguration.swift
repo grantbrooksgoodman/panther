@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct ContextMenuConfiguration: @unchecked Sendable {
+struct ContextMenuConfiguration {
     // MARK: - Properties
 
     let menu: Menu

@@ -30,10 +30,11 @@ final class StorageSessionService: @unchecked Sendable {
     static let storageLimitInKilobytes: Double = 10240
 
     private static let coalescer = SingleSlotCoalescer<Callback<Int, Exception>>()
+
     private let warningAlertRatio: Double = 0.6
 
     @LockIsolated private var isCalculatingDataUsage = false
-    private var lastDataUsageCalculation: DataUsageCalculation = .empty
+    @LockIsolated private var lastDataUsageCalculation: DataUsageCalculation = .empty
 
     // MARK: - Computed Properties
 
@@ -66,9 +67,12 @@ final class StorageSessionService: @unchecked Sendable {
 
     @MainActor // swiftlint:disable:next function_body_length
     private func _getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        let isDataUsageCalculationInvalid = $lastDataUsageCalculation.withValue { calculation -> Bool in
+            calculation == DataUsageCalculation.empty || calculation.isExpired
+        }
+
         guard !isCalculatingDataUsage,
-              lastDataUsageCalculation == DataUsageCalculation.empty ||
-              lastDataUsageCalculation.isExpired else {
+              isDataUsageCalculationInvalid else {
             Logger.log( // swiftlint:disable:next line_length
                 "Returning last known data usage calculation (\(lastDataUsageCalculation.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.date.seconds(from: .now)))s ago.",
                 domain: .storageSession,

@@ -274,6 +274,11 @@ private enum _TextToSpeechServiceCache {
     // MARK: - Properties
 
     // swiftlint:disable identifier_name
+    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
+    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
     fileprivate static var cachedTextToSpeechSupportForLanguageCodes: [String: Bool]? {
         get { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue }
         set { _cachedTextToSpeechSupportForLanguageCodes.wrappedValue = newValue }
@@ -282,11 +287,7 @@ private enum _TextToSpeechServiceCache {
     fileprivate static var cachedVoicesForLanguageCodes: [String: AVSpeechSynthesisVoice]? {
         get { _cachedVoicesForLanguageCodes.wrappedValue }
         set { _cachedVoicesForLanguageCodes.wrappedValue = newValue }
-    }
-
-    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
-    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(wrappedValue: nil)
-    // swiftlint:enable identifier_name
+    } // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

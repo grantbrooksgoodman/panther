@@ -14,7 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct Message: Codable, EncodedHashable, Hashable, @unchecked Sendable {
+struct Message: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
     static let empty: Message = .init(

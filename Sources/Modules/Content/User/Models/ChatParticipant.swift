@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct ChatParticipant: Equatable, @unchecked Sendable {
+struct ChatParticipant: Equatable {
     // MARK: - Types
 
     enum PenPalsStatus {

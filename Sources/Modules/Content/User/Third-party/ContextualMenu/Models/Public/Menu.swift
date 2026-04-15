@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-struct Menu: @unchecked Sendable {
+struct Menu {
     // MARK: - Properties
 
     let children: [MenuElement]

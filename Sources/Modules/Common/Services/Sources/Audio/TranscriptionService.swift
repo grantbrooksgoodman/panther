@@ -100,13 +100,14 @@ private enum _TranscriptionServiceCache {
     // MARK: - Properties
 
     // swiftlint:disable identifier_name
+    private static let _cachedTranscriptionSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
     fileprivate static var cachedTranscriptionSupportForLanguageCodes: [String: Bool]? {
         get { _cachedTranscriptionSupportForLanguageCodes.wrappedValue }
         set { _cachedTranscriptionSupportForLanguageCodes.wrappedValue = newValue }
-    }
-
-    private static let _cachedTranscriptionSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
-    // swiftlint:enable identifier_name
+    } // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

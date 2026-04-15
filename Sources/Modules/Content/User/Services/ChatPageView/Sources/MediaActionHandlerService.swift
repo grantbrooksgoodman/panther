@@ -28,7 +28,6 @@ final class MediaActionHandlerService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.qlThumbnailGenerator) private var qlThumbnailGenerator: QLThumbnailGenerator

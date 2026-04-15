@@ -169,6 +169,7 @@ struct ModerationSessionService {
         }
     }
 
+    @MainActor
     private func moderate(
         _ type: ModerationType,
         dataSource: (conversation: Conversation?, users: [User]?)

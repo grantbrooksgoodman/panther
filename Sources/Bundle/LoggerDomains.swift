@@ -51,6 +51,7 @@ extension LoggerDomain {
     static let contacts: LoggerDomain = .init("contacts")
     static let conversationArchive: LoggerDomain = .init("conversationArchive")
     static let conversation: LoggerDomain = .init("conversation")
+    static let conversationSync: LoggerDomain = .init("conversationSync")
     static let dataIntegrity: LoggerDomain = .init("dataIntegrity")
     static let notifications: LoggerDomain = .init("notifications")
     static let penPals: LoggerDomain = .init("penPals")

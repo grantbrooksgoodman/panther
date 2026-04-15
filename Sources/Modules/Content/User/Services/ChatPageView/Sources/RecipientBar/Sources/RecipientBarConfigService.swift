@@ -68,68 +68,68 @@ final class RecipientBarConfigService {
     // MARK: - Reconfigure Collection View
 
     func reconfigureCollectionView() {
-        Task { @MainActor in
-            var shouldReload = false
+        var shouldReload = false
 
-            func setInsetsAndReload() {
-                Task { @MainActor [shouldReload] in
-                    chatPageViewService.alternateMessage?.restoreAllAlternateTextMessageIDs()
-                    chatPageViewService.alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
+        func setInsetsAndReload() {
+            Task { @MainActor [shouldReload] in
+                chatPageViewService.alternateMessage?.restoreAllAlternateTextMessageIDs()
+                chatPageViewService.alternateMessage?.restoreAllAudioTranscriptionMessageIDs()
 
-                    avSpeechSynthesizer.stopSpeaking(at: .immediate)
-                    chatPageViewService.audioMessagePlayback?.stopPlayback()
+                avSpeechSynthesizer.stopSpeaking(at: .immediate)
+                chatPageViewService.audioMessagePlayback?.stopPlayback()
 
-                    await chatPageViewService.recordingUI?.hideRecordingUI()
-                    _ = recordingService.cancelRecording()
+                await chatPageViewService.recordingUI?.hideRecordingUI()
+                _ = recordingService.cancelRecording()
 
-                    viewController.messagesCollectionView.isHidden = false
+                viewController.messagesCollectionView.isHidden = false
 
-                    guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
-                          shouldReload else { return }
+                guard let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView,
+                      shouldReload else { return }
 
-                    viewController.messagesCollectionView.contentInset.top = recipientBarView.frame.maxY
-                    viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = recipientBarView.frame.maxY
-                    viewController.messagesCollectionView.reloadData()
-                    viewController.messagesCollectionView.scrollToLastItem(animated: false)
-                }
+                viewController.messagesCollectionView.contentInset.top = recipientBarView.frame.maxY
+                viewController.messagesCollectionView.verticalScrollIndicatorInsets.top = recipientBarView.frame.maxY
+                viewController.messagesCollectionView.reloadData()
+                viewController.messagesCollectionView.scrollToLastItem(animated: false)
             }
+        }
 
-            guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
+        guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
-            let isPreviousConversationEmpty = (clientSession.conversation.currentConversation ?? .empty).isEmpty
-            let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
+        let isPreviousConversationEmpty = (clientSession.conversation.currentConversation ?? .empty).isEmpty
+        let previousConversationIDKey = clientSession.conversation.currentConversation?.id.key ?? ""
 
-            let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
-            let users = contactSelectionUIService.selectedContactPairs.users
+        let conversations = clientSession.user.currentUser?.conversations?.visibleForCurrentUser.filter { $0.users != nil }
+        let users = contactSelectionUIService.selectedContactPairs.users
 
-            // NIT: Observed bugs with this disabled, but iMessage does it this way.
+        // NIT: Observed bugs with this disabled, but iMessage does it this way.
 //            viewController.messageInputBar.inputTextView.text = ""
-            Task.background { _ = await chatPageViewService.typingIndicator?.textViewDidChange(to: "") }
+        Task.background { @MainActor in
+            _ = await chatPageViewService.typingIndicator?.textViewDidChange(to: "")
+        }
 
-            defer { setInsetsAndReload() }
+        defer { setInsetsAndReload() }
 
-            Message.consentRequestMessageID = nil
-            guard let existingConversation = conversations?.sortedByLatestMessageSentDate
-                .first(where: { users.map(\.id).sorted() == $0.users!.map(\.id).sorted() }) else {
-                defer { shouldReload = !isPreviousConversationEmpty }
+        Message.consentRequestMessageID = nil
+        guard let existingConversation = conversations?.sortedByLatestMessageSentDate
+            .first(where: { users.map(\.id).sorted() == $0.users!.map(\.id).sorted() }) else {
+            defer { shouldReload = !isPreviousConversationEmpty }
 
-                guard !contactSelectionUIService.selectedContactPairs.isEmpty else {
-                    clientSession.conversation.setCurrentConversation(.empty)
-                    return
-                }
-
-                guard !contactSelectionUIService.selectedContactPairs.allSatisfy(\.isMock) else {
-                    clientSession.conversation.setCurrentConversation(.empty(withUsers: users))
-                    return
-                }
-
-                clientSession.conversation.setCurrentConversation(.mock(withUsers: users))
+            guard !contactSelectionUIService.selectedContactPairs.isEmpty else {
+                clientSession.conversation.setCurrentConversation(.empty)
                 return
             }
 
-            clientSession.conversation.setCurrentConversation(existingConversation)
-            shouldReload = existingConversation.id.key != previousConversationIDKey
+            guard !contactSelectionUIService.selectedContactPairs.allSatisfy(\.isMock) else {
+                clientSession.conversation.setCurrentConversation(.empty(withUsers: users))
+                return
+            }
+
+            clientSession.conversation.setCurrentConversation(.mock(withUsers: users))
+            return
         }
+
+        clientSession.conversation.setCurrentConversation(existingConversation)
+        shouldReload = existingConversation.id.key != previousConversationIDKey
     }
 
     // MARK: - Reconfigure Last Contact View

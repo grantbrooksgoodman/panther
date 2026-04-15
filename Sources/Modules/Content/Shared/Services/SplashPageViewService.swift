@@ -18,7 +18,8 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class SplashPageViewService: ObservableObject, @unchecked Sendable {
+@MainActor
+final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
@@ -31,7 +32,6 @@ final class SplashPageViewService: ObservableObject, @unchecked Sendable {
 
     // MARK: - Properties
 
-    @Published
     var initializationProgress: CGFloat = 0 {
         didSet {
             percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
@@ -58,7 +58,6 @@ final class SplashPageViewService: ObservableObject, @unchecked Sendable {
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
-    @MainActor
     func initializeBundle() async -> Exception? {
         /* MARK: Service Setup */
 
@@ -206,8 +205,9 @@ final class SplashPageViewService: ObservableObject, @unchecked Sendable {
                     Logger.log(exception)
                 }
 
+                @Dependency(\.commonServices.pushToken) var pushTokenService: PushTokenService
                 if Networking.config.environment != .staging,
-                   let exception = await services.pushToken.prunePushTokensForCurrentUser() {
+                   let exception = await pushTokenService.prunePushTokensForCurrentUser() {
                     Logger.log(exception)
                 }
             }
@@ -274,10 +274,7 @@ final class SplashPageViewService: ObservableObject, @unchecked Sendable {
         } else if !didAttemptDatabaseRepair {
             return await attemptDatabaseRepair()
         } else {
-            Task { @MainActor in
-                Application.reset()
-            }
-
+            Application.reset()
             didAttemptDatabaseRepair = false
         }
 
@@ -306,7 +303,6 @@ final class SplashPageViewService: ObservableObject, @unchecked Sendable {
         ).present(translating: translationOptionKeys)
     }
 
-    @MainActor
     private func checkPrevaricationMode(_ phoneNumber: PhoneNumber) {
         let isUsingTestAccount = [
             "15555555555",

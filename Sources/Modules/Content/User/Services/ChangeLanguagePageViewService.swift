@@ -68,11 +68,10 @@ struct ChangeLanguagePageViewService {
 
         defer { core.hud.hide() }
 
-        final class BoolBox: @unchecked Sendable { var value = false }
-        let loadedData = BoolBox()
+        let loadedData = LockBox<Bool>()
         let timeout = Timeout(after: .seconds(1)) {
             Task { @MainActor in
-                guard !loadedData.value else { return }
+                guard loadedData.value != true else { return }
                 core.ui.addOverlay(
                     alpha: 0.5,
                     activityIndicator: nil,

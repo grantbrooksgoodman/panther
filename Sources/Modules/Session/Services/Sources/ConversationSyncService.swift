@@ -26,17 +26,13 @@ final class ConversationSyncService: @unchecked Sendable {
     private static let coalescer = KeyedCoalescer<String, Callback<Conversation, Exception>>()
     private static let recentlyFailedSyncRecords = LockIsolated<Set<SynchronizationRecord>>(wrappedValue: [])
 
-    @LockIsolated private var _syncData: ConversationSyncData = .empty
+    private let _syncData = LockIsolated<ConversationSyncData?>(wrappedValue: nil)
 
     // MARK: - Computed Properties
 
     private var syncData: ConversationSyncData? {
-        get {
-            $_syncData.withValue { $0 == .empty ? nil : $0 }
-        }
-        set {
-            _syncData = newValue ?? .empty
-        }
+        get { _syncData.wrappedValue }
+        set { _syncData.wrappedValue = newValue }
     }
 
     // MARK: - Synchronize Conversation
@@ -52,9 +48,29 @@ final class ConversationSyncService: @unchecked Sendable {
                 ))
             }
 
-            guard !Self.recentlyFailedSyncRecords.wrappedValue.contains(where: {
-                $0.conversationID == conversation.id
-            }) else { return .success(conversation) }
+            guard !Self
+                .recentlyFailedSyncRecords
+                .wrappedValue
+                .filter({ !$0.isExpired })
+                .contains(where: {
+                    $0.conversationID == conversation.id
+                }) else {
+                Logger.log(
+                    .init(
+                        "Conversation recently failed sync; temporarily ignoring updates.",
+                        isReportable: false,
+                        userInfo: [
+                            "ConversationIDHash": conversation.id.hash,
+                            "ConversationIDKey": conversation.id.key,
+                        ],
+                        metadata: .init(sender: self)
+                    ),
+                    domain: .conversationSync
+                )
+
+                return .success(conversation)
+            }
+
             return await _synchronizeConversation(conversation)
         }
     }
@@ -384,7 +400,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         Logger.log(
             "Synchronizing conversation with ID \(conversation.id.key).",
-            domain: .conversation,
+            domain: .conversationSync,
             sender: self
         )
 
@@ -406,7 +422,7 @@ final class ConversationSyncService: @unchecked Sendable {
                     userInfo: userInfo,
                     metadata: .init(sender: self)
                 ),
-                domain: .conversation
+                domain: .conversationSync
             )
 
             if let exception = await synchronizeData() {
@@ -504,7 +520,7 @@ final class ConversationSyncService: @unchecked Sendable {
                     userInfo: userInfo,
                     metadata: .init(sender: self)
                 ),
-                domain: .conversation
+                domain: .conversationSync
             )
 
             Self.recentlyFailedSyncRecords.projectedValue.withValue {

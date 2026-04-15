@@ -15,7 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class ErrorReportingService: AlertKit.ReportDelegate, @unchecked Sendable {
+final class ErrorReportingService: AlertKit.ReportDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build

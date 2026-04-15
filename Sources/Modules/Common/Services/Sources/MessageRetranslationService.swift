@@ -16,19 +16,20 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct MessageRetranslationService: @unchecked Sendable {
+@MainActor
+struct MessageRetranslationService {
     // MARK: - Dependencies
 
     @Dependency(\.alertKitConfig) private var alertKitConfig: AlertKit.Config
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
     @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.languageRecognitionService) private var languageRecognitionService: LanguageRecognitionService
     @Dependency(\.translationArchiverDelegate) private var localTranslationArchiver: TranslationArchiverDelegate
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.translationService) private var translator: TranslationService
 
     // MARK: - Properties
@@ -37,7 +38,7 @@ struct MessageRetranslationService: @unchecked Sendable {
 
     // MARK: - Retranslate Message in Current Conversation
 
-    @MainActor // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next function_body_length
     func retranslateMessageInCurrentConversation(
         _ message: Message,
         indexPath: IndexPath
@@ -64,8 +65,8 @@ struct MessageRetranslationService: @unchecked Sendable {
             ) else { return nil }
         }
 
-        core.hud.showProgress(isModal: true)
-        defer { core.hud.hide() }
+        coreHUD.showProgress(isModal: true)
+        defer { coreHUD.hide() }
 
         var attemptedPlatforms: Set<TranslationPlatform> = Set(retranslatedMessageIDs?[message.id] ?? [])
         while let platform = TranslationPlatform
@@ -73,7 +74,7 @@ struct MessageRetranslationService: @unchecked Sendable {
             .sorted(by: { $0.orderValue < $1.orderValue })
             .first(where: { !attemptedPlatforms.contains($0) }) {
             if isDeveloperModeEnabled {
-                core.hud.showProgress(
+                coreHUD.showProgress(
                     text: "Trying \(platform.name)…",
                     isModal: true
                 )
@@ -106,7 +107,8 @@ struct MessageRetranslationService: @unchecked Sendable {
                     targetLanguageCode: targetLanguageCode
                 ) else { continue }
 
-                if let exception = await networking.database.updateChildValues(
+                @Dependency(\.networking.database) var database: DatabaseDelegate
+                if let exception = await database.updateChildValues(
                     forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
                     with: [
                         translation.reference.type.key: "\(translation.input.value.alphaEncoded)–\(newTranslation.output.alphaEncoded)",
@@ -129,7 +131,7 @@ struct MessageRetranslationService: @unchecked Sendable {
                     changedTo: false,
                     id: .markConversationStale
                 ) {
-                    Task {
+                    Task { @MainActor in
                         if let exception = await markStale(
                             conversation,
                             messageID: message.id
@@ -164,7 +166,6 @@ struct MessageRetranslationService: @unchecked Sendable {
 
     // MARK: - Auxiliary
 
-    @MainActor
     private func isLowQualityTranslationResult(
         old oldTranslation: Translation,
         new newTranslation: Translation,
@@ -251,7 +252,7 @@ struct MessageRetranslationService: @unchecked Sendable {
         _ conversation: Conversation,
         messageID: String
     ) async -> Exception? {
-        networking.conversationService.archive.addValue(
+        conversationArchive.addValue(
             .init(
                 .init(
                     key: conversation.id.key,

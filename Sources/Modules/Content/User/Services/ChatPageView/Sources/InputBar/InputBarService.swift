@@ -38,7 +38,7 @@ final class InputBarService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.messageDeliveryService.isSendingMessage) private var isSendingMessage: Bool
     @Dependency(\.uiApplication.mainScreen.bounds.width) private var screenWidth: CGFloat
@@ -116,7 +116,7 @@ final class InputBarService {
 
         switch forRecording {
         case true:
-            inputBar.sendButton.tag = core.ui.semTag(for: Strings.recordButtonSemanticTag)
+            inputBar.sendButton.tag = coreUI.semTag(for: Strings.recordButtonSemanticTag)
 
             UIView.transition(
                 with: inputBar.sendButton,
@@ -148,7 +148,7 @@ final class InputBarService {
             }
 
         case false:
-            inputBar.sendButton.tag = core.ui.semTag(for: Strings.sendButtonSemanticTag)
+            inputBar.sendButton.tag = coreUI.semTag(for: Strings.sendButtonSemanticTag)
             chatPageViewService.inputBarGestureRecognizer?.removeInputBarGestureRecognizers()
 
             UIView.transition(

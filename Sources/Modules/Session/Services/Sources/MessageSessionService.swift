@@ -16,7 +16,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-struct MessageSessionService: @unchecked Sendable {
+struct MessageSessionService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.MessageSessionService

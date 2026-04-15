@@ -39,7 +39,6 @@ struct CNContactView: View {
         ThemedView {
             _CNContactView(cnContact, isUnknown: isUnknown)
                 .if(!UIApplication.isFullyV26Compatible) {
-                    // TODO: Audit this for > iOS 26 GM.
                     $0.navigationBarBackButtonHidden()
                 }
                 .navigationTitle("\u{2800}")

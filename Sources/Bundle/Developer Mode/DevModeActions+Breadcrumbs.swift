@@ -85,7 +85,7 @@ extension DevModeAction.AppActions {
         private static func presentBreadcrumbsCaptureFrequencyTextInputAlert() {
             Task { @MainActor in
                 @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
-                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                 @Dependency(\.uiApplication) var uiApplication: UIApplication
 
                 func presentTryAgainAlert() async {
@@ -139,7 +139,7 @@ extension DevModeAction.AppActions {
                 guard let double = Double(input) else { return await presentTryAgainAlert() }
 
                 breadcrumbsCaptureService.setCaptureFrequency(.seconds(double))
-                core.hud.showSuccess()
+                coreHUD.showSuccess()
             }
         }
 

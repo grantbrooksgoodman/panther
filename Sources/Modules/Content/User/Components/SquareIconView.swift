@@ -138,13 +138,14 @@ private enum _SquareIconImageCache {
     // MARK: - Properties
 
     // swiftlint:disable identifier_name
+    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
+
     fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]? {
         get { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue }
         set { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue = newValue }
-    }
-
-    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
-    // swiftlint:enable identifier_name
+    } // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

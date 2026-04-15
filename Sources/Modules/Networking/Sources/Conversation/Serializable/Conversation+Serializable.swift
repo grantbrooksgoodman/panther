@@ -34,7 +34,6 @@ extension Conversation: Serializable {
     // MARK: - Properties
 
     var encoded: [String: Any] {
-        // TODO: Audit filteringSystemMessages usage here.
         let messageIDs = messages?.filteringSystemMessages.map(\.id) ?? .bangQualifiedEmpty
         let reactionMetadata = reactionMetadata?.map(\.encoded) ?? [ReactionMetadata.empty.encoded]
         return [
@@ -242,7 +241,7 @@ extension Conversation: Serializable {
             }
 
             // FIXME: Audit why this is needed.
-            @LockIsolated var decoded: Conversation = .init(
+            /*@LockIsolated var decoded:*/ let decoded: Conversation = .init(
                 conversationID,
                 activities: activities,
                 messageIDs: messageIDs,

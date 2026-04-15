@@ -46,7 +46,7 @@ final class SettingsPageViewService {
 
     // MARK: - Properties
 
-    @LockIsolated var isMainPagePresented = true
+    var isMainPagePresented = true
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
 

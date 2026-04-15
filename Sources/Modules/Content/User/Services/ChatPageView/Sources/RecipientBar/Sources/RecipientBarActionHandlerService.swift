@@ -14,7 +14,8 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-final class RecipientBarActionHandlerService: @unchecked Sendable {
+@MainActor
+final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageViewService.RecipientBarService.ActionHandler
@@ -22,7 +23,7 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.userService) private var userService: UserService
@@ -39,7 +40,6 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
 
     // MARK: - On Superfluous Backspace
 
-    @MainActor
     func onSuperflousBackspace() {
         guard let service = chatPageViewService.recipientBar else { return }
 
@@ -77,14 +77,14 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
     func selectContactButtonTapped() {
         Task { @MainActor in
             func presentCTA() {
-                Task.delayed(by: .milliseconds(500)) {
+                Task.delayed(by: .milliseconds(500)) { @MainActor in
                     await self.services.permission.presentCTA(for: .contacts)
                 }
             }
 
             let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
             selectContactButton?.isEnabled = true
-            defer { core.hud.hide(after: .seconds(1)) }
+            defer { coreHUD.hide(after: .seconds(1)) }
 
             guard services.permission.contactPermissionStatus == .granted else {
                 let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
@@ -113,7 +113,7 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
 
             guard services.contact.hasContactsBesidesCurrentUser else {
                 selectContactButton?.isEnabled = false
-                core.hud.showProgress(isModal: true)
+                coreHUD.showProgress(isModal: true)
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
@@ -135,7 +135,6 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
         }
     }
 
-    @MainActor
     @objc
     func textFieldChanged(_ textField: UITextField) {
         chatPageViewService.recipientBar?.tableView.setQuery(textField.text ?? "")
@@ -143,7 +142,10 @@ final class RecipientBarActionHandlerService: @unchecked Sendable {
 
     // MARK: - Text Field Should Return
 
-    func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
+    func textFieldShouldReturn(
+        _ text: String,
+        makeInputBarFirstResponder: Bool = true
+    ) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 

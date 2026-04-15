@@ -48,8 +48,9 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private var didConfirmUnsafeSessionResolution = false
-    private var _session: IntegrityServiceSession?
+    private let _session = LockIsolated<IntegrityServiceSession?>(wrappedValue: nil)
+
+    @LockIsolated private var didConfirmUnsafeSessionResolution = false
 
     // MARK: - Computed Properties
 
@@ -82,7 +83,7 @@ final class IntegrityService: @unchecked Sendable {
                     domain: .dataIntegrity,
                     sender: self
                 )
-                _session = session
+                _session.wrappedValue = session
                 completion(nil)
 
             case let .failure(exception):
@@ -917,8 +918,7 @@ final class IntegrityService: @unchecked Sendable {
     }
 
     private func getSession() -> IntegrityServiceSession {
-        // swiftlint:disable:next identifier_name
-        guard let _session else {
+        guard let session = _session.wrappedValue else {
             Logger.log(.init(
                 "Referencing unresolved IntegrityServiceSession.",
                 metadata: .init(sender: self)
@@ -927,7 +927,7 @@ final class IntegrityService: @unchecked Sendable {
             return .empty
         }
 
-        return _session
+        return session
     }
 
     // MARK: - Auxiliary

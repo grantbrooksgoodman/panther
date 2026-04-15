@@ -16,7 +16,8 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class MediaMessagePreviewService: @unchecked Sendable {
+@MainActor
+final class MediaMessagePreviewService {
     // MARK: - Types
 
     enum CacheKey: String, CaseIterable {
@@ -42,7 +43,6 @@ final class MediaMessagePreviewService: @unchecked Sendable {
 
     // MARK: - Computed Properties
 
-    @MainActor
     private var mediaPaths: [String] {
         viewController
             .currentConversation?
@@ -58,7 +58,6 @@ final class MediaMessagePreviewService: @unchecked Sendable {
 
     // MARK: - Configure Gesture Recognizers
 
-    @MainActor
     func configureGestureRecognizers() {
         let pinchGestureRecognizer: UIPinchGestureRecognizer = .init(
             target: self,
@@ -69,7 +68,6 @@ final class MediaMessagePreviewService: @unchecked Sendable {
 
     // MARK: - Did Tap Image
 
-    @MainActor
     func didTapImage(in cell: MessageCollectionViewCell) {
         guard let indexPath = viewController.messagesCollectionView.indexPath(for: cell),
               let message = viewController.currentConversation?.messages?.itemAt(indexPath.section),
@@ -119,7 +117,6 @@ final class MediaMessagePreviewService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     /// - NOTE: Fixes a bug in which a dismissal of the `QuickViewer` would cause the view's user interaction to become disabled.
-    @MainActor
     private func enableUserInteraction() {
         Logger.log(
             "Intercepted QuickViewer dismissal user interaction bug.",
@@ -143,7 +140,6 @@ final class MediaMessagePreviewService: @unchecked Sendable {
         }
     }
 
-    @MainActor
     @objc
     private func pinchGestureRecognized(recognizer: UIPinchGestureRecognizer) {
         let touchPoint = recognizer.location(in: viewController.messagesCollectionView)

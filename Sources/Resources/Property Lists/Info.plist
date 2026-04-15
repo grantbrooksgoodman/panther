@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBuildDate</key>
-	<string>1776053417</string>
+	<string>1776205708</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -30,7 +30,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>34118</string>
+	<string>34232</string>
 	<key>CFFirstCompileDate</key>
 	<string>1699689600</string>
 	<key>CFTargetName</key>

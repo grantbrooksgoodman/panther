@@ -102,20 +102,16 @@ enum ContactImageCache {
 }
 
 private enum _ContactImageCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case imagesForContactIDs
-    }
-
     // MARK: - Properties
+
+    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
+
+    // MARK: - Computed Properties
 
     fileprivate static var cachedImagesForContactIDs: [String: UIImage]? {
         get { _cachedImagesForContactIDs.wrappedValue }
         set { _cachedImagesForContactIDs.wrappedValue = newValue }
     }
-
-    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
 
     // MARK: - Clear Cache
 

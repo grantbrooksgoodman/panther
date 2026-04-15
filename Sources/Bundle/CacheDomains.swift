@@ -107,13 +107,17 @@ extension CacheDomain {
     }
 
     private static func clearContactPairArchiveCache() {
-        @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
-        contactPairArchive.clearArchive()
+        Task { @MainActor in
+            @Dependency(\.commonServices.contact.contactPairArchive) var contactPairArchive: ContactPairArchiveService
+            contactPairArchive.clearArchive()
+        }
     }
 
     private static func clearContactServiceCache() {
-        @Dependency(\.commonServices.contact) var contactService: ContactService
-        contactService.clearCache()
+        Task { @MainActor in
+            @Dependency(\.commonServices.contact) var contactService: ContactService
+            contactService.clearCache()
+        }
     }
 
     private static func clearConversationArchiveCache() {

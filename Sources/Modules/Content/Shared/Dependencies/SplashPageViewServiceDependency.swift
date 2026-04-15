@@ -14,7 +14,8 @@ import AppSubsystem
 
 enum SplashPageViewServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> SplashPageViewService {
-        .init()
+        @MainActorIsolated var splashPageViewService = SplashPageViewService()
+        return splashPageViewService
     }
 }
 

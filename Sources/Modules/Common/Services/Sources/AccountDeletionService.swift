@@ -23,8 +23,8 @@ final class AccountDeletionService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private var completedUnits: Double = 0
-    private var completionPercent: Double = 0 {
+    @LockIsolated private var completedUnits: Double = 0
+    @LockIsolated private var completionPercent: Double = 0 {
         didSet { updateHUDLabel() }
     }
 
@@ -201,8 +201,10 @@ final class AccountDeletionService: @unchecked Sendable {
     }
 
     private func incrementProgress(forTotal total: Double) {
-        completedUnits += 1
-        completionPercent = completedUnits / max(total, 1)
+        $completedUnits.withValue {
+            $0 += 1
+            completionPercent = $0 / max(total, 1)
+        }
     }
 
     private func updateHUDLabel() {

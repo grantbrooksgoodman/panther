@@ -15,10 +15,6 @@ struct ConversationSyncData: Hashable, @unchecked Sendable {
     let conversation: Conversation
     let newData: [String: Any]
 
-    // MARK: - Computed Properties
-
-    static let empty: ConversationSyncData = .init(.empty, newData: [:])
-
     // MARK: - Init
 
     init(

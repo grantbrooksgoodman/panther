@@ -15,19 +15,19 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-final class MessageRecipientConsentService: @unchecked Sendable {
+@MainActor
+final class MessageRecipientConsentService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.chatPageViewService.inputBar) private var inputBarService: InputBarService?
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
+    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Send Consent Message in Current Conversation
 
-    @MainActor
     func sendConsentMessageInCurrentConversation() async -> Exception? {
-        @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
             return .init(
@@ -51,7 +51,7 @@ final class MessageRecipientConsentService: @unchecked Sendable {
         guard !conversation.currentUserInitiatorRequiresMessageReceiptConsent else { return await messageDeliveryService.sendTextMessage(consentMessage) }
 
         let acknowledgeAction: AKAction = .init(Localized(.acknowledgeConsent).wrappedValue) {
-            Task {
+            Task { @MainActor in
                 if let exception = await self.acknowledgeConsent(forUser: currentUser, inConversation: conversation) {
                     Logger.log(exception, with: .toast)
                 }
@@ -151,13 +151,11 @@ final class MessageRecipientConsentService: @unchecked Sendable {
         }
     }
 
-    @MainActor
     private func isSendingMessageFalseEffect() {
         inputBarService?.configureInputBar()
         Message.consentRequestMessageID = nil
     }
 
-    @MainActor
     private func isSendingMessageTrueEffect() {
         inputBarService?.setConsentButtonIsEnabled(false)
         Task.delayed(by: .seconds(1)) { @MainActor in
