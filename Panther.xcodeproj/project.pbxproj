@@ -40,6 +40,7 @@
 		A2BE201F2F2C42420006F7AF /* FeaturePermissionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */; };
 		A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */; };
 		A2C15BFB2ECE8EE400776AAD /* ChatNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */; };
+		A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C250CC2F959330002EEA53 /* SystemInformation.swift */; };
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
@@ -804,6 +805,7 @@
 		A2BE201E2F2C42420006F7AF /* FeaturePermissionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageView.swift; sourceTree = "<group>"; };
 		A2BE20202F2C42860006F7AF /* FeaturePermissionPageReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturePermissionPageReducer.swift; sourceTree = "<group>"; };
 		A2C15BFA2ECE8EE400776AAD /* ChatNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatNavigator.swift; sourceTree = "<group>"; };
+		A2C250CC2F959330002EEA53 /* SystemInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInformation.swift; sourceTree = "<group>"; };
 		A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationRecord.swift; sourceTree = "<group>"; };
 		A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewStrings.swift; sourceTree = "<group>"; };
@@ -1769,6 +1771,7 @@
 				B900B5412B1ACAA800BA2F1D /* NumberPair.swift */,
 				B900B53D2B1AC83D00BA2F1D /* PhoneNumber.swift */,
 				B988BF9C2C2A172D0078F6FA /* RemoteCacheStatus.swift */,
+				A2C250CC2F959330002EEA53 /* SystemInformation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3957,9 +3960,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4305,6 +4312,7 @@
 				B9CFA8052D9B72C60075E02D /* AppConstants+ReactionDetailsPageView.swift in Sources */,
 				B9DD42CD2E2F1952009A318B /* ChatInfoPageViewService+PenPals.swift in Sources */,
 				B9C696522B896319005F0BFE /* ChatInfoPageViewService.swift in Sources */,
+				A2C250CD2F959330002EEA53 /* SystemInformation.swift in Sources */,
 				B96EDD8D2B635A6000CB925B /* SettingsPageViewService.swift in Sources */,
 				B9DD42C22E2F103A009A318B /* AppConstants+ChatParticipantView.swift in Sources */,
 				B9C61C922CD9469E00E0F0D1 /* ContextMenuInteractionService.swift in Sources */,
@@ -4887,7 +4895,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
-				branch = "swift-6";
+				branch = main;
 				kind = branch;
 			};
 		};

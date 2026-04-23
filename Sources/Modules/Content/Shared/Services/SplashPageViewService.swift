@@ -69,8 +69,11 @@ final class SplashPageViewService: ObservableObject {
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
         _ = Timeout(after: .seconds(3)) {
-            guard self.initializationProgress <= 0.5 else { return }
-            self.didSurpassQuickLoadTimeoutDuration = true
+            Task { @MainActor [weak self] in
+                guard let self,
+                      self.initializationProgress <= 0.5 else { return }
+                self.didSurpassQuickLoadTimeoutDuration = true
+            }
         }
 
         /* MARK: AKCore Delegate Setup */

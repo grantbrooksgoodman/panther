@@ -29,12 +29,12 @@ struct ConversationsPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.traitCollectionChanged,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
+
     let viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init
@@ -47,17 +47,17 @@ struct ConversationsPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") \(observable).",
             domain: .observer,
             sender: self
         )
 
-        switch observable.key {
-        case .traitCollectionChanged,
-             .updatedContactPairArchive:
+        switch observable {
+        case Observables.traitCollectionChanged,
+             Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
 
-        case .updatedCurrentUser:
+        case Observables.updatedCurrentUser:
             Task { @MainActor in
                 guard chatPageState.isPresented else { return updateConversations() }
 

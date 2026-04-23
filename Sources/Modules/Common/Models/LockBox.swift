@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class LockBox<Value>: @unchecked Sendable {
+final class LockBox<Value>: Sendable {
     // MARK: - Properties
 
     private let _value = LockIsolated<Value?>(wrappedValue: nil)

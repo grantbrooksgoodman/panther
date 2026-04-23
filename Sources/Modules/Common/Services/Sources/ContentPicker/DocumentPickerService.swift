@@ -56,7 +56,11 @@ final class DocumentPickerService: NSObject, UIDocumentPickerDelegate {
         controller.dismiss(animated: true)
 
         guard let firstURL = urls.first else { return _onDismiss = nil }
-        timeout = .init(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
+        timeout = .init(after: .seconds(1)) {
+            Task { @MainActor [weak self] in
+                self?.core.hud.showProgress(isModal: true)
+            }
+        }
         processURL(firstURL)
     }
 

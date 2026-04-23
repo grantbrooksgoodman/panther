@@ -19,7 +19,6 @@ struct ReactionDetailsPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [Observables.currentConversationMetadataChanged]
     let viewModel: ViewModel<ReactionDetailsPageReducer>
 
@@ -33,13 +32,13 @@ struct ReactionDetailsPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") \(observable).",
             domain: .observer,
             sender: self
         )
 
-        switch observable.key {
-        case .currentConversationMetadataChanged:
+        switch observable {
+        case Observables.currentConversationMetadataChanged:
             send(.updateViewID)
 
         default: ()

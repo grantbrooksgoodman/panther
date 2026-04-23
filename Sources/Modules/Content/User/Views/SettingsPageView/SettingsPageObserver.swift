@@ -19,17 +19,17 @@ struct SettingsPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.didGrantAIEnhancedTranslationPermission,
         Observables.didGrantPenPalsPermission,
         Observables.traitCollectionChanged,
     ]
-    let viewModel: ViewModel<R>
+
+    let viewModel: ViewModel<SettingsPageReducer>
 
     // MARK: - Init
 
-    init(_ viewModel: ViewModel<R>) {
+    init(_ viewModel: ViewModel<SettingsPageReducer>) {
         self.viewModel = viewModel
     }
 
@@ -37,21 +37,23 @@ struct SettingsPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") \(observable).",
             domain: .observer,
             sender: self
         )
 
-        switch observable.key {
-        case .didGrantAIEnhancedTranslationPermission:
-            guard let value = observable.value as? Bool else { return }
-            send(.aiEnhancedTranslationsSwitchToggled(on: value))
+        switch observable {
+        case Observables.didGrantAIEnhancedTranslationPermission:
+            send(.aiEnhancedTranslationsSwitchToggled(
+                on: Observables.didGrantAIEnhancedTranslationPermission.value
+            ))
 
-        case .didGrantPenPalsPermission:
-            guard let value = observable.value as? Bool else { return }
-            send(.penPalsParticipantSwitchToggled(on: value))
+        case Observables.didGrantPenPalsPermission:
+            send(.penPalsParticipantSwitchToggled(
+                on: Observables.didGrantPenPalsPermission.value
+            ))
 
-        case .traitCollectionChanged:
+        case Observables.traitCollectionChanged:
             send(.traitCollectionChanged)
 
         default: ()

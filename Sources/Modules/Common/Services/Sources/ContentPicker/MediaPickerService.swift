@@ -61,7 +61,11 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
                 picker.dismiss(animated: true)
 
                 guard let itemProvider = results.first?.itemProvider else { return self._onDismiss = nil }
-                self.timeout = .init(after: .seconds(1)) { self.core.hud.showProgress(isModal: true) }
+                self.timeout = .init(after: .seconds(1)) {
+                    Task { @MainActor [weak self] in
+                        self?.core.hud.showProgress(isModal: true)
+                    }
+                }
 
                 if itemProvider.canLoadObject(ofClass: UIImage.self) {
                     self.loadImage(itemProvider)

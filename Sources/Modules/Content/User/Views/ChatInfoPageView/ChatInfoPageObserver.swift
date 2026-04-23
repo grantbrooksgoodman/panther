@@ -19,12 +19,12 @@ struct ChatInfoPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.chatInfoPageLoadingStateUpdated,
         Observables.currentConversationActivityChanged,
         Observables.currentConversationMetadataChanged,
     ]
+
     let viewModel: ViewModel<ChatInfoPageReducer>
 
     // MARK: - Init
@@ -37,19 +37,19 @@ struct ChatInfoPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") \(observable).",
             domain: .observer,
             sender: self
         )
 
-        switch observable.key {
-        case .chatInfoPageLoadingStateUpdated:
+        switch observable {
+        case Observables.chatInfoPageLoadingStateUpdated:
             send(.loadingStateUpdated)
 
-        case .currentConversationActivityChanged:
+        case Observables.currentConversationActivityChanged:
             send(.viewAppeared)
 
-        case .currentConversationMetadataChanged:
+        case Observables.currentConversationMetadataChanged:
             send(.currentConversationMetadataChanged)
 
         default: ()

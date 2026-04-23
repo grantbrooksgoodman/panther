@@ -19,12 +19,12 @@ struct NewChatPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
         Observables.newChatPagePenPalsToolbarButtonAnimation,
     ]
+
     let viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Init
@@ -37,20 +37,21 @@ struct NewChatPageObserver: Observer {
 
     func onChange(of observable: Observable<Any>) {
         Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
+            "\(observable.value is Nil ? "Triggered" : "Observed change of") \(observable).",
             domain: .observer,
             sender: self
         )
 
-        switch observable.key {
-        case .firstMessageSentInNewChat:
+        switch observable {
+        case Observables.firstMessageSentInNewChat:
             send(.firstMessageSent)
 
-        case .isNewChatPageDoneToolbarButtonEnabled:
-            guard let value = observable.value as? Bool else { return }
-            send(.isDoneToolbarButtonEnabledChanged(value))
+        case Observables.isNewChatPageDoneToolbarButtonEnabled:
+            send(.isDoneToolbarButtonEnabledChanged(
+                Observables.isNewChatPageDoneToolbarButtonEnabled.value
+            ))
 
-        case .newChatPagePenPalsToolbarButtonAnimation:
+        case Observables.newChatPagePenPalsToolbarButtonAnimation:
             sendWithAnimation(.animatePenPalsToolbarButtonBackgroundColor)
 
         default: ()
