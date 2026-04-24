@@ -164,15 +164,15 @@ struct InviteService {
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
     private func presentTranslationAlert() async -> Bool? {
-        let shouldTranslate = LockBox<Bool>()
+        let shouldTranslate = LockIsolated<Bool?>(nil)
         let acceptTranslationAction: AKAction = .init(
             "Yes, translate",
             style: .preferred
-        ) { shouldTranslate.value = true }
+        ) { shouldTranslate.wrappedValue = true }
 
         let rejectTranslationAction: AKAction = .init(
             "No, don't translate"
-        ) { shouldTranslate.value = false }
+        ) { shouldTranslate.wrappedValue = false }
 
         await AKAlert(
             title: "Translate Invitation",
@@ -188,6 +188,6 @@ struct InviteService {
             .title,
         ])
 
-        return shouldTranslate.value
+        return shouldTranslate.wrappedValue
     }
 }

@@ -11,7 +11,7 @@ import AVFoundation
 import Foundation
 
 /* Proprietary */
-@preconcurrency import AppSubsystem
+import AppSubsystem
 
 struct TextToSpeechService {
     // MARK: - Type Aliases
@@ -274,8 +274,8 @@ private enum _TextToSpeechServiceCache {
     // MARK: - Properties
 
     // swiftlint:disable identifier_name
-    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(wrappedValue: nil)
-    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(wrappedValue: nil)
+    private static let _cachedTextToSpeechSupportForLanguageCodes = LockIsolated<[String: Bool]?>(nil)
+    private static let _cachedVoicesForLanguageCodes = LockIsolated<[String: AVSpeechSynthesisVoice]?>(nil)
 
     // MARK: - Computed Properties
 

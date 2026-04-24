@@ -52,25 +52,22 @@ extension ReactionMetadata: Serializable {
         }
 
         var reactions = [Reaction]()
-
-        for encodedReaction in encodedReactions {
-            let decodeResult = await Reaction.decode(from: encodedReaction)
-
-            switch decodeResult {
-            case let .success(reaction):
-                reactions.append(reaction)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
+        let decodeResults = await encodedReactions.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await Reaction.decode(from: $0)
         }
 
-        guard !reactions.isEmpty,
-              reactions.count == encodedReactions.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
+        switch decodeResults {
+        case let .success(decodedReactions): reactions = decodedReactions
+        case let .failure(exception): return .failure(exception)
         }
 
-        let decoded: ReactionMetadata = .init(messageID: messageID, reactions: reactions)
+        let decoded: ReactionMetadata = .init(
+            messageID: messageID,
+            reactions: reactions
+        )
+
         return .success(decoded)
     }
 }

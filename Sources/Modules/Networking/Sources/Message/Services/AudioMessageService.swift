@@ -56,6 +56,7 @@ struct AudioMessageService {
 
     // MARK: - Upload Audio Components
 
+    // TODO: Can be parallelized with some rethinking.
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message
@@ -142,6 +143,14 @@ struct AudioMessageService {
     }
 
     // MARK: - Auxiliary
+
+    func preRecordedOutputExists(for translation: Translation) async -> Bool {
+        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+        let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
+        return await (try? networking.storage.itemExists(
+            at: "\(outputDirectoryPath)/\(outputFileName)"
+        ).get()) == true
+    }
 
     private func appendAudioComponent(
         _ audioComponent: AudioMessageReference,
@@ -256,15 +265,10 @@ struct AudioMessageService {
         ).get()) == true
     }
 
-    func preRecordedOutputExists(for translation: Translation) async -> Bool {
-        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-        let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
-        return await (try? networking.storage.itemExists(
-            at: "\(outputDirectoryPath)/\(outputFileName)"
-        ).get()) == true
-    }
-
-    private func upload(audioFile: AudioFile, to path: String) async -> Exception? {
+    private func upload(
+        audioFile: AudioFile,
+        to path: String
+    ) async -> Exception? {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
         let dataFromURLResult = Data.fromURL(audioFile.url)
 

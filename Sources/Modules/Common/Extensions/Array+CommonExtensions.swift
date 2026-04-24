@@ -19,6 +19,16 @@ extension [CNLabeledValue<CNPhoneNumber>] {
     }
 }
 
+extension [ContactPair] {
+    var compiledNumberStrings: [String] {
+        reduce(into: [String]()) { partialResult, contactPair in
+            partialResult.append(
+                contentsOf: contactPair.compiledNumberStrings
+            )
+        }.unique
+    }
+}
+
 extension [PhoneNumber] {
     var compiledNumberStrings: [String] {
         map(\.compiledNumberString)

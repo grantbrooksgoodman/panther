@@ -104,7 +104,7 @@ enum ContactImageCache {
 private enum _ContactImageCache {
     // MARK: - Properties
 
-    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
+    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(nil)
 
     // MARK: - Computed Properties
 

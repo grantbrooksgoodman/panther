@@ -74,7 +74,7 @@ enum ReadReceiptCache {
 private enum _ReadReceiptCache {
     // MARK: - Properties
 
-    private static let _cachedReadReceiptsForEncodedStrings = LockIsolated<[String: ReadReceipt]?>(wrappedValue: nil)
+    private static let _cachedReadReceiptsForEncodedStrings = LockIsolated<[String: ReadReceipt]?>(nil)
 
     // MARK: - Computed Properties
 

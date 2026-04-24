@@ -62,13 +62,13 @@ extension ChatInfoPageViewService {
 
             @Sendable
             func presentChangePhotoAlert() async -> MetadataChangeType? {
-                let photoChangeType = LockBox<MetadataChangeType>()
+                let photoChangeType = LockIsolated<MetadataChangeType?>(nil)
                 let takePhotoAction: AKAction = .init("Take photo") {
-                    photoChangeType.value = .selectPhotoFromCamera
+                    photoChangeType.wrappedValue = .selectPhotoFromCamera
                 }
 
                 let chooseFromLibraryAction: AKAction = .init("Choose photo from library") {
-                    photoChangeType.value = .selectPhotoFromLibrary
+                    photoChangeType.wrappedValue = .selectPhotoFromLibrary
                 }
 
                 await AKActionSheet(
@@ -78,7 +78,7 @@ extension ChatInfoPageViewService {
                         "Change name and photo".localized
                     ))
                 ).present(translating: [.actions()])
-                return photoChangeType.value
+                return photoChangeType.wrappedValue
             }
 
             @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?

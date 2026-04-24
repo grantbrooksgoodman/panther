@@ -180,29 +180,19 @@ final class UserService: @unchecked Sendable {
             ).appending(userInfo: userInfo))
         }
 
-        var users = [User]()
-
-        for id in ids {
-            let getUserResult = await getUser(id: id)
-
-            switch getUserResult {
-            case let .success(user):
-                users.append(user)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
-            }
+        let getUserResults = await ids.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await self.getUser(id: $0)
         }
 
-        guard !users.isEmpty,
-              users.count == ids.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
+        switch getUserResults {
+        case let .success(users):
+            return .success(users)
 
-        return .success(users)
+        case let .failure(exception):
+            return .failure(exception.appending(userInfo: userInfo))
+        }
     }
 
     // MARK: - Retrieval by Phone Number

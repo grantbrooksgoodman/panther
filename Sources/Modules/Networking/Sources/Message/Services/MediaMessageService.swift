@@ -274,9 +274,8 @@ struct MediaMessageService {
                                     .contentType
                                     .rawValue
                             ] as? String) ?? ""
-                        )
+                        )?.mediaFilePath
                     }
-                    .compactMap(\.mediaFilePath)
                     .count(of: mediaFilePath) > 1
             )
 

@@ -106,31 +106,18 @@ struct ConversationService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        return await withTaskGroup(of: Callback<Conversation, Exception>.self) { taskGroup in
-            for idKey in idKeys {
-                taskGroup.addTask {
-                    await getConversation(idKey: idKey)
-                }
-            }
+        let getConversationResults = await idKeys.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await getConversation(idKey: $0)
+        }
 
-            var conversations = [Conversation]()
-
-            for await getConversationResult in taskGroup {
-                switch getConversationResult {
-                case let .success(conversation): conversations.append(conversation)
-                case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
-                }
-            }
-
-            guard !conversations.isEmpty,
-                  conversations.count == idKeys.count else {
-                return .failure(.init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
-            }
-
+        switch getConversationResults {
+        case let .success(conversations):
             return .success(conversations)
+
+        case let .failure(exception):
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
@@ -233,23 +220,14 @@ struct ConversationService {
             return nil
         }
 
-        var exceptions = [Exception]()
-
-        for userID in userIDs {
-            if let exception = await removeConversationFromUser(
-                userID: userID,
+        return await userIDs.parallelMap(
+            failFast: failureStrategy == .returnOnFailure
+        ) {
+            await removeConversationFromUser(
+                userID: $0,
                 conversationIDKey: conversationIDKey
-            ) {
-                guard failureStrategy == .returnOnFailure else {
-                    exceptions.append(exception)
-                    continue
-                }
-
-                return exception
-            }
+            )
         }
-
-        return exceptions.compiledException
     }
 
     // MARK: - Auxiliary

@@ -239,7 +239,7 @@ extension Message {
         )
     }
 
-    private static let _consentRequestMessageIDCache = LockIsolated<String?>(wrappedValue: nil)
+    private static let _consentRequestMessageIDCache = LockIsolated<String?>(nil)
 
     // MARK: - Methods
 

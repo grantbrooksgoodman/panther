@@ -166,7 +166,7 @@ enum ActivityDescriptionCache {
 private enum _ActivityDescriptionCache {
     // MARK: - Properties
 
-    private static let _cachedDescriptionsForEncodedHashes = LockIsolated<[String: String]?>(wrappedValue: nil)
+    private static let _cachedDescriptionsForEncodedHashes = LockIsolated<[String: String]?>(nil)
 
     // MARK: - Computed Properties
 

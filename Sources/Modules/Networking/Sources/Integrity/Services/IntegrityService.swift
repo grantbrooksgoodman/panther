@@ -48,7 +48,7 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private let _session = LockIsolated<IntegrityServiceSession?>(wrappedValue: nil)
+    private let _session = LockIsolated<IntegrityServiceSession?>(nil)
 
     @LockIsolated private var didConfirmUnsafeSessionResolution = false
 

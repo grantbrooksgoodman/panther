@@ -164,7 +164,7 @@ enum PLISTGenerator {
         Logger.openStream(sender: self)
         coreUtilities.clearCaches([.localTranslationArchive])
 
-        let resolvedTranslations: [String: String] = await withTaskGroup(
+        let taskGroupResult: [String: String] = await withTaskGroup(
             of: (String, String).self,
             returning: [String: String].self
         ) { taskGroup in
@@ -214,7 +214,7 @@ enum PLISTGenerator {
         )
 
         guard let filePath = createPLIST(
-            from: resolvedTranslations,
+            from: taskGroupResult,
             fileName: Date.now.formattedShortString.encodedHash
         ) else {
             return .failure(.init(

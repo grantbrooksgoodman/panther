@@ -305,28 +305,41 @@ extension Conversation: Updatable {
             users.append(currentUser)
         }
 
-        // NIT: Can do this on a .utility thread.
-        for user in users {
-            guard var conversationIDs = user.conversationIDs,
-                  let index = conversationIDs.firstIndex(where: {
-                      $0.key == conversation.id.key
-                  }) else { continue }
+        return await withTaskGroup(
+            of: Exception?.self,
+            returning: [Exception].self
+        ) { taskGroup in
+            for user in users {
+                guard var conversationIDs = user.conversationIDs,
+                      let index = conversationIDs.firstIndex(where: {
+                          $0.key == conversation.id.key
+                      }) else { continue }
 
-            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
-            conversationIDs.insert(conversation.id, at: index)
+                conversationIDs.removeAll(where: { $0.key == conversation.id.key })
+                conversationIDs.insert(conversation.id, at: index)
 
-            let updateValueResult = await user.updateValue(
-                conversationIDs,
-                forKey: .conversationIDs
-            )
+                taskGroup.addTask {
+                    let updateValueResult = await user.updateValue(
+                        conversationIDs,
+                        forKey: .conversationIDs
+                    )
 
-            switch updateValueResult {
-            case let .failure(exception): return exception
-            default: ()
+                    switch updateValueResult {
+                    case let .failure(exception): return exception
+                    default: return nil
+                    }
+                }
             }
-        }
 
-        return nil
+            var exceptions = [Exception]()
+            for await exception in taskGroup {
+                if let exception {
+                    exceptions.append(exception)
+                }
+            }
+
+            return exceptions
+        }.compiledException
     }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {

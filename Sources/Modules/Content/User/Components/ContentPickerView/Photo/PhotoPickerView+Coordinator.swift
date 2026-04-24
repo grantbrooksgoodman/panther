@@ -43,7 +43,9 @@ extension PhotoPickerView {
             didFinishPicking results: [PHPickerResult]
         ) {
             guard let itemProvider = results.first?.itemProvider,
-                  itemProvider.canLoadObject(ofClass: UIImage.self) else { return }
+                  itemProvider.canLoadObject(ofClass: UIImage.self) else {
+                return delegate.onDismiss(nil)
+            }
 
             itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                 guard let image = object as? UIImage else {

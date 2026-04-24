@@ -37,8 +37,8 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Properties
 
     @Persistent(.currentUserID) private var currentUserID: String?
-    private var _currentUser = LockIsolated<User?>(wrappedValue: nil)
     @LockIsolated private var isUpdatingCurrentUser = false
+    private var _currentUser = LockIsolated<User?>(nil)
 
     // MARK: - Computed Properties
 

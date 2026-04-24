@@ -24,9 +24,9 @@ final class ConversationSyncService: @unchecked Sendable {
     // MARK: - Properties
 
     private static let coalescer = KeyedCoalescer<String, Callback<Conversation, Exception>>()
-    private static let recentlyFailedSyncRecords = LockIsolated<Set<SynchronizationRecord>>(wrappedValue: [])
+    private static let recentlyFailedSyncRecords = LockIsolated<Set<SynchronizationRecord>>([])
 
-    private let _syncData = LockIsolated<ConversationSyncData?>(wrappedValue: nil)
+    private let _syncData = LockIsolated<ConversationSyncData?>(nil)
 
     // MARK: - Computed Properties
 

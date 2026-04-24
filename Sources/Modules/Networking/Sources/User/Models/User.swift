@@ -220,29 +220,9 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
             return nil
         }
 
-        let synchronizeResult: Callback<Set<Conversation>, Exception> = await withTaskGroup(
-            of: Callback<Conversation, Exception>.self
-        ) { taskGroup in
-            for conversation in conversationsNeedingUpdate {
-                taskGroup.addTask {
-                    @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-                    return await conversationSyncService.synchronizeConversation(conversation)
-                }
-            }
-
-            var synchronizedConversations = Set<Conversation>()
-            while let synchronizeConversationResult = await taskGroup.next() {
-                switch synchronizeConversationResult {
-                case let .success(updatedConversation):
-                    synchronizedConversations.insert(updatedConversation)
-
-                case let .failure(exception):
-                    taskGroup.cancelAll()
-                    return .failure(exception)
-                }
-            }
-
-            return .success(synchronizedConversations)
+        let synchronizeResult = await conversationsNeedingUpdate.parallelMap {
+            @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+            return await conversationSyncService.synchronizeConversation($0)
         }
 
         guard !Task.isCancelled else { return nil }

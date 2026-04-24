@@ -113,27 +113,25 @@ extension Conversation: Serializable {
 
         // Decode activities
 
-        var activities = [Activity]()
-        for encodedActivity in encodedActivities {
-            let decodeResult = await Activity.decode(from: encodedActivity)
-            switch decodeResult {
-            case let .success(activity): activities.append(activity)
-            case let .failure(exception): return .failure(exception)
-            }
+        let decodeActivitiesResult = await encodedActivities.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await Activity.decode(from: $0)
         }
 
-        guard !activities.isEmpty,
-              activities.count == encodedActivities.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ))
+        var activities = [Activity]()
+        switch decodeActivitiesResult {
+        case let .success(decodedActivities): activities = decodedActivities
+        case let .failure(exception): return .failure(exception)
         }
 
         // Decode metadata
 
+        let decodeConversationMetadataResult = await ConversationMetadata.decode(
+            from: encodedMetadata
+        )
+
         var metadata: ConversationMetadata?
-        let decodeConversationMetadataResult = await ConversationMetadata.decode(from: encodedMetadata)
         switch decodeConversationMetadataResult {
         case let .success(decodedConversationMetadata): metadata = decodedConversationMetadata
         case let .failure(exception): return .failure(exception)
@@ -148,40 +146,30 @@ extension Conversation: Serializable {
 
         // Decode participants
 
-        var participants = [Participant]()
-        for encodedParticipant in encodedParticipants {
-            let decodeResult = await Participant.decode(from: encodedParticipant)
-            switch decodeResult {
-            case let .success(participant): participants.append(participant)
-            case let .failure(exception): return .failure(exception)
-            }
+        let decodeParticipantsResult = await encodedParticipants.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await Participant.decode(from: $0)
         }
 
-        guard !participants.isEmpty,
-              participants.count == encodedParticipants.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ))
+        var participants = [Participant]()
+        switch decodeParticipantsResult {
+        case let .success(decodedParticipants): participants = decodedParticipants
+        case let .failure(exception): return .failure(exception)
         }
 
         // Decode reaction metadata
 
-        var reactionMetadata = [ReactionMetadata]()
-        for metadata in encodedReactionMetadata {
-            let decodeReactionMetadataResult = await ReactionMetadata.decode(from: metadata)
-            switch decodeReactionMetadataResult {
-            case let .success(decodedReactionMetadata): reactionMetadata.append(decodedReactionMetadata)
-            case let .failure(exception): return .failure(exception)
-            }
+        let decodeReactionMetadataResult = await encodedReactionMetadata.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await ReactionMetadata.decode(from: $0)
         }
 
-        guard !reactionMetadata.isEmpty,
-              reactionMetadata.count == encodedReactionMetadata.count else {
-            return .failure(.init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            ))
+        var reactionMetadata = [ReactionMetadata]()
+        switch decodeReactionMetadataResult {
+        case let .success(decodedReactionMetadata): reactionMetadata = decodedReactionMetadata
+        case let .failure(exception): return .failure(exception)
         }
 
         // Synthesize conversation
@@ -240,8 +228,7 @@ extension Conversation: Serializable {
                 ))
             }
 
-            // FIXME: Audit why this is needed.
-            /*@LockIsolated var decoded:*/ let decoded: Conversation = .init(
+            let decoded: Conversation = .init(
                 conversationID,
                 activities: activities,
                 messageIDs: messageIDs,

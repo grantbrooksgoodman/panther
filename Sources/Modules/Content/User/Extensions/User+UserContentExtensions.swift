@@ -174,7 +174,7 @@ enum UserDisplayNameCache {
 private enum _UserDisplayNameCache {
     // MARK: - Properties
 
-    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(wrappedValue: nil)
+    private static let _cachedDisplayNamesForUserIDs = LockIsolated<[String: String]?>(nil)
 
     // MARK: - Computed Properties
 

@@ -11,7 +11,6 @@
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
-		A22533012F8DB5FC00439EC1 /* LockBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22533002F8DB5FC00439EC1 /* LockBox.swift */; };
 		A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */; };
 		A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */; };
 		A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */; };
@@ -777,7 +776,6 @@
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
-		A22533002F8DB5FC00439EC1 /* LockBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockBox.swift; sourceTree = "<group>"; };
 		A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ReactionsViewController.swift"; sourceTree = "<group>"; };
 		A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SystemMessageCell.swift"; sourceTree = "<group>"; };
 		A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+V26HeaderViewModifier.swift"; sourceTree = "<group>"; };
@@ -1765,7 +1763,6 @@
 				B900B5432B1ACC6100BA2F1D /* Contact.swift */,
 				B900B5472B1ADB6100BA2F1D /* ContactPair.swift */,
 				B979AA3A2C445F990082203C /* ContentPickerResult.swift */,
-				A22533002F8DB5FC00439EC1 /* LockBox.swift */,
 				B979AA3E2C4474B90082203C /* MediaFile.swift */,
 				B9E00A512C2B85BC004E350E /* MediaFileExtensions.swift */,
 				B900B5412B1ACAA800BA2F1D /* NumberPair.swift */,
@@ -3960,13 +3957,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4239,7 +4232,6 @@
 				B91822222B6DD2F40068BDAB /* ChatPageViewControllerFactory.swift in Sources */,
 				A28371A32ED6B9730007B98A /* ActivityAction+UserContentExtensions.swift in Sources */,
 				B9CFA8032D9B6DB10075E02D /* ReactionDetailsPageObserver.swift in Sources */,
-				A22533012F8DB5FC00439EC1 /* LockBox.swift in Sources */,
 				B9EFB9F42B26621E00624794 /* ConversationService.swift in Sources */,
 				B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */,
 				B99195842B47D1D300BD5BBC /* OnboardingService.swift in Sources */,

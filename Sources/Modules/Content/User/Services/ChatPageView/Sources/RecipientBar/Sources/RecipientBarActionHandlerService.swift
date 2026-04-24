@@ -86,49 +86,47 @@ final class RecipientBarActionHandlerService {
             selectContactButton?.isEnabled = true
             defer { coreHUD.hide(after: .seconds(1)) }
 
-            guard services.permission.contactPermissionStatus == .granted else {
-                let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
+            if services.permission.contactPermissionStatus != .granted {
+                let requestPermissionResult = await services.permission.requestPermission(
+                    for: .contacts
+                )
 
                 switch requestPermissionResult {
                 case let .success(status):
-                    guard status == .granted else {
-                        presentCTA()
-                        return
+                    guard status == .granted else { return presentCTA() }
+                    if let exception = await services.contact.syncContactPairArchive() {
+                        Logger.log(
+                            exception,
+                            with: .toast
+                        )
                     }
 
-                    if let exception = await services.contact.syncContactPairArchive() { Logger.log(exception, with: .toast) }
-                    selectContactButtonTapped()
+                    return selectContactButtonTapped()
 
                 case let .failure(exception):
-                    guard !exception.isEqual(to: .contactAccessDenied) else {
-                        presentCTA()
-                        return
-                    }
-
-                    Logger.log(exception, with: .toast)
+                    guard !exception.isEqual(to: .contactAccessDenied) else { return presentCTA() }
+                    return Logger.log(
+                        exception,
+                        with: .toast
+                    )
                 }
-
-                return
-            }
-
-            guard services.contact.hasContactsBesidesCurrentUser else {
+            } else if !services.contact.hasContactsBesidesCurrentUser {
                 selectContactButton?.isEnabled = false
                 coreHUD.showProgress(isModal: true)
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
-                    Logger.log(exception, with: .toast)
+                    Logger.log(
+                        exception,
+                        with: .toast
+                    )
+                } else if services.contact.hasContactsBesidesCurrentUser {
+                    await chatPageViewService.recipientBar?.tableView.resolveContactPairs()
+                    return selectContactButtonTapped()
+                } else {
+                    await services.invite.presentInvitationSuggestionPrompt()
+                    selectContactButton?.isEnabled = true
                 }
-
-                guard !services.contact.hasContactsBesidesCurrentUser else {
-                    chatPageViewService.recipientBar?.tableView.resolveContactPairs()
-                    selectContactButtonTapped()
-                    return
-                }
-
-                await services.invite.presentInvitationSuggestionPrompt()
-                selectContactButton?.isEnabled = true
-                return
             }
 
             navigation.navigate(to: .chat(.sheet(.contactSelector)))

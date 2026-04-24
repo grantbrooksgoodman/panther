@@ -107,17 +107,16 @@ extension User: Serializable {
             return .failure(exception)
         }
 
-        var conversationIDs = [ConversationID]()
-        for id in conversationIDStrings where !id.isBangQualifiedEmpty {
-            let decodeResult = await ConversationID.decode(from: id)
-
-            switch decodeResult {
-            case let .success(conversationID):
-                conversationIDs.append(conversationID)
-
-            case let .failure(exception):
-                return .failure(exception)
+        let decodeResults = await conversationIDStrings
+            .filter { !$0.isBangQualifiedEmpty }
+            .parallelMap {
+                await ConversationID.decode(from: $0)
             }
+
+        var conversationIDs = [ConversationID]()
+        switch decodeResults {
+        case let .success(decodedConversationIDs): conversationIDs = decodedConversationIDs
+        case let .failure(exception): return .failure(exception)
         }
 
         guard let phoneNumber else {

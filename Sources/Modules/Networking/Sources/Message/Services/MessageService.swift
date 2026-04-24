@@ -197,31 +197,18 @@ struct MessageService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        return await withTaskGroup(of: Callback<Message, Exception>.self) { taskGroup in
-            for id in ids {
-                taskGroup.addTask {
-                    await getMessage(id: id)
-                }
-            }
+        let getMessageResults = await ids.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await getMessage(id: $0)
+        }
 
-            var messages = [Message]()
-
-            for await getMessageResult in taskGroup {
-                switch getMessageResult {
-                case let .success(message): messages.append(message)
-                case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
-                }
-            }
-
-            guard !messages.isEmpty,
-                  messages.count == ids.count else {
-                return .failure(.init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
-            }
-
+        switch getMessageResults {
+        case let .success(messages):
             return .success(messages)
+
+        case let .failure(exception):
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
@@ -289,11 +276,8 @@ struct MessageService {
             )
 
             switch updateValueResult {
-            case .success:
-                return nil
-
-            case let .failure(exception):
-                return exception
+            case .success: return nil
+            case let .failure(exception): return exception
             }
 
         case let .failure(exception):
@@ -308,24 +292,15 @@ struct MessageService {
         updateConversationHash: Bool = true,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async -> Exception? {
-        var exceptions = [Exception]()
-
-        for messageID in messageIDs {
-            if let exception = await deleteMessage(
-                id: messageID,
+        await messageIDs.parallelMap(
+            failFast: failureStrategy == .returnOnFailure
+        ) {
+            await deleteMessage(
+                id: $0,
                 in: conversation,
                 updateConversationHash: updateConversationHash
-            ) {
-                guard failureStrategy == .returnOnFailure else {
-                    exceptions.append(exception)
-                    continue
-                }
-
-                return exception
-            }
+            )
         }
-
-        return exceptions.compiledException
     }
 }
 

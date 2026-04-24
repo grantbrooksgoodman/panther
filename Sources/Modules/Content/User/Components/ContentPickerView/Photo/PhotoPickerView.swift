@@ -56,6 +56,6 @@ struct PhotoPickerView: UIViewControllerRepresentable, @MainActor ContentPicker 
         _ uiViewController: PHPickerViewController,
         context: Context
     ) {
-        uiViewController.parent?.presentationController?.delegate = context.coordinator
+        setPresentationControllerDelegate(context)
     }
 }

@@ -82,40 +82,42 @@ extension ConversationMetadata: Serializable {
             return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
         }
 
-        var messageRecipientConsentAcknowledgementData = [MessageRecipientConsentAcknowledgementData]()
-
-        for encodedMessageRecipientConsentAcknowledgementDatum in encodedMessageRecipientConsentAcknowledgementData {
-            let decodeResult = await MessageRecipientConsentAcknowledgementData.decode(from: encodedMessageRecipientConsentAcknowledgementDatum)
-
-            switch decodeResult {
-            case let .success(messageRecipientConsentAcknowledgementDatum):
-                messageRecipientConsentAcknowledgementData.append(messageRecipientConsentAcknowledgementDatum)
-
-            case let .failure(exception):
-                return .failure(exception)
+        let decodeMessageRecipientConsentAcknowledgementDataResults = await encodedMessageRecipientConsentAcknowledgementData
+            .parallelMap {
+                await MessageRecipientConsentAcknowledgementData.decode(from: $0)
             }
+
+        var messageRecipientConsentAcknowledgementData = [MessageRecipientConsentAcknowledgementData]()
+        switch decodeMessageRecipientConsentAcknowledgementDataResults {
+        case let .success(decodedMessageRecipientConsentAcknowledgementData):
+            messageRecipientConsentAcknowledgementData = decodedMessageRecipientConsentAcknowledgementData
+
+        case let .failure(exception):
+            return .failure(exception)
         }
 
         // swiftlint:enable identifier_name
+        let decodePenPalsSharingDataResults = await encodedPenPalsSharingData.parallelMap {
+            await PenPalsSharingData.decode(from: $0)
+        }
+
         var penPalsSharingData = [PenPalsSharingData]()
+        switch decodePenPalsSharingDataResults {
+        case let .success(decodedPenPalsSharingData):
+            penPalsSharingData = decodedPenPalsSharingData
 
-        for encodedPenPalsSharingDatum in encodedPenPalsSharingData {
-            let decodeResult = await PenPalsSharingData.decode(from: encodedPenPalsSharingDatum)
-
-            switch decodeResult {
-            case let .success(penPalsSharingDatum):
-                penPalsSharingData.append(penPalsSharingDatum)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
+        case let .failure(exception):
+            return .failure(exception)
         }
 
         guard !messageRecipientConsentAcknowledgementData.isEmpty,
               !penPalsSharingData.isEmpty,
               messageRecipientConsentAcknowledgementData.count == encodedMessageRecipientConsentAcknowledgementData.count,
               penPalsSharingData.count == encodedPenPalsSharingData.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
+            return .failure(.init(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            ))
         }
 
         guard !imageDataString.isBangQualifiedEmpty else {

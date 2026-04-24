@@ -209,52 +209,12 @@ extension Message: Serializable {
             ))
         }
 
-        var aggregatedTranslations: [Translation?] = Array(
-            repeating: nil,
-            count: references.count
-        )
-
-        let taskGroupResult: Callback<[Translation], Exception> = await withTaskGroup(
-            of: (Int, Callback<Translation, Exception>).self
-        ) { taskGroup in
-            for (index, reference) in references.enumerated() {
-                taskGroup.addTask {
-                    let getTranslationResult = await Self.getTranslation(reference)
-                    return (index, getTranslationResult)
-                }
-            }
-
-            var exceptions = [Exception]()
-
-            while let (index, getTranslationResult) = await taskGroup.next() {
-                switch getTranslationResult {
-                case let .success(translation):
-                    aggregatedTranslations[index] = translation
-
-                case let .failure(exception):
-                    exceptions.append(exception)
-                    taskGroup.cancelAll()
-                }
-            }
-
-            if let exception = exceptions.compiledException {
-                return .failure(exception)
-            }
-
-            return .success(
-                aggregatedTranslations.compactMap(\.self)
-            )
+        let getTranslationResults = await references.parallelMap {
+            await Self.getTranslation($0)
         }
 
-        switch taskGroupResult {
+        switch getTranslationResults {
         case let .success(translations):
-            guard translations.count == references.count else {
-                return .failure(.init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                ))
-            }
-
             guard translations.isWellFormed else {
                 return .failure(.init(
                     "Translations fail validation.",

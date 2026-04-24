@@ -136,7 +136,7 @@ extension User: Updatable {
                 aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
                 blockedUserIDs: blockedUserIDs,
                 conversationIDs: conversationIDs,
-                isPenPalsParticipant: value,
+                isPenPalsParticipant: isPenPalsParticipant,
                 languageCode: languageCode,
                 lastSignedIn: lastSignedIn,
                 messageRecipientConsentRequired: value,

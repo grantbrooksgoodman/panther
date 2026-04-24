@@ -278,55 +278,18 @@ struct MessageSessionService {
             userCount: users.count
         )
 
-        var aggregatedTranslations: [Translation?] = Array(
-            repeating: nil,
-            count: uniqueLanguageCodes.count
-        )
-
-        let taskGroupResult: Callback<[Translation], Exception> = await withTaskGroup(
-            of: (Int, Callback<Translation, Exception>).self
-        ) { taskGroup in
-            for (index, languageCode) in uniqueLanguageCodes.enumerated() {
-                taskGroup.addTask { [self, text] in
-                    let translateResult = await networking.hostedTranslation.translate(
-                        .init(text),
-                        with: .init(
-                            from: currentUser.languageCode,
-                            to: languageCode
-                        ),
-                        enhance: enhancementConfig
-                    )
-
-                    return (index, translateResult)
-                }
-            }
-
-            var exception: Exception?
-            while let (index, translateResult) = await taskGroup.next() {
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.translationDeliveryProgressIncrement / Float(max(
-                        1,
-                        uniqueLanguageCodes.count
-                    ))
-                )
-
-                switch translateResult {
-                case let .success(translation):
-                    aggregatedTranslations[index] = translation
-
-                // swiftlint:disable:next identifier_name
-                case let .failure(_exception):
-                    exception = _exception
-                    taskGroup.cancelAll()
-                }
-            }
-
-            if let exception { return .failure(exception) }
-            return .success(aggregatedTranslations.compactMap(\.self))
+        let translateResults = await uniqueLanguageCodes.parallelMap {
+            await networking.hostedTranslation.translate(
+                .init(text),
+                with: .init(
+                    from: currentUser.languageCode,
+                    to: $0
+                ),
+                enhance: enhancementConfig
+            )
         }
 
-        switch taskGroupResult {
+        switch translateResults {
         case let .success(translations):
             guard translations.isWellFormed else {
                 return .failure(.init(

@@ -36,7 +36,6 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
     func present() {
         let viewController = PHPickerViewController(configuration: .init())
         viewController.delegate = self
-        viewController.isModalInPresentation = true
         core.ui.present(viewController)
     }
 

@@ -22,10 +22,18 @@ extension Color {
             while let last = lastRandomColor,
                   abs(hue - last.hue) < 0.15 { hue = Double.random(in: 0 ... 1) }
             lastRandomColor = (hue, saturation, brightness)
-            return Color(hue: hue, saturation: saturation, brightness: brightness)
+            return Color(
+                hue: hue,
+                saturation: saturation,
+                brightness: brightness
+            )
         }
     }
 
     // swiftlint:disable:next large_tuple
-    private static let lastRandomColor = LockIsolated<(hue: Double, saturation: Double, brightness: Double)?>(wrappedValue: nil)
+    private static let lastRandomColor = LockIsolated<(
+        hue: Double,
+        saturation: Double,
+        brightness: Double
+    )?>(nil)
 }

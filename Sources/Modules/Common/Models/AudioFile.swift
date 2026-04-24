@@ -33,7 +33,7 @@ final class AudioFile: Codable, Equatable, Sendable {
     let name: String
     let url: URL
 
-    private let _contentDuration = LockIsolated<Float?>(wrappedValue: nil)
+    private let _contentDuration = LockIsolated<Float?>(nil)
 
     // MARK: - Computed Properties
 
@@ -167,7 +167,7 @@ enum AudioFileDurationCache {
 private enum _AudioFileDurationCache {
     // MARK: - Properties
 
-    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(wrappedValue: nil)
+    private static let _cachedDurationsForLocalPaths = LockIsolated<[URL: Float]?>(nil)
 
     // MARK: - Computed Properties
 

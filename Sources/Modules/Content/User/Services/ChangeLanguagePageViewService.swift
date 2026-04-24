@@ -68,10 +68,10 @@ struct ChangeLanguagePageViewService {
 
         defer { core.hud.hide() }
 
-        let loadedData = LockBox<Bool>()
+        let loadedData = LockIsolated<Bool?>(nil)
         let timeout = Timeout(after: .seconds(1)) {
             Task { @MainActor in
-                guard loadedData.value != true else { return }
+                guard loadedData.wrappedValue != true else { return }
                 core.ui.addOverlay(
                     alpha: 0.5,
                     activityIndicator: nil,
@@ -133,7 +133,7 @@ struct ChangeLanguagePageViewService {
             forKey: .previousLanguageCodes
         )
 
-        loadedData.value = true
+        loadedData.wrappedValue = true
         timeout.cancel()
 
         switch updateValueResult {

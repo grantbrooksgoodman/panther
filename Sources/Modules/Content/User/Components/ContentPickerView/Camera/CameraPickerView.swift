@@ -56,6 +56,6 @@ struct CameraPickerView: UIViewControllerRepresentable, @MainActor ContentPicker
         _ uiViewController: UIImagePickerController,
         context: Context
     ) {
-        uiViewController.parent?.presentationController?.delegate = context.coordinator
+        setPresentationControllerDelegate(context)
     }
 }

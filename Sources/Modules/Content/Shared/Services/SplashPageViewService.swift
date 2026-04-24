@@ -202,7 +202,7 @@ final class SplashPageViewService: ObservableObject {
             checkPrevaricationMode(currentUser.phoneNumber)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-            if (currentUser.conversationIDs ?? []).count > 5,
+            if (currentUser.conversationIDs ?? []).count > 10,
                (conversationArchive ?? []).isEmpty {
                 if let exception = await networking.database.populateTemporaryCaches() {
                     Logger.log(exception)

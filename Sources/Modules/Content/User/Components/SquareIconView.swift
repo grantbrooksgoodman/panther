@@ -138,7 +138,7 @@ private enum _SquareIconImageCache {
     // MARK: - Properties
 
     // swiftlint:disable identifier_name
-    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(wrappedValue: nil)
+    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(nil)
 
     // MARK: - Computed Properties
 
