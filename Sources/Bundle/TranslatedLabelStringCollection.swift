@@ -12,6 +12,24 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use this extension to expose new strings for on-the-fly
+/// translation.
+///
+/// Add a static method for each view that requires translated labels.
+/// The method accepts a view-specific
+/// ``TranslatedLabelStringKey``-conforming enum case and returns a
+/// ``TranslatedLabelStringCollection`` that the translation pipeline
+/// uses to pair inputs with their translated outputs:
+///
+/// ```swift
+/// static func settingsView(
+///     _ key: SettingsViewStringKey
+/// ) -> TranslatedLabelStringCollection {
+///     .init(key.rawValue)
+/// }
+/// ```
+///
+/// - SeeAlso: ``TranslatedLabelStrings``
 extension TranslatedLabelStringCollection {
     /* Add methods here to expose new strings for on-the-fly translation. */
 

@@ -18,6 +18,11 @@ import FirebaseAnalytics
 import FirebaseCore
 import FirebaseMessaging
 
+/// The app's main entry point and application lifecycle delegate.
+///
+/// `AppDelegate` initializes the subsystem when the app
+/// launches.
+///
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency MessagingDelegate, @preconcurrency UNUserNotificationCenterDelegate {
     // MARK: - Dependencies
@@ -32,6 +37,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
 
     // MARK: - UIApplication
 
+    /// Performs one-time application setup at launch.
+    ///
+    /// This method calls ``Application/initialize()`` to register all
+    /// app-level delegates and configure the subsystem before any
+    /// scenes connect.
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -66,21 +76,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
 
     func application(
         _ application: UIApplication,
-        configurationForConnecting connectingSceneSession: UISceneSession,
-        options: UIScene.ConnectionOptions
-    ) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-    }
-
-    func application(
-        _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
         coreUtilities.eraseTemporaryDirectory()
     }
 

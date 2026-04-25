@@ -13,13 +13,46 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-/**
- Use this extension to catalog application-specific `Exception` types and their corresponding error code values.
- */
+/// Use this extension to catalog application-specific error codes and
+/// configure how exceptions are reported.
+///
+/// Define known error codes as static ``AppException`` properties so
+/// that error-handling logic can match exceptions by code:
+///
+/// ```swift
+/// extension AppException {
+///     static let unauthorized: AppException = .init("C31B")
+/// }
+///
+/// if exception.isEqual(to: .unauthorized) {
+///     presentSignIn()
+/// }
+/// ```
+///
+/// Customize ``ExceptionMetadataDelegate`` to control which errors
+/// are reportable and to supply user-facing descriptions for known
+/// error conditions.
 extension AppException {
     // MARK: - Types
 
+    /// The delegate that provides app-specific metadata for exception
+    /// handling.
+    ///
+    /// Modify ``isReportable(_:)`` to suppress reporting for specific
+    /// error codes, and ``userFacingDescriptor(for:)`` to provide
+    /// human-readable descriptions for known error conditions.
     struct ExceptionMetadataDelegate: @MainActor AppSubsystem.Delegates.ExceptionMetadataDelegate {
+        /// Returns a Boolean value indicating whether the exception
+        /// with the given error code should be reported.
+        ///
+        /// The default implementation returns `true` for all error
+        /// codes. Add cases to a `switch` statement to return `false`
+        /// for codes that should not generate reports.
+        ///
+        /// - Parameter errorCode: The exception's error code.
+        ///
+        /// - Returns: `true` if the exception can be reported;
+        ///   otherwise, `false`.
         @MainActor
         func isReportable(_ errorCode: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
@@ -28,9 +61,19 @@ extension AppException {
             return !errorReportingService.reportedErrorCodes.contains(errorCode)
         }
 
-        // swiftlint:disable line_length
+        /// Returns a user-facing description for the given
+        /// developer-facing descriptor, or `nil` if no mapping exists.
+        ///
+        /// Implement this method to translate internal error
+        /// descriptors into messages appropriate for the user. Return
+        /// `nil` to use the subsystem's default error message.
+        ///
+        /// - Parameter descriptor: The exception's developer-facing
+        ///   descriptor.
+        ///
+        /// - Returns: A user-appropriate string, or `nil`.
         func userFacingDescriptor(for descriptor: String) -> String? {
-            switch descriptor {
+            switch descriptor { // swiftlint:disable line_length
             case "Attempted to select contact pair containing blocked user.":
                 "You have blocked this user."
 
@@ -49,10 +92,10 @@ extension AppException {
             case "The SMS code has expired. Please re-send the verification code to try again.":
                 "The verification code has expired. Please try again."
 
+            // swiftlint:enable line_length
             default: nil
             }
         }
-        // swiftlint:enable line_length
     }
 
     // MARK: - Properties
@@ -73,6 +116,7 @@ extension AppException {
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
     static let sameTranslationInputOutput: AppException = .init("6CEB")
+    /// An exception representing a timed-out operation.
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")
     static let translationPlatformNotSupported: AppException = .init("B04E")

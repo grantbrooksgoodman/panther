@@ -13,9 +13,25 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-/**
- Use this extension to build new UI themes.
- */
+/// Use this extension to define the app's custom UI themes.
+///
+/// Create ``UITheme`` instances that map ``ColoredItemType`` slots to
+/// concrete colors, then return them from ``List/uiThemes``:
+///
+/// ```swift
+/// extension UITheme {
+///     static let ocean: UITheme = .init(
+///         name: "Ocean",
+///         items: [
+///             .init(.accent, set: .init(.systemTeal)),
+///             .init(.background, set: .init(.white, variant: .init(hex: 0x0A1628))),
+///         ]
+///     )
+/// }
+/// ```
+///
+/// Custom themes are merged with the subsystem's built-in themes and
+/// made available through ``UITheme/allCases``.
 @MainActor
 extension UITheme {
     // MARK: - Type Aliases
@@ -24,8 +40,11 @@ extension UITheme {
 
     // MARK: - Types
 
+    /// The delegate that supplies the app's custom themes to the
+    /// subsystem.
     @MainActor
     struct List: @MainActor AppSubsystem.Delegates.UIThemeListDelegate {
+        /// The custom themes defined by this app.
         var uiThemes: [UITheme] {
             [
                 .appDefault,

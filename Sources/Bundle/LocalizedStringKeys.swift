@@ -12,6 +12,27 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// A key that identifies a pre-localized string in the app's
+/// `LocalizedStrings.plist` file.
+///
+/// Each case maps to an entry in the property list. The ``referent``
+/// property converts the case name to its snake-cased property list
+/// key automatically.
+///
+/// To add a new pre-localized string:
+/// 1. Add a case to this enum.
+/// 2. Add the corresponding entry to `LocalizedStrings.plist` with
+///    translations for each supported language.
+/// 3. Access the localized value using the ``Localized`` property
+///    wrapper:
+///
+/// ```swift
+/// let greeting = Localized(.greeting).wrappedValue
+/// ```
+///
+/// - Note: If a string must also be available to the subsystem's
+///   built-in UI, add a corresponding computed property to
+///   ``LocalizedStringsDelegate``.
 enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     // MARK: - Cases
 
@@ -132,10 +153,23 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
 
     // MARK: - Properties
 
+    /// The snake-cased property list key derived from this case's
+    /// raw value.
+    ///
+    /// The ``Localized`` property wrapper uses this value to look up
+    /// the translated string in `LocalizedStrings.plist`.
     var referent: String { rawValue.snakeCased }
 }
 
+/// A convenience initializer for creating ``Localized`` values using
+/// ``LocalizedStringKey``.
 extension Localized where T == LocalizedStringKey {
+    /// Creates a localized string wrapper for the given key.
+    ///
+    /// - Parameters:
+    ///   - key: The localization key to look up.
+    ///   - languageCode: The language to resolve the string for.
+    ///     Defaults to ``RuntimeStorage/languageCode``.
     init(
         _ key: LocalizedStringKey,
         languageCode: String = RuntimeStorage.languageCode
@@ -145,6 +179,13 @@ extension Localized where T == LocalizedStringKey {
 }
 
 extension LocalizedStringKey {
+    /// The delegate that supplies localized strings to the subsystem's
+    /// built-in UI components.
+    ///
+    /// Each property returns the translated string for its
+    /// corresponding ``LocalizedStringKey``. The subsystem references
+    /// these strings for button titles, error messages, and other
+    /// user-facing text in alerts, toasts, and system views.
     struct LocalizedStringsDelegate: AppSubsystem.Delegates.LocalizedStringsDelegate {
         var cancel: String { Localized(.cancel).wrappedValue }
         var done: String { Localized(.done).wrappedValue }

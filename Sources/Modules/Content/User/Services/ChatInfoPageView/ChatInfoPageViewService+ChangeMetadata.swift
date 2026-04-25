@@ -83,11 +83,13 @@ extension ChatInfoPageViewService {
 
             @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
 
-            var didComplete = false
+            let didComplete = LockIsolated(false)
             var canComplete: Bool {
-                guard !didComplete else { return false }
-                didComplete = true
-                return true
+                didComplete.projectedValue.withValue {
+                    guard !$0 else { return false }
+                    $0 = true
+                    return true
+                }
             }
 
             let changeNameAction: AKAction = .init("Change name") {

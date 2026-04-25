@@ -47,31 +47,40 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
 
     // MARK: - PHPickerViewControllerDelegate Conformance
 
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+    func picker(
+        _ picker: PHPickerViewController,
+        didFinishPicking results: [PHPickerResult]
+    ) {
         guard !results.isEmpty else {
             picker.dismiss(animated: true)
             _onDismiss?(nil)
-            _onDismiss = nil
-            return
+            return _onDismiss = nil
         }
+
+        guard let firstResult = results.first else { return _onDismiss = nil }
+        let itemProvider = LockIsolated<NSItemProvider>(firstResult.itemProvider)
 
         let confirmAction: AKAction = .init("Confirm", style: .preferred) {
             Task.delayed(by: .milliseconds(250)) { @MainActor in
                 picker.dismiss(animated: true)
 
-                guard let itemProvider = results.first?.itemProvider else { return self._onDismiss = nil }
                 self.timeout = .init(after: .seconds(1)) {
                     Task { @MainActor [weak self] in
                         self?.core.hud.showProgress(isModal: true)
                     }
                 }
 
-                if itemProvider.canLoadObject(ofClass: UIImage.self) {
-                    self.loadImage(itemProvider)
-                } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                    self.loadVideo(itemProvider)
-                } else {
-                    self.dismissReturningFailure(.init("Failed to process media.", metadata: .init(sender: self)))
+                itemProvider.projectedValue.withValue {
+                    if $0.canLoadObject(ofClass: UIImage.self) {
+                        self.loadImage($0)
+                    } else if $0.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
+                        self.loadVideo($0)
+                    } else {
+                        self.dismissReturningFailure(.init(
+                            "Failed to process media.",
+                            metadata: .init(sender: self)
+                        ))
+                    }
                 }
             }
         }

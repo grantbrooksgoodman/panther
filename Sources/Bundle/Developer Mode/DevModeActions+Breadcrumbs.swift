@@ -145,11 +145,10 @@ extension DevModeAction.AppActions {
 
         private static func presentClearBreadcrumbsCaptureHistoryActionSheet() {
             Task {
-                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
-
                 @Sendable
                 func clearRemoteCaptureHistory() {
                     Task { @MainActor in
+                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                         @Dependency(\.networking.storage) var storage: any StorageDelegate
 
                         let isCapturing = AppSubsystem.delegates.breadcrumbsCapture.isCapturing
@@ -190,6 +189,7 @@ extension DevModeAction.AppActions {
                 }
 
                 let localOnlyAction: AKAction = .init("Local Only") {
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                     @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
                     breadcrumbsCaptureHistory = nil
                     coreHUD.showSuccess()

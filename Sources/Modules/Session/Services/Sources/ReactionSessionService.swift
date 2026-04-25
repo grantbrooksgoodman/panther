@@ -101,7 +101,7 @@ final class ReactionSessionService {
 
         // Notify users of reaction to message
 
-        Task(priority: .utility) {
+        Task(priority: .utility) { @MainActor in
             if let exception = await notifyUsers(
                 ofReaction: reaction,
                 to: message
@@ -175,6 +175,7 @@ final class ReactionSessionService {
         }
     }
 
+    @MainActor
     private func notifyUsers(
         ofReaction reaction: Reaction,
         to message: Message
