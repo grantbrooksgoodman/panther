@@ -12,31 +12,23 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-/// A key that identifies a pre-localized string in the app's
-/// `LocalizedStrings.plist` file.
+/// The app's localization key type.
 ///
-/// Each case maps to an entry in the property list. The ``referent``
-/// property converts the case name to its snake-cased property list
-/// key automatically.
+/// Each case corresponds to a top-level key in the app's
+/// localized strings property list. The ``referent`` property
+/// converts the camel case name to snake case, so a case named
+/// `helloWorld` maps to the property list key `hello_world`.
 ///
-/// To add a new pre-localized string:
-/// 1. Add a case to this enum.
-/// 2. Add the corresponding entry to `LocalizedStrings.plist` with
-///    translations for each supported language.
-/// 3. Access the localized value using the ``Localized`` property
-///    wrapper:
+/// To add a new localized string, add a case to this enum and a
+/// matching entry to the property list with translations for
+/// each supported language. Access the resolved value using the
+/// ``Localized`` property wrapper:
 ///
-/// ```swift
-/// let greeting = Localized(.greeting).wrappedValue
-/// ```
+///     @Localized(.helloWorld) var greeting: String
 ///
-/// - Note: If a string must also be available to the subsystem's
-///   built-in UI, add a corresponding computed property to
-///   ``LocalizedStringsDelegate``.
+/// - SeeAlso: ``Localized``, ``LocalizationSource``
 enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
-    // MARK: - Cases
-
-    /* Add cases here for newly pre-localized strings. */
+    // MARK: - App Cases
 
     case acknowledgeConsent
     case addedToConversation
@@ -48,7 +40,6 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case blocked
     case blockUser
 
-    case cancel
     case cannotDisplayMessage
     case changedGroupPhoto
     case contacts
@@ -57,23 +48,18 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case delete
     case deletingData
     case delivered
-    case dismiss
     case document
-    case done
 
     case enable
-    case errorReported
     case errorReportedSuccessfully
 
     case finishingUp
-    case friday
     case fromUser
     case fromYou
 
     case holdDownToRecord
 
     case image
-    case internetConnectionOffline
     case invite
 
     case language
@@ -83,14 +69,10 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     // swiftlint:disable:next identifier_name
     case messageRecipientConsentAcknowledgementMessage
     case messageRecipientConsentRequestMessage
-    case monday
     case multiple
     case myAccount
 
     case newMessage
-    case noEmail
-    case noInternetMessage
-    case noInternetTitle
     case noResults
     case noSpeechDetected
     case notNow
@@ -107,36 +89,24 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case removedGroupPhoto
     case renamedConversation
     case repairingData
-    case reportBug
     case reportMistranslation
-    case reportSent
     case reportUser
     case requestConsent
     case retryTranslation
 
-    case saturday
     case saveFile
     case search
     case selectCallingCode
     case selectLanguage
-    case sendFeedback
     case settingLanguage
-    case settings
     case slideToCancel
     case someone
-    case somethingWentWrong
     case speak
     case stopSpeaking
-    case sunday
 
-    case tapToReport
-    case thursday
-    case timedOut
     case to
     case today
     case translationInLanguage
-    case tryAgain
-    case tuesday
 
     case version
     case video
@@ -145,24 +115,42 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case viewTranscription
     case viewTranslation
 
-    case wednesday
     case welcomeToHello
 
-    case yesterday
     case you
+
+    // MARK: - Subsystem Cases
+
+    case cancel
+    case dismiss
+    case done
+    case sendFeedback
+    case settings
+    case tryAgain
+    case yesterday
 
     // MARK: - Properties
 
-    /// The snake-cased property list key derived from this case's
-    /// raw value.
-    ///
-    /// The ``Localized`` property wrapper uses this value to look up
-    /// the translated string in `LocalizedStrings.plist`.
+    /// The snake case string used to look up the localized value
+    /// in the property list.
     var referent: String { rawValue.snakeCased }
 }
 
-/// A convenience initializer for creating ``Localized`` values using
-/// ``LocalizedStringKey``.
+/// Use this extension to provide a default ``LocalizationSource``
+/// for the app's localization keys.
+///
+/// This constrained initializer lets call sites omit the source
+/// parameter. The default source is `.app()`, which reads from a
+/// property list in the main bundle named `LocalizedStrings` by
+/// default:
+///
+///     @Localized(.helloWorld) var greeting: String
+///
+/// To use a different property list name, pass it through
+/// ``LocalizationSource/app(plistName:)``. Pass `.subsystem` to
+/// resolve a key from AppSubsystem's built-in strings.
+///
+/// - SeeAlso: ``LocalizationSource``
 extension Localized where T == LocalizedStringKey {
     /// Creates a localized string wrapper for the given key.
     ///
@@ -170,38 +158,29 @@ extension Localized where T == LocalizedStringKey {
     ///   - key: The localization key to look up.
     ///   - languageCode: The language to resolve the string for.
     ///     Defaults to ``RuntimeStorage/languageCode``.
+    ///   - source: The property list and bundle to read from.
+    ///     Defaults to `.app()`.
     init(
         _ key: LocalizedStringKey,
-        languageCode: String = RuntimeStorage.languageCode
+        languageCode: String = RuntimeStorage.languageCode,
+        source: LocalizationSource = .app()
     ) {
-        self.init(key: key, languageCode: languageCode)
-    }
-}
+        var source = source
+        switch key {
+        case .cancel,
+             .dismiss,
+             .done,
+             .sendFeedback,
+             .settings,
+             .tryAgain,
+             .yesterday: source = .subsystem
+        default: ()
+        }
 
-extension LocalizedStringKey {
-    /// The delegate that supplies localized strings to the subsystem's
-    /// built-in UI components.
-    ///
-    /// Each property returns the translated string for its
-    /// corresponding ``LocalizedStringKey``. The subsystem references
-    /// these strings for button titles, error messages, and other
-    /// user-facing text in alerts, toasts, and system views.
-    struct LocalizedStringsDelegate: AppSubsystem.Delegates.LocalizedStringsDelegate {
-        var cancel: String { Localized(.cancel).wrappedValue }
-        var done: String { Localized(.done).wrappedValue }
-        var errorReported: String { Localized(.errorReported).wrappedValue }
-        var dismiss: String { Localized(.dismiss).wrappedValue }
-        var internetConnectionOffline: String { Localized(.internetConnectionOffline).wrappedValue }
-        var noEmail: String { Localized(.noEmail).wrappedValue }
-        var noInternetMessage: String { Localized(.noInternetMessage).wrappedValue }
-        var reportBug: String { Localized(.reportBug).wrappedValue }
-        var reportSent: String { Localized(.reportSent).wrappedValue }
-        var sendFeedback: String { Localized(.sendFeedback).wrappedValue }
-        var settings: String { Localized(.settings).wrappedValue }
-        var somethingWentWrong: String { Localized(.somethingWentWrong).wrappedValue }
-        var tapToReport: String { Localized(.tapToReport).wrappedValue }
-        var timedOut: String { Localized(.timedOut).wrappedValue }
-        var tryAgain: String { Localized(.tryAgain).wrappedValue }
-        var yesterday: String { Localized(.yesterday).wrappedValue }
+        self.init(
+            key: key,
+            languageCode: languageCode,
+            source: source
+        )
     }
 }

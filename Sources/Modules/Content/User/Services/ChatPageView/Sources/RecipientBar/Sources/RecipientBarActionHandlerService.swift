@@ -126,6 +126,7 @@ final class RecipientBarActionHandlerService {
                 } else {
                     await services.invite.presentInvitationSuggestionPrompt()
                     selectContactButton?.isEnabled = true
+                    return
                 }
             }
 

@@ -24,7 +24,7 @@ import Networking
 ///
 /// To customize framework behavior, supply your own delegate
 /// conformances in the
-/// ``AppSubsystem/delegates/register(buildInfoOverlayDotIndicatorColorDelegate:cacheDomainListDelegate:devModeAppActionDelegate:exceptionMetadataDelegate:forcedUpdateModalDelegate:localizedStringsDelegate:loggerDomainSubscriptionDelegate:permanentUserDefaultsKeyDelegate:uiThemeListDelegate:)``
+/// ``AppSubsystem/delegates/register(buildInfoOverlayDotIndicatorColorDelegate:cacheDomainListDelegate:devModeAppActionDelegate:exceptionMetadataDelegate:forcedUpdateModalDelegate:loggerDomainSubscriptionDelegate:permanentUserDefaultsKeyDelegate:uiThemeListDelegate:)``
 /// call inside ``initialize()``. Pass `nil` for any delegate your
 /// app does not need.
 @MainActor
@@ -78,7 +78,6 @@ enum Application {
             devModeAppActionDelegate: DevModeAction.AppActions(),
             exceptionMetadataDelegate: AppException.ExceptionMetadataDelegate(),
             forcedUpdateModalDelegate: UpdateService.shared,
-            localizedStringsDelegate: LocalizedStringKey.LocalizedStringsDelegate(),
             loggerDomainSubscriptionDelegate: LoggerDomain.SubscriptionDelegate(),
             permanentUserDefaultsKeyDelegate: UserDefaultsKey.PermanentKeyDelegate(),
             uiThemeListDelegate: UITheme.List()

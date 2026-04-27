@@ -61,6 +61,7 @@ extension LoggerDomain {
             .dataIntegrity,
             .general,
             .Networking.hostedTranslation,
+            .localization,
             .notifications,
             .penPals,
             .queue,

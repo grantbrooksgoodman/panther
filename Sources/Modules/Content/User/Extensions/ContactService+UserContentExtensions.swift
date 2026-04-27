@@ -19,7 +19,7 @@ extension ContactService {
     var hasContactsBesidesCurrentUser: Bool {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         guard let contactPairArchive,
-              !contactPairArchive.isEmpty else { return true }
+              !contactPairArchive.isEmpty else { return false }
         return !contactPairArchive.filter { !$0.containsCurrentUser }.isEmpty
     }
 
