@@ -289,8 +289,12 @@ final class ChatPageViewService {
 
         StatusBar.overrideStyle(.appAware)
         UIView.dismissCurrentContextMenu()
-        viewController?.navigationController?.isNavigationBarHidden = true
-        viewController?.navigationController?.isNavigationBarHidden = false
+
+        if !UIApplication.isFullyV26Compatible {
+            viewController?.navigationController?.isNavigationBarHidden = true
+            viewController?.navigationController?.isNavigationBarHidden = false
+        }
+
         updateCollectionViewBackgroundColor()
         reloadCollectionView()
     }

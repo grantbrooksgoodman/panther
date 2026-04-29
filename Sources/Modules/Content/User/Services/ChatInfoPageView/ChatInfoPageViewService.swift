@@ -323,10 +323,15 @@ final class ChatInfoPageViewService {
 
     /// `.getChatParticipantsReturned(.success)`
     func viewLoaded() {
-        Task.delayed(by: .seconds(1)) { @MainActor in
-            self.uiSegmentBackgroundViews.forEach {
-                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
-            }
+        Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+            guard let self else { return }
+            self
+                .uiSegmentBackgroundViews
+                .filter { $0.backgroundColor != self.uiSegmentBackgroundViewBackgroundColor }
+                .forEach { $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor }
+
+            guard self.uiApplication.isPresentingSheet else { return }
+            self.viewLoaded()
         }
     }
 

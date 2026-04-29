@@ -18,7 +18,6 @@ extension DatabaseDelegate {
         CoreDatabaseStore.filter { $0.value.expiryThreshold != .seconds(300) }
     }
 
-    @MainActor
     func populateTemporaryCaches() async -> Exception? {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
         let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
@@ -56,11 +55,13 @@ extension DatabaseDelegate {
             }
 
             if buildMilestone != .generalRelease {
-                Toast.show(.init(
-                    .capsule(style: .info),
-                    message: "Established database snapshot.",
-                    perpetuation: .ephemeral(.milliseconds(1500))
-                ))
+                Task { @MainActor in
+                    Toast.show(.init(
+                        .capsule(style: .info),
+                        message: "Established database snapshot.",
+                        perpetuation: .ephemeral(.milliseconds(1500))
+                    ))
+                }
             }
 
             Logger.log(

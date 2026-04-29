@@ -26,6 +26,7 @@ struct UserContentContainerView: View {
 
     // MARK: - Properties
 
+    @StateObject private var observer: ViewObserver<UserContentContainerObserver>
     @StateObject private var viewModel: ViewModel<UserContentContainerReducer>
 
     // MARK: - Bindings
@@ -48,6 +49,7 @@ struct UserContentContainerView: View {
 
     init(_ viewModel: ViewModel<UserContentContainerReducer>) {
         _viewModel = .init(wrappedValue: viewModel)
+        _observer = .init(wrappedValue: .init(.init(viewModel)))
     }
 
     // MARK: - View
@@ -91,33 +93,38 @@ struct UserContentContainerView: View {
         _ conversation: Conversation,
         focusedMessageID: String?
     ) -> some View {
-        let baseView = ChatPageView(
-            conversation,
-            configuration: .default(focusedMessageID: focusedMessageID)
-        )
-        .background(ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground)
-        .ignoresSafeArea(.keyboard)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(ConversationCellViewData(conversation)?.titleLabelText ?? "")
-        .toolbarRole(.editor)
+        let cellViewData = ConversationCellViewData(conversation)
 
-        if UIApplication.isFullyV26Compatible {
-            ZStack {
-                ThemedView {
-                    Color.clear
-                        .frame(width: .zero, height: .zero)
-                        .toolbar {
-                            chatInfoToolbarButton
-                        }
-                }
-
-                baseView
+        if !Application.isInPrevaricationMode,
+           UIApplication.isFullyV26Compatible {
+            ChatPageView(
+                conversation,
+                configuration: .default(focusedMessageID: focusedMessageID),
+                additionalTopInset: Floats.chatPageHeaderContentHeight
+            )
+            .ignoresSafeArea(.keyboard)
+            .overlay(alignment: .top) {
+                ChatPageHeaderView(
+                    backButtonAction: { navigation.navigate(to: .userContent(.pop)) },
+                    chatInfoButtonAction: { viewModel.send(.chatInfoToolbarButtonTapped) }
+                )
             }
+            .toolbar(
+                .hidden,
+                for: .navigationBar
+            )
         } else {
-            baseView
-                .toolbar {
-                    chatInfoToolbarButton
-                }
+            ChatPageView(
+                conversation,
+                configuration: .default(focusedMessageID: focusedMessageID)
+            ).background(
+                ThemeService.isAppDefaultThemeApplied ? .clear : .navigationBarBackground
+            )
+            .ignoresSafeArea(.keyboard)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(cellViewData?.titleLabelText ?? "")
+            .toolbarRole(.editor)
+            .toolbar { chatInfoToolbarButton }
         }
     }
 

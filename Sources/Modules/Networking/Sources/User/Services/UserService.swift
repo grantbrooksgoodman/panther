@@ -159,7 +159,7 @@ final class UserService: @unchecked Sendable {
             cachedValues.append(
                 .init(
                     data: data,
-                    expiryThreshold: .milliseconds(200)
+                    expiryThreshold: .milliseconds(500)
                 )
             )
             cachedUserDataSnapshots = cachedValues

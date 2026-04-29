@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKey+SessionExtensions.swift
+//  PersistentStorageKey+SessionExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -12,8 +12,8 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-extension UserDefaultsKey {
-    enum UserSessionServiceDefaultsKey: String {
+extension PersistentStorageKey {
+    enum UserSessionServiceStorageKey: String {
         case currentUserID
         case offlineCurrentUser
     }

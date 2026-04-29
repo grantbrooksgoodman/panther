@@ -62,23 +62,41 @@ struct ChatPageView: UIViewControllerRepresentable {
 
     // MARK: - Properties
 
+    private let additionalTopInset: CGFloat
     private let configuration: Configuration
     private let conversation: Conversation
 
     // MARK: - Init
 
-    init(_ conversation: Conversation, configuration: Configuration) {
+    init(
+        _ conversation: Conversation,
+        configuration: Configuration,
+        additionalTopInset: CGFloat = 0
+    ) {
         self.conversation = conversation
         self.configuration = configuration
+        self.additionalTopInset = additionalTopInset
     }
 
     // MARK: - Make UIViewController
 
     func makeUIViewController(context: Context) -> MessagesViewController {
-        viewService.instantiateViewController(conversation, configuration: configuration)
+        let viewController = viewService.instantiateViewController(
+            conversation,
+            configuration: configuration
+        )
+
+        if additionalTopInset > 0 {
+            viewController.additionalSafeAreaInsets.top = additionalTopInset
+        }
+
+        return viewController
     }
 
     // MARK: - Update UIViewController
 
-    func updateUIViewController(_ uiViewController: MessagesViewController, context: Context) {}
+    func updateUIViewController(
+        _ uiViewController: MessagesViewController,
+        context: Context
+    ) {}
 }

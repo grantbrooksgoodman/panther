@@ -69,7 +69,11 @@ final class RecordingUIService {
                     typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
                     self.recordingView?.alpha = 0
 
-                    self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+                    if Application.isInPrevaricationMode ||
+                        !UIApplication.isFullyV26Compatible {
+                        self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+                    }
+
                     self.inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
                     self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = true
                     self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
@@ -263,14 +267,28 @@ final class RecordingUIService {
         imageView: UIImageView
     ) {
         let recordingView = UIView()
-        recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
         recordingView.frame = inputBar.inputTextView.frame
         recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
-
         recordingView.clipsToBounds = true
-        recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
-        recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth
         recordingView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+
+        if UIApplication.isFullyV26Compatible,
+           !Application.isInPrevaricationMode {
+            recordingView.backgroundColor = .clear
+            if #available(iOS 26, *) {
+                let glassView = UIVisualEffectView(effect: UIGlassEffect())
+                glassView.clipsToBounds = true
+                glassView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+                glassView.frame = recordingView.bounds
+                glassView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                glassView.isUserInteractionEnabled = false
+                recordingView.insertSubview(glassView, at: 0)
+            }
+        } else {
+            recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
+            recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
+            recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth
+        }
 
         let cancelLabel = buildCancelLabel()
         recordingView.addSubview(cancelLabel)

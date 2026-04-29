@@ -93,6 +93,10 @@ extension AppConstants.CGFloats {
 
             static let textContainerInsetRightIncrement: CGFloat = 10
             static let transitionAnimationDuration: CGFloat = 0.3
+
+            static let v26AttachMediaButtonSize: CGFloat = 34
+            static let v26TextContainerHorizontalInset: CGFloat = 6
+            static let v26TextContainerVerticalInset: CGFloat = 10
         }
 
         enum InputBarGestureRecognizer {
@@ -227,11 +231,16 @@ extension AppConstants.Strings {
 
         enum InputBar {
             static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
+
             static let consentButtonSemanticTag = "CONSENT_BUTTON"
+
             static let recordButtonSemanticTag = "RECORD_BUTTON"
+
             static let sendButtonOfflineImageSystemName = "wifi.slash"
             static let sendButtonSemanticTag = "SEND_BUTTON" // swiftlint:disable:next identifier_name
             static let sendButtonStorageLimitReachedImageSystemName = "externaldrive.trianglebadge.exclamationmark"
+
+            static let v26AttachMediaButtonImageSystemName = "plus"
         }
 
         enum InputBarGestureRecognizer { // swiftlint:disable:next line_length

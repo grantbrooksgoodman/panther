@@ -24,7 +24,8 @@ import Networking
 /// ```swift
 /// let appActions: [DevModeAction] = [
 ///     .init(title: "Reset Onboarding") {
-///         UserDefaults.standard.removeObject(forKey: "hasSeenOnboarding")
+///         @Persistent(.hasSeenOnboarding) var hasSeenOnboarding: Bool?
+///         hasSeenOnboarding = nil
 ///     },
 /// ]
 /// ```

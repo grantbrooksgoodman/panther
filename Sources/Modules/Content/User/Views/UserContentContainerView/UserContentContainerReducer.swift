@@ -17,22 +17,30 @@ struct UserContentContainerReducer: Reducer {
 
     enum Action {
         case chatInfoToolbarButtonTapped
+        case conversationMetadataChanged
     }
 
     // MARK: - State
 
-    struct State: Equatable {}
+    struct State: Equatable {
+        var objectID = UUID()
+    }
 
     // MARK: - Reduce
 
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .chatInfoToolbarButtonTapped:
-            .fireAndForget {
+            return .fireAndForget {
                 Task { @MainActor in
                     RootSheets.present(.chatInfoPageView)
                 }
             }
+
+        case .conversationMetadataChanged:
+            state.objectID = UUID()
         }
+
+        return .none
     }
 }

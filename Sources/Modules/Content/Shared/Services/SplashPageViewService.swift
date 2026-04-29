@@ -204,7 +204,8 @@ final class SplashPageViewService: ObservableObject {
 
             if (currentUser.conversationIDs ?? []).count > 10,
                (conversationArchive ?? []).isEmpty {
-                if let exception = await networking.database.populateTemporaryCaches() {
+                let database = LockIsolated<any DatabaseDelegate>(networking.database)
+                if let exception = await database.wrappedValue.populateTemporaryCaches() {
                     Logger.log(exception)
                 }
 

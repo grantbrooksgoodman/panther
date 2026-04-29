@@ -58,6 +58,9 @@ final class ConversationArchiveService: @unchecked Sendable {
             archive.formUnion(conversations)
         }
 
+        /* TODO: Can be over the size (4mb) that UserDefaults allows.
+         Figure out a solution.
+         */
         persistArchive()
         if loggingEnabled {
             Logger.log(

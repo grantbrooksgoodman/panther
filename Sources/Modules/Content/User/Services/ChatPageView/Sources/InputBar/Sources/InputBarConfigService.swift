@@ -41,8 +41,23 @@ struct InputBarConfigService {
     func attachMediaButtonImage(
         isHighlighted: Bool
     ) -> UIImage? {
-        guard ThemeService.isDarkModeActive else { return .init(resource: isHighlighted ? .plusLightHighlighted : .plusLight) }
-        return .init(resource: isHighlighted ? .plusDarkHighlighted : .plusDark)
+        if !Application.isInPrevaricationMode,
+           UIApplication.isFullyV26Compatible {
+            return .init(
+                systemName: Strings.v26AttachMediaButtonImageSystemName,
+                withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
+            )?.withRenderingMode(.alwaysTemplate)
+        }
+
+        guard ThemeService.isDarkModeActive else {
+            return .init(
+                resource: isHighlighted ? .plusLightHighlighted : .plusLight
+            )
+        }
+
+        return .init(
+            resource: isHighlighted ? .plusDarkHighlighted : .plusDark
+        )
     }
 
     @MainActor

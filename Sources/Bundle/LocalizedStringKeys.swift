@@ -80,6 +80,8 @@ enum LocalizedStringKey: String, LocalizedStringKeyRepresentable {
     case offlineMode
     case originalInLanguage
 
+    case people
+
     case reacted
     case reactionDetails
     case read

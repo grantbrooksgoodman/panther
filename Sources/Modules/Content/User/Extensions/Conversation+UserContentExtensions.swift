@@ -15,6 +15,12 @@ import AppSubsystem
 extension Conversation {
     // MARK: - Properties
 
+    var chatPageHeaderLabelText: String? {
+        guard metadata.name.isBangQualifiedEmpty,
+              participants.count > 2 else { return nil }
+        return "\(participants.count - 1) \(Localized(.people).wrappedValue)"
+    }
+
     var currentUserGrantedMessageReceiptConsent: Bool {
         guard !currentUserInitiatorRequiresMessageReceiptConsent,
               metadata.requiresConsentFromInitiator != nil else { return true }

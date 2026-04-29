@@ -6,6 +6,8 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
+// swiftlint:disable file_length type_body_length
+
 /* Native */
 import Foundation
 import SwiftUI
@@ -95,6 +97,28 @@ struct ChatPageViewControllerFactory {
         typealias Floats = AppConstants.CGFloats.ChatPageView
         guard let layout = viewController.messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
 
+        // NIT: Dependency injection here goes against factory pattern flow.
+        if Dependency(\.clientSession.conversation.currentConversation)
+            .wrappedValue?
+            .participants
+            .count == 2 {
+            layout.attributedTextMessageSizeCalculator.incomingAvatarSize = .zero
+            layout.audioMessageSizeCalculator.incomingAvatarSize = .zero
+            layout.photoMessageSizeCalculator.incomingAvatarSize = .zero
+            layout.textMessageSizeCalculator.incomingAvatarSize = .zero
+            layout.videoMessageSizeCalculator.incomingAvatarSize = .zero
+
+            layout.setMessageIncomingCellBottomLabelAlignment(.init(
+                textAlignment: .left,
+                textInsets: .init(
+                    top: Floats.messageOutgoingCellBottomLabelAlignmentTopTextInset,
+                    left: Floats.messageOutgoingCellBottomLabelAlignmentRightTextInset,
+                    bottom: 0,
+                    right: 0
+                )
+            ))
+        }
+
         layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
         layout.photoMessageSizeCalculator.outgoingAvatarSize = .zero
@@ -124,10 +148,14 @@ struct ChatPageViewControllerFactory {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
         typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
+        let yOrigin = UIApplication.isFullyV26Compatible ?
+            AppConstants.CGFloats.UserContentContainerView.chatPageHeaderContentHeight :
+            0
+
         let deliveryProgressView: UIProgressView = .init(
             frame: .init(
                 x: 0,
-                y: 0,
+                y: yOrigin,
                 width: screenWidth,
                 height: Floats.viewFrameHeight
             )
@@ -254,8 +282,128 @@ struct ChatPageViewControllerFactory {
         consentButton.tag = coreUI.semTag(for: Strings.consentButtonSemanticTag)
         inputBar.addSubview(consentButton)
 
-        guard Application.isInPrevaricationMode else { return }
+        guard Application.isInPrevaricationMode else {
+            return configureV26InputBarAppearance(inputBar)
+        }
+
         inputBar.backgroundView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
         inputBar.contentView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
     }
+
+    private func configureV26InputBarAppearance(_ inputBar: InputBarAccessoryView) {
+        typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
+        typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
+
+        // Clear input bar chrome.
+        inputBar.backgroundColor = .clear
+        inputBar.backgroundView.backgroundColor = .clear
+        inputBar.contentView.backgroundColor = .clear
+        inputBar.separatorLine.isHidden = true
+
+        // Clear background for glass, remove text view border, increase inner padding.
+        inputBar.inputTextView.backgroundColor = .clear
+        inputBar.inputTextView.layer.borderWidth = 0
+
+        inputBar.inputTextView.textContainerInset = UIEdgeInsets(
+            top: Floats.v26TextContainerVerticalInset,
+            left: Floats.v26TextContainerHorizontalInset,
+            bottom: Floats.v26TextContainerVerticalInset,
+            right: inputBar.sendButton.frame.width +
+                Floats.textContainerInsetRightIncrement +
+                Floats.v26TextContainerHorizontalInset
+        )
+
+        guard #available(iOS 26, *) else { return }
+
+        // Add glass capsule behind text view.
+        let inputTextViewGlassEffect = UIGlassEffect()
+        let inputTextViewGlassEffectView = UIVisualEffectView(
+            effect: inputTextViewGlassEffect
+        )
+
+        inputTextViewGlassEffectView.clipsToBounds = true
+        inputTextViewGlassEffectView.isUserInteractionEnabled = false
+        inputTextViewGlassEffectView.layer.cornerRadius = Floats.layerCornerRadius
+        inputTextViewGlassEffectView.translatesAutoresizingMaskIntoConstraints = false
+
+        if let inputTextViewSuperview = inputBar.inputTextView.superview {
+            inputTextViewSuperview.insertSubview(
+                inputTextViewGlassEffectView,
+                belowSubview: inputBar.inputTextView
+            )
+
+            NSLayoutConstraint.activate([
+                inputTextViewGlassEffectView.topAnchor.constraint(
+                    equalTo: inputBar.inputTextView.topAnchor
+                ),
+                inputTextViewGlassEffectView.bottomAnchor.constraint(
+                    equalTo: inputBar.inputTextView.bottomAnchor
+                ),
+                inputTextViewGlassEffectView.leadingAnchor.constraint(
+                    equalTo: inputBar.inputTextView.leadingAnchor
+                ),
+                inputTextViewGlassEffectView.trailingAnchor.constraint(
+                    equalTo: inputBar.inputTextView.trailingAnchor
+                ),
+            ])
+        }
+
+        // Add glass circle behind attach media button.
+        guard let attachMediaButton = inputBar.leftStackView.attachMediaButton else { return }
+
+        attachMediaButton.frame.size = .init(
+            width: Floats.v26AttachMediaButtonSize,
+            height: Floats.v26AttachMediaButtonSize
+        )
+
+        let attachMediaButtonGlassEffect = UIGlassEffect()
+        let attachMediaButtonGlassEffectView = UIVisualEffectView(
+            effect: attachMediaButtonGlassEffect
+        )
+
+        attachMediaButtonGlassEffectView.clipsToBounds = true
+        attachMediaButtonGlassEffectView.isUserInteractionEnabled = false
+        attachMediaButtonGlassEffectView.layer.cornerRadius = Floats.v26AttachMediaButtonSize / 2
+        attachMediaButtonGlassEffectView.translatesAutoresizingMaskIntoConstraints = false
+
+        attachMediaButton.insertSubview(
+            attachMediaButtonGlassEffectView,
+            at: 0
+        )
+
+        NSLayoutConstraint.activate([
+            attachMediaButtonGlassEffectView.widthAnchor.constraint(
+                equalToConstant: Floats.v26AttachMediaButtonSize
+            ),
+            attachMediaButtonGlassEffectView.heightAnchor.constraint(
+                equalToConstant: Floats.v26AttachMediaButtonSize
+            ),
+            attachMediaButtonGlassEffectView.centerXAnchor.constraint(
+                equalTo: attachMediaButton.centerXAnchor
+            ),
+            attachMediaButtonGlassEffectView.centerYAnchor.constraint(
+                equalTo: attachMediaButton.centerYAnchor
+            ),
+        ])
+
+        // Use SF Symbol for V26 attach button.
+        let attachMediaButtonImage = UIImage(
+            systemName: Strings.v26AttachMediaButtonImageSystemName,
+            withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
+        )
+
+        attachMediaButton.setImage(
+            attachMediaButtonImage?.withRenderingMode(.alwaysTemplate),
+            for: .normal
+        )
+
+        attachMediaButton.setImage(
+            attachMediaButtonImage?.withRenderingMode(.alwaysTemplate),
+            for: .highlighted
+        )
+
+        attachMediaButton.tintColor = .label
+    }
 }
+
+// swiftlint:enable file_length type_body_length

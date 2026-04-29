@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKey+CommonExtensions.swift
+//  PersistentStorageKey+CommonExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -12,44 +12,44 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-extension UserDefaultsKey {
-    enum ApplicationDefaultsKey: String {
+extension PersistentStorageKey {
+    enum ApplicationStorageKey: String {
         case buildMilestoneString
         case hasRunOnce
     }
 
-    enum AIEnhancedTranslationServiceDefaultsKey: String { // swiftlint:disable:next identifier_name
+    enum AIEnhancedTranslationServiceStorageKey: String { // swiftlint:disable:next identifier_name
         case presentedAIEnhancedTranslationPermissionPageAtStartup
     }
 
-    enum AudioServiceDefaultsKey: String {
+    enum AudioServiceStorageKey: String {
         case acknowledgedAudioMessagesUnsupported
     }
 
-    enum BreadcrumbsCaptureServiceDefaultsKey: String {
+    enum BreadcrumbsCaptureServiceStorageKey: String {
         case breadcrumbsCaptureFrequency
         case breadcrumbsCaptureHistory
     }
 
-    enum ContactPairArchiveServiceDefaultsKey: String {
+    enum ContactPairArchiveServiceStorageKey: String {
         case contactPairArchive
         case unknownContactPairArchive
     }
 
-    enum MessageRetranslationServiceDefaultsKey: String {
+    enum MessageRetranslationServiceStorageKey: String {
         case retranslatedMessageIDs
     }
 
-    enum PenPalsServiceDefaultsKey: String {
+    enum PenPalsServiceStorageKey: String {
         case presentedPenPalsPermissionPageAtStartup
     }
 
-    enum ReviewServiceDefaultsKey: String {
+    enum ReviewServiceStorageKey: String {
         case appOpenCount
         case lastRequestedReviewForBuildNumber
     }
 
-    enum UpdateServiceDefaultsKey: String {
+    enum UpdateServiceStorageKey: String {
         case buildNumberWhenLastForcedToUpdate
         case firstPostponedUpdate
         case relaunchesSinceLastPostponedUpdate
