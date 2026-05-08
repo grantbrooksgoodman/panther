@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-@MainActor
+@MainActor // swiftlint:disable:next type_body_length
 final class RecordingUIService {
     // MARK: - Constants Accessors
 
@@ -79,7 +79,21 @@ final class RecordingUIService {
                     self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
                     self.inputBar.leftStackView.attachMediaButton?.alpha = 1
                 } completion: { _ in
-                    self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
+                    if UIApplication.isFullyV26Compatible {
+                        let sendButtonFrameInInputTextView = self.inputBar.sendButton.convert(
+                            self.inputBar.sendButton.bounds,
+                            to: self.inputBar.inputTextView
+                        )
+
+                        self.inputBar.inputTextView.addSubview(self.inputBar.sendButton)
+                        self.inputBar.sendButton.frame = sendButtonFrameInInputTextView
+                    }
+
+                    self.inputBar.contentView.removeSubviews(
+                        for: Strings.recordingViewSemanticTag,
+                        animated: false
+                    )
+
                     self.resetSession()
                     self.isShowingRecordingUI = false
                     continuation.resume()
@@ -101,8 +115,20 @@ final class RecordingUIService {
                 let imageView = viewComponents.imageView
 
                 inputBar.contentView.addSubview(recordingView)
-                recordingView.center = inputBar.inputTextView.center
                 recordingView.tag = coreUI.semTag(for: Strings.recordingViewSemanticTag)
+
+                if UIApplication.isFullyV26Compatible {
+                    recordingView.center.y = inputBar.inputTextView.center.y
+                    let sendButtonFrameInRecordingView = inputBar.sendButton.convert(
+                        inputBar.sendButton.bounds,
+                        to: recordingView
+                    )
+
+                    recordingView.addSubview(inputBar.sendButton)
+                    inputBar.sendButton.frame = sendButtonFrameInRecordingView
+                } else {
+                    recordingView.center = inputBar.inputTextView.center
+                }
 
                 cancelLabel.center.y = recordingView.center.y
                 durationLabel.center.y = recordingView.center.y
@@ -121,8 +147,15 @@ final class RecordingUIService {
                     recordingView.alpha = 1
                 }
 
+                let sendButtonFrame = inputBar.sendButton.convert(
+                    inputBar.sendButton.bounds,
+                    to: recordingView
+                )
+
                 let offset = cancelLabel.intrinsicContentSize.width + Floats.cancelLabelOffsetIncrement
-                let maxXToOffset = recordingView.frame.maxX - offset
+                let maxXToOffset = (
+                    UIApplication.isFullyV26Compatible ? sendButtonFrame.minX : recordingView.frame.maxX
+                ) - offset
 
                 UIView.animate(
                     withDuration: Floats.showAnimationDuration,
@@ -268,23 +301,40 @@ final class RecordingUIService {
     ) {
         let recordingView = UIView()
         recordingView.frame = inputBar.inputTextView.frame
-        recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
+
         recordingView.clipsToBounds = true
         recordingView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
 
-        if UIApplication.isFullyV26Compatible,
-           !Application.isInPrevaricationMode {
+        if #available(iOS 26, *),
+           UIApplication.isFullyV26Compatible {
+            let sendButtonFrame = inputBar.sendButton.convert(
+                inputBar.sendButton.bounds,
+                to: inputBar.contentView
+            )
+
+            recordingView.frame.size.width = sendButtonFrame.maxX -
+                recordingView.frame.origin.x +
+                Floats.recordingViewFrameSizeWidthDecrement
+
             recordingView.backgroundColor = .clear
-            if #available(iOS 26, *) {
-                let glassView = UIVisualEffectView(effect: UIGlassEffect())
-                glassView.clipsToBounds = true
-                glassView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
-                glassView.frame = recordingView.bounds
-                glassView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                glassView.isUserInteractionEnabled = false
-                recordingView.insertSubview(glassView, at: 0)
-            }
+
+            let glassEffectView = UIVisualEffectView(effect: UIGlassEffect())
+            glassEffectView.frame = recordingView.bounds
+            glassEffectView.clipsToBounds = true
+            glassEffectView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+            glassEffectView.autoresizingMask = [
+                .flexibleWidth,
+                .flexibleHeight,
+            ]
+
+            glassEffectView.isUserInteractionEnabled = false
+            recordingView.insertSubview(
+                glassEffectView,
+                at: 0
+            )
         } else {
+            recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
+
             recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
             recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
             recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth

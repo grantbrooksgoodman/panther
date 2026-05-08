@@ -38,7 +38,9 @@ struct RegionMenuReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        @Localized(.selectCallingCode) var headerLabelText
+        // TODO: Audit implications of one-time init for localized value.
+        let headerLabelText = Localized(.selectCallingCode).wrappedValue.capitalized
+
         var isPresented: Binding<Bool>
         @Localized(.noResults) var noResultsLabelText
         var searchQuery = ""

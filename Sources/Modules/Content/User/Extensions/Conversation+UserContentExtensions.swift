@@ -141,16 +141,7 @@ extension Conversation {
 
     var withHydratedMessages: Conversation {
         guard let messages else { return self }
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages.hydrated(with: activities),
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
+        return withMessages(messages.hydrated(with: activities))
     }
 
     // swiftlint:disable:next identifier_name
@@ -226,5 +217,18 @@ extension Conversation {
         guard metadata.isPenPalsConversation,
               participants.map(\.userID).contains(user.id) else { return true }
         return (participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID).contains(user.id)
+    }
+
+    func withMessages(_ messages: [Message]?) -> Conversation {
+        .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
     }
 }

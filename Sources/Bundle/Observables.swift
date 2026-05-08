@@ -35,8 +35,6 @@ import AppSubsystem
 ///
 /// - SeeAlso: ``Observer``
 extension Observables {
-    /* Add new properties conforming to Observable here. */
-
     static let chatInfoPageLoadingStateUpdated = Observable<Nil>()
     static let currentConversationActivityChanged = Observable<Nil>()
     static let currentConversationMetadataChanged = Observable<Nil>()
@@ -46,7 +44,8 @@ extension Observables {
     static let isNewChatPageDoneToolbarButtonEnabled = Observable<Bool>(true)
     static let networkActivityOccurred = Observable<Nil>()
     static let newChatPagePenPalsToolbarButtonAnimation = Observable<Nil>()
-    static let traitCollectionChanged = Observable<Nil>()
+    static let traitCollectionChanged = Observable<Nil>() // swiftlint:disable:next identifier_name
+    static let updateConversationsListSetToReliableDataSource = Observable<Nil>()
     static let updatedContactPairArchive = Observable<Nil>()
     static let updatedCurrentUser = Observable<Nil>()
 }

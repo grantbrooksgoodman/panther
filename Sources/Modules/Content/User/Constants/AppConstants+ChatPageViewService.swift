@@ -234,6 +234,8 @@ extension AppConstants.Strings {
 
             static let consentButtonSemanticTag = "CONSENT_BUTTON"
 
+            static let inputTextViewGlassEffectViewSemanticTag = "INPUT_TEXT_VIEW_GLASS_EFFECT_VIEW"
+
             static let recordButtonSemanticTag = "RECORD_BUTTON"
 
             static let sendButtonOfflineImageSystemName = "wifi.slash"

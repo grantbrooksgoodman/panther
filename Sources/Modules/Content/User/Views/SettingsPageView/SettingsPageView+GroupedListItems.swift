@@ -194,7 +194,7 @@ extension SettingsPageView {
     var sendFeedbackListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.sendFeedbackButtonTapped) },
-            innerText: Localized(.sendFeedback).wrappedValue,
+            innerText: Localized(.sendFeedback).wrappedValue.lowercased().firstUppercase,
             imageView: {
                 SquareIconView.image(
                     .init(

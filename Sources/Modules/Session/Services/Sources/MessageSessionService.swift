@@ -495,13 +495,14 @@ private extension Conversation {
     var messageReadout: String? {
         guard let messages else { return nil }
 
+        let knownUsersByID = Dictionary(
+            UserCache.knownUsers.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         var messageStrings = [String]()
-        for message in messages
-            .sortedByDescendingSentDate
-            .filter({ $0.contentType == .text }) {
-            guard let matchingUser = UserCache
-                .knownUsers
-                .first(where: { $0.id == message.fromAccountID }) else { continue }
+        for message in messages.sortedByDescendingSentDate where message.contentType == .text {
+            guard let matchingUser = knownUsersByID[message.fromAccountID] else { continue }
 
             var messageText = message.translation?.output.sanitized
             var userDisplayName = matchingUser.displayName

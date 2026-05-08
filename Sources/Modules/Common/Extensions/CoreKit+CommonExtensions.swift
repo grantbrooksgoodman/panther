@@ -13,18 +13,6 @@ import Foundation
 import AppSubsystem
 import Networking
 
-extension CoreKit.GCD {
-    var newSerialQueue: DispatchQueue {
-        let label = "\(Int.random(in: 1 ... 1_000_000))"
-        Logger.log(
-            "Instantiating new queue with label «\(label)».",
-            domain: .queue,
-            sender: self
-        )
-        return .init(label: label, qos: .userInteractive)
-    }
-}
-
 extension CoreKit.Utilities {
     // MARK: - Types
 

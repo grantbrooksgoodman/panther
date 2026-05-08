@@ -36,10 +36,12 @@ struct InviteLanguagePickerReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
+        // TODO: Audit implications of one-time init for localized value.
+        let navigationTitle = Localized(.selectLanguage).wrappedValue.capitalized
+
         @Localized(.cancel) var cancelHeaderItemText: String
         @Localized(.done) var doneHeaderItemText: String
         var isDoneHeaderItemEnabled = false
-        @Localized(.selectLanguage) var navigationTitle: String
         @Localized(.noResults) var noResultsLabelText: String
         var searchQuery = ""
         var selectedLanguageCode = ""

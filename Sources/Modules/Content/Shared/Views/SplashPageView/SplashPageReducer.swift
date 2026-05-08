@@ -41,11 +41,6 @@ struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        var shouldShowPercentageLabel: Bool {
-            @Dependency(\.build) var build: Build
-            return build.isDeveloperModeEnabled
-        }
-
         var shouldShowProgressBar: Bool { User.currentUserID != nil }
     }
 
@@ -66,7 +61,10 @@ struct SplashPageReducer: Reducer {
 
         case .errorAlertDismissed:
             guard let exception = state.exception,
-                  !exception.isEqual(to: .timedOut) else {
+                  !exception.isEqual(toAny: [
+                      .failedToGenerateMediaFile,
+                      .timedOut,
+                  ]) else {
                 return .task {
                     let result = await viewService.initializeBundle()
                     return .initializedBundle(result)
@@ -85,6 +83,18 @@ struct SplashPageReducer: Reducer {
                 defer { Logger.log(exception) }
 
                 guard state.didAttemptAutomaticErrorRecovery else {
+                    guard !exception.isEqual(
+                        toAny: [
+                            .failedToGenerateMediaFile,
+                            .timedOut,
+                        ]
+                    ) else {
+                        return .task {
+                            let result = await viewService.initializeBundle()
+                            return .initializedBundle(result)
+                        }
+                    }
+
                     state.didAttemptAutomaticErrorRecovery = true
                     return .task {
                         let result = await viewService.performRetryHandler()

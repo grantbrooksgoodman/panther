@@ -17,7 +17,6 @@ final class ConversationArchiveService: @unchecked Sendable {
 
     @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
     @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-    @Dependency(\.build.loggingEnabled) private var loggingEnabled: Bool
 
     // MARK: - Properties
 
@@ -58,31 +57,12 @@ final class ConversationArchiveService: @unchecked Sendable {
             archive.formUnion(conversations)
         }
 
-        /* TODO: Can be over the size (4mb) that UserDefaults allows.
-         Figure out a solution.
-         */
         persistArchive()
-        if loggingEnabled {
-            Logger.log(
-                .init(
-                    "Added multiple conversations to persisted archive.",
-                    isReportable: false,
-                    userInfo: conversations.reduce(
-                        into: [String: String]()
-                    ) { partialResult, conversation in
-                        partialResult[conversation.id.key] = conversation.id.hash
-                    },
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversationArchive
-            )
-        } else {
-            Logger.log(
-                "Added multiple conversations to persisted archive.",
-                domain: .conversationArchive,
-                sender: self
-            )
-        }
+        Logger.log(
+            "Added \(conversations.count) conversations to persisted archive.",
+            domain: .conversationArchive,
+            sender: self
+        )
     }
 
     // MARK: - Removal

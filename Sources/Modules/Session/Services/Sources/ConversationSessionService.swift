@@ -74,16 +74,14 @@ final class ConversationSessionService {
     // MARK: - Set Current Conversation
 
     func setCurrentConversation(_ currentConversation: Conversation?) {
-        // NIT: .unique and .sortedByAscendingSentDate should be unnecessary here.
-        completeMessageArray = currentConversation?
+        let hydratedMessages = currentConversation?
             .messages?
             .hydrated(with: currentConversation?.activities)
-            .unique
-            .sortedByAscendingSentDate
 
+        completeMessageArray = hydratedMessages
         self.currentConversation = withMessagesOffset(
             currentConversation?
-                .withHydratedMessages
+                .withMessages(hydratedMessages)
                 .withMessagesOffsetFromCurrentUserAdditionDate
                 .withMessagesSortedByAscendingSentDate
         )

@@ -52,6 +52,7 @@ extension Application {
         }
 
         core.utils.clearCaches()
+        core.utils.eraseApplicationSupportDirectory()
         core.utils.eraseDocumentsDirectory()
         core.utils.eraseTemporaryDirectory()
 
@@ -60,6 +61,7 @@ extension Application {
         ))
 
         defaults.synchronize()
+        RuntimeStorage.remove(.populatedTemporaryCaches)
 
         guard let procedure else { return }
         Application.dismissSheets()

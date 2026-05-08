@@ -74,10 +74,12 @@ final class ConversationsPageViewService {
     // MARK: - Properties
 
     private var currentReloadType: ReloadType = .full
+    private var didShowSecondsToLoadToast = false
 
     // MARK: - View Lifecycle
 
     func viewAppeared() {
+        didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
         clientSession.user.startObservingCurrentUserChanges()
 
@@ -100,7 +102,6 @@ final class ConversationsPageViewService {
 
     /// `.resolveReturned`
     func viewLoaded() {
-        showSecondsToLoadToastIfNeeded()
         networking.database.clearTemporaryCaches()
         reloadIfNeeded()
 
@@ -177,7 +178,14 @@ final class ConversationsPageViewService {
                     }
                 }
 
-                array.forEach { markStale(conversation: $0) }
+                let staleConversations = Set(array.map {
+                    markStale(conversation: $0)
+                })
+
+                networking
+                    .conversationService
+                    .archive
+                    .addValues(staleConversations)
             }
 
             let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
@@ -238,7 +246,10 @@ final class ConversationsPageViewService {
                 .compactMap(\.hash) ?? []
         )
 
-        guard !currentUserConversationHashes.isEmpty else { return }
+        guard !currentUserConversationHashes.isEmpty else {
+            return Observables.updateConversationsListSetToReliableDataSource.trigger()
+        }
+
         let dataSources: [ConversationSource] = [
             ConversationSource(
                 "provided conversations",
@@ -269,6 +280,15 @@ final class ConversationsPageViewService {
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
         ) else {
+            Task { // NIT: Ensure this is a good approach.
+                if let exception = await User.populateCurrentUserConversationsIfNeeded() {
+                    Logger.log(
+                        exception,
+                        domain: .conversation
+                    )
+                }
+            }
+
             return Logger.log(
                 .init(
                     "No conversation data source was well-formed.",
@@ -296,12 +316,74 @@ final class ConversationsPageViewService {
                 domain: .conversation,
                 sender: self
             )
+
+            Observables.updateConversationsListSetToReliableDataSource.trigger()
         }
 
         state.conversations = bestCandidate.conversations
     }
 
     // MARK: - Auxiliary
+
+    func showSecondsToLoadToastIfNeeded() {
+        guard !didShowSecondsToLoadToast else { return }
+        didShowSecondsToLoadToast = true
+
+        let currentUser = clientSession.user.currentUser
+        let numberOfConversations = currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .count ?? currentUser?
+            .conversationIDs?
+            .count ?? 1
+
+        let secondsToLoad = max(
+            abs(Application.loadStartDate.seconds(from: .now)) - 1,
+            0
+        )
+        let secondsPerConversation = String(
+            format: "%.2f",
+            Float(secondsToLoad) / Float(numberOfConversations)
+        )
+
+        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        let allMessages = (currentUser?.conversations ?? conversationArchive)?
+            .visibleForCurrentUser
+            .compactMap(\.messages)
+            .flatMap(\.self) ?? []
+
+        let uniqueMessages = allMessages.uniquedByID
+        let audioMessageCount = uniqueMessages.filter(\.contentType.isAudio).count
+        let mediaMessageCount = uniqueMessages.filter(\.contentType.isMedia).count
+        let totalMessageCount = uniqueMessages.count
+        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
+
+        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
+        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
+        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
+        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
+
+        var addendum = ""
+        if totalMessageCount > 0 {
+            addendum = "\nUser has \(totalMessageCount) messages and \(numberOfConversations) conversations."
+            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
+        }
+
+        let seconds = "second\(secondsToLoad == 1 ? "" : "s")"
+        Logger.log(
+            "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+            domain: .conversation,
+            sender: self
+        )
+
+        guard build.milestone != .generalRelease else { return }
+        Toast.show(.init(
+            message: "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+            perpetuation: .ephemeral(.seconds(10))
+        ))
+    }
 
     private func enableOfflineModeSideEffects() {
         func showOfflineModeToast() {
@@ -363,7 +445,7 @@ final class ConversationsPageViewService {
             .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
     }
 
-    private func markStale(conversation: Conversation) {
+    private func markStale(conversation: Conversation) -> Conversation {
         var newConversationMessageIDs = conversation.messageIDs
         var newConversationMessages = conversation.messages
 
@@ -373,7 +455,7 @@ final class ConversationsPageViewService {
             newConversationMessageIDs = (newConversationMessages ?? []).map(\.id)
         }
 
-        let newConversation: Conversation = .init(
+        return .init(
             .init(key: conversation.id.key, hash: .bangQualifiedEmpty),
             activities: conversation.activities,
             messageIDs: newConversationMessageIDs,
@@ -383,8 +465,6 @@ final class ConversationsPageViewService {
             reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
-
-        networking.conversationService.archive.addValue(newConversation)
     }
 
     /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
@@ -457,58 +537,6 @@ final class ConversationsPageViewService {
                 )
             }
         }
-    }
-
-    private func showSecondsToLoadToastIfNeeded() {
-        let currentUser = clientSession.user.currentUser
-        let numberOfConversations = currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .count ?? currentUser?
-            .conversationIDs?
-            .count ?? 1
-
-        let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
-        let secondsPerConversation = String(
-            format: "%.2f",
-            Float(secondsToLoad) / Float(numberOfConversations)
-        )
-
-        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
-
-        let allMessages = currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .compactMap(\.messages)
-            .flatMap(\.self) ?? []
-
-        let audioMessageCount = allMessages.filter(\.contentType.isAudio).uniquedByID.count
-        let mediaMessageCount = allMessages.filter(\.contentType.isMedia).uniquedByID.count
-        let totalMessageCount = allMessages.uniquedByID.count
-        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
-
-        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
-        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
-        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
-        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
-
-        var addendum = ""
-        if totalMessageCount > 0 {
-            addendum = "\nUser has \(totalMessageCount) total messages."
-            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
-        }
-
-        Logger.log(
-            "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
-            domain: .conversation,
-            sender: self
-        )
-
-        guard build.milestone != .generalRelease else { return }
-        Toast.show(.init(
-            message: "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
-            perpetuation: .ephemeral(.seconds(10))
-        ))
     }
 
     private func startSettingSearchBarAppearance() {
@@ -611,14 +639,14 @@ private extension Conversation {
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }
 
-        let participantUserIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
+        let participantUserIDs = Set(participants.map(\.userID).filter { $0 != User.currentUserID })
         let resolvedUsers = UserCache
             .knownUsers
             .filter { participantUserIDs.contains($0.id) }
             .uniquedByID
 
-        guard resolvedUsers.map(\.id).containsAllStrings(
-            in: participantUserIDs
+        guard participantUserIDs.isSubset(
+            of: resolvedUsers.map(\.id)
         ) else { return self }
 
         return .init(

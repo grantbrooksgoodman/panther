@@ -21,14 +21,13 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
 
     // MARK: - Computed Properties
 
-    var backgroundColor: Color {
-        Application.isInPrevaricationMode ? .init(uiColor: .systemBlue) : .accent
-    }
-
-    var progressViewTintColor: Color {
-        ThemeService.isAppDefaultThemeApplied &&
-            ThemeService.isDarkModeActive &&
-            UIApplication.isFullyV26Compatible ? .black : .white
+    var backgroundColor: Color? { nil }
+    var progressViewTintColor: Color? {
+        if UIApplication.isFullyV26Compatible {
+            ThemeService.isDarkModeActive ? .white : .black
+        } else {
+            .white
+        }
     }
 
     // MARK: - Methods

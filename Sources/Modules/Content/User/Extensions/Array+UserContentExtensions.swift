@@ -17,17 +17,15 @@ extension [ContactPair] {
 
     var uniquedByPhoneNumber: [ContactPair] {
         var contactPairs = [ContactPair]()
+        var seenNumbers = Set<String>()
 
         for contactPair in self {
-            let phoneNumbers = contactPairs
-                .map(\.compiledNumberStrings)
-                .flatMap(\.self)
-
             guard !contactPair
                 .compiledNumberStrings
-                .contains(where: phoneNumbers.contains) else { continue }
+                .contains(where: seenNumbers.contains) else { continue }
 
             contactPairs.append(contactPair)
+            seenNumbers.formUnion(contactPair.compiledNumberStrings)
         }
 
         return contactPairs
@@ -76,10 +74,12 @@ extension [Conversation] {
     /// sorted by latest message sent date, and hydrated with system messages.
     var filteredAndSorted: [Conversation] {
         visibleForCurrentUser
-            .map(\.filteringSystemMessages)
             .sortedByLatestMessageSentDate
             .unique
-            .map(\.withHydratedMessages)
+            .map(
+                \.filteringSystemMessages
+                    .withHydratedMessages
+            )
     }
 
     // MARK: - Methods

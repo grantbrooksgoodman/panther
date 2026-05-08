@@ -56,7 +56,11 @@ extension AppException {
         @MainActor
         func isReportable(_ errorCode: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
-            guard errorCode != AppException.cannotSendTextMessages.errorCode else { return false }
+            if errorCode == AppException.cannotSendTextMessages.errorCode ||
+                errorCode == AppException.observerRegistrationMisuse.errorCode {
+                return false
+            }
+
             guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
             return !errorReportingService.reportedErrorCodes.contains(errorCode)
         }
@@ -105,6 +109,7 @@ extension AppException {
     static let currentUserIDNotSet: AppException = .init("EA90")
     static let emptyContactList: AppException = .init("A431")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
+    static let failedToGenerateMediaFile: AppException = .init("D648")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
     static let mistranslationReported: AppException = .init("CA45")
@@ -113,6 +118,7 @@ extension AppException {
     static let notRegisteredForPushNotifications: AppException = .init("FB09")
     static let noSpeechDetected: AppException = .init("24F2")
     static let noUsersWithPhoneNumber: AppException = .init("4E4F")
+    static let observerRegistrationMisuse: AppException = .init("983A")
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
     static let sameTranslationInputOutput: AppException = .init("6CEB")

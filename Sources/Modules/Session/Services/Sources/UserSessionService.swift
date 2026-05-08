@@ -37,6 +37,7 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Properties
 
     @Persistent(.currentUserID) private var currentUserID: String?
+    @LockIsolated private var isUpdatePending = false
     @LockIsolated private var isUpdatingCurrentUser = false
     private var _currentUser = LockIsolated<User?>(nil)
 
@@ -107,6 +108,7 @@ final class UserSessionService: @unchecked Sendable {
 
         switch getUserResult {
         case let .success(user):
+            user.inheritLocalState(from: currentUser)
             currentUser = user
             await MainActor.run { self.currentUserID = user.id }
             return .success(user)
@@ -346,7 +348,7 @@ final class UserSessionService: @unchecked Sendable {
                 translating: Toast.TranslationOptionKey.allCases
             )
 
-            RuntimeStorage.store(false, as: .updatedLastSignInDate)
+            RuntimeStorage.remove(.updatedLastSignInDate)
             Application.reset(onCompletion: .navigateToSplash)
         }
     }
@@ -360,8 +362,9 @@ final class UserSessionService: @unchecked Sendable {
             }
 
             guard !isUpdatingCurrentUser else {
+                $isUpdatePending.withValue { $0 = true }
                 return Logger.log(
-                    "Skipping current user update because an update is already occurring.",
+                    "Queuing pending current user update because an update is already occurring.",
                     domain: .userSession,
                     sender: self
                 )
@@ -377,6 +380,10 @@ final class UserSessionService: @unchecked Sendable {
                     sender: self
                 )
 
+                if let exception = await currentUser?.setConversations() {
+                    Logger.log(exception, domain: .userSession)
+                }
+
                 Task.debounced(
                     TaskID.getDataUsage,
                     delay: .seconds(5),
@@ -389,16 +396,29 @@ final class UserSessionService: @unchecked Sendable {
                 Observables.updatedCurrentUser.trigger()
                 chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
 
-                self.isUpdatingCurrentUser = false
-
             case let .failure(exception):
                 Logger.log(
                     exception,
                     domain: .userSession
                 )
-
-                self.isUpdatingCurrentUser = false
             }
+
+            var shouldRetry = false
+            $isUpdatePending.withValue {
+                shouldRetry = $0
+                $0 = false
+            }
+
+            self.isUpdatingCurrentUser = false
+            guard shouldRetry else { return }
+
+            Logger.log(
+                "Retrying current user update from pending request.",
+                domain: .userSession,
+                sender: self
+            )
+
+            updateCurrentUser()
         }
     }
 }

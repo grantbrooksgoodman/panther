@@ -19,35 +19,35 @@ extension TranslatedLabelStringCollection {
         // swiftlint:disable:next line_length
         case aiEnhanceTranslationsListRowFooterText = "Allow translations to be AI-enhanced for clarity without changing meaning. The content of your messages may be sent through an LLM."
         case aiEnhanceTranslationsListRowInnerText = "AI-enhanced translations"
-        case blockedUsersButtonText = "Blocked Users"
-        case changeLanguage = "Change Language"
-        case changeThemeButtonText = "Change Theme"
-        case clearCachesButtonText = "Clear Caches"
+        case blockedUsersButtonText = "Blocked users"
+        case changeLanguage = "Change language"
+        case changeThemeButtonText = "Change theme"
+        case clearCachesButtonText = "Clear caches"
         case dataUsageLabelText = "Data usage"
-        case deleteAccountButtonText = "Delete Account"
-        case inviteFriendsButtonText = "Invite Friends"
-        case leaveReviewButtonText = "Leave a Review" // swiftlint:disable:next line_length
+        case deleteAccountButtonText = "Delete account"
+        case inviteFriendsButtonText = "Invite friends"
+        case leaveReviewButtonText = "Leave a review" // swiftlint:disable:next line_length
         case penPalsListRowFooterText = "⌘PenPals⌘ enables cross-cultural communication, allowing users to connect fluently with a randomly-selected person at any time."
         case penPalsListRowInnerText = "Participate in ⌘PenPals⌘"
         case recipientConsentListRowFooterText = "Require consent from recipients to receive messages from your account."
         case recipientConsentListRowInnerText = "Require recipient consent"
-        case signOutButtonText = "Sign Out"
+        case signOutButtonText = "Sign out"
 
         // MARK: - Properties
 
         var alternate: String? {
             switch self {
             case .changeThemeButtonText:
-                "Change Appearance"
+                "Change appearance"
 
             case .leaveReviewButtonText:
-                "Rate the App"
+                "Rate the app"
 
             case .recipientConsentListRowInnerText:
-                "Require Recipient Consent"
+                "Require recipient consent"
 
             case .signOutButtonText:
-                "Log Out"
+                "Log out"
 
             default:
                 nil

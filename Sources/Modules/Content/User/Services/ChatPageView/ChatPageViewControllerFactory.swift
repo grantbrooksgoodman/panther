@@ -178,6 +178,7 @@ struct ChatPageViewControllerFactory {
         typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
 
         let inputBar = viewController.messageInputBar
+        inputBar.shouldManageSendButtonEnabledState = false
 
         // Configure attach media button
 
@@ -291,6 +292,8 @@ struct ChatPageViewControllerFactory {
     }
 
     private func configureV26InputBarAppearance(_ inputBar: InputBarAccessoryView) {
+        guard UIApplication.isFullyV26Compatible else { return }
+
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
         typealias Strings = AppConstants.Strings.ChatPageViewService.InputBar
 
@@ -324,6 +327,9 @@ struct ChatPageViewControllerFactory {
         inputTextViewGlassEffectView.clipsToBounds = true
         inputTextViewGlassEffectView.isUserInteractionEnabled = false
         inputTextViewGlassEffectView.layer.cornerRadius = Floats.layerCornerRadius
+        inputTextViewGlassEffectView.tag = coreUI.semTag(
+            for: Strings.inputTextViewGlassEffectViewSemanticTag
+        )
         inputTextViewGlassEffectView.translatesAutoresizingMaskIntoConstraints = false
 
         if let inputTextViewSuperview = inputBar.inputTextView.superview {

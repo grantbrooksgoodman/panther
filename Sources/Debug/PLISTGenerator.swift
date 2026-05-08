@@ -36,43 +36,49 @@ enum PLISTGenerator {
 
     static func translate(
         _ text: String,
-        forKey key: String,
+        forKey key: String? = nil,
+        sourceLanguageCode: String = "en",
         plistName: String = "LocalizedStrings",
-        postProcessingConfig: Localization.PostProcessingConfiguration? = nil,
-        useEnhancedTranslation: Bool = false
+        processingConfig: Localization.ProcessingConfiguration? = nil,
+        postProcess: ((String) -> String)? = nil,
+        enhancementContext: String? = nil,
     ) async -> Callback<String, Exception> {
         await Localization.createPLIST(
             translating: text,
-            plistConfig: .init(
-                key: key,
-                name: plistName
-            ),
-            postProcessingConfig: postProcessingConfig
+            withKey: key,
+            sourceLanguageCode: sourceLanguageCode,
+            plistConfig: .init(name: plistName),
+            processingConfig: processingConfig,
+            postProcessingTransformation: postProcess
         ) { languageCode in
             await _translate(
                 text: text,
-                languageCode: languageCode,
-                useEnhancedTranslation: useEnhancedTranslation
+                sourceLanguageCode: sourceLanguageCode,
+                targetLanguageCode: languageCode,
+                enhancementContext: enhancementContext
             )
         }
     }
 
     static func translate(
         _ text: String,
-        forKey key: String,
+        forKey key: String? = nil,
         plistName: String = "LocalizedStrings",
-        postProcessingConfig: Localization.PostProcessingConfiguration? = nil,
-        useEnhancedTranslation: Bool = false,
+        processingConfig: Localization.ProcessingConfiguration? = nil,
+        postProcess: ((String) -> String)? = nil,
+        enhancementContext: String? = nil,
         completion: @escaping @Sendable (Callback<String, Exception>) -> Void
     ) {
+        let postProcess = LockIsolated<((String) -> String)?>(postProcess)
         Task {
             await completion(
                 translate(
                     text,
                     forKey: key,
                     plistName: plistName,
-                    postProcessingConfig: postProcessingConfig,
-                    useEnhancedTranslation: useEnhancedTranslation
+                    processingConfig: processingConfig,
+                    postProcess: postProcess.wrappedValue,
+                    enhancementContext: enhancementContext
                 )
             )
         }
@@ -82,8 +88,9 @@ enum PLISTGenerator {
 
     private static func _translate(
         text: String,
-        languageCode: String,
-        useEnhancedTranslation: Bool
+        sourceLanguageCode: String,
+        targetLanguageCode: String,
+        enhancementContext: String?
     ) async -> Callback<Translation, Exception> {
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.networking.hostedTranslation) var hostedTranslator: HostedTranslationDelegate
@@ -91,19 +98,28 @@ enum PLISTGenerator {
         @Dependency(\.translationService) var translator: TranslationService
 
         translationArchiverDelegate.clearArchive()
+        let useEnhancedTranslation = enhancementContext != nil
         if useEnhancedTranslation {
             coreUtilities.clearCaches([.Networking.gemini])
         }
 
-        let translateResult = useEnhancedTranslation ? await hostedTranslator.translate(
+        let translateResult = enhancementContext == nil ? await translator.translate(
             .init(text),
-            with: .init(from: "en", to: languageCode),
-            enhance: .init(additionalContext: additionalContext)
-        ) : await translator.translate(
-            .init(text),
-            languagePair: .init(from: "en", to: languageCode),
+            languagePair: .init(
+                from: sourceLanguageCode,
+                to: targetLanguageCode
+            ),
             hud: nil,
             timeout: (.seconds(60), true)
+        ) : await hostedTranslator.translate(
+            .init(text),
+            with: .init(
+                from: sourceLanguageCode,
+                to: targetLanguageCode
+            ),
+            enhance: .init(
+                additionalContext: "\(enhancementContext!)\n\(additionalContext)"
+            )
         )
 
         switch translateResult {
@@ -121,8 +137,9 @@ enum PLISTGenerator {
 
                 return await _translate(
                     text: text,
-                    languageCode: languageCode,
-                    useEnhancedTranslation: false
+                    sourceLanguageCode: sourceLanguageCode,
+                    targetLanguageCode: targetLanguageCode,
+                    enhancementContext: enhancementContext
                 )
             }
 
@@ -130,7 +147,10 @@ enum PLISTGenerator {
             return .success(.init(
                 input: .init(text),
                 output: text,
-                languagePair: .init(from: "en", to: languageCode),
+                languagePair: .init(
+                    from: sourceLanguageCode,
+                    to: targetLanguageCode
+                ),
             ))
         }
     }

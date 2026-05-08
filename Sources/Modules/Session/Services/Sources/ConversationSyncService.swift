@@ -51,9 +51,8 @@ final class ConversationSyncService: @unchecked Sendable {
             guard !Self
                 .recentlyFailedSyncRecords
                 .wrappedValue
-                .filter({ !$0.isExpired })
                 .contains(where: {
-                    $0.conversationID == conversation.id
+                    $0.conversationID == conversation.id && !$0.isExpired
                 }) else {
                 Logger.log(
                     .init(
@@ -152,11 +151,20 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
+        // Use the server hash (from the user's conversationIDs) as the
+        // conversation's id.hash so archive lookups match on the server
+        // hash rather than the client-computed encodedHash. This avoids
+        // writing back to openConversations and triggering a self-event.
+        let serverHash = currentUser?
+            .conversationIDs?
+            .first(where: { $0.key == syncData.conversation.id.key })?
+            .hash ?? syncData.conversation.encodedHash
+
         self.syncData = .init(
             .init(
                 .init(
                     key: syncData.conversation.id.key,
-                    hash: syncData.conversation.encodedHash
+                    hash: serverHash
                 ),
                 activities: syncData.conversation.activities,
                 messageIDs: syncData.conversation.messageIDs,
@@ -465,9 +473,11 @@ final class ConversationSyncService: @unchecked Sendable {
             ).appending(userInfo: userInfo))
         }
 
-        var filteredMessageIDs = messageIDs.filter { !currentMessages.map(\.id).contains($0) }
+        let currentMessageIDs = Set(currentMessages.map(\.id))
+        var filteredMessageIDs = messageIDs.filter { !currentMessageIDs.contains($0) }
         if filteredMessageIDs.isEmpty {
-            filteredMessageIDs = messageIDs.filter { !conversation.messageIDs.contains($0) }
+            let existingMessageIDs = Set(conversation.messageIDs)
+            filteredMessageIDs = messageIDs.filter { !existingMessageIDs.contains($0) }
         }
 
         // Update messages if necessary.
@@ -540,34 +550,11 @@ final class ConversationSyncService: @unchecked Sendable {
     private func updateHash(
         _ conversation: Conversation
     ) async -> Exception? {
-        // TODO: Audit efficacy of this with multiple running instances.
-        if let currentUser,
-           var conversationIDs = currentUser.conversationIDs,
-           let index = conversationIDs.firstIndex(where: {
-               $0.key == conversation.id.key
-           }) {
-            conversationIDs.removeAll(where: { $0.key == conversation.id.key })
-            conversationIDs.insert(
-                .init(
-                    key: conversation.id.key,
-                    hash: conversation.encodedHash
-                ),
-                at: index
-            )
-
-            let updateValueResult = await currentUser.updateValue(
-                conversationIDs,
-                forKey: .conversationIDs
-            )
-
-            switch updateValueResult {
-            case let .failure(exception): return exception
-            default: ()
-            }
-        }
-
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/"
-        let hashPath = conversationKeyPath + Conversation.SerializationKeys.encodedHash.rawValue
+        let hashPath = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+            Conversation.SerializationKeys.encodedHash.rawValue,
+        ].joined(separator: "/")
         return await networking.database.setValue(
             conversation.encodedHash,
             forKey: hashPath

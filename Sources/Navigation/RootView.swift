@@ -12,7 +12,6 @@ import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
-import Networking
 
 /// The app's root SwiftUI view.
 ///
@@ -63,7 +62,6 @@ struct RootView: View {
                 EmptyView()
             }
         }
-        .indicatesNetworkActivity()
     }
 }
 

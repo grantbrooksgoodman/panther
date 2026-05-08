@@ -31,6 +31,7 @@ import AppSubsystem
 /// - Note: ``RuntimeStorage`` values persist only for the lifetime
 ///   of the current launch. They are not written to disk.
 extension StoredItemKey {
+    static let populatedTemporaryCaches: StoredItemKey = .init("populatedTemporaryCaches")
     static let updatedLastSignInDate: StoredItemKey = .init("updatedLastSignInDate")
 }
 
@@ -47,6 +48,10 @@ extension StoredItemKey {
 /// }
 /// ```
 extension RuntimeStorage {
+    static var populatedTemporaryCaches: Bool {
+        retrieve(.populatedTemporaryCaches) as? Bool ?? false
+    }
+
     static var updatedLastSignInDate: Bool {
         retrieve(.updatedLastSignInDate) as? Bool ?? false
     }

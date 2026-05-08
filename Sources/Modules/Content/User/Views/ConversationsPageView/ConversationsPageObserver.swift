@@ -18,11 +18,18 @@ struct ConversationsPageObserver: Observer {
 
     typealias R = ConversationsPageReducer
 
+    // MARK: - Types
+
+    private enum TaskID: Hashable {
+        case showSecondsToLoadToast
+    }
+
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
+    @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
@@ -31,6 +38,7 @@ struct ConversationsPageObserver: Observer {
 
     let observedValues: [any ObservableProtocol] = [
         Observables.traitCollectionChanged,
+        Observables.updateConversationsListSetToReliableDataSource,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
@@ -50,6 +58,14 @@ struct ConversationsPageObserver: Observer {
         case Observables.traitCollectionChanged,
              Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
+
+        case Observables.updateConversationsListSetToReliableDataSource:
+            Task.debounced(
+                TaskID.showSecondsToLoadToast,
+                delay: .seconds(1),
+            ) { @MainActor in
+                conversationsPageViewService.showSecondsToLoadToastIfNeeded()
+            }
 
         case Observables.updatedCurrentUser:
             Task { @MainActor in
@@ -100,7 +116,12 @@ struct ConversationsPageObserver: Observer {
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
-            if let exception = await updateCurrentUser() {
+            if let exception = await clientSession
+                .user
+                .currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .setUsers() {
                 Logger.log(
                     exception,
                     domain: .conversation,
@@ -123,13 +144,18 @@ struct ConversationsPageObserver: Observer {
                   .conversations?
                   .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
-            if let currentMessages = currentConversation.messages?.filteringSystemMessages,
-               let missingMessages = updatedConversation.messages?
-               .filteringSystemMessages
-               .filter({ !currentMessages.contains($0) })
-               .filter({ !$0.isFromCurrentUser })
-               .filter({ $0.currentUserReadReceipt == nil }),
-               !missingMessages.isEmpty {
+            let currentMessageIDs = Set(
+                currentConversation.messages?.filteringSystemMessages.map(\.id) ?? []
+            )
+
+            if let missingMessages = updatedConversation.messages?
+                .filteringSystemMessages
+                .filter({
+                    !currentMessageIDs.contains($0.id) &&
+                        !$0.isFromCurrentUser &&
+                        $0.currentUserReadReceipt == nil
+                }),
+                !missingMessages.isEmpty {
                 let updateReadDateResult = await updatedConversation.updateReadDate(
                     for: missingMessages
                 )
@@ -195,25 +221,5 @@ struct ConversationsPageObserver: Observer {
 
     private func matchesCurrentConversation(_ idKey: String) -> Bool {
         clientSession.conversation.currentConversation?.id.key == idKey
-    }
-
-    private func updateCurrentUser() async -> Exception? {
-        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
-
-        switch resolveCurrentUserResult {
-        case let .failure(exception): return exception
-        default: ()
-        }
-
-        if let exception = await clientSession.user.currentUser?.setConversations() {
-            return exception
-        }
-
-        return await clientSession
-            .user
-            .currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .setUsers()
     }
 }

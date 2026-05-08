@@ -91,16 +91,16 @@ extension [Conversation] {
 extension [Message] {
     /// The unique messages among the array according to their `id` value, where those with populated `readReceipts` fields take priority.
     var uniquedByID: [Message] {
-        let withReadDate = filter { $0.readReceipts != nil }
-        let withoutReadDate = filter { $0.readReceipts == nil }
-
         var messages = [Message]()
+        var seenIDs = Set<String>()
 
-        for message in withReadDate where !messages.contains(where: { $0.id == message.id }) {
+        for message in self where message.readReceipts != nil {
+            guard seenIDs.insert(message.id).inserted else { continue }
             messages.append(message)
         }
 
-        for message in withoutReadDate where !messages.contains(where: { $0.id == message.id }) {
+        for message in self where message.readReceipts == nil {
+            guard seenIDs.insert(message.id).inserted else { continue }
             messages.append(message)
         }
 

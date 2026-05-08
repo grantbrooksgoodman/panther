@@ -58,6 +58,7 @@ extension LoggerDomain {
             .contacts,
             .conversation,
             .conversationArchive,
+            .conversationSync,
             .dataIntegrity,
             .general,
             .Networking.hostedTranslation,

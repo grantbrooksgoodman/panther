@@ -212,7 +212,9 @@ private extension String {
         return trimmingCharacters(in: .punctuationCharacters)
             .uppercased()
             .components(separatedBy: .whitespaces)
+            .map { $0.filter(\.isLetter) }
             .map(\.trimmingWhitespace)
+            .filter { !$0.isBlank }
             .filter { !excludedWords.contains($0) }
             .prefix(3)
             .joined(separator: "_")

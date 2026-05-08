@@ -175,10 +175,10 @@ extension Conversation: Updatable {
         // NIT: Fixes looping updates when updating read receipts, but unsure of efficacy.
         defer { networking.conversationService.archive.addValue(updated) }
 
-        guard updated.encodedHash != encodedHash else { return .success(updated) }
+        guard updated.id.hash != id.hash else { return .success(updated) }
         let hashPath = conversationKeyPath + SerializationKeys.encodedHash.rawValue
         if let exception = await networking.database.setValue(
-            updated.encodedHash,
+            updated.id.hash,
             forKey: hashPath
         ) {
             return .failure(exception)

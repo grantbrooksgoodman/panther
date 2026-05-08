@@ -46,12 +46,13 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
 
     var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+        let nonSystemMessages = messages?.filteringSystemMessages
         var factors = [id.key]
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs.filter { $0.hasPrefix("-") })
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
-        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? [])
-        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.encodedHash) ?? [])
+        factors.append(contentsOf: nonSystemMessages?.map(\.id) ?? [])
+        factors.append(contentsOf: nonSystemMessages?.map(\.encodedHash) ?? [])
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(metadata.isPenPalsConversation.description)
@@ -310,29 +311,28 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             ))
         }
 
+        Logger.log(
+            "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
+            domain: .conversation,
+            sender: self
+        )
+
         return await updateValue(modifiedMessages, forKey: .messages)
     }
 
     // MARK: - Equatable Conformance
 
+    // NB: Ordered cheapest-to-compare first so the guard short-circuits
+    // before reaching expensive array comparisons.
     static func == (left: Conversation, right: Conversation) -> Bool {
-        let sameID = left.id == right.id
-        let sameActivities = left.activities == right.activities
-        let sameMessageIDs = left.messageIDs == right.messageIDs
-        let sameMessages = left.messages == right.messages
-        let sameMetadata = left.metadata == right.metadata
-        let sameParticipants = left.participants == right.participants
-        let sameReactionMetadata = left.reactionMetadata == right.reactionMetadata
-        let sameUsers = left.users == right.users
-
-        guard sameID,
-              sameActivities,
-              sameMessageIDs,
-              sameMessages,
-              sameMetadata,
-              sameParticipants,
-              sameReactionMetadata,
-              sameUsers else { return false }
+        guard left.id == right.id,
+              left.messageIDs == right.messageIDs,
+              left.metadata == right.metadata,
+              left.participants == right.participants,
+              left.activities == right.activities,
+              left.reactionMetadata == right.reactionMetadata,
+              left.messages == right.messages,
+              left.users == right.users else { return false }
 
         return true
     }

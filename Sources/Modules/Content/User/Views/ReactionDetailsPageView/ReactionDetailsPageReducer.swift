@@ -35,7 +35,9 @@ struct ReactionDetailsPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        let navigationTitle = Localized(.reactionDetails).wrappedValue.removingOccurrences(of: ["…"])
+        let navigationTitle = Localized(
+            .reactionDetails
+        ).wrappedValue.removingOccurrences(of: ["…"]).capitalized
 
         var viewID = UUID()
 

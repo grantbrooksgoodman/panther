@@ -8,7 +8,7 @@
 
 /* Native */
 import Foundation
-import UIKit
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
@@ -35,6 +35,8 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
     /// The window associated with this scene.
     var window: UIWindow?
 
+    private var networkActivityIndicatorWindow: UIWindow?
+
     // MARK: - UIScene
 
     /// Creates the root window and attaches the app's view hierarchy.
@@ -51,6 +53,28 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
             scene,
             rootView: RootView()
         )
+
+        // Hack to get the network activity indicator to appear
+        // above all other content.
+        if let windowScene = scene as? UIWindowScene {
+            let activityIndicatorWindow = UIWindow(windowScene: windowScene)
+
+            activityIndicatorWindow.backgroundColor = .clear
+            activityIndicatorWindow.isUserInteractionEnabled = false
+            activityIndicatorWindow.windowLevel = .statusBar + 1
+
+            let hostingController = UIHostingController(
+                rootView: Color.clear
+                    .ignoresSafeArea()
+                    .indicatesNetworkActivity()
+            )
+
+            hostingController.view.backgroundColor = .clear
+
+            activityIndicatorWindow.rootViewController = hostingController
+            activityIndicatorWindow.isHidden = false
+            networkActivityIndicatorWindow = activityIndicatorWindow
+        }
 
         let tapGesture = UITapGestureRecognizer(
             target: self,

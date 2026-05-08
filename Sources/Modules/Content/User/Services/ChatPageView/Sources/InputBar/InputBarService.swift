@@ -62,6 +62,7 @@ final class InputBarService {
 
     private var consentButton: UIButton? { inputBar.firstSubview(for: Strings.consentButtonSemanticTag) as? UIButton }
     private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var inputTextViewGlassEffectView: UIView? { inputBar.inputTextView.superview?.firstSubview(for: Strings.inputTextViewGlassEffectViewSemanticTag) }
     private var shouldEnableConsentButton: Bool { getShouldEnableConsentButton() }
     private var shouldShowConsentButton: Bool { getShouldShowConsentButton() }
     private var shouldShowRecordButton: Bool { getShouldShowRecordButton() }
@@ -86,6 +87,7 @@ final class InputBarService {
                 self.inputBar.inputTextView.alpha = 1
                 self.inputBar.leftStackView.alpha = 1
                 self.inputBar.sendButton.alpha = 1
+                self.inputTextViewGlassEffectView?.alpha = 1
             }
         }
 
@@ -422,6 +424,7 @@ final class InputBarService {
             self.inputBar.inputTextView.alpha = 0
             self.inputBar.leftStackView.alpha = 0
             self.inputBar.sendButton.alpha = 0
+            self.inputTextViewGlassEffectView?.alpha = 0
             consentButton.alpha = 1
         } completion: { _ in
             guard fullConversation.currentUserInitiatorRequiresMessageReceiptConsent,

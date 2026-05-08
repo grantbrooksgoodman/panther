@@ -54,6 +54,7 @@ final class ContactService: @unchecked Sendable {
             case let .success(contactPairs):
                 coreUtilities.clearCaches([
                     .contactPairArchive,
+                    .conversationCellViewData,
                     .queriedContactPairs,
                     .user,
                 ])

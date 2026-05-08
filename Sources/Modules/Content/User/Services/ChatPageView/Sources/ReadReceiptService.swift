@@ -45,12 +45,6 @@ final class ReadReceiptService {
 
         switch updateReadDateResult {
         case let .success(conversation):
-            Logger.log(
-                "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
-                domain: .conversation,
-                sender: self
-            )
-
             if let currentUser = clientSession.user.currentUser,
                let exception = await notificationService.setBadgeNumber(currentUser.calculateBadgeNumber() - unreadMessages.count) {
                 return exception

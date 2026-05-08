@@ -13,6 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
@@ -157,7 +158,31 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
-        return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
+        return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(
+            for: user.languageCode
+        )
+    }
+
+    // MARK: - Inherit Local State
+
+    /// Transfers locally-populated properties from a previous `User` instance.
+    ///
+    /// When `resolveCurrentUser()` creates a new `User` object, `conversations` is `nil`
+    /// because it's populated locally (not from the server). This method carries over
+    /// the prior instance's `conversations` to avoid redundant `setConversations()` calls.
+    func inheritLocalState(from user: User?) {
+        guard let user,
+              user.id == id,
+              conversations == nil || conversations?.isEmpty == true,
+              let sourceConversations = user.conversations,
+              !sourceConversations.isEmpty else { return }
+        Logger.log(
+            "<User: 0x\(objectID)> inherited local state from <User: 0x\(user.objectID)>.",
+            domain: .user,
+            sender: self
+        )
+
+        conversations = sourceConversations
     }
 
     // MARK: - Set Conversations
@@ -216,6 +241,13 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
+            if let existingConversations = conversations,
+               !existingConversations.isEmpty,
+               Set(existingConversations) == decodedConversations {
+                // Exit early to avoid recommitting the same conversations.
+                return nil
+            }
+
             await commitToMemory(decodedConversations)
             return nil
         }
@@ -285,15 +317,23 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     private func commitToMemory(_ conversations: Set<Conversation>) async {
         @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
         guard !Task.isCancelled else { return }
-
         await MainActor.run {
             conversationIDs = conversations.map(\.id)
             self.conversations = Array(conversations).sortedByLatestMessageSentDate
         }
 
         conversationArchive.addValues(conversations)
+
+        // If the session's current user is a different instance (replaced by a
+        // concurrent resolveCurrentUser()), forward conversations to it so both
+        // instances stay in sync without overwriting the newer user entirely.
+        guard let currentUser,
+              currentUser.id == id,
+              currentUser !== self else { return }
+        currentUser.inheritLocalState(from: self)
     }
 
     private func validateRatio(
@@ -308,5 +348,24 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         }
 
         return nil
+    }
+}
+
+private extension User {
+    var objectID: String {
+        let objectIdentifier = ObjectIdentifier(self)
+        guard var memoryAddress = "\(objectIdentifier)"
+            .components(separatedBy: "(")
+            .last?
+            .components(separatedBy: ")")
+            .first?
+            .components(separatedBy: "x")
+            .last else { return "\(objectIdentifier)" }
+
+        while memoryAddress.hasPrefix("0") {
+            memoryAddress = memoryAddress.dropPrefix()
+        }
+
+        return memoryAddress
     }
 }

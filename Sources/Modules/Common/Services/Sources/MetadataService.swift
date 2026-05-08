@@ -63,227 +63,131 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
     // MARK: - Resolve All Values
 
     func resolveValues() async -> Exception? {
-        if appShareLink == nil {
-            let getAppShareLinkResult = await getAppShareLink()
+        guard appShareLink == nil
+            || appStoreBuildNumber == nil
+            || geminiAPIKey == nil
+            || isPrevaricationModeEnabled == nil
+            || redirectionKey == nil
+            || shouldForceUpdate == nil
+            || storageReferenceURL == nil else { return nil }
 
-            switch getAppShareLinkResult {
-            case let .success(appShareLink):
-                self.appShareLink = appShareLink
+        let getValuesResult = await database.getValues(
+            at: NetworkPath.shared.rawValue,
+            prependingEnvironment: false
+        )
 
-            case let .failure(exception):
-                return exception
+        switch getValuesResult {
+        case let .success(values):
+            guard let dictionary = values as? [String: Any] else {
+                return .Networking.typecastFailed(
+                    "dictionary",
+                    metadata: .init(sender: self)
+                )
             }
+
+            return assignValues(from: dictionary)
+
+        case let .failure(exception):
+            return exception
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private func assignValues(from dictionary: [String: Any]) -> Exception? {
+        if appShareLink == nil {
+            guard let urlString = dictionary[
+                MetadataServiceKey.appShareLink.rawValue
+            ] as? String,
+                let url = URL(string: urlString) else {
+                return .Networking.typecastFailed(
+                    "URL",
+                    metadata: .init(sender: self)
+                )
+            }
+
+            appShareLink = url
         }
 
         if appStoreBuildNumber == nil {
-            let getAppStoreBuildNumberResult = await getAppStoreBuildNumber()
-
-            switch getAppStoreBuildNumberResult {
-            case let .success(appStoreBuildNumber):
-                self.appStoreBuildNumber = appStoreBuildNumber
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.appStoreBuildNumber.rawValue
+            ] as? Int else {
+                return .Networking.typecastFailed(
+                    "integer",
+                    metadata: .init(sender: self)
+                )
             }
+
+            appStoreBuildNumber = value
         }
 
         if geminiAPIKey == nil {
-            let getGeminiAPIKeyResult = await getGeminiAPIKey()
-
-            switch getGeminiAPIKeyResult {
-            case let .success(geminiAPIKey):
-                self.geminiAPIKey = geminiAPIKey
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.geminiAPIKey.rawValue
+            ] as? String else {
+                return .Networking.typecastFailed(
+                    "string",
+                    metadata: .init(sender: self)
+                )
             }
+
+            geminiAPIKey = value
         }
 
         if isPrevaricationModeEnabled == nil {
-            let getIsPrevaricationModeEnabledResult = await getIsPrevaricationModeEnabled()
-
-            switch getIsPrevaricationModeEnabledResult {
-            case let .success(isPrevaricationModeEnabled):
-                self.isPrevaricationModeEnabled = isPrevaricationModeEnabled
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.isPrevaricationModeEnabled.rawValue
+            ] as? Bool else {
+                return .Networking.typecastFailed(
+                    "Bool",
+                    metadata: .init(sender: self)
+                )
             }
+
+            isPrevaricationModeEnabled = value
         }
 
         if redirectionKey == nil {
-            let getRedirectionKeyResult = await getRedirectionKey()
-
-            switch getRedirectionKeyResult {
-            case let .success(redirectionKey):
-                self.redirectionKey = redirectionKey
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.redirectionKey.rawValue
+            ] as? String else {
+                return .Networking.typecastFailed(
+                    "string",
+                    metadata: .init(sender: self)
+                )
             }
+
+            redirectionKey = value
         }
 
         if shouldForceUpdate == nil {
-            let getShouldForceUpdateResult = await getShouldForceUpdate()
-
-            switch getShouldForceUpdateResult {
-            case let .success(shouldForceUpdate):
-                self.shouldForceUpdate = shouldForceUpdate
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.shouldForceUpdate.rawValue
+            ] as? Bool else {
+                return .Networking.typecastFailed(
+                    "Bool",
+                    metadata: .init(sender: self)
+                )
             }
+
+            shouldForceUpdate = value
         }
 
         if storageReferenceURL == nil {
-            let getStorageReferenceURLResult = await getStorageReferenceURL()
-
-            switch getStorageReferenceURLResult {
-            case let .success(storageReferenceURL):
-                self.storageReferenceURL = storageReferenceURL
-
-            case let .failure(exception):
-                return exception
+            guard let value = dictionary[
+                MetadataServiceKey.storageReferenceURL.rawValue
+            ] as? String,
+                let url = URL(string: value) else {
+                return .Networking.typecastFailed(
+                    "URL",
+                    metadata: .init(sender: self)
+                )
             }
+
+            storageReferenceURL = url
         }
 
         return nil
-    }
-
-    // MARK: - Individual Value Retrieval
-
-    private func getAppShareLink() async -> Callback<URL, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.appShareLink.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let urlString = values as? String,
-                  let appShareLink = URL(string: urlString) else {
-                return .failure(.Networking.typecastFailed("URL", metadata: .init(sender: self)))
-            }
-
-            return .success(appShareLink)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getAppStoreBuildNumber() async -> Callback<Int, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.appStoreBuildNumber.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let appStoreBuildNumber = values as? Int else {
-                return .failure(.Networking.typecastFailed("integer", metadata: .init(sender: self)))
-            }
-
-            return .success(appStoreBuildNumber)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getGeminiAPIKey() async -> Callback<String, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.geminiAPIKey.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let geminiAPIKey = values as? String else {
-                return .failure(.Networking.typecastFailed("string", metadata: .init(sender: self)))
-            }
-
-            return .success(geminiAPIKey)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getIsPrevaricationModeEnabled() async -> Callback<Bool, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.isPrevaricationModeEnabled.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let isPrevaricationModeEnabled = values as? Bool else {
-                return .failure(.Networking.typecastFailed("Bool", metadata: .init(sender: self)))
-            }
-
-            return .success(isPrevaricationModeEnabled)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getRedirectionKey() async -> Callback<String, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.redirectionKey.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let redirectionKey = values as? String else {
-                return .failure(.Networking.typecastFailed("string", metadata: .init(sender: self)))
-            }
-
-            return .success(redirectionKey)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getShouldForceUpdate() async -> Callback<Bool, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.shouldForceUpdate.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let shouldForceUpdate = values as? Bool else {
-                return .failure(.Networking.typecastFailed("Bool", metadata: .init(sender: self)))
-            }
-
-            return .success(shouldForceUpdate)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-    }
-
-    private func getStorageReferenceURL() async -> Callback<URL, Exception> {
-        let getValuesResult = await database.getValues(
-            at: MetadataServiceKey.storageReferenceURL.path,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let urlString = values as? String,
-                  let storageReferenceURL = URL(string: urlString) else {
-                return .failure(.Networking.typecastFailed("URL", metadata: .init(sender: self)))
-            }
-
-            return .success(storageReferenceURL)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
     }
 }
