@@ -168,26 +168,22 @@ final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private func addToDeletedUsers(_ userID: String) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(
-            at: NetworkPath.deletedUsers.rawValue
-        )
+        do {
+            var deletedUserIDs: [String] = try await networking.database.getValues(
+                at: NetworkPath.deletedUsers.rawValue
+            )
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var array = values as? [String] else { return .Networking.typecastFailed("array", metadata: .init(sender: self)) }
-
-            array.append(userID)
-            array = array.filter { $0 != .bangQualifiedEmpty }.unique
+            deletedUserIDs.append(userID)
+            deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
             if let exception = await networking.database.setValue(
-                array,
+                deletedUserIDs,
                 forKey: NetworkPath.deletedUsers.rawValue
             ) {
                 return exception
             }
-
-        case let .failure(exception):
-            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return exception }
+        } catch {
+            guard error.isEqual(to: .Networking.Database.noValueExists) else { return error }
 
             if let exception = await networking.database.setValue(
                 [userID],

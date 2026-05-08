@@ -99,18 +99,13 @@ final class UserService: @unchecked Sendable {
     // MARK: - Get All Users
 
     func getAllUsers() async -> Callback<[User], Exception> {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.Networking.typecastFailed("dictionary", metadata: .init(sender: self)))
-            }
-
-            return await getUsers(ids: Array(dictionary.keys))
-
-        case let .failure(exception):
-            return .failure(exception)
+        do {
+            let userData: [String: Any] = try await networking.database.getValues(
+                at: NetworkPath.users.rawValue
+            )
+            return await getUsers(ids: Array(userData.keys))
+        } catch {
+            return .failure(error)
         }
     }
 
@@ -141,33 +136,25 @@ final class UserService: @unchecked Sendable {
             return await User.decode(from: match.data)
         }
 
-        let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.users.rawValue)/\(id)")
-
-        switch getValuesResult {
-        case let .success(values):
-            guard var data = values as? [String: Any] else {
-                let exception: Exception = .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-                return .failure(exception.appending(userInfo: userInfo))
-            }
-
-            data[Keys.id.rawValue] = id
-
-            var cachedValues = cachedUserDataSnapshots ?? []
-            cachedValues.append(
-                .init(
-                    data: data,
-                    expiryThreshold: .milliseconds(500)
-                )
+        var data: [String: Any]
+        do {
+            data = try await networking.database.getValues(
+                at: "\(NetworkPath.users.rawValue)/\(id)"
             )
-            cachedUserDataSnapshots = cachedValues
-            return await User.decode(from: data)
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        } catch {
+            return .failure(error.appending(userInfo: userInfo))
         }
+
+        data[Keys.id.rawValue] = id
+        var cachedValues = cachedUserDataSnapshots ?? []
+        cachedValues.append(
+            .init(
+                data: data,
+                expiryThreshold: .milliseconds(500)
+            )
+        )
+        cachedUserDataSnapshots = cachedValues
+        return await User.decode(from: data)
     }
 
     func getUsers(ids: [String]) async -> Callback<[User], Exception> {
@@ -199,34 +186,31 @@ final class UserService: @unchecked Sendable {
 
     func getUser(phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
         let userInfo = ["PhoneNumber": phoneNumber.encoded]
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
+        let userData: [String: Any]
 
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .failure(.Networking.typecastFailed(
-                    "dictionary",
+        do {
+            userData = try await networking.database.getValues(
+                at: NetworkPath.users.rawValue
+            )
+        } catch {
+            return .failure(error.appending(userInfo: userInfo))
+        }
+
+        let getUsersResult = await networking.userService.getUsers(ids: Array(userData.keys))
+
+        switch getUsersResult {
+        case let .success(users):
+            guard let user = users.first(where: {
+                $0.phoneNumber.compiledNumberString == phoneNumber.compiledNumberString
+            }) else {
+                return .failure(.init(
+                    "No users with the provided phone number.",
+                    isReportable: false,
                     metadata: .init(sender: self)
                 ).appending(userInfo: userInfo))
             }
 
-            let getUsersResult = await networking.userService.getUsers(ids: Array(dictionary.keys))
-
-            switch getUsersResult {
-            case let .success(users):
-                guard let user = users.first(where: { $0.phoneNumber.compiledNumberString == phoneNumber.compiledNumberString }) else {
-                    return .failure(.init(
-                        "No users with the provided phone number.",
-                        isReportable: false,
-                        metadata: .init(sender: self)
-                    ).appending(userInfo: userInfo))
-                }
-
-                return .success(user)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
-            }
+            return .success(user)
 
         case let .failure(exception):
             return .failure(exception.appending(userInfo: userInfo))

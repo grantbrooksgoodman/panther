@@ -137,35 +137,30 @@ struct ModerationSessionService {
             ))
         }
 
-        let path = "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
-            }
-
-            return await networking.userService.getUsers(ids: array)
-
-        case let .failure(exception):
-            return .failure(exception)
+        do {
+            return try await .success(
+                networking.database.getValues(
+                    at: [
+                        NetworkPath.users.rawValue,
+                        currentUserID,
+                        User.SerializationKeys.blockedUserIDs.rawValue,
+                    ].joined(separator: "/")
+                )
+            )
+        } catch {
+            return .failure(error)
         }
     }
 
     private func getReportedUserIDs() async -> Callback<[String: Int], Exception> {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.reportedUsers.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Int] else {
-                return .failure(.Networking.typecastFailed("dictionary", metadata: .init(sender: self)))
-            }
-
-            return .success(dictionary)
-
-        case let .failure(exception):
-            return .failure(exception)
+        do {
+            return try await .success(
+                networking.database.getValues(
+                    at: NetworkPath.reportedUsers.rawValue
+                )
+            )
+        } catch {
+            return .failure(error)
         }
     }
 

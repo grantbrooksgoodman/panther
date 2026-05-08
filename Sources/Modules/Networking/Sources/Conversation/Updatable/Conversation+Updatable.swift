@@ -258,23 +258,25 @@ extension Conversation: Updatable {
     private func addMessageIDs(_ messageIDs: [String]) async -> Exception? {
         @Dependency(\.networking) var networking: NetworkServices
 
+        let messagesKeyPath = [
+            NetworkPath.conversations.rawValue,
+            id.key,
+            Conversation.SerializationKeys.messages.rawValue,
+        ].joined(separator: "/")
+
+        let currentMessageIDs: [String]
         var newMessageIDs = messageIDs
 
-        let messagesKeyPath = "\(NetworkPath.conversations.rawValue)/\(id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: messagesKeyPath, cacheStrategy: .disregardCache)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: .init(sender: self))
-            }
-
-            newMessageIDs += array
-
-        case let .failure(exception):
-            return exception
+        do {
+            currentMessageIDs = try await networking.database.getValues(
+                at: messagesKeyPath,
+                cacheStrategy: .disregardCache
+            )
+        } catch {
+            return error
         }
 
+        newMessageIDs += currentMessageIDs
         if let exception = await networking.database.setValue(
             newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
             forKey: messagesKeyPath

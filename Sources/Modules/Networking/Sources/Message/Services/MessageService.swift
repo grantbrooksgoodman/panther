@@ -161,31 +161,21 @@ struct MessageService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        let getValuesResult = await networking.database.getValues(at: "\(NetworkPath.messages.rawValue)/\(id)")
+        var data: [String: Any]
+        do {
+            data = try await networking.database.getValues(
+                at: "\(NetworkPath.messages.rawValue)/\(id)"
+            )
+        } catch {
+            return .failure(error.appending(userInfo: userInfo))
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var data = values as? [String: Any] else {
-                let exception: Exception = .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-                return .failure(exception.appending(userInfo: userInfo))
-            }
+        data["id"] = id
+        let decodeResult = await Message.decode(from: data)
 
-            data["id"] = id
-            let decodeResult = await Message.decode(from: data)
-
-            switch decodeResult {
-            case let .success(message):
-                return .success(message)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
-            }
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        switch decodeResult {
+        case let .success(message): return .success(message)
+        case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
@@ -250,38 +240,41 @@ struct MessageService {
             return exception
         }
 
-        let path = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)/\(Conversation.SerializationKeys.messages.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
+        let path = [
+            NetworkPath.conversations.rawValue,
+            conversation.id.key,
+            Conversation.SerializationKeys.messages.rawValue,
+        ].joined(separator: "/")
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: .init(sender: self))
-            }
+        var messageIDs: [String]
+        do {
+            messageIDs = try await networking.database.getValues(at: path)
+        } catch {
+            return error
+        }
 
-            array.removeAll(where: { $0 == messageID })
-            array = array.unique
+        messageIDs.removeAll(where: { $0 == messageID })
+        messageIDs = messageIDs.unique
 
-            if let exception = await networking.database.setValue(array, forKey: path) {
-                return exception
-            }
-
-            guard updateConversationHash else { return nil }
-
-            let updateValueResult = await conversation.updateValue(
-                conversation.metadata.copyWith(
-                    lastModifiedDate: .now
-                ),
-                forKey: .metadata
-            )
-
-            switch updateValueResult {
-            case .success: return nil
-            case let .failure(exception): return exception
-            }
-
-        case let .failure(exception):
+        if let exception = await networking.database.setValue(
+            messageIDs,
+            forKey: path
+        ) {
             return exception
+        }
+
+        guard updateConversationHash else { return nil }
+
+        let updateValueResult = await conversation.updateValue(
+            conversation.metadata.copyWith(
+                lastModifiedDate: .now
+            ),
+            forKey: .metadata
+        )
+
+        switch updateValueResult {
+        case .success: return nil
+        case let .failure(exception): return exception
         }
     }
 

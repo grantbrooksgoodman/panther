@@ -25,71 +25,27 @@ extension DatabaseDelegate {
         guard !RuntimeStorage.populatedTemporaryCaches else { return nil }
         let database = LockIsolated<DatabaseDelegate>(_database)
 
-        async let getConversationValues = database.wrappedValue.getValues(
+        async let getConversationValues: [String: Any] = database.wrappedValue.getValues(
             at: NetworkPath.conversations.rawValue
         )
 
-        async let getMessageValues = database.wrappedValue.getValues(
+        async let getMessageValues: [String: Any] = database.wrappedValue.getValues(
             at: NetworkPath.messages.rawValue
         )
 
-        async let getUserValues = database.wrappedValue.getValues(
+        async let getUserValues: [String: Any] = database.wrappedValue.getValues(
             at: NetworkPath.users.rawValue
-        )
-
-        let (conversationResult, messageResult, userResult) = await (
-            getConversationValues,
-            getMessageValues,
-            getUserValues
         )
 
         let conversationData: [String: Any]
         let messageData: [String: Any]
         let userData: [String: Any]
-
-        switch conversationResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            conversationData = dictionary
-
-        case let .failure(exception):
-            return exception
-        }
-
-        switch messageResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            messageData = dictionary
-
-        case let .failure(exception):
-            return exception
-        }
-
-        switch userResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            userData = dictionary
-
-        case let .failure(exception):
-            return exception
+        do {
+            conversationData = try await getConversationValues
+            messageData = try await getMessageValues
+            userData = try await getUserValues
+        } catch {
+            return .init(error, metadata: .init(sender: self))
         }
 
         let environmentPrefix = Networking.config.environment.shortString

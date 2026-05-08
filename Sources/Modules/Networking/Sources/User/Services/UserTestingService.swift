@@ -447,17 +447,13 @@ struct UserTestingService {
     }
 
     private func getUserData() async -> [String: Any]? {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else { return nil }
-            return dictionary
-
-        case let .failure(exception):
-            Logger.log(exception)
-            return nil
+        do {
+            return try await networking.database.getValues(at: NetworkPath.users.rawValue)
+        } catch {
+            Logger.log(error)
         }
+
+        return nil
     }
 
     // MARK: - Auxiliary

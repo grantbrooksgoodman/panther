@@ -60,26 +60,22 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     var hostedBadgeNumber: Int {
         get async {
-            @Dependency(\.networking.database) var database: DatabaseDelegate
-            let getValuesResult = await database.getValues(
-                at: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)",
-                cacheStrategy: .disregardCache
-            )
+            do {
+                @Dependency(\.networking.database) var database: DatabaseDelegate
+                return try await database.getValues(
+                    at: [
+                        NetworkPath.users.rawValue,
+                        id,
+                        User.SerializationKeys.badgeNumber.rawValue,
+                    ].joined(separator: "/"),
+                    cacheStrategy: .disregardCache
+                )
+            } catch {
+                Logger.log(
+                    error,
+                    domain: .user
+                )
 
-            switch getValuesResult {
-            case let .success(values):
-                guard let integer = values as? Int else {
-                    Logger.log(
-                        .Networking.typecastFailed("integer", metadata: .init(sender: self)),
-                        domain: .user
-                    )
-                    return 0
-                }
-
-                return integer
-
-            case let .failure(exception):
-                Logger.log(exception, domain: .user)
                 return 0
             }
         }

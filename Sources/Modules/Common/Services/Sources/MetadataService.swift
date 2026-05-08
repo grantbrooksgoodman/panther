@@ -71,24 +71,14 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             || shouldForceUpdate == nil
             || storageReferenceURL == nil else { return nil }
 
-        let getValuesResult = await database.getValues(
-            at: NetworkPath.shared.rawValue,
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            return assignValues(from: dictionary)
-
-        case let .failure(exception):
-            return exception
+        do {
+            let sharedData: [String: Any] = try await database.getValues(
+                at: NetworkPath.shared.rawValue,
+                prependingEnvironment: false
+            )
+            return assignValues(from: sharedData)
+        } catch {
+            return error
         }
     }
 

@@ -27,83 +27,76 @@ struct LegacyUserService {
     /// - Warning: This method will clear all open conversations for the legacy user associated with the provided ID.
     func convertUser(id: String) async -> Exception? {
         let userInfo = ["UserID": id]
-
         let userPath = "\(NetworkPath.users.rawValue)/\(id)"
-        let getValuesResult = await networking.database.getValues(at: userPath)
+        var userData: [String: Any]
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var dictionary = values as? [String: Any] else {
-                let exception: Exception = .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-                return exception.appending(userInfo: userInfo)
-            }
-
-            dictionary[User.SerializationKeys.id.rawValue] = id
-
-            guard !User.canDecode(from: dictionary) else {
-                let exception = Exception(
-                    "User does not need conversion to new schema.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                )
-                return exception.appending(userInfo: userInfo)
-            }
-
-            guard let callingCode = dictionary["callingCode"] as? String,
-                  let nationalNumberString = dictionary["phoneNumber"] as? String,
-                  let regionCode = dictionary["region"] as? String else {
-                let exception = Exception("Failed to decode number information.", metadata: .init(sender: self))
-                return exception.appending(userInfo: userInfo)
-            }
-
-            let newDictionary = [
-                "callingCode": callingCode,
-                "nationalNumberString": nationalNumberString,
-                "regionCode": regionCode,
-            ]
-
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await networking.database.setValue(
-                Array.bangQualifiedEmpty,
-                forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
-            ) {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await networking.database.setValue(
-                Array.bangQualifiedEmpty,
-                forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
-            ) {
-                return exception.appending(userInfo: userInfo)
-            }
-
-            Logger.log(
-                "Successfully converted user with ID «\(id)» to new schema.",
-                domain: .user,
-                sender: self
+        do {
+            userData = try await networking.database.getValues(
+                at: userPath
             )
+        } catch {
+            return error.appending(userInfo: userInfo)
+        }
 
-        case let .failure(exception):
+        userData[User.SerializationKeys.id.rawValue] = id
+
+        guard !User.canDecode(from: userData) else {
+            let exception = Exception(
+                "User does not need conversion to new schema.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            )
             return exception.appending(userInfo: userInfo)
         }
+
+        guard let callingCode = userData["callingCode"] as? String,
+              let nationalNumberString = userData["phoneNumber"] as? String,
+              let regionCode = userData["region"] as? String else {
+            let exception = Exception("Failed to decode number information.", metadata: .init(sender: self))
+            return exception.appending(userInfo: userInfo)
+        }
+
+        let newDictionary = [
+            "callingCode": callingCode,
+            "nationalNumberString": nationalNumberString,
+            "regionCode": regionCode,
+        ]
+
+        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        if let exception = await networking.database.setValue(
+            Array.bangQualifiedEmpty,
+            forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
+        ) {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        if let exception = await networking.database.setValue(
+            Array.bangQualifiedEmpty,
+            forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
+        ) {
+            return exception.appending(userInfo: userInfo)
+        }
+
+        Logger.log(
+            "Successfully converted user with ID «\(id)» to new schema.",
+            domain: .user,
+            sender: self
+        )
 
         return nil
     }

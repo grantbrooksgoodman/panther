@@ -202,28 +202,27 @@ final class UserSessionService: @unchecked Sendable {
             )
         }
 
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKey.languageCode.rawValue)"
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let string = values as? String else {
-                return .Networking.typecastFailed("string", metadata: .init(sender: self))
-            }
+        do {
+            let languageCode: String = try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializationKeys.languageCode.rawValue,
+                ].joined(separator: "/")
+            )
 
             Logger.log(
-                "Setting language code to \(string.englishLanguageName ?? string.uppercased()).",
+                "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
                 domain: .userSession,
                 sender: self
             )
 
-            coreUtilities.setLanguageCode(string)
-            return nil
-
-        case let .failure(exception):
-            return exception
+            coreUtilities.setLanguageCode(languageCode)
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Current User Observation

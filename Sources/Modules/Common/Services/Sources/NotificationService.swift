@@ -127,49 +127,40 @@ struct NotificationService {
         _ title: String,
         body: String
     ) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)",
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in
-                if let userData = keyPair.value as? [String: Any],
-                   let pushTokens = userData[
-                       User.SerializationKeys.pushTokens.rawValue
-                   ] as? [String],
-                   !pushTokens.isBangQualifiedEmpty {
-                    partialResult.append(contentsOf: pushTokens)
-                }
-            }
-
-            var exceptions = [Exception]()
-            for pushToken in pushTokens.unique {
-                if let exception = await sendNotification(
-                    title: title,
-                    body: body,
-                    badgeNumber: 0,
-                    pushToken: pushToken,
-                    userInfo: [:],
-                    isReaction: false
-                ) {
-                    exceptions.append(exception)
-                }
-            }
-
-            return exceptions.compiledException
-
-        case let .failure(exception):
-            return exception
+        let userData: [String: Any]
+        do {
+            userData = try await networking.database.getValues(
+                at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
+            )
+        } catch {
+            return error
         }
+
+        let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
+            if let userData = keyPair.value as? [String: Any],
+               let pushTokens = userData[
+                   User.SerializationKeys.pushTokens.rawValue
+               ] as? [String],
+               !pushTokens.isBangQualifiedEmpty {
+                partialResult.append(contentsOf: pushTokens)
+            }
+        }
+
+        var exceptions = [Exception]()
+        for pushToken in pushTokens.unique {
+            if let exception = await sendNotification(
+                title: title,
+                body: body,
+                badgeNumber: 0,
+                pushToken: pushToken,
+                userInfo: [:],
+                isReaction: false
+            ) {
+                exceptions.append(exception)
+            }
+        }
+
+        return exceptions.compiledException
     }
 
     // MARK: - Respond to In-app Notification

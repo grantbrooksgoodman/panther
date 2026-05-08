@@ -64,14 +64,16 @@ struct MediaMessageService {
     func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkPath.messages.rawValue)/\(messageID)/\(Message.SerializationKeys.contentType.rawValue)"
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let string = values as? String,
-                  let hostedContentType = HostedContentType(hostedValue: string) else {
+        do {
+            guard let hostedContentType = try await HostedContentType(
+                hostedValue: networking.database.getValues(
+                    at: [
+                        NetworkPath.messages.rawValue,
+                        messageID,
+                        Message.SerializationKeys.contentType.rawValue,
+                    ].joined(separator: "/")
+                )
+            ) else {
                 return .init(
                     "Failed to resolve hosted content type.",
                     metadata: .init(sender: self)
@@ -100,9 +102,8 @@ struct MediaMessageService {
                 !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
                 exceptions.append(exception)
             }
-
-        case let .failure(exception):
-            exceptions.append(exception)
+        } catch {
+            exceptions.append(error)
         }
 
         return exceptions.compiledException

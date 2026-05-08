@@ -148,25 +148,22 @@ final class IntegrityService: @unchecked Sendable {
     // MARK: - Prune Deleted Users
 
     func pruneDeletedUsers() async -> Exception? {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.deletedUsers.rawValue)
+        var deletedUserIDs: [String]
+        do {
+            deletedUserIDs = try await networking.database.getValues(
+                at: NetworkPath.deletedUsers.rawValue
+            )
+        } catch {
+            guard !error.isEqual(to: .Networking.Database.noValueExists) else { return nil }
+            return error
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: .init(sender: self))
-            }
+        deletedUserIDs = deletedUserIDs.filter { !session.userData.keys.contains($0) }
 
-            array = array.filter { !session.userData.keys.contains($0) }
-
-            if let exception = await networking.database.setValue(
-                array.isBangQualifiedEmpty ? NSNull() : array,
-                forKey: NetworkPath.deletedUsers.rawValue
-            ) {
-                return exception
-            }
-
-        case let .failure(exception):
-            guard !exception.isEqual(to: .Networking.Database.noValueExists) else { return nil }
+        if let exception = await networking.database.setValue(
+            deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
+            forKey: NetworkPath.deletedUsers.rawValue
+        ) {
             return exception
         }
 
@@ -176,25 +173,22 @@ final class IntegrityService: @unchecked Sendable {
     // MARK: - Prune Invalidated Caches
 
     func pruneInvalidatedCaches() async -> Exception? {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
+        var invalidatedCahes: [String]
+        do {
+            invalidatedCahes = try await networking.database.getValues(
+                at: NetworkPath.invalidatedCaches.rawValue
+            )
+        } catch {
+            guard !error.isEqual(to: .Networking.Database.noValueExists) else { return nil }
+            return error
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var array = values as? [String] else {
-                return .Networking.typecastFailed("array", metadata: .init(sender: self))
-            }
+        invalidatedCahes = invalidatedCahes.filter { session.userData.keys.contains($0) }
 
-            array = array.filter { session.userData.keys.contains($0) }
-
-            if let exception = await networking.database.setValue(
-                array.isBangQualifiedEmpty ? NSNull() : array,
-                forKey: NetworkPath.invalidatedCaches.rawValue
-            ) {
-                return exception
-            }
-
-        case let .failure(exception):
-            guard !exception.isEqual(to: .Networking.Database.noValueExists) else { return nil }
+        if let exception = await networking.database.setValue(
+            invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
+            forKey: NetworkPath.invalidatedCaches.rawValue
+        ) {
             return exception
         }
 
@@ -210,14 +204,11 @@ final class IntegrityService: @unchecked Sendable {
         for conversationIDKey in (idKeys ?? malformedConversationIDKeys).filter({ $0 != .bangQualifiedEmpty }) {
             if idKeys != nil {
                 do {
-                    _ = try await networking.database.getValues(
+                    let _: [String: Any] = try await networking.database.getValues(
                         at: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
-                    ).get()
-                } catch let error as Exception {
-                    exceptions.append(error)
-                    continue
+                    )
                 } catch {
-                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    exceptions.append(error)
                     continue
                 }
             }
@@ -284,14 +275,11 @@ final class IntegrityService: @unchecked Sendable {
         for messageID in (messageIDs ?? malformedMessageIDs).filter({ $0 != .bangQualifiedEmpty }) {
             if messageIDs != nil {
                 do {
-                    _ = try await networking.database.getValues(
+                    let _: [String: Any] = try await networking.database.getValues(
                         at: "\(NetworkPath.messages.rawValue)/\(messageID)"
-                    ).get()
-                } catch let error as Exception {
-                    exceptions.append(error)
-                    continue
+                    )
                 } catch {
-                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    exceptions.append(error)
                     continue
                 }
             }
@@ -344,14 +332,11 @@ final class IntegrityService: @unchecked Sendable {
 
             if userIDs != nil {
                 do {
-                    _ = try await networking.database.getValues(
+                    let _: [String: Any] = try await networking.database.getValues(
                         at: "\(NetworkPath.users.rawValue)/\(userID)"
-                    ).get()
-                } catch let error as Exception {
-                    exceptions.append(error)
-                    continue
+                    )
                 } catch {
-                    exceptions.append(.init(error, metadata: .init(sender: self)))
+                    exceptions.append(error)
                     continue
                 }
             }

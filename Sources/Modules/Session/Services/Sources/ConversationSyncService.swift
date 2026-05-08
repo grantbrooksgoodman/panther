@@ -358,27 +358,19 @@ final class ConversationSyncService: @unchecked Sendable {
             "ConversationIDKey": conversation.id.key,
         ]
 
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)"
-        let getValuesResult = await networking.database.getValues(
-            at: conversationKeyPath,
-            cacheStrategy: .disregardCache
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let newData = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo)
-            }
-
-            syncData = .init(conversation, newData: newData)
-            return nil
-
-        case let .failure(exception):
-            return exception.appending(userInfo: userInfo)
+        do {
+            syncData = try await .init(
+                conversation,
+                newData: networking.database.getValues(
+                    at: "\(NetworkPath.conversations.rawValue)/\(conversation.id.key)",
+                    cacheStrategy: .disregardCache
+                )
+            )
+        } catch {
+            return error.appending(userInfo: userInfo)
         }
+
+        return nil
     }
 
     private func resolveConversation(
