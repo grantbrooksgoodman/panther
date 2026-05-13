@@ -31,7 +31,9 @@ extension [ContactPair] {
         return contactPairs
     }
 
-    var users: [User] { flatMap(\.users) }
+    var users: [User] {
+        flatMap(\.users)
+    }
 
     // MARK: - Methods
 
@@ -132,9 +134,17 @@ extension [Conversation] {
 extension [Message] {
     // MARK: - Properties
 
-    var filteringSystemMessages: [Message] { filter { !$0.isSystemMessage } }
-    var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
-    var sortedByDescendingSentDate: [Message] { sorted(by: { $0.sentDate > $1.sentDate }) }
+    var filteringSystemMessages: [Message] {
+        filter { !$0.isSystemMessage }
+    }
+
+    var sortedByAscendingSentDate: [Message] {
+        sorted(by: { $0.sentDate < $1.sentDate })
+    }
+
+    var sortedByDescendingSentDate: [Message] {
+        sorted(by: { $0.sentDate > $1.sentDate })
+    }
 
     // MARK: - Methods
 

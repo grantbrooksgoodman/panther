@@ -47,7 +47,7 @@ struct ActivitySessionService {
 
         let newMetadata = conversation.metadata.copyWith(
             messageRecipientConsentAcknowledgementData: newMessageRecipientConsentAcknowledgementData,
-            penPalsSharingData: newPenPalsSharingData,
+            penPalsSharingData: newPenPalsSharingData
         )
 
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }

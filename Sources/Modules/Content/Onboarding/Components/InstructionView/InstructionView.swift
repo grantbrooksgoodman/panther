@@ -30,7 +30,9 @@ struct InstructionView: View {
 
     // MARK: - Computed Properties
 
-    private var halfOfScreenWidth: CGFloat { screenWidth / Floats.screenWidthDivisor }
+    private var halfOfScreenWidth: CGFloat {
+        screenWidth / Floats.screenWidthDivisor
+    }
 
     // MARK: - Init
 

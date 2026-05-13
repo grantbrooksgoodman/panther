@@ -65,7 +65,7 @@ struct WelcomePageView: View {
 
                 Components.button(
                     viewModel.strings.value(for: .signInButtonText),
-                    font: .system(scale: .custom(Floats.signInButtonLabelFontSize)),
+                    font: .system(scale: .custom(Floats.signInButtonLabelFontSize))
                 ) {
                     viewModel.send(.signInButtonTapped)
                 }

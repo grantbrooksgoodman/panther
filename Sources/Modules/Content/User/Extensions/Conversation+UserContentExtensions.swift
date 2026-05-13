@@ -31,9 +31,18 @@ extension Conversation {
     }
 
     // swiftlint:disable:next identifier_name
-    var currentUserInitiatorRequiresMessageReceiptConsent: Bool { metadata.requiresConsentFromInitiator == User.currentUserID }
-    var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
-    var currentUserPenPalsSharingData: PenPalsSharingData? { metadata.penPalsSharingData.firstWithCurrentUserID }
+    var currentUserInitiatorRequiresMessageReceiptConsent: Bool {
+        metadata.requiresConsentFromInitiator == User.currentUserID
+    }
+
+    var currentUserParticipant: Participant? {
+        participants.firstWithCurrentUserID
+    }
+
+    var currentUserPenPalsSharingData: PenPalsSharingData? {
+        metadata.penPalsSharingData.firstWithCurrentUserID
+    }
+
     var currentUserSharesPenPalsDataWithAllUsers: Bool {
         guard metadata.isPenPalsConversation else { return true }
         return currentUserPenPalsSharingData?
@@ -60,8 +69,13 @@ extension Conversation {
         )
     }
 
-    var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
-    var isMock: Bool { id.key == CommonConstants.newConversationID }
+    var isEmpty: Bool {
+        id.key.isBlank && id.hash.isBlank
+    }
+
+    var isMock: Bool {
+        id.key == CommonConstants.newConversationID
+    }
 
     /// - Note: Returns `nil` if the conversation has > 2 total participants.
     var isOtherUserSharingPenPalsData: Bool? {

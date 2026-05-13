@@ -91,8 +91,13 @@ struct SettingsPageReducer: Reducer {
             return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
         }
 
-        var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
-        var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
+        var buildInfoButtonDarkBackgroundImage: UIImage {
+            .ntWhite
+        }
+
+        var buildInfoButtonLightBackgroundImage: UIImage {
+            .ntBlack
+        }
 
         var isBlockedUsersButtonEnabled: Bool {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?

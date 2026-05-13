@@ -45,9 +45,17 @@ extension ColoredItemType {
 /// ```
 @MainActor
 extension UIColor {
-    static var navigationBarButton: UIColor { ThemeService.currentTheme.color(for: .navigationBarButton) }
-    static var receiverBubble: UIColor { ThemeService.currentTheme.color(for: .receiverBubble) }
-    static var senderBubble: UIColor { ThemeService.currentTheme.color(for: .senderBubble) }
+    static var navigationBarButton: UIColor {
+        ThemeService.currentTheme.color(for: .navigationBarButton)
+    }
+
+    static var receiverBubble: UIColor {
+        ThemeService.currentTheme.color(for: .receiverBubble)
+    }
+
+    static var senderBubble: UIColor {
+        ThemeService.currentTheme.color(for: .senderBubble)
+    }
 }
 
 /// Use this extension to create custom SwiftUI `Color` properties
@@ -62,7 +70,15 @@ extension UIColor {
 /// ```
 @MainActor
 extension Color {
-    static var navigationBarButton: Color { .init(uiColor: .navigationBarButton) }
-    static var receiverBubble: Color { .init(uiColor: .receiverBubble) }
-    static var senderBubble: Color { .init(uiColor: .senderBubble) }
+    static var navigationBarButton: Color {
+        .init(uiColor: .navigationBarButton)
+    }
+
+    static var receiverBubble: Color {
+        .init(uiColor: .receiverBubble)
+    }
+
+    static var senderBubble: Color {
+        .init(uiColor: .senderBubble)
+    }
 }

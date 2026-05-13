@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import Foundation
@@ -35,15 +35,23 @@ final class MessageDeliveryService {
 
     // MARK: - Computed Properties
 
-    private var fullConversation: Conversation? { clientSession.conversation.fullConversation }
+    private var fullConversation: Conversation? {
+        clientSession.conversation.fullConversation
+    }
+
     private var isPenPalsConversation: Bool {
         // TODO: Figure out a better way to confirm isPenPalsConversation. Can be spoofed with genuine contact names.
         (selectedContactPairs?.map(\.contact.fullName) ?? []).containsAnyString(in: users.map(\.penPalsName)) ||
             fullConversation?.metadata.isPenPalsConversation == true
     }
 
-    private var selectedContactPairs: [ContactPair]? { chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs }
-    private var users: [User] { (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique }
+    private var selectedContactPairs: [ContactPair]? {
+        chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs
+    }
+
+    private var users: [User] {
+        (fullConversation?.users ?? (selectedContactPairs ?? []).users).unique
+    }
 
     // MARK: - Object Lifecycle
 
@@ -397,4 +405,4 @@ final class MessageDeliveryService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

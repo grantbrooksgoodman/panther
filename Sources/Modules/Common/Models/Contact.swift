@@ -35,7 +35,9 @@ struct Contact: Codable, EncodedHashable, Equatable {
         ].sorted()
     }
 
-    var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
+    var image: UIImage? {
+        _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id)
+    }
 
     var fullName: String {
         if !firstName.isBlank,

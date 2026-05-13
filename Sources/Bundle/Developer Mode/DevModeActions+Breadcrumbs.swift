@@ -110,7 +110,7 @@ extension DevModeAction.AppActions {
                         keyboardType: .decimalPad,
                         placeholderText: String(breadcrumbsCaptureService.captureFrequency)
                             .removingOccurrences(of: [".0", "seconds"])
-                            .trimmingBorderedWhitespace,
+                            .trimmingBorderedWhitespace
                     )
                 )
 
@@ -176,12 +176,12 @@ extension DevModeAction.AppActions {
 
                 let hostedOnlyAction: AKAction = .init(
                     "Hosted Only",
-                    style: .destructive,
+                    style: .destructive
                 ) { clearRemoteCaptureHistory() }
 
                 let localAndHostedAction: AKAction = .init(
                     "Local and Hosted",
-                    style: .destructivePreferred,
+                    style: .destructivePreferred
                 ) {
                     @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
                     breadcrumbsCaptureHistory = nil
@@ -202,7 +202,7 @@ extension DevModeAction.AppActions {
                         hostedOnlyAction,
                         localOnlyAction,
                         localAndHostedAction,
-                    ],
+                    ]
                 ).present(translating: [])
             }
         }

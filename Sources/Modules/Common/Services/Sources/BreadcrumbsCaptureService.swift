@@ -48,7 +48,9 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         set { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; persistedValue = newValue }
     }
 
-    var isCapturing: Bool { captureTask != nil }
+    var isCapturing: Bool {
+        captureTask != nil
+    }
 
     private var captureHistory: Set<String> {
         get { @Persistent(.breadcrumbsCaptureHistory) var persistedValue: Set<String>?; return persistedValue ?? .init() }
@@ -153,6 +155,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
     private func capture() {
         guard Int.random(in: 1 ... 1_000_000) % 3 == 0 else { return }
 
+        // swiftformat:disable all
         var viewHierarchyID: String?
         switch captureGranularity {
         case .broad:
@@ -179,7 +182,7 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
             .sorted()
             .joined()
             .encodedHash
-        }
+        } // swiftformat:enable all
 
         var captureHistory = captureHistory
         guard let viewHierarchyID,

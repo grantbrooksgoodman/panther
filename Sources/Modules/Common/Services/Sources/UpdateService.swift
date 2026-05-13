@@ -42,7 +42,9 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
 
     // MARK: - Computed Properties
 
-    var installButtonRedirectURL: URL? { metadataService.appShareLink }
+    var installButtonRedirectURL: URL? {
+        metadataService.appShareLink
+    }
 
     private var hasUpdatedSinceLastForced: Bool {
         guard let buildNumberWhenLastForcedToUpdate else { return true }

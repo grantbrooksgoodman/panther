@@ -14,5 +14,7 @@ import AppSubsystem
 import Networking
 
 extension Message: RemotelyUpdatable {
-    var identifier: String { id }
+    var identifier: String {
+        id
+    }
 }

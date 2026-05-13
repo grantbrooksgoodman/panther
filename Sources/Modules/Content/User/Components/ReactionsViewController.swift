@@ -54,8 +54,8 @@ final class ReactionsViewController: UIViewController {
     // MARK: - Reaction Selection
 
     func deselectAllReactions() {
-        stackView.subviews.forEach {
-            $0.backgroundColor = Colors.reactionButtonBackground
+        for subview in stackView.subviews {
+            subview.backgroundColor = Colors.reactionButtonBackground
         }
     }
 
@@ -103,7 +103,7 @@ final class ReactionsViewController: UIViewController {
     }
 
     private func setUpReactions() {
-        reactions.forEach { reaction in
+        for reaction in reactions {
             stackView.addArrangedSubview(
                 buildReactionButton(with: reaction)
             )

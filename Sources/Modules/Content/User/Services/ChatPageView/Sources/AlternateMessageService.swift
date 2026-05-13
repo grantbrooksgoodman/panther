@@ -34,7 +34,9 @@ final class AlternateMessageService {
 
     // MARK: - Computed Properties
 
-    var textCellLabelFont: UIFont { getTextCellLabelFont() }
+    var textCellLabelFont: UIFont {
+        getTextCellLabelFont()
+    }
 
     // MARK: - Init
 
@@ -145,5 +147,7 @@ final class AlternateMessageService {
 }
 
 private extension UIFont {
-    var isItalicized: Bool { fontDescriptor.symbolicTraits.contains(.traitItalic) }
+    var isItalicized: Bool {
+        fontDescriptor.symbolicTraits.contains(.traitItalic)
+    }
 }

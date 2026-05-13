@@ -143,13 +143,17 @@ final class RecipientBarConfigService {
               let recipientBarView = chatPageViewService.recipientBar?.layout.recipientBarView else { return }
 
         var labelText = (contactLabel.text ?? "")
-        while labelText.hasSuffix(",") { labelText = labelText.dropSuffix() }
+        while labelText.hasSuffix(",") {
+            labelText = labelText.dropSuffix()
+        }
         contactLabel.text = labelText
 
         contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
         contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width
 
-        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { contactLabel.frame.size.width -= 1 }
+        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor {
+            contactLabel.frame.size.width -= 1
+        }
 
         contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
         contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)

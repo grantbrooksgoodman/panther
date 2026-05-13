@@ -16,7 +16,9 @@ import Networking
 extension Conversation: RemotelyUpdatable {
     // MARK: - Properties
 
-    var identifier: String { id.key }
+    var identifier: String {
+        id.key
+    }
 
     // MARK: - Serializable Key
 

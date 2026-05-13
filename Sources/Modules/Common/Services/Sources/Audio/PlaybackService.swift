@@ -31,7 +31,9 @@ final class PlaybackService {
 
     // MARK: - Computed Properties
 
-    var isPlaying: Bool { !avQueuePlayer.items().isEmpty }
+    var isPlaying: Bool {
+        !avQueuePlayer.items().isEmpty
+    }
 
     // MARK: - Object Lifecycle
 

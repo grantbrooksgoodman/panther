@@ -16,7 +16,9 @@ import Networking
 extension ConversationID: Serializable {
     // MARK: - Properties
 
-    var encoded: String { "\(key) | \(hash)" }
+    var encoded: String {
+        "\(key) | \(hash)"
+    }
 
     // MARK: - Init
 

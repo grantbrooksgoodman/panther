@@ -90,8 +90,13 @@ extension Message: @preconcurrency MessageType {
         )
     }
 
-    var messageId: String { id }
-    var sender: SenderType { Sender(displayName: "", senderId: fromAccountID) }
+    var messageId: String {
+        id
+    }
+
+    var sender: SenderType {
+        Sender(displayName: "", senderId: fromAccountID)
+    }
 }
 
 // swiftformat:enable acronyms
@@ -160,7 +165,9 @@ extension Message {
         ).wrappedValue
     }
 
-    var isConsentMessage: Bool { isConsentAcknowledgementMessage || isConsentRequestMessage }
+    var isConsentMessage: Bool {
+        isConsentAcknowledgementMessage || isConsentRequestMessage
+    }
 
     var isConsentRequestMessage: Bool {
         if let consentRequestMessageID = Message.consentRequestMessageID { return id == consentRequestMessageID }
@@ -186,9 +193,13 @@ extension Message {
         return isConsentMessage
     }
 
-    var isFromCurrentUser: Bool { fromAccountID == User.currentUserID }
+    var isFromCurrentUser: Bool {
+        fromAccountID == User.currentUserID
+    }
 
-    var isMock: Bool { id == CommonConstants.newMessageID }
+    var isMock: Bool {
+        id == CommonConstants.newMessageID
+    }
 
     @MainActor
     var isPlayingMessage: Bool {

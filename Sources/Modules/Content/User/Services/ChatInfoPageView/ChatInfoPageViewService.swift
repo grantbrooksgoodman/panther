@@ -181,7 +181,9 @@ final class ChatInfoPageViewService {
             }
         }
 
-        func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] { participants.sorted(by: { $0.displayName < $1.displayName }) }
+        func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] {
+            participants.sorted(by: { $0.displayName < $1.displayName })
+        }
         return .success(sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix))
     }
 
@@ -287,8 +289,8 @@ final class ChatInfoPageViewService {
 
     func traitCollectionChanged() {
         Task.delayed(by: .milliseconds(100)) { @MainActor in
-            self.uiSegmentBackgroundViews.forEach {
-                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
+            for uiSegmentBackgroundView in self.uiSegmentBackgroundViews {
+                uiSegmentBackgroundView.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }
         }
     }
@@ -331,13 +333,12 @@ final class ChatInfoPageViewService {
     func viewLoaded() {
         Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
             guard let self else { return }
-            self
-                .uiSegmentBackgroundViews
+            uiSegmentBackgroundViews
                 .filter { $0.backgroundColor != self.uiSegmentBackgroundViewBackgroundColor }
                 .forEach { $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor }
 
-            guard self.uiApplication.isPresentingSheet else { return }
-            self.viewLoaded()
+            guard uiApplication.isPresentingSheet else { return }
+            viewLoaded()
         }
     }
 

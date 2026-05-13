@@ -199,7 +199,7 @@ private extension Dictionary {
 
 private extension String {
     var shorthandErrorDescriptor: String {
-        let excludedWords: Set<String> = [
+        let excludedWords: Set = [
             "A",
             "AN",
             "BEEN",

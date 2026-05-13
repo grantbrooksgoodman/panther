@@ -53,7 +53,9 @@ final class RecipientBarContactSelectionUIService {
 
     func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
-        for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
+        for contactView in contactViews where contactView.identifier == contactHash {
+            contactView.removeFromSuperview()
+        }
         Task.delayed(by: .milliseconds(100)) { @MainActor in
             self.chatPageViewService.inputBar?.configureInputBar()
             guard self.selectedContactPairs.isEmpty else { return }
@@ -158,7 +160,9 @@ final class RecipientBarContactSelectionUIService {
                 return true
             }
 
-            for sublevel in (1 ... sublevels).reversed() where configureContactView(onSublevel: sublevel) { return true }
+            for sublevel in (1 ... sublevels).reversed() where configureContactView(onSublevel: sublevel) {
+                return true
+            }
             return false
         }
 
@@ -213,12 +217,16 @@ final class RecipientBarContactSelectionUIService {
                 guard index < self.contactViews.count - 1 else { continue }
 
                 var labelText = (contactLabel.text ?? "")
-                while labelText.hasSuffix(",") { labelText = labelText.dropSuffix() }
+                while labelText.hasSuffix(",") {
+                    labelText = labelText.dropSuffix()
+                }
                 contactLabel.text = on ? "\(labelText)," : labelText
 
                 contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
                 var width = contactLabel.intrinsicContentSize.width
-                while width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { width -= 1 }
+                while width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor {
+                    width -= 1
+                }
                 contactLabel.frame.size.width = width
 
                 guard !on else { continue }
@@ -335,7 +343,9 @@ final class RecipientBarContactSelectionUIService {
         contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
         contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width
 
-        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { contactLabel.frame.size.width -= 1 }
+        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor {
+            contactLabel.frame.size.width -= 1
+        }
 
         // Add label to enclosing view
 

@@ -17,6 +17,7 @@
 		A23CB3F12ED3E6D40060DFD7 /* Activity+Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F02ED3E6D40060DFD7 /* Activity+Serializable.swift */; };
 		A23CB3F52ED3EB300060DFD7 /* ActivityAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23CB3F42ED3EB300060DFD7 /* ActivityAction.swift */; };
 		A242750F2F31B23D00F664C3 /* DataUsageCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A242750E2F31B23D00F664C3 /* DataUsageCalculation.swift */; };
+		A244335D2FB5407F001C810F /* PhoneNumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = A244335C2FB5407F001C810F /* PhoneNumberKit */; };
 		A249CA512ED3D758006E81E2 /* SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA502ED3D758006E81E2 /* SystemMessageCell.swift */; };
 		A249CA542ED3D78A006E81E2 /* MessageFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A249CA532ED3D78A006E81E2 /* MessageFlowLayout.swift */; };
 		A2543E122F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2543E112F7785D70087C95E /* BinaryFloatingPoint+CommonExtensions.swift */; };
@@ -740,7 +741,6 @@
 		B9F5D1EF2B48994300059B44 /* PhoneNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F5D1EE2B48994300059B44 /* PhoneNumberTextField.swift */; };
 		B9F627AC2B32767F00462DD9 /* AppConstants+SplashPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */; };
 		B9FE35902CCF71C400D24E41 /* NetworkActivityIndicatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */; };
-		CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49280089B6A43629733BA839 /* Pods_Hello.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -768,11 +768,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		292A98F831C33A117C14740E /* Pods-Hello.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hello.debug.xcconfig"; path = "Target Support Files/Pods-Hello/Pods-Hello.debug.xcconfig"; sourceTree = "<group>"; };
-		2E8E1361F1DDEFDA2A60C838 /* Pods-Application.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.debug.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.debug.xcconfig"; sourceTree = "<group>"; };
-		3A9B1E9D904D7BFD358EAC0D /* Pods-Template.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.debug.xcconfig"; path = "Target Support Files/Pods-Template/Pods-Template.debug.xcconfig"; sourceTree = "<group>"; };
-		49280089B6A43629733BA839 /* Pods_Hello.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Hello.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		95968F0BC4006379933ED27E /* Pods-Panther.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Panther.debug.xcconfig"; path = "Target Support Files/Pods-Panther/Pods-Panther.debug.xcconfig"; sourceTree = "<group>"; };
 		A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+UserContentExtensions.swift"; sourceTree = "<group>"; };
 		A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewService.swift; sourceTree = "<group>"; };
 		A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSelectorPageViewServiceDependency.swift; sourceTree = "<group>"; };
@@ -831,7 +826,6 @@
 		A2EDDB892F370DB7006B1D10 /* Selection.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Selection.caf; sourceTree = "<group>"; };
 		A2F2DB7D2FA06EAC00DBBC9D /* UserContentContainerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContentContainerObserver.swift; sourceTree = "<group>"; };
 		A2FE37612EA7354000931829 /* MessageRetranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRetranslationService.swift; sourceTree = "<group>"; };
-		A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Application.release.xcconfig"; path = "Target Support Files/Pods-Application/Pods-Application.release.xcconfig"; sourceTree = "<group>"; };
 		B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStatusBarStyle+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B90071CF2B7B348200BE8654 /* RecipientBarActionHandlerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarActionHandlerService.swift; sourceTree = "<group>"; };
 		B90071D12B7B41F300BE8654 /* RecipientBarTableViewService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientBarTableViewService.swift; sourceTree = "<group>"; };
@@ -1580,9 +1574,6 @@
 		B9F5D1F22B48AC5700059B44 /* Panther.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Panther.entitlements; sourceTree = "<group>"; };
 		B9F627AB2B32767F00462DD9 /* AppConstants+SplashPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SplashPageView.swift"; sourceTree = "<group>"; };
 		B9FE358F2CCF71C400D24E41 /* NetworkActivityIndicatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkActivityIndicatorService.swift; sourceTree = "<group>"; };
-		CC5C02E339BDFD542447E596 /* Pods-Panther.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Panther.release.xcconfig"; path = "Target Support Files/Pods-Panther/Pods-Panther.release.xcconfig"; sourceTree = "<group>"; };
-		CD15A745B7F693493037EFD6 /* Pods-Hello.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hello.release.xcconfig"; path = "Target Support Files/Pods-Hello/Pods-Hello.release.xcconfig"; sourceTree = "<group>"; };
-		CF52460DFCE5E62E30711A79 /* Pods-Template.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.release.xcconfig"; path = "Target Support Files/Pods-Template/Pods-Template.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1593,7 +1584,7 @@
 				A2DA4FFB2FAED83600AA824B /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
-				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
+				A244335D2FB5407F001C810F /* PhoneNumberKit in Frameworks */,
 				B921F4042CCB6F34006BB149 /* FirebaseAnalytics in Frameworks */,
 				B9BE3DD02DFD45350010B463 /* InputBarAccessoryView in Frameworks */,
 			);
@@ -1609,14 +1600,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A286879128A49DA600A34912 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				49280089B6A43629733BA839 /* Pods_Hello.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		A2BE201B2F2C41240006F7AF /* FeaturePermissionPageView */ = {
 			isa = PBXGroup;
 			children = (
@@ -1632,8 +1615,6 @@
 				A2DF2C5328199B660089DEA1 /* Sources */,
 				B9F5608F2B69A465009ABDD5 /* NotificationExtension */,
 				A2DF2C5228199B660089DEA1 /* Products */,
-				A286879128A49DA600A34912 /* Frameworks */,
-				B715D9B1ECFB89E634B86164 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1713,21 +1694,6 @@
 				B9E7D41B2AAC1ED700FAF2A9 /* SamplePageView */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		B715D9B1ECFB89E634B86164 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				2E8E1361F1DDEFDA2A60C838 /* Pods-Application.debug.xcconfig */,
-				A939C6FBED2D4F6C9E9DFE2D /* Pods-Application.release.xcconfig */,
-				3A9B1E9D904D7BFD358EAC0D /* Pods-Template.debug.xcconfig */,
-				CF52460DFCE5E62E30711A79 /* Pods-Template.release.xcconfig */,
-				95968F0BC4006379933ED27E /* Pods-Panther.debug.xcconfig */,
-				CC5C02E339BDFD542447E596 /* Pods-Panther.release.xcconfig */,
-				292A98F831C33A117C14740E /* Pods-Hello.debug.xcconfig */,
-				CD15A745B7F693493037EFD6 /* Pods-Hello.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		B90071CD2B7B33DA00BE8654 /* InputBar */ = {
@@ -3491,15 +3457,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A2DF2C6528199B670089DEA1 /* Build configuration list for PBXNativeTarget "Hello" */;
 			buildPhases = (
-				F34BB2715D098A64B21A6C6F /* [CP] Check Pods Manifest.lock */,
 				B98145F22AB4F34100937D37 /* Run SwiftFormat */,
 				A2DF2C4D28199B660089DEA1 /* Sources */,
 				B98145F32AB4F51700937D37 /* Run SwiftLint */,
 				A2DF2C4E28199B660089DEA1 /* Frameworks */,
 				A2DF2C4F28199B660089DEA1 /* Resources */,
-				A2DF2CC228199F000089DEA1 /* Update Build Information */,
+				A2DF2CC228199F000089DEA1 /* Stamp Build Date */,
 				B9F560962B69A465009ABDD5 /* Embed Foundation Extensions */,
-				1ECE38A95ACC59EBF19471E0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -3513,6 +3477,7 @@
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
 				A2DA4FFA2FAED83600AA824B /* Networking */,
+				A244335C2FB5407F001C810F /* PhoneNumberKit */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3641,6 +3606,7 @@
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
 				A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */,
+				A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -3944,28 +3910,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1ECE38A95ACC59EBF19471E0 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Hello/Pods-Hello-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A2DF2CC228199F000089DEA1 /* Update Build Information */ = {
+		A2DF2CC228199F000089DEA1 /* Stamp Build Date */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -3975,7 +3920,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Update Build Information";
+			name = "Stamp Build Date";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -4001,7 +3946,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat --config ${SRCROOT}/.swiftformat $SRCROOT\n";
+			shellScript = "SWIFTFORMAT_VERSION=\"0.61.1\"\nSWIFTFORMAT=\"${SRCROOT}/.build-tools/swiftformat\"\n\nif [ ! -f \"$SWIFTFORMAT\" ]; then\n    mkdir -p \"${SRCROOT}/.build-tools\"\n    curl -sL \"https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip\" -o \"${SRCROOT}/.build-tools/swiftformat.zip\"\n    unzip -oq \"${SRCROOT}/.build-tools/swiftformat.zip\" swiftformat -d \"${SRCROOT}/.build-tools/\"\n    chmod +x \"$SWIFTFORMAT\"\n    rm -f \"${SRCROOT}/.build-tools/swiftformat.zip\"\nfi\n\n\"$SWIFTFORMAT\" --config \"${SRCROOT}/.swiftformat\" \"${SRCROOT}/Sources\"\n";
 		};
 		B98145F32AB4F51700937D37 /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4020,29 +3965,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${PODS_ROOT}/SwiftLint/swiftlint\n";
-		};
-		F34BB2715D098A64B21A6C6F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Hello-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "SWIFTLINT_VERSION=\"0.63.2\"\nSWIFTLINT=\"${SRCROOT}/.build-tools/swiftlint\"\n\nif [ ! -f \"$SWIFTLINT\" ]; then\n    mkdir -p \"${SRCROOT}/.build-tools\"\n    curl -sL \"https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/portable_swiftlint.zip\" -o \"${SRCROOT}/.build-tools/swiftlint.zip\"\n    unzip -oq \"${SRCROOT}/.build-tools/swiftlint.zip\" swiftlint -d \"${SRCROOT}/.build-tools/\"\n    chmod +x \"$SWIFTLINT\"\n    rm -f \"${SRCROOT}/.build-tools/swiftlint.zip\"\nfi\n\n\"$SWIFTLINT\" --config \"${SRCROOT}/.swiftlint.yml\" \"${SRCROOT}/Sources\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -4744,7 +4667,6 @@
 		};
 		A2DF2C6628199B670089DEA1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 292A98F831C33A117C14740E /* Pods-Hello.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "Application Icon";
@@ -4772,7 +4694,6 @@
 		};
 		A2DF2C6728199B670089DEA1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CD15A745B7F693493037EFD6 /* Pods-Hello.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "Application Icon";
@@ -4895,6 +4816,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/PhoneNumberKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.12;
+			};
+		};
 		A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
@@ -4930,6 +4859,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A244335C2FB5407F001C810F /* PhoneNumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A244335B2FB5407E001C810F /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
+			productName = PhoneNumberKit;
+		};
 		A2DA4FFA2FAED83600AA824B /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */;

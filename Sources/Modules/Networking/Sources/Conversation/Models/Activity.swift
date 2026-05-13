@@ -129,7 +129,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
     init(
         _ action: Action,
         date: Date,
-        userID: String,
+        userID: String
     ) {
         self.action = action
         self.date = date

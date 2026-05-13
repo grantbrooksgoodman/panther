@@ -55,11 +55,21 @@ final class RegionDetailService {
 
     // MARK: - Computed Properties
 
-    var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
+    var deviceRegionCode: String {
+        currentLocale.region?.identifier ?? "US"
+    }
 
-    private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
-    private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
-    private var systemLocalizedLocale: Locale { Locale(languageCode: .init(RuntimeStorage.languageCode)) }
+    private var callingCodes: [String: String] {
+        commonPropertyLists.callingCodes
+    }
+
+    private var regionTitlesForAllCallingCodes: [String] {
+        getRegionTitlesForAllCallingCodes()
+    }
+
+    private var systemLocalizedLocale: Locale {
+        Locale(languageCode: .init(RuntimeStorage.languageCode))
+    }
 
     // MARK: - Calling Codes
 

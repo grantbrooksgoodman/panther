@@ -52,7 +52,9 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Computed Properties
 
-    var apiKey: String { geminiAPIKey ?? "" }
+    var apiKey: String {
+        geminiAPIKey ?? ""
+    }
 
     // MARK: - Init
 

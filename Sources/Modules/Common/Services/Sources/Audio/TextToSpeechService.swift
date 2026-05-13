@@ -157,10 +157,12 @@ struct TextToSpeechService {
 
         return await withCheckedContinuation { continuation in
             let timeout = Timeout(after: .seconds(10)) {
-                continuation.resume(returning: .failure(
-                    .timedOut(
-                        metadata: .init(sender: self)
-                    ).appending(userInfo: userInfo))
+                continuation.resume(
+                    returning: .failure(
+                        .timedOut(
+                            metadata: .init(sender: self)
+                        ).appending(userInfo: userInfo)
+                    )
                 )
             }
 

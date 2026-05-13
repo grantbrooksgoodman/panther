@@ -14,8 +14,9 @@ import AppSubsystem
 
 enum ChatPageViewServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> ChatPageViewService {
+        // swiftformat:disable all
         @MainActorIsolated var chatPageViewService = ChatPageViewService()
-        return chatPageViewService
+        return chatPageViewService // swiftformat:enable all
     }
 }
 

@@ -27,8 +27,19 @@ extension NetworkServices {
         )
     }
 
-    var conversationService: ConversationService { NetworkServiceStore.conversationService }
-    var integrityService: IntegrityService { NetworkServiceStore.integrityService }
-    var messageService: MessageService { NetworkServiceStore.messageService }
-    var userService: UserService { NetworkServiceStore.userService }
+    var conversationService: ConversationService {
+        NetworkServiceStore.conversationService
+    }
+
+    var integrityService: IntegrityService {
+        NetworkServiceStore.integrityService
+    }
+
+    var messageService: MessageService {
+        NetworkServiceStore.messageService
+    }
+
+    var userService: UserService {
+        NetworkServiceStore.userService
+    }
 }

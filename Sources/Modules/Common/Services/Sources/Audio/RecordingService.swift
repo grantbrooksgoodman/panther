@@ -34,7 +34,9 @@ final class RecordingService: NSObject {
 
     // MARK: - Computed Properties
 
-    var isRecording: Bool { audioRecorder?.isRecording ?? false }
+    var isRecording: Bool {
+        audioRecorder?.isRecording ?? false
+    }
 
     // MARK: - Init
 

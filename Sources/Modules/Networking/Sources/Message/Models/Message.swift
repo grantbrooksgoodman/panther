@@ -40,19 +40,51 @@ struct Message: Codable, EncodedHashable, Hashable {
 
     // MARK: - Computed Properties
 
-    var audioComponent: AudioMessageReference? { audioComponents?.first }
-    var audioComponents: [AudioMessageReference]? { richContent?.audioComponents }
-    var currentUserReadReceipt: ReadReceipt? { getCurrentUserReadReceipt() }
-    var documentComponent: MediaFile? { richContent?.documentComponent }
-    var hashFactors: [String] { getHashFactors() }
-    var imageComponent: MediaFile? { richContent?.imageComponent }
-    var localAudioFilePath: LocalAudioFilePath? { .init(self) }
-    var localMediaFilePath: LocalMediaFilePath? { .init(self) }
+    var audioComponent: AudioMessageReference? {
+        audioComponents?.first
+    }
+
+    var audioComponents: [AudioMessageReference]? {
+        richContent?.audioComponents
+    }
+
+    var currentUserReadReceipt: ReadReceipt? {
+        getCurrentUserReadReceipt()
+    }
+
+    var documentComponent: MediaFile? {
+        richContent?.documentComponent
+    }
+
+    var hashFactors: [String] {
+        getHashFactors()
+    }
+
+    var imageComponent: MediaFile? {
+        richContent?.imageComponent
+    }
+
+    var localAudioFilePath: LocalAudioFilePath? {
+        .init(self)
+    }
+
+    var localMediaFilePath: LocalMediaFilePath? {
+        .init(self)
+    }
+
     /// - Note: Will always return `nil` if the message is not in the currently presented conversation.
-    var reactions: [Reaction]? { getReactions() }
+    var reactions: [Reaction]? {
+        getReactions()
+    }
+
     /// The translation for this message in the current user's language code.
-    var translation: Translation? { translations?.first }
-    var videoComponent: MediaFile? { richContent?.videoComponent }
+    var translation: Translation? {
+        translations?.first
+    }
+
+    var videoComponent: MediaFile? {
+        richContent?.videoComponent
+    }
 
     // MARK: - Init
 

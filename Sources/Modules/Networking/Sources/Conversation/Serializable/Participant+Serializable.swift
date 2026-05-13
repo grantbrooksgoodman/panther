@@ -16,7 +16,9 @@ import Networking
 extension Participant: Serializable {
     // MARK: - Properties
 
-    var encoded: String { "\(userID) | \(hasDeletedConversation) | \(isTyping)" }
+    var encoded: String {
+        "\(userID) | \(hasDeletedConversation) | \(isTyping)"
+    }
 
     // MARK: - Init
 

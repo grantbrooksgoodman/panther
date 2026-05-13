@@ -460,7 +460,7 @@ struct MessageSessionService {
     private func getEnhancementConfiguration(
         for conversation: Conversation?,
         isAudioMessage: Bool,
-        userCount: Int,
+        userCount: Int
     ) -> EnhancementConfiguration? {
         guard clientSession
             .user

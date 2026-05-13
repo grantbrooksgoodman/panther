@@ -36,7 +36,9 @@ final class InputBarGestureRecognizerService {
 
     // MARK: - Computed Properties
 
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
 
     // MARK: - Init
 

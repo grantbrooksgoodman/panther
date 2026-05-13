@@ -53,7 +53,9 @@ final class RecipientBarActionHandlerService {
                 return true
             }
 
-            for sublevel in (1 ... sublevels).reversed() where configureTextField(onSublevel: sublevel) { return true }
+            for sublevel in (1 ... sublevels).reversed() where configureTextField(onSublevel: sublevel) {
+                return true
+            }
             return false
         }
 

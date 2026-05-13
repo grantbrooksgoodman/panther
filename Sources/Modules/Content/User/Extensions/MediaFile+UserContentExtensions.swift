@@ -46,7 +46,9 @@ extension MediaFile {
 
     // MARK: - Properties
 
-    static var thumbnailImageNameSuffix: String { "-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)" }
+    static var thumbnailImageNameSuffix: String {
+        "-thumbnail.\(MediaFileExtension.image(.jpeg).rawValue)"
+    }
 
     // MARK: - Methods
 
@@ -55,7 +57,9 @@ extension MediaFile {
         @Dependency(\.fileManager) var fileManager: FileManager
         @Dependency(\.chatPageViewService.mediaMessagePreview) var mediaMessagePreviewService: MediaMessagePreviewService?
 
-        var cachedFullQualityImage: UIImage? { mediaMessagePreviewService?.cachedImages?[localPathURL] }
+        var cachedFullQualityImage: UIImage? {
+            mediaMessagePreviewService?.cachedImages?[localPathURL]
+        }
         var fullQualityImage: UIImage? {
             if let cachedFullQualityImage {
                 return cachedFullQualityImage

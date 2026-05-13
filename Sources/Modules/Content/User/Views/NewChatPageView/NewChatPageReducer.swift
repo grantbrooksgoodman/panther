@@ -53,12 +53,14 @@ struct NewChatPageReducer: Reducer {
         @MainActor
         var navigationBarOpacity: CGFloat {
             @Dependency(\.uiApplication.presentedViewControllers) var viewControllers: [UIViewController]
-            return (viewControllers
-                .compactMap { $0 as? ChatPageViewController }
-                .first?
-                .messagesCollectionView
-                .contentOffset
-                .y ?? 0) > 0 ? 0.8 : 0
+            return (
+                viewControllers
+                    .compactMap { $0 as? ChatPageViewController }
+                    .first?
+                    .messagesCollectionView
+                    .contentOffset
+                    .y ?? 0
+            ) > 0 ? 0.8 : 0
         }
     }
 

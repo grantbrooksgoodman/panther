@@ -37,7 +37,9 @@ final class RecipientBarTableViewService {
 
     // MARK: - Computed Properties
 
-    var sections: [TableViewSection] { getSections() }
+    var sections: [TableViewSection] {
+        getSections()
+    }
 
     // MARK: - Init
 
@@ -167,5 +169,7 @@ final class RecipientBarTableViewService {
 }
 
 private extension String {
-    var isZero: Bool { lowercasedTrimmingWhitespaceAndNewlines == "0" }
+    var isZero: Bool {
+        lowercasedTrimmingWhitespaceAndNewlines == "0"
+    }
 }

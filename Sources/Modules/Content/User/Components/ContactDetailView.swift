@@ -79,13 +79,13 @@ struct ContactDetailView: View {
         }
         .padding()
         .if(
-            UIApplication.isFullyV26Compatible,
-            { $0.glassEffect(padding: Floats.glassEffectPadding) },
-            else: {
-                $0
-                    .background(ThemeService.isDarkModeActive ? Colors.darkBackground : Colors.lightBackground)
-                    .cornerRadius(Floats.cornerRadius)
-            }
-        )
+            UIApplication.isFullyV26Compatible
+        ) {
+            $0.glassEffect(padding: Floats.glassEffectPadding)
+        } else: {
+            $0
+                .background(ThemeService.isDarkModeActive ? Colors.darkBackground : Colors.lightBackground)
+                .cornerRadius(Floats.cornerRadius)
+        }
     }
 }

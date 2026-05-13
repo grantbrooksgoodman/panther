@@ -247,7 +247,7 @@ struct ChatInfoPageView: View {
                 text,
                 font: font,
                 usesShadow: false,
-                isInspectable: true,
+                isInspectable: true
             ) { viewModel.send(.changeMetadataButtonTapped) }
         } else {
             Components.button(
@@ -356,7 +356,7 @@ struct ChatInfoPageView: View {
                                 } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
-                                } : nil,
+                                } : nil
                             )
                         }
                         .dynamicTypeSize(.large)

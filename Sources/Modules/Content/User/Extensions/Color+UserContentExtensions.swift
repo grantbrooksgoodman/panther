@@ -20,7 +20,9 @@ extension Color {
             let saturation = Double.random(in: 0.6 ... 1)
             let brightness = Double.random(in: 0.5 ... 0.9)
             while let last = lastRandomColor,
-                  abs(hue - last.hue) < 0.15 { hue = Double.random(in: 0 ... 1) }
+                  abs(hue - last.hue) < 0.15 {
+                hue = Double.random(in: 0 ... 1)
+            }
             lastRandomColor = (hue, saturation, brightness)
             return Color(
                 hue: hue,

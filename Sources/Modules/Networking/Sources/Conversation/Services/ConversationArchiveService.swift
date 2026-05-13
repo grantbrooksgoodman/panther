@@ -28,14 +28,16 @@ final class ConversationArchiveService: @unchecked Sendable {
 
     // MARK: - Init
 
-    init() { archive = persistedArchive ?? [] }
+    init() {
+        archive = persistedArchive ?? []
+    }
 
     // MARK: - Addition
 
     func addValue(_ conversation: Conversation) {
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(conversation.id.encoded)",
-            delay: .milliseconds(10),
+            delay: .milliseconds(10)
         ) { [weak self] in
             guard let self else { return }
             $archive.withValue { archive in
@@ -62,7 +64,7 @@ final class ConversationArchiveService: @unchecked Sendable {
     func addValues(_ conversations: Set<Conversation>) {
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(conversations.map(\.id.encoded).joined())",
-            delay: .milliseconds(10),
+            delay: .milliseconds(10)
         ) { [weak self] in
             guard let self else { return }
             let incomingKeys = conversations.map(\.id.key)
@@ -90,7 +92,7 @@ final class ConversationArchiveService: @unchecked Sendable {
     func removeValue(idKey: String) {
         Task.debounced(
             "\(String.fromCurrentEditorContext(sender: self))/\(idKey)",
-            delay: .milliseconds(10),
+            delay: .milliseconds(10)
         ) { [weak self] in
             guard let self else { return }
             var shouldLogRemoval = false

@@ -52,7 +52,9 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Computed Properties
 
-    var shouldShowLoadingLabel: Bool { didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration }
+    var shouldShowLoadingLabel: Bool {
+        didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration
+    }
 
     // MARK: - Methods
 
@@ -71,8 +73,8 @@ final class SplashPageViewService: ObservableObject {
         _ = Timeout(after: .seconds(3)) {
             Task { @MainActor [weak self] in
                 guard let self,
-                      self.initializationProgress <= 0.5 else { return }
-                self.didSurpassQuickLoadTimeoutDuration = true
+                      initializationProgress <= 0.5 else { return }
+                didSurpassQuickLoadTimeoutDuration = true
             }
         }
 
@@ -348,7 +350,7 @@ final class SplashPageViewService: ObservableObject {
         Application.isInPrevaricationMode = true
         core.ui.toggleGlassTinting(on: false)
         Toast.overrideDefaultColorPalette(.init(
-            background: .init(uiColor: .init(hex: 0xF8F8F8)),
+            background: .init(uiColor: .init(hex: 0xF8F8F8))
         ))
 
         ThemeService.setTheme(

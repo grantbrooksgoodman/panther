@@ -55,17 +55,45 @@ final class InputBarService {
 
     // MARK: - Computed Properties
 
-    var isFirstResponder: Bool { inputBar.inputTextView.isFirstResponder }
-    var isShowingConsentButton: Bool { (consentButton?.alpha ?? 0) > 0 }
-    var shouldEnableAttachMediaButton: Bool { getShouldEnableAttachMediaButton() }
-    var shouldEnableSendButton: Bool { getShouldEnableSendButton() }
+    var isFirstResponder: Bool {
+        inputBar.inputTextView.isFirstResponder
+    }
 
-    private var consentButton: UIButton? { inputBar.firstSubview(for: Strings.consentButtonSemanticTag) as? UIButton }
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
-    private var inputTextViewGlassEffectView: UIView? { inputBar.inputTextView.superview?.firstSubview(for: Strings.inputTextViewGlassEffectViewSemanticTag) }
-    private var shouldEnableConsentButton: Bool { getShouldEnableConsentButton() }
-    private var shouldShowConsentButton: Bool { getShouldShowConsentButton() }
-    private var shouldShowRecordButton: Bool { getShouldShowRecordButton() }
+    var isShowingConsentButton: Bool {
+        (consentButton?.alpha ?? 0) > 0
+    }
+
+    var shouldEnableAttachMediaButton: Bool {
+        getShouldEnableAttachMediaButton()
+    }
+
+    var shouldEnableSendButton: Bool {
+        getShouldEnableSendButton()
+    }
+
+    private var consentButton: UIButton? {
+        inputBar.firstSubview(for: Strings.consentButtonSemanticTag) as? UIButton
+    }
+
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
+
+    private var inputTextViewGlassEffectView: UIView? {
+        inputBar.inputTextView.superview?.firstSubview(for: Strings.inputTextViewGlassEffectViewSemanticTag)
+    }
+
+    private var shouldEnableConsentButton: Bool {
+        getShouldEnableConsentButton()
+    }
+
+    private var shouldShowConsentButton: Bool {
+        getShouldShowConsentButton()
+    }
+
+    private var shouldShowRecordButton: Bool {
+        getShouldShowRecordButton()
+    }
 
     // MARK: - Init
 
@@ -398,9 +426,11 @@ final class InputBarService {
         )
 
         consentButton.setTitleColor(
-            shouldEnableConsentButton || (fullConversation
-                .currentUserInitiatorRequiresMessageReceiptConsent && fullConversation
-                .didSendConsentMessage) ? .accentOrSystemBlue : .disabled,
+            shouldEnableConsentButton || (
+                fullConversation
+                    .currentUserInitiatorRequiresMessageReceiptConsent && fullConversation
+                    .didSendConsentMessage
+            ) ? .accentOrSystemBlue : .disabled,
             for: .normal
         )
 
@@ -409,7 +439,9 @@ final class InputBarService {
             .boldSystemFont(ofSize: Floats.consentButtonFontSize)
 
         consentButton.frame.size = consentButton.intrinsicContentSize
-        while consentButton.frame.width > screenWidth { consentButton.frame.size.width -= 1 }
+        while consentButton.frame.width > screenWidth {
+            consentButton.frame.size.width -= 1
+        }
         consentButton.frame.size.width -= Floats.consentButtonFrameWidthDecrement
 
         consentButton.titleLabel?.adjustsFontSizeToFitWidth = true

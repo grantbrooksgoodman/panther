@@ -454,7 +454,7 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         guard let syncData else {
-            self.syncData = nil
+            syncData = nil
             return .failure(.init(
                 "Failed to resolve current sync data.",
                 metadata: .init(sender: self)

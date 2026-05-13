@@ -16,7 +16,9 @@ import Networking
 extension User: RemotelyUpdatable {
     // MARK: - Properties
 
-    var identifier: String { id }
+    var identifier: String {
+        id
+    }
 
     // MARK: - Will Write
 

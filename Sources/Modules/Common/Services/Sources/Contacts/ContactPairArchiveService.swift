@@ -116,7 +116,7 @@ final class ContactPairArchiveService {
             @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
 
             var notificationExtensionArchive = [[String]: String]()
-            archiveSnapshot.forEach { contactPair in
+            for contactPair in archiveSnapshot {
                 let possibleHashes = phoneNumberService.possibleHashes(
                     for: contactPair.compiledNumberStrings.unique
                 ) ?? []

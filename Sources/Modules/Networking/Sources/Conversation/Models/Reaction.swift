@@ -45,7 +45,9 @@ struct Reaction: Codable, Hashable {
             }
         }
 
-        var encodedValue: String { rawValue.uppercased() }
+        var encodedValue: String {
+            rawValue.uppercased()
+        }
 
         var orderValue: Int {
             switch self {

@@ -99,18 +99,16 @@ struct ConversationsPageView: View {
                             prompt: Localized(.search).wrappedValue
                         )
                         .if(
-                            viewModel.shouldShowExtraToolbarButtons,
-                            {
-                                $0.toolbar {
-                                    deleteConversationsToolbarButton
-                                    createRandomMessagesToolbarButton
-                                    composeToolbarButton
-                                }
-                            },
-                            else: {
-                                $0.toolbar { composeToolbarButton }
+                            viewModel.shouldShowExtraToolbarButtons
+                        ) {
+                            $0.toolbar {
+                                deleteConversationsToolbarButton
+                                createRandomMessagesToolbarButton
+                                composeToolbarButton
                             }
-                        )
+                        } else: {
+                            $0.toolbar { composeToolbarButton }
+                        }
                     }
                     .if(!ThemeService.isAppDefaultThemeApplied) {
                         $0.navigationBarItemGlassTint(

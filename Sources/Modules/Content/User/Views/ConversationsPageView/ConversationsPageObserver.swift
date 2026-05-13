@@ -64,7 +64,7 @@ struct ConversationsPageObserver: Observer {
             guard !didShowSecondsToLoadToast else { return }
             Task.debounced(
                 "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
-                delay: .seconds(1),
+                delay: .seconds(1)
             ) { @MainActor in
                 viewService.showSecondsToLoadToastIfNeeded()
             }

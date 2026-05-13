@@ -54,10 +54,21 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Computed Properties
 
-    private var malformedConversationIDKeys: [String] { getMalformedConversationIDKeys() }
-    private var malformedMessageIDs: [String] { getMalformedMessageIDs() }
-    private var malformedUserIDs: [String] { getMalformedUserIDs() }
-    private var session: IntegrityServiceSession { getSession() }
+    private var malformedConversationIDKeys: [String] {
+        getMalformedConversationIDKeys()
+    }
+
+    private var malformedMessageIDs: [String] {
+        getMalformedMessageIDs()
+    }
+
+    private var malformedUserIDs: [String] {
+        getMalformedUserIDs()
+    }
+
+    private var session: IntegrityServiceSession {
+        getSession()
+    }
 
     // MARK: - Resolve Session
 

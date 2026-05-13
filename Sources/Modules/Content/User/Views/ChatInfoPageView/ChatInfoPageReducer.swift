@@ -90,7 +90,9 @@ struct ChatInfoPageReducer: Reducer {
         /* MARK: Computed Properties */
 
         @MainActor
-        var avatarImage: UIImage? { cellViewData?.thumbnailImage }
+        var avatarImage: UIImage? {
+            cellViewData?.thumbnailImage
+        }
 
         var chatInfoCellImageSystemName: String {
             "chevron.\(visibleParticipants.isEmpty ? "right" : "down").circle"

@@ -18,7 +18,9 @@ extension URL {
         }
 
         var path = components[0 ... components.count - 2].joined(separator: "/")
-        while path.hasSuffix("/") { path = path.dropSuffix() }
+        while path.hasSuffix("/") {
+            path = path.dropSuffix()
+        }
         path = "\(path)/\(fileName)\(MediaFile.thumbnailImageNameSuffix)"
         return .init(string: path)
     }

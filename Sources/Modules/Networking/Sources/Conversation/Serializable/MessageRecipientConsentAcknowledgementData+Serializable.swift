@@ -16,7 +16,9 @@ import Networking
 extension MessageRecipientConsentAcknowledgementData: Serializable {
     // MARK: - Properties
 
-    var encoded: String { "\(userID): \(consentAcknowledged ? "!" : false.description)" }
+    var encoded: String {
+        "\(userID): \(consentAcknowledged ? "!" : false.description)"
+    }
 
     // MARK: - Init
 

@@ -26,7 +26,7 @@ struct AIEnhancedTranslationService {
         guard let currentUser = userSession.currentUser else {
             return .init(
                 "Current user has not been set.",
-                metadata: .init(sender: self),
+                metadata: .init(sender: self)
             )
         }
 

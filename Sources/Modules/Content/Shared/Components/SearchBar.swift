@@ -80,17 +80,15 @@ struct SearchBar: View {
             }
             .padding(.horizontal, Floats.innerHStackHorizontalPadding)
             .if(
-                UIApplication.isFullyV26Compatible,
-                {
-                    $0
-                        .glassEffect(padding: Floats.glassEffectPadding)
-                },
-                else: {
-                    $0
-                        .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
-                        .cornerRadius(Floats.innerHStackCornerRadius)
-                }
-            )
+                UIApplication.isFullyV26Compatible
+            ) {
+                $0
+                    .glassEffect(padding: Floats.glassEffectPadding)
+            } else: {
+                $0
+                    .background(ThemeService.isDarkModeActive ? Colors.innerHStackDarkBackground : Colors.innerHStackLightBackground)
+                    .cornerRadius(Floats.innerHStackCornerRadius)
+            }
         }
         .padding(.bottom, bottomPadding)
         .padding(.horizontal, UIApplication.isFullyV26Compatible ? Floats.v26HorizontalPadding : nil)

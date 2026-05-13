@@ -433,7 +433,9 @@ private extension UICollectionViewCell {
 }
 
 private extension UIScrollView {
-    var maxContentOffsetY: CGFloat { contentSize.height - bounds.height + contentInset.bottom }
+    var maxContentOffsetY: CGFloat {
+        contentSize.height - bounds.height + contentInset.bottom
+    }
 }
 
 // swiftlint:enable file_length type_body_length

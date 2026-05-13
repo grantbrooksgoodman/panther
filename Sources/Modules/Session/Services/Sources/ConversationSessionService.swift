@@ -46,7 +46,9 @@ final class ConversationSessionService {
         )
     }
 
-    var sync: ConversationSyncService { .init() }
+    var sync: ConversationSyncService {
+        .init()
+    }
 
     // MARK: - Add Messages
 

@@ -41,7 +41,9 @@ struct SplashPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        var shouldShowProgressBar: Bool { User.currentUserID != nil }
+        var shouldShowProgressBar: Bool {
+            User.currentUserID != nil
+        }
     }
 
     // MARK: - Reduce

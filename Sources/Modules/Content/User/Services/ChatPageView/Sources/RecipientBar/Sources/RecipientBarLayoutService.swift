@@ -39,14 +39,33 @@ final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
-    var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
-    var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
-    var textField: UITextField? { recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
-    var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
-    var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
+    var recipientBarView: RecipientBar? {
+        viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar
+    }
 
-    private var screenWidth: CGFloat { uiApplication.mainScreen.bounds.width }
+    var selectContactButton: UIButton? {
+        recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton
+    }
+
+    var tableView: UITableView? {
+        viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView
+    }
+
+    var textField: UITextField? {
+        recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField
+    }
+
+    var toLabel: UILabel? {
+        recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel
+    }
+
+    var viewFrame: CGRect {
+        .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight))
+    }
+
+    private var screenWidth: CGFloat {
+        uiApplication.mainScreen.bounds.width
+    }
 
     // MARK: - Init
 
@@ -353,7 +372,9 @@ final class RecipientBarLayoutService {
         let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
         selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
-        while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
+        while selectContactButton.frame.maxX > recipientBarView.frame.maxX {
+            selectContactButton.frame.origin.x -= 1
+        }
         selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
     }
 

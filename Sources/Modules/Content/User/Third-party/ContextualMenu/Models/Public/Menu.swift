@@ -21,10 +21,4 @@ struct Menu {
     var uiMenu: UIMenu {
         .init(children: children.map(\.uiAction))
     }
-
-    // MARK: - Init
-
-    init(children: [MenuElement]) {
-        self.children = children
-    }
 }

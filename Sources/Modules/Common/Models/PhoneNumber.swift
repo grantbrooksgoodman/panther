@@ -30,7 +30,10 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
 
     // MARK: - Computed Properties
 
-    var compiledNumberString: String { callingCode + nationalNumberString }
+    var compiledNumberString: String {
+        callingCode + nationalNumberString
+    }
+
     var hashFactors: [String] {
         [
             callingCode,
@@ -212,7 +215,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable
         includeCallingCode: Bool,
         useFailsafe: Bool
     ) -> String {
-        @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit
+        @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility
 
         if callingCode == "1",
            let internalFormattedString,

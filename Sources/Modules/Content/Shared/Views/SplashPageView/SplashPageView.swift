@@ -105,7 +105,7 @@ struct SplashPageView: View {
 
                     Components.text(
                         viewService.percentageLabelText,
-                        foregroundColor: Colors.loadingLabelForeground,
+                        foregroundColor: Colors.loadingLabelForeground
                     )
                 }
             }

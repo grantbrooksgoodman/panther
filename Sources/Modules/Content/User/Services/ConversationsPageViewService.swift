@@ -202,7 +202,9 @@ final class ConversationsPageViewService {
                     return .failure(exception)
                 }
 
-                var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
+                var randomBool: Bool {
+                    Int.random(in: 1 ... 1_000_000) % 3 == 0
+                }
                 guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
                     return .success(user.conversations ?? [])
                 }
@@ -311,7 +313,7 @@ final class ConversationsPageViewService {
             return Logger.log(
                 .init(
                     "No conversation data source was well-formed.",
-                    metadata: .init(sender: self),
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation,
                 with: .toastInPrerelease

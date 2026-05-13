@@ -32,7 +32,6 @@ struct SquareIconView: View {
 
     // MARK: - View
 
-    @ViewBuilder
     var body: some View {
         Rectangle()
             .frame(

@@ -17,7 +17,9 @@ struct SynchronizationRecord: Hashable {
 
     // MARK: - Computed Properties
 
-    var isExpired: Bool { abs(date.seconds(from: .now)) >= 3 }
+    var isExpired: Bool {
+        abs(date.seconds(from: .now)) >= 3
+    }
 
     // MARK: - Init
 

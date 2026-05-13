@@ -123,7 +123,9 @@ struct AnalyticsService {
             for (key, value) in parameters {
                 guard value.count > 40 else { continue }
                 var clippedValue = value
-                while clippedValue.count > 40 { clippedValue = clippedValue.dropSuffix() }
+                while clippedValue.count > 40 {
+                    clippedValue = clippedValue.dropSuffix()
+                }
                 parameters[key] = clippedValue
             }
 

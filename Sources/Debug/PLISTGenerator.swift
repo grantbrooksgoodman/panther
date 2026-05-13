@@ -41,7 +41,7 @@ enum PLISTGenerator {
         plistName: String = "LocalizedStrings",
         processingConfig: Localization.ProcessingConfiguration? = nil,
         postProcess: ((String) -> String)? = nil,
-        enhancementContext: String? = nil,
+        enhancementContext: String? = nil
     ) async -> Callback<String, Exception> {
         await Localization.createPLIST(
             translating: text,
@@ -150,7 +150,7 @@ enum PLISTGenerator {
                 languagePair: .init(
                     from: sourceLanguageCode,
                     to: targetLanguageCode
-                ),
+                )
             ))
         }
     }
@@ -167,9 +167,7 @@ extension String {
             .components(separatedBy: "/")
 
         guard pathComponents.count > 1 else { return pathComponents.joined(separator: "/") }
-        let directoryPath = pathComponents[0 ... pathComponents.count - 2]
+        return pathComponents[0 ... pathComponents.count - 2]
             .joined(separator: "/")
-
-        return directoryPath
     }
 }

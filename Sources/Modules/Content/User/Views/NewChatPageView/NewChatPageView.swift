@@ -60,10 +60,12 @@ struct NewChatPageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .if(
-                UIApplication.isFullyV26Compatible,
-                { v26Layout($0) },
-                else: { preV26Layout($0) }
-            )
+                UIApplication.isFullyV26Compatible
+            ) {
+                v26Layout($0)
+            } else: {
+                preV26Layout($0)
+            }
             .foregroundStyle(Color.background)
             .interactiveDismissDisabled()
             .preferredStatusBarStyle(

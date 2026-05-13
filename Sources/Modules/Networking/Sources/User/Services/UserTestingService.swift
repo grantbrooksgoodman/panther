@@ -72,20 +72,34 @@ struct UserTestingService {
 
     // MARK: - Computed Properties
 
-    private var isOnProperEnvironment: Bool { getIsOnProperEnvironment() }
+    private var isOnProperEnvironment: Bool {
+        getIsOnProperEnvironment()
+    }
 
-    private var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
-    private var randomEmoji: String { getRandomEmoji() }
+    private var randomBool: Bool {
+        Int.random(in: 1 ... 1_000_000) % 2 == 0
+    }
+
+    private var randomEmoji: String {
+        getRandomEmoji()
+    }
+
     private var randomImageData: Data? {
         get async { await getRandomImageData() }
     }
 
-    private var randomPhrase: String { getRandomPhrase() }
+    private var randomPhrase: String {
+        getRandomPhrase()
+    }
+
     private var randomUserID: String? {
         get async { await getRandomUserID() }
     }
 
-    private var randomWords: [String] { getRandomWords() }
+    private var randomWords: [String] {
+        getRandomWords()
+    }
+
     private var userData: [String: Any]? {
         get async { await getUserData() }
     }

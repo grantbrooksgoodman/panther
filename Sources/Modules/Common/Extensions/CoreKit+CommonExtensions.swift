@@ -185,7 +185,7 @@ extension CoreKit.Utilities {
 
         if await (try? networking.storage.itemExists(
             as: .directory,
-            at: NetworkPath.audioMessageInputs.rawValue,
+            at: NetworkPath.audioMessageInputs.rawValue
         ).get()) == true,
             let exception = await networking.storage.deleteAllItems(
                 at: NetworkPath.audioMessageInputs.rawValue,
@@ -197,7 +197,7 @@ extension CoreKit.Utilities {
 
         if await (try? networking.storage.itemExists(
             as: .directory,
-            at: NetworkPath.media.rawValue,
+            at: NetworkPath.media.rawValue
         ).get()) == true,
             let exception = await networking.storage.deleteAllItems(
                 at: NetworkPath.media.rawValue,

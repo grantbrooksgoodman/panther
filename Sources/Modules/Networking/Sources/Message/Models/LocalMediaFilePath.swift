@@ -36,7 +36,7 @@ struct LocalMediaFilePath: Codable, Equatable {
 
     init(
         relativePathString: String,
-        relativeThumbnailPathString: String? = nil,
+        relativeThumbnailPathString: String? = nil
     ) {
         self.relativePathString = relativePathString
         self.relativeThumbnailPathString = relativeThumbnailPathString

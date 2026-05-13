@@ -29,7 +29,7 @@ extension FeaturePermissionPageView {
             accentColor: Color? = nil,
             iconConfig: SquareIconView.Configuration,
             enableButtonAction: @escaping () -> Void,
-            declineButtonAction: (() -> Void)? = nil,
+            declineButtonAction: (() -> Void)? = nil
         ) {
             self.titleText = titleText
             self.subtitleText = subtitleText

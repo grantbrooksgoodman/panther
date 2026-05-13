@@ -81,7 +81,10 @@ final class AppIconService {
     // MARK: - Randomize App Icon
 
     func randomizeAppIcon() {
-        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
+        var randomBool: Bool {
+            Int.random(in: 1 ... 1_000_000) % 2 == 0
+        }
+
         guard randomBool else { return }
 
         startDismissingAlerts()

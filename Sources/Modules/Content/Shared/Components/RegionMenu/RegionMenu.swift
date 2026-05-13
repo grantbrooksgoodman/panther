@@ -63,26 +63,24 @@ struct RegionMenu: View {
                     minHeight: Floats.buttonLabelVStackFrameMinHeight
                 )
                 .if(
-                    UIApplication.isFullyV26Compatible,
-                    { body in
-                        body.glassEffect(
-                            padding: Floats.buttonLabelGlassEffectPadding,
-                            tint: ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
+                    UIApplication.isFullyV26Compatible
+                ) { body in
+                    body.glassEffect(
+                        padding: Floats.buttonLabelGlassEffectPadding,
+                        tint: ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
+                    )
+                } else: { body in
+                    body
+                        .background(
+                            RoundedRectangle(
+                                cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
+                            )
                         )
-                    },
-                    else: { body in
-                        body
-                            .background(
-                                RoundedRectangle(
-                                    cornerRadius: Floats.buttonLabelVStackBackgroundRectangleCornerRadius
-                                )
-                            )
-                            .foregroundStyle(
-                                ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
-                            )
-                            .shadow(radius: Floats.buttonLabelVStackShadowRadius)
-                    }
-                )
+                        .foregroundStyle(
+                            ThemeService.isDarkModeActive ? Colors.buttonLabelDarkForeground : Colors.buttonLabelLightForeground
+                        )
+                        .shadow(radius: Floats.buttonLabelVStackShadowRadius)
+                }
             }
             .redrawsOnTraitCollectionChange()
         }
@@ -168,8 +166,6 @@ private struct RegionPickerView: View {
                 viewModel.send(.searchQueryChanged(previousQuery.isBlank ? "" : previousQuery))
             }
             .preferredStatusBarStyle(.conditionalLightContent)
-        } else {
-            EmptyView()
         }
     }
 

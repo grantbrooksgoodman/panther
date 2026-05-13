@@ -36,7 +36,8 @@ extension RootSheet {
             .init(
                 initialState: .init(),
                 reducer: ChatInfoPageReducer()
-            ))
+            )
+        )
     ))
 
     static let inviteLanguagePicker: RootSheet = .init(.init(
@@ -44,7 +45,8 @@ extension RootSheet {
             .init(
                 initialState: .init(),
                 reducer: InviteLanguagePickerReducer()
-            ))
+            )
+        )
     ))
 
     static let reactionDetailsPageView: RootSheet = .init(.init(

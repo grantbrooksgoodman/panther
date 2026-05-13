@@ -100,7 +100,7 @@ final class ContextMenuActionHandlerService {
                     image: .init(systemName: Strings.saveActionImageSystemName),
                     identifier: .init(Strings.saveActionIdentifierRawValue),
                     handler: handleAction(_:)
-                ),
+                )
             )
 
             return .init(children: actions)
@@ -197,7 +197,9 @@ final class ContextMenuActionHandlerService {
         services.audio.activateAudioSession()
         chatPageViewService.contextMenu?.dismissMenu()
         Task { @MainActor in
-            func processed(_ string: String?) -> String { string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? "" }
+            func processed(_ string: String?) -> String {
+                string?.lowercasedTrimmingWhitespaceAndNewlines.sanitized ?? ""
+            }
 
             guard let selectedCell = selectedCell as? TextMessageCell,
                   let selectedMessage,

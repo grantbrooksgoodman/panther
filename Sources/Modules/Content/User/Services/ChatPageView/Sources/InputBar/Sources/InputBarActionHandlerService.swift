@@ -37,7 +37,9 @@ final class InputBarActionHandlerService {
 
     // MARK: - Computed Properties
 
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
 
     // MARK: - Init
 
@@ -124,7 +126,7 @@ final class InputBarActionHandlerService {
 
     @MainActor
     func didPressSendButton(with text: String) async -> Exception? {
-        /// - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
+        // - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
         var isConversationEmpty: Bool {
             if let currentConversation = viewController.currentConversation,
                currentConversation.isEmpty {

@@ -14,8 +14,9 @@ import AppSubsystem
 
 enum SplashPageViewServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> SplashPageViewService {
+        // swiftformat:disable all
         @MainActorIsolated var splashPageViewService = SplashPageViewService()
-        return splashPageViewService
+        return splashPageViewService // swiftformat:enable all
     }
 }
 

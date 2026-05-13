@@ -17,7 +17,9 @@ extension UIView {
     // MARK: - Properties
 
     /// Leverages the `focusGroupIdentifier` property for use as a secondary identifier, separate from the view's `tag`.
-    var identifier: String { focusGroupIdentifier ?? .init() }
+    var identifier: String {
+        focusGroupIdentifier ?? .init()
+    }
 
     // MARK: - Methods
 

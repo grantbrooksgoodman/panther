@@ -29,7 +29,9 @@ final class ContextMenuViewController: UIViewController {
 
     // MARK: - Computed Properties
 
-    var animatableAccessoryView: ContextMenuAnimatable? { accessoryView as? ContextMenuAnimatable }
+    var animatableAccessoryView: ContextMenuAnimatable? {
+        accessoryView as? ContextMenuAnimatable
+    }
 
     lazy var backgroundBlur: UIVisualEffectView = {
         let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: style.backgroundBlurStyle))
@@ -105,7 +107,8 @@ final class ContextMenuViewController: UIViewController {
 
         // Consolidate animatable constraints, for final position to be set
         // once enabled.
-        constraintsAlteringPreviewPosition.append(contentsOf:
+        constraintsAlteringPreviewPosition.append(
+            contentsOf:
             backgroundConstraints.animatable
                 + accessoryViewConstraints.animatable
                 + previewConstraints.animatable

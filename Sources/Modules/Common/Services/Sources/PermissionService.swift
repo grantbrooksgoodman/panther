@@ -45,15 +45,23 @@ struct PermissionService {
 
     // MARK: - Computed Properties
 
-    var contactPermissionStatus: PermissionStatus { getContactPermissionStatus() }
+    var contactPermissionStatus: PermissionStatus {
+        getContactPermissionStatus()
+    }
+
     var notificationPermissionStatus: PermissionStatus {
         get async {
             await getNotificationPermissionStatus()
         }
     }
 
-    var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
-    var transcribePermissionStatus: PermissionStatus { getTranscribePermissionStatus() }
+    var recordPermissionStatus: PermissionStatus {
+        getRecordPermissionStatus()
+    }
+
+    var transcribePermissionStatus: PermissionStatus {
+        getTranscribePermissionStatus()
+    }
 
     // MARK: - Permissions Requesting
 

@@ -54,7 +54,6 @@ struct UserContentContainerView: View {
 
     // MARK: - View
 
-    @ViewBuilder
     var body: some View {
         NavigationStack(path: navigationPathBinding) {
             ConversationsPageView(

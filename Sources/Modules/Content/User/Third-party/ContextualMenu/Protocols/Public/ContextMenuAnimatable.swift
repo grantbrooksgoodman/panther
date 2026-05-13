@@ -16,6 +16,11 @@ protocol ContextMenuAnimatable {
 }
 
 extension ContextMenuAnimatable {
-    func appearAnimation() { appearAnimation(completion: nil) }
-    func disappearAnimation() { disappearAnimation(completion: nil) }
+    func appearAnimation() {
+        appearAnimation(completion: nil)
+    }
+
+    func disappearAnimation() {
+        disappearAnimation(completion: nil)
+    }
 }

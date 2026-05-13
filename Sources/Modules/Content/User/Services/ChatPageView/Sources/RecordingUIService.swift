@@ -40,11 +40,25 @@ final class RecordingUIService {
 
     // MARK: - Computed Properties
 
-    private var cancelLabel: UILabel? { recordingView?.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel }
-    private var durationLabel: UILabel? { recordingView?.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel }
-    private var imageView: UIImageView? { recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView }
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
-    private var recordingView: UIView? { inputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag) }
+    private var cancelLabel: UILabel? {
+        recordingView?.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel
+    }
+
+    private var durationLabel: UILabel? {
+        recordingView?.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel
+    }
+
+    private var imageView: UIImageView? {
+        recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView
+    }
+
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
+
+    private var recordingView: UIView? {
+        inputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag)
+    }
 
     // MARK: - Init
 

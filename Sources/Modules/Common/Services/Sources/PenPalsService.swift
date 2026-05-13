@@ -95,9 +95,9 @@ struct PenPalsService {
 
             let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
                 isPenPalsConversation: false,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID)),
+                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
             ) : penPalsConversation.metadata.copyWith(
-                penPalsSharingData: newPenPalsSharingData,
+                penPalsSharingData: newPenPalsSharingData
             )
 
             guard penPalsConversation.metadata != newMetadata else { continue }

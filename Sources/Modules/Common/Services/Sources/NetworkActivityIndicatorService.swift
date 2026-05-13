@@ -21,7 +21,10 @@ struct NetworkActivityIndicatorService: NetworkActivityIndicatorDelegate {
 
     // MARK: - Computed Properties
 
-    var backgroundColor: Color? { nil }
+    var backgroundColor: Color? {
+        nil
+    }
+
     var progressViewTintColor: Color? {
         if UIApplication.isFullyV26Compatible {
             ThemeService.isDarkModeActive ? .white : .black
