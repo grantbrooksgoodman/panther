@@ -216,14 +216,14 @@ final class IntegrityService: @unchecked Sendable {
             tookAction = true
 
             let conversationMessageIDs = (session.conversationData[conversationIDKey] as? [String: Any])
-                .flatMap { $0[Conversation.SerializationKeys.messages.rawValue] as? [String] } ?? []
+                .flatMap { $0[Conversation.SerializableKey.messages.rawValue] as? [String] } ?? []
 
             await withTaskGroup(of: Exception?.self) { taskGroup in
                 for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                     guard let dictionary = session.userData[userID] as? [String: Any],
-                          var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                          var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
                     conversationIDStrings = conversationIDStrings.filter { !$0.hasPrefix(conversationIDKey) }
-                    let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                    let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                     let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
                     taskGroup.addTask {
@@ -291,7 +291,7 @@ final class IntegrityService: @unchecked Sendable {
                 }
 
                 guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
-                      var messageIDs = dictionary[Conversation.SerializationKeys.messages.rawValue] as? [String] else { continue }
+                      var messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
 
                 messageIDs = messageIDs.filter { $0 != messageID }
 
@@ -304,7 +304,7 @@ final class IntegrityService: @unchecked Sendable {
 
                 if let exception = await networking.database.setValue(
                     messageIDs,
-                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializationKeys.messages.rawValue)"
+                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.messages.rawValue)"
                 ) {
                     exceptions.append(exception)
                 }
@@ -343,7 +343,7 @@ final class IntegrityService: @unchecked Sendable {
 
             // FIXME: Audit this change.
             guard let dictionary = session.userData[userID] as? [String: Any],
-                  var conversationIDKeys = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else {
+                  var conversationIDKeys = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else {
                 if let exception = await networking.database.setValue(
                     NSNull(),
                     forKey: "\(NetworkPath.users.rawValue)/\(userID)"
@@ -379,7 +379,7 @@ final class IntegrityService: @unchecked Sendable {
         await withTaskGroup(of: Exception?.self) { taskGroup in
             for (key, value) in session.userData {
                 guard let dictionary = value as? [String: Any],
-                      let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                      let conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
 
                 var filteredConversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }
                 for conversationIDString in filteredConversationIDStrings where !session
@@ -398,7 +398,7 @@ final class IntegrityService: @unchecked Sendable {
 
                 tookAction = true
                 let filteredValue = filteredConversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : filteredConversationIDStrings
-                let keyPath = "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                let keyPath = "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializableKey.conversationIDs.rawValue)"
 
                 taskGroup.addTask {
                     await self.networking.database.setValue(
@@ -426,7 +426,7 @@ final class IntegrityService: @unchecked Sendable {
         await withTaskGroup(of: Exception?.self) { taskGroup in
             for (conversationIDKey, value) in session.conversationData {
                 guard let dictionary = value as? [String: Any],
-                      let messageIDs = dictionary[Conversation.SerializationKeys.messages.rawValue] as? [String] else { continue }
+                      let messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
 
                 let filteredMessageIDs = messageIDs.filter {
                     session.indices.existingMessageIDs.contains($0)
@@ -443,7 +443,7 @@ final class IntegrityService: @unchecked Sendable {
                 taskGroup.addTask {
                     await self.networking.database.setValue(
                         filteredMessageIDs,
-                        forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializationKeys.messages.rawValue)"
+                        forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.messages.rawValue)"
                     )
                 }
             }
@@ -472,7 +472,7 @@ final class IntegrityService: @unchecked Sendable {
 
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
-                  var participantUserIDs = dictionary[Conversation.SerializationKeys.participants.rawValue] as? [String] else { continue }
+                  var participantUserIDs = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String] else { continue }
 
             participantUserIDs = participantUserIDs.compactMap { $0.components(separatedBy: " | ").first }
 
@@ -499,7 +499,7 @@ final class IntegrityService: @unchecked Sendable {
         await withTaskGroup(of: Exception?.self) { taskGroup in
             for (userID, missingConversationIDs) in missingConversationIDsForUserIDs {
                 guard let dictionary = session.userData[userID] as? [String: Any],
-                      var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                      var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
 
                 tookAction = true
                 conversationIDStrings.append(contentsOf: missingConversationIDs)
@@ -508,7 +508,7 @@ final class IntegrityService: @unchecked Sendable {
                 taskGroup.addTask {
                     await self.networking.database.setValue(
                         conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings,
-                        forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                        forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                     )
                 }
             }
@@ -529,12 +529,12 @@ final class IntegrityService: @unchecked Sendable {
             .compactMap { key, value in
                 guard let dictionary = value as? [String: Any],
                       let contentTypeString = dictionary[
-                          Message.SerializationKeys.contentType.rawValue
+                          Message.SerializableKey.contentType.rawValue
                       ] as? String,
                       let contentType = HostedContentType(hostedValue: contentTypeString),
                       contentType.isAudio,
                       let translationReferenceStrings = dictionary[
-                          Message.SerializationKeys.translationReferences.rawValue
+                          Message.SerializableKey.translationReferences.rawValue
                       ] as? [String] else { return nil }
                 return (key, translationReferenceStrings)
             }
@@ -551,7 +551,7 @@ final class IntegrityService: @unchecked Sendable {
                     var taskTookAction = false
 
                     let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
-                    let contentTypeKeyPath = "\(NetworkPath.messages.rawValue)/\(key)/\(Message.SerializationKeys.contentType.rawValue)"
+                    let contentTypeKeyPath = "\(NetworkPath.messages.rawValue)/\(key)/\(Message.SerializableKey.contentType.rawValue)"
 
                     switch await self.networking.storage.itemExists(at: inputFilePath) {
                     case let .success(itemExists):
@@ -617,7 +617,7 @@ final class IntegrityService: @unchecked Sendable {
         for (messageID, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
                   let contentTypeString = dictionary[
-                      Message.SerializationKeys.contentType.rawValue
+                      Message.SerializableKey.contentType.rawValue
                   ] as? String,
                   let contentType = HostedContentType(hostedValue: contentTypeString),
                   case let .media(
@@ -691,7 +691,7 @@ final class IntegrityService: @unchecked Sendable {
         var malformedConversationIDKeys = [String]()
         for (key, value) in session.conversationData {
             guard let dictionary = value as? [String: Any],
-                  var participantUserIDs = dictionary[Conversation.SerializationKeys.participants.rawValue] as? [String] else { continue }
+                  var participantUserIDs = dictionary[Conversation.SerializableKey.participants.rawValue] as? [String] else { continue }
 
             participantUserIDs = participantUserIDs.compactMap { $0.components(separatedBy: " | ").first }
             guard participantUserIDs.contains(where: { !session.userData.keys.contains($0) }) else { continue }
@@ -710,10 +710,10 @@ final class IntegrityService: @unchecked Sendable {
 
         for (key, value) in session.messageData {
             guard let dictionary = value as? [String: Any],
-                  let contentTypeString = dictionary[Message.SerializationKeys.contentType.rawValue] as? String,
+                  let contentTypeString = dictionary[Message.SerializableKey.contentType.rawValue] as? String,
                   let contentType = HostedContentType(hostedValue: contentTypeString),
                   contentType.isAudio || contentType == .text,
-                  let translationReferenceStrings = dictionary[Message.SerializationKeys.translationReferences.rawValue] as? [String] else { continue }
+                  let translationReferenceStrings = dictionary[Message.SerializableKey.translationReferences.rawValue] as? [String] else { continue }
 
             var needsRepair = false
             for translationReferenceString in translationReferenceStrings {
@@ -780,7 +780,7 @@ final class IntegrityService: @unchecked Sendable {
                     HostedContentType(
                         hostedValue: (($0 as? [String: Any])?[
                             Message
-                                .SerializationKeys
+                                .SerializableKey
                                 .contentType
                                 .rawValue
                         ] as? String) ?? ""
@@ -857,7 +857,7 @@ final class IntegrityService: @unchecked Sendable {
                 continue
             }
 
-            dictionary[Conversation.SerializationKeys.id.rawValue] = key
+            dictionary[Conversation.SerializableKey.id.rawValue] = key
             guard !Conversation.canDecode(from: dictionary) else { continue }
 
             conversationIDKeys.append(key)
@@ -875,7 +875,7 @@ final class IntegrityService: @unchecked Sendable {
                 continue
             }
 
-            dictionary[Message.SerializationKeys.id.rawValue] = key
+            dictionary[Message.SerializableKey.id.rawValue] = key
             guard !Message.canDecode(from: dictionary) else { continue }
 
             messageIDs.append(key)
@@ -893,7 +893,7 @@ final class IntegrityService: @unchecked Sendable {
                 continue
             }
 
-            dictionary[User.SerializationKeys.id.rawValue] = key
+            dictionary[User.SerializableKey.id.rawValue] = key
             guard !User.canDecode(from: dictionary) else { continue }
 
             userIDs.append(key)
@@ -928,10 +928,10 @@ final class IntegrityService: @unchecked Sendable {
         await withTaskGroup(of: Exception?.self) { taskGroup in
             for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                 guard let dictionary = session.userData[userID] as? [String: Any],
-                      var conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                      var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
                 conversationIDStrings = conversationIDStrings.filter { !$0.hasPrefix(conversationIDKey) }
                 conversationIDStrings.append("\(conversationIDKey) | \(String.bangQualifiedEmpty)")
-                let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                 let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
                 taskGroup.addTask {
@@ -952,7 +952,7 @@ final class IntegrityService: @unchecked Sendable {
             taskGroup.addTask {
                 await self.networking.database.setValue(
                     String.bangQualifiedEmpty,
-                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializationKeys.encodedHash.rawValue)"
+                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.encodedHash.rawValue)"
                 )
             }
 

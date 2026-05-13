@@ -38,7 +38,7 @@ struct LegacyUserService {
             return error.appending(userInfo: userInfo)
         }
 
-        userData[User.SerializationKeys.id.rawValue] = id
+        userData[User.SerializableKey.id.rawValue] = id
 
         guard !User.canDecode(from: userData) else {
             let exception = Exception(
@@ -62,11 +62,11 @@ struct LegacyUserService {
             "regionCode": regionCode,
         ]
 
-        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
+        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)") {
             return exception.appending(userInfo: userInfo)
         }
 
-        if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializationKeys.phoneNumber.rawValue)") {
+        if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)") {
             return exception.appending(userInfo: userInfo)
         }
 
@@ -80,14 +80,14 @@ struct LegacyUserService {
 
         if let exception = await networking.database.setValue(
             Array.bangQualifiedEmpty,
-            forKey: "\(userPath)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
+            forKey: "\(userPath)/\(User.SerializableKey.blockedUserIDs.rawValue)"
         ) {
             return exception.appending(userInfo: userInfo)
         }
 
         if let exception = await networking.database.setValue(
             Array.bangQualifiedEmpty,
-            forKey: "\(userPath)/\(User.SerializationKeys.conversationIDs.rawValue)"
+            forKey: "\(userPath)/\(User.SerializableKey.conversationIDs.rawValue)"
         ) {
             return exception.appending(userInfo: userInfo)
         }

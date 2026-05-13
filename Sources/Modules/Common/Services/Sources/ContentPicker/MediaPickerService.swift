@@ -58,7 +58,7 @@ final class MediaPickerService: PHPickerViewControllerDelegate {
         }
 
         guard let firstResult = results.first else { return _onDismiss = nil }
-        let itemProvider = LockIsolated<NSItemProvider>(firstResult.itemProvider)
+        let itemProvider = LockIsolated(firstResult.itemProvider)
 
         let confirmAction: AKAction = .init("Confirm", style: .preferred) {
             Task.delayed(by: .milliseconds(250)) { @MainActor in

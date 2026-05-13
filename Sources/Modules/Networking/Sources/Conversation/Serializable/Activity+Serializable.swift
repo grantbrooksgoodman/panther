@@ -16,12 +16,11 @@ import Networking
 extension Activity: Serializable {
     // MARK: - Type Aliases
 
-    typealias T = Activity
-    private typealias Keys = SerializationKeys
+    private typealias Keys = SerializableKey
 
     // MARK: - Types
 
-    enum SerializationKeys: String {
+    enum SerializableKey: String {
         case action
         case date
         case userID
@@ -38,9 +37,36 @@ extension Activity: Serializable {
         ]
     }
 
+    // MARK: - Init
+
+    init(
+        from data: [String: Any] // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+
+        guard let actionString = data[Keys.action.rawValue] as? String,
+              let action: Action = .init(rawValue: actionString),
+              let dateString = data[Keys.date.rawValue] as? String,
+              let date = dateFormatter.date(from: dateString),
+              let userID = data[Keys.userID.rawValue] as? String else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        self = .init(
+            action,
+            date: date,
+            userID: userID
+        )
+    }
+
     // MARK: - Methods
 
-    static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(
+        from data: [String: Any]
+    ) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         guard let actionString = data[Keys.action.rawValue] as? String,
               Action(rawValue: actionString) != nil,
@@ -50,25 +76,5 @@ extension Activity: Serializable {
               !userID.isBlank else { return false }
 
         return true
-    }
-
-    static func decode(from data: [String: Any]) async -> Callback<Activity, Exception> {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-
-        guard let actionString = data[Keys.action.rawValue] as? String,
-              let action: Action = .init(rawValue: actionString),
-              let dateString = data[Keys.date.rawValue] as? String,
-              let date = dateFormatter.date(from: dateString),
-              let userID = data[Keys.userID.rawValue] as? String else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        let decoded: Activity = .init(
-            action,
-            date: date,
-            userID: userID
-        )
-
-        return .success(decoded)
     }
 }

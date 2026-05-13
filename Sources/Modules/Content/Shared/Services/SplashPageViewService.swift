@@ -205,7 +205,7 @@ final class SplashPageViewService: ObservableObject {
             @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
             if (currentUser.conversationIDs ?? []).count > 20,
                (conversationArchive ?? []).isEmpty {
-                let database = LockIsolated<any DatabaseDelegate>(networking.database)
+                let database = LockIsolated(networking.database)
                 if let exception = await database.wrappedValue.populateTemporaryCaches() {
                     Logger.log(exception)
                 }
@@ -230,7 +230,7 @@ final class SplashPageViewService: ObservableObject {
             Task { [weak self] in
                 guard let self else { return }
 
-                let pushTokenService = LockIsolated<PushTokenService>(services.pushToken)
+                let pushTokenService = LockIsolated(services.pushToken)
                 if Networking.config.environment != .staging,
                    let exception = await pushTokenService
                    .wrappedValue

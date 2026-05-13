@@ -101,13 +101,13 @@ struct PenPalsService {
             )
 
             guard penPalsConversation.metadata != newMetadata else { continue }
-            let updateValueResult = await penPalsConversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
+            do {
+                // NIT: We don't care about the result because the update method adds the updated conversation to the archive for us.
+                _ = try await penPalsConversation.update(
+                    \.metadata,
+                    to: newMetadata
+                )
 
-            switch updateValueResult {
-            case .success: // NIT: We don't care about the result because updateValue adds the updated conversation to the archive for us.
                 Logger.log(
                     .init(
                         "Updated PenPals sharing data.",
@@ -117,9 +117,8 @@ struct PenPalsService {
                     ),
                     domain: .penPals
                 )
-
-            case let .failure(exception):
-                return exception
+            } catch {
+                return error
             }
         }
 
@@ -170,21 +169,17 @@ struct PenPalsService {
             )
         }
 
-        let updateValueResult = await currentUser.updateValue(
-            didGrantPenPalsPermission,
-            forKey: .isPenPalsParticipant
-        )
-
-        switch updateValueResult {
-        case let .success(user):
+        do {
             Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
-            return userSession.setCurrentUser(
-                user,
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.isPenPalsParticipant,
+                    to: didGrantPenPalsPermission
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

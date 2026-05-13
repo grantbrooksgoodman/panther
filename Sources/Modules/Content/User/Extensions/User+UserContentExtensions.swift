@@ -125,7 +125,7 @@ extension User {
         return nil
     }
 
-    /// - Note: Will set the current user to the result returned by `updateValue`.
+    /// - Note: Will set the current user to the result returned by `update`.
     func removeCurrentPushToken() async -> Exception? {
         @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
@@ -137,30 +137,32 @@ extension User {
             filteredPushTokens = .bangQualifiedEmpty
         }
 
-        let updateValueResult = await updateValue(
-            filteredPushTokens,
-            forKey: .pushTokens
-        )
-
-        switch updateValueResult {
-        case let .success(user): return userSession.setCurrentUser(user)
-        case let .failure(exception): return exception
+        do {
+            return try await userSession.setCurrentUser(
+                update(
+                    \.pushTokens,
+                    to: filteredPushTokens
+                )
+            )
+        } catch {
+            return error
         }
     }
 
-    /// - Note: Will set the current user to the result returned by `updateValue`.
+    /// - Note: Will set the current user to the result returned by `update`.
     func updateLastSignedInDate(
         to date: Date = .now
     ) async -> Exception? {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
-        let updateValueResult = await updateValue(
-            date,
-            forKey: .lastSignedIn
-        )
-
-        switch updateValueResult {
-        case let .success(user): return userSession.setCurrentUser(user)
-        case let .failure(exception): return exception
+        do {
+            return try await userSession.setCurrentUser(
+                update(
+                    \.lastSignedIn,
+                    to: date
+                )
+            )
+        } catch {
+            return error
         }
     }
 }

@@ -263,7 +263,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         for (conversationID, data) in conversationData {
             guard let dictionary = data as? [String: Any],
-                  let messageIDs = dictionary[Conversation.SerializationKeys.messages.rawValue] as? [String] else { continue }
+                  let messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
 
             for messageID in messageIDs {
                 conversationsByMessageID[messageID, default: []].insert(conversationID)
@@ -272,7 +272,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         for (userID, data) in userData {
             guard let dictionary = data as? [String: Any],
-                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                  let conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
 
             for idKey in conversationIDStrings.compactMap({
                 $0.components(separatedBy: " | ").first

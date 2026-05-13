@@ -19,11 +19,12 @@ extension DatabaseDelegate {
     }
 
     func populateTemporaryCaches() async -> Exception? {
-        @Dependency(\.build.milestone) var buildMilestone: Build.Milestone // swiftlint:disable:next identifier_name
-        @Dependency(\.networking.database) var _database: DatabaseDelegate
+        @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
 
         guard !RuntimeStorage.populatedTemporaryCaches else { return nil }
-        let database = LockIsolated<DatabaseDelegate>(_database)
+        let database = LockIsolated(
+            Dependency(\.networking.database).wrappedValue
+        )
 
         async let getConversationValues: [String: Any] = database.wrappedValue.getValues(
             at: NetworkPath.conversations.rawValue

@@ -383,28 +383,40 @@ struct MessageSessionService {
                     isPenPalsConversation: conversation.metadata.isPenPalsConversation
                 )
 
-                let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
-                guard newParticipants.map(\.hasDeletedConversation) != conversation.participants.map(\.hasDeletedConversation) else {
-                    return await addMessage(message, to: conversation)
+                let newParticipants = conversation.participants.map {
+                    Participant(
+                        userID: $0.userID,
+                        hasDeletedConversation: false,
+                        isTyping: $0.isTyping
+                    )
                 }
 
-                let updateValueResult = await conversation.updateValue(
-                    newParticipants,
-                    forKey: .participants
-                )
+                guard newParticipants
+                    .map(\.hasDeletedConversation) != conversation
+                    .participants
+                    .map(\.hasDeletedConversation) else {
+                    return await addMessage(
+                        message,
+                        to: conversation
+                    )
+                }
 
                 incrementDeliveryProgress(
                     in: conversation,
                     by: Floats.updateValueDeliveryProgressIncrement
                 )
 
-                switch updateValueResult {
-                case let .success(conversation):
-                    return await addMessage(message, to: conversation)
-
-                case let .failure(exception):
+                do {
+                    return try await addMessage(
+                        message,
+                        to: conversation.update(
+                            \.participants,
+                            to: newParticipants
+                        )
+                    )
+                } catch {
                     clientSession.user.startObservingCurrentUserChanges()
-                    return .failure(exception)
+                    return .failure(error)
                 }
             } else {
                 var participantUsers = [initiatingUser]

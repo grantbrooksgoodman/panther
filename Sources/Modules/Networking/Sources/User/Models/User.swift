@@ -13,23 +13,24 @@ import Foundation
 import AppSubsystem
 import Networking
 
+@RemotelyUpdatable
 // swiftlint:disable:next type_body_length
 final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
-    let aiEnhancedTranslationsEnabled: Bool
-    let blockedUserIDs: [String]?
+    @Updatable let aiEnhancedTranslationsEnabled: Bool
+    @Updatable(nilIf: .isBangQualifiedEmpty) let blockedUserIDs: [String]?
     let id: String
-    let isPenPalsParticipant: Bool
+    @Updatable let isPenPalsParticipant: Bool
     let languageCode: String
-    let lastSignedIn: Date?
-    let messageRecipientConsentRequired: Bool
+    @Updatable(nilIf: .custom("$0 == .init(timeIntervalSince1970: 0)")) let lastSignedIn: Date?
+    @Updatable let messageRecipientConsentRequired: Bool
     let phoneNumber: PhoneNumber
-    let previousLanguageCodes: [String]?
-    let pushTokens: [String]?
+    @Updatable(nilIf: .isBangQualifiedEmpty) let previousLanguageCodes: [String]?
+    @Updatable(nilIf: .isBangQualifiedEmpty) let pushTokens: [String]?
 
     // NIT: Should be @LockIsolated, but would lose Codable conformance.
-    private(set) var conversationIDs: [ConversationID]?
+    @Updatable private(set) var conversationIDs: [ConversationID]?
     private(set) var conversations: [Conversation]?
 
     private static let coalescer = SingleSlotCoalescer<Exception?>()
@@ -66,7 +67,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
                     at: [
                         NetworkPath.users.rawValue,
                         id,
-                        User.SerializationKeys.badgeNumber.rawValue,
+                        User.SerializableKey.badgeNumber.rawValue,
                     ].joined(separator: "/"),
                     cacheStrategy: .disregardCache
                 )

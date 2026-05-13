@@ -40,24 +40,25 @@ final class ReadReceiptService {
         guard !unreadMessages.isEmpty else { return nil }
 
         clientSession.user.stopObservingCurrentUserChanges()
-        let updateReadDateResult = await conversation.updateReadDate(for: unreadMessages)
-        clientSession.user.startObservingCurrentUserChanges()
+        do {
+            let updatedConversation = try await conversation.updateReadDate(for: unreadMessages)
+            clientSession.user.startObservingCurrentUserChanges()
 
-        switch updateReadDateResult {
-        case let .success(conversation):
             if let currentUser = clientSession.user.currentUser,
-               let exception = await notificationService.setBadgeNumber(currentUser.calculateBadgeNumber() - unreadMessages.count) {
+               let exception = await notificationService.setBadgeNumber(
+                   currentUser.calculateBadgeNumber() - unreadMessages.count
+               ) {
                 return exception
             }
 
-            if clientSession.conversation.currentConversation?.id.key == conversation.id.key {
-                clientSession.conversation.setCurrentConversation(conversation)
+            if clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key {
+                clientSession.conversation.setCurrentConversation(updatedConversation)
             }
 
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            clientSession.user.startObservingCurrentUserChanges()
+            return error
         }
     }
 }

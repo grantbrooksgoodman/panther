@@ -128,23 +128,27 @@ struct ChangeLanguagePageViewService {
         }
 
         newPreviousLanguageCodes = newPreviousLanguageCodes.unique.reversed()
-        let updateValueResult = await currentUser.updateValue(
-            newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes,
-            forKey: .previousLanguageCodes
-        )
 
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        switch updateValueResult {
-        case let .success(user):
-            if let exception = userSession.setCurrentUser(user) {
+        do {
+            if let exception = try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.previousLanguageCodes,
+                    to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
+                )
+            ) {
                 return exception
             }
 
             if let exception = await database.setValue(
                 languageCode,
-                forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.languageCode.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.languageCode.rawValue,
+                ].joined(separator: "/")
             ) {
                 return exception
             }
@@ -155,9 +159,8 @@ struct ChangeLanguagePageViewService {
                     onCompletion: .exitGracefully
                 )
             }
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
 
         return nil

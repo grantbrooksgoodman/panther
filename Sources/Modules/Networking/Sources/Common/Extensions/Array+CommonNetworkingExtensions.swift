@@ -107,9 +107,3 @@ extension [Message] {
         return messages
     }
 }
-
-extension [String] {
-    /// An empty array qualified by a single value of "!".
-    static var bangQualifiedEmpty: [String] { ["!"] }
-    var isBangQualifiedEmpty: Bool { isEmpty || allSatisfy(\.isBangQualifiedEmpty) }
-}

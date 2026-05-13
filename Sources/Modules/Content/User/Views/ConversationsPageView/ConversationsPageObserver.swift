@@ -14,25 +14,25 @@ import AppSubsystem
 import Networking
 
 struct ConversationsPageObserver: Observer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case showSecondsToLoadToast
+    }
+
     // MARK: - Type Aliases
 
     typealias R = ConversationsPageReducer
-
-    // MARK: - Types
-
-    private enum TaskID: Hashable {
-        case showSecondsToLoadToast
-    }
 
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.conversationsPageViewService) private var conversationsPageViewService: ConversationsPageViewService
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
     // MARK: - Properties
 
@@ -60,11 +60,13 @@ struct ConversationsPageObserver: Observer {
             send(.traitCollectionChanged)
 
         case Observables.updateConversationsListSetToReliableDataSource:
+            @MainActorIsolated var didShowSecondsToLoadToast = viewService.didShowSecondsToLoadToast
+            guard !didShowSecondsToLoadToast else { return }
             Task.debounced(
-                TaskID.showSecondsToLoadToast,
+                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
                 delay: .seconds(1),
             ) { @MainActor in
-                conversationsPageViewService.showSecondsToLoadToastIfNeeded()
+                viewService.showSecondsToLoadToastIfNeeded()
             }
 
         case Observables.updatedCurrentUser:
@@ -155,13 +157,12 @@ struct ConversationsPageObserver: Observer {
                         !$0.isFromCurrentUser &&
                         $0.currentUserReadReceipt == nil
                 }),
-                !missingMessages.isEmpty {
-                let updateReadDateResult = await updatedConversation.updateReadDate(
-                    for: missingMessages
-                )
+                !missingMessages.isEmpty { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    let conversation = try await updatedConversation.updateReadDate(
+                        for: missingMessages
+                    )
 
-                switch updateReadDateResult {
-                case let .success(conversation):
                     if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
                        let exception = await notificationService.setBadgeNumber(badgeNumber) {
                         Logger.log(
@@ -174,10 +175,9 @@ struct ConversationsPageObserver: Observer {
                     clientSession.conversation.setCurrentConversation(conversation)
                     chatPageViewService.reloadCollectionView()
                     return configureInputBarIfNeeded()
-
-                case let .failure(exception):
+                } catch {
                     return Logger.log(
-                        exception,
+                        error,
                         domain: .conversation
                     )
                 }

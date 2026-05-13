@@ -16,12 +16,11 @@ import Networking
 extension Reaction: Serializable {
     // MARK: - Type Aliases
 
-    typealias T = Reaction
-    private typealias Keys = SerializationKeys
+    private typealias Keys = SerializableKey
 
     // MARK: - Types
 
-    private enum SerializationKeys: String {
+    private enum SerializableKey: String {
         case style
         case userID
     }
@@ -35,24 +34,34 @@ extension Reaction: Serializable {
         ]
     }
 
-    // MARK: - Methods
+    // MARK: - Init
 
-    static func canDecode(from data: [String: Any]) -> Bool {
-        guard let encodedStyle = data[Keys.style.rawValue] as? String,
-              Reaction.Style(encodedValue: encodedStyle) != nil,
-              data[Keys.userID.rawValue] is String else { return false }
-
-        return true
-    }
-
-    static func decode(from data: [String: Any]) async -> Callback<Reaction, Exception> {
+    init(
+        from data: [String: Any] // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               let style = Reaction.Style(encodedValue: encodedStyle),
               let userID = data[Keys.userID.rawValue] as? String else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
         }
 
-        let decoded: Reaction = .init(style, userID: userID)
-        return .success(decoded)
+        self = .init(
+            style,
+            userID: userID
+        )
+    }
+
+    // MARK: - Methods
+
+    static func canDecode(
+        from data: [String: Any]
+    ) -> Bool {
+        guard let encodedStyle = data[Keys.style.rawValue] as? String,
+              Reaction.Style(encodedValue: encodedStyle) != nil,
+              data[Keys.userID.rawValue] is String else { return false }
+        return true
     }
 }

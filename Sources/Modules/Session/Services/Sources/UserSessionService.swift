@@ -21,7 +21,7 @@ import FirebaseDatabase
 final class UserSessionService: @unchecked Sendable {
     // MARK: - Types
 
-    private enum TaskID: Hashable {
+    private enum TaskID: String {
         case getDataUsage
     }
 
@@ -207,7 +207,7 @@ final class UserSessionService: @unchecked Sendable {
                 at: [
                     NetworkPath.users.rawValue,
                     currentUserID,
-                    User.SerializationKeys.languageCode.rawValue,
+                    User.SerializableKey.languageCode.rawValue,
                 ].joined(separator: "/")
             )
 
@@ -293,7 +293,7 @@ final class UserSessionService: @unchecked Sendable {
         let currentBlockedUserIDs = (currentUser?.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
 
         guard let updatedBlockedUserIDs = (dictionary[
-            User.SerializationKeys.blockedUserIDs.rawValue
+            User.SerializableKey.blockedUserIDs.rawValue
         ] as? [String])?.sorted() else { return false }
 
         return currentBlockedUserIDs != updatedBlockedUserIDs
@@ -306,7 +306,7 @@ final class UserSessionService: @unchecked Sendable {
             .sorted() else { return true }
 
         guard let updatedConversationIDStrings = (dictionary[
-            User.SerializationKeys.conversationIDs.rawValue
+            User.SerializableKey.conversationIDs.rawValue
         ] as? [String])?.sorted() else { return false }
 
         // Remove deleted conversations.
@@ -325,7 +325,7 @@ final class UserSessionService: @unchecked Sendable {
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
         let currentLastSignedInDate = currentUser?.lastSignedIn
         let updatedLastSignedInString = dictionary[
-            User.SerializationKeys.lastSignedIn.rawValue
+            User.SerializableKey.lastSignedIn.rawValue
         ] as? String
 
         guard let updatedLastSignedInString,
@@ -347,8 +347,9 @@ final class UserSessionService: @unchecked Sendable {
                 translating: Toast.TranslationOptionKey.allCases
             )
 
-            RuntimeStorage.remove(.updatedLastSignInDate)
-            Application.reset(onCompletion: .navigateToSplash)
+            Application.reset(
+                onCompletion: .navigateToSplash
+            )
         }
     }
 
@@ -384,7 +385,7 @@ final class UserSessionService: @unchecked Sendable {
                 }
 
                 Task.debounced(
-                    TaskID.getDataUsage,
+                    "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",
                     delay: .seconds(5),
                     priority: .utility
                 ) {

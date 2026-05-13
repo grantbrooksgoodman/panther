@@ -38,7 +38,11 @@ extension CoreKit.Utilities {
 
         return await database.setValue(
             Array.bangQualifiedEmpty,
-            forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.previousLanguageCodes.rawValue)",
+            forKey: [
+                NetworkPath.users.rawValue,
+                currentUserID,
+                User.SerializableKey.previousLanguageCodes.rawValue,
+            ].joined(separator: "/")
         )
     }
 
@@ -160,7 +164,11 @@ extension CoreKit.Utilities {
         for userID in userIDs {
             if let exception = await networking.database.setValue(
                 [String.bangQualifiedEmpty],
-                forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
             ) {
                 return exception
             }
@@ -218,7 +226,11 @@ extension CoreKit.Utilities {
         for userID in userIDs {
             if let exception = await networking.database.setValue(
                 [String.bangQualifiedEmpty],
-                forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.pushTokens.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
             ) {
                 return exception
             }

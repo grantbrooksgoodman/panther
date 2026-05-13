@@ -42,8 +42,8 @@ struct LocalMediaFilePath: Codable, Equatable {
         self.relativeThumbnailPathString = relativeThumbnailPathString
     }
 
-    init?(_ message: Message) {
-        switch message.contentType {
+    init?(contentType: HostedContentType) {
+        switch contentType {
         case let .media(id: fileID, extension: fileExtension):
             let pathPrefix = "\(NetworkPath.media.rawValue)/\(fileID)"
             let filePath = "\(pathPrefix).\(fileExtension.rawValue)"
@@ -61,5 +61,9 @@ struct LocalMediaFilePath: Codable, Equatable {
 
         default: return nil
         }
+    }
+
+    init?(_ message: Message) {
+        self.init(contentType: message.contentType)
     }
 }

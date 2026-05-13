@@ -72,8 +72,8 @@ final class UserService: @unchecked Sendable {
             pushTokens: pushTokens
         )
 
-        var data = mockUser.encoded.filter { $0.key != User.SerializationKeys.id.rawValue }
-        data[User.SerializationKeys.badgeNumber.rawValue] = 0
+        var data = mockUser.encoded.filter { $0.key != User.SerializableKey.id.rawValue }
+        data[User.SerializableKey.badgeNumber.rawValue] = 0
 
         if let exception = await networking.database.setValue(
             data,
@@ -119,7 +119,7 @@ final class UserService: @unchecked Sendable {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        typealias Keys = User.SerializationKeys
+        typealias Keys = User.SerializableKey
 
         if let cachedUserDataSnapshots,
            let match = cachedUserDataSnapshots.first(where: { ($0.data[Keys.id.rawValue] as? String) == id }),
@@ -133,7 +133,10 @@ final class UserService: @unchecked Sendable {
                 ),
                 domain: .caches
             )
-            return await User.decode(from: match.data)
+
+            return await .asCallback(
+                userInfo: userInfo
+            ) { try await User(from: match.data) }
         }
 
         var data: [String: Any]
@@ -146,6 +149,7 @@ final class UserService: @unchecked Sendable {
         }
 
         data[Keys.id.rawValue] = id
+
         var cachedValues = cachedUserDataSnapshots ?? []
         cachedValues.append(
             .init(
@@ -154,7 +158,10 @@ final class UserService: @unchecked Sendable {
             )
         )
         cachedUserDataSnapshots = cachedValues
-        return await User.decode(from: data)
+
+        return await .asCallback(
+            userInfo: userInfo
+        ) { try await User(from: data) }
     }
 
     func getUsers(ids: [String]) async -> Callback<[User], Exception> {

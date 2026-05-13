@@ -95,20 +95,16 @@ final class MessageRecipientConsentService {
             )
         }
 
-        let updateValueResult = await currentUser.updateValue(
-            messageRecipientConsentRequired,
-            forKey: .messageRecipientConsentRequired
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return clientSession.user.setCurrentUser(
-                user,
+        do {
+            return try await clientSession.user.setCurrentUser(
+                currentUser.update(
+                    \.messageRecipientConsentRequired,
+                    to: messageRecipientConsentRequired
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -133,21 +129,19 @@ final class MessageRecipientConsentService {
             newAcknowledgementData = emptyAcknowledgementData
         }
 
-        let updateValueResult = await conversation.updateValue(
-            conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-                nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
-            ),
-            forKey: .metadata
-        )
-
-        switch updateValueResult {
-        case let .success(conversation):
-            clientSession.conversation.setCurrentConversation(conversation)
+        do {
+            try await clientSession.conversation.setCurrentConversation(
+                conversation.update(
+                    \.metadata,
+                    to: conversation.metadata.copyWith(
+                        messageRecipientConsentAcknowledgementData: newAcknowledgementData,
+                        nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
+                    )
+                )
+            )
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

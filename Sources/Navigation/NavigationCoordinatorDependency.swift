@@ -30,7 +30,7 @@ import AppSubsystem
 enum NavigationCoordinatorDependency: DependencyKey {
     // MARK: - Properties
 
-    private static let didResolve = LockIsolated<Bool>(false)
+    private static let didResolve = LockIsolated(false)
 
     // MARK: - DependencyKey Conformance
 

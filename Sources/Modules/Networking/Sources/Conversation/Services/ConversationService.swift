@@ -65,7 +65,7 @@ struct ConversationService {
             users: nil
         )
 
-        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializationKeys.id.rawValue }
+        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue }
 
         if let exception = await networking.database.updateChildValues(forKey: "\(path)/\(id)", with: data) {
             return .failure(exception)
@@ -141,7 +141,7 @@ struct ConversationService {
             return .failure(error.appending(userInfo: userInfo))
         }
 
-        typealias Keys = Conversation.SerializationKeys
+        typealias Keys = Conversation.SerializableKey
         guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
             let exception = Exception(
                 "Failed to decode conversation ID.",
@@ -156,11 +156,9 @@ struct ConversationService {
             hash: conversationIDHash
         ).encoded
 
-        let decodeResult = await Conversation.decode(from: data)
-        switch decodeResult {
-        case let .success(conversation): return .success(conversation)
-        case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
-        }
+        return await .asCallback(
+            userInfo: userInfo
+        ) { try await Conversation(from: data) }
     }
 
     private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
@@ -170,7 +168,7 @@ struct ConversationService {
                     at: [
                         NetworkPath.users.rawValue,
                         userID,
-                        User.SerializationKeys.conversationIDs.rawValue,
+                        User.SerializableKey.conversationIDs.rawValue,
                     ].joined(separator: "/")
                 )
             )
@@ -205,7 +203,7 @@ struct ConversationService {
                 let path = NetworkPath.users.rawValue
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                    forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                 ) {
                     return exception.appending(userInfo: userInfo)
                 }
@@ -242,7 +240,7 @@ struct ConversationService {
             let path = NetworkPath.users.rawValue
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
             ) {
                 return exception.appending(userInfo: userInfo)
             }

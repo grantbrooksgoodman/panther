@@ -308,12 +308,18 @@ final class ChatInfoPageViewService {
             ))
         }
 
-        return await conversation.updateValues(
-            with: [
-                .activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
-                .metadata: newMetadata,
-            ]
-        )
+        do {
+            return try await .success(
+                conversation.updateValues(
+                    with: [
+                        \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
+                        \.metadata: newMetadata,
+                    ]
+                )
+            )
+        } catch {
+            return .failure(error)
+        }
     }
 
     func viewAppeared() {

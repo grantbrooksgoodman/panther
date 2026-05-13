@@ -112,6 +112,15 @@ struct UserTestingService {
         while count > 0 {
             if let exception = await createRandomMessage() {
                 core.ui.removeOverlay()
+                let amountCreated = originalCount - count
+                Logger.log(
+                    "Created \(amountCreated) of \(originalCount) new message\(amountCreated == 1 ? "" : "s").",
+                    with: .toastInPrerelease(
+                        style: .warning,
+                        isPersistent: true
+                    ),
+                    sender: self
+                )
                 return exception
             }
 
@@ -121,8 +130,15 @@ struct UserTestingService {
         navigation.navigate(to: .root(.modal(.splash)))
         core.ui.removeOverlay()
         Task.delayed(by: .seconds(1)) { @MainActor in
-            core.hud.showSuccess(
-                text: "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
+            let loggerMessage = "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
+            core.hud.showSuccess(text: loggerMessage)
+            Logger.log(
+                "\(loggerMessage).",
+                with: .toastInPrerelease(
+                    style: .success,
+                    isPersistent: true
+                ),
+                sender: self
             )
         }
 
@@ -498,10 +514,10 @@ struct UserTestingService {
               let imageData = await randomImageData else { return }
 
         do {
-            _ = try await (conversation.updateValue(
-                conversation.metadata.copyWith(imageData: imageData),
-                forKey: .metadata
-            )).get()
+            _ = try await conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(imageData: imageData)
+            )
         } catch {
             Logger.log(.init(
                 error,
@@ -534,10 +550,10 @@ struct UserTestingService {
         } // swiftlint:enable duplicate_conditions
 
         do {
-            _ = try await (conversation.updateValue(
-                conversation.metadata.copyWith(name: randomTitle),
-                forKey: .metadata
-            )).get()
+            _ = try await conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(name: randomTitle)
+            )
         } catch {
             Logger.log(.init(
                 error,

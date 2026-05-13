@@ -73,8 +73,9 @@ final class ConversationsPageViewService {
 
     // MARK: - Properties
 
+    private(set) var didShowSecondsToLoadToast = false
+
     private var currentReloadType: ReloadType = .full
-    private var didShowSecondsToLoadToast = false
 
     // MARK: - View Lifecycle
 
@@ -280,15 +281,33 @@ final class ConversationsPageViewService {
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
         ) else {
+            var currentState = state
             Task { // NIT: Ensure this is a good approach.
                 if let exception = await User.populateCurrentUserConversationsIfNeeded() {
                     Logger.log(
                         exception,
                         domain: .conversation
                     )
+                } else {
+                    let reloadDataResult = await reloadData()
+                    switch reloadDataResult {
+                    case let .success(conversations):
+                        updateConversationsList(
+                            with: conversations,
+                            state: &currentState
+                        )
+
+                    case let .failure(exception):
+                        Logger.log(
+                            exception,
+                            domain: .conversation,
+                            with: .toast
+                        )
+                    }
                 }
             }
 
+            state = currentState
             return Logger.log(
                 .init(
                     "No conversation data source was well-formed.",

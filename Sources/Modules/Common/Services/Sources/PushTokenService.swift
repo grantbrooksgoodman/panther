@@ -51,20 +51,16 @@ final class PushTokenService {
         }
 
         pushTokens.append(currentToken)
-        let updateValueResult = await currentUser.updateValue(
-            pushTokens.unique,
-            forKey: .pushTokens
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.pushTokens,
+                    to: pushTokens.unique
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -86,7 +82,7 @@ final class PushTokenService {
         var tookAction = false
         for (key, value) in userData where key != currentUser.id {
             guard let userData = value as? [String: Any],
-                  var pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
+                  var pushTokens = userData[User.SerializableKey.pushTokens.rawValue] as? [String],
                   !pushTokens.isBangQualifiedEmpty,
                   pushTokens.containsAnyString(in: currentUserPushTokens) else { continue }
 
@@ -94,7 +90,7 @@ final class PushTokenService {
             pushTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
             if let exception = await networking.database.setValue(
                 pushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : pushTokens,
-                forKey: "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializationKeys.pushTokens.rawValue)"
+                forKey: "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializableKey.pushTokens.rawValue)"
             ) {
                 return exception
             }

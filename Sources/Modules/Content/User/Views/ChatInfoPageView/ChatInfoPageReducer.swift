@@ -318,9 +318,23 @@ struct ChatInfoPageReducer: Reducer {
         case let .penPalsSharingDataConfirmationActionSheetDismissed(newMetadata):
             guard let conversation = state.conversation,
                   let newMetadata else { return .none }
-            return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateMetadataReturned(result, togglePenPalsSharingDataSwitch: true)
+            return .task { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    return try await .updateMetadataReturned(
+                        .success(
+                            conversation.update(
+                                \.metadata,
+                                to: newMetadata
+                            )
+                        ),
+                        togglePenPalsSharingDataSwitch: true
+                    )
+                } catch {
+                    return .updateMetadataReturned(
+                        .failure(error),
+                        togglePenPalsSharingDataSwitch: true
+                    )
+                }
             }
 
         case let .penPalParticipantViewTapped(chatParticipant):

@@ -53,27 +53,25 @@ struct ActivitySessionService {
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
         let newParticipants = conversation.participants + [.init(userID: userID)]
 
-        let updateValuesResult = await conversation.updateValues(
-            with: [
-                .activities: newActivities,
-                .metadata: newMetadata,
-                .participants: newParticipants,
-            ]
-        )
+        do {
+            let updatedConversation = try await conversation.updateValues(
+                with: [
+                    \.activities: newActivities,
+                    \.metadata: newMetadata,
+                    \.participants: newParticipants,
+                ]
+            )
 
-        switch updateValuesResult {
-        case let .success(conversation):
             if let exception = await addUserToConversation(
                 userID: userID,
-                conversationID: conversation.id
+                conversationID: updatedConversation.id
             ) {
                 return .failure(exception)
             }
 
-            return .success(conversation)
-
-        case let .failure(exception):
-            return .failure(exception)
+            return .success(updatedConversation)
+        } catch {
+            return .failure(error)
         }
     }
 
@@ -85,14 +83,14 @@ struct ActivitySessionService {
 
         switch getUserResult {
         case let .success(user):
-            let updateValueResult = await user.updateValue(
-                ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique,
-                forKey: .conversationIDs
-            )
-
-            switch updateValueResult {
-            case .success: return nil
-            case let .failure(exception): return exception
+            do {
+                _ = try await user.update(
+                    \.conversationIDs,
+                    to: ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique
+                )
+                return nil
+            } catch {
+                return error
             }
 
         case let .failure(exception):
@@ -132,29 +130,27 @@ struct ActivitySessionService {
                 .requiresConsentFromInitiator == userID
         )
 
-        let updateValuesResult = await conversation.updateValues(
-            with: [
-                .activities: newActivities,
-                .metadata: newMetadata,
-                .participants: newParticipants,
-            ]
-        )
+        do {
+            let updatedConversation = try await conversation.updateValues(
+                with: [
+                    \.activities: newActivities,
+                    \.metadata: newMetadata,
+                    \.participants: newParticipants,
+                ]
+            )
 
-        switch updateValuesResult {
-        case let .success(conversation):
             if removeFromUser {
                 if let exception = await networking.conversationService.removeConversationFromUsers(
                     userIDs: [userID],
-                    conversationIDKey: conversation.id.key
+                    conversationIDKey: updatedConversation.id.key
                 ) {
                     return .failure(exception)
                 }
             }
 
-            return .success(conversation)
-
-        case let .failure(exception):
-            return .failure(exception)
+            return .success(updatedConversation)
+        } catch {
+            return .failure(error)
         }
     }
 }

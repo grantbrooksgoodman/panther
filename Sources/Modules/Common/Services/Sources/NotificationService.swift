@@ -139,7 +139,7 @@ struct NotificationService {
         let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
             if let userData = keyPair.value as? [String: Any],
                let pushTokens = userData[
-                   User.SerializationKeys.pushTokens.rawValue
+                   User.SerializableKey.pushTokens.rawValue
                ] as? [String],
                !pushTokens.isBangQualifiedEmpty {
                 partialResult.append(contentsOf: pushTokens)
@@ -504,7 +504,11 @@ struct NotificationService {
 
             return await networking.database.setValue(
                 newBadgeNumber < 0 ? 0 : newBadgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
             )
 
         case false:
@@ -517,7 +521,11 @@ struct NotificationService {
 
             return await networking.database.setValue(
                 badgeNumber < 0 ? 0 : badgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
             )
         }
     }

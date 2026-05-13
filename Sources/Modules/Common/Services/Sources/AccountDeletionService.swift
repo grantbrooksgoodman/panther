@@ -105,15 +105,15 @@ final class AccountDeletionService: @unchecked Sendable {
                 }
             }
 
-            taskGroup.addTask {
-                do {
-                    _ = try await (self.clientSession.user.currentUser?.updateValue(
-                        [],
-                        forKey: .conversationIDs
-                    ))?.get()
+            taskGroup.addTask { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    _ = try await self.clientSession.user.currentUser?.update(
+                        \.conversationIDs,
+                        to: []
+                    )
                     return (nil, false)
                 } catch {
-                    return (.init(error, metadata: .init(sender: self)), false)
+                    return (error, false)
                 }
             }
 

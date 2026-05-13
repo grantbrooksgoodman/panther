@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+@RemotelyUpdatable // swiftlint:disable:next type_body_length
 final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
@@ -260,21 +260,23 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
 
     // MARK: - Update Read Date
 
-    func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
+    func updateReadDate(
+        for messages: [Message] // swiftformat:disable all
+    ) async throws(Exception) -> Conversation { // swiftformat:enable all
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard !messages.isEmpty else {
-            return .failure(.init(
+            throw Exception(
                 "No messages provided.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let currentUserID = User.currentUserID else {
-            return .failure(.init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
@@ -285,30 +287,29 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             var readReceipts = unreadMessage.readReceipts?.filter { $0.userID != currentUserID } ?? []
             readReceipts.append(readReceipt)
 
-            let updateValueResult = await unreadMessage.updateValue(
-                readReceipts.unique,
-                forKey: .readReceipts
+            let readMessage = try await unreadMessage.update(
+                \.readReceipts,
+                to: readReceipts.unique
             )
 
-            switch updateValueResult {
-            case let .success(readMessage):
-                if let unreadMessageIndex = modifiedMessages.firstIndex(where: { $0.id == readMessage.id }) {
-                    modifiedMessages.remove(at: unreadMessageIndex)
-                    modifiedMessages.insert(readMessage, at: unreadMessageIndex)
-                } else {
-                    modifiedMessages.append(readMessage)
-                }
-
-            case let .failure(exception):
-                return .failure(exception)
+            if let unreadMessageIndex = modifiedMessages.firstIndex(where: {
+                $0.id == readMessage.id
+            }) {
+                modifiedMessages.remove(at: unreadMessageIndex)
+                modifiedMessages.insert(
+                    readMessage,
+                    at: unreadMessageIndex
+                )
+            } else {
+                modifiedMessages.append(readMessage)
             }
         }
 
         guard modifiedMessages.count == (self.messages ?? []).count else {
-            return .failure(.init(
+            throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         Logger.log(
@@ -317,7 +318,10 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             sender: self
         )
 
-        return await updateValue(modifiedMessages, forKey: .messages)
+        return try await update(
+            \.messages,
+            to: modifiedMessages
+        )
     }
 
     // MARK: - Equatable Conformance

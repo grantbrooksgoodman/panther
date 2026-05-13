@@ -88,7 +88,6 @@ extension AppConstants.Strings {
         static let overrideLanguageCodeButtonImageSystemName = "square.text.square.fill"
         static let overrideLanguageCodeButtonText = "Override Language Code to English"
         static let restoreLanguageCodeButtonTextPrefix = "Restore Language to"
-        static let reviewOnAppStoreURLString = "https://apps.apple.com/app/id1662674065?action=write-review"
         static let sendFeedbackButtonImageSystemName = "info"
         static let signOutButtonImageSystemName = "hand.raised.fill"
         static let toggleDeveloperModeButtonImageSystemName = "command"

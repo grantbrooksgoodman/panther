@@ -14,7 +14,6 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -92,20 +91,16 @@ struct ModerationSessionService {
         blockedUserIDs.append(contentsOf: userIDs)
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.blockedUserIDs,
+                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -143,7 +138,7 @@ struct ModerationSessionService {
                     at: [
                         NetworkPath.users.rawValue,
                         currentUserID,
-                        User.SerializationKeys.blockedUserIDs.rawValue,
+                        User.SerializableKey.blockedUserIDs.rawValue,
                     ].joined(separator: "/")
                 )
             )
@@ -306,20 +301,16 @@ struct ModerationSessionService {
         blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.blockedUserIDs,
+                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 }

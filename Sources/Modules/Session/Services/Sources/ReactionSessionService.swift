@@ -237,50 +237,51 @@ final class ReactionSessionService {
         messageData: (index: Int, message: Message),
         reactionMetadata: [ReactionMetadata]
     ) async -> Exception? {
-        let updateValueResult = await conversation.updateValue(
-            reactionMetadata,
-            forKey: .reactionMetadata
-        )
+        let updatedConversation: Conversation
+        do {
+            updatedConversation = try await conversation.update(
+                \.reactionMetadata,
+                to: reactionMetadata
+            )
+        } catch {
+            isReactingToMessage = false
+            return error
+        }
 
         isReactingToMessage = false
-        switch updateValueResult {
-        case let .success(updatedConversation):
-            if let exception = await updatedConversation.setMessages(ids: [
-                messageData.message.id,
-            ]) {
-                return exception
-            }
 
-            guard chatPageState.isPresented,
-                  conversationSession
-                  .currentConversation?
-                  .id
-                  .key == conversation.id.key else { return nil }
-
-            conversationSession.setCurrentConversation(updatedConversation)
-            chatPageViewService.reloadItemsWhenSafe(at: [.init(
-                item: 0,
-                section: messageData.index
-            )])
-
-            chatPageViewService
-                .contextMenu?
-                .interaction
-                .addContextMenuInteractionToVisibleCellsOnce()
-
-            guard messageData
-                .message
-                .contentType
-                .isAudio else { return nil }
-
-            chatPageViewService
-                .audioMessagePlayback?
-                .updateDurationLabelIfNeeded(forMessage: messageData.message)
-
-            return nil
-
-        case let .failure(exception):
+        if let exception = await updatedConversation.setMessages(ids: [
+            messageData.message.id,
+        ]) {
             return exception
         }
+
+        guard chatPageState.isPresented,
+              conversationSession
+              .currentConversation?
+              .id
+              .key == conversation.id.key else { return nil }
+
+        conversationSession.setCurrentConversation(updatedConversation)
+        chatPageViewService.reloadItemsWhenSafe(at: [.init(
+            item: 0,
+            section: messageData.index
+        )])
+
+        chatPageViewService
+            .contextMenu?
+            .interaction
+            .addContextMenuInteractionToVisibleCellsOnce()
+
+        guard messageData
+            .message
+            .contentType
+            .isAudio else { return nil }
+
+        chatPageViewService
+            .audioMessagePlayback?
+            .updateDurationLabelIfNeeded(forMessage: messageData.message)
+
+        return nil
     }
 }

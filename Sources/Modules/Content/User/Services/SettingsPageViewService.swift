@@ -256,7 +256,8 @@ final class SettingsPageViewService {
     }
 
     func leaveReviewButtonTapped() {
-        guard let url = URL(string: Strings.reviewOnAppStoreURLString) else { return }
+        guard let appShareLink = services.metadata.appShareLink?.absoluteString,
+              let url = URL(string: "\(appShareLink)?action=write-review") else { return }
         Task { @MainActor in
             await uiApplication.open(url)
         }
@@ -396,7 +397,6 @@ final class SettingsPageViewService {
                     }
 
                     defer {
-                        RuntimeStorage.store(false, as: .updatedLastSignInDate)
                         Application.dismissSheets()
                         Application.reset()
                         self.services.analytics.logEvent(.logOut)

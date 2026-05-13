@@ -78,7 +78,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func synchronizeActivities() async -> Exception? {
         guard let newActivities = syncData?.newData[
-            Conversation.SerializationKeys.activities.rawValue
+            Conversation.SerializableKey.activities.rawValue
         ] as? [[String: Any]] else {
             return .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
@@ -89,11 +89,10 @@ final class ConversationSyncService: @unchecked Sendable {
         var updatedActivities = [Activity]()
 
         for activity in newActivities {
-            let decodeResult = await Activity.decode(from: activity)
-
-            switch decodeResult {
-            case let .success(decodedActivity): updatedActivities.append(decodedActivity)
-            case let .failure(exception): return exception
+            do {
+                try await updatedActivities.append(Activity(from: activity))
+            } catch {
+                return error
             }
         }
 
@@ -110,7 +109,8 @@ final class ConversationSyncService: @unchecked Sendable {
             withValue: updatedActivities
         ) else {
             return .Networking.typeMismatch(
-                key: Conversation.SerializationKeys.activities.rawValue,
+                key: Conversation.SerializableKey.activities.rawValue,
+                type: type(of: updatedActivities),
                 .init(sender: self)
             )
         }
@@ -213,7 +213,8 @@ final class ConversationSyncService: @unchecked Sendable {
                 withValue: updatedMessages
             ) else {
                 return .Networking.typeMismatch(
-                    key: Conversation.SerializationKeys.messages,
+                    key: Conversation.SerializableKey.messages,
+                    type: type(of: updatedMessages),
                     .init(sender: self)
                 )
             }
@@ -232,7 +233,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func synchronizeMetadata() async -> Exception? {
         guard let newMetadata = syncData?.newData[
-            Conversation.SerializationKeys.metadata.rawValue
+            Conversation.SerializableKey.metadata.rawValue
         ] as? [String: Any] else {
             return .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
@@ -240,31 +241,37 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        let decodeResult = await ConversationMetadata.decode(from: newMetadata)
-
-        switch decodeResult {
-        case let .success(decodedMetadata):
-            guard let conversation = syncData?.conversation.modifyKey(
-                .metadata,
-                withValue: decodedMetadata
-            ) else {
-                return .Networking.typeMismatch(
-                    key: Conversation.SerializationKeys.metadata.rawValue,
-                    .init(sender: self)
-                )
-            }
-
-            syncData = .init(conversation, newData: syncData?.newData ?? [:])
-            return nil
-
-        case let .failure(exception):
-            return exception
+        let decodedMetadata: ConversationMetadata
+        do {
+            decodedMetadata = try await ConversationMetadata(
+                from: newMetadata
+            )
+        } catch {
+            return error
         }
+
+        guard let conversation = syncData?.conversation.modifyKey(
+            .metadata,
+            withValue: decodedMetadata
+        ) else {
+            return .Networking.typeMismatch(
+                key: Conversation.SerializableKey.metadata.rawValue,
+                type: type(of: decodedMetadata),
+                .init(sender: self)
+            )
+        }
+
+        syncData = .init(
+            conversation,
+            newData: syncData?.newData ?? [:]
+        )
+
+        return nil
     }
 
     private func synchronizeParticipants() async -> Exception? {
         guard let newParticipants = syncData?.newData[
-            Conversation.SerializationKeys.participants.rawValue
+            Conversation.SerializableKey.participants.rawValue
         ] as? [String] else {
             return .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
@@ -275,11 +282,10 @@ final class ConversationSyncService: @unchecked Sendable {
         var updatedParticipants = [Participant]()
 
         for participant in newParticipants {
-            let decodeResult = await Participant.decode(from: participant)
-
-            switch decodeResult {
-            case let .success(decodedParticipant): updatedParticipants.append(decodedParticipant)
-            case let .failure(exception): return exception
+            do {
+                try await updatedParticipants.append(Participant(from: participant))
+            } catch {
+                return error
             }
         }
 
@@ -296,7 +302,8 @@ final class ConversationSyncService: @unchecked Sendable {
             withValue: updatedParticipants
         ) else {
             return .Networking.typeMismatch(
-                key: Conversation.SerializationKeys.participants.rawValue,
+                key: Conversation.SerializableKey.participants.rawValue,
+                type: type(of: updatedParticipants),
                 .init(sender: self)
             )
         }
@@ -307,7 +314,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func synchronizeReactionMetadata() async -> Exception? {
         guard let newReactionMetadata = syncData?.newData[
-            Conversation.SerializationKeys.reactionMetadata.rawValue
+            Conversation.SerializableKey.reactionMetadata.rawValue
         ] as? [[String: Any]] else {
             return .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
@@ -318,11 +325,10 @@ final class ConversationSyncService: @unchecked Sendable {
         var updatedReactionMetadata = [ReactionMetadata]()
 
         for reactionMetadata in newReactionMetadata {
-            let decodeResult = await ReactionMetadata.decode(from: reactionMetadata)
-
-            switch decodeResult {
-            case let .success(decodedReactionMetadata): updatedReactionMetadata.append(decodedReactionMetadata)
-            case let .failure(exception): return exception
+            do {
+                try await updatedReactionMetadata.append(ReactionMetadata(from: reactionMetadata))
+            } catch {
+                return error
             }
         }
 
@@ -339,7 +345,8 @@ final class ConversationSyncService: @unchecked Sendable {
             withValue: updatedReactionMetadata
         ) else {
             return .Networking.typeMismatch(
-                key: Conversation.SerializationKeys.reactionMetadata.rawValue,
+                key: Conversation.SerializableKey.reactionMetadata.rawValue,
+                type: type(of: updatedReactionMetadata),
                 .init(sender: self)
             )
         }
@@ -384,7 +391,6 @@ final class ConversationSyncService: @unchecked Sendable {
             ).appending(userInfo: userInfo))
         }
 
-        // TODO: Audit the efficacy of this. Causes duplicate calls with updateValue.
         networking.conversationService.archive.addValue(conversation)
         return .success(conversation.withHydratedMessages)
     }
@@ -456,7 +462,7 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         guard let messageIDs = syncData.newData[
-            Conversation.SerializationKeys.messages.rawValue
+            Conversation.SerializableKey.messages.rawValue
         ] as? [String] else {
             self.syncData = nil
             return .failure(.Networking.decodingFailed(
@@ -545,7 +551,7 @@ final class ConversationSyncService: @unchecked Sendable {
         let hashPath = [
             NetworkPath.conversations.rawValue,
             conversation.id.key,
-            Conversation.SerializationKeys.encodedHash.rawValue,
+            Conversation.SerializableKey.encodedHash.rawValue,
         ].joined(separator: "/")
         return await networking.database.setValue(
             conversation.encodedHash,

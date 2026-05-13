@@ -50,7 +50,10 @@ final class ConversationSessionService {
 
     // MARK: - Add Messages
 
-    func addMessages(_ messages: [Message], to conversation: Conversation) async -> Callback<Conversation, Exception> {
+    func addMessages(
+        _ messages: [Message],
+        to conversation: Conversation
+    ) async -> Callback<Conversation, Exception> {
         guard !messages.isEmpty else {
             return .failure(.init(
                 "No messages provided.",
@@ -62,12 +65,11 @@ final class ConversationSessionService {
         appendedMessages.append(contentsOf: messages)
         appendedMessages = appendedMessages.filter { !$0.isMock }.sortedByAscendingSentDate
 
-        switch await conversation.updateValue(appendedMessages, forKey: .messages) {
-        case let .success(conversation):
-            return .success(conversation)
-
-        case let .failure(exception):
-            return .failure(exception)
+        return await .asCallback {
+            try await conversation.update(
+                \.messages,
+                to: appendedMessages
+            )
         }
     }
 
@@ -118,7 +120,10 @@ final class ConversationSessionService {
 
     // MARK: - Deletion
 
-    func deleteConversation(_ conversation: Conversation, forced: Bool = false) async -> Exception? {
+    func deleteConversation(
+        _ conversation: Conversation,
+        forced: Bool = false
+    ) async -> Exception? {
         if !forced {
             guard conversation.participants
                 .filter({ $0.userID != User.currentUserID })
@@ -160,7 +165,10 @@ final class ConversationSessionService {
         return nil
     }
 
-    private func hideConversation(_ conversation: Conversation, forUser userID: String) async -> Exception? {
+    private func hideConversation(
+        _ conversation: Conversation,
+        forUser userID: String
+    ) async -> Exception? {
         guard let currentParticipant = conversation.participants.first(where: { $0.userID == userID }) else {
             return .init(
                 "This conversation does not contain the specified participant.",
@@ -179,14 +187,15 @@ final class ConversationSessionService {
         newParticipants.append(newParticipant)
         newParticipants = newParticipants.unique
 
-        let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-
-        switch updateValueResult {
-        case .success: // NIT: We don't care about the result because updateValue adds the updated conversation to the archive for us.
+        do {
+            // NIT: We don't care about the result because update adds the updated conversation to the archive for us.
+            _ = try await conversation.update(
+                \.participants,
+                to: newParticipants
+            )
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

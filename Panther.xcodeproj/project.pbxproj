@@ -10,7 +10,6 @@
 		A2110CEA2EDC122200954DA2 /* UIColor+UserContentExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2110CE92EDC122200954DA2 /* UIColor+UserContentExtensions.swift */; };
 		A21951122ECD8340000A6177 /* ContactSelectorPageViewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951112ECD8340000A6177 /* ContactSelectorPageViewService.swift */; };
 		A21951142ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21951132ECD87C8000A6177 /* ContactSelectorPageViewServiceDependency.swift */; };
-		A22F02902FADBB5900755C3B /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A22F028F2FADBB5900755C3B /* Networking */; };
 		A23338B82ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B72ED64429003BC1B8 /* AppConstants+ReactionsViewController.swift */; };
 		A23338BA2ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338B92ED646E6003BC1B8 /* AppConstants+SystemMessageCell.swift */; };
 		A23338BC2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A23338BB2ED64804003BC1B8 /* AppConstants+V26HeaderViewModifier.swift */; };
@@ -45,6 +44,7 @@
 		A2C27C6F2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */; };
 		A2CF5E572F20774E0054830C /* SynchronizationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5E562F20774E0054830C /* SynchronizationRecord.swift */; };
 		A2D4F4492ED134E300642629 /* ContactSelectorPageViewStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D4F4482ED134E300642629 /* ContactSelectorPageViewStrings.swift */; };
+		A2DA4FFB2FAED83600AA824B /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = A2DA4FFA2FAED83600AA824B /* Networking */; };
 		A2DF2C5528199B660089DEA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5428199B660089DEA1 /* AppDelegate.swift */; };
 		A2DF2C5728199B660089DEA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DF2C5628199B660089DEA1 /* SceneDelegate.swift */; };
 		A2DF2C5B28199B670089DEA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2DF2C5A28199B670089DEA1 /* Assets.xcassets */; };
@@ -253,7 +253,7 @@
 		B96EDD952B636A0500CB925B /* ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD942B636A0500CB925B /* ContactDetailView.swift */; };
 		B96EDD972B636B2500CB925B /* AppConstants+ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */; };
 		B96EDD9F2B638C6400CB925B /* AppConstants+SettingsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */; };
-		B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */; };
+		B96FD2AF2B44CE2D00B54791 /* User+RemotelyUpdatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96FD2AE2B44CE2D00B54791 /* User+RemotelyUpdatable.swift */; };
 		B97141052E442E5900A64240 /* DevModeActions+DangerZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97141042E442E5900A64240 /* DevModeActions+DangerZone.swift */; };
 		B974E3982B7EE9EF00A8389E /* RecipientBarConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B974E3972B7EE9EF00A8389E /* RecipientBarConfigService.swift */; };
 		B978B1992B87C84200AA007A /* RootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B978B1982B87C84200AA007A /* RootSheet.swift */; };
@@ -648,7 +648,7 @@
 		B9D0D9112B0300B100078A93 /* lr.png in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D8132B0300B000078A93 /* lr.png */; };
 		B9D0D9142B0300EF00078A93 /* CallingCodes.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9132B0300EF00078A93 /* CallingCodes.plist */; };
 		B9D0D9162B0300F300078A93 /* LookupTables.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9152B0300F300078A93 /* LookupTables.plist */; };
-		B9D0D93F2B03019E00078A93 /* String+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9202B03019E00078A93 /* String+CommonNetworkingExtensions.swift */; };
+		B9D0D93F2B03019E00078A93 /* String+CommonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9202B03019E00078A93 /* String+CommonExtensions.swift */; };
 		B9D0D9442B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */; };
 		B9D0D9462B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */; };
 		B9D0D9512B0310C800078A93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */; };
@@ -662,8 +662,8 @@
 		B9DCCAA32B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */; };
 		B9DCCAA52B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA42B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift */; };
 		B9DCCAA72B34FC8D00532B12 /* PersistentStorageKey+SessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAA62B34FC8D00532B12 /* PersistentStorageKey+SessionExtensions.swift */; };
-		B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */; };
-		B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */; };
+		B9DCCAAD2B3601F900532B12 /* Conversation+RemotelyUpdatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAAC2B3601F900532B12 /* Conversation+RemotelyUpdatable.swift */; };
+		B9DCCAB42B3632F900532B12 /* Message+RemotelyUpdatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DCCAB32B3632F900532B12 /* Message+RemotelyUpdatable.swift */; };
 		B9DD42C02E2F0B7C009A318B /* ChatParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */; };
 		B9DD42C22E2F103A009A318B /* AppConstants+ChatParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42C12E2F103A009A318B /* AppConstants+ChatParticipantView.swift */; };
 		B9DD42C42E2F12FB009A318B /* MediaItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9DD42C32E2F12FB009A318B /* MediaItemView.swift */; };
@@ -1093,7 +1093,7 @@
 		B96EDD942B636A0500CB925B /* ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetailView.swift; sourceTree = "<group>"; };
 		B96EDD962B636B2500CB925B /* AppConstants+ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ContactDetailView.swift"; sourceTree = "<group>"; };
 		B96EDD9E2B638C6400CB925B /* AppConstants+SettingsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+SettingsPageView.swift"; sourceTree = "<group>"; };
-		B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Updatable.swift"; sourceTree = "<group>"; };
+		B96FD2AE2B44CE2D00B54791 /* User+RemotelyUpdatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+RemotelyUpdatable.swift"; sourceTree = "<group>"; };
 		B97141042E442E5900A64240 /* DevModeActions+DangerZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevModeActions+DangerZone.swift"; sourceTree = "<group>"; };
 		B974E3972B7EE9EF00A8389E /* RecipientBarConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientBarConfigService.swift; sourceTree = "<group>"; };
 		B978B1982B87C84200AA007A /* RootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootSheet.swift; sourceTree = "<group>"; };
@@ -1487,7 +1487,7 @@
 		B9D0D8132B0300B000078A93 /* lr.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lr.png; sourceTree = "<group>"; };
 		B9D0D9132B0300EF00078A93 /* CallingCodes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CallingCodes.plist; sourceTree = "<group>"; };
 		B9D0D9152B0300F300078A93 /* LookupTables.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = LookupTables.plist; sourceTree = "<group>"; };
-		B9D0D9202B03019E00078A93 /* String+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
+		B9D0D9202B03019E00078A93 /* String+CommonExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+CommonExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9292B03019E00078A93 /* NetworkServices+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServices+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D92D2B03019E00078A93 /* DatabaseDelegate+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DatabaseDelegate+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9D0D9502B0310C800078A93 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -1501,8 +1501,8 @@
 		B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistent+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA42B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentStorageKey+CommonNetworkingExtensions.swift"; sourceTree = "<group>"; };
 		B9DCCAA62B34FC8D00532B12 /* PersistentStorageKey+SessionExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentStorageKey+SessionExtensions.swift"; sourceTree = "<group>"; };
-		B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+Updatable.swift"; sourceTree = "<group>"; };
-		B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+Updatable.swift"; sourceTree = "<group>"; };
+		B9DCCAAC2B3601F900532B12 /* Conversation+RemotelyUpdatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+RemotelyUpdatable.swift"; sourceTree = "<group>"; };
+		B9DCCAB32B3632F900532B12 /* Message+RemotelyUpdatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+RemotelyUpdatable.swift"; sourceTree = "<group>"; };
 		B9DD42BF2E2F0B7C009A318B /* ChatParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatParticipantView.swift; sourceTree = "<group>"; };
 		B9DD42C12E2F103A009A318B /* AppConstants+ChatParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppConstants+ChatParticipantView.swift"; sourceTree = "<group>"; };
 		B9DD42C32E2F12FB009A318B /* MediaItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItemView.swift; sourceTree = "<group>"; };
@@ -1590,7 +1590,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A22F02902FADBB5900755C3B /* Networking in Frameworks */,
+				A2DA4FFB2FAED83600AA824B /* Networking in Frameworks */,
 				B921F4062CCB6F34006BB149 /* FirebaseMessaging in Frameworks */,
 				B9E2E6142C72E7AF004022FE /* MessageKit in Frameworks */,
 				CDC3CF9A55126E056FE5C659 /* Pods_Hello.framework in Frameworks */,
@@ -2217,9 +2217,9 @@
 			isa = PBXGroup;
 			children = (
 				B963F1C02B23D6160087DB83 /* Models */,
+				B9DCCAAB2B3601EC00532B12 /* RemotelyUpdatable */,
 				B963F1C22B23D6200087DB83 /* Serializable */,
 				B963F1C12B23D6190087DB83 /* Services */,
-				B9DCCAAB2B3601EC00532B12 /* Updatable */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -2276,12 +2276,12 @@
 			path = ContentPickerView;
 			sourceTree = "<group>";
 		};
-		B96FD2AD2B44CE1F00B54791 /* Updatable */ = {
+		B96FD2AD2B44CE1F00B54791 /* RemotelyUpdatable */ = {
 			isa = PBXGroup;
 			children = (
-				B96FD2AE2B44CE2D00B54791 /* User+Updatable.swift */,
+				B96FD2AE2B44CE2D00B54791 /* User+RemotelyUpdatable.swift */,
 			);
-			path = Updatable;
+			path = RemotelyUpdatable;
 			sourceTree = "<group>";
 		};
 		B97141032E442E3F00A64240 /* Developer Mode */ = {
@@ -2986,7 +2986,6 @@
 				B9DCCAA22B34FBAD00532B12 /* Persistent+CommonNetworkingExtensions.swift */,
 				B9DCCAA42B34FC4700532B12 /* PersistentStorageKey+CommonNetworkingExtensions.swift */,
 				A2C27C6E2F355C0700FA3DC0 /* Set+CommonNetworkingExtensions.swift */,
-				B9D0D9202B03019E00078A93 /* String+CommonNetworkingExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3009,20 +3008,20 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		B9DCCAAB2B3601EC00532B12 /* Updatable */ = {
+		B9DCCAAB2B3601EC00532B12 /* RemotelyUpdatable */ = {
 			isa = PBXGroup;
 			children = (
-				B9DCCAAC2B3601F900532B12 /* Conversation+Updatable.swift */,
+				B9DCCAAC2B3601F900532B12 /* Conversation+RemotelyUpdatable.swift */,
 			);
-			path = Updatable;
+			path = RemotelyUpdatable;
 			sourceTree = "<group>";
 		};
-		B9DCCAB22B3632ED00532B12 /* Updatable */ = {
+		B9DCCAB22B3632ED00532B12 /* RemotelyUpdatable */ = {
 			isa = PBXGroup;
 			children = (
-				B9DCCAB32B3632F900532B12 /* Message+Updatable.swift */,
+				B9DCCAB32B3632F900532B12 /* Message+RemotelyUpdatable.swift */,
 			);
-			path = Updatable;
+			path = RemotelyUpdatable;
 			sourceTree = "<group>";
 		};
 		B9DD42C92E2F1892009A318B /* ChatInfoPageView */ = {
@@ -3039,9 +3038,9 @@
 			isa = PBXGroup;
 			children = (
 				B9E0E0F02B20E88B00C14274 /* Models */,
+				B9DCCAB22B3632ED00532B12 /* RemotelyUpdatable */,
 				B980E8AD2B225ED70090F141 /* Serializable */,
 				B9E0E0F12B20E88E00C14274 /* Services */,
-				B9DCCAB22B3632ED00532B12 /* Updatable */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -3074,9 +3073,9 @@
 			isa = PBXGroup;
 			children = (
 				B9E6D7A52B125C05000BC88D /* Models */,
+				B96FD2AD2B44CE1F00B54791 /* RemotelyUpdatable */,
 				B980E8B02B225F260090F141 /* Serializable */,
 				B9E6D7CA2B12848F000BC88D /* Services */,
-				B96FD2AD2B44CE1F00B54791 /* Updatable */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -3140,6 +3139,7 @@
 				B955F76E2B3FCE04001D74FC /* CoreKit+CommonExtensions.swift */,
 				B96969222B1829B100ADA875 /* Persistent+CommonExtensions.swift */,
 				B96969202B18287E00ADA875 /* PersistentStorageKey+CommonExtensions.swift */,
+				B9D0D9202B03019E00078A93 /* String+CommonExtensions.swift */,
 				A2E494932EA98398009A1D62 /* UIViewController+CommonExtensions.swift */,
 				B9002AD62DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift */,
 			);
@@ -3512,7 +3512,7 @@
 				B921F4032CCB6F34006BB149 /* FirebaseAnalytics */,
 				B921F4052CCB6F34006BB149 /* FirebaseMessaging */,
 				B9BE3DCF2DFD45350010B463 /* InputBarAccessoryView */,
-				A22F028F2FADBB5900755C3B /* Networking */,
+				A2DA4FFA2FAED83600AA824B /* Networking */,
 			);
 			productName = Application;
 			productReference = A2DF2C5128199B660089DEA1 /* Hello.app */;
@@ -3640,7 +3640,7 @@
 				B9E2E6122C72E7AF004022FE /* XCRemoteSwiftPackageReference "MessageKit" */,
 				B921F4022CCB6F34006BB149 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B9BE3DCE2DFD45350010B463 /* XCRemoteSwiftPackageReference "InputBarAccessoryView" */,
-				A22F028E2FADBB5900755C3B /* XCRemoteSwiftPackageReference "networking" */,
+				A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */,
 			);
 			productRefGroup = A2DF2C5228199B660089DEA1 /* Products */;
 			projectDirPath = "";
@@ -4194,7 +4194,7 @@
 				B969691B2B18259400ADA875 /* UpdateService.swift in Sources */,
 				B98D9B1C2C4F1881004949E3 /* DocumentPickerService.swift in Sources */,
 				B947581C2BCF79EF001E4872 /* CameraPickerView.swift in Sources */,
-				B9D0D93F2B03019E00078A93 /* String+CommonNetworkingExtensions.swift in Sources */,
+				B9D0D93F2B03019E00078A93 /* String+CommonExtensions.swift in Sources */,
 				B98C3B9D2B7AF61400CDA3E9 /* RecipientBar+UITextFieldDelegate.swift in Sources */,
 				B9DD42C82E2F143C009A318B /* AppConstants+MediaItemView.swift in Sources */,
 				B9F5D1EB2B48987C00059B44 /* GenericTextField.swift in Sources */,
@@ -4293,7 +4293,7 @@
 				B98589B52B60515D00E549C0 /* ConversationCellViewData.swift in Sources */,
 				B9870AA62C4574C3002B1093 /* URL+UserContentExtensions.swift in Sources */,
 				A2BE20212F2C42860006F7AF /* FeaturePermissionPageReducer.swift in Sources */,
-				B96FD2AF2B44CE2D00B54791 /* User+Updatable.swift in Sources */,
+				B96FD2AF2B44CE2D00B54791 /* User+RemotelyUpdatable.swift in Sources */,
 				B986C46C2CD2F8A500414E57 /* ContextMenuService.swift in Sources */,
 				B900B5402B1AC96000BA2F1D /* Array+CommonExtensions.swift in Sources */,
 				B966E9AB2B5E556200874F44 /* UserDataSnapshot.swift in Sources */,
@@ -4314,7 +4314,7 @@
 				B9F47AE62B576EE300D86C67 /* ConversationsPageReducer.swift in Sources */,
 				B98C3B9F2B7AF62400CDA3E9 /* RecipientBar+UITableViewDataSource.swift in Sources */,
 				B9F47AF62B585FE400D86C67 /* AppConstants+AvatarImageView.swift in Sources */,
-				B9DCCAAD2B3601F900532B12 /* Conversation+Updatable.swift in Sources */,
+				B9DCCAAD2B3601F900532B12 /* Conversation+RemotelyUpdatable.swift in Sources */,
 				B974E3982B7EE9EF00A8389E /* RecipientBarConfigService.swift in Sources */,
 				B92E90332CD9D84A0057A0A9 /* ContextMenuInteraction.swift in Sources */,
 				B95887152B3234F4007FB37B /* SplashPageViewServiceDependency.swift in Sources */,
@@ -4492,7 +4492,7 @@
 				B9223D412CD58C4E00C05BC6 /* MenuElementViewDelegate.swift in Sources */,
 				A2E494942EA98398009A1D62 /* UIViewController+CommonExtensions.swift in Sources */,
 				B9E00A542C2B8C7F004E350E /* MediaMessageService.swift in Sources */,
-				B9DCCAB42B3632F900532B12 /* Message+Updatable.swift in Sources */,
+				B9DCCAB42B3632F900532B12 /* Message+RemotelyUpdatable.swift in Sources */,
 				B9A5D8202D1C9B8600B03908 /* PenPalsSharingData.swift in Sources */,
 				B9002AD72DE7F54500AF4A00 /* UIStatusBarStyle+CommonExtensions.swift in Sources */,
 				B9B193C92B1A42A20016948C /* PlaybackService.swift in Sources */,
@@ -4895,7 +4895,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A22F028E2FADBB5900755C3B /* XCRemoteSwiftPackageReference "networking" */ = {
+		A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/grantbrooksgoodman/networking";
 			requirement = {
@@ -4930,9 +4930,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A22F028F2FADBB5900755C3B /* Networking */ = {
+		A2DA4FFA2FAED83600AA824B /* Networking */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A22F028E2FADBB5900755C3B /* XCRemoteSwiftPackageReference "networking" */;
+			package = A2DA4FF92FAED83600AA824B /* XCRemoteSwiftPackageReference "networking" */;
 			productName = Networking;
 		};
 		B921F4032CCB6F34006BB149 /* FirebaseAnalytics */ = {

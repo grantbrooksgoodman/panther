@@ -62,6 +62,7 @@ extension Application {
 
         defaults.synchronize()
         RuntimeStorage.remove(.populatedTemporaryCaches)
+        RuntimeStorage.remove(.updatedLastSignInDate)
 
         guard let procedure else { return }
         Application.dismissSheets()

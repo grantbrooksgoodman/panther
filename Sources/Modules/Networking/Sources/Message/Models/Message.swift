@@ -14,6 +14,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+@RemotelyUpdatable
 struct Message: Codable, EncodedHashable, Hashable {
     // MARK: - Properties
 
@@ -31,7 +32,7 @@ struct Message: Codable, EncodedHashable, Hashable {
     let contentType: HostedContentType
     let fromAccountID: String
     let id: String
-    let readReceipts: [ReadReceipt]?
+    @Updatable(nilIf: .isEmpty) let readReceipts: [ReadReceipt]?
     let richContent: RichMessageContent?
     let sentDate: Date
     let translationReferences: [TranslationReference]?

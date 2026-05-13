@@ -14,27 +14,34 @@ import AppSubsystem
 import Networking
 
 extension ConversationID: Serializable {
-    // MARK: - Type Aliases
-
-    typealias T = ConversationID
-
     // MARK: - Properties
 
     var encoded: String { "\(key) | \(hash)" }
 
-    // MARK: - Methods
+    // MARK: - Init
 
-    static func canDecode(from data: String) -> Bool {
-        data.components(separatedBy: " | ").count == 2
-    }
-
-    static func decode(from data: String) async -> Callback<ConversationID, Exception> {
+    init(
+        from data: String // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
         let components = data.components(separatedBy: " | ")
         guard components.count == 2 else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
         }
 
-        let decoded: ConversationID = .init(key: components[0], hash: components[1])
-        return .success(decoded)
+        self = .init(
+            key: components[0],
+            hash: components[1]
+        )
+    }
+
+    // MARK: - Methods
+
+    static func canDecode(
+        from data: String
+    ) -> Bool {
+        data.components(separatedBy: " | ").count == 2
     }
 }

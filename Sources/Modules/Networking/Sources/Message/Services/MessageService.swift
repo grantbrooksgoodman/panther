@@ -82,7 +82,7 @@ struct MessageService {
 
         if let exception = await networking.database.updateChildValues(
             forKey: "\(NetworkPath.messages.rawValue)/\(id)",
-            with: mockMessage.encoded.filter { $0.key != Message.SerializationKeys.id.rawValue }
+            with: mockMessage.encoded.filter { $0.key != Message.SerializableKey.id.rawValue }
         ) {
             return .failure(exception)
         }
@@ -171,12 +171,9 @@ struct MessageService {
         }
 
         data["id"] = id
-        let decodeResult = await Message.decode(from: data)
-
-        switch decodeResult {
-        case let .success(message): return .success(message)
-        case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
-        }
+        return await .asCallback(
+            userInfo: userInfo
+        ) { try await Message(from: data) }
     }
 
     func getMessages(ids: [String]) async -> Callback<[Message], Exception> {
@@ -243,7 +240,7 @@ struct MessageService {
         let path = [
             NetworkPath.conversations.rawValue,
             conversation.id.key,
-            Conversation.SerializationKeys.messages.rawValue,
+            Conversation.SerializableKey.messages.rawValue,
         ].joined(separator: "/")
 
         var messageIDs: [String]
@@ -265,16 +262,16 @@ struct MessageService {
 
         guard updateConversationHash else { return nil }
 
-        let updateValueResult = await conversation.updateValue(
-            conversation.metadata.copyWith(
-                lastModifiedDate: .now
-            ),
-            forKey: .metadata
-        )
-
-        switch updateValueResult {
-        case .success: return nil
-        case let .failure(exception): return exception
+        do {
+            _ = try await conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(
+                    lastModifiedDate: .now
+                )
+            )
+            return nil
+        } catch {
+            return error
         }
     }
 
