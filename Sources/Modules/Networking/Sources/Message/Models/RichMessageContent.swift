@@ -19,8 +19,8 @@ enum RichMessageContent: Codable, Equatable {
 
     var audioComponents: [AudioMessageReference]? {
         switch self {
-        case let .audio(audioComponents): return audioComponents
-        default: return nil
+        case let .audio(audioComponents): audioComponents
+        default: nil
         }
     }
 
@@ -48,8 +48,8 @@ enum RichMessageContent: Codable, Equatable {
 
     var mediaComponent: MediaFile? {
         switch self {
-        case let .media(mediaComponent): return mediaComponent
-        default: return nil
+        case let .media(mediaComponent): mediaComponent
+        default: nil
         }
     }
 

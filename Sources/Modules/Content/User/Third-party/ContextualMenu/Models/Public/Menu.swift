@@ -17,13 +17,8 @@ struct Menu {
 
     // MARK: - Computed Properties
 
+    @MainActor
     var uiMenu: UIMenu {
-        .init(children: children.map { $0.uiAction })
-    }
-
-    // MARK: - Init
-
-    init(children: [MenuElement]) {
-        self.children = children
+        .init(children: children.map(\.uiAction))
     }
 }

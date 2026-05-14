@@ -14,6 +14,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class ContextMenuInteractor {
     // MARK: - Dependencies
 
@@ -181,6 +182,8 @@ final class ContextMenuInteractor {
 
         Task.delayed(by: .milliseconds(
             contextMenuController.style.appearAnimationParameters.duration + 50
-        )) { isShowing = false }
+        )) { @MainActor in
+            self.isShowing = false
+        }
     }
 }

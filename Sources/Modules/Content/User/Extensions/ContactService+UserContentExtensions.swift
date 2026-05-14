@@ -19,7 +19,7 @@ extension ContactService {
     var hasContactsBesidesCurrentUser: Bool {
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
         guard let contactPairArchive,
-              !contactPairArchive.isEmpty else { return true }
+              !contactPairArchive.isEmpty else { return false }
         return !contactPairArchive.filter { !$0.containsCurrentUser }.isEmpty
     }
 
@@ -73,7 +73,11 @@ extension ContactService {
         @Dependency(\.commonServices) var services: CommonServices
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
-        if contactPairArchive == nil || contactPairArchive?.isEmpty == true,
+        let isArchiveEmpty = contactPairArchive == nil ||
+            contactPairArchive?.isEmpty == true ||
+            !services.contact.hasContactsBesidesCurrentUser
+
+        if isArchiveEmpty,
            services.permission.contactPermissionStatus == .granted,
            let exception = await services.contact.syncContactPairArchive() {
             return exception

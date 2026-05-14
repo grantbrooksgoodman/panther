@@ -7,7 +7,7 @@
 //
 
 /* Native */
-import Contacts
+@preconcurrency import Contacts
 import Foundation
 
 struct CNContactContainer: Equatable {

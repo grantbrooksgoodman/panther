@@ -35,12 +35,15 @@ struct ReactionDetailsPageReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        let navigationTitle = Localized(.reactionDetails).wrappedValue.removingOccurrences(of: ["…"])
+        let navigationTitle = Localized(
+            .reactionDetails
+        ).wrappedValue.removingOccurrences(of: ["…"]).capitalized
 
         var viewID = UUID()
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var listItems: [ListRowView.Configuration] {
             @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
             @Dependency(\.clientSession) var clientSession: ClientSession

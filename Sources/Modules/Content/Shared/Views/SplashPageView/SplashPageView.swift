@@ -101,14 +101,12 @@ struct SplashPageView: View {
                         )
                     }
 
-                    if viewModel.shouldShowPercentageLabel {
-                        Spacer()
+                    Spacer()
 
-                        Components.text(
-                            viewService.percentageLabelText,
-                            foregroundColor: Colors.loadingLabelForeground,
-                        )
-                    }
+                    Components.text(
+                        viewService.percentageLabelText,
+                        foregroundColor: Colors.loadingLabelForeground
+                    )
                 }
             }
         } else {

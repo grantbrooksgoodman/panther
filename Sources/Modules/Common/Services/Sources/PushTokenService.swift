@@ -51,20 +51,16 @@ final class PushTokenService {
         }
 
         pushTokens.append(currentToken)
-        let updateValueResult = await currentUser.updateValue(
-            pushTokens.unique,
-            forKey: .pushTokens
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.pushTokens,
+                    to: pushTokens.unique
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -74,40 +70,37 @@ final class PushTokenService {
         guard let currentUser = userSession.currentUser,
               let currentUserPushTokens = currentUser.pushTokens else { return nil }
 
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
-            }
-
-            var tookAction = false
-            for (key, value) in dictionary where key != currentUser.id {
-                guard let userData = value as? [String: Any],
-                      var pushTokens = userData[User.SerializationKeys.pushTokens.rawValue] as? [String],
-                      !pushTokens.isBangQualifiedEmpty,
-                      pushTokens.containsAnyString(in: currentUserPushTokens) else { continue }
-
-                tookAction = true
-                pushTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
-                if let exception = await networking.database.setValue(
-                    pushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : pushTokens,
-                    forKey: "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializationKeys.pushTokens.rawValue)"
-                ) {
-                    return exception
-                }
-            }
-
-            guard tookAction else { return nil }
-            Logger.log(
-                "Pruned push tokens for current user.",
-                sender: self
+        let userData: [String: Any]
+        do {
+            userData = try await networking.database.getValues(
+                at: NetworkPath.users.rawValue
             )
-            return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
+
+        var tookAction = false
+        for (key, value) in userData where key != currentUser.id {
+            guard let userData = value as? [String: Any],
+                  var pushTokens = userData[User.SerializableKey.pushTokens.rawValue] as? [String],
+                  !pushTokens.isBangQualifiedEmpty,
+                  pushTokens.containsAnyString(in: currentUserPushTokens) else { continue }
+
+            tookAction = true
+            pushTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
+            if let exception = await networking.database.setValue(
+                pushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : pushTokens,
+                forKey: "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializableKey.pushTokens.rawValue)"
+            ) {
+                return exception
+            }
+        }
+
+        guard tookAction else { return nil }
+        Logger.log(
+            "Pruned push tokens for current user.",
+            sender: self
+        )
+        return nil
     }
 }

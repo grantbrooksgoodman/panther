@@ -18,7 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
-final class StorageSessionService {
+final class StorageSessionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
@@ -30,10 +30,11 @@ final class StorageSessionService {
     static let storageLimitInKilobytes: Double = 10240
 
     private static let coalescer = SingleSlotCoalescer<Callback<Int, Exception>>()
+
     private let warningAlertRatio: Double = 0.6
 
     @LockIsolated private var isCalculatingDataUsage = false
-    private var lastDataUsageCalculation: DataUsageCalculation = .empty
+    @LockIsolated private var lastDataUsageCalculation: DataUsageCalculation = .empty
 
     // MARK: - Computed Properties
 
@@ -60,15 +61,18 @@ final class StorageSessionService {
                 ))
             }
 
-            return await self._getCurrentUserDataUsage()
+            return await _getCurrentUserDataUsage()
         }
     }
 
     @MainActor // swiftlint:disable:next function_body_length
     private func _getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+        let isDataUsageCalculationInvalid = $lastDataUsageCalculation.withValue { calculation -> Bool in
+            calculation == DataUsageCalculation.empty || calculation.isExpired
+        }
+
         guard !isCalculatingDataUsage,
-              lastDataUsageCalculation == DataUsageCalculation.empty ||
-              lastDataUsageCalculation.isExpired else {
+              isDataUsageCalculationInvalid else {
             Logger.log( // swiftlint:disable:next line_length
                 "Returning last known data usage calculation (\(lastDataUsageCalculation.dataUsageInKilobytes)kb), from \(abs(lastDataUsageCalculation.date.seconds(from: .now)))s ago.",
                 domain: .storageSession,
@@ -229,7 +233,7 @@ final class StorageSessionService {
     // MARK: - Present Storage Warning Alert
 
     func presentStorageWarningAlert() async {
-        guard ((try? (await getCurrentUserDataUsage()).get()) ?? 0) >= Int(
+        guard await ((try? (getCurrentUserDataUsage()).get()) ?? 0) >= Int(
             StorageSessionService.storageLimitInKilobytes * warningAlertRatio
         ) else { return }
 
@@ -439,20 +443,27 @@ final class StorageSessionService {
     }
 
     private func totalSizeInKilobytes(of items: [String]) async -> Callback<Int, Exception> {
-        var totalSizeInKilobytes = 0
-
-        for filePath in items {
-            let sizeInKilobytesResult = await networking.storage.sizeInKilobytes(
-                ofItemAt: filePath
-            )
-
-            switch sizeInKilobytesResult {
-            case let .success(sizeInKilobytes): totalSizeInKilobytes += sizeInKilobytes
-            case let .failure(exception): return .failure(exception)
+        await withTaskGroup(of: Callback<Int, Exception>.self) { taskGroup in
+            for filePath in items {
+                taskGroup.addTask {
+                    await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
+                }
             }
-        }
 
-        return .success(totalSizeInKilobytes)
+            var totalSizeInKilobytes = 0
+            while let result = await taskGroup.next() {
+                switch result {
+                case let .success(sizeInKilobytes):
+                    totalSizeInKilobytes += sizeInKilobytes
+
+                case let .failure(exception):
+                    taskGroup.cancelAll()
+                    return .failure(exception)
+                }
+            }
+
+            return .success(totalSizeInKilobytes)
+        }
     }
 }
 

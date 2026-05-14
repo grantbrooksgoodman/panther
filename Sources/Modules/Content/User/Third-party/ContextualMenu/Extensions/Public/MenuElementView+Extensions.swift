@@ -61,8 +61,8 @@ extension MenuElementView {
         style: MenuElementView.Style
     ) -> UIColor {
         switch attributes {
-        case .destructive: return style.destructiveIconTint
-        default: return style.defaultIconTint
+        case .destructive: style.destructiveIconTint
+        default: style.defaultIconTint
         }
     }
 
@@ -71,8 +71,8 @@ extension MenuElementView {
         style: MenuElementView.Style
     ) -> [NSAttributedString.Key: Any] {
         switch attributes {
-        case .destructive: return style.destructiveTitleAttributes
-        default: return style.defaultTitleAttributes
+        case .destructive: style.destructiveTitleAttributes
+        default: style.defaultTitleAttributes
         }
     }
 }

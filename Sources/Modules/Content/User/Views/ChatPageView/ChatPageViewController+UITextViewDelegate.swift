@@ -44,10 +44,9 @@ extension ChatPageViewController: UITextViewDelegate {
 
     func textViewDidBeginEditing(_ textView: UITextView) {
         @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
 
         typealias Floats = AppConstants.CGFloats.ChatPageView.UITextViewDelegate
-        coreGCD.after(.milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) {
+        Task.delayed(by: .milliseconds(Floats.toggleLabelRepresentationDelayMilliseconds)) { @MainActor in
             guard chatPageViewService.inputBar?.isForcingAppearance == false else { return }
             chatPageViewService.recipientBar?.contactSelectionUI.toggleLabelRepresentation(on: true)
         }

@@ -22,10 +22,7 @@ final class ContactPairArchiveService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.appGroupDefaults) private var appGroupDefaults: UserDefaults
     @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
-    @Dependency(\.jsonEncoder) private var jsonEncoder: JSONEncoder
-    @Dependency(\.commonServices.phoneNumber) private var phoneNumberService: PhoneNumberService
 
     // MARK: - Properties
 
@@ -112,10 +109,14 @@ final class ContactPairArchiveService {
     // MARK: - Persist Values for Notification Extension
 
     private func persistValuesForNotificationExtension() {
+        let archiveSnapshot = archive
         Task { @MainActor in
-            var notificationExtensionArchive = [[String]: String]()
+            @Dependency(\.appGroupDefaults) var appGroupDefaults: UserDefaults
+            @Dependency(\.jsonEncoder) var jsonEncoder: JSONEncoder
+            @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
 
-            archive.forEach { contactPair in
+            var notificationExtensionArchive = [[String]: String]()
+            for contactPair in archiveSnapshot {
                 let possibleHashes = phoneNumberService.possibleHashes(
                     for: contactPair.compiledNumberStrings.unique
                 ) ?? []
@@ -124,7 +125,11 @@ final class ContactPairArchiveService {
             }
 
             guard let encoded = try? jsonEncoder.encode(notificationExtensionArchive) else { return }
-            appGroupDefaults.set(encoded, forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName)
+
+            appGroupDefaults.set(
+                encoded,
+                forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName
+            )
         }
     }
 }

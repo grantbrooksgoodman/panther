@@ -12,31 +12,32 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-extension Array where Element == ContactPair {
+extension [ContactPair] {
     // MARK: - Properties
 
     var uniquedByPhoneNumber: [ContactPair] {
         var contactPairs = [ContactPair]()
+        var seenNumbers = Set<String>()
 
         for contactPair in self {
-            let phoneNumbers = contactPairs
-                .map(\.compiledNumberStrings)
-                .flatMap(\.self)
-
             guard !contactPair
                 .compiledNumberStrings
-                .contains(where: phoneNumbers.contains) else { continue }
+                .contains(where: seenNumbers.contains) else { continue }
 
             contactPairs.append(contactPair)
+            seenNumbers.formUnion(contactPair.compiledNumberStrings)
         }
 
         return contactPairs
     }
 
-    var users: [User] { flatMap(\.users) }
+    var users: [User] {
+        flatMap(\.users)
+    }
 
     // MARK: - Methods
 
+    @MainActor
     func queried(by searchTerm: String) -> [ContactPair] {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI) var recipientBarContactSelectionUIService: RecipientBarContactSelectionUIService?
 
@@ -68,21 +69,24 @@ extension Array where Element == ContactPair {
     }
 }
 
-extension Array where Element == Conversation {
+extension [Conversation] {
     // MARK: - Properties
 
     /// The unique conversations among the array which are visible for the current user,
     /// sorted by latest message sent date, and hydrated with system messages.
     var filteredAndSorted: [Conversation] {
         visibleForCurrentUser
-            .map(\.filteringSystemMessages)
             .sortedByLatestMessageSentDate
             .unique
-            .map(\.withHydratedMessages)
+            .map(
+                \.filteringSystemMessages
+                    .withHydratedMessages
+            )
     }
 
     // MARK: - Methods
 
+    @MainActor
     func queried(by searchTerm: String) -> [Conversation] {
         let searchTerm = searchTerm.lowercasedTrimmingWhitespaceAndNewlines
         guard !searchTerm.isBlank else { return self }
@@ -127,12 +131,20 @@ extension Array where Element == Conversation {
     }
 }
 
-extension Array where Element == Message {
+extension [Message] {
     // MARK: - Properties
 
-    var filteringSystemMessages: [Message] { filter { !$0.isSystemMessage } }
-    var sortedByAscendingSentDate: [Message] { sorted(by: { $0.sentDate < $1.sentDate }) }
-    var sortedByDescendingSentDate: [Message] { sorted(by: { $0.sentDate > $1.sentDate }) }
+    var filteringSystemMessages: [Message] {
+        filter { !$0.isSystemMessage }
+    }
+
+    var sortedByAscendingSentDate: [Message] {
+        sorted(by: { $0.sentDate < $1.sentDate })
+    }
+
+    var sortedByDescendingSentDate: [Message] {
+        sorted(by: { $0.sentDate > $1.sentDate })
+    }
 
     // MARK: - Methods
 
@@ -145,19 +157,19 @@ extension Array where Element == Message {
     }
 }
 
-extension Array where Element == MessageRecipientConsentAcknowledgementData {
+extension [MessageRecipientConsentAcknowledgementData] {
     var firstWithCurrentUserID: MessageRecipientConsentAcknowledgementData? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
-extension Array where Element == Participant {
+extension [Participant] {
     var firstWithCurrentUserID: Participant? {
         first(where: { $0.userID == User.currentUserID })
     }
 }
 
-extension Array where Element == PenPalsSharingData {
+extension [PenPalsSharingData] {
     var allShareWithCurrentUser: Bool {
         guard let firstWithCurrentUserID else { return false }
         return filter { $0.userID != firstWithCurrentUserID.userID }
@@ -177,7 +189,7 @@ extension Array where Element == PenPalsSharingData {
     }
 }
 
-extension Array where Element == String {
+extension [String] {
     /// Sorts the array with alphabetically-prefixed strings taking priority.
     var alphabeticallySorted: [String] {
         var alphabetical = [String]()
@@ -197,7 +209,7 @@ extension Array where Element == String {
     }
 }
 
-extension Array where Element == User {
+extension [User] {
     var uniquedByID: [User] {
         var set = Set<String>()
         return filter { set.insert($0.id).inserted }

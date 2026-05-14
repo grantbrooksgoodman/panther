@@ -20,13 +20,12 @@ struct RegionMenuReducer: Reducer {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.regionDetail) private var regionDetailService: RegionDetailService
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
 
-    enum Action {
+    enum Action: @unchecked Sendable {
         case isPresentedChanged(Bool)
         case listViewAppeared(proxy: ScrollViewProxy)
         case runIsPresentedEffect(Bool)
@@ -39,7 +38,9 @@ struct RegionMenuReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
-        @Localized(.selectCallingCode) var headerLabelText
+        // TODO: Audit implications of one-time init for localized value.
+        let headerLabelText = Localized(.selectCallingCode).wrappedValue.capitalized
+
         var isPresented: Binding<Bool>
         @Localized(.noResults) var noResultsLabelText
         var searchQuery = ""
@@ -103,7 +104,7 @@ struct RegionMenuReducer: Reducer {
             let selectedRegionCode = state.selectedRegionCode.wrappedValue
             let selectedRegionTitle = state.selectedRegionTitle
 
-            coreGCD.after(.milliseconds(.init(Floats.delayMilliseconds))) {
+            Task.delayed(by: .milliseconds(.init(Floats.delayMilliseconds))) { @MainActor in
                 withAnimation {
                     proxy.scrollTo(selectedRegionTitle ?? selectedRegionCode, anchor: .top)
                 }
@@ -132,7 +133,7 @@ struct RegionMenuReducer: Reducer {
 
     /// - NOTE: Fixes a bug in which the initial appearance of the list view in iOS 26 would not display the current selection.
     private func showCurrentSelection() {
-        coreGCD.after(.milliseconds(Floats.secondaryDelayMilliseconds)) {
+        Task.delayed(by: .milliseconds(Floats.secondaryDelayMilliseconds)) { @MainActor in
             uiApplication
                 .presentedViews
                 .filter(\.canBecomeFirstResponder)

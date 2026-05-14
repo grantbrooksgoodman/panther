@@ -15,10 +15,12 @@ import AppSubsystem
 enum ContextMenuInteraction {
     // MARK: - Properties
 
+    @MainActor
     private(set) static var canBegin = true
 
     // MARK: - Methods
 
+    @MainActor
     static func setCanBegin(_ canBegin: Bool) {
         @Dependency(\.chatPageViewService.contextMenu?.interaction) var contextMenuInteractionService: ContextMenuInteractionService?
         self.canBegin = canBegin

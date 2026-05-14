@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 struct RecipientBarService {
     // MARK: - Dependencies
 

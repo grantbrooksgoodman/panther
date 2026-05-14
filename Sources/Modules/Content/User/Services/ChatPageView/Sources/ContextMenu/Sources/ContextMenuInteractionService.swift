@@ -19,6 +19,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class ContextMenuInteractionService {
     // MARK: - Constants Accessors
 
@@ -28,7 +29,6 @@ final class ContextMenuInteractionService {
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.haptics) private var hapticsService: HapticsService
     @Dependency(\.mainBundle) private var mainBundle: Bundle
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
@@ -83,6 +83,7 @@ final class ContextMenuInteractionService {
         self.viewController = viewController
     }
 
+    @MainActor
     deinit {
         contextMenuInteractionTimer?.invalidate()
         contextMenuInteractionTimer = nil
@@ -139,7 +140,8 @@ final class ContextMenuInteractionService {
 
     // MARK: - React to Selected Message
 
-    @MainActor @objc
+    @MainActor
+    @objc
     func reactToSelectedMessage(_ sender: Any) {
         guard !clientSession.reaction.isReactingToMessage else {
             return clientSession.reaction.addEffectUponIsReactingToMessage(
@@ -342,7 +344,7 @@ final class ContextMenuInteractionService {
                                 sender: self
                             )
 
-                            self.coreGCD.after(.milliseconds(Floats.interactionScrollToLastItemDelayMilliseconds)) {
+                            Task.delayed(by: .milliseconds(Floats.interactionScrollToLastItemDelayMilliseconds)) { @MainActor in
                                 self.viewController.messagesCollectionView.scrollToLastItem(animated: false)
                             }
                         }
@@ -431,7 +433,9 @@ private extension UICollectionViewCell {
 }
 
 private extension UIScrollView {
-    var maxContentOffsetY: CGFloat { contentSize.height - bounds.height + contentInset.bottom }
+    var maxContentOffsetY: CGFloat {
+        contentSize.height - bounds.height + contentInset.bottom
+    }
 }
 
 // swiftlint:enable file_length type_body_length

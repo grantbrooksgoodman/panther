@@ -13,7 +13,9 @@ import Foundation
 import AppSubsystem
 
 extension Persistent {
-    convenience init(_ userSessionServiceKey: UserDefaultsKey.UserSessionServiceDefaultsKey) {
+    convenience init(
+        _ userSessionServiceKey: PersistentStorageKey.UserSessionServiceStorageKey
+    ) {
         self.init(.userSessionService(userSessionServiceKey))
     }
 }

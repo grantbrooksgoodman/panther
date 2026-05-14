@@ -14,14 +14,10 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
-struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
+struct PhotoPickerView: UIViewControllerRepresentable, @MainActor ContentPicker {
     // MARK: - Type Aliases
 
     typealias Content = UIImage
-
-    // MARK: - Dependencies
-
-    @Dependency(\.mainQueue) private var mainQueue: DispatchQueue
 
     // MARK: - Properties
 
@@ -60,8 +56,6 @@ struct PhotoPickerView: UIViewControllerRepresentable, ContentPicker {
         _ uiViewController: PHPickerViewController,
         context: Context
     ) {
-        mainQueue.async {
-            uiViewController.parent?.presentationController?.delegate = context.coordinator
-        }
+        setPresentationControllerDelegate(context)
     }
 }

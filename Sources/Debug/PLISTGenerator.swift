@@ -14,120 +14,7 @@ import Networking
 import Translator
 
 enum PLISTGenerator {
-    // MARK: - PLIST Generation
-
-    static func createPLIST(
-        from dictionary: [String: Any],
-        fileName: String? = nil
-    ) -> String? {
-        let fileManager = FileManager.default
-
-        let documentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-        let path = documentDirectory.appending("/\(fileName ?? String(Int.random(in: 1 ... 1_000_000))).plist")
-
-        guard !fileManager.fileExists(atPath: path) else {
-            Logger.log(.init(
-                "File already exists.",
-                userInfo: ["FilePath": path],
-                metadata: .init(sender: self)
-            ))
-            return nil
-        }
-
-        NSData(data: Data()).write(toFile: path, atomically: true)
-        NSDictionary(dictionary: dictionary).write(toFile: path, atomically: true)
-        return path
-    }
-
-    // MARK: - Text Translation
-
-    static func translate(
-        text: String,
-        useEnhancedTranslation: Bool = false,
-        completion: @escaping (Callback<String, Exception>) -> Void
-    ) {
-        Task {
-            completion(
-                await translate(
-                    text: text,
-                    toLanguages: .init(RuntimeStorage.languageCodeDictionary!.keys),
-                    useEnhancedTranslation: useEnhancedTranslation
-                )
-            )
-        }
-    }
-
-    static func translate(
-        text: String,
-        toLanguages: [String],
-        useEnhancedTranslation: Bool
-    ) async -> Callback<String, Exception> {
-        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
-        @Dependency(\.networking.hostedTranslation) var hostedTranslator: HostedTranslationDelegate
-        @Dependency(\.translationService) var translator: TranslationService
-
-        coreUtilities.clearCaches([.localTranslationArchive])
-        var resolvedTranslations = [String: String]()
-
-        Logger.openStream(sender: self)
-
-        for (index, languageCode) in toLanguages.enumerated() {
-            if useEnhancedTranslation { coreUtilities.clearCaches([.Networking.gemini]) }
-            let translateResult = useEnhancedTranslation ? await hostedTranslator.translate(
-                .init(text),
-                with: .init(from: "en", to: languageCode),
-                enhance: .init(additionalContext: additionalContext)
-            ) : await translator.translate(
-                .init(text),
-                languagePair: .init(from: "en", to: languageCode),
-                hud: nil,
-                timeout: (.seconds(60), true)
-            )
-
-            switch translateResult {
-            case let .success(translation):
-                Logger.logToStream(
-                    "Translated item \(index + 1) of \(toLanguages.count).",
-                    line: #line
-                )
-
-                resolvedTranslations[languageCode] = translation
-                    .output
-                    .sanitized
-                    .trimmingBorderedWhitespace
-
-            case let .failure(exception):
-                Logger.logToStream(
-                    "Translated(?) item \(index + 1) of \(toLanguages.count).",
-                    line: #line
-                )
-
-                Logger.log(exception)
-                resolvedTranslations[languageCode] = text
-                    .sanitized
-                    .trimmingBorderedWhitespace
-            }
-        }
-
-        Logger.closeStream(
-            message: "All strings should be translated; complete.",
-            onLine: #line
-        )
-
-        guard let filePath = createPLIST(
-            from: resolvedTranslations,
-            fileName: Date.now.formattedShortString.encodedHash
-        ) else {
-            return .failure(.init(
-                "Failed to generate PLIST.",
-                metadata: .init(sender: self)
-            ))
-        }
-
-        return .success(filePath)
-    }
-
-    // MARK: - Auxiliary
+    // MARK: - Properties
 
     private static var additionalContext: String {
         @Dependency(\.build) var build: Build
@@ -140,8 +27,147 @@ enum PLISTGenerator {
         return """
         You are translating text as part of standard, user-facing system dialogs\(dynamicContextSuffix)
         Be sure to use an appropriate, respectful, and neutral tone.
-        Ensure consistency in pronoun usage and grammatical correctness.
+        Ensure consistency in pronoun usage and grammatical correctness in the context of system dialogs.
         Use infinitive forms for user actions where it makes sense (e.g., use 'cerrar' in place of 'cierra' for Spanish).
         """
+    }
+
+    // MARK: - Methods
+
+    static func translate(
+        _ text: String,
+        forKey key: String? = nil,
+        sourceLanguageCode: String = "en",
+        plistName: String = "LocalizedStrings",
+        processingConfig: Localization.ProcessingConfiguration? = nil,
+        postProcess: ((String) -> String)? = nil,
+        enhancementContext: String? = nil
+    ) async -> Callback<String, Exception> {
+        await Localization.createPLIST(
+            translating: text,
+            withKey: key,
+            sourceLanguageCode: sourceLanguageCode,
+            plistConfig: .init(name: plistName),
+            processingConfig: processingConfig,
+            postProcessingTransformation: postProcess
+        ) { languageCode in
+            await _translate(
+                text: text,
+                sourceLanguageCode: sourceLanguageCode,
+                targetLanguageCode: languageCode,
+                enhancementContext: enhancementContext
+            )
+        }
+    }
+
+    static func translate(
+        _ text: String,
+        forKey key: String? = nil,
+        plistName: String = "LocalizedStrings",
+        processingConfig: Localization.ProcessingConfiguration? = nil,
+        postProcess: ((String) -> String)? = nil,
+        enhancementContext: String? = nil,
+        completion: @escaping @Sendable (Callback<String, Exception>) -> Void
+    ) {
+        let postProcess = LockIsolated<((String) -> String)?>(postProcess)
+        Task {
+            await completion(
+                translate(
+                    text,
+                    forKey: key,
+                    plistName: plistName,
+                    processingConfig: processingConfig,
+                    postProcess: postProcess.wrappedValue,
+                    enhancementContext: enhancementContext
+                )
+            )
+        }
+    }
+
+    // MARK: - Auxiliary
+
+    private static func _translate(
+        text: String,
+        sourceLanguageCode: String,
+        targetLanguageCode: String,
+        enhancementContext: String?
+    ) async -> Callback<Translation, Exception> {
+        @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
+        @Dependency(\.networking.hostedTranslation) var hostedTranslator: HostedTranslationDelegate
+        @Dependency(\.translationArchiverDelegate) var translationArchiverDelegate: TranslationArchiverDelegate
+        @Dependency(\.translationService) var translator: TranslationService
+
+        translationArchiverDelegate.clearArchive()
+        let useEnhancedTranslation = enhancementContext != nil
+        if useEnhancedTranslation {
+            coreUtilities.clearCaches([.Networking.gemini])
+        }
+
+        let translateResult = enhancementContext == nil ? await translator.translate(
+            .init(text),
+            languagePair: .init(
+                from: sourceLanguageCode,
+                to: targetLanguageCode
+            ),
+            hud: nil,
+            timeout: (.seconds(60), true)
+        ) : await hostedTranslator.translate(
+            .init(text),
+            with: .init(
+                from: sourceLanguageCode,
+                to: targetLanguageCode
+            ),
+            enhance: .init(
+                additionalContext: "\(enhancementContext!)\n\(additionalContext)"
+            )
+        )
+
+        switch translateResult {
+        case let .success(translation):
+            return .success(translation)
+
+        case let .failure(exception):
+            if useEnhancedTranslation {
+                Logger.log(.init(
+                    "Enhanced translation failed – trying without enhancement.",
+                    isReportable: false,
+                    userInfo: ["ExceptionDescriptor": exception.descriptor],
+                    metadata: .init(sender: self)
+                ))
+
+                return await _translate(
+                    text: text,
+                    sourceLanguageCode: sourceLanguageCode,
+                    targetLanguageCode: targetLanguageCode,
+                    enhancementContext: enhancementContext
+                )
+            }
+
+            Logger.log(exception)
+            return .success(.init(
+                input: .init(text),
+                output: text,
+                languagePair: .init(
+                    from: sourceLanguageCode,
+                    to: targetLanguageCode
+                )
+            ))
+        }
+    }
+}
+
+extension String {
+    enum Sentinel {
+        static let asterism = "⁂"
+        static let loopedSquare = "⌘"
+    }
+
+    var directoryPath: String {
+        let pathComponents = replacingOccurrences(of: "//", with: "/")
+            .components(separatedBy: "/")
+
+        guard pathComponents.count > 1 else { return pathComponents.joined(separator: "/") }
+        return pathComponents[0 ... pathComponents.count - 2]
+            .joined(separator: "/")
     }
 }

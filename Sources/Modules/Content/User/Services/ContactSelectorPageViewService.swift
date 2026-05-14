@@ -27,6 +27,7 @@ struct ContactSelectorPageViewService {
 
     // MARK: - Reducer Action Handlers
 
+    @MainActor
     func cancelToolbarButtonTapped(from entryPoint: ContactSelectorPageView.EntryPoint) {
         navigation.navigate(to: .chat(.sheet(.none)))
 
@@ -91,20 +92,20 @@ struct ContactSelectorPageViewService {
                 style: .preferred
             ) {
                 Task { @MainActor in
-                    self.navigation.navigate(to: .chat(.sheet(.none)))
+                    navigation.navigate(to: .chat(.sheet(.none)))
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-                    self.clientSession.user.stopObservingCurrentUserChanges()
-                    let addToConversationResult = await self.clientSession.activity.addToConversation(
+                    clientSession.user.stopObservingCurrentUserChanges()
+                    let addToConversationResult = await clientSession.activity.addToConversation(
                         user.id,
                         conversation: conversation
                     )
 
-                    self.clientSession.user.startObservingCurrentUserChanges()
+                    clientSession.user.startObservingCurrentUserChanges()
                     switch addToConversationResult {
                     case let .success(conversation):
-                        self.clientSession.conversation.setCurrentConversation(conversation)
-                        self.chatPageViewService.reloadCollectionView()
+                        clientSession.conversation.setCurrentConversation(conversation)
+                        chatPageViewService.reloadCollectionView()
                         Observables.currentConversationActivityChanged.trigger()
 
                     case let .failure(exception):

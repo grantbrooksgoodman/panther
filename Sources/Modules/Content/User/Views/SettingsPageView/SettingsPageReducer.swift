@@ -91,8 +91,13 @@ struct SettingsPageReducer: Reducer {
             return "\(strings.value(for: .blockedUsersButtonText)) (\((blockedUserIDs ?? []).count))"
         }
 
-        var buildInfoButtonDarkBackgroundImage: UIImage { .ntWhite }
-        var buildInfoButtonLightBackgroundImage: UIImage { .ntBlack }
+        var buildInfoButtonDarkBackgroundImage: UIImage {
+            .ntWhite
+        }
+
+        var buildInfoButtonLightBackgroundImage: UIImage {
+            .ntBlack
+        }
 
         var isBlockedUsersButtonEnabled: Bool {
             @Dependency(\.clientSession.user.currentUser?.blockedUserIDs) var blockedUserIDs: [String]?
@@ -104,6 +109,7 @@ struct SettingsPageReducer: Reducer {
             return pendingThemeID == nil
         }
 
+        @MainActor
         var navigationBarAppearance: NavigationBarAppearance {
             guard !Application.isInPrevaricationMode else { return .appDefault }
             return ThemeService.isAppDefaultThemeApplied ? .default() : .themed()
@@ -243,7 +249,7 @@ struct SettingsPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SettingsPageViewStringKey) -> String {
         (first(where: { $0.key == .settingsPageView(key) })?.value ?? key.rawValue).sanitized
     }

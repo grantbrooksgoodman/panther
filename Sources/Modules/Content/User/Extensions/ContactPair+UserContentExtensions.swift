@@ -47,12 +47,15 @@ extension ContactPair {
         return true
     }
 
+    @MainActor
     var isSelected: Bool {
         @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
         return (selectedContactPairs ?? []).contains(self)
     }
 
-    var users: [User] { numberPairs.flatMap(\.users) }
+    var users: [User] {
+        numberPairs.flatMap(\.users)
+    }
 
     // MARK: - Methods
 

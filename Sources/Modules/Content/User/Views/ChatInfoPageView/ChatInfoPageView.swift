@@ -247,7 +247,7 @@ struct ChatInfoPageView: View {
                 text,
                 font: font,
                 usesShadow: false,
-                isInspectable: true,
+                isInspectable: true
             ) { viewModel.send(.changeMetadataButtonTapped) }
         } else {
             Components.button(
@@ -318,11 +318,11 @@ struct ChatInfoPageView: View {
 
     private var headerRightItem: HeaderView.PeripheralButtonType {
         if UIApplication.isFullyV26Compatible {
-            return .v26DoneButton {
+            .v26DoneButton {
                 viewModel.send(.doneHeaderItemTapped)
             }
         } else {
-            return .doneButton(foregroundColor: .navigationBarButton) {
+            .doneButton(foregroundColor: .navigationBarButton) {
                 viewModel.send(.doneHeaderItemTapped)
             }
         }
@@ -356,7 +356,7 @@ struct ChatInfoPageView: View {
                                 } : nil,
                                 userInfoBadgeViewAction: viewModel.isDeveloperModeEnabled ? {
                                     viewModel.send(.userInfoBadgeTapped(participant.firstUser))
-                                } : nil,
+                                } : nil
                             )
                         }
                         .dynamicTypeSize(.large)
@@ -452,7 +452,7 @@ struct ChatInfoPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ChatInfoPageViewStringKey) -> String {
         (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }

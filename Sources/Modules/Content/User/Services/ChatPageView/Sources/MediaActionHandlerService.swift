@@ -6,7 +6,7 @@
 //  Copyright © 2013-2024 NEOTechnica Corporation. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 /* Native */
 import AVFoundation
@@ -19,6 +19,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+@MainActor
 final class MediaActionHandlerService {
     // MARK: - Constants Accessors
 
@@ -27,7 +28,6 @@ final class MediaActionHandlerService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.qlThumbnailGenerator) private var qlThumbnailGenerator: QLThumbnailGenerator
@@ -50,9 +50,23 @@ final class MediaActionHandlerService {
     func attachMediaButtonTapped() {
         services.haptics.generateFeedback(.medium)
 
-        let takePhotoAction: AKAction = .init("Take photo") { self.presentCameraPicker() }
-        let selectDocumentAction: AKAction = .init("Select document") { self.presentDocumentPicker() }
-        let selectPhotoOrVideoAction: AKAction = .init("Select photo or video") { self.presentMediaPicker() }
+        let takePhotoAction: AKAction = .init("Take photo") {
+            Task { @MainActor in
+                self.presentCameraPicker()
+            }
+        }
+
+        let selectDocumentAction: AKAction = .init("Select document") {
+            Task { @MainActor in
+                self.presentDocumentPicker()
+            }
+        }
+
+        let selectPhotoOrVideoAction: AKAction = .init("Select photo or video") {
+            Task { @MainActor in
+                self.presentMediaPicker()
+            }
+        }
 
         Task {
             await AKActionSheet(
@@ -315,7 +329,9 @@ final class MediaActionHandlerService {
     @MainActor
     private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
         StatusBar.overrideStyle(.appAware)
-        coreGCD.after(.seconds(1)) { StatusBar.overrideStyle(.appAware) }
+        Task.delayed(by: .seconds(1)) { @MainActor in
+            StatusBar.overrideStyle(.appAware)
+        }
 
         guard let callback else { return nil }
 
@@ -384,4 +400,4 @@ final class MediaActionHandlerService {
     }
 }
 
-// swiftlint:enable type_body_length
+// swiftlint:enable file_length type_body_length

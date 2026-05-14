@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+@MainActor // swiftlint:disable:next type_body_length
 final class RecordingUIService {
     // MARK: - Constants Accessors
 
@@ -39,11 +40,25 @@ final class RecordingUIService {
 
     // MARK: - Computed Properties
 
-    private var cancelLabel: UILabel? { recordingView?.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel }
-    private var durationLabel: UILabel? { recordingView?.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel }
-    private var imageView: UIImageView? { recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView }
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
-    private var recordingView: UIView? { inputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag) }
+    private var cancelLabel: UILabel? {
+        recordingView?.firstSubview(for: Strings.cancelLabelSemanticTag) as? UILabel
+    }
+
+    private var durationLabel: UILabel? {
+        recordingView?.firstSubview(for: Strings.durationLabelSemanticTag) as? UILabel
+    }
+
+    private var imageView: UIImageView? {
+        recordingView?.firstSubview(for: Strings.imageViewSemanticTag) as? UIImageView
+    }
+
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
+
+    private var recordingView: UIView? {
+        inputBar.contentView.firstSubview(for: Strings.recordingViewSemanticTag)
+    }
 
     // MARK: - Init
 
@@ -53,6 +68,7 @@ final class RecordingUIService {
 
     // MARK: - Object Lifecycle
 
+    @MainActor
     deinit {
         resetSession()
     }
@@ -67,13 +83,32 @@ final class RecordingUIService {
                     typealias Floats = AppConstants.CGFloats.ChatPageViewService.InputBar
                     self.recordingView?.alpha = 0
 
-                    self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+                    if Application.isInPrevaricationMode ||
+                        Application.usesLegacyChatPageInterface ||
+                        !UIApplication.isFullyV26Compatible {
+                        self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
+                    }
+
                     self.inputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
                     self.inputBar.inputTextView.textInputView.isUserInteractionEnabled = true
                     self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
                     self.inputBar.leftStackView.attachMediaButton?.alpha = 1
                 } completion: { _ in
-                    self.inputBar.contentView.removeSubviews(for: Strings.recordingViewSemanticTag, animated: false)
+                    if !Application.usesLegacyChatPageInterface {
+                        let sendButtonFrameInInputTextView = self.inputBar.sendButton.convert(
+                            self.inputBar.sendButton.bounds,
+                            to: self.inputBar.inputTextView
+                        )
+
+                        self.inputBar.inputTextView.addSubview(self.inputBar.sendButton)
+                        self.inputBar.sendButton.frame = sendButtonFrameInInputTextView
+                    }
+
+                    self.inputBar.contentView.removeSubviews(
+                        for: Strings.recordingViewSemanticTag,
+                        animated: false
+                    )
+
                     self.resetSession()
                     self.isShowingRecordingUI = false
                     continuation.resume()
@@ -95,8 +130,20 @@ final class RecordingUIService {
                 let imageView = viewComponents.imageView
 
                 inputBar.contentView.addSubview(recordingView)
-                recordingView.center = inputBar.inputTextView.center
                 recordingView.tag = coreUI.semTag(for: Strings.recordingViewSemanticTag)
+
+                if !Application.usesLegacyChatPageInterface {
+                    recordingView.center.y = inputBar.inputTextView.center.y
+                    let sendButtonFrameInRecordingView = inputBar.sendButton.convert(
+                        inputBar.sendButton.bounds,
+                        to: recordingView
+                    )
+
+                    recordingView.addSubview(inputBar.sendButton)
+                    inputBar.sendButton.frame = sendButtonFrameInRecordingView
+                } else {
+                    recordingView.center = inputBar.inputTextView.center
+                }
 
                 cancelLabel.center.y = recordingView.center.y
                 durationLabel.center.y = recordingView.center.y
@@ -115,8 +162,15 @@ final class RecordingUIService {
                     recordingView.alpha = 1
                 }
 
+                let sendButtonFrame = inputBar.sendButton.convert(
+                    inputBar.sendButton.bounds,
+                    to: recordingView
+                )
+
                 let offset = cancelLabel.intrinsicContentSize.width + Floats.cancelLabelOffsetIncrement
-                let maxXToOffset = recordingView.frame.maxX - offset
+                let maxXToOffset = (
+                    !Application.usesLegacyChatPageInterface ? sendButtonFrame.minX : recordingView.frame.maxX
+                ) - offset
 
                 UIView.animate(
                     withDuration: Floats.showAnimationDuration,
@@ -261,14 +315,45 @@ final class RecordingUIService {
         imageView: UIImageView
     ) {
         let recordingView = UIView()
-        recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
         recordingView.frame = inputBar.inputTextView.frame
-        recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
 
         recordingView.clipsToBounds = true
-        recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
-        recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth
         recordingView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+
+        if !Application.usesLegacyChatPageInterface,
+           #available(iOS 26, *) {
+            let sendButtonFrame = inputBar.sendButton.convert(
+                inputBar.sendButton.bounds,
+                to: inputBar.contentView
+            )
+
+            recordingView.frame.size.width = sendButtonFrame.maxX -
+                recordingView.frame.origin.x +
+                Floats.recordingViewFrameSizeWidthDecrement
+
+            recordingView.backgroundColor = .clear
+
+            let glassEffectView = UIVisualEffectView(effect: UIGlassEffect())
+            glassEffectView.frame = recordingView.bounds
+            glassEffectView.clipsToBounds = true
+            glassEffectView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
+            glassEffectView.autoresizingMask = [
+                .flexibleWidth,
+                .flexibleHeight,
+            ]
+
+            glassEffectView.isUserInteractionEnabled = false
+            recordingView.insertSubview(
+                glassEffectView,
+                at: 0
+            )
+        } else {
+            recordingView.frame.size.width -= Floats.recordingViewFrameSizeWidthDecrement
+
+            recordingView.backgroundColor = inputBar.inputTextView.backgroundColor
+            recordingView.layer.borderColor = UIColor(Colors.recordingViewLayerBorderColor).cgColor
+            recordingView.layer.borderWidth = Floats.recordingViewLayerBorderWidth
+        }
 
         let cancelLabel = buildCancelLabel()
         recordingView.addSubview(cancelLabel)

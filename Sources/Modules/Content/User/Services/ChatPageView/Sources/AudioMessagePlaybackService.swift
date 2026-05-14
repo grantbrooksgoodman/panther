@@ -17,6 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class AudioMessagePlaybackService {
     // MARK: - Constants Accessors
 
@@ -27,7 +28,6 @@ final class AudioMessagePlaybackService {
     // MARK: - Dependencies
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.notificationCenter) private var notificationCenter: NotificationCenter
     @Dependency(\.chatPageViewService.recordingUI) private var recordingUIService: RecordingUIService?
     @Dependency(\.commonServices) private var services: CommonServices
@@ -50,6 +50,7 @@ final class AudioMessagePlaybackService {
 
     // MARK: - Object Lifecycle
 
+    @MainActor
     deinit {
         stopPlaybackTimer()
         // NIT: Best to remove observers, but selector-based observers should be removed by the system anyway.
@@ -91,7 +92,9 @@ final class AudioMessagePlaybackService {
 
             guard playNextMessage,
                   let nextAudioCell = nextAudioMessageCell(after: cell) else { return }
-            coreGCD.after(.milliseconds(Floats.playNextMessageDelayMilliseconds)) { _ = self.didTapPlayButton(in: nextAudioCell) }
+            Task.delayed(by: .milliseconds(Floats.playNextMessageDelayMilliseconds)) { @MainActor in
+                _ = self.didTapPlayButton(in: nextAudioCell)
+            }
         }
 
         guard !cell.playButton.isSelected else {

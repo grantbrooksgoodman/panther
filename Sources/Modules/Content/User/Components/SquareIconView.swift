@@ -32,7 +32,6 @@ struct SquareIconView: View {
 
     // MARK: - View
 
-    @ViewBuilder
     var body: some View {
         Rectangle()
             .frame(
@@ -135,16 +134,17 @@ enum SquareIconImageCache {
 }
 
 private enum _SquareIconImageCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable { // swiftlint:disable:next identifier_name
-        case squareIconImagesForConfigurationEncodedHashes
-    }
-
     // MARK: - Properties
 
-    // swiftlint:disable:next identifier_name line_length
-    @Cached(CacheKey.squareIconImagesForConfigurationEncodedHashes) fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]?
+    // swiftlint:disable identifier_name
+    private static let _cachedSquareIconImagesForConfigurationEncodedHashes = LockIsolated<[String: UIImage]?>(nil)
+
+    // MARK: - Computed Properties
+
+    fileprivate static var cachedSquareIconImagesForConfigurationEncodedHashes: [String: UIImage]? {
+        get { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue }
+        set { _cachedSquareIconImagesForConfigurationEncodedHashes.wrappedValue = newValue }
+    } // swiftlint:enable identifier_name
 
     // MARK: - Clear Cache
 

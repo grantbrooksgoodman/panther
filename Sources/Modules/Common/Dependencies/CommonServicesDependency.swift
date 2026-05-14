@@ -14,11 +14,16 @@ import AppSubsystem
 
 enum CommonServicesDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> CommonServices {
-        .init(
+        @MainActorIsolated var attributeDetectionService = AttributeDetectionService.shared
+        @MainActorIsolated var contactService = ContactService(contactPairArchive: .init())
+        @MainActorIsolated var inviteService = InviteService()
+        @MainActorIsolated var messageRecipientConsentService = MessageRecipientConsentService()
+        @MainActorIsolated var messageRetranslationService = MessageRetranslationService()
+        return .init(
             accountDeletion: .init(),
             aiEnhancedTranslation: .init(),
             analytics: .init(),
-            attributeDetection: .shared,
+            attributeDetection: attributeDetectionService,
             audio: .init(
                 playback: .init(),
                 recording: .init(),
@@ -27,24 +32,17 @@ enum CommonServicesDependency: DependencyKey {
             ),
             breadcrumbsCapture: .shared,
             connectionStatus: .init(),
-            contact: .init(contactPairArchive: .init()),
+            contact: contactService,
             contentPicker: .init(
                 camera: .init(),
                 document: .init(),
                 media: .init()
             ),
             documentExport: .init(),
-            haptics: .init(
-                heavyImpactFeedbackGenerator: .init(style: .heavy),
-                lightImpactFeedbackGenerator: .init(style: .light),
-                mediumImpactFeedbackGenerator: .init(style: .medium),
-                rigidImpactFeedbackGenerator: .init(style: .rigid),
-                selectionFeedbackGenerator: .init(),
-                softImpactFeedbackGenerator: .init(style: .soft)
-            ),
-            invite: .init(),
-            messageRecipientConsent: .init(),
-            messageRetranslation: .init(),
+            haptics: .init(),
+            invite: inviteService,
+            messageRecipientConsent: messageRecipientConsentService,
+            messageRetranslation: messageRetranslationService,
             metadata: .shared,
             networkActivityIndicator: .init(),
             notification: .init(),

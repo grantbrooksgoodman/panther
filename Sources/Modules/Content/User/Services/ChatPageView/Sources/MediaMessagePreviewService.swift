@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class MediaMessagePreviewService {
     // MARK: - Types
 
@@ -27,7 +28,6 @@ final class MediaMessagePreviewService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.fileManager) private var fileManager: FileManager
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -127,9 +127,17 @@ final class MediaMessagePreviewService {
         InteractivePopGestureRecognizer.setIsEnabled(true)
         viewController.view.isUserInteractionEnabled = true
 
-        coreGCD.after(.seconds(1)) { self.viewController.view.isUserInteractionEnabled = true }
-        coreGCD.after(.seconds(2)) { self.viewController.view.isUserInteractionEnabled = true }
-        coreGCD.after(.seconds(3)) { self.viewController.view.isUserInteractionEnabled = true }
+        Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
+
+        Task.delayed(by: .seconds(2)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
+
+        Task.delayed(by: .seconds(3)) { @MainActor [weak self] in
+            self?.viewController.view.isUserInteractionEnabled = true
+        }
     }
 
     @objc

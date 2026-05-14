@@ -14,18 +14,17 @@ import UIKit
 import AppSubsystem
 import Networking
 
-final class AccountDeletionService {
+final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.networking) private var networking: NetworkServices
-    @Dependency(\.uiApplication.presentedViews) private var presentedViews: [UIView]
 
     // MARK: - Properties
 
-    private var completedUnits: Double = 0
-    private var completionPercent: Double = 0 {
+    @LockIsolated private var completedUnits: Double = 0
+    @LockIsolated private var completionPercent: Double = 0 {
         didSet { updateHUDLabel() }
     }
 
@@ -44,11 +43,13 @@ final class AccountDeletionService {
         clientSession.user.stopObservingCurrentUserChanges()
         defer { core.hud.hide() }
 
-        core.ui.addOverlay(
-            alpha: 0.5,
-            activityIndicator: nil,
-            isModal: false
-        )
+        await MainActor.run {
+            core.ui.addOverlay(
+                alpha: 0.5,
+                activityIndicator: nil,
+                isModal: false
+            )
+        }
 
         core.hud.showProgress(
             text: Localized(.deletingData).wrappedValue,
@@ -94,8 +95,8 @@ final class AccountDeletionService {
 
             for oneToOneChat in oneToOneChats {
                 taskGroup.addTask {
-                    (
-                        await self.clientSession.conversation.deleteConversation(
+                    await (
+                        self.clientSession.conversation.deleteConversation(
                             oneToOneChat,
                             forced: true
                         ),
@@ -104,19 +105,19 @@ final class AccountDeletionService {
                 }
             }
 
-            taskGroup.addTask {
-                do {
-                    _ = try (await self.clientSession.user.currentUser?.updateValue(
-                        [],
-                        forKey: .conversationIDs
-                    ))?.get()
+            taskGroup.addTask { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    _ = try await self.clientSession.user.currentUser?.update(
+                        \.conversationIDs,
+                        to: []
+                    )
                     return (nil, false)
                 } catch {
-                    return (.init(error, metadata: .init(sender: self)), false)
+                    return (error, false)
                 }
             }
 
-            for await(exception, trackProgress) in taskGroup {
+            for await (exception, trackProgress) in taskGroup {
                 if let exception {
                     exceptions.append(exception)
                 }
@@ -167,26 +168,22 @@ final class AccountDeletionService {
     // MARK: - Auxiliary
 
     private func addToDeletedUsers(_ userID: String) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(
-            at: NetworkPath.deletedUsers.rawValue
-        )
+        do {
+            var deletedUserIDs: [String] = try await networking.database.getValues(
+                at: NetworkPath.deletedUsers.rawValue
+            )
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var array = values as? [String] else { return .Networking.typecastFailed("array", metadata: .init(sender: self)) }
-
-            array.append(userID)
-            array = array.filter { $0 != .bangQualifiedEmpty }.unique
+            deletedUserIDs.append(userID)
+            deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
             if let exception = await networking.database.setValue(
-                array,
+                deletedUserIDs,
                 forKey: NetworkPath.deletedUsers.rawValue
             ) {
                 return exception
             }
-
-        case let .failure(exception):
-            guard exception.isEqual(to: .Networking.Database.noValueExists) else { return exception }
+        } catch {
+            guard error.isEqual(to: .Networking.Database.noValueExists) else { return error }
 
             if let exception = await networking.database.setValue(
                 [userID],
@@ -200,12 +197,15 @@ final class AccountDeletionService {
     }
 
     private func incrementProgress(forTotal total: Double) {
-        completedUnits += 1
-        completionPercent = completedUnits / max(total, 1)
+        $completedUnits.withValue {
+            $0 += 1
+            completionPercent = $0 / max(total, 1)
+        }
     }
 
     private func updateHUDLabel() {
         Task { @MainActor in
+            @Dependency(\.uiApplication.presentedViews) var presentedViews: [UIView]
             let statusString = Localized(.deletingData).wrappedValue
             let progressLabel = presentedViews
                 .compactMap { $0 as? UILabel }

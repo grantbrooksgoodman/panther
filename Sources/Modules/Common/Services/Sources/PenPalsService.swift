@@ -27,9 +27,15 @@ struct PenPalsService {
         return contactPairArchive?.flatMap(\.users).map(\.id).unique ?? []
     }
 
+    @MainActor
     private var selectContactPairUserIDs: [String] {
-        @Dependency(\.chatPageViewService.recipientBar?.contactSelectionUI.selectedContactPairs) var selectedContactPairs: [ContactPair]?
-        return selectedContactPairs?.users.map(\.id) ?? []
+        @Dependency(\.chatPageViewService) var chatPageViewService: ChatPageViewService
+        return chatPageViewService
+            .recipientBar?
+            .contactSelectionUI
+            .selectedContactPairs
+            .users
+            .map(\.id) ?? []
     }
 
     // MARK: - Is Known to Current User
@@ -89,19 +95,19 @@ struct PenPalsService {
 
             let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
                 isPenPalsConversation: false,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID)),
+                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
             ) : penPalsConversation.metadata.copyWith(
-                penPalsSharingData: newPenPalsSharingData,
+                penPalsSharingData: newPenPalsSharingData
             )
 
             guard penPalsConversation.metadata != newMetadata else { continue }
-            let updateValueResult = await penPalsConversation.updateValue(
-                newMetadata,
-                forKey: .metadata
-            )
+            do {
+                // NIT: We don't care about the result because the update method adds the updated conversation to the archive for us.
+                _ = try await penPalsConversation.update(
+                    \.metadata,
+                    to: newMetadata
+                )
 
-            switch updateValueResult {
-            case .success: // NIT: We don't care about the result because updateValue adds the updated conversation to the archive for us.
                 Logger.log(
                     .init(
                         "Updated PenPals sharing data.",
@@ -111,9 +117,8 @@ struct PenPalsService {
                     ),
                     domain: .penPals
                 )
-
-            case let .failure(exception):
-                return exception
+            } catch {
+                return error
             }
         }
 
@@ -127,6 +132,7 @@ struct PenPalsService {
             Logger.log(exception, domain: .penPals)
         }
 
+        let selectContactPairUserIDs = await MainActor.run { self.selectContactPairUserIDs }
         let getAllUsersResult = await userService.getAllUsers() // TODO: Will need to be a limited query once user numbers pick up.
 
         switch getAllUsersResult {
@@ -163,21 +169,17 @@ struct PenPalsService {
             )
         }
 
-        let updateValueResult = await currentUser.updateValue(
-            didGrantPenPalsPermission,
-            forKey: .isPenPalsParticipant
-        )
-
-        switch updateValueResult {
-        case let .success(user):
+        do {
             Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
-            return userSession.setCurrentUser(
-                user,
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.isPenPalsParticipant,
+                    to: didGrantPenPalsPermission
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

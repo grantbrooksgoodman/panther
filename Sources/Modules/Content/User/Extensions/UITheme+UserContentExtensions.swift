@@ -16,22 +16,22 @@ extension UITheme {
     var nonEnglishName: String? {
         switch name {
         case "Default":
-            return "Normal"
+            "Normal"
 
         case "Bluesky":
-            return "Blue"
+            "Blue"
 
         case "Dusk":
-            return "Orange"
+            "Orange"
 
         case "Firebrand":
-            return "Red"
+            "Red"
 
         case "Twilight":
-            return "Purple"
+            "Purple"
 
         default:
-            return nil
+            nil
         }
     }
 }

@@ -15,11 +15,12 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+@MainActor
 struct InviteService {
     // MARK: - Dependencies
 
     @Dependency(\.build) private var build: Build
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.onboardingService.createdUserInCurrentAppSession) private var createdUserInCurrentAppSession: Bool
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.uiApplication.keyViewController?.view) private var keyView: UIView?
@@ -44,7 +45,6 @@ struct InviteService {
 
     // MARK: - Compose Invitation
 
-    @MainActor
     func composeInvitation(languageCode: String?) async -> Exception? {
         guard let appShareLink = services.metadata.appShareLink else {
             if let exception = await services.metadata.resolveValues() {
@@ -93,7 +93,6 @@ struct InviteService {
 
     // MARK: - Present Invitation Prompt
 
-    @MainActor
     func presentInvitationPrompt() async -> Exception? {
         guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else { return nil }
         guard shouldPresentInviteLanguagePicker else {
@@ -105,7 +104,7 @@ struct InviteService {
         }
 
         Application.dismissSheets()
-        core.gcd.after(.seconds(2)) {
+        Task.delayed(by: .seconds(2)) { @MainActor in
             RootSheets.present(.inviteLanguagePicker)
         }
 
@@ -119,8 +118,8 @@ struct InviteService {
             "Send Invite",
             style: .preferred
         ) {
-            Task {
-                if let exception = await self.presentInvitationPrompt() {
+            Task { @MainActor in
+                if let exception = await presentInvitationPrompt() {
                     Logger.log(exception, with: .toast)
                 }
             }
@@ -150,7 +149,6 @@ struct InviteService {
 
     // MARK: - Auxiliary
 
-    @MainActor
     private func presentActivityViewController(
         appShareLink: URL,
         text: String
@@ -161,20 +159,20 @@ struct InviteService {
         )
 
         activityVC.popoverPresentationController?.sourceView = keyView
-        core.ui.present(activityVC)
+        coreUI.present(activityVC)
     }
 
     /// - Returns: An optional`Bool` representing whether or not the user would like to translate the invitation. Will be `nil` if the user cancels the operation.
     private func presentTranslationAlert() async -> Bool? {
-        var shouldTranslate: Bool?
+        let shouldTranslate = LockIsolated<Bool?>(nil)
+        let acceptTranslationAction: AKAction = .init(
+            "Yes, translate",
+            style: .preferred
+        ) { shouldTranslate.wrappedValue = true }
 
-        let acceptTranslationAction: AKAction = .init("Yes, translate", style: .preferred) {
-            shouldTranslate = true
-        }
-
-        let rejectTranslationAction: AKAction = .init("No, don't translate") {
-            shouldTranslate = false
-        }
+        let rejectTranslationAction: AKAction = .init(
+            "No, don't translate"
+        ) { shouldTranslate.wrappedValue = false }
 
         await AKAlert(
             title: "Translate Invitation",
@@ -190,6 +188,6 @@ struct InviteService {
             .title,
         ])
 
-        return shouldTranslate
+        return shouldTranslate.wrappedValue
     }
 }

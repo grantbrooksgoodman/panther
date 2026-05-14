@@ -14,7 +14,6 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -92,20 +91,16 @@ struct ModerationSessionService {
         blockedUserIDs.append(contentsOf: userIDs)
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.blockedUserIDs,
+                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -137,38 +132,26 @@ struct ModerationSessionService {
             ))
         }
 
-        let path = "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.blockedUserIDs.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
-            }
-
-            return await networking.userService.getUsers(ids: array)
-
-        case let .failure(exception):
-            return .failure(exception)
+        return await .asCallback {
+            try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.blockedUserIDs.rawValue,
+                ].joined(separator: "/")
+            )
         }
     }
 
     private func getReportedUserIDs() async -> Callback<[String: Int], Exception> {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.reportedUsers.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Int] else {
-                return .failure(.Networking.typecastFailed("dictionary", metadata: .init(sender: self)))
-            }
-
-            return .success(dictionary)
-
-        case let .failure(exception):
-            return .failure(exception)
+        await .asCallback {
+            try await networking.database.getValues(
+                at: NetworkPath.reportedUsers.rawValue
+            )
         }
     }
 
+    @MainActor
     private func moderate(
         _ type: ModerationType,
         dataSource: (conversation: Conversation?, users: [User]?)
@@ -310,20 +293,16 @@ struct ModerationSessionService {
         blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        let updateValueResult = await currentUser.updateValue(
-            blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs,
-            forKey: .blockedUserIDs
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return userSession.setCurrentUser(
-                user,
+        do {
+            return try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.blockedUserIDs,
+                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 }

@@ -14,6 +14,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
+@MainActor
 final class RecipientBarActionHandlerService {
     // MARK: - Constants Accessors
 
@@ -22,7 +23,7 @@ final class RecipientBarActionHandlerService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.hud) private var coreHUD: CoreKit.HUD
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.userService) private var userService: UserService
@@ -52,7 +53,9 @@ final class RecipientBarActionHandlerService {
                 return true
             }
 
-            for sublevel in (1 ... sublevels).reversed() where configureTextField(onSublevel: sublevel) { return true }
+            for sublevel in (1 ... sublevels).reversed() where configureTextField(onSublevel: sublevel) {
+                return true
+            }
             return false
         }
 
@@ -76,58 +79,57 @@ final class RecipientBarActionHandlerService {
     func selectContactButtonTapped() {
         Task { @MainActor in
             func presentCTA() {
-                core.gcd.after(.milliseconds(500)) {
-                    Task { await self.services.permission.presentCTA(for: .contacts) }
+                Task.delayed(by: .milliseconds(500)) { @MainActor in
+                    await self.services.permission.presentCTA(for: .contacts)
                 }
             }
 
             let selectContactButton = chatPageViewService.recipientBar?.layout.selectContactButton
             selectContactButton?.isEnabled = true
-            defer { core.hud.hide(after: .seconds(1)) }
+            defer { coreHUD.hide(after: .seconds(1)) }
 
-            guard services.permission.contactPermissionStatus == .granted else {
-                let requestPermissionResult = await services.permission.requestPermission(for: .contacts)
+            if services.permission.contactPermissionStatus != .granted {
+                let requestPermissionResult = await services.permission.requestPermission(
+                    for: .contacts
+                )
 
                 switch requestPermissionResult {
                 case let .success(status):
-                    guard status == .granted else {
-                        presentCTA()
-                        return
+                    guard status == .granted else { return presentCTA() }
+                    if let exception = await services.contact.syncContactPairArchive() {
+                        Logger.log(
+                            exception,
+                            with: .toast
+                        )
                     }
 
-                    if let exception = await services.contact.syncContactPairArchive() { Logger.log(exception, with: .toast) }
-                    selectContactButtonTapped()
+                    return selectContactButtonTapped()
 
                 case let .failure(exception):
-                    guard !exception.isEqual(to: .contactAccessDenied) else {
-                        presentCTA()
-                        return
-                    }
-
-                    Logger.log(exception, with: .toast)
+                    guard !exception.isEqual(to: .contactAccessDenied) else { return presentCTA() }
+                    return Logger.log(
+                        exception,
+                        with: .toast
+                    )
                 }
-
-                return
-            }
-
-            guard services.contact.hasContactsBesidesCurrentUser else {
+            } else if !services.contact.hasContactsBesidesCurrentUser {
                 selectContactButton?.isEnabled = false
-                core.hud.showProgress(isModal: true)
+                coreHUD.showProgress(isModal: true)
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(to: .mismatchedHashAndCallingCode) {
-                    Logger.log(exception, with: .toast)
-                }
-
-                guard !services.contact.hasContactsBesidesCurrentUser else {
-                    chatPageViewService.recipientBar?.tableView.resolveContactPairs()
-                    selectContactButtonTapped()
+                    Logger.log(
+                        exception,
+                        with: .toast
+                    )
+                } else if services.contact.hasContactsBesidesCurrentUser {
+                    await chatPageViewService.recipientBar?.tableView.resolveContactPairs()
+                    return selectContactButtonTapped()
+                } else {
+                    await services.invite.presentInvitationSuggestionPrompt()
+                    selectContactButton?.isEnabled = true
                     return
                 }
-
-                await services.invite.presentInvitationSuggestionPrompt()
-                selectContactButton?.isEnabled = true
-                return
             }
 
             navigation.navigate(to: .chat(.sheet(.contactSelector)))
@@ -141,7 +143,10 @@ final class RecipientBarActionHandlerService {
 
     // MARK: - Text Field Should Return
 
-    func textFieldShouldReturn(_ text: String, makeInputBarFirstResponder: Bool = true) {
+    func textFieldShouldReturn(
+        _ text: String,
+        makeInputBarFirstResponder: Bool = true
+    ) {
         Task { @MainActor in
             guard let contactSelectionUIService = chatPageViewService.recipientBar?.contactSelectionUI else { return }
 
@@ -155,7 +160,7 @@ final class RecipientBarActionHandlerService {
 
                 contactSelectionUIService.unhighlightAllViews()
                 contactSelectionUIService.deselectMockContactPairs()
-                core.gcd.after(.milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) {
+                Task.delayed(by: .milliseconds(Floats.becomeFirstResponderDelayMilliseconds)) { @MainActor in
                     self.chatPageViewService.inputBar?.becomeFirstResponder()
                 }
                 return

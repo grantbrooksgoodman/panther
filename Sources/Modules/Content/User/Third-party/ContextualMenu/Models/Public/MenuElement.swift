@@ -49,8 +49,9 @@ struct MenuElement {
 
     // MARK: - Computed Properties
 
+    @MainActor
     var uiAction: UIAction {
-        return .init(
+        .init(
             title: title,
             image: image,
             identifier: identifier,

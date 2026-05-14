@@ -13,45 +13,93 @@ import Foundation
 import AlertKit
 import AppSubsystem
 
-/**
- Use this extension to catalog application-specific `Exception` types and their corresponding error code values.
- */
+/// Use this extension to catalog application-specific error codes and
+/// configure how exceptions are reported.
+///
+/// Define known error codes as static ``AppException`` properties so
+/// that error-handling logic can match exceptions by code:
+///
+/// ```swift
+/// extension AppException {
+///     static let unauthorized: AppException = .init("C31B")
+/// }
+///
+/// if exception.isEqual(to: .unauthorized) {
+///     presentSignIn()
+/// }
+/// ```
+///
+/// Customize ``ExceptionMetadataDelegate`` to control which errors
+/// are reportable and to supply user-facing descriptions for known
+/// error conditions.
 extension AppException {
     // MARK: - Types
 
-    struct ExceptionMetadataDelegate: AppSubsystem.Delegates.ExceptionMetadataDelegate {
+    /// The delegate that provides app-specific metadata for exception
+    /// handling.
+    ///
+    /// Modify ``isReportable(_:)`` to suppress reporting for specific
+    /// error codes, and ``userFacingDescriptor(for:)`` to provide
+    /// human-readable descriptions for known error conditions.
+    struct ExceptionMetadataDelegate: @MainActor AppSubsystem.Delegates.ExceptionMetadataDelegate {
+        /// Returns a Boolean value indicating whether the exception
+        /// with the given error code should be reported.
+        ///
+        /// The default implementation returns `true` for all error
+        /// codes. Add cases to a `switch` statement to return `false`
+        /// for codes that should not generate reports.
+        ///
+        /// - Parameter errorCode: The exception's error code.
+        ///
+        /// - Returns: `true` if the exception can be reported;
+        ///   otherwise, `false`.
+        @MainActor
         func isReportable(_ errorCode: String) -> Bool {
             @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
-            guard errorCode != AppException.cannotSendTextMessages.errorCode else { return false }
+            if errorCode == AppException.cannotSendTextMessages.errorCode ||
+                errorCode == AppException.observerRegistrationMisuse.errorCode {
+                return false
+            }
+
             guard let errorReportingService = reportDelegate as? ErrorReportingService else { return true }
             return !errorReportingService.reportedErrorCodes.contains(errorCode)
         }
 
-        // swiftlint:disable line_length
+        /// Returns a user-facing description for the given
+        /// developer-facing descriptor, or `nil` if no mapping exists.
+        ///
+        /// Implement this method to translate internal error
+        /// descriptors into messages appropriate for the user. Return
+        /// `nil` to use the subsystem's default error message.
+        ///
+        /// - Parameter descriptor: The exception's developer-facing
+        ///   descriptor.
+        ///
+        /// - Returns: A user-appropriate string, or `nil`.
         func userFacingDescriptor(for descriptor: String) -> String? {
-            switch descriptor {
+            switch descriptor { // swiftlint:disable line_length
             case "Attempted to select contact pair containing blocked user.":
-                return "You have blocked this user."
+                "You have blocked this user."
 
             case "Attempted to select contact pair containing current user.":
-                return "Unable to start a conversation with yourself."
+                "Unable to start a conversation with yourself."
 
             case "Failed to resolve random PenPals participant.":
-                return "Looks like there's nobody available to connect with right now. Try again later!"
+                "Looks like there's nobody available to connect with right now. Try again later!"
 
             case "The format of the phone number provided is incorrect. Please enter the phone number in a format that can be parsed into E.164 format. E.164 phone numbers are written in the format [+][country code][subscriber number including area code].":
-                return "The format of the phone number is incorrect. Please verify that you haven't included the country code."
+                "The format of the phone number is incorrect. Please verify that you haven't included the country code."
 
             case "The multifactor verification code used to create the auth credential is invalid. Re-collect the verification code and be sure to use the verification code provided by the user.":
-                return "The verification code is incorrect. Please try again."
+                "The verification code is incorrect. Please try again."
 
             case "The SMS code has expired. Please re-send the verification code to try again.":
-                return "The verification code has expired. Please try again."
+                "The verification code has expired. Please try again."
 
-            default: return nil
+            // swiftlint:enable line_length
+            default: nil
             }
         }
-        // swiftlint:enable line_length
     }
 
     // MARK: - Properties
@@ -61,6 +109,7 @@ extension AppException {
     static let currentUserIDNotSet: AppException = .init("EA90")
     static let emptyContactList: AppException = .init("A431")
     static let exhaustedAvailablePlatforms: AppException = .init("C526")
+    static let failedToGenerateMediaFile: AppException = .init("D648")
     static let kAFAssistantError: AppException = .init("F59D")
     static let mismatchedHashAndCallingCode: AppException = .init("D339")
     static let mistranslationReported: AppException = .init("CA45")
@@ -69,9 +118,11 @@ extension AppException {
     static let notRegisteredForPushNotifications: AppException = .init("FB09")
     static let noSpeechDetected: AppException = .init("24F2")
     static let noUsersWithPhoneNumber: AppException = .init("4E4F")
+    static let observerRegistrationMisuse: AppException = .init("983A")
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
     static let sameTranslationInputOutput: AppException = .init("6CEB")
+    /// An exception representing a timed-out operation.
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")
     static let translationPlatformNotSupported: AppException = .init("B04E")

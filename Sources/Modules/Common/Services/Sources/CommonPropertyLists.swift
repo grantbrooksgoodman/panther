@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class CommonPropertyLists {
+final class CommonPropertyLists: @unchecked Sendable {
     // MARK: - Types
 
     private enum CacheKey: String, CaseIterable {

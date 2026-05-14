@@ -17,6 +17,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+@MainActor
 final class InputBarGestureRecognizerService {
     // MARK: - Constants Accessors
 
@@ -26,7 +27,6 @@ final class InputBarGestureRecognizerService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -36,7 +36,9 @@ final class InputBarGestureRecognizerService {
 
     // MARK: - Computed Properties
 
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
 
     // MARK: - Init
 
@@ -109,19 +111,17 @@ final class InputBarGestureRecognizerService {
 
         case .ended:
             /// - NOTE: Fixes a bug in which an immediate release of the button would fail to stop recording.
-            @Sendable
             func doubleCheckState() {
-                core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
-                    Task { @MainActor in
-                        guard self.services.audio.recording.isInOrWillTransitionToRecordingState else { return }
-                        Logger.log(
-                            "Intercepted failure to stop recording bug.",
-                            domain: .bugPrevention,
-                            sender: self
-                        )
-                        guard let exception = await self.chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) else { return }
-                        self.showError(exception)
-                    }
+                Task.delayed(by: .milliseconds(Floats.millisecondsDelay)) { @MainActor in
+                    guard self.services.audio.recording.isInOrWillTransitionToRecordingState else { return }
+                    Logger.log(
+                        "Intercepted failure to stop recording bug.",
+                        domain: .bugPrevention,
+                        sender: self
+                    )
+
+                    guard let exception = await self.chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) else { return }
+                    self.showError(exception)
                 }
             }
 
@@ -150,7 +150,7 @@ final class InputBarGestureRecognizerService {
             services.audio.acknowledgedAudioMessagesUnsupported = true
             chatPageViewService.inputBar?.configureInputBar(forRecording: false)
 
-            core.gcd.after(.milliseconds(Floats.millisecondsDelay)) {
+            Task.delayed(by: .milliseconds(Floats.millisecondsDelay)) { @MainActor in
                 guard isKeyboardFirstResponder else {
                     self.viewController.becomeFirstResponder()
                     return

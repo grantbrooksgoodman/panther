@@ -16,7 +16,6 @@ struct InviteLanguagePickerReducer: Reducer {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.commonServices.invite) private var inviteService: InviteService
 
     // MARK: - Actions
@@ -37,10 +36,12 @@ struct InviteLanguagePickerReducer: Reducer {
     struct State: Equatable {
         /* MARK: Properties */
 
+        // TODO: Audit implications of one-time init for localized value.
+        let navigationTitle = Localized(.selectLanguage).wrappedValue.capitalized
+
         @Localized(.cancel) var cancelHeaderItemText: String
         @Localized(.done) var doneHeaderItemText: String
         var isDoneHeaderItemEnabled = false
-        @Localized(.selectLanguage) var navigationTitle: String
         @Localized(.noResults) var noResultsLabelText: String
         var searchQuery = ""
         var selectedLanguageCode = ""
@@ -77,11 +78,11 @@ struct InviteLanguagePickerReducer: Reducer {
             RootSheets.dismiss()
 
             let languageCode = state.selectedLanguageCode
-            coreGCD.after(.seconds(2)) {
-                Task {
-                    if let exception = await inviteService.composeInvitation(languageCode: languageCode) {
-                        Logger.log(exception, with: .toast)
-                    }
+            Task.delayed(by: .seconds(2)) { @MainActor in
+                if let exception = await inviteService.composeInvitation(
+                    languageCode: languageCode
+                ) {
+                    Logger.log(exception, with: .toast)
                 }
             }
 

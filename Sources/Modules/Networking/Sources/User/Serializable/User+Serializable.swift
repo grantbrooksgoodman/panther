@@ -16,12 +16,11 @@ import Networking
 extension User: Serializable {
     // MARK: - Type Aliases
 
-    typealias T = User
-    private typealias Keys = SerializationKeys
+    private typealias Keys = SerializableKey
 
     // MARK: - Types
 
-    enum SerializationKeys: String {
+    enum SerializableKey: String {
         case id
         case aiEnhancedTranslationsEnabled
         case badgeNumber
@@ -55,6 +54,53 @@ extension User: Serializable {
         ]
     }
 
+    // MARK: - Init
+
+    convenience init(
+        from data: [String: Any] // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
+        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
+
+        guard let id = data[Keys.id.rawValue] as? String,
+              let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
+              let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
+              let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
+              let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
+              let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
+              let languageCode = data[Keys.languageCode.rawValue] as? String,
+              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
+              let lastSignedIn = timestampDateFormatter.date(from: lastSignedInString),
+              let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
+              let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
+              let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
+        let conversationIDs = try await conversationIDStrings
+            .filter { !$0.isBangQualifiedEmpty }
+            .parallelMap {
+                try await ConversationID(from: $0)
+            }
+
+        self.init(
+            id,
+            aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
+            blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
+            conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
+            isPenPalsParticipant: isPenPalsParticipant,
+            languageCode: languageCode,
+            lastSignedIn: lastSignedIn,
+            messageRecipientConsentRequired: messageRecipientConsentRequired,
+            phoneNumber: phoneNumber,
+            previousLanguageCodes: previousLanguageCodes.isBangQualifiedEmpty ? nil : previousLanguageCodes,
+            pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens
+        )
+    }
+
     // MARK: - Methods
 
     static func canDecode(from data: [String: Any]) -> Bool {
@@ -76,66 +122,5 @@ extension User: Serializable {
               data[Keys.pushTokens.rawValue] is [String] else { return false }
 
         return true
-    }
-
-    static func decode(from data: [String: Any]) async -> Callback<User, Exception> {
-        @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
-
-        guard let id = data[Keys.id.rawValue] as? String,
-              let aiEnhancedTranslationsEnabled = data[Keys.aiEnhancedTranslationsEnabled.rawValue] as? Bool,
-              let blockedUserIDs = data[Keys.blockedUserIDs.rawValue] as? [String],
-              let conversationIDStrings = data[Keys.conversationIDs.rawValue] as? [String],
-              let encodedPhoneNumber = data[Keys.phoneNumber.rawValue] as? [String: Any],
-              let isPenPalsParticipant = data[Keys.isPenPalsParticipant.rawValue] as? Bool,
-              let languageCode = data[Keys.languageCode.rawValue] as? String,
-              let lastSignedInString = data[Keys.lastSignedIn.rawValue] as? String,
-              let lastSignedIn = timestampDateFormatter.date(from: lastSignedInString),
-              let messageRecipientConsentRequired = data[Keys.messageRecipientConsentRequired.rawValue] as? Bool,
-              let previousLanguageCodes = data[Keys.previousLanguageCodes.rawValue] as? [String],
-              let pushTokens = data[Keys.pushTokens.rawValue] as? [String] else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        var phoneNumber: PhoneNumber?
-        let decodePhoneNumberResult = await PhoneNumber.decode(from: encodedPhoneNumber)
-
-        switch decodePhoneNumberResult {
-        case let .success(decodedPhoneNumber):
-            phoneNumber = decodedPhoneNumber
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
-
-        var conversationIDs = [ConversationID]()
-        for id in conversationIDStrings where !id.isBangQualifiedEmpty {
-            let decodeResult = await ConversationID.decode(from: id)
-
-            switch decodeResult {
-            case let .success(conversationID):
-                conversationIDs.append(conversationID)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
-        guard let phoneNumber else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        return .success(.init(
-            id,
-            aiEnhancedTranslationsEnabled: aiEnhancedTranslationsEnabled,
-            blockedUserIDs: blockedUserIDs.isBangQualifiedEmpty ? nil : blockedUserIDs,
-            conversationIDs: conversationIDs.isEmpty ? nil : conversationIDs,
-            isPenPalsParticipant: isPenPalsParticipant,
-            languageCode: languageCode,
-            lastSignedIn: lastSignedIn,
-            messageRecipientConsentRequired: messageRecipientConsentRequired,
-            phoneNumber: phoneNumber,
-            previousLanguageCodes: previousLanguageCodes.isBangQualifiedEmpty ? nil : previousLanguageCodes,
-            pushTokens: pushTokens.isBangQualifiedEmpty ? nil : pushTokens
-        ))
     }
 }

@@ -38,9 +38,11 @@ extension RecipientBar: UITableViewDataSource {
                 .redrawsOnTraitCollectionChange()
         }
 
-        cell.isUserInteractionEnabled = !(contactPair.containsBlockedUser ||
-            contactPair.containsCurrentUser ||
-            contactPair.isSelected)
+        cell.isUserInteractionEnabled = !(
+            contactPair.containsBlockedUser ||
+                contactPair.containsCurrentUser ||
+                contactPair.isSelected
+        )
 
         guard Application.isInPrevaricationMode else { return cell }
         cell.backgroundColor = UIColor(Colors.prevaricationModeBackground)

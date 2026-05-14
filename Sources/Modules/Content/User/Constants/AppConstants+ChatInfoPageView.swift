@@ -54,14 +54,29 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ChatInfoPageView {
+        /* MARK: Properties */
+
         static let addContactButtonCircleDarkForeground: Color = .init(uiColor: .init(hex: 0x3A3A3C))
         static let addContactButtonCircleLightForeground: Color = .init(uiColor: .init(hex: 0xE5E5EA))
 
-        static let changeMetadataButtonForeground: Color = .init(uiColor: .accentOrSystemBlue)
         static let leaveConversationListRowViewForeground: Color = .red
 
-        static var addContactButtonLabelForeground: Color { .init(uiColor: .accentOrSystemBlue) }
-        static var addContactButtonSymbolForeground: Color { .init(uiColor: .accentOrSystemBlue) }
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var addContactButtonLabelForeground: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
+
+        @MainActor
+        static var addContactButtonSymbolForeground: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
+
+        @MainActor
+        static var changeMetadataButtonForeground: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
     }
 }
 

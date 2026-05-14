@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 enum UserCache {
     // MARK: - Properties
 
@@ -49,11 +50,13 @@ enum UserCache {
         let usersFromUnknownContactPairArchive = unknownContactPairArchive?
             .flatMap(\.users) ?? []
 
-        let uniqueUsers = (usersFromContactPairArchive +
-            usersFromConversationArchive +
-            usersFromCurrentConversation +
-            usersFromCurrentUserConversations +
-            usersFromUnknownContactPairArchive).uniquedByID
+        let uniqueUsers = (
+            usersFromContactPairArchive +
+                usersFromConversationArchive +
+                usersFromCurrentConversation +
+                usersFromCurrentUserConversations +
+                usersFromUnknownContactPairArchive
+        ).uniquedByID
 
         _UserCache.cachedUsers = uniqueUsers
         return uniqueUsers
@@ -66,6 +69,7 @@ enum UserCache {
     }
 }
 
+@MainActor
 private enum _UserCache {
     // MARK: - Types
 

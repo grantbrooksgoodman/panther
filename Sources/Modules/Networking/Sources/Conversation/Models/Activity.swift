@@ -28,6 +28,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
 
     // MARK: - Computed Properties
 
+    @MainActor
     var description: String {
         if let cachedValue = _ActivityDescriptionCache.cachedDescriptionsForEncodedHashes?[encodedHash] {
             return cachedValue
@@ -128,7 +129,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
     init(
         _ action: Action,
         date: Date,
-        userID: String,
+        userID: String
     ) {
         self.action = action
         self.date = date
@@ -146,6 +147,7 @@ struct Activity: Codable, EncodedHashable, Equatable {
 
     // MARK: - Auxiliary
 
+    @MainActor
     private func displayName(for userID: String) -> String {
         guard userID != User.currentUserID else { return Localized(.you).wrappedValue }
         return UserCache
@@ -162,15 +164,16 @@ enum ActivityDescriptionCache {
 }
 
 private enum _ActivityDescriptionCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case descriptionsForEncodedHashes
-    }
-
     // MARK: - Properties
 
-    @Cached(CacheKey.descriptionsForEncodedHashes) fileprivate static var cachedDescriptionsForEncodedHashes: [String: String]?
+    private static let _cachedDescriptionsForEncodedHashes = LockIsolated<[String: String]?>(nil)
+
+    // MARK: - Computed Properties
+
+    fileprivate static var cachedDescriptionsForEncodedHashes: [String: String]? {
+        get { _cachedDescriptionsForEncodedHashes.wrappedValue }
+        set { _cachedDescriptionsForEncodedHashes.wrappedValue = newValue }
+    }
 
     // MARK: - Clear Cache
 

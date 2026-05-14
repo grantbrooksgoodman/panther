@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-extension ChatPageViewController: MessagesDisplayDelegate {
+extension ChatPageViewController: @MainActor MessagesDisplayDelegate {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageView.MessagesDisplayDelegate
@@ -82,13 +82,15 @@ extension ChatPageViewController: MessagesDisplayDelegate {
         func configurePenPalsAvatar() {
             avatarView.backgroundColor = UIColor(Colors.penPalsAvatarViewBackground)
 
-            guard let penPalsIconColor = (currentConversation?
-                .users?
-                .first(where: { $0.id == message.fromAccountID }) ??
-                UserCache
-                .knownUsers
-                .first(where: { $0.id == message.fromAccountID }))?
-                            .penPalsIconColor else {
+            guard let penPalsIconColor = (
+                currentConversation?
+                    .users?
+                    .first(where: { $0.id == message.fromAccountID }) ??
+                    UserCache
+                    .knownUsers
+                    .first(where: { $0.id == message.fromAccountID })
+            )?
+                .penPalsIconColor else {
                 avatarView.image = SquareIconView.image(.penPalsIcon())
                 avatarView.tintColor = UIColor(Colors.penPalsAvatarViewTint)
                 return
@@ -191,12 +193,14 @@ extension ChatPageViewController: MessagesDisplayDelegate {
     }
 }
 
+@MainActor
 enum ContactInitialsImageCache {
     static func clearCache() {
         _ContactInitialsImageCache.clearCache()
     }
 }
 
+@MainActor
 private enum _ContactInitialsImageCache {
     // MARK: - Types
 

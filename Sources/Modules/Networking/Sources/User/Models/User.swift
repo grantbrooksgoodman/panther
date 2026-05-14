@@ -13,23 +13,25 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class User: Codable, EncodedHashable, Hashable {
+@RemotelyUpdatable
+// swiftlint:disable:next type_body_length
+final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
-    // NIT: Should be @LockIsolated, but would lose Codable conformance.
-    private(set) var conversationIDs: [ConversationID]?
-    private(set) var conversations: [Conversation]?
-
-    let aiEnhancedTranslationsEnabled: Bool
-    let blockedUserIDs: [String]?
+    @Updatable let aiEnhancedTranslationsEnabled: Bool
+    @Updatable(nilIf: .isBangQualifiedEmpty) let blockedUserIDs: [String]?
     let id: String
-    let isPenPalsParticipant: Bool
+    @Updatable let isPenPalsParticipant: Bool
     let languageCode: String
-    let lastSignedIn: Date?
-    let messageRecipientConsentRequired: Bool
+    @Updatable(nilIf: .custom("$0 == .init(timeIntervalSince1970: 0)")) let lastSignedIn: Date?
+    @Updatable let messageRecipientConsentRequired: Bool
     let phoneNumber: PhoneNumber
-    let previousLanguageCodes: [String]?
-    let pushTokens: [String]?
+    @Updatable(nilIf: .isBangQualifiedEmpty) let previousLanguageCodes: [String]?
+    @Updatable(nilIf: .isBangQualifiedEmpty) let pushTokens: [String]?
+
+    // NIT: Should be @LockIsolated, but would lose Codable conformance.
+    @Updatable private(set) var conversationIDs: [ConversationID]?
+    private(set) var conversations: [Conversation]?
 
     private static let coalescer = SingleSlotCoalescer<Exception?>()
 
@@ -45,7 +47,7 @@ final class User: Codable, EncodedHashable, Hashable {
         factors.append(aiEnhancedTranslationsEnabled.description)
         factors.append(contentsOf: blockedUserIDs ?? [])
         factors.append(contentsOf: conversationIDs?.map(\.encoded) ?? [])
-        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? []) // TODO: Audit this.
+        factors.append(contentsOf: conversations?.map(\.encodedHash) ?? [])
         factors.append(id)
         factors.append(isPenPalsParticipant.description)
         factors.append(languageCode)
@@ -59,26 +61,22 @@ final class User: Codable, EncodedHashable, Hashable {
 
     var hostedBadgeNumber: Int {
         get async {
-            @Dependency(\.networking.database) var database: DatabaseDelegate
-            let getValuesResult = await database.getValues(
-                at: "\(NetworkPath.users.rawValue)/\(id)/\(User.SerializationKeys.badgeNumber.rawValue)",
-                cacheStrategy: .disregardCache
-            )
+            do {
+                @Dependency(\.networking.database) var database: DatabaseDelegate
+                return try await database.getValues(
+                    at: [
+                        NetworkPath.users.rawValue,
+                        id,
+                        User.SerializableKey.badgeNumber.rawValue,
+                    ].joined(separator: "/"),
+                    cacheStrategy: .disregardCache
+                )
+            } catch {
+                Logger.log(
+                    error,
+                    domain: .user
+                )
 
-            switch getValuesResult {
-            case let .success(values):
-                guard let integer = values as? Int else {
-                    Logger.log(
-                        .Networking.typecastFailed("integer", metadata: .init(sender: self)),
-                        domain: .user
-                    )
-                    return 0
-                }
-
-                return integer
-
-            case let .failure(exception):
-                Logger.log(exception, domain: .user)
                 return 0
             }
         }
@@ -157,7 +155,31 @@ final class User: Codable, EncodedHashable, Hashable {
 
     func canSendAudioMessages(to user: User) -> Bool {
         @Dependency(\.commonServices.audio.textToSpeech) var textToSpeechService: TextToSpeechService
-        return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(for: user.languageCode)
+        return canSendAudioMessages && textToSpeechService.isTextToSpeechSupported(
+            for: user.languageCode
+        )
+    }
+
+    // MARK: - Inherit Local State
+
+    /// Transfers locally-populated properties from a previous `User` instance.
+    ///
+    /// When `resolveCurrentUser()` creates a new `User` object, `conversations` is `nil`
+    /// because it's populated locally (not from the server). This method carries over
+    /// the prior instance's `conversations` to avoid redundant `setConversations()` calls.
+    func inheritLocalState(from user: User?) {
+        guard let user,
+              user.id == id,
+              conversations == nil || conversations?.isEmpty == true,
+              let sourceConversations = user.conversations,
+              !sourceConversations.isEmpty else { return }
+        Logger.log(
+            "<User: 0x\(objectID)> inherited local state from <User: 0x\(user.objectID)>.",
+            domain: .user,
+            sender: self
+        )
+
+        conversations = sourceConversations
     }
 
     // MARK: - Set Conversations
@@ -174,13 +196,12 @@ final class User: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setConversations()
+            return await _setConversations()
         }
     }
 
     private func _setConversations() async -> Exception? {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
-        @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
 
         guard !Task.isCancelled,
               id == User.currentUserID,
@@ -217,23 +238,29 @@ final class User: Codable, EncodedHashable, Hashable {
 
         if conversationsNeedingFetch.isEmpty,
            conversationsNeedingUpdate.isEmpty {
-            commitToMemory(decodedConversations)
+            if let existingConversations = conversations,
+               !existingConversations.isEmpty,
+               Set(existingConversations) == decodedConversations {
+                // Exit early to avoid recommitting the same conversations.
+                return nil
+            }
+
+            await commitToMemory(decodedConversations)
             return nil
         }
 
-        for conversation in conversationsNeedingUpdate {
-            guard !Task.isCancelled else { return nil }
-            let synchronizeConversationResult = await conversationSession
-                .sync
-                .synchronizeConversation(conversation)
+        let synchronizeResult = await conversationsNeedingUpdate.parallelMap {
+            @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+            return await conversationSyncService.synchronizeConversation($0)
+        }
 
-            switch synchronizeConversationResult {
-            case let .success(updatedConversation):
-                decodedConversations.merge(with: [updatedConversation])
+        guard !Task.isCancelled else { return nil }
+        switch synchronizeResult {
+        case let .success(synchronizedConversations):
+            decodedConversations.merge(with: synchronizedConversations)
 
-            case let .failure(exception):
-                return exception
-            }
+        case let .failure(exception):
+            return exception
         }
 
         guard !conversationsNeedingFetch.isEmpty else {
@@ -244,7 +271,7 @@ final class User: Codable, EncodedHashable, Hashable {
                 return exception
             }
 
-            commitToMemory(decodedConversations)
+            await commitToMemory(decodedConversations)
             return nil
         }
 
@@ -263,7 +290,7 @@ final class User: Codable, EncodedHashable, Hashable {
                 return exception
             }
 
-            commitToMemory(decodedConversations)
+            await commitToMemory(decodedConversations)
             return nil
 
         case let .failure(exception):
@@ -285,18 +312,25 @@ final class User: Codable, EncodedHashable, Hashable {
 
     // MARK: - Auxiliary
 
-    private func commitToMemory(_ conversations: Set<Conversation>) {
+    private func commitToMemory(_ conversations: Set<Conversation>) async {
         @Dependency(\.networking.conversationService.archive) var conversationArchive: ConversationArchiveService
-        @Dependency(\.coreKit.gcd.newSerialQueue) var serialQueue: DispatchQueue
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
         guard !Task.isCancelled else { return }
-
-        // FIXME: Seeing data races using mainQueue.sync. Still occur with serialQueue.sync, but with less frequency. Can't use NSLock.
-        serialQueue.sync {
+        await MainActor.run {
             conversationIDs = conversations.map(\.id)
             self.conversations = Array(conversations).sortedByLatestMessageSentDate
-            conversationArchive.addValues(conversations)
         }
+
+        conversationArchive.addValues(conversations)
+
+        // If the session's current user is a different instance (replaced by a
+        // concurrent resolveCurrentUser()), forward conversations to it so both
+        // instances stay in sync without overwriting the newer user entirely.
+        guard let currentUser,
+              currentUser.id == id,
+              currentUser !== self else { return }
+        currentUser.inheritLocalState(from: self)
     }
 
     private func validateRatio(
@@ -311,5 +345,24 @@ final class User: Codable, EncodedHashable, Hashable {
         }
 
         return nil
+    }
+}
+
+private extension User {
+    var objectID: String {
+        let objectIdentifier = ObjectIdentifier(self)
+        guard var memoryAddress = "\(objectIdentifier)"
+            .components(separatedBy: "(")
+            .last?
+            .components(separatedBy: ")")
+            .first?
+            .components(separatedBy: "x")
+            .last else { return "\(objectIdentifier)" }
+
+        while memoryAddress.hasPrefix("0") {
+            memoryAddress = memoryAddress.dropPrefix()
+        }
+
+        return memoryAddress
     }
 }

@@ -12,7 +12,7 @@ import UIKit
 
 extension NSLayoutConstraint {
     static func keeping(view: UIView, insideFrameOf contentView: UIView) -> [NSLayoutConstraint] {
-        return [
+        [
             // Keep accessory view above view top
             view.topAnchor.constraint(
                 greaterThanOrEqualToSystemSpacingBelow: contentView.safeAreaLayoutGuide.topAnchor, multiplier: 1

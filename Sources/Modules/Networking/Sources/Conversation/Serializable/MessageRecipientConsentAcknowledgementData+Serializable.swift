@@ -14,17 +14,36 @@ import AppSubsystem
 import Networking
 
 extension MessageRecipientConsentAcknowledgementData: Serializable {
-    // MARK: - Type Aliases
-
-    typealias T = MessageRecipientConsentAcknowledgementData
-
     // MARK: - Properties
 
-    var encoded: String { "\(userID): \(consentAcknowledged ? "!" : false.description)" }
+    var encoded: String {
+        "\(userID): \(consentAcknowledged ? "!" : false.description)"
+    }
+
+    // MARK: - Init
+
+    init(
+        from data: String // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
+        let components = data.components(separatedBy: ": ")
+        guard components.count == 2 else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        self = .init(
+            userID: components[0],
+            consentAcknowledged: components[1] == false.description ? false : true
+        )
+    }
 
     // MARK: - Methods
 
-    static func canDecode(from data: String) -> Bool {
+    static func canDecode(
+        from data: String
+    ) -> Bool {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2,
               let booleanString = components.itemAt(1),
@@ -32,19 +51,5 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
               booleanString == "true" ||
               booleanString.isBangQualifiedEmpty else { return false }
         return true
-    }
-
-    static func decode(from data: String) async -> Callback<MessageRecipientConsentAcknowledgementData, Exception> {
-        let components = data.components(separatedBy: ": ")
-        guard components.count == 2 else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        let decoded: MessageRecipientConsentAcknowledgementData = .init(
-            userID: components[0],
-            consentAcknowledged: components[1] == false.description ? false : true
-        )
-
-        return .success(decoded)
     }
 }

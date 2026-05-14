@@ -15,7 +15,7 @@ import UIKit
 import AlertKit
 import AppSubsystem
 
-final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
+final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @unchecked Sendable {
     // MARK: - Types
 
     enum UpdateType {
@@ -42,7 +42,9 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
 
     // MARK: - Computed Properties
 
-    var installButtonRedirectURL: URL? { metadataService.appShareLink }
+    var installButtonRedirectURL: URL? {
+        metadataService.appShareLink
+    }
 
     private var hasUpdatedSinceLastForced: Bool {
         guard let buildNumberWhenLastForcedToUpdate else { return true }
@@ -73,7 +75,6 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate {
                 firstPostponedUpdate = nil
                 relaunchesSinceLastPostponedUpdate = 0
                 buildNumberWhenLastForcedToUpdate = build.buildNumber
-
                 isForcedUpdateRequiredSubject.send(true)
                 return nil
 

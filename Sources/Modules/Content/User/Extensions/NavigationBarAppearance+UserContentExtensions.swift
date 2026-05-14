@@ -13,19 +13,20 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension NavigationBarAppearance {
     static var appDefault: NavigationBarAppearance {
         if Application.isInPrevaricationMode {
-            return .custom(.init(
+            .custom(.init(
                 titleColor: .navigationBarTitle,
                 backgroundColor: .navigationBarBackground,
                 barButtonItemColor: .navigationBarTitle,
                 showsDivider: true
             ))
         } else if UIApplication.isFullyV26Compatible {
-            return .default(scrollEdgeConfig: nil)
+            .default(scrollEdgeConfig: nil)
         } else {
-            return .default(scrollEdgeConfig: .init(
+            .default(scrollEdgeConfig: .init(
                 titleColor: .navigationBarTitle,
                 backgroundColor: (ThemeService.isDarkModeActive ? UIColor.black : .white).withAlphaComponent(0.98),
                 barButtonItemColor: .accent,
@@ -84,6 +85,7 @@ extension NavigationBarAppearance {
     }
 }
 
+@MainActor
 private extension NavigationBarConfiguration {
     static var v26ScrollEdgeConfig: NavigationBarConfiguration {
         .init(

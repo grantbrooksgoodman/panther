@@ -13,14 +13,14 @@ import Foundation
 import AppSubsystem
 import Translator
 
-extension Array where Element == Conversation {
+extension [Conversation] {
     // MARK: - Properties
 
     var sortedByLatestMessageSentDate: [Conversation] {
         var withSentDate: [(Conversation, Date)] = []
         var withoutSentDate: [Conversation] = []
 
-        for conversation in self {
+        for conversation in self.map(\.filteringSystemMessages) {
             guard let messages = conversation.messages,
                   !messages.isEmpty,
                   let latestMessage = messages.max(by: { $0.sentDate < $1.sentDate }) else {
@@ -88,28 +88,22 @@ extension Array where Element == Conversation {
     }
 }
 
-extension Array where Element == Message {
+extension [Message] {
     /// The unique messages among the array according to their `id` value, where those with populated `readReceipts` fields take priority.
     var uniquedByID: [Message] {
-        let withReadDate = filter { $0.readReceipts != nil }
-        let withoutReadDate = filter { $0.readReceipts == nil }
-
         var messages = [Message]()
+        var seenIDs = Set<String>()
 
-        for message in withReadDate where !messages.contains(where: { $0.id == message.id }) {
+        for message in self where message.readReceipts != nil {
+            guard seenIDs.insert(message.id).inserted else { continue }
             messages.append(message)
         }
 
-        for message in withoutReadDate where !messages.contains(where: { $0.id == message.id }) {
+        for message in self where message.readReceipts == nil {
+            guard seenIDs.insert(message.id).inserted else { continue }
             messages.append(message)
         }
 
         return messages
     }
-}
-
-extension Array where Element == String {
-    /// An empty array qualified by a single value of "!".
-    static var bangQualifiedEmpty: [String] { ["!"] }
-    var isBangQualifiedEmpty: Bool { isEmpty || allSatisfy(\.isBangQualifiedEmpty) }
 }

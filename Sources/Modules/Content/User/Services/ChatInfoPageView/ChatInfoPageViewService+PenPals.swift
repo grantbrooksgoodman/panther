@@ -30,7 +30,7 @@ extension ChatInfoPageViewService {
     private func presentPenPalsSharingDataConfirmationActionSheet(
         _ userID: String,
         displayName: String,
-        completion: @escaping (ConversationMetadata?) -> Void
+        completion: @escaping @Sendable (ConversationMetadata?) -> Void
     ) {
         Task {
             let confirmAction: AKAction = .init("Share Phone Number") {

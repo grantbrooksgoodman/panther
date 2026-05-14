@@ -72,20 +72,34 @@ struct UserTestingService {
 
     // MARK: - Computed Properties
 
-    private var isOnProperEnvironment: Bool { getIsOnProperEnvironment() }
+    private var isOnProperEnvironment: Bool {
+        getIsOnProperEnvironment()
+    }
 
-    private var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
-    private var randomEmoji: String { getRandomEmoji() }
+    private var randomBool: Bool {
+        Int.random(in: 1 ... 1_000_000) % 2 == 0
+    }
+
+    private var randomEmoji: String {
+        getRandomEmoji()
+    }
+
     private var randomImageData: Data? {
         get async { await getRandomImageData() }
     }
 
-    private var randomPhrase: String { getRandomPhrase() }
+    private var randomPhrase: String {
+        getRandomPhrase()
+    }
+
     private var randomUserID: String? {
         get async { await getRandomUserID() }
     }
 
-    private var randomWords: [String] { getRandomWords() }
+    private var randomWords: [String] {
+        getRandomWords()
+    }
+
     private var userData: [String: Any]? {
         get async { await getUserData() }
     }
@@ -112,6 +126,15 @@ struct UserTestingService {
         while count > 0 {
             if let exception = await createRandomMessage() {
                 core.ui.removeOverlay()
+                let amountCreated = originalCount - count
+                Logger.log(
+                    "Created \(amountCreated) of \(originalCount) new message\(amountCreated == 1 ? "" : "s").",
+                    with: .toastInPrerelease(
+                        style: .warning,
+                        isPersistent: true
+                    ),
+                    sender: self
+                )
                 return exception
             }
 
@@ -120,9 +143,16 @@ struct UserTestingService {
 
         navigation.navigate(to: .root(.modal(.splash)))
         core.ui.removeOverlay()
-        core.gcd.after(.seconds(1)) {
-            core.hud.showSuccess(
-                text: "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
+        Task.delayed(by: .seconds(1)) { @MainActor in
+            let loggerMessage = "Created \(originalCount) new message\(originalCount == 1 ? "" : "s")"
+            core.hud.showSuccess(text: loggerMessage)
+            Logger.log(
+                "\(loggerMessage).",
+                with: .toastInPrerelease(
+                    style: .success,
+                    isPersistent: true
+                ),
+                sender: self
             )
         }
 
@@ -140,7 +170,7 @@ struct UserTestingService {
         let originalCurrentUserID = currentUserID
         defer { currentUserID = originalCurrentUserID }
 
-        currentUserID = (randomBool && randomBool && randomBool) ? (await randomUserID) : currentUserID
+        currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
         let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
 
@@ -152,7 +182,7 @@ struct UserTestingService {
 
             guard randomBool else {
                 if currentUserID != originalCurrentUserID {
-                    Application.reset(preserveCurrentUserID: true)
+                    await MainActor.run { Application.reset(preserveCurrentUserID: true) }
                     if let exception = await networking.database.populateTemporaryCaches() {
                         return exception
                     }
@@ -321,23 +351,27 @@ struct UserTestingService {
     private func getIsOnProperEnvironment() -> Bool {
         guard Networking.config.environment == .production else { return true }
 
-        alertKitConfig.registerPresentationDelegate(DummyPresentationDelegate.shared)
-        core.ui.addOverlay(activityIndicator: nil)
-        updateService.isForcedUpdateRequiredSubject.send(true)
+        Task { @MainActor in
+            alertKitConfig.registerPresentationDelegate(DummyPresentationDelegate.shared)
+            core.ui.addOverlay(activityIndicator: nil)
+            updateService.isForcedUpdateRequiredSubject.send(true)
+        }
 
         Task.delayed(by: .milliseconds(300)) { @MainActor in
-            self.core.ui.removeOverlay()
-            self.core.ui.addOverlay(
+            core.ui.removeOverlay()
+            core.ui.addOverlay(
                 activityIndicator: nil,
                 isModal: false
             )
 
-            self.alertKitConfig.registerPresentationDelegate(self.core)
+            alertKitConfig.registerPresentationDelegate(core)
             let resetAction: AKAction = .init(
                 "Reset Application",
                 style: .destructivePreferred
             ) {
-                Application.reset(onCompletion: .exitGracefully)
+                Task { @MainActor in
+                    Application.reset(onCompletion: .exitGracefully)
+                }
             }
 
             let environmentIntrusionAlert = AKAlert(
@@ -382,7 +416,7 @@ struct UserTestingService {
     }
 
     private func getRandomImageData() async -> Data? {
-        await(randomBool ? UIImage.appIcon : SquareIconView.image(
+        await (randomBool ? UIImage.appIcon : SquareIconView.image(
             .init(
                 backgroundColor: .random,
                 overlay: .text(
@@ -443,17 +477,13 @@ struct UserTestingService {
     }
 
     private func getUserData() async -> [String: Any]? {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else { return nil }
-            return dictionary
-
-        case let .failure(exception):
-            Logger.log(exception)
-            return nil
+        do {
+            return try await networking.database.getValues(at: NetworkPath.users.rawValue)
+        } catch {
+            Logger.log(error)
         }
+
+        return nil
     }
 
     // MARK: - Auxiliary
@@ -498,10 +528,10 @@ struct UserTestingService {
               let imageData = await randomImageData else { return }
 
         do {
-            _ = try (await conversation.updateValue(
-                conversation.metadata.copyWith(imageData: imageData),
-                forKey: .metadata
-            )).get()
+            _ = try await conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(imageData: imageData)
+            )
         } catch {
             Logger.log(.init(
                 error,
@@ -534,10 +564,10 @@ struct UserTestingService {
         } // swiftlint:enable duplicate_conditions
 
         do {
-            _ = try (await conversation.updateValue(
-                conversation.metadata.copyWith(name: randomTitle),
-                forKey: .metadata
-            )).get()
+            _ = try await conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(name: randomTitle)
+            )
         } catch {
             Logger.log(.init(
                 error,

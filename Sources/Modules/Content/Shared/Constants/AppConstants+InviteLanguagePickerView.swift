@@ -17,10 +17,22 @@ import AppSubsystem
 
 extension AppConstants.Colors {
     enum InviteLanguagePickerView {
-        static let doneHeaderItemForeground: Color = UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
-        static let navigationBarItemGlassTint: Color = .init(uiColor: .accentOrSystemBlue)
+        /* MARK: Properties */
+
         static let noResultsLabelForeground: Color = .init(uiColor: .secondaryLabel)
         static let selectedCellImageForeground: Color = .green
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var doneHeaderItemForeground: Color {
+            UIApplication.isGlassTintingEnabled ? .white : .navigationBarButton
+        }
+
+        @MainActor
+        static var navigationBarItemGlassTint: Color {
+            .init(uiColor: .accentOrSystemBlue)
+        }
     }
 }
 

@@ -22,11 +22,11 @@ extension IntegrityService {
         _ methodsUsedForRepair: [String]? = nil,
         isFirstRun: Bool = true
     ) async -> Exception? {
+        @Dependency(\.alertKitConfig) var alertKitConfig: AlertKit.Config
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.build) var build: Build
         @Dependency(\.commonServices.metadata) var metadataService: MetadataService
         @Dependency(\.networking) var networking: NetworkServices
-        @Dependency(\.alertKitConfig.reportDelegate) var reportDelegate: AlertKit.ReportDelegate?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         if isFirstRun,
@@ -237,23 +237,28 @@ extension IntegrityService {
             )
 
             if build.milestone != .generalRelease {
-                Toast.show(.init(
-                    .banner(style: .info),
-                    message: logMessage
-                ))
+                Task { @MainActor in
+                    Toast.show(.init(
+                        .banner(style: .info),
+                        message: logMessage
+                    ))
+                }
             }
 
-            guard let reportDelegate = reportDelegate as? ErrorReportingService else { return exceptions.compiledException }
-            reportDelegate.fileReport(
-                Exception(
-                    "Hosted data needed repair.",
-                    userInfo: [
-                        "Descriptor": "Hosted data needed repair.",
-                        "MethodsUsedForRepair": methodsUsedForRepair,
-                    ],
-                    metadata: .init(sender: self)
-                ), showsToastOnSuccess: false
-            )
+            Task { @MainActor in
+                if let reportDelegate = alertKitConfig.reportDelegate as? ErrorReportingService {
+                    reportDelegate.fileReport(
+                        Exception(
+                            "Hosted data needed repair.",
+                            userInfo: [
+                                "Descriptor": "Hosted data needed repair.",
+                                "MethodsUsedForRepair": methodsUsedForRepair,
+                            ],
+                            metadata: .init(sender: self)
+                        ), showsToastOnSuccess: false
+                    )
+                }
+            }
         } else {
             Logger.log(
                 logMessage,
@@ -262,10 +267,12 @@ extension IntegrityService {
             )
 
             if build.milestone != .generalRelease {
-                Toast.show(.init(
-                    .banner(style: .info),
-                    message: logMessage
-                ))
+                Task { @MainActor in
+                    Toast.show(.init(
+                        .banner(style: .info),
+                        message: logMessage
+                    ))
+                }
             }
         }
 

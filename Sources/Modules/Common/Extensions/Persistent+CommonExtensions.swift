@@ -13,39 +13,57 @@ import Foundation
 import AppSubsystem
 
 extension Persistent {
-    convenience init(_ applicationKey: UserDefaultsKey.ApplicationDefaultsKey) {
+    convenience init(
+        _ applicationKey: PersistentStorageKey.ApplicationStorageKey
+    ) {
         self.init(.application(applicationKey))
     }
 
-    convenience init(_ aiEnhancedTranslationServiceKey: UserDefaultsKey.AIEnhancedTranslationServiceDefaultsKey) {
+    convenience init(
+        _ aiEnhancedTranslationServiceKey: PersistentStorageKey.AIEnhancedTranslationServiceStorageKey
+    ) {
         self.init(.aiEnhancedTranslationService(aiEnhancedTranslationServiceKey))
     }
 
-    convenience init(_ audioServiceKey: UserDefaultsKey.AudioServiceDefaultsKey) {
+    convenience init(
+        _ audioServiceKey: PersistentStorageKey.AudioServiceStorageKey
+    ) {
         self.init(.audioService(audioServiceKey))
     }
 
-    convenience init(_ breadcrumbsCaptureServiceKey: UserDefaultsKey.BreadcrumbsCaptureServiceDefaultsKey) {
+    convenience init(
+        _ breadcrumbsCaptureServiceKey: PersistentStorageKey.BreadcrumbsCaptureServiceStorageKey
+    ) {
         self.init(.breadcrumbsCaptureService(breadcrumbsCaptureServiceKey))
     }
 
-    convenience init(_ contactPairArchiveServiceKey: UserDefaultsKey.ContactPairArchiveServiceDefaultsKey) {
+    convenience init(
+        _ contactPairArchiveServiceKey: PersistentStorageKey.ContactPairArchiveServiceStorageKey
+    ) {
         self.init(.contactPairArchiveService(contactPairArchiveServiceKey))
     }
 
-    convenience init(_ messageRetranslationServiceKey: UserDefaultsKey.MessageRetranslationServiceDefaultsKey) {
+    convenience init(
+        _ messageRetranslationServiceKey: PersistentStorageKey.MessageRetranslationServiceStorageKey
+    ) {
         self.init(.messageRetranslationService(messageRetranslationServiceKey))
     }
 
-    convenience init(_ penPalsServiceKey: UserDefaultsKey.PenPalsServiceDefaultsKey) {
+    convenience init(
+        _ penPalsServiceKey: PersistentStorageKey.PenPalsServiceStorageKey
+    ) {
         self.init(.penPalsService(penPalsServiceKey))
     }
 
-    convenience init(_ reviewServiceKey: UserDefaultsKey.ReviewServiceDefaultsKey) {
+    convenience init(
+        _ reviewServiceKey: PersistentStorageKey.ReviewServiceStorageKey
+    ) {
         self.init(.reviewService(reviewServiceKey))
     }
 
-    convenience init(_ updateServiceKey: UserDefaultsKey.UpdateServiceDefaultsKey) {
+    convenience init(
+        _ updateServiceKey: PersistentStorageKey.UpdateServiceStorageKey
+    ) {
         self.init(.updateService(updateServiceKey))
     }
 }

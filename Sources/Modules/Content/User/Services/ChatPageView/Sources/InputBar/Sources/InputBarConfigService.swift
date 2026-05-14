@@ -37,23 +37,44 @@ struct InputBarConfigService {
 
     // MARK: - Internal
 
-    func attachMediaButtonImage(isHighlighted: Bool) -> UIImage? {
-        guard ThemeService.isDarkModeActive else { return .init(resource: isHighlighted ? .plusLightHighlighted : .plusLight) }
-        return .init(resource: isHighlighted ? .plusDarkHighlighted : .plusDark)
+    @MainActor
+    func attachMediaButtonImage(
+        isHighlighted: Bool
+    ) -> UIImage? {
+        if !Application.usesLegacyChatPageInterface {
+            return .init(
+                systemName: Strings.v26AttachMediaButtonImageSystemName,
+                withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
+            )?.withRenderingMode(.alwaysTemplate)
+        }
+
+        guard ThemeService.isDarkModeActive else {
+            return .init(
+                resource: isHighlighted ? .plusLightHighlighted : .plusLight
+            )
+        }
+
+        return .init(
+            resource: isHighlighted ? .plusDarkHighlighted : .plusDark
+        )
     }
 
-    func sendButtonImage(forRecording: Bool, isHighlighted: Bool) -> UIImage? {
+    @MainActor
+    func sendButtonImage(
+        forRecording: Bool,
+        isHighlighted: Bool
+    ) -> UIImage? {
         if !build.isOnline {
-            return .init(systemName: Strings.sendButtonOfflineImageSystemName)
+            .init(systemName: Strings.sendButtonOfflineImageSystemName)
         } else if clientSession.storage.atOrAboveDataUsageLimit {
-            return .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
+            .init(systemName: Strings.sendButtonStorageLimitReachedImageSystemName)
         } else if forRecording {
-            return isHighlighted ? .recordHighlighted : .record
+            isHighlighted ? .recordHighlighted : .record
         } else if !Application.isInPrevaricationMode,
                   ThemeService.isAppDefaultThemeApplied {
-            return isHighlighted ? .sendHighlighted : .send
+            isHighlighted ? .sendHighlighted : .send
         } else {
-            return isHighlighted ? .sendAlternateHighlighted : .sendAlternate
+            isHighlighted ? .sendAlternateHighlighted : .sendAlternate
         }
     }
 }

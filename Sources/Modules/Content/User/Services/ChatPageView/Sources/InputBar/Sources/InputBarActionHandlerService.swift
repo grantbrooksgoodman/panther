@@ -16,6 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
+@MainActor
 final class InputBarActionHandlerService {
     // MARK: - Constants Accessors
 
@@ -25,7 +26,6 @@ final class InputBarActionHandlerService {
 
     @Dependency(\.avSpeechSynthesizer) private var avSpeechSynthesizer: AVSpeechSynthesizer
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
 
@@ -37,7 +37,9 @@ final class InputBarActionHandlerService {
 
     // MARK: - Computed Properties
 
-    private var inputBar: InputBarAccessoryView { viewController.messageInputBar }
+    private var inputBar: InputBarAccessoryView {
+        viewController.messageInputBar
+    }
 
     // MARK: - Init
 
@@ -124,7 +126,7 @@ final class InputBarActionHandlerService {
 
     @MainActor
     func didPressSendButton(with text: String) async -> Exception? {
-        /// - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
+        // - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
         var isConversationEmpty: Bool {
             if let currentConversation = viewController.currentConversation,
                currentConversation.isEmpty {
@@ -149,9 +151,11 @@ final class InputBarActionHandlerService {
 
     private func playRecordingCancellationVibration() {
         services.haptics.generateFeedback(.heavy)
-        core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) {
+        Task.delayed(by: .milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { @MainActor in
             self.services.haptics.generateFeedback(.heavy)
-            self.core.gcd.after(.milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { self.services.haptics.generateFeedback(.heavy) }
+            Task.delayed(by: .milliseconds(Floats.recordingCancellationVibrationDelayMilliseconds)) { @MainActor in
+                self.services.haptics.generateFeedback(.heavy)
+            }
         }
     }
 }

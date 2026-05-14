@@ -20,22 +20,22 @@ enum HostedContentType: Codable, Equatable {
 
     var isAudio: Bool {
         switch self {
-        case .audio: return true
-        default: return false
+        case .audio: true
+        default: false
         }
     }
 
     var isMedia: Bool {
         switch self {
-        case .media: return true
-        default: return false
+        case .media: true
+        default: false
         }
     }
 
     var mediaFileID: String? {
         switch self {
-        case let .media(id: id, extension: _): return id
-        default: return nil
+        case let .media(id: id, extension: _): id
+        default: nil
         }
     }
 
@@ -47,16 +47,16 @@ enum HostedContentType: Codable, Equatable {
 
     var rawValue: String {
         switch self {
-        case let .audio(fileExtension): return fileExtension.contentTypeString
-        case let .media(_, fileExtension): return fileExtension.contentTypeString
-        case .text: return "text"
+        case let .audio(fileExtension): fileExtension.contentTypeString
+        case let .media(_, fileExtension): fileExtension.contentTypeString
+        case .text: "text"
         }
     }
 
     private var mediaFileExtension: MediaFileExtension? {
         switch self {
-        case let .media(id: _, extension: fileExtension): return fileExtension
-        default: return nil
+        case let .media(id: _, extension: fileExtension): fileExtension
+        default: nil
         }
     }
 

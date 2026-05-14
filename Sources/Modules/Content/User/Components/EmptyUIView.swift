@@ -14,7 +14,9 @@ import SwiftUI
 struct EmptyUIView: UIViewRepresentable {
     // MARK: - Make UIView
 
-    func makeUIView(context: Context) -> UIView { .init(frame: .zero) }
+    func makeUIView(context: Context) -> UIView {
+        .init(frame: .zero)
+    }
 
     // MARK: - Update UIView
 

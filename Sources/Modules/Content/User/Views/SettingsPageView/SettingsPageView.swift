@@ -91,19 +91,17 @@ struct SettingsPageView: View {
         }
         .interactiveDismissDisabled()
         .if(
-            UIApplication.isFullyV26Compatible,
-            { body in
-                body
-                    .background { statusBarBackgroundView }
-            },
-            else: { body in
-                body
-                    .preferredStatusBarStyle(
-                        .conditionalLightContent,
-                        restoreOnDisappear: !Application.isInPrevaricationMode
-                    )
-            }
-        )
+            UIApplication.isFullyV26Compatible
+        ) { body in
+            body
+                .background { statusBarBackgroundView }
+        } else: { body in
+            body
+                .preferredStatusBarStyle(
+                    .conditionalLightContent,
+                    restoreOnDisappear: !Application.isInPrevaricationMode
+                )
+        }
         .sheet(item: sheetBinding) { sheetView(for: $0) }
         .onFirstAppear {
             viewModel.send(.viewAppeared)
@@ -270,7 +268,7 @@ struct SettingsPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SettingsPageViewStringKey) -> String {
         (first(where: { $0.key == .settingsPageView(key) })?.value ?? key.rawValue).sanitized
     }

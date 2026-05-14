@@ -12,6 +12,21 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+/// Use this extension to define views for presentation on the root
+/// sheet.
+///
+/// The root sheet presents content above all other views in the
+/// hierarchy, regardless of navigation depth. Define named sheets as
+/// static properties and present them using
+/// ``RootSheets/present(_:onDismiss:)``:
+///
+/// ```swift
+/// extension RootSheet {
+///     static let feedback: RootSheet = .init(.init(FeedbackView()))
+/// }
+///
+/// RootSheets.present(.feedback)
+/// ```
 @MainActor
 extension RootSheet {
     // MARK: - Properties
@@ -21,7 +36,8 @@ extension RootSheet {
             .init(
                 initialState: .init(),
                 reducer: ChatInfoPageReducer()
-            ))
+            )
+        )
     ))
 
     static let inviteLanguagePicker: RootSheet = .init(.init(
@@ -29,7 +45,8 @@ extension RootSheet {
             .init(
                 initialState: .init(),
                 reducer: InviteLanguagePickerReducer()
-            ))
+            )
+        )
     ))
 
     static let reactionDetailsPageView: RootSheet = .init(.init(

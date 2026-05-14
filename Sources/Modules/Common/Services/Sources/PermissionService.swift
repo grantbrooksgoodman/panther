@@ -45,31 +45,39 @@ struct PermissionService {
 
     // MARK: - Computed Properties
 
-    var contactPermissionStatus: PermissionStatus { getContactPermissionStatus() }
+    var contactPermissionStatus: PermissionStatus {
+        getContactPermissionStatus()
+    }
+
     var notificationPermissionStatus: PermissionStatus {
         get async {
             await getNotificationPermissionStatus()
         }
     }
 
-    var recordPermissionStatus: PermissionStatus { getRecordPermissionStatus() }
-    var transcribePermissionStatus: PermissionStatus { getTranscribePermissionStatus() }
+    var recordPermissionStatus: PermissionStatus {
+        getRecordPermissionStatus()
+    }
+
+    var transcribePermissionStatus: PermissionStatus {
+        getTranscribePermissionStatus()
+    }
 
     // MARK: - Permissions Requesting
 
     func requestPermission(for type: PermissionType) async -> Callback<PermissionStatus, Exception> {
         switch type {
         case .contacts:
-            return await requestContactPermission()
+            await requestContactPermission()
 
         case .notifications:
-            return await requestNotificationPermission()
+            await requestNotificationPermission()
 
         case .recording:
-            return await requestRecordPermission()
+            await requestRecordPermission()
 
         case .transcription:
-            return await requestTranscribePermission()
+            await requestTranscribePermission()
         }
     }
 
@@ -97,11 +105,11 @@ struct PermissionService {
             return .failure(exception)
         }
 
-        return .success((await AVAudioApplication.requestRecordPermission()) ? .granted : .denied)
+        return await .success((AVAudioApplication.requestRecordPermission()) ? .granted : .denied)
     }
 
     private func requestTranscribePermission() async -> Callback<PermissionStatus, Exception> {
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
                 switch status {
                 case .authorized:
@@ -128,16 +136,16 @@ struct PermissionService {
     func presentCTA(for type: PermissionType) async -> Bool {
         switch type {
         case .contacts:
-            return await presentContactCTA()
+            await presentContactCTA()
 
         case .notifications:
-            return await presentNotificationCTA()
+            await presentNotificationCTA()
 
         case .recording:
-            return await presentRecordingCTA()
+            await presentRecordingCTA()
 
         case .transcription:
-            return await presentTranscriptionCTA()
+            await presentTranscriptionCTA()
         }
     }
 
@@ -161,7 +169,7 @@ struct PermissionService {
 
     @MainActor
     private func presentCTA(with message: String) async -> Bool {
-        var cancelled = true
+        let cancelled = LockIsolated(wrappedValue: true)
 
         @Localized(.settings) var settingsString: String
         let settingsURL = URL(string: UIApplication.openSettingsURLString)
@@ -171,7 +179,7 @@ struct PermissionService {
         if let settingsURL,
            uiApplication.canOpenURL(settingsURL) {
             let settingsAction: AKAction = .init(resolvedSettingsString) {
-                cancelled = false
+                cancelled.wrappedValue = false
                 Task { @MainActor in
                     uiApplication.open(settingsURL)
                 }
@@ -185,7 +193,7 @@ struct PermissionService {
             actions: actions
         ).present(translating: [.message])
 
-        return cancelled
+        return cancelled.wrappedValue
     }
 
     // MARK: - Computed Property Getters
@@ -194,14 +202,14 @@ struct PermissionService {
         switch CNContactStore.authorizationStatus(for: .contacts) {
         case .authorized,
              .limited:
-            return .granted
+            .granted
         case .denied,
              .restricted:
-            return .denied
+            .denied
         case .notDetermined:
-            return .unknown
+            .unknown
         @unknown default:
-            return .unknown
+            .unknown
         }
     }
 
@@ -240,14 +248,14 @@ struct PermissionService {
     private func getTranscribePermissionStatus() -> PermissionStatus {
         switch SFSpeechRecognizer.authorizationStatus() {
         case .authorized:
-            return .granted
+            .granted
         case .denied,
              .restricted:
-            return .denied
+            .denied
         case .notDetermined:
-            return .unknown
+            .unknown
         @unknown default:
-            return .unknown
+            .unknown
         }
     }
 }

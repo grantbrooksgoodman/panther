@@ -17,6 +17,7 @@ import SwiftUI
 import AlertKit
 import AppSubsystem
 
+@MainActor
 final class SettingsPageViewService {
     // MARK: - Types
 
@@ -45,9 +46,13 @@ final class SettingsPageViewService {
 
     // MARK: - Properties
 
-    @LockIsolated var isMainPagePresented = true
+    var isMainPagePresented = true
 
     @Cached(CacheKey.cnContactForCurrentUser) private var cachedCNContactForCurrentUser: CNContact?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Reducer Action Handlers
 
@@ -83,23 +88,31 @@ final class SettingsPageViewService {
         Task {
             var actions = [AKAction]()
 
-            func isCurrentTheme(_ theme: UITheme) -> Bool { theme.encodedHash == ThemeService.currentTheme.encodedHash }
-            func themeName(_ theme: UITheme) -> String { RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name) }
+            @MainActor
+            func isCurrentTheme(_ theme: UITheme) -> Bool {
+                theme.encodedHash == ThemeService.currentTheme.encodedHash
+            }
+
+            func themeName(_ theme: UITheme) -> String {
+                RuntimeStorage.languageCode == "en" ? theme.name : (theme.nonEnglishName ?? theme.name)
+            }
 
             actions = UITheme.allCases.filter { $0 != .default }.map { uiTheme in
                 .init(
                     isCurrentTheme(uiTheme) ? "\(themeName(uiTheme)) (Applied)" : themeName(uiTheme),
                     isEnabled: !isCurrentTheme(uiTheme)
                 ) {
-                    ThemeService.setTheme(uiTheme)
-                    guard ThemeService.currentTheme.style != uiTheme.style else { return }
-                    self.notificationCenter.addObserver(
-                        self,
-                        name: .uiAlertControllerDismissed,
-                        removeAfterFirstPost: true
-                    ) { _ in
-                        Task.delayed(by: .milliseconds(500)) { @MainActor in
-                            Observables.traitCollectionChanged.trigger()
+                    Task { @MainActor in
+                        ThemeService.setTheme(uiTheme)
+                        guard ThemeService.currentTheme.style != uiTheme.style else { return }
+                        self.notificationCenter.addObserver(
+                            self,
+                            name: .uiAlertControllerDismissed,
+                            removeAfterFirstPost: true
+                        ) { _ in
+                            Task.delayed(by: .milliseconds(500)) { @MainActor in
+                                Observables.traitCollectionChanged.trigger()
+                            }
                         }
                     }
                 }
@@ -114,7 +127,7 @@ final class SettingsPageViewService {
     }
 
     func clearCachesButtonTapped() {
-        @Sendable
+        @MainActor
         func clearCaches() async {
             @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -128,11 +141,24 @@ final class SettingsPageViewService {
             services.analytics.logEvent(.clearCaches)
             Application.reset(preserveCurrentUserID: true)
 
-            var actions = [AKAction("Exit", style: .destructivePreferred, effect: exitGracefully)]
+            var actions = [
+                AKAction(
+                    "Exit",
+                    style: .destructivePreferred,
+                    effect: {
+                        Task { @MainActor in
+                            self.exitGracefully()
+                        }
+                    }
+                ),
+            ]
+
             if build.isDeveloperModeEnabled {
                 let reloadAction = AKAction("Reload") {
-                    self.navigation.navigate(to: .userContent(.sheet(.none)))
-                    self.navigation.navigate(to: .root(.modal(.splash)))
+                    Task { @MainActor in
+                        self.navigation.navigate(to: .userContent(.sheet(.none)))
+                        self.navigation.navigate(to: .root(.modal(.splash)))
+                    }
                 }
 
                 actions.insert(reloadAction, at: 0)
@@ -159,6 +185,7 @@ final class SettingsPageViewService {
 
     func deleteAccountButtonTapped() {
         Task {
+            @MainActor
             @Sendable
             func clearCachesAndExit() async {
                 if let exception = await services.notification.setBadgeNumber(0, updateHostedValue: false) {
@@ -181,13 +208,13 @@ final class SettingsPageViewService {
 
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
-                Task {
+                Task { @MainActor in
                     if let exception = await self.services.accountDeletion.deleteAccount() {
                         Logger.log(exception)
                     }
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
-                        Task { await clearCachesAndExit() }
+                        Task { @MainActor in await clearCachesAndExit() }
                     }
 
                     await AKAlert(
@@ -215,7 +242,9 @@ final class SettingsPageViewService {
             }
 
             let showQRCodeAction: AKAction = .init("Show QR Code") {
-                self.navigation.navigate(to: .settings(.sheet(.inviteQRCode)))
+                Task { @MainActor in
+                    self.navigation.navigate(to: .settings(.sheet(.inviteQRCode)))
+                }
             }
 
             await AKActionSheet(
@@ -227,7 +256,8 @@ final class SettingsPageViewService {
     }
 
     func leaveReviewButtonTapped() {
-        guard let url = URL(string: Strings.reviewOnAppStoreURLString) else { return }
+        guard let appShareLink = services.metadata.appShareLink?.absoluteString,
+              let url = URL(string: "\(appShareLink)?action=write-review") else { return }
         Task { @MainActor in
             await uiApplication.open(url)
         }
@@ -248,7 +278,7 @@ final class SettingsPageViewService {
                     "Confirm",
                     style: .destructive
                 ) {
-                    Task {
+                    Task { @MainActor in
                         if let exception = await self.services.penPals.setDidGrantPenPalsPermission(false) {
                             Logger.log(exception, with: .toastInPrerelease)
                         }
@@ -309,7 +339,11 @@ final class SettingsPageViewService {
                     title: "Enter Prerelease Mode",
                     message: "The passphrase entered was incorrect. Please try again.",
                     actions: [
-                        .init("Try Again", style: .preferred) { self.promptToEnterPrereleaseMode() },
+                        .init("Try Again", style: .preferred) {
+                            Task { @MainActor in
+                                self.promptToEnterPrereleaseMode()
+                            }
+                        },
                         .cancelAction(title: "Cancel"),
                     ]
                 ).present(translating: [])
@@ -328,14 +362,18 @@ final class SettingsPageViewService {
     func sendFeedbackButtonTapped() {
         Task {
             let reportBugAction: AKAction = .init("Report Bug") {
-                self.reportDelegate.reportBug()
+                Task { @MainActor in
+                    self.reportDelegate.reportBug()
+                }
             }
 
             await AKActionSheet(
                 title: "File a Report",
                 actions: [
                     .init(Localized(.sendFeedback).wrappedValue) {
-                        self.reportDelegate.sendFeedback()
+                        Task { @MainActor in
+                            self.reportDelegate.sendFeedback()
+                        }
                     },
                     reportBugAction,
                 ],
@@ -350,7 +388,7 @@ final class SettingsPageViewService {
     func signOutButtonTapped() {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
-                Task {
+                Task { @MainActor in
                     if let exception = await self.services.notification.setBadgeNumber(
                         0,
                         updateHostedValue: false
@@ -359,12 +397,11 @@ final class SettingsPageViewService {
                     }
 
                     defer {
-                        RuntimeStorage.store(false, as: .updatedLastSignInDate)
                         Application.dismissSheets()
                         Application.reset()
                         self.services.analytics.logEvent(.logOut)
 
-                        self.core.gcd.after(.milliseconds(Floats.signOutNavigationDelayMilliseconds)) {
+                        Task.delayed(by: .milliseconds(Floats.signOutNavigationDelayMilliseconds)) { @MainActor in
                             self.navigation.navigate(to: .onboarding(.stack([])))
                             self.navigation.navigate(to: .root(.modal(.onboarding)))
                         }
@@ -388,7 +425,7 @@ final class SettingsPageViewService {
                 }
             }
 
-            let sourceItemString = RuntimeStorage.languageCode == "en" ? "Sign Out" : "Log Out"
+            let sourceItemString = RuntimeStorage.languageCode == "en" ? "Sign out" : "Log out"
             await AKActionSheet(
                 actions: [signOutAction],
                 cancelButtonTitle: Localized(.cancel).wrappedValue,
@@ -526,7 +563,9 @@ final class SettingsPageViewService {
             core.ui.addOverlay(activityIndicator: .largeWhite)
 
             navigation.navigate(to: .root(.modal(.splash)))
-            core.gcd.after(.seconds(1)) { self.core.utils.exitGracefully() }
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                core.utils.exitGracefully()
+            }
         }
     }
 }

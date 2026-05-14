@@ -123,13 +123,19 @@ struct SignInPageReducer: Reducer {
             if accountExists {
                 let phoneNumber = state.phoneNumber
                 let verifyPhoneNumberTask: Effect<Action> = .task {
-                    let result = await networking.auth.verifyPhoneNumber(internationalNumber: phoneNumber.compiledNumberString)
+                    @Dependency(\.networking.auth) var auth: any AuthDelegate
+                    let result = await auth.verifyPhoneNumber(
+                        internationalNumber: phoneNumber.compiledNumberString
+                    )
                     return .verifyPhoneNumberReturned(result)
                 }.cancellable(id: State.TaskID.verifyPhoneNumber)
-                return .cancel(id: State.TaskID.authenticateUser).merge(with: verifyPhoneNumberTask)
+
+                return .cancel(id: State.TaskID.authenticateUser)
+                    .merge(with: verifyPhoneNumberTask)
             } else {
                 coreUI.removeOverlay()
                 return .task {
+                    @Dependency(\.onboardingService) var onboardingService: OnboardingService
                     let result = await onboardingService.presentAccountDoesNotExistAlert()
                     return .accountDoesNotExistAlertDismissed(cancelled: result)
                 }
@@ -189,13 +195,18 @@ struct SignInPageReducer: Reducer {
             }
 
         case .continueButtonTapped:
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
+            let continueButtonEffect: Effect<Action> = .task(delay: .milliseconds(100)) {
                 .runContinueButtonEffect
             }
 
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }.merge(with: continueButtonEffect)
+
         case .didSwipeDown:
-            uiApplication.resignFirstResponders()
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }
 
         case let .phoneNumberStringChanged(phoneNumberString):
             state.phoneNumberString = phoneNumberString
@@ -218,7 +229,7 @@ struct SignInPageReducer: Reducer {
             switch state.configuration {
             case .phoneNumber:
                 let phoneNumber = state.phoneNumber
-                return .task {
+                return .task { @MainActor in
                     let result = await networking.userService.accountExists(for: phoneNumber)
                     return .accountExistsReturned(result)
                 }
@@ -227,7 +238,8 @@ struct SignInPageReducer: Reducer {
                 let authID = state.authID
                 let verificationCode = state.verificationCode
                 let authenticateUserTask: Effect<Action> = .task {
-                    let result = await networking.auth.authenticateUser(
+                    @Dependency(\.networking.auth) var auth: any AuthDelegate
+                    let result = await auth.authenticateUser(
                         authID: authID,
                         verificationCode: verificationCode
                     )
@@ -290,7 +302,7 @@ struct SignInPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SignInPageViewStringKey) -> String {
         (first(where: { $0.key == .signInPageView(key) })?.value ?? key.rawValue).sanitized
     }

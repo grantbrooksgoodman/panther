@@ -14,7 +14,9 @@ import AppSubsystem
 
 enum InviteQRCodePageViewServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> InviteQRCodePageViewService {
-        .init()
+        // swiftformat:disable all
+        @MainActorIsolated var inviteQRCodePageViewService = InviteQRCodePageViewService()
+        return inviteQRCodePageViewService // swiftformat:enable all
     }
 }
 

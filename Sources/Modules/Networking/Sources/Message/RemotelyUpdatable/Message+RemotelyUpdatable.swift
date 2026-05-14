@@ -1,5 +1,5 @@
 //
-//  UserDefaultsKey+CommonNetworkingExtensions.swift
+//  Message+RemotelyUpdatable.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -11,9 +11,10 @@ import Foundation
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
-extension UserDefaultsKey {
-    enum ConversationArchiveServiceDefaultsKey: String {
-        case conversationArchive
+extension Message: RemotelyUpdatable {
+    var identifier: String {
+        id
     }
 }

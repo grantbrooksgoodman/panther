@@ -23,6 +23,7 @@ struct ContextMenuService {
 
     // MARK: - Init
 
+    @MainActor
     init(_ viewController: ChatPageViewController) {
         self.viewController = viewController
         actionHandler = .init(viewController)

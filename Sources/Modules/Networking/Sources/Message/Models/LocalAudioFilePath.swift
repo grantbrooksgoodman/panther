@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 import Networking
+import Translator
 
 struct LocalAudioFilePath: Codable, Equatable {
     // MARK: - Properties
@@ -38,13 +39,13 @@ struct LocalAudioFilePath: Codable, Equatable {
         self.outputFilePathURL = outputFilePathURL
     }
 
-    init?(_ message: Message) {
+    init(
+        messageID: String,
+        translation: Translation
+    ) {
         @Dependency(\.fileManager) var fileManager: FileManager
 
-        guard message.contentType.isAudio,
-              let translation = message.translation else { return nil }
-
-        let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(MediaFileExtension.audio(.m4a).rawValue)"
+        let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
         let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)/"
         var outputFilePath = outputDirectoryPath + "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         if translation.languagePair.isIdempotent {
@@ -61,5 +62,11 @@ struct LocalAudioFilePath: Codable, Equatable {
             outputFilePathString: outputFilePath,
             outputFilePathURL: outputFileURL
         )
+    }
+
+    init?(_ message: Message) {
+        guard message.contentType.isAudio,
+              let translation = message.translation else { return nil }
+        self.init(messageID: message.id, translation: translation)
     }
 }

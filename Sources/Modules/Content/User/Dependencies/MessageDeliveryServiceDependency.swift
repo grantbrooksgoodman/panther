@@ -14,7 +14,9 @@ import AppSubsystem
 
 enum MessageDeliveryServiceDependency: DependencyKey {
     static func resolve(_: DependencyValues) -> MessageDeliveryService {
-        .init()
+        // swiftformat:disable all
+        @MainActorIsolated var messageDeliveryService = MessageDeliveryService()
+        return messageDeliveryService // swiftformat:enable all
     }
 }
 

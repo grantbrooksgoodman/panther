@@ -33,14 +33,4 @@ struct ReactionMetadata: Codable, EncodedHashable, Hashable {
         factors.append(contentsOf: reactions.map(\.style.encodedValue))
         return factors.sorted()
     }
-
-    // MARK: - Init
-
-    init(
-        messageID: String,
-        reactions: [Reaction]
-    ) {
-        self.messageID = messageID
-        self.reactions = reactions
-    }
 }

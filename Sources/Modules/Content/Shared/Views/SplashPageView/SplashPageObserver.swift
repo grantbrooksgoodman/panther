@@ -19,7 +19,6 @@ struct SplashPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [Observables.networkActivityOccurred]
     let viewModel: ViewModel<SplashPageReducer>
 
@@ -31,19 +30,9 @@ struct SplashPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(SplashPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
-        Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
-            domain: .observer,
-            sender: self
-        )
-
-        switch observable.key {
-        case .networkActivityOccurred:
+        switch observable {
+        case Observables.networkActivityOccurred:
             send(.bundleInitializationProgressOccurred)
 
         default: ()

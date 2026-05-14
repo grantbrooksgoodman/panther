@@ -13,11 +13,11 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class SearchInteractionService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService.contextMenu?.interaction) private var contextMenuInteractionService: ContextMenuInteractionService?
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.chatPageStateService.isPresented) private var isChatPagePresented: Bool
     @Dependency(\.clientSession.conversation.currentConversation?.messages) private var messages: [Message]?
 
@@ -53,7 +53,6 @@ final class SearchInteractionService {
 
     // MARK: - Trigger Focused Message Cell Interaction
 
-    @MainActor
     func triggerFocusedMessageCellInteractionIfNeeded() {
         guard isChatPagePresented,
               !hasTriggeredInteractionOnce else { return }
@@ -64,12 +63,13 @@ final class SearchInteractionService {
         triggerCellInteraction()
     }
 
-    @MainActor
     private func triggerCellInteraction(_ retryOnFailure: Bool = true) {
         guard isChatPagePresented,
               let focusedMessageCellGestureRecognizer else {
             guard retryOnFailure else { return }
-            coreGCD.after(.milliseconds(500)) { self.triggerCellInteraction(false) }
+            Task.delayed(by: .milliseconds(500)) { @MainActor in
+                self.triggerCellInteraction(false)
+            }
             return
         }
 

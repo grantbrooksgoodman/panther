@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension UIStatusBarStyle {
     static var appAware: UIStatusBarStyle {
         @Dependency(\.uiApplication.isPresentingSheet) var isPresentingSheet: Bool

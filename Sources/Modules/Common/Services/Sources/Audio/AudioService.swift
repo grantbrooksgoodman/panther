@@ -57,7 +57,11 @@ struct AudioService {
             try avAudioSession.setCategory(
                 .playAndRecord,
                 mode: .default,
-                options: [.defaultToSpeaker, .allowBluetooth]
+                options: [
+                    .allowBluetoothA2DP,
+                    .allowBluetoothHFP,
+                    .defaultToSpeaker,
+                ]
             )
 
             try avAudioSession.setActive(true)

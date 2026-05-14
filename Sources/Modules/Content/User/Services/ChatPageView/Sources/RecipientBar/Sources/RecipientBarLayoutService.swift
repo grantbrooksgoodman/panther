@@ -15,6 +15,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarLayoutService {
     // MARK: - Constants Accessors
 
@@ -24,7 +25,7 @@ final class RecipientBarLayoutService {
 
     // MARK: - Dependencies
 
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.inputBarConfigService) private var inputBarConfigService: InputBarConfigService
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -38,14 +39,33 @@ final class RecipientBarLayoutService {
 
     // MARK: - Computed Properties
 
-    var recipientBarView: RecipientBar? { viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar }
-    var selectContactButton: UIButton? { recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton }
-    var tableView: UITableView? { viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView }
-    var textField: UITextField? { recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField }
-    var toLabel: UILabel? { recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel }
-    var viewFrame: CGRect { .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight)) }
+    var recipientBarView: RecipientBar? {
+        viewController.view.firstSubview(for: Strings.recipientBarSemanticTag) as? RecipientBar
+    }
 
-    private var screenWidth: CGFloat { uiApplication.mainScreen.bounds.width }
+    var selectContactButton: UIButton? {
+        recipientBarView?.firstSubview(for: Strings.selectContactButtonSemanticTag) as? UIButton
+    }
+
+    var tableView: UITableView? {
+        viewController.view.firstSubview(for: Strings.tableViewSemanticTag) as? UITableView
+    }
+
+    var textField: UITextField? {
+        recipientBarView?.firstSubview(for: Strings.textFieldSemanticTag) as? UITextField
+    }
+
+    var toLabel: UILabel? {
+        recipientBarView?.firstSubview(for: Strings.toLabelSemanticTag) as? UILabel
+    }
+
+    var viewFrame: CGRect {
+        .init(origin: .zero, size: .init(width: screenWidth, height: Floats.frameHeight))
+    }
+
+    private var screenWidth: CGFloat {
+        uiApplication.mainScreen.bounds.width
+    }
 
     // MARK: - Init
 
@@ -168,7 +188,7 @@ final class RecipientBarLayoutService {
         }
 
         guard let glassEffectView = buildGlassEffectView() else { return false }
-        glassEffectView.tag = core.ui.semTag(for: Strings.glassEffectViewSemanticTag)
+        glassEffectView.tag = coreUI.semTag(for: Strings.glassEffectViewSemanticTag)
         recipientBarView.addSubview(glassEffectView)
         return true
     }
@@ -183,7 +203,7 @@ final class RecipientBarLayoutService {
 
         guard let selectContactButton = buildSelectContactButton() else { return }
 
-        selectContactButton.tag = core.ui.semTag(for: Strings.selectContactButtonSemanticTag)
+        selectContactButton.tag = coreUI.semTag(for: Strings.selectContactButtonSemanticTag)
         recipientBarView.addSubview(selectContactButton)
 
         guard UIApplication.isFullyV26Compatible else { return }
@@ -193,7 +213,7 @@ final class RecipientBarLayoutService {
     private func configureTableView() {
         guard viewController.view.subviews.filter({ $0 is UITableView }).isEmpty,
               let tableView = buildTableView() else { return }
-        tableView.tag = core.ui.semTag(for: Strings.tableViewSemanticTag)
+        tableView.tag = coreUI.semTag(for: Strings.tableViewSemanticTag)
         viewController.view.addSubview(tableView)
     }
 
@@ -201,7 +221,7 @@ final class RecipientBarLayoutService {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.textFieldSemanticTag).isEmpty,
               let textField = buildTextField() else { return }
-        textField.tag = core.ui.semTag(for: Strings.textFieldSemanticTag)
+        textField.tag = coreUI.semTag(for: Strings.textFieldSemanticTag)
         recipientBarView.addSubview(textField)
         correctTextFieldWidth()
     }
@@ -210,7 +230,7 @@ final class RecipientBarLayoutService {
         guard let recipientBarView,
               recipientBarView.subviews(for: Strings.toLabelSemanticTag).isEmpty,
               let toLabel = buildToLabel() else { return }
-        toLabel.tag = core.ui.semTag(for: Strings.toLabelSemanticTag)
+        toLabel.tag = coreUI.semTag(for: Strings.toLabelSemanticTag)
         recipientBarView.addSubview(toLabel)
     }
 
@@ -352,7 +372,9 @@ final class RecipientBarLayoutService {
         let xOriginModifier = uiApplication.preferredContentSizeCategory > .large ? -decrementValue : decrementValue
 
         selectContactButton.frame.origin.x = xOriginOffset - xOriginModifier
-        while selectContactButton.frame.maxX > recipientBarView.frame.maxX { selectContactButton.frame.origin.x -= 1 }
+        while selectContactButton.frame.maxX > recipientBarView.frame.maxX {
+            selectContactButton.frame.origin.x -= 1
+        }
         selectContactButton.center.y = (toLabel ?? recipientBarView).center.y
     }
 

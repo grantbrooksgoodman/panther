@@ -16,7 +16,8 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
+@MainActor
+final class MessageFlowLayout: @MainActor MessagesCollectionViewFlowLayout {
     // MARK: - Properties
 
     private lazy var sizeCalculator = SizeCalculator(layout: self)
@@ -43,7 +44,8 @@ final class MessageFlowLayout: MessagesCollectionViewFlowLayout {
     }
 }
 
-private final class SizeCalculator: MessageSizeCalculator {
+@MainActor
+private final class SizeCalculator: @MainActor MessageSizeCalculator {
     // MARK: - Init
 
     override init(layout: MessagesCollectionViewFlowLayout? = nil) {
@@ -57,49 +59,43 @@ private final class SizeCalculator: MessageSizeCalculator {
         @Dependency(\.clientSession.conversation.currentConversation) var conversation: Conversation?
 
         guard let layout else { return .zero }
+        return MainActor.assumeIsolated {
+            typealias Floats = AppConstants.CGFloats.SystemMessageCell
 
-        let contentInset = layout.collectionView?.contentInset ?? .zero
-        let fullInset = contentInset.left + contentInset.right +
-            layout.sectionInset.left + layout.sectionInset.right
-        let cellWidth = (layout.collectionView?.bounds.width ?? 0) - fullInset
+            let contentInset = layout.collectionView?.contentInset ?? .zero
+            let fullInset = contentInset.left + contentInset.right +
+                layout.sectionInset.left + layout.sectionInset.right
+            let cellWidth = (layout.collectionView?.bounds.width ?? 0) - fullInset
 
-        typealias Colors = AppConstants.Colors.SystemMessageCell
-        typealias Floats = AppConstants.CGFloats.SystemMessageCell
+            guard let message = conversation?.messages?.itemAt(indexPath.section),
+                  let attributedString = message.attributedSystemString else {
+                return .init(width: cellWidth, height: Floats.defaultHeight)
+            }
 
-        guard let message = conversation?.messages?.itemAt(indexPath.section),
-              let attributedString = message.attributedSystemString else {
-            return .init(
-                width: cellWidth,
-                height: Floats.defaultHeight
+            let boundingRectangle = attributedString.boundingRect(
+                with: .init(
+                    width: cellWidth,
+                    height: .greatestFiniteMagnitude
+                ),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
             )
+
+            let lineHeight = UIFont.systemFont(
+                ofSize: Floats.activityStringSystemFontSize
+            ).lineHeight + Floats.labelParagraphStyleLineSpacing
+
+            let textHeight = min(
+                boundingRectangle.height,
+                lineHeight * Floats.labelNumberOfLines
+            )
+
+            let cellHeight = ceil(max(
+                Floats.defaultHeight,
+                textHeight + Floats.additionalVerticalPadding
+            ))
+
+            return .init(width: cellWidth, height: cellHeight)
         }
-
-        let boundingRectangle = attributedString.boundingRect(
-            with: .init(
-                width: cellWidth,
-                height: .greatestFiniteMagnitude
-            ),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil
-        )
-
-        let lineHeight = UIFont.systemFont(
-            ofSize: Floats.activityStringSystemFontSize
-        ).lineHeight + Floats.labelParagraphStyleLineSpacing
-
-        let textHeight = min(
-            boundingRectangle.height,
-            lineHeight * Floats.labelNumberOfLines
-        )
-
-        let cellHeight = ceil(max(
-            Floats.defaultHeight,
-            textHeight + Floats.additionalVerticalPadding
-        ))
-
-        return .init(
-            width: cellWidth,
-            height: cellHeight
-        )
     }
 }

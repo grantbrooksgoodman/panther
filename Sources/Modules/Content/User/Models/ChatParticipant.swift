@@ -27,7 +27,11 @@ struct ChatParticipant: Equatable {
 
     // MARK: - Computed Properties
 
-    var firstUser: User? { contactPair.users.first }
+    var firstUser: User? {
+        contactPair.users.first
+    }
+
+    @MainActor
     var thumbnailImage: UIImage? {
         penPalsStatus != nil ? SquareIconView.image(
             .penPalsIcon(

@@ -90,13 +90,13 @@ final class TypingIndicatorService {
                 isTyping: false
             ))
 
-            let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-
-            switch updateValueResult {
-            case let .failure(exception):
-                exceptions.append(exception)
-
-            default: ()
+            do {
+                _ = try await conversation.update(
+                    \.participants,
+                    to: newParticipants
+                )
+            } catch {
+                exceptions.append(error)
             }
         }
 
@@ -107,7 +107,7 @@ final class TypingIndicatorService {
 
     @MainActor
     func textViewDidChange(to text: String) async -> Exception? {
-        return await withUnsafeContinuation { continuation in
+        await withUnsafeContinuation { continuation in
             _textViewDidChange(to: text) { exception in
                 continuation.resume(returning: exception)
             }
@@ -210,17 +210,20 @@ final class TypingIndicatorService {
         ))
 
         clientSession.user.stopObservingCurrentUserChanges()
-        let updateValueResult = await conversation.updateValue(newParticipants, forKey: .participants)
-        clientSession.user.startObservingCurrentUserChanges()
+        do {
+            let updatedConversation = try await conversation.update(
+                \.participants,
+                to: newParticipants
+            )
 
-        switch updateValueResult {
-        case let .success(conversation):
-            guard clientSession.conversation.currentConversation?.id.key == conversation.id.key else { return nil }
-            clientSession.conversation.setCurrentConversation(conversation)
+            clientSession.user.startObservingCurrentUserChanges()
+            guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return nil }
+
+            clientSession.conversation.setCurrentConversation(updatedConversation)
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            clientSession.user.startObservingCurrentUserChanges()
+            return error
         }
     }
 }

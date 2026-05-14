@@ -18,6 +18,7 @@ import AppSubsystem
 import Networking
 import Translator
 
+@MainActor
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
@@ -31,12 +32,13 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Properties
 
-    @Published
     var initializationProgress: CGFloat = 0 {
         didSet {
             percentageLabelText = initializationProgress >= 1 ? "100%" : "\(initializationProgress.roundedString)%"
             guard initializationProgress == 1 else { return }
-            core.gcd.after(.seconds(2)) { self.initializationProgress = 0 }
+            Task.delayed(by: .seconds(2)) { @MainActor in
+                initializationProgress = 0
+            }
         }
     }
 
@@ -50,13 +52,14 @@ final class SplashPageViewService: ObservableObject {
 
     // MARK: - Computed Properties
 
-    var shouldShowLoadingLabel: Bool { didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration }
+    var shouldShowLoadingLabel: Bool {
+        didAttemptDatabaseRepair || didSurpassQuickLoadTimeoutDuration
+    }
 
     // MARK: - Methods
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
-    @MainActor
     func initializeBundle() async -> Exception? {
         /* MARK: Service Setup */
 
@@ -68,8 +71,11 @@ final class SplashPageViewService: ObservableObject {
         loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
         _ = Timeout(after: .seconds(3)) {
-            guard self.initializationProgress <= 0.5 else { return }
-            self.didSurpassQuickLoadTimeoutDuration = true
+            Task { @MainActor [weak self] in
+                guard let self,
+                      initializationProgress <= 0.5 else { return }
+                didSurpassQuickLoadTimeoutDuration = true
+            }
         }
 
         /* MARK: AKCore Delegate Setup */
@@ -95,24 +101,34 @@ final class SplashPageViewService: ObservableObject {
             return nil
         }
 
-        /* MARK: Language Code Resolution */
-
-        if User.currentUserID != nil,
-           let exception = await clientSession.user.resolveAndSetLanguageCode() {
-            Logger.log(exception)
-        }
+        /* MARK: Pre-flight Configuration */
 
         Networking.config.setIsEnhancedDialogTranslationEnabled(true)
         Networking.config.setEnhancedTranslationStatusVerbosity(.successOnly)
-        initializationProgress += 0.01
 
-        /* MARK: MetadataService Setup */
+        Logger.setReportsErrorsAutomatically(
+            !UIDevice.isSimulator && build.milestone == .generalRelease
+        )
 
-        if let exception = await services.metadata.resolveValues() {
+        services.review.incrementAppOpenCount()
+
+        /* MARK: Parallel Initialization */
+
+        // Launch the heaviest independent network calls concurrently.
+        async let resolveAndSetLanguageCodeException = clientSession.user.resolveAndSetLanguageCode()
+        async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
+        async let resolveValuesException = services.metadata.resolveValues()
+
+        if User.currentUserID != nil,
+           let exception = await resolveAndSetLanguageCodeException {
             return exception
         }
 
-        initializationProgress += 0.01
+        if let exception = await resolveValuesException {
+            return exception
+        }
+
+        initializationProgress += 0.02
 
         /* MARK: UpdateService Setup */
 
@@ -123,23 +139,21 @@ final class SplashPageViewService: ObservableObject {
 
         initializationProgress += 0.01
 
-        /* MARK: Logger Setup */
-
-        Logger.setReportsErrorsAutomatically(
-            !UIDevice.isSimulator && build.milestone == .generalRelease
-        )
-
         /* MARK: Cache Setup */
 
+        // Runs while resolveCurrentUser() continues in the background.
         if let currentUserID = User.currentUserID {
             let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
-            initializationProgress += 0.01
+            initializationProgress += 0.02
 
             switch cacheStatusResult {
             case let .success(cacheStatus):
                 if cacheStatus == .invalid {
                     Application.reset(preserveCurrentUserID: true)
-                    if let exception = await services.remoteCache.setCacheStatus(.valid, userID: currentUserID) {
+                    if let exception = await services.remoteCache.setCacheStatus(
+                        .valid,
+                        userID: currentUserID
+                    ) {
                         Logger.log(exception)
                     }
                 }
@@ -151,28 +165,10 @@ final class SplashPageViewService: ObservableObject {
             }
         }
 
-        /* MARK: HostedTranslationArchiver Setup */
-
-        if User.currentUserID == nil {
-            if let exception = await networking.hostedTranslation.addRecentlyUploadedLocalizedTranslationsToLocalArchive() {
-                Logger.log(exception)
-            } else {
-                initializationProgress += 0.01
-            }
-        }
-
-        /* MARK: ReviewService Setup */
-
-        services.review.incrementAppOpenCount()
-
         /* MARK: UserSessionService Setup */
 
-        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
-        @Persistent(.init("translationArchive")) var translationArchive: [Translation]?
-
-        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
-
-        switch resolveCurrentUserResult {
+        // User resolution likely completed during the metadata + update + cache gates above.
+        switch await resolveCurrentUserResult {
         case .success:
             initializationProgress += 0.2
 
@@ -183,6 +179,10 @@ final class SplashPageViewService: ObservableObject {
                 )
             }
 
+            /* MARK: Last Sign In Date Update */
+
+            // Must complete before the Firebase observer starts (post-splash),
+            // otherwise the observer sees the timestamp change and triggers sign-out.
             if !RuntimeStorage.updatedLastSignInDate {
                 if let exception = await currentUser.updateLastSignedInDate() {
                     return exception
@@ -198,17 +198,22 @@ final class SplashPageViewService: ObservableObject {
             checkPrevaricationMode(currentUser.phoneNumber)
             loadingLabelText = "\(Localized(.loadingData).wrappedValue)..."
 
-            if (currentUser.conversationIDs ?? []).count > 5,
-               (conversationArchive ?? []).isEmpty {
-                if let exception = await networking.database.populateTemporaryCaches() {
-                    Logger.log(exception)
-                }
+            /* MARK: Contact Pair Archive + Temporary Cache Population */
 
-                if Networking.config.environment != .staging,
-                   let exception = await services.pushToken.prunePushTokensForCurrentUser() {
+            if let exception = await ContactService.populateValuesIfNeeded() {
+                Logger.log(exception)
+            }
+
+            @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+            if (currentUser.conversationIDs ?? []).count > 20,
+               (conversationArchive ?? []).isEmpty {
+                let database = LockIsolated(networking.database)
+                if let exception = await database.wrappedValue.populateTemporaryCaches() {
                     Logger.log(exception)
                 }
             }
+
+            /* MARK: Conversation Resolution */
 
             if let exception = await currentUser.setConversations() {
                 return exception
@@ -220,21 +225,51 @@ final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            initializationProgress += 0.2
-
-            if let exception = await TypingIndicatorService.resetTypingIndicatorStatusForCurrentUser() {
-                return exception
-            }
-
-            if let exception = await services.notification.setBadgeNumber(currentUser.calculateBadgeNumber()) {
-                return exception
-            }
-
-            if let exception = await services.penPals.updateSharingDataForKnownUsers() {
-                return exception
-            }
-
             initializationProgress = 1
+
+            /* MARK: Post-launch Maintenance */
+
+            Task { [weak self] in
+                guard let self else { return }
+
+                let pushTokenService = LockIsolated(services.pushToken)
+                if Networking.config.environment != .staging,
+                   let exception = await pushTokenService
+                   .wrappedValue
+                   .prunePushTokensForCurrentUser() {
+                    Logger.log(
+                        exception,
+                        with: .toastInPrerelease
+                    )
+                }
+
+                if let exception = await TypingIndicatorService
+                    .resetTypingIndicatorStatusForCurrentUser() {
+                    Logger.log(
+                        exception,
+                        with: .toastInPrerelease
+                    )
+                }
+
+                if let exception = await services
+                    .notification
+                    .setBadgeNumber(currentUser.calculateBadgeNumber()) {
+                    Logger.log(
+                        exception,
+                        with: .toastInPrerelease
+                    )
+                }
+
+                if let exception = await services
+                    .penPals
+                    .updateSharingDataForKnownUsers() {
+                    Logger.log(
+                        exception,
+                        with: .toastInPrerelease
+                    )
+                }
+            }
+
             return nil
 
         case let .failure(exception):
@@ -315,7 +350,7 @@ final class SplashPageViewService: ObservableObject {
         Application.isInPrevaricationMode = true
         core.ui.toggleGlassTinting(on: false)
         Toast.overrideDefaultColorPalette(.init(
-            background: .init(uiColor: .init(hex: 0xF8F8F8)),
+            background: .init(uiColor: .init(hex: 0xF8F8F8))
         ))
 
         ThemeService.setTheme(

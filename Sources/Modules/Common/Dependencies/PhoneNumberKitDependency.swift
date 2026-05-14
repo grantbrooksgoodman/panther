@@ -16,13 +16,13 @@ import AppSubsystem
 import PhoneNumberKit
 
 enum PhoneNumberKitDependency: DependencyKey {
-    static func resolve(_: DependencyValues) -> PhoneNumberKit {
+    static func resolve(_: DependencyValues) -> PhoneNumberKit.PhoneNumberUtility {
         .init()
     }
 }
 
 extension DependencyValues {
-    var phoneNumberKit: PhoneNumberKit {
+    var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility {
         get { self[PhoneNumberKitDependency.self] }
         set { self[PhoneNumberKitDependency.self] = newValue }
     }

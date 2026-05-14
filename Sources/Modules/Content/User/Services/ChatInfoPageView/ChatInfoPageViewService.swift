@@ -16,7 +16,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
+@MainActor // swiftlint:disable:next type_body_length
 final class ChatInfoPageViewService {
     // MARK: - Types
 
@@ -37,7 +37,6 @@ final class ChatInfoPageViewService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
-    @Dependency(\.coreKit.gcd) private var coreGCD: CoreKit.GCD
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -47,6 +46,10 @@ final class ChatInfoPageViewService {
     private(set) var isPreviewingMedia = false
 
     @Cached(CacheKey.chatParticipantsForUserIDs) private var cachedChatParticipantsForUserIDs: [String: ChatParticipant]?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Computed Properties
 
@@ -178,7 +181,9 @@ final class ChatInfoPageViewService {
             }
         }
 
-        func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] { participants.sorted(by: { $0.displayName < $1.displayName }) }
+        func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] {
+            participants.sorted(by: { $0.displayName < $1.displayName })
+        }
         return .success(sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix))
     }
 
@@ -283,9 +288,9 @@ final class ChatInfoPageViewService {
     }
 
     func traitCollectionChanged() {
-        coreGCD.after(.milliseconds(100)) {
-            self.uiSegmentBackgroundViews.forEach {
-                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
+        Task.delayed(by: .milliseconds(100)) { @MainActor in
+            for uiSegmentBackgroundView in self.uiSegmentBackgroundViews {
+                uiSegmentBackgroundView.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
             }
         }
     }
@@ -305,12 +310,14 @@ final class ChatInfoPageViewService {
             ))
         }
 
-        return await conversation.updateValues(
-            with: [
-                .activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
-                .metadata: newMetadata,
-            ]
-        )
+        return await .asCallback { @Sendable in
+            try await conversation.updateValues(
+                with: [
+                    \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
+                    \.metadata: newMetadata,
+                ]
+            )
+        }
     }
 
     func viewAppeared() {
@@ -320,10 +327,14 @@ final class ChatInfoPageViewService {
 
     /// `.getChatParticipantsReturned(.success)`
     func viewLoaded() {
-        coreGCD.after(.seconds(1)) {
-            self.uiSegmentBackgroundViews.forEach {
-                $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor
-            }
+        Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+            guard let self else { return }
+            uiSegmentBackgroundViews
+                .filter { $0.backgroundColor != self.uiSegmentBackgroundViewBackgroundColor }
+                .forEach { $0.backgroundColor = self.uiSegmentBackgroundViewBackgroundColor }
+
+            guard uiApplication.isPresentingSheet else { return }
+            viewLoaded()
         }
     }
 

@@ -9,7 +9,7 @@
 /* Native */
 import Foundation
 
-struct UserDataSnapshot {
+struct UserDataSnapshot: @unchecked Sendable {
     // MARK: - Properties
 
     static let empty: UserDataSnapshot = .init(

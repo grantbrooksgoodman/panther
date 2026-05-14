@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarContactSelectionUIService {
     // MARK: - Constants Accessors
 
@@ -23,7 +24,7 @@ final class RecipientBarContactSelectionUIService {
     // MARK: - Dependencies
 
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
 
     // MARK: - Properties
 
@@ -52,8 +53,10 @@ final class RecipientBarContactSelectionUIService {
 
     func deselectContactPair(withViewID contactHash: String) {
         selectedContactPairs.removeAll(where: { $0.contact.encodedHash == contactHash })
-        for contactView in contactViews where contactView.identifier == contactHash { contactView.removeFromSuperview() }
-        core.gcd.after(.milliseconds(100)) {
+        for contactView in contactViews where contactView.identifier == contactHash {
+            contactView.removeFromSuperview()
+        }
+        Task.delayed(by: .milliseconds(100)) { @MainActor in
             self.chatPageViewService.inputBar?.configureInputBar()
             guard self.selectedContactPairs.isEmpty else { return }
             self.viewController.messageInputBar.inputTextView.placeholder = nil
@@ -130,7 +133,9 @@ final class RecipientBarContactSelectionUIService {
             textField.text = nil
 
             configService.reconfigureCollectionView()
-            core.gcd.after(.milliseconds(100)) { self.chatPageViewService.inputBar?.configureInputBar() }
+            Task.delayed(by: .milliseconds(100)) { @MainActor in
+                self.chatPageViewService.inputBar?.configureInputBar()
+            }
 
             guard !contactPair.isMock else { return }
             viewController.messageInputBar.inputTextView.placeholder = " \(Localized(.newMessage).wrappedValue)"
@@ -155,7 +160,9 @@ final class RecipientBarContactSelectionUIService {
                 return true
             }
 
-            for sublevel in (1 ... sublevels).reversed() where configureContactView(onSublevel: sublevel) { return true }
+            for sublevel in (1 ... sublevels).reversed() where configureContactView(onSublevel: sublevel) {
+                return true
+            }
             return false
         }
 
@@ -210,12 +217,16 @@ final class RecipientBarContactSelectionUIService {
                 guard index < self.contactViews.count - 1 else { continue }
 
                 var labelText = (contactLabel.text ?? "")
-                while labelText.hasSuffix(",") { labelText = labelText.dropSuffix() }
+                while labelText.hasSuffix(",") {
+                    labelText = labelText.dropSuffix()
+                }
                 contactLabel.text = on ? "\(labelText)," : labelText
 
                 contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
                 var width = contactLabel.intrinsicContentSize.width
-                while width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { width -= 1 }
+                while width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor {
+                    width -= 1
+                }
                 contactLabel.frame.size.width = width
 
                 guard !on else { continue }
@@ -332,7 +343,9 @@ final class RecipientBarContactSelectionUIService {
         contactLabel.frame.size.height = contactLabel.intrinsicContentSize.height
         contactLabel.frame.size.width = contactLabel.intrinsicContentSize.width
 
-        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor { contactLabel.frame.size.width -= 1 }
+        while contactLabel.frame.size.width >= recipientBarView.frame.size.width / Floats.contactViewMaximumWidthDivisor {
+            contactLabel.frame.size.width -= 1
+        }
 
         // Add label to enclosing view
 
@@ -340,8 +353,8 @@ final class RecipientBarContactSelectionUIService {
         contactView.frame.size.width = contactLabel.frame.size.width + Floats.contactViewWidthIncrement
         contactLabel.center = .init(x: contactView.bounds.midX, y: contactView.bounds.midY)
 
-        contactView.tag = core.ui.semTag(for: Strings.contactViewSemanticTag)
-        contactLabel.tag = core.ui.semTag(for: Strings.contactLabelSemanticTag)
+        contactView.tag = coreUI.semTag(for: Strings.contactViewSemanticTag)
+        contactLabel.tag = coreUI.semTag(for: Strings.contactLabelSemanticTag)
 
         return contactView
     }

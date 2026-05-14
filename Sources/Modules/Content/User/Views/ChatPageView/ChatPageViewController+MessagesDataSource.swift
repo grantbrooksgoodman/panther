@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-extension ChatPageViewController: MessagesDataSource {
+extension ChatPageViewController: @MainActor MessagesDataSource {
     // MARK: - Constants Accessors
 
     private typealias Colors = AppConstants.Colors.ChatPageView.MessagesDataSource

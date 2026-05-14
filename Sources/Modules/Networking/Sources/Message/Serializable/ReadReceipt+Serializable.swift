@@ -14,15 +14,45 @@ import AppSubsystem
 import Networking
 
 extension ReadReceipt: Serializable {
-    // MARK: - Type Aliases
-
-    typealias T = ReadReceipt
-
     // MARK: - Properties
 
     var encoded: String {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         return "\(userID) | \(dateFormatter.string(from: readDate))"
+    }
+
+    // MARK: - Init
+
+    init(
+        from data: String // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+
+        if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings?[data] {
+            self = cachedValue
+            return
+        }
+
+        let components = data.components(separatedBy: " | ")
+        guard components.count == 2,
+              !components[0].isBangQualifiedEmpty,
+              let readDate = dateFormatter.date(from: components[1]) else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        let decoded: ReadReceipt = .init(
+            userID: components[0],
+            readDate: readDate
+        )
+
+        var cachedReadReceiptsForEncodedStrings = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings ?? [:]
+        cachedReadReceiptsForEncodedStrings[data] = decoded
+        _ReadReceiptCache.cachedReadReceiptsForEncodedStrings = cachedReadReceiptsForEncodedStrings
+
+        self = decoded
     }
 
     // MARK: - Methods
@@ -37,32 +67,6 @@ extension ReadReceipt: Serializable {
 
         return true
     }
-
-    static func decode(from data: String) async -> Callback<ReadReceipt, Exception> {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-
-        if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings?[data] {
-            return .success(cachedValue)
-        }
-
-        let components = data.components(separatedBy: " | ")
-        guard components.count == 2,
-              !components[0].isBangQualifiedEmpty,
-              let readDate = dateFormatter.date(from: components[1]) else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        let decoded: ReadReceipt = .init(
-            userID: components[0],
-            readDate: readDate
-        )
-
-        var cachedReadReceiptsForEncodedStrings = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings ?? [:]
-        cachedReadReceiptsForEncodedStrings[data] = decoded
-        _ReadReceiptCache.cachedReadReceiptsForEncodedStrings = cachedReadReceiptsForEncodedStrings
-
-        return .success(decoded)
-    }
 }
 
 enum ReadReceiptCache {
@@ -72,15 +76,16 @@ enum ReadReceiptCache {
 }
 
 private enum _ReadReceiptCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case readReceiptsForEncodedStrings
-    }
-
     // MARK: - Properties
 
-    @Cached(CacheKey.readReceiptsForEncodedStrings) fileprivate static var cachedReadReceiptsForEncodedStrings: [String: ReadReceipt]?
+    private static let _cachedReadReceiptsForEncodedStrings = LockIsolated<[String: ReadReceipt]?>(nil)
+
+    // MARK: - Computed Properties
+
+    fileprivate static var cachedReadReceiptsForEncodedStrings: [String: ReadReceipt]? {
+        get { _cachedReadReceiptsForEncodedStrings.wrappedValue }
+        set { _cachedReadReceiptsForEncodedStrings.wrappedValue = newValue }
+    }
 
     // MARK: - Clear Cache
 

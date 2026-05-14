@@ -12,6 +12,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class AppIconService {
     // MARK: - Types
 
@@ -29,6 +30,10 @@ final class AppIconService {
     private(set) var lastIconSet: AppIcon?
 
     private var alertDismissalTimer: Timer?
+
+    // MARK: - Init
+
+    nonisolated init() {}
 
     // MARK: - Set App Icon
 
@@ -76,7 +81,10 @@ final class AppIconService {
     // MARK: - Randomize App Icon
 
     func randomizeAppIcon() {
-        var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 2 == 0 }
+        var randomBool: Bool {
+            Int.random(in: 1 ... 1_000_000) % 2 == 0
+        }
+
         guard randomBool else { return }
 
         startDismissingAlerts()

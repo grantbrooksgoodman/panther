@@ -21,46 +21,47 @@ struct RemoteCacheService {
     // MARK: - Remote Cache Status Configuration
 
     func cacheStatus(userID: String) async -> Callback<RemoteCacheStatus, Exception> {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
-            }
-
-            return .success(array.contains(userID) ? .invalid : .valid)
-
-        case let .failure(exception):
-            return .failure(exception)
+        do {
+            let invalidatedCaches: [String] = try await networking.database.getValues(
+                at: NetworkPath.invalidatedCaches.rawValue
+            )
+            return .success(invalidatedCaches.contains(userID) ? .invalid : .valid)
+        } catch {
+            return .failure(error)
         }
     }
 
-    func setCacheStatus(_ cacheStatus: RemoteCacheStatus, userID: String) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.invalidatedCaches.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            var array = values as? [String] ?? []
-
-            switch cacheStatus {
-            case .invalid:
-                array.append(userID)
-
-            case .valid:
-                array.removeAll(where: { $0 == userID })
-            }
-
-            array = array.unique
-            return await networking.database.setValue(array, forKey: NetworkPath.invalidatedCaches.rawValue)
-
-        case let .failure(exception):
-            var exceptions = exception.isEqual(to: .Networking.Database.noValueExists) ? [] : [exception]
-            if let exception = await networking.database.setValue([userID], forKey: NetworkPath.invalidatedCaches.rawValue) {
+    // NIT: Can't I just call updateChildValues?
+    func setCacheStatus(
+        _ cacheStatus: RemoteCacheStatus,
+        userID: String
+    ) async -> Exception? {
+        var invalidatedCaches: [String]
+        do {
+            invalidatedCaches = try await networking.database.getValues(
+                at: NetworkPath.invalidatedCaches.rawValue
+            )
+        } catch {
+            var exceptions = error.isEqual(to: .Networking.Database.noValueExists) ? [] : [error]
+            if let exception = await networking.database.setValue(
+                [userID],
+                forKey: NetworkPath.invalidatedCaches.rawValue
+            ) {
                 exceptions.append(exception)
             }
 
             return exceptions.compiledException
         }
+
+        switch cacheStatus {
+        case .invalid: invalidatedCaches.append(userID)
+        case .valid: invalidatedCaches.removeAll(where: { $0 == userID })
+        }
+
+        invalidatedCaches = invalidatedCaches.unique
+        return await networking.database.setValue(
+            invalidatedCaches,
+            forKey: NetworkPath.invalidatedCaches.rawValue
+        )
     }
 }

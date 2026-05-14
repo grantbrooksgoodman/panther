@@ -14,6 +14,12 @@ import AppSubsystem
 import Networking
 
 struct ConversationsPageObserver: Observer {
+    // MARK: - Types
+
+    private enum TaskID: String {
+        case showSecondsToLoadToast
+    }
+
     // MARK: - Type Aliases
 
     typealias R = ConversationsPageReducer
@@ -26,15 +32,17 @@ struct ConversationsPageObserver: Observer {
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices.notification) private var notificationService: NotificationService
+    @Dependency(\.conversationsPageViewService) private var viewService: ConversationsPageViewService
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.traitCollectionChanged,
+        Observables.updateConversationsListSetToReliableDataSource,
         Observables.updatedContactPairArchive,
         Observables.updatedCurrentUser,
     ]
+
     let viewModel: ViewModel<ConversationsPageReducer>
 
     // MARK: - Init
@@ -45,47 +53,49 @@ struct ConversationsPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(ConversationsPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
-        Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
-            domain: .observer,
-            sender: self
-        )
-
-        switch observable.key {
-        case .traitCollectionChanged,
-             .updatedContactPairArchive:
+        switch observable {
+        case Observables.traitCollectionChanged,
+             Observables.updatedContactPairArchive:
             send(.traitCollectionChanged)
 
-        case .updatedCurrentUser:
-            guard chatPageState.isPresented else { return updateConversations() }
+        case Observables.updateConversationsListSetToReliableDataSource:
+            @MainActorIsolated var didShowSecondsToLoadToast = viewService.didShowSecondsToLoadToast
+            guard !didShowSecondsToLoadToast else { return }
+            Task.debounced(
+                "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.showSecondsToLoadToast.rawValue)",
+                delay: .seconds(1)
+            ) { @MainActor in
+                viewService.showSecondsToLoadToastIfNeeded()
+            }
 
-            chatPageState.addEffectUponIsPresented(
-                changedTo: false,
-                id: .updateCurrentUser
-            ) { send(.updatedCurrentUser) }
+        case Observables.updatedCurrentUser:
+            Task { @MainActor in
+                guard chatPageState.isPresented else { return updateConversations() }
 
-            chatPageState.addEffectUponIsWaitingToUpdateConversations(
-                changedTo: true,
-                id: .updateConversations
-            ) { updateConversations() }
+                chatPageState.addEffectUponIsPresented(
+                    changedTo: false,
+                    id: .updateCurrentUser
+                ) { send(.updatedCurrentUser) }
+
+                // The signal may have already fired before this Task ran.
+                // If it did, call updateConversations() directly rather than
+                // waiting for a transition that already happened.
+                guard !chatPageState.isWaitingToUpdateConversations else { return updateConversations() }
+
+                chatPageState.addEffectUponIsWaitingToUpdateConversations(
+                    changedTo: true,
+                    id: .updateConversations
+                ) { updateConversations() }
+            }
 
         default: ()
         }
     }
 
-    func send(_ action: ConversationsPageReducer.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
-        }
-    }
-
     // MARK: - Auxiliary
 
+    @MainActor
     private func updateConversations() {
         guard !chatPageState.isPresented || !messageDeliveryService.isSendingMessage else {
             Logger.log(
@@ -108,7 +118,12 @@ struct ConversationsPageObserver: Observer {
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
-            if let exception = await updateCurrentUser() {
+            if let exception = await clientSession
+                .user
+                .currentUser?
+                .conversations?
+                .visibleForCurrentUser
+                .setUsers() {
                 Logger.log(
                     exception,
                     domain: .conversation,
@@ -131,19 +146,23 @@ struct ConversationsPageObserver: Observer {
                   .conversations?
                   .first(where: { $0.id.key == currentConversation.id.key }) else { return }
 
-            if let currentMessages = currentConversation.messages?.filteringSystemMessages,
-               let missingMessages = updatedConversation.messages?
-               .filteringSystemMessages
-               .filter({ !currentMessages.contains($0) })
-               .filter({ !$0.isFromCurrentUser })
-               .filter({ $0.currentUserReadReceipt == nil }),
-               !missingMessages.isEmpty {
-                let updateReadDateResult = await updatedConversation.updateReadDate(
-                    for: missingMessages
-                )
+            let currentMessageIDs = Set(
+                currentConversation.messages?.filteringSystemMessages.map(\.id) ?? []
+            )
 
-                switch updateReadDateResult {
-                case let .success(conversation):
+            if let missingMessages = updatedConversation.messages?
+                .filteringSystemMessages
+                .filter({
+                    !currentMessageIDs.contains($0.id) &&
+                        !$0.isFromCurrentUser &&
+                        $0.currentUserReadReceipt == nil
+                }),
+                !missingMessages.isEmpty { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    let conversation = try await updatedConversation.updateReadDate(
+                        for: missingMessages
+                    )
+
                     if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
                        let exception = await notificationService.setBadgeNumber(badgeNumber) {
                         Logger.log(
@@ -156,10 +175,9 @@ struct ConversationsPageObserver: Observer {
                     clientSession.conversation.setCurrentConversation(conversation)
                     chatPageViewService.reloadCollectionView()
                     return configureInputBarIfNeeded()
-
-                case let .failure(exception):
+                } catch {
                     return Logger.log(
-                        exception,
+                        error,
                         domain: .conversation
                     )
                 }
@@ -203,25 +221,5 @@ struct ConversationsPageObserver: Observer {
 
     private func matchesCurrentConversation(_ idKey: String) -> Bool {
         clientSession.conversation.currentConversation?.id.key == idKey
-    }
-
-    private func updateCurrentUser() async -> Exception? {
-        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
-
-        switch resolveCurrentUserResult {
-        case let .failure(exception): return exception
-        default: ()
-        }
-
-        if let exception = await clientSession.user.currentUser?.setConversations() {
-            return exception
-        }
-
-        return await clientSession
-            .user
-            .currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .setUsers()
     }
 }

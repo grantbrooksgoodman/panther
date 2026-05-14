@@ -65,7 +65,7 @@ struct ConversationService {
             users: nil
         )
 
-        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializationKeys.id.rawValue }
+        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue }
 
         if let exception = await networking.database.updateChildValues(forKey: "\(path)/\(id)", with: data) {
             return .failure(exception)
@@ -106,31 +106,18 @@ struct ConversationService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        return await withTaskGroup(of: Callback<Conversation, Exception>.self) { taskGroup in
-            for idKey in idKeys {
-                taskGroup.addTask {
-                    await self.getConversation(idKey: idKey)
-                }
-            }
+        let getConversationResults = await idKeys.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            await getConversation(idKey: $0)
+        }
 
-            var conversations = [Conversation]()
-
-            for await getConversationResult in taskGroup {
-                switch getConversationResult {
-                case let .success(conversation): conversations.append(conversation)
-                case let .failure(exception): return .failure(exception.appending(userInfo: userInfo))
-                }
-            }
-
-            guard !conversations.isEmpty,
-                  conversations.count == idKeys.count else {
-                return .failure(.init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
-            }
-
+        switch getConversationResults {
+        case let .success(conversations):
             return .success(conversations)
+
+        case let .failure(exception):
+            return .failure(exception.appending(userInfo: userInfo))
         }
     }
 
@@ -142,56 +129,47 @@ struct ConversationService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
-        let path = NetworkPath.conversations.rawValue
-        let getValuesResult = await networking.database.getValues(at: "\(path)/\(idKey)")
+        var data: [String: Any]
+        do {
+            data = try await networking.database.getValues(
+                at: [
+                    NetworkPath.conversations.rawValue,
+                    idKey,
+                ].joined(separator: "/")
+            )
+        } catch {
+            return .failure(error.appending(userInfo: userInfo))
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard var data = values as? [String: Any] else {
-                let exception: Exception = .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-                return .failure(exception.appending(userInfo: userInfo))
-            }
+        typealias Keys = Conversation.SerializableKey
+        guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
+            let exception = Exception(
+                "Failed to decode conversation ID.",
+                metadata: .init(sender: self)
+            )
 
-            typealias Keys = Conversation.SerializationKeys
-            guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
-                let exception = Exception("Failed to decode conversation ID.", metadata: .init(sender: self))
-                return .failure(exception.appending(userInfo: userInfo))
-            }
-
-            data[Keys.id.rawValue] = ConversationID(key: idKey, hash: conversationIDHash).encoded
-            let decodeResult = await Conversation.decode(from: data)
-
-            switch decodeResult {
-            case let .success(conversation):
-                return .success(conversation)
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: userInfo))
-            }
-
-        case let .failure(exception):
             return .failure(exception.appending(userInfo: userInfo))
         }
+
+        data[Keys.id.rawValue] = ConversationID(
+            key: idKey,
+            hash: conversationIDHash
+        ).encoded
+
+        return await .asCallback(
+            userInfo: userInfo
+        ) { try await Conversation(from: data) }
     }
 
     private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        let usersPath = NetworkPath.users.rawValue
-        let path = "\(usersPath)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
-        let getValuesResult = await networking.database.getValues(at: path)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let array = values as? [String] else {
-                return .failure(.Networking.typecastFailed("array", metadata: .init(sender: self)))
-            }
-
-            return .success(array)
-
-        case let .failure(exception):
-            return .failure(exception)
+        await .asCallback {
+            try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
+            )
         }
     }
 
@@ -221,7 +199,7 @@ struct ConversationService {
                 let path = NetworkPath.users.rawValue
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                    forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                 ) {
                     return exception.appending(userInfo: userInfo)
                 }
@@ -233,23 +211,14 @@ struct ConversationService {
             return nil
         }
 
-        var exceptions = [Exception]()
-
-        for userID in userIDs {
-            if let exception = await removeConversationFromUser(
-                userID: userID,
+        return await userIDs.parallelMap(
+            failFast: failureStrategy == .returnOnFailure
+        ) {
+            await removeConversationFromUser(
+                userID: $0,
                 conversationIDKey: conversationIDKey
-            ) {
-                guard failureStrategy == .returnOnFailure else {
-                    exceptions.append(exception)
-                    continue
-                }
-
-                return exception
-            }
+            )
         }
-
-        return exceptions.compiledException
     }
 
     // MARK: - Auxiliary
@@ -267,7 +236,7 @@ struct ConversationService {
             let path = NetworkPath.users.rawValue
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "\(path)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
+                forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
             ) {
                 return exception.appending(userInfo: userInfo)
             }

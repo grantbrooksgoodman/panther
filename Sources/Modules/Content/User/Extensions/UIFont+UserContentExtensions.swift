@@ -13,8 +13,13 @@ import UIKit
 extension UIFont {
     // MARK: - Properties
 
-    var bolded: UIFont { withTraits(traits: .traitBold) }
-    var italicized: UIFont { withTraits(traits: .traitItalic) }
+    var bolded: UIFont {
+        withTraits(traits: .traitBold)
+    }
+
+    var italicized: UIFont {
+        withTraits(traits: .traitItalic)
+    }
 
     // MARK: - Methods
 

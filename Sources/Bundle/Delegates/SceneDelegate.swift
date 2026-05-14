@@ -8,77 +8,106 @@
 
 /* Native */
 import Foundation
-import UIKit
+import SwiftUI
 
 /* Proprietary */
 import AppSubsystem
 import Networking
 
+/// The delegate that manages the app's window scene lifecycle.
+///
+/// `SceneDelegate` creates and configures the root window when a
+/// scene connects, and forwards trait collection changes to the
+/// subsystem.
+///
+/// Per-scene setup occurs in ``scene(_:willConnectTo:options:)``,
+/// which instantiates the root window scene and attaches the app's
+/// root SwiftUI view hierarchy.
 final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSceneDelegate {
     // MARK: - Dependencies
 
+    @Dependency(\.commonServices.analytics) private var analyticsService: AnalyticsService
     @Dependency(\.build) private var build: Build
-    @Dependency(\.clientSession.user.currentUser) private var currentUser: User?
-    @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.clientSession.user.currentUser?.phoneNumber) private var currentUserPhoneNumber: PhoneNumber?
 
     // MARK: - Properties
 
+    /// The window associated with this scene.
     var window: UIWindow?
+
+    private var networkActivityIndicatorWindow: UIWindow?
 
     // MARK: - UIScene
 
+    /// Creates the root window and attaches the app's view hierarchy.
+    ///
+    /// This method calls
+    /// ``RootWindowScene/instantiate(_:rootView:)`` to build the
+    /// window scene with ``RootView`` as its content.
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        window = RootWindowScene.instantiate(scene, rootView: RootView())
+        window = RootWindowScene.instantiate(
+            scene,
+            rootView: RootView()
+        )
 
-        let tapGesture = UITapGestureRecognizer(target: self, action: nil)
+        // Hack to get the network activity indicator to appear
+        // above all other content.
+        if let windowScene = scene as? UIWindowScene {
+            let activityIndicatorWindow = UIWindow(windowScene: windowScene)
+
+            activityIndicatorWindow.backgroundColor = .clear
+            activityIndicatorWindow.isUserInteractionEnabled = false
+            activityIndicatorWindow.windowLevel = .statusBar + 1
+
+            let hostingController = UIHostingController(
+                rootView: Color.clear
+                    .ignoresSafeArea()
+                    .indicatesNetworkActivity()
+            )
+
+            hostingController.view.backgroundColor = .clear
+
+            activityIndicatorWindow.rootViewController = hostingController
+            activityIndicatorWindow.isHidden = false
+            networkActivityIndicatorWindow = activityIndicatorWindow
+        }
+
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: nil
+        )
+
         tapGesture.delegate = self
         window?.addGestureRecognizer(tapGesture)
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         Observables.traitCollectionChanged.trigger()
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-        // Called as the scene is being released by the system.
-        // This occurs shortly after the scene enters the background, or when its session is discarded.
-        // Release any resources associated with this scene that can be re-created the next time the scene connects.
-        // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
-    }
-
     func sceneDidEnterBackground(_ scene: UIScene) {
-        // Called as the scene transitions from the foreground to the background.
-        // Use this method to save data, release shared resources, and store enough scene-specific state information
-        // to restore the scene back to its current state.
         Task.background {
+            @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+            @Dependency(\.commonServices.notification) var notificationService: NotificationService
             if let badgeNumber = await currentUser?.calculateBadgeNumber(),
-               let exception = await services.notification.setBadgeNumber(badgeNumber) {
+               let exception = await notificationService.setBadgeNumber(badgeNumber) {
                 Logger.log(exception)
             }
         }
     }
 
-    func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
-    }
-
     // MARK: - UIWindowScene
 
+    /// Notifies the subsystem when the trait collection changes.
+    ///
+    /// This method calls
+    /// ``RootWindowScene/traitCollectionChanged()`` to propagate
+    /// appearance changes – such as switching between light and dark
+    /// mode – throughout the view hierarchy.
     func windowScene(
         _ windowScene: UIWindowScene,
         didUpdate previousCoordinateSpace: UICoordinateSpace,
@@ -99,12 +128,12 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         guard build.milestone == .generalRelease,
               Networking.config.environment == .production,
               let view = touch.view,
-              let currentUser,
+              let currentUserPhoneNumber,
               ["15555555555", "18888888888"].contains(
-                  currentUser.phoneNumber.compiledNumberString
+                  currentUserPhoneNumber.compiledNumberString
               ) else { return false }
 
-        services.analytics.logEvent(
+        analyticsService.logEvent(
             .touchUiElement,
             additionalUserInfo: ["ui_element": view.descriptor]
         )

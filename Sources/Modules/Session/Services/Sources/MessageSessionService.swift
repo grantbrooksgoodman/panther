@@ -68,12 +68,12 @@ struct MessageSessionService {
         )
 
         if shouldAnimateDeliveryProgress(in: conversation.value) {
-            clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
+            await clientSession.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
         }
 
         let users = users.filter { $0 != currentUser }
         let uniqueLanguageCodes = users.map(\.languageCode).unique
-        let enhancementConfig = getEnhancementConfiguration(
+        let enhancementConfig = await getEnhancementConfiguration(
             for: conversation.value,
             isAudioMessage: true,
             userCount: users.count
@@ -93,7 +93,7 @@ struct MessageSessionService {
             of: (Int, Callback<(Translation, AudioMessageReference), Exception>).self
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
-                taskGroup.addTask {
+                taskGroup.addTask { [self, transcription = transcription as String] in
                     let translateResult = await networking.hostedTranslation.translate(
                         .init(transcription),
                         with: .init(
@@ -272,61 +272,24 @@ struct MessageSessionService {
 
         let users = users.filter { $0 != currentUser }
         let uniqueLanguageCodes = users.map(\.languageCode).unique
-        let enhancementConfig = getEnhancementConfiguration(
+        let enhancementConfig = await getEnhancementConfiguration(
             for: conversation.value,
             isAudioMessage: false,
             userCount: users.count
         )
 
-        var aggregatedTranslations: [Translation?] = Array(
-            repeating: nil,
-            count: uniqueLanguageCodes.count
-        )
-
-        let taskGroupResult: Callback<[Translation], Exception> = await withTaskGroup(
-            of: (Int, Callback<Translation, Exception>).self
-        ) { taskGroup in
-            for (index, languageCode) in uniqueLanguageCodes.enumerated() {
-                taskGroup.addTask {
-                    let translateResult = await networking.hostedTranslation.translate(
-                        .init(text),
-                        with: .init(
-                            from: currentUser.languageCode,
-                            to: languageCode
-                        ),
-                        enhance: enhancementConfig
-                    )
-
-                    return (index, translateResult)
-                }
-            }
-
-            var exception: Exception?
-            while let (index, translateResult) = await taskGroup.next() {
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.translationDeliveryProgressIncrement / Float(max(
-                        1,
-                        uniqueLanguageCodes.count
-                    ))
-                )
-
-                switch translateResult {
-                case let .success(translation):
-                    aggregatedTranslations[index] = translation
-
-                // swiftlint:disable:next identifier_name
-                case let .failure(_exception):
-                    exception = _exception
-                    taskGroup.cancelAll()
-                }
-            }
-
-            if let exception { return .failure(exception) }
-            return .success(aggregatedTranslations.compactMap(\.self))
+        let translateResults = await uniqueLanguageCodes.parallelMap {
+            await networking.hostedTranslation.translate(
+                .init(text),
+                with: .init(
+                    from: currentUser.languageCode,
+                    to: $0
+                ),
+                enhance: enhancementConfig
+            )
         }
 
-        switch taskGroupResult {
+        switch translateResults {
         case let .success(translations):
             guard translations.isWellFormed else {
                 return .failure(.init(
@@ -420,28 +383,40 @@ struct MessageSessionService {
                     isPenPalsConversation: conversation.metadata.isPenPalsConversation
                 )
 
-                let newParticipants = conversation.participants.map { Participant(userID: $0.userID, hasDeletedConversation: false, isTyping: $0.isTyping) }
-                guard newParticipants.map(\.hasDeletedConversation) != conversation.participants.map(\.hasDeletedConversation) else {
-                    return await addMessage(message, to: conversation)
+                let newParticipants = conversation.participants.map {
+                    Participant(
+                        userID: $0.userID,
+                        hasDeletedConversation: false,
+                        isTyping: $0.isTyping
+                    )
                 }
 
-                let updateValueResult = await conversation.updateValue(
-                    newParticipants,
-                    forKey: .participants
-                )
+                guard newParticipants
+                    .map(\.hasDeletedConversation) != conversation
+                    .participants
+                    .map(\.hasDeletedConversation) else {
+                    return await addMessage(
+                        message,
+                        to: conversation
+                    )
+                }
 
                 incrementDeliveryProgress(
                     in: conversation,
                     by: Floats.updateValueDeliveryProgressIncrement
                 )
 
-                switch updateValueResult {
-                case let .success(conversation):
-                    return await addMessage(message, to: conversation)
-
-                case let .failure(exception):
+                do {
+                    return try await addMessage(
+                        message,
+                        to: conversation.update(
+                            \.participants,
+                            to: newParticipants
+                        )
+                    )
+                } catch {
                     clientSession.user.startObservingCurrentUserChanges()
-                    return .failure(exception)
+                    return .failure(error)
                 }
             } else {
                 var participantUsers = [initiatingUser]
@@ -481,10 +456,11 @@ struct MessageSessionService {
         }
     }
 
+    @MainActor
     private func getEnhancementConfiguration(
         for conversation: Conversation?,
         isAudioMessage: Bool,
-        userCount: Int,
+        userCount: Int
     ) -> EnhancementConfiguration? {
         guard clientSession
             .user
@@ -516,7 +492,9 @@ struct MessageSessionService {
 
     private func incrementDeliveryProgress(in conversation: Conversation?, by: Float) {
         guard shouldAnimateDeliveryProgress(in: conversation) else { return }
-        clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
+        Task { @MainActor in
+            clientSession.deliveryProgressIndicator?.incrementDeliveryProgress(by: by)
+        }
     }
 
     private func shouldAnimateDeliveryProgress(in conversation: Conversation?) -> Bool {
@@ -524,17 +502,19 @@ struct MessageSessionService {
     }
 }
 
+@MainActor
 private extension Conversation {
     var messageReadout: String? {
         guard let messages else { return nil }
 
+        let knownUsersByID = Dictionary(
+            UserCache.knownUsers.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         var messageStrings = [String]()
-        for message in messages
-            .sortedByDescendingSentDate
-            .filter({ $0.contentType == .text }) {
-            guard let matchingUser = UserCache
-                .knownUsers
-                .first(where: { $0.id == message.fromAccountID }) else { continue }
+        for message in messages.sortedByDescendingSentDate where message.contentType == .text {
+            guard let matchingUser = knownUsersByID[message.fromAccountID] else { continue }
 
             var messageText = message.translation?.output.sanitized
             var userDisplayName = matchingUser.displayName

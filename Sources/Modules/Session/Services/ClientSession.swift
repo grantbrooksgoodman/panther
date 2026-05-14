@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-final class ClientSession {
+final class ClientSession: @unchecked Sendable {
     // MARK: - Properties
 
     let activity: ActivitySessionService
@@ -23,7 +23,14 @@ final class ClientSession {
     let storage: StorageSessionService
     let user: UserSessionService
 
-    private(set) var deliveryProgressIndicator: DeliveryProgressIndicator?
+    private let _deliveryProgressIndicator = LockIsolated<DeliveryProgressIndicator?>(nil)
+
+    // MARK: - Computed Properties
+
+    var deliveryProgressIndicator: DeliveryProgressIndicator? {
+        get { _deliveryProgressIndicator.wrappedValue }
+        set { _deliveryProgressIndicator.wrappedValue = newValue }
+    }
 
     // MARK: - Init
 

@@ -12,7 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
-struct CommonServices {
+struct CommonServices: @unchecked Sendable {
     let accountDeletion: AccountDeletionService
     let aiEnhancedTranslation: AIEnhancedTranslationService
     let analytics: AnalyticsService

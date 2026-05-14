@@ -37,13 +37,13 @@ extension ContextMenuViewController: ContextMenuAnimatable {
             options: [.beginFromCurrentState, .allowUserInteraction],
             animations: { [weak self] in
                 guard let self else { return }
-                self.view.layoutIfNeeded()
-                self.backgroundBlur.alpha = self.style.blurAlpha
-                self.previewRendering.transform = self.style.preview.transform
+                view.layoutIfNeeded()
+                backgroundBlur.alpha = style.blurAlpha
+                previewRendering.transform = style.preview.transform
 
-                if self.animatableAccessoryView == nil {
+                if animatableAccessoryView == nil {
                     // Perform a default fadin animation if needed
-                    self.accessoryView?.alpha = 1
+                    accessoryView?.alpha = 1
                 }
             },
             completion: { _ in completion?() }
@@ -70,13 +70,13 @@ extension ContextMenuViewController: ContextMenuAnimatable {
             options: [.beginFromCurrentState, .allowUserInteraction],
             animations: { [weak self] in
                 guard let self else { return }
-                self.view.layoutIfNeeded()
-                self.backgroundBlur.alpha = 0
-                self.previewRendering.transform = .identity
+                view.layoutIfNeeded()
+                backgroundBlur.alpha = 0
+                previewRendering.transform = .identity
 
-                if self.animatableAccessoryView == nil {
+                if animatableAccessoryView == nil {
                     // Perform a default fadout animation if needed
-                    self.accessoryView?.alpha = 0
+                    accessoryView?.alpha = 0
                 }
             },
             completion: { [weak self] _ in
@@ -119,7 +119,7 @@ extension ContextMenuViewController {
     /// Returns alignment of menu & accessoryView relative to the preview.
     /// Items are aligned to leading if the preview is centered on the leading part of the screen, otherwise trailing
     func menuAndAccessoryViewAlignment() -> Alignment {
-        return baseFrameInScreen.midX > view.bounds.midX ? .trailing : .leading
+        baseFrameInScreen.midX > view.bounds.midX ? .trailing : .leading
     }
 
     @objc

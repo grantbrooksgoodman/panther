@@ -19,8 +19,8 @@ struct AuthCodePageReducer: Reducer {
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
-    @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
@@ -56,8 +56,8 @@ struct AuthCodePageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
 
-            return .task {
-                let result = await networking.hostedTranslation.resolve(AuthCodePageViewStrings.self)
+            return .task { @MainActor in
+                let result = await translator.resolve(AuthCodePageViewStrings.self)
                 return .resolveReturned(result)
             }
 
@@ -98,13 +98,18 @@ struct AuthCodePageReducer: Reducer {
             navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
+            let continueButtonEffect: Effect<Action> = .task(delay: .milliseconds(100)) {
                 .runContinueButtonEffect
             }
 
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }.merge(with: continueButtonEffect)
+
         case .didSwipeDown:
-            uiApplication.resignFirstResponders()
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings
@@ -129,8 +134,10 @@ struct AuthCodePageReducer: Reducer {
             coreUI.addOverlay(alpha: 0.5, activityIndicator: .largeWhite)
 
             let verificationCode = state.verificationCode
-            return .task {
-                let result = await networking.auth.authenticateUser(
+            return .task { @MainActor in
+                @Dependency(\.networking.auth) var auth: any AuthDelegate
+                @Dependency(\.onboardingService) var onboardingService: OnboardingService
+                let result = await auth.authenticateUser(
                     authID: onboardingService.authID ?? .init(),
                     verificationCode: verificationCode
                 )
@@ -146,7 +153,7 @@ struct AuthCodePageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.AuthCodePageViewStringKey) -> String {
         (first(where: { $0.key == .authCodePageView(key) })?.value ?? key.rawValue).sanitized
     }

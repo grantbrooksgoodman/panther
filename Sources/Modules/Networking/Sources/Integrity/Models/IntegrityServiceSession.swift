@@ -13,7 +13,7 @@ import Foundation
 import AppSubsystem
 import Networking
 
-final class IntegrityServiceSession {
+final class IntegrityServiceSession: @unchecked Sendable {
     // MARK: - Types
 
     struct Indices {
@@ -92,8 +92,6 @@ final class IntegrityServiceSession {
 
     // swiftlint:disable:next function_body_length
     static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
-        @Dependency(\.networking) var networking: NetworkServices
-
         var conversationData: [String: Any]?
         var messageData: [String: Any]?
         var translationData: [String: [String: Any]]?
@@ -104,21 +102,24 @@ final class IntegrityServiceSession {
             metadata: .init(sender: self)
         )
 
+        // FIXME: Audit this approach.
         // Fetch all data concurrently
+        // Each helper resolves its own @Dependency(\.networking) so no non-Sendable.
+        // NetworkServices value is shared (sent) across concurrent child tasks.
 
-        async let getConversationValues = networking.database.getValues(
+        async let getConversationValues = fetchDatabaseValues(
             at: NetworkPath.conversations.rawValue
         )
 
-        async let getMessageValues = networking.database.getValues(
+        async let getMessageValues = fetchDatabaseValues(
             at: NetworkPath.messages.rawValue
         )
 
-        async let getTranslationValues = networking.database.getValues(
+        async let getTranslationValues = fetchDatabaseValues(
             at: NetworkPath.translations.rawValue
         )
 
-        async let getUserValues = networking.database.getValues(
+        async let getUserValues = fetchDatabaseValues(
             at: NetworkPath.users.rawValue
         )
 
@@ -127,7 +128,7 @@ final class IntegrityServiceSession {
             getMessageValuesResult,
             getTranslationValuesResult,
             getUserValuesResult
-        ) = await(getConversationValues, getMessageValues, getTranslationValues, getUserValues)
+        ) = await (getConversationValues, getMessageValues, getTranslationValues, getUserValues)
 
         // Process conversation values
 
@@ -242,6 +243,13 @@ final class IntegrityServiceSession {
 
     // MARK: - Auxiliary
 
+    private static func fetchDatabaseValues(at path: String) async -> Callback<Any, Exception> {
+        await .asCallback {
+            @Dependency(\.networking.database) var database: DatabaseDelegate
+            return try await database.getValues(at: path)
+        }
+    }
+
     private static func resolveIndices(
         conversationData: [String: Any],
         messageData: [String: Any],
@@ -253,7 +261,7 @@ final class IntegrityServiceSession {
 
         for (conversationID, data) in conversationData {
             guard let dictionary = data as? [String: Any],
-                  let messageIDs = dictionary[Conversation.SerializationKeys.messages.rawValue] as? [String] else { continue }
+                  let messageIDs = dictionary[Conversation.SerializableKey.messages.rawValue] as? [String] else { continue }
 
             for messageID in messageIDs {
                 conversationsByMessageID[messageID, default: []].insert(conversationID)
@@ -262,7 +270,7 @@ final class IntegrityServiceSession {
 
         for (userID, data) in userData {
             guard let dictionary = data as? [String: Any],
-                  let conversationIDStrings = dictionary[User.SerializationKeys.conversationIDs.rawValue] as? [String] else { continue }
+                  let conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
 
             for idKey in conversationIDStrings.compactMap({
                 $0.components(separatedBy: " | ").first

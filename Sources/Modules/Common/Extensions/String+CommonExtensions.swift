@@ -1,5 +1,5 @@
 //
-//  String+CommonNetworkingExtensions.swift
+//  String+CommonExtensions.swift
 //  Panther
 //
 //  Created by Grant Brooks Goodman.
@@ -14,8 +14,7 @@ import AppSubsystem
 import Translator
 
 extension String {
-    static var bangQualifiedEmpty: String { "!" }
-    var isBangQualifiedEmpty: Bool { isBlank || self == .bangQualifiedEmpty }
+    // MARK: - Properties
 
     var localized: String {
         @Dependency(\.translationArchiverDelegate) var translationArchive: TranslationArchiverDelegate
@@ -26,7 +25,21 @@ extension String {
         )?.output.sanitized ?? self
     }
 
-    var shortCode: String { "\(prefix(2))\(suffix(2))".uppercased() }
+    var shortCode: String {
+        "\(prefix(2))\(suffix(2))".uppercased()
+    }
+
     /// Prefixes the string to its first 32 characters.
-    var shortened: String { .init(prefix(32)) }
+    var shortened: String {
+        .init(prefix(32))
+    }
+
+    // MARK: - Methods
+
+    static func fromCurrentEditorContext(
+        sender: Any,
+        function: String = #function
+    ) -> String {
+        "\(String(sender)).\(function)"
+    }
 }

@@ -19,12 +19,12 @@ struct NewChatPageObserver: Observer {
 
     // MARK: - Properties
 
-    let id = UUID()
     let observedValues: [any ObservableProtocol] = [
         Observables.firstMessageSentInNewChat,
         Observables.isNewChatPageDoneToolbarButtonEnabled,
         Observables.newChatPagePenPalsToolbarButtonAnimation,
     ]
+
     let viewModel: ViewModel<NewChatPageReducer>
 
     // MARK: - Init
@@ -35,35 +35,20 @@ struct NewChatPageObserver: Observer {
 
     // MARK: - Observer Conformance
 
-    func linkObservables() {
-        Observers.link(NewChatPageObserver.self, with: observedValues)
-    }
-
     func onChange(of observable: Observable<Any>) {
-        Logger.log(
-            "\(observable.value is Nil ? "Triggered" : "Observed change of") .\(observable.key.rawValue).",
-            domain: .observer,
-            sender: self
-        )
-
-        switch observable.key {
-        case .firstMessageSentInNewChat:
+        switch observable {
+        case Observables.firstMessageSentInNewChat:
             send(.firstMessageSent)
 
-        case .isNewChatPageDoneToolbarButtonEnabled:
-            guard let value = observable.value as? Bool else { return }
-            send(.isDoneToolbarButtonEnabledChanged(value))
+        case Observables.isNewChatPageDoneToolbarButtonEnabled:
+            send(.isDoneToolbarButtonEnabledChanged(
+                Observables.isNewChatPageDoneToolbarButtonEnabled.value
+            ))
 
-        case .newChatPagePenPalsToolbarButtonAnimation:
+        case Observables.newChatPagePenPalsToolbarButtonAnimation:
             sendWithAnimation(.animatePenPalsToolbarButtonBackgroundColor)
 
         default: ()
-        }
-    }
-
-    func send(_ action: NewChatPageReducer.Action) {
-        Task { @MainActor in
-            viewModel.send(action)
         }
     }
 

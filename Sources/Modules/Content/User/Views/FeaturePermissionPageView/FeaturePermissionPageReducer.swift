@@ -56,6 +56,7 @@ struct FeaturePermissionPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
+        @MainActor
         var accentColor: Color {
             currentConfig.accentColor ?? .init(uiColor: .accentOrSystemBlue)
         }
@@ -65,13 +66,17 @@ struct FeaturePermissionPageReducer: Reducer {
         }
 
         var subtitleText: String {
-            (resolvedSubtitleText.itemAt(currentIndex) ??
-                currentConfig.subtitleText).sanitized
+            (
+                resolvedSubtitleText.itemAt(currentIndex) ??
+                    currentConfig.subtitleText
+            ).sanitized
         }
 
         var titleText: String {
-            (resolvedTitleText.itemAt(currentIndex) ??
-                currentConfig.titleText).sanitized
+            (
+                resolvedTitleText.itemAt(currentIndex) ??
+                    currentConfig.titleText
+            ).sanitized
         }
 
         fileprivate var currentConfig: FeaturePermissionPageView.Configuration {

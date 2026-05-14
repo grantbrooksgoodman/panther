@@ -18,10 +18,10 @@ extension ConversationsPageView {
         guard !ThemeService.isAppDefaultThemeApplied,
               UIApplication.isGlassTintingEnabled else { return }
 
-        NavigationBar.ItemPlacement.allCases.forEach {
+        for item in NavigationBar.ItemPlacement.allCases {
             NavigationBar.setItemGlassTint(
                 .accent,
-                for: $0,
+                for: item,
                 delay: .milliseconds(10)
             )
         }

@@ -11,5 +11,7 @@ import Foundation
 import SwiftUI
 
 extension Image {
-    static var missing: Image { .init(uiImage: .missing) }
+    static var missing: Image {
+        .init(uiImage: .missing)
+    }
 }

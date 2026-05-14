@@ -13,18 +13,6 @@ import Foundation
 import AppSubsystem
 import Networking
 
-extension CoreKit.GCD {
-    var newSerialQueue: DispatchQueue {
-        let label = "\(Int.random(in: 1 ... 1_000_000))"
-        Logger.log(
-            "Instantiating new queue with label «\(label)».",
-            domain: .queue,
-            sender: self
-        )
-        return .init(label: label, qos: .userInteractive)
-    }
-}
-
 extension CoreKit.Utilities {
     // MARK: - Types
 
@@ -50,7 +38,11 @@ extension CoreKit.Utilities {
 
         return await database.setValue(
             Array.bangQualifiedEmpty,
-            forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.previousLanguageCodes.rawValue)",
+            forKey: [
+                NetworkPath.users.rawValue,
+                currentUserID,
+                User.SerializableKey.previousLanguageCodes.rawValue,
+            ].joined(separator: "/")
         )
     }
 
@@ -140,6 +132,7 @@ extension CoreKit.Utilities {
         return nil
     }
 
+    @MainActor
     func destroyConversationDatabase() async -> Exception? {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
@@ -158,58 +151,59 @@ extension CoreKit.Utilities {
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
+        let userData: [String: Any]
+        do {
+            userData = try await networking.database.getValues(
+                at: NetworkPath.users.rawValue
+            )
+        } catch {
+            return error
+        }
 
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
+        let userIDs = Array(userData.keys)
+        for userID in userIDs {
+            if let exception = await networking.database.setValue(
+                [String.bangQualifiedEmpty],
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
+            ) {
+                return exception
             }
+        }
 
-            let userIDs = Array(dictionary.keys)
-            for userID in userIDs {
-                if let exception = await networking.database.setValue(
-                    [String.bangQualifiedEmpty],
-                    forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.conversationIDs.rawValue)"
-                ) {
-                    return exception
-                }
+        for keyPath in [NetworkPath.conversations.rawValue, NetworkPath.messages.rawValue] {
+            if let exception = await networking.database.setValue(
+                NSNull(),
+                forKey: keyPath
+            ) {
+                return exception
             }
+        }
 
-            for keyPath in [NetworkPath.conversations.rawValue, NetworkPath.messages.rawValue] {
-                if let exception = await networking.database.setValue(
-                    NSNull(),
-                    forKey: keyPath
-                ) {
-                    return exception
-                }
-            }
-
-            if (try? await networking.storage.itemExists(
-                as: .directory,
+        if await (try? networking.storage.itemExists(
+            as: .directory,
+            at: NetworkPath.audioMessageInputs.rawValue
+        ).get()) == true,
+            let exception = await networking.storage.deleteAllItems(
                 at: NetworkPath.audioMessageInputs.rawValue,
-            ).get()) == true,
-                let exception = await networking.storage.deleteAllItems(
-                    at: NetworkPath.audioMessageInputs.rawValue,
-                    includeItemsInSubdirectories: true,
-                    timeout: .seconds(600)
-                ) {
-                return exception
-            }
+                includeItemsInSubdirectories: true,
+                timeout: .seconds(600)
+            ) {
+            return exception
+        }
 
-            if (try? await networking.storage.itemExists(
-                as: .directory,
+        if await (try? networking.storage.itemExists(
+            as: .directory,
+            at: NetworkPath.media.rawValue
+        ).get()) == true,
+            let exception = await networking.storage.deleteAllItems(
                 at: NetworkPath.media.rawValue,
-            ).get()) == true,
-                let exception = await networking.storage.deleteAllItems(
-                    at: NetworkPath.media.rawValue,
-                    includeItemsInSubdirectories: true,
-                    timeout: .seconds(600)
-                ) {
-                return exception
-            }
-
-        case let .failure(exception):
+                includeItemsInSubdirectories: true,
+                timeout: .seconds(600)
+            ) {
             return exception
         }
 
@@ -219,28 +213,29 @@ extension CoreKit.Utilities {
     func resetPushTokens() async -> Exception? {
         @Dependency(\.networking) var networking: NetworkServices
 
-        let getValuesResult = await networking.database.getValues(at: NetworkPath.users.rawValue)
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed("dictionary", metadata: .init(sender: self))
-            }
-
-            let userIDs = Array(dictionary.keys)
-            for userID in userIDs {
-                if let exception = await networking.database.setValue(
-                    [String.bangQualifiedEmpty],
-                    forKey: "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializationKeys.pushTokens.rawValue)"
-                ) {
-                    return exception
-                }
-            }
-
-            return nil
-
-        case let .failure(exception):
-            return exception
+        let userData: [String: Any]
+        do {
+            userData = try await networking.database.getValues(
+                at: NetworkPath.users.rawValue
+            )
+        } catch {
+            return error
         }
+
+        let userIDs = Array(userData.keys)
+        for userID in userIDs {
+            if let exception = await networking.database.setValue(
+                [String.bangQualifiedEmpty],
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
+            ) {
+                return exception
+            }
+        }
+
+        return nil
     }
 }

@@ -35,7 +35,9 @@ struct Contact: Codable, EncodedHashable, Equatable {
         ].sorted()
     }
 
-    var image: UIImage? { _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id) }
+    var image: UIImage? {
+        _ContactImageCache.cachedImagesForContactIDs?[id] ?? .init(data: imageData, id: id)
+    }
 
     var fullName: String {
         if !firstName.isBlank,
@@ -102,15 +104,16 @@ enum ContactImageCache {
 }
 
 private enum _ContactImageCache {
-    // MARK: - Types
-
-    private enum CacheKey: String, CaseIterable {
-        case imagesForContactIDs
-    }
-
     // MARK: - Properties
 
-    @Cached(CacheKey.imagesForContactIDs) fileprivate static var cachedImagesForContactIDs: [String: UIImage]?
+    private static let _cachedImagesForContactIDs = LockIsolated<[String: UIImage]?>(nil)
+
+    // MARK: - Computed Properties
+
+    fileprivate static var cachedImagesForContactIDs: [String: UIImage]? {
+        get { _cachedImagesForContactIDs.wrappedValue }
+        set { _cachedImagesForContactIDs.wrappedValue = newValue }
+    }
 
     // MARK: - Clear Cache
 

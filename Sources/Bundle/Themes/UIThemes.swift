@@ -13,9 +13,26 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
-/**
- Use this extension to build new UI themes.
- */
+/// Use this extension to define the app's custom UI themes.
+///
+/// Create ``UITheme`` instances that map ``ColoredItemType`` slots to
+/// concrete colors, then return them from ``List/uiThemes``:
+///
+/// ```swift
+/// extension UITheme {
+///     static let ocean: UITheme = .init(
+///         name: "Ocean",
+///         items: [
+///             .init(.accent, set: .init(.systemTeal)),
+///             .init(.background, set: .init(.white, variant: .init(hex: 0x0A1628))),
+///         ]
+///     )
+/// }
+/// ```
+///
+/// Custom themes are merged with the subsystem's built-in themes and
+/// made available through ``UITheme/allCases``.
+@MainActor
 extension UITheme {
     // MARK: - Type Aliases
 
@@ -23,7 +40,11 @@ extension UITheme {
 
     // MARK: - Types
 
-    struct List: AppSubsystem.Delegates.UIThemeListDelegate {
+    /// The delegate that supplies the app's custom themes to the
+    /// subsystem.
+    @MainActor
+    struct List: @MainActor AppSubsystem.Delegates.UIThemeListDelegate {
+        /// The custom themes defined by this app.
         var uiThemes: [UITheme] {
             [
                 .appDefault,
@@ -37,16 +58,44 @@ extension UITheme {
 
     // MARK: - Themes
 
-    static let appDefault: UITheme = .init(name: "Default", items: appDefaultColoredItems)
-    static let bluesky: UITheme = .init(name: "Bluesky", items: blueskyColoredItems, style: .dark)
-    static let dusk: UITheme = .init(name: "Dusk", items: duskColoredItems, style: .dark)
-    static let firebrand: UITheme = .init(name: "Firebrand", items: firebrandColoredItems, style: .dark)
-    static let prevaricationMode: UITheme = .init(name: "Prevarication Mode", items: prevaricationModeColoredItems, style: .light)
-    static let twilight: UITheme = .init(name: "Twilight", items: twilightColoredItems, style: .dark)
+    static let appDefault: UITheme = .init(
+        name: "Default",
+        items: appDefaultColoredItems
+    )
+
+    static let bluesky: UITheme = .init(
+        name: "Bluesky",
+        items: blueskyColoredItems,
+        style: .dark
+    )
+
+    static let dusk: UITheme = .init(
+        name: "Dusk",
+        items: duskColoredItems,
+        style: .dark
+    )
+
+    static let firebrand: UITheme = .init(
+        name: "Firebrand",
+        items: firebrandColoredItems,
+        style: .dark
+    )
+
+    static let prevaricationMode: UITheme = .init(
+        name: "Prevarication Mode",
+        items: prevaricationModeColoredItems,
+        style: .light
+    )
+
+    static let twilight: UITheme = .init(
+        name: "Twilight",
+        items: twilightColoredItems,
+        style: .dark
+    )
 
     // MARK: - Colored Items
 
-    private static var appDefaultColoredItems: [Item] {
+    private static var appDefaultColoredItems: Set<Item> {
         let accent = Item(
             .accent,
             set: UIApplication.isFullyV26Compatible ? .init(.black, variant: .white) : .init(.systemBlue)
@@ -81,7 +130,7 @@ extension UITheme {
         ]
     }
 
-    private static var blueskyColoredItems: [Item] {
+    private static var blueskyColoredItems: Set<Item> {
         let accentColor = UIColor(hex: 0x30AAF2)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -115,7 +164,7 @@ extension UITheme {
         ]
     }
 
-    private static var duskColoredItems: [Item] {
+    private static var duskColoredItems: Set<Item> {
         let accentColor = UIColor(hex: 0xFA8231)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -149,7 +198,7 @@ extension UITheme {
         ]
     }
 
-    private static var firebrandColoredItems: [Item] {
+    private static var firebrandColoredItems: Set<Item> {
         let accentColor = UIColor(hex: 0xFF5252)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 
@@ -183,7 +232,7 @@ extension UITheme {
         ]
     }
 
-    private static var prevaricationModeColoredItems: [Item] {
+    private static var prevaricationModeColoredItems: Set<Item> {
         let accentColor = UIColor(hex: 0x30AAF2) // Bluesky accent
         let senderBubbleColor = accentColor
         // let senderBubbleColor = UIColor(hex: 0xC7FFC4) // WhatsApp
@@ -221,7 +270,7 @@ extension UITheme {
         ]
     }
 
-    private static var twilightColoredItems: [Item] {
+    private static var twilightColoredItems: Set<Item> {
         let accentColor = UIColor(hex: 0x786DC4)
         let backgroundColor = UIColor(hex: 0x1A1A1A)
 

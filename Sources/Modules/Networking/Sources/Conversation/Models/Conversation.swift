@@ -13,8 +13,8 @@ import Foundation
 import AppSubsystem
 import Networking
 
-// swiftlint:disable:next type_body_length
-final class Conversation: Codable, EncodedHashable, Hashable {
+@RemotelyUpdatable // swiftlint:disable:next type_body_length
+final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     static let empty: Conversation = .init(
@@ -46,12 +46,13 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     var hashFactors: [String] {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+        let nonSystemMessages = messages?.filteringSystemMessages
         var factors = [id.key]
         factors.append(contentsOf: activities?.map(\.encodedHash) ?? [])
         factors.append(contentsOf: messageIDs.filter { $0.hasPrefix("-") })
         // NIT: Maybe adding the message IDs & hashes explains the (intermittent) mismatch between client and server hash values?
-        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.id) ?? [])
-        factors.append(contentsOf: messages?.filteringSystemMessages.map(\.encodedHash) ?? [])
+        factors.append(contentsOf: nonSystemMessages?.map(\.id) ?? [])
+        factors.append(contentsOf: nonSystemMessages?.map(\.encodedHash) ?? [])
         factors.append(metadata.name)
         factors.append(metadata.imageData?.base64EncodedString() ?? .bangQualifiedEmpty)
         factors.append(metadata.isPenPalsConversation.description)
@@ -98,12 +99,11 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setMessages(ids: ids)
+            return await _setMessages(ids: ids)
         }
     }
 
     private func _setMessages(ids: Set<String>?) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
@@ -129,8 +129,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
-            coreGCD.syncOnMain {
+            await MainActor.run {
                 self.messages = messages.hydrated(with: self.activities)
             }
 
@@ -152,7 +151,6 @@ final class Conversation: Codable, EncodedHashable, Hashable {
     }
 
     private func updateMessage(id: String) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         let userInfo: [String: Any] = [
@@ -180,9 +178,9 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            messages[messageIndex] = message
-            // FIXME: Saw data race-adjacent crashes here. Fixed for now with syncOnMain.
-            coreGCD.syncOnMain { self.messages = messages }
+            messages[messageIndex] = message // swiftlint:disable:next identifier_name
+            let _messages = messages
+            await MainActor.run { self.messages = _messages }
             return nil
 
         case let .failure(exception):
@@ -201,12 +199,11 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 )
             }
 
-            return await self._setUsers(forceUpdate: forceUpdate)
+            return await _setUsers(forceUpdate: forceUpdate)
         }
     }
 
     private func _setUsers(forceUpdate: Bool) async -> Exception? {
-        @Dependency(\.coreKit.gcd) var coreGCD: CoreKit.GCD
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -242,8 +239,7 @@ final class Conversation: Codable, EncodedHashable, Hashable {
                 return exception.appending(userInfo: userInfo)
             }
 
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            coreGCD.syncOnMain { self.users = users }
+            await MainActor.run { self.users = users }
 
             Logger.log(
                 .init(
@@ -264,21 +260,23 @@ final class Conversation: Codable, EncodedHashable, Hashable {
 
     // MARK: - Update Read Date
 
-    func updateReadDate(for messages: [Message]) async -> Callback<Conversation, Exception> {
+    func updateReadDate(
+        for messages: [Message] // swiftformat:disable all
+    ) async throws(Exception) -> Conversation { // swiftformat:enable all
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard !messages.isEmpty else {
-            return .failure(.init(
+            throw Exception(
                 "No messages provided.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let currentUserID = User.currentUserID else {
-            return .failure(.init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let readReceipt = ReadReceipt(userID: currentUserID, readDate: .now)
@@ -289,55 +287,56 @@ final class Conversation: Codable, EncodedHashable, Hashable {
             var readReceipts = unreadMessage.readReceipts?.filter { $0.userID != currentUserID } ?? []
             readReceipts.append(readReceipt)
 
-            let updateValueResult = await unreadMessage.updateValue(
-                readReceipts.unique,
-                forKey: .readReceipts
+            let readMessage = try await unreadMessage.update(
+                \.readReceipts,
+                to: readReceipts.unique
             )
 
-            switch updateValueResult {
-            case let .success(readMessage):
-                if let unreadMessageIndex = modifiedMessages.firstIndex(where: { $0.id == readMessage.id }) {
-                    modifiedMessages.remove(at: unreadMessageIndex)
-                    modifiedMessages.insert(readMessage, at: unreadMessageIndex)
-                } else {
-                    modifiedMessages.append(readMessage)
-                }
-
-            case let .failure(exception):
-                return .failure(exception)
+            if let unreadMessageIndex = modifiedMessages.firstIndex(where: {
+                $0.id == readMessage.id
+            }) {
+                modifiedMessages.remove(at: unreadMessageIndex)
+                modifiedMessages.insert(
+                    readMessage,
+                    at: unreadMessageIndex
+                )
+            } else {
+                modifiedMessages.append(readMessage)
             }
         }
 
         guard modifiedMessages.count == (self.messages ?? []).count else {
-            return .failure(.init(
+            throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return await updateValue(modifiedMessages, forKey: .messages)
+        Logger.log(
+            "Updated read date for \(unreadMessages.count) message\(unreadMessages.count == 1 ? "" : "s").",
+            domain: .conversation,
+            sender: self
+        )
+
+        return try await update(
+            \.messages,
+            to: modifiedMessages
+        )
     }
 
     // MARK: - Equatable Conformance
 
+    // NB: Ordered cheapest-to-compare first so the guard short-circuits
+    // before reaching expensive array comparisons.
     static func == (left: Conversation, right: Conversation) -> Bool {
-        let sameID = left.id == right.id
-        let sameActivities = left.activities == right.activities
-        let sameMessageIDs = left.messageIDs == right.messageIDs
-        let sameMessages = left.messages == right.messages
-        let sameMetadata = left.metadata == right.metadata
-        let sameParticipants = left.participants == right.participants
-        let sameReactionMetadata = left.reactionMetadata == right.reactionMetadata
-        let sameUsers = left.users == right.users
-
-        guard sameID,
-              sameActivities,
-              sameMessageIDs,
-              sameMessages,
-              sameMetadata,
-              sameParticipants,
-              sameReactionMetadata,
-              sameUsers else { return false }
+        guard left.id == right.id,
+              left.messageIDs == right.messageIDs,
+              left.metadata == right.metadata,
+              left.participants == right.participants,
+              left.activities == right.activities,
+              left.reactionMetadata == right.reactionMetadata,
+              left.messages == right.messages,
+              left.users == right.users else { return false }
 
         return true
     }

@@ -12,6 +12,7 @@ import Foundation
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension RecordingService {
     var isInOrWillTransitionToRecordingState: Bool {
         @Dependency(\.chatPageViewService.recordingUI?.isShowingRecordingUI) var isShowingRecordingUI: Bool?

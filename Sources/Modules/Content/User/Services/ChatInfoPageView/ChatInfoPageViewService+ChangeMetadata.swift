@@ -23,9 +23,14 @@ extension ChatInfoPageViewService {
         }
     }
 
-    private func presentChangeMetadataActionSheet(completion: @escaping (MetadataChangeType?) -> Void) {
+    private func presentChangeMetadataActionSheet(
+        completion: @escaping @Sendable (MetadataChangeType?) -> Void
+    ) {
         Task { @MainActor in
+            @Sendable
             func presentChangeNameAlert() async -> MetadataChangeType? {
+                @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
+
                 var conversationName: String?
                 if let name = conversation?.metadata.name,
                    !name.isBangQualifiedEmpty {
@@ -55,15 +60,15 @@ extension ChatInfoPageViewService {
                 )
             }
 
+            @Sendable
             func presentChangePhotoAlert() async -> MetadataChangeType? {
-                var photoChangeType: MetadataChangeType?
-
+                let photoChangeType = LockIsolated<MetadataChangeType?>(nil)
                 let takePhotoAction: AKAction = .init("Take photo") {
-                    photoChangeType = .selectPhotoFromCamera
+                    photoChangeType.wrappedValue = .selectPhotoFromCamera
                 }
 
                 let chooseFromLibraryAction: AKAction = .init("Choose photo from library") {
-                    photoChangeType = .selectPhotoFromLibrary
+                    photoChangeType.wrappedValue = .selectPhotoFromLibrary
                 }
 
                 await AKActionSheet(
@@ -73,29 +78,31 @@ extension ChatInfoPageViewService {
                         "Change name and photo".localized
                     ))
                 ).present(translating: [.actions()])
-                return photoChangeType
+                return photoChangeType.wrappedValue
             }
 
             @Dependency(\.clientSession.conversation.fullConversation) var conversation: Conversation?
 
-            var didComplete = false
+            let didComplete = LockIsolated(false)
             var canComplete: Bool {
-                guard !didComplete else { return false }
-                didComplete = true
-                return true
+                didComplete.projectedValue.withValue {
+                    guard !$0 else { return false }
+                    $0 = true
+                    return true
+                }
             }
 
             let changeNameAction: AKAction = .init("Change name") {
-                Task {
+                Task { @MainActor in
                     guard canComplete else { return }
-                    completion(await presentChangeNameAlert())
+                    await completion(presentChangeNameAlert())
                 }
             }
 
             let changePhotoAction: AKAction = .init("Change photo") {
-                Task {
+                Task { @MainActor in
                     guard canComplete else { return }
-                    completion(await presentChangePhotoAlert())
+                    await completion(presentChangePhotoAlert())
                 }
             }
 

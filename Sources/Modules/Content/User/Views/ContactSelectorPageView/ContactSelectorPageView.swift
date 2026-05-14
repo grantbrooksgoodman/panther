@@ -161,7 +161,7 @@ struct ContactSelectorPageView: View {
                     Components.button(
                         viewModel.noResultsLabelText,
                         font: .system,
-                        foregroundColor: Colors.noResultsLabelAlternateForeground,
+                        foregroundColor: Colors.noResultsLabelAlternateForeground
                     ) {
                         viewModel.send(.findUserButtonTapped)
                     }

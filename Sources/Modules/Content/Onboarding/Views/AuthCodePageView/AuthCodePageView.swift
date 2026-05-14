@@ -101,7 +101,7 @@ struct AuthCodePageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.AuthCodePageViewStringKey) -> String {
         (first(where: { $0.key == .authCodePageView(key) })?.value ?? key.rawValue).sanitized
     }

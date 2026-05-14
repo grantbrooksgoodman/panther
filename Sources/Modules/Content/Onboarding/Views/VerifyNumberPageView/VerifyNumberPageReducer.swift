@@ -90,7 +90,7 @@ struct VerifyNumberPageReducer: Reducer {
             state.phoneNumberString = onboardingService.phoneNumber?.partiallyFormatted(forRegion: state.selectedRegionCode) ?? ""
             state.isContinueButtonEnabled = state.numberIsValidLength
 
-            return .task {
+            return .task { @MainActor in
                 let result = await networking.hostedTranslation.resolve(VerifyNumberPageViewStrings.self)
                 return .resolveReturned(result)
             }
@@ -109,13 +109,17 @@ struct VerifyNumberPageReducer: Reducer {
             if accountExists {
                 coreUI.removeOverlay()
                 return .task {
+                    @Dependency(\.onboardingService) var onboardingService: OnboardingService
                     let result = await onboardingService.presentAccountExistsAlert()
                     return .accountExistsAlertDismissed(cancelled: result)
                 }
             } else {
                 let phoneNumber = state.phoneNumber
                 return .task {
-                    let result = await networking.auth.verifyPhoneNumber(internationalNumber: phoneNumber.compiledNumberString)
+                    @Dependency(\.networking.auth) var auth: any AuthDelegate
+                    let result = await auth.verifyPhoneNumber(
+                        internationalNumber: phoneNumber.compiledNumberString
+                    )
                     return .verifyPhoneNumberReturned(result)
                 }
             }
@@ -124,13 +128,18 @@ struct VerifyNumberPageReducer: Reducer {
             navigation.navigate(to: .onboarding(.pop))
 
         case .continueButtonTapped:
-            uiApplication.resignFirstResponders()
-            return .task(delay: .milliseconds(100)) {
+            let continueButtonEffect: Effect<Action> = .task(delay: .milliseconds(100)) {
                 .runContinueButtonEffect
             }
 
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }.merge(with: continueButtonEffect)
+
         case .didSwipeDown:
-            uiApplication.resignFirstResponders()
+            return .fireAndForget { @MainActor in
+                uiApplication.resignFirstResponders()
+            }
 
         case let .phoneNumberStringChanged(phoneNumberString):
             state.phoneNumberString = phoneNumberString
@@ -160,7 +169,8 @@ struct VerifyNumberPageReducer: Reducer {
 
             let phoneNumber = state.phoneNumber
             return .task {
-                let result = await networking.userService.accountExists(for: phoneNumber)
+                @Dependency(\.networking.userService) var userService: UserService
+                let result = await userService.accountExists(for: phoneNumber)
                 return .accountExistsReturned(result)
             }
 
@@ -214,7 +224,7 @@ struct VerifyNumberPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.VerifyNumberPageViewStringKey) -> String {
         (first(where: { $0.key == .verifyNumberPageView(key) })?.value ?? key.rawValue).sanitized
     }

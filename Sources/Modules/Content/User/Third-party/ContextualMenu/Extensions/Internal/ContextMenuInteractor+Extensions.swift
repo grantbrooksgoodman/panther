@@ -10,7 +10,7 @@
 import Foundation
 import UIKit
 
-extension ContextMenuInteractor: ContextMenuViewControllerDelegate {
+extension ContextMenuInteractor: @preconcurrency ContextMenuViewControllerDelegate {
     func dismissContextMenuViewController(
         _ contextMenuViewController: ContextMenuViewController,
         interaction: ContextMenuInteractor.Interaction,

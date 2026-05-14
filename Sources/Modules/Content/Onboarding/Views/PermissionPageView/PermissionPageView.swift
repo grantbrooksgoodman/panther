@@ -89,7 +89,7 @@ struct PermissionPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.PermissionPageViewStringKey) -> String {
         (first(where: { $0.key == .permissionPageView(key) })?.value ?? key.rawValue).sanitized
     }

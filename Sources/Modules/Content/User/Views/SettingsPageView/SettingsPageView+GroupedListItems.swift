@@ -194,7 +194,7 @@ extension SettingsPageView {
     var sendFeedbackListItem: ListRowView.Configuration {
         .init(
             .button { viewModel.send(.sendFeedbackButtonTapped) },
-            innerText: Localized(.sendFeedback).wrappedValue,
+            innerText: Localized(.sendFeedback).wrappedValue.lowercased().firstUppercase,
             imageView: {
                 SquareIconView.image(
                     .init(
@@ -251,7 +251,7 @@ extension SettingsPageView {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.SettingsPageViewStringKey) -> String {
         (first(where: { $0.key == .settingsPageView(key) })?.value ?? key.rawValue).sanitized
     }

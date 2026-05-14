@@ -82,7 +82,7 @@ struct InviteLanguagePickerView: View {
                 viewModel.send(.doneHeaderItemTapped)
             },
             attributes: .init(
-                restoreOnDisappear: false, // TODO: Audit this.
+                restoreOnDisappear: false,
                 showsDivider: false,
                 sizeClass: .sheet
             ),

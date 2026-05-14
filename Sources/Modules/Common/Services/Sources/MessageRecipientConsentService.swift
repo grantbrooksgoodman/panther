@@ -15,6 +15,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+@MainActor
 final class MessageRecipientConsentService {
     // MARK: - Dependencies
 
@@ -26,7 +27,6 @@ final class MessageRecipientConsentService {
 
     // MARK: - Send Consent Message in Current Conversation
 
-    @MainActor
     func sendConsentMessageInCurrentConversation() async -> Exception? {
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
@@ -51,7 +51,7 @@ final class MessageRecipientConsentService {
         guard !conversation.currentUserInitiatorRequiresMessageReceiptConsent else { return await messageDeliveryService.sendTextMessage(consentMessage) }
 
         let acknowledgeAction: AKAction = .init(Localized(.acknowledgeConsent).wrappedValue) {
-            Task {
+            Task { @MainActor in
                 if let exception = await self.acknowledgeConsent(forUser: currentUser, inConversation: conversation) {
                     Logger.log(exception, with: .toast)
                 }
@@ -63,7 +63,9 @@ final class MessageRecipientConsentService {
         }
 
         let cancelAction: AKAction = .init(Localized(.cancel).wrappedValue, style: .cancel) {
-            self.inputBarService?.setConsentButtonIsEnabled(true)
+            Task { @MainActor in
+                self.inputBarService?.setConsentButtonIsEnabled(true)
+            }
         }
 
         await AKActionSheet(
@@ -93,20 +95,16 @@ final class MessageRecipientConsentService {
             )
         }
 
-        let updateValueResult = await currentUser.updateValue(
-            messageRecipientConsentRequired,
-            forKey: .messageRecipientConsentRequired
-        )
-
-        switch updateValueResult {
-        case let .success(user):
-            return clientSession.user.setCurrentUser(
-                user,
+        do {
+            return try await clientSession.user.setCurrentUser(
+                currentUser.update(
+                    \.messageRecipientConsentRequired,
+                    to: messageRecipientConsentRequired
+                ),
                 repopulateValuesIfNeeded: true
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -131,21 +129,19 @@ final class MessageRecipientConsentService {
             newAcknowledgementData = emptyAcknowledgementData
         }
 
-        let updateValueResult = await conversation.updateValue(
-            conversation.metadata.copyWith(
-                messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-                nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
-            ),
-            forKey: .metadata
-        )
-
-        switch updateValueResult {
-        case let .success(conversation):
-            clientSession.conversation.setCurrentConversation(conversation)
+        do {
+            try await clientSession.conversation.setCurrentConversation(
+                conversation.update(
+                    \.metadata,
+                    to: conversation.metadata.copyWith(
+                        messageRecipientConsentAcknowledgementData: newAcknowledgementData,
+                        nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
+                    )
+                )
+            )
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

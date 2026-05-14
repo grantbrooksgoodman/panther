@@ -28,7 +28,7 @@ final class PhoneNumberService {
 
     @Dependency(\.currentLocale) private var currentLocale: Locale
     @Dependency(\.mainBundle) private var mainBundle: Bundle
-    @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit
+    @Dependency(\.phoneNumberKit) private var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility
     @Dependency(\.commonServices) private var services: CommonServices
 
     // MARK: - Properties
@@ -44,8 +44,13 @@ final class PhoneNumberService {
         return callingCode
     }
 
-    private var callingCodes: [String: String] { services.propertyLists.callingCodes }
-    private var lookupTables: [String: [String]] { services.propertyLists.lookupTables }
+    private var callingCodes: [String: String] {
+        services.propertyLists.callingCodes
+    }
+
+    private var lookupTables: [String: [String]] {
+        services.propertyLists.lookupTables
+    }
 
     // MARK: - Calling Code Determination
 
@@ -125,7 +130,7 @@ final class PhoneNumberService {
         var hashes = [number.encodedHash]
 
         if let countryCodes = matchingCountryCodes(for: number) {
-            countryCodes.forEach { code in
+            for code in countryCodes {
                 hashes.append(number.dropPrefix(code.count).encodedHash)
             }
         }

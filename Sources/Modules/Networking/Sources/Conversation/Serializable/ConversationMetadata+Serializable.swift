@@ -16,12 +16,11 @@ import Networking
 extension ConversationMetadata: Serializable {
     // MARK: - Type Aliases
 
-    typealias T = ConversationMetadata
-    private typealias Keys = SerializationKeys
+    private typealias Keys = SerializableKey
 
     // MARK: - Types
 
-    enum SerializationKeys: String {
+    enum SerializableKey: String {
         case name
         case imageData
         case isPenPalsConversation
@@ -46,9 +45,84 @@ extension ConversationMetadata: Serializable {
         ]
     }
 
+    // MARK: - Init
+
+    init(
+        from data: [String: Any] // swiftformat:disable all
+    ) async throws(Exception) { // swiftformat:enable all
+        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
+
+        // swiftlint:disable identifier_name
+        guard let name = data[Keys.name.rawValue] as? String,
+              let imageDataString = data[Keys.imageData.rawValue] as? String,
+              let isPenPalsConversation = data[Keys.isPenPalsConversation.rawValue] as? Bool,
+              let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
+              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString),
+              let encodedMessageRecipientConsentAcknowledgementData = data[Keys.messageRecipientConsentAcknowledgementData.rawValue] as? [String],
+              let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String],
+              let requiesConsentFromInitiator = data[Keys.requiresConsentFromInitiator.rawValue] as? String else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        let messageRecipientConsentAcknowledgementData = try await encodedMessageRecipientConsentAcknowledgementData
+            .parallelMap {
+                try await MessageRecipientConsentAcknowledgementData(from: $0)
+            }
+
+        // swiftlint:enable identifier_name
+        let penPalsSharingData = try await encodedPenPalsSharingData.parallelMap {
+            try await PenPalsSharingData(from: $0)
+        }
+
+        guard !messageRecipientConsentAcknowledgementData.isEmpty,
+              !penPalsSharingData.isEmpty,
+              messageRecipientConsentAcknowledgementData.count == encodedMessageRecipientConsentAcknowledgementData.count,
+              penPalsSharingData.count == encodedPenPalsSharingData.count else {
+            throw Exception(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: Self.self)
+            )
+        }
+
+        guard !imageDataString.isBangQualifiedEmpty else {
+            self = .init(
+                name: name,
+                imageData: nil,
+                isPenPalsConversation: isPenPalsConversation,
+                lastModifiedDate: lastModifiedDate,
+                messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,
+                penPalsSharingData: penPalsSharingData,
+                requiresConsentFromInitiator: requiesConsentFromInitiator.isBangQualifiedEmpty ? nil : requiesConsentFromInitiator
+            )
+            return
+        }
+
+        guard let imageData = Data(base64Encoded: imageDataString) else {
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
+        }
+
+        self = .init(
+            name: name,
+            imageData: imageData,
+            isPenPalsConversation: isPenPalsConversation,
+            lastModifiedDate: lastModifiedDate,
+            messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,
+            penPalsSharingData: penPalsSharingData,
+            requiresConsentFromInitiator: requiesConsentFromInitiator.isBangQualifiedEmpty ? nil : requiesConsentFromInitiator
+        )
+    }
+
     // MARK: - Methods
 
-    static func canDecode(from data: [String: Any]) -> Bool {
+    static func canDecode(
+        from data: [String: Any]
+    ) -> Bool {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard data[Keys.name.rawValue] is String,
@@ -65,83 +139,5 @@ extension ConversationMetadata: Serializable {
               data[Keys.requiresConsentFromInitiator.rawValue] is String else { return false }
 
         return true
-    }
-
-    static func decode(from data: [String: Any]) async -> Callback<ConversationMetadata, Exception> {
-        @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
-
-        // swiftlint:disable identifier_name
-        guard let name = data[Keys.name.rawValue] as? String,
-              let imageDataString = data[Keys.imageData.rawValue] as? String,
-              let isPenPalsConversation = data[Keys.isPenPalsConversation.rawValue] as? Bool,
-              let lastModifiedDateString = data[Keys.lastModifiedDate.rawValue] as? String,
-              let lastModifiedDate = dateFormatter.date(from: lastModifiedDateString),
-              let encodedMessageRecipientConsentAcknowledgementData = data[Keys.messageRecipientConsentAcknowledgementData.rawValue] as? [String],
-              let encodedPenPalsSharingData = data[Keys.penPalsSharingData.rawValue] as? [String],
-              let requiesConsentFromInitiator = data[Keys.requiresConsentFromInitiator.rawValue] as? String else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        var messageRecipientConsentAcknowledgementData = [MessageRecipientConsentAcknowledgementData]()
-
-        for encodedMessageRecipientConsentAcknowledgementDatum in encodedMessageRecipientConsentAcknowledgementData {
-            let decodeResult = await MessageRecipientConsentAcknowledgementData.decode(from: encodedMessageRecipientConsentAcknowledgementDatum)
-
-            switch decodeResult {
-            case let .success(messageRecipientConsentAcknowledgementDatum):
-                messageRecipientConsentAcknowledgementData.append(messageRecipientConsentAcknowledgementDatum)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
-        // swiftlint:enable identifier_name
-        var penPalsSharingData = [PenPalsSharingData]()
-
-        for encodedPenPalsSharingDatum in encodedPenPalsSharingData {
-            let decodeResult = await PenPalsSharingData.decode(from: encodedPenPalsSharingDatum)
-
-            switch decodeResult {
-            case let .success(penPalsSharingDatum):
-                penPalsSharingData.append(penPalsSharingDatum)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
-        }
-
-        guard !messageRecipientConsentAcknowledgementData.isEmpty,
-              !penPalsSharingData.isEmpty,
-              messageRecipientConsentAcknowledgementData.count == encodedMessageRecipientConsentAcknowledgementData.count,
-              penPalsSharingData.count == encodedPenPalsSharingData.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
-        }
-
-        guard !imageDataString.isBangQualifiedEmpty else {
-            return .success(.init(
-                name: name,
-                imageData: nil,
-                isPenPalsConversation: isPenPalsConversation,
-                lastModifiedDate: lastModifiedDate,
-                messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,
-                penPalsSharingData: penPalsSharingData,
-                requiresConsentFromInitiator: requiesConsentFromInitiator.isBangQualifiedEmpty ? nil : requiesConsentFromInitiator
-            ))
-        }
-
-        guard let imageData = Data(base64Encoded: imageDataString) else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
-        }
-
-        return .success(.init(
-            name: name,
-            imageData: imageData,
-            isPenPalsConversation: isPenPalsConversation,
-            lastModifiedDate: lastModifiedDate,
-            messageRecipientConsentAcknowledgementData: messageRecipientConsentAcknowledgementData,
-            penPalsSharingData: penPalsSharingData,
-            requiresConsentFromInitiator: requiesConsentFromInitiator.isBangQualifiedEmpty ? nil : requiesConsentFromInitiator
-        ))
     }
 }

@@ -17,11 +17,14 @@ struct UserContentContainerReducer: Reducer {
 
     enum Action {
         case chatInfoToolbarButtonTapped
+        case conversationMetadataChanged
     }
 
     // MARK: - State
 
-    struct State: Equatable {}
+    struct State: Equatable {
+        var objectID = UUID()
+    }
 
     // MARK: - Reduce
 
@@ -33,6 +36,11 @@ struct UserContentContainerReducer: Reducer {
                     RootSheets.present(.chatInfoPageView)
                 }
             }
+
+        case .conversationMetadataChanged:
+            state.objectID = UUID()
         }
+
+        return .none
     }
 }

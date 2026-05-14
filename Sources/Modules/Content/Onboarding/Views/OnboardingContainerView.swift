@@ -29,7 +29,6 @@ struct OnboardingContainerView: View {
 
     // MARK: - View
 
-    @ViewBuilder
     var body: some View {
         ZStack {
             Color.clear

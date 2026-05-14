@@ -101,7 +101,7 @@ final class ReactionSessionService {
 
         // Notify users of reaction to message
 
-        Task(priority: .utility) {
+        Task(priority: .utility) { @MainActor in
             if let exception = await notifyUsers(
                 ofReaction: reaction,
                 to: message
@@ -129,7 +129,10 @@ final class ReactionSessionService {
     private func didSetIsReactingToMessage() {
         switch isReactingToMessage {
         case true:
-            ContextMenuInteraction.setCanBegin(false)
+            Task { @MainActor in
+                ContextMenuInteraction.setCanBegin(false)
+            }
+
             let uponIsReactingToMessageChangedToTrue = drainEffects($uponIsReactingToMessageChangedToTrue)
             guard !uponIsReactingToMessageChangedToTrue.isEmpty else { return }
 
@@ -143,7 +146,10 @@ final class ReactionSessionService {
             runEffects(uponIsReactingToMessageChangedToTrue)
 
         case false:
-            ContextMenuInteraction.setCanBegin(true)
+            Task { @MainActor in
+                ContextMenuInteraction.setCanBegin(true)
+            }
+
             let uponIsReactingToMessageChangedToFalse = drainEffects($uponIsReactingToMessageChangedToFalse)
             guard !uponIsReactingToMessageChangedToFalse.isEmpty else { return }
 
@@ -169,6 +175,7 @@ final class ReactionSessionService {
         }
     }
 
+    @MainActor
     private func notifyUsers(
         ofReaction reaction: Reaction,
         to message: Message
@@ -230,50 +237,51 @@ final class ReactionSessionService {
         messageData: (index: Int, message: Message),
         reactionMetadata: [ReactionMetadata]
     ) async -> Exception? {
-        let updateValueResult = await conversation.updateValue(
-            reactionMetadata,
-            forKey: .reactionMetadata
-        )
+        let updatedConversation: Conversation
+        do {
+            updatedConversation = try await conversation.update(
+                \.reactionMetadata,
+                to: reactionMetadata
+            )
+        } catch {
+            isReactingToMessage = false
+            return error
+        }
 
         isReactingToMessage = false
-        switch updateValueResult {
-        case let .success(updatedConversation):
-            if let exception = await updatedConversation.setMessages(ids: [
-                messageData.message.id,
-            ]) {
-                return exception
-            }
 
-            guard chatPageState.isPresented,
-                  conversationSession
-                  .currentConversation?
-                  .id
-                  .key == conversation.id.key else { return nil }
-
-            conversationSession.setCurrentConversation(updatedConversation)
-            chatPageViewService.reloadItemsWhenSafe(at: [.init(
-                item: 0,
-                section: messageData.index
-            )])
-
-            chatPageViewService
-                .contextMenu?
-                .interaction
-                .addContextMenuInteractionToVisibleCellsOnce()
-
-            guard messageData
-                .message
-                .contentType
-                .isAudio else { return nil }
-
-            chatPageViewService
-                .audioMessagePlayback?
-                .updateDurationLabelIfNeeded(forMessage: messageData.message)
-
-            return nil
-
-        case let .failure(exception):
+        if let exception = await updatedConversation.setMessages(ids: [
+            messageData.message.id,
+        ]) {
             return exception
         }
+
+        guard chatPageState.isPresented,
+              conversationSession
+              .currentConversation?
+              .id
+              .key == conversation.id.key else { return nil }
+
+        conversationSession.setCurrentConversation(updatedConversation)
+        chatPageViewService.reloadItemsWhenSafe(at: [.init(
+            item: 0,
+            section: messageData.index
+        )])
+
+        chatPageViewService
+            .contextMenu?
+            .interaction
+            .addContextMenuInteractionToVisibleCellsOnce()
+
+        guard messageData
+            .message
+            .contentType
+            .isAudio else { return nil }
+
+        chatPageViewService
+            .audioMessagePlayback?
+            .updateDurationLabelIfNeeded(forMessage: messageData.message)
+
+        return nil
     }
 }

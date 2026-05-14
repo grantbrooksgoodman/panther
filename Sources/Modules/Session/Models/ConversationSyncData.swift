@@ -9,15 +9,11 @@
 /* Native */
 import Foundation
 
-struct ConversationSyncData: Hashable {
+struct ConversationSyncData: Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     let conversation: Conversation
     let newData: [String: Any]
-
-    // MARK: - Computed Properties
-
-    static let empty: ConversationSyncData = .init(.empty, newData: [:])
 
     // MARK: - Init
 

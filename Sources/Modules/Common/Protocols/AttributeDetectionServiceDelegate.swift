@@ -32,7 +32,8 @@ protocol AttributeDetectionServiceDelegate: AnyObject {
     )
 }
 
-final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceDelegate {
+@MainActor
+final class DefaultAttributeDetectionServiceDelegate: @MainActor AttributeDetectionServiceDelegate {
     // MARK: - Dependencies
 
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -100,7 +101,11 @@ final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceD
 
             await AKActionSheet(
                 message: message,
-                actions: [.init(actionTitle) { self.openURL(url) }],
+                actions: [.init(actionTitle) {
+                    Task { @MainActor in
+                        self.openURL(url)
+                    }
+                }],
                 cancelButtonTitle: Localized(.cancel).wrappedValue,
                 sourceItem: .custom(.view(
                     matchingLabels.count > 1 ? nil : matchingLabels.first
@@ -110,8 +115,6 @@ final class DefaultAttributeDetectionServiceDelegate: AttributeDetectionServiceD
     }
 
     private func openURL(_ url: URL) {
-        Task { @MainActor in
-            await uiApplication.open(url)
-        }
+        uiApplication.open(url)
     }
 }

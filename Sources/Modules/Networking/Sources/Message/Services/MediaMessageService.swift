@@ -21,41 +21,19 @@ struct MediaMessageService {
 
     // MARK: - Get Media Component
 
-    func getMediaComponent(for message: Message) async -> Callback<Message, Exception> {
-        let userInfo = ["MessageID": message.id]
-        guard let localMediaFilePath = message.localMediaFilePath else {
-            return .failure(.init(
-                "Message does not have a media component.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
-
-        switch cachedMediaFile(
-            for: message,
-            localPath: localMediaFilePath
-        ) {
+    func getMediaComponent(
+        messageID: String,
+        localMediaFilePath: LocalMediaFilePath
+    ) async -> Callback<MediaFile, Exception> {
+        switch cachedMediaFile(localPath: localMediaFilePath) {
         case let .success(mediaFile):
-            return .success(appendMediaComponent(
-                mediaFile,
-                to: message
-            ))
+            .success(mediaFile)
 
         case .failure:
-            let downloadMediaFileResult = await downloadMediaFile(
-                for: message,
+            await downloadMediaFile(
+                messageID: messageID,
                 localPath: localMediaFilePath
             )
-
-            switch downloadMediaFileResult {
-            case let .success(mediaFile):
-                return .success(appendMediaComponent(
-                    mediaFile,
-                    to: message
-                ))
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: ["MessageID": message.id]))
-            }
         }
     }
 
@@ -64,14 +42,16 @@ struct MediaMessageService {
     func deleteMediaComponent(for messageID: String) async -> Exception? {
         var exceptions = [Exception]()
 
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkPath.messages.rawValue)/\(messageID)/\(Message.SerializationKeys.contentType.rawValue)"
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let string = values as? String,
-                  let hostedContentType = HostedContentType(hostedValue: string) else {
+        do {
+            guard let hostedContentType = try await HostedContentType(
+                hostedValue: networking.database.getValues(
+                    at: [
+                        NetworkPath.messages.rawValue,
+                        messageID,
+                        Message.SerializableKey.contentType.rawValue,
+                    ].joined(separator: "/")
+                )
+            ) else {
                 return .init(
                     "Failed to resolve hosted content type.",
                     metadata: .init(sender: self)
@@ -86,7 +66,7 @@ struct MediaMessageService {
                 )
             }
 
-            guard (try? (await multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
+            guard await (try? (multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
 
             if let exception = await networking.storage.deleteItem(
                 at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
@@ -100,9 +80,8 @@ struct MediaMessageService {
                 !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
                 exceptions.append(exception)
             }
-
-        case let .failure(exception):
-            exceptions.append(exception)
+        } catch {
+            exceptions.append(error)
         }
 
         return exceptions.compiledException
@@ -115,9 +94,9 @@ struct MediaMessageService {
         let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
 
-        if (try? await networking.storage.itemExists(at: relativePath).get()) == true {
+        if await (try? networking.storage.itemExists(at: relativePath).get()) == true {
             guard mediaComponent.hasThumbnail,
-                  (try? await networking.storage.itemExists(at: thumbnailRelativePath).get()) == false else {
+                  await (try? networking.storage.itemExists(at: thumbnailRelativePath).get()) == false else {
                 if let exception = fileManager.move(
                     fileAt: mediaComponent.localPathURL,
                     toPath: fileManager.documentsDirectoryURL.appending(path: relativePath)
@@ -189,47 +168,25 @@ struct MediaMessageService {
 
     // MARK: - Auxiliary
 
-    private func appendMediaComponent(
-        _ mediaComponent: MediaFile,
-        to message: Message
-    ) -> Message {
-        .init(
-            message.id,
-            fromAccountID: message.fromAccountID,
-            contentType: .media(
-                id: mediaComponent.encodedHash.shortened,
-                extension: mediaComponent.fileExtension
-            ),
-            richContent: .media(mediaComponent),
-            translationReferences: message.translationReferences,
-            translations: message.translations,
-            readReceipts: message.readReceipts,
-            sentDate: message.sentDate
-        )
-    }
-
     private func cachedMediaFile(
-        for message: Message,
         localPath: LocalMediaFilePath
     ) -> Callback<MediaFile, Exception> {
-        let userInfo = ["MessageID": message.id]
-
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
             return .failure(.init(
                 "Media message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ))
         }
 
         return .success(mediaFile)
     }
 
     private func downloadMediaFile(
-        for message: Message,
+        messageID: String,
         localPath: LocalMediaFilePath
     ) async -> Callback<MediaFile, Exception> {
-        let userInfo = ["MessageID": message.id]
+        let userInfo = ["MessageID": messageID]
 
         if let exception = await networking.storage.downloadItem(
             at: localPath.relativePathString,
@@ -270,13 +227,12 @@ struct MediaMessageService {
                         HostedContentType(
                             hostedValue: (($0 as? [String: Any])?[
                                 Message
-                                    .SerializationKeys
+                                    .SerializableKey
                                     .contentType
                                     .rawValue
                             ] as? String) ?? ""
-                        )
+                        )?.mediaFilePath
                     }
-                    .compactMap(\.mediaFilePath)
                     .count(of: mediaFilePath) > 1
             )
 

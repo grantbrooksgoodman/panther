@@ -99,18 +99,16 @@ struct ConversationsPageView: View {
                             prompt: Localized(.search).wrappedValue
                         )
                         .if(
-                            viewModel.shouldShowExtraToolbarButtons,
-                            {
-                                $0.toolbar {
-                                    deleteConversationsToolbarButton
-                                    createRandomMessagesToolbarButton
-                                    composeToolbarButton
-                                }
-                            },
-                            else: {
-                                $0.toolbar { composeToolbarButton }
+                            viewModel.shouldShowExtraToolbarButtons
+                        ) {
+                            $0.toolbar {
+                                deleteConversationsToolbarButton
+                                createRandomMessagesToolbarButton
+                                composeToolbarButton
                             }
-                        )
+                        } else: {
+                            $0.toolbar { composeToolbarButton }
+                        }
                     }
                     .if(!ThemeService.isAppDefaultThemeApplied) {
                         $0.navigationBarItemGlassTint(
@@ -220,7 +218,7 @@ struct ConversationsPageView: View {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ConversationsPageViewStringKey) -> String {
         (first(where: { $0.key == .conversationsPageView(key) })?.value ?? key.rawValue).sanitized
     }

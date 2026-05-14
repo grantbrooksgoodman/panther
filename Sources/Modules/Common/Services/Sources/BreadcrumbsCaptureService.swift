@@ -15,7 +15,7 @@ import AppSubsystem
 import Networking
 
 @MainActor
-final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
+final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCaptureDelegate {
     // MARK: - Types
 
     enum CaptureGranularity {
@@ -48,7 +48,9 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
         set { @Persistent(.breadcrumbsCaptureFrequency) var persistedValue: Duration?; persistedValue = newValue }
     }
 
-    var isCapturing: Bool { captureTask != nil }
+    var isCapturing: Bool {
+        captureTask != nil
+    }
 
     private var captureHistory: Set<String> {
         get { @Persistent(.breadcrumbsCaptureHistory) var persistedValue: Set<String>?; return persistedValue ?? .init() }
@@ -153,6 +155,9 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
     private func capture() {
         guard Int.random(in: 1 ... 1_000_000) % 3 == 0 else { return }
 
+        // TODO: Show build-info overlay here.
+
+        // swiftformat:disable all
         var viewHierarchyID: String?
         switch captureGranularity {
         case .broad:
@@ -179,7 +184,7 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
             .sorted()
             .joined()
             .encodedHash
-        }
+        } // swiftformat:enable all
 
         var captureHistory = captureHistory
         guard let viewHierarchyID,
@@ -279,8 +284,6 @@ final class BreadcrumbsCaptureService: @preconcurrency AppSubsystem.Delegates.Br
         let filePath = [
             NetworkPath.breadcrumbs.rawValue,
             build.bundleVersion,
-            build.bundleRevision,
-            "\(build.buildNumber)\(build.milestone.shortString)",
             "\(keyDescriptor)\(keyDescriptor == leafDescriptor ? "" : " & \(leafDescriptor)")",
         ].joined(separator: "/") + "/\(fileName).\(ImageFileExtension.jpeg.rawValue)"
 

@@ -16,12 +16,11 @@ import Networking
 extension ReactionMetadata: Serializable {
     // MARK: - Type Aliases
 
-    typealias T = ReactionMetadata
-    private typealias Keys = SerializationKeys
+    private typealias Keys = SerializableKey
 
     // MARK: - Types
 
-    private enum SerializationKeys: String {
+    private enum SerializableKey: String {
         case messageID
         case reactions
     }
@@ -35,42 +34,41 @@ extension ReactionMetadata: Serializable {
         ]
     }
 
-    // MARK: - Methods
+    // MARK: - Init
 
-    static func canDecode(from data: [String: Any]) -> Bool {
-        guard data[Keys.messageID.rawValue] is String,
-              let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]],
-              encodedReactions.allSatisfy({ Reaction.canDecode(from: $0) }) else { return false }
-
-        return true
-    }
-
-    static func decode(from data: [String: Any]) async -> Callback<ReactionMetadata, Exception> {
+    init( // swiftformat:disable all
+        from data: [String: Any]
+    ) async throws(Exception) { // swiftformat:enable all
         guard let messageID = data[Keys.messageID.rawValue] as? String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]] else {
-            return .failure(.Networking.decodingFailed(data: data, .init(sender: self)))
+            throw .Networking.decodingFailed(
+                data: data,
+                .init(sender: Self.self)
+            )
         }
 
-        var reactions = [Reaction]()
-
-        for encodedReaction in encodedReactions {
-            let decodeResult = await Reaction.decode(from: encodedReaction)
-
-            switch decodeResult {
-            case let .success(reaction):
-                reactions.append(reaction)
-
-            case let .failure(exception):
-                return .failure(exception)
-            }
+        let reactions = try await encodedReactions.parallelMap(
+            failForEmptyCollection: true
+        ) {
+            try await Reaction(from: $0)
         }
 
-        guard !reactions.isEmpty,
-              reactions.count == encodedReactions.count else {
-            return .failure(.init("Mismatched ratio returned.", metadata: .init(sender: self)))
-        }
+        self = .init(
+            messageID: messageID,
+            reactions: reactions
+        )
+    }
 
-        let decoded: ReactionMetadata = .init(messageID: messageID, reactions: reactions)
-        return .success(decoded)
+    // MARK: - Methods
+
+    static func canDecode(
+        from data: [String: Any]
+    ) -> Bool {
+        guard data[Keys.messageID.rawValue] is String,
+              let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]],
+              encodedReactions.allSatisfy({
+                  Reaction.canDecode(from: $0)
+              }) else { return false }
+        return true
     }
 }

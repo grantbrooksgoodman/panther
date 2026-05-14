@@ -15,6 +15,12 @@ import AppSubsystem
 extension Conversation {
     // MARK: - Properties
 
+    var chatPageHeaderLabelText: String? {
+        guard metadata.name.isBangQualifiedEmpty,
+              participants.count > 2 else { return nil }
+        return "\(participants.count - 1) \(Localized(.people).wrappedValue)"
+    }
+
     var currentUserGrantedMessageReceiptConsent: Bool {
         guard !currentUserInitiatorRequiresMessageReceiptConsent,
               metadata.requiresConsentFromInitiator != nil else { return true }
@@ -25,9 +31,18 @@ extension Conversation {
     }
 
     // swiftlint:disable:next identifier_name
-    var currentUserInitiatorRequiresMessageReceiptConsent: Bool { metadata.requiresConsentFromInitiator == User.currentUserID }
-    var currentUserParticipant: Participant? { participants.firstWithCurrentUserID }
-    var currentUserPenPalsSharingData: PenPalsSharingData? { metadata.penPalsSharingData.firstWithCurrentUserID }
+    var currentUserInitiatorRequiresMessageReceiptConsent: Bool {
+        metadata.requiresConsentFromInitiator == User.currentUserID
+    }
+
+    var currentUserParticipant: Participant? {
+        participants.firstWithCurrentUserID
+    }
+
+    var currentUserPenPalsSharingData: PenPalsSharingData? {
+        metadata.penPalsSharingData.firstWithCurrentUserID
+    }
+
     var currentUserSharesPenPalsDataWithAllUsers: Bool {
         guard metadata.isPenPalsConversation else { return true }
         return currentUserPenPalsSharingData?
@@ -54,8 +69,13 @@ extension Conversation {
         )
     }
 
-    var isEmpty: Bool { id.key.isBlank && id.hash.isBlank }
-    var isMock: Bool { id.key == CommonConstants.newConversationID }
+    var isEmpty: Bool {
+        id.key.isBlank && id.hash.isBlank
+    }
+
+    var isMock: Bool {
+        id.key == CommonConstants.newConversationID
+    }
 
     /// - Note: Returns `nil` if the conversation has > 2 total participants.
     var isOtherUserSharingPenPalsData: Bool? {
@@ -73,6 +93,7 @@ extension Conversation {
         return true
     }
 
+    @MainActor
     var mediaItemMetadata: [MediaItemView.Metadata] {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
 
@@ -134,16 +155,7 @@ extension Conversation {
 
     var withHydratedMessages: Conversation {
         guard let messages else { return self }
-        return .init(
-            id,
-            activities: activities,
-            messageIDs: messageIDs,
-            messages: messages.hydrated(with: activities),
-            metadata: metadata,
-            participants: participants,
-            reactionMetadata: reactionMetadata,
-            users: users
-        )
+        return withMessages(messages.hydrated(with: activities))
     }
 
     // swiftlint:disable:next identifier_name
@@ -219,5 +231,18 @@ extension Conversation {
         guard metadata.isPenPalsConversation,
               participants.map(\.userID).contains(user.id) else { return true }
         return (participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID).contains(user.id)
+    }
+
+    func withMessages(_ messages: [Message]?) -> Conversation {
+        .init(
+            id,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages,
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata,
+            users: users
+        )
     }
 }

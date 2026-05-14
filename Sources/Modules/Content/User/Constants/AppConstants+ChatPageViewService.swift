@@ -19,6 +19,7 @@ extension AppConstants.CGFloats {
     enum ChatPageViewService {
         static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
         static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
+        static let previewConfigBottomInset: CGFloat = 8
         static let scrollDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
         static let setNavigationBarButtonItemAppearanceDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
         static let triggerFocusedMessageCellInteractionDelayMilliseconds: CGFloat = 500
@@ -93,6 +94,10 @@ extension AppConstants.CGFloats {
 
             static let textContainerInsetRightIncrement: CGFloat = 10
             static let transitionAnimationDuration: CGFloat = 0.3
+
+            static let v26AttachMediaButtonSize: CGFloat = 34
+            static let v26TextContainerHorizontalInset: CGFloat = 6
+            static let v26TextContainerVerticalInset: CGFloat = 10
         }
 
         enum InputBarGestureRecognizer {
@@ -155,14 +160,22 @@ extension AppConstants.Colors {
         }
 
         enum InputBar {
+            /* MARK: Properties */
+
             static let inputTextViewAlternateTint: Color = .init(uiColor: .clear)
             static let inputTextViewLayerBorder: Color = .init(uiColor: .systemGray)
-            static let inputTextViewTint: Color = .init(uiColor: .accentOrSystemBlue)
 
             static let prevaricationModeBackground: Color = .init(uiColor: .init(hex: 0xF8F8F8))
 
             static let sendButtonRecordTint: Color = .init(uiColor: .red)
             static let sendButtonTextTint: Color = .init(uiColor: .systemBlue)
+
+            /* MARK: Computed Properties */
+
+            @MainActor
+            static var inputTextViewTint: Color {
+                .init(uiColor: .accentOrSystemBlue)
+            }
         }
 
         enum RecordingUI {
@@ -219,11 +232,18 @@ extension AppConstants.Strings {
 
         enum InputBar {
             static let attachMediaButtonSemanticTag = "ATTACH_MEDIA_BUTTON"
+
             static let consentButtonSemanticTag = "CONSENT_BUTTON"
+
+            static let inputTextViewGlassEffectViewSemanticTag = "INPUT_TEXT_VIEW_GLASS_EFFECT_VIEW"
+
             static let recordButtonSemanticTag = "RECORD_BUTTON"
+
             static let sendButtonOfflineImageSystemName = "wifi.slash"
             static let sendButtonSemanticTag = "SEND_BUTTON" // swiftlint:disable:next identifier_name
             static let sendButtonStorageLimitReachedImageSystemName = "externaldrive.trianglebadge.exclamationmark"
+
+            static let v26AttachMediaButtonImageSystemName = "plus"
         }
 
         enum InputBarGestureRecognizer { // swiftlint:disable:next line_length

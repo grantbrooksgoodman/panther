@@ -22,14 +22,13 @@ struct ChatInfoPageReducer: Reducer {
     @Dependency(\.chatPageViewService) private var chatPageViewService: ChatPageViewService
     @Dependency(\.conversationCellViewService) private var conversationCellViewService: ConversationCellViewService
     @Dependency(\.clientSession.conversation) private var conversationSession: ConversationSessionService
-    @Dependency(\.build.isDeveloperModeEnabled) private var isDeveloperModeEnabled: Bool
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.chatInfoPageViewService) private var viewService: ChatInfoPageViewService
 
     // MARK: - Actions
 
-    enum Action { // TODO: Make all models Sendable where possible. Good preparation for Swift 6 language mode.
+    enum Action {
         case viewAppeared
         case viewDisappeared
 
@@ -90,7 +89,10 @@ struct ChatInfoPageReducer: Reducer {
 
         /* MARK: Computed Properties */
 
-        var avatarImage: UIImage? { cellViewData?.thumbnailImage }
+        @MainActor
+        var avatarImage: UIImage? {
+            cellViewData?.thumbnailImage
+        }
 
         var chatInfoCellImageSystemName: String {
             "chevron.\(visibleParticipants.isEmpty ? "right" : "down").circle"
@@ -104,22 +106,24 @@ struct ChatInfoPageReducer: Reducer {
             "\(chatParticipants.count) \(strings.value(for: .participantCountLabelText))"
         }
 
+        @MainActor
         var chatTitleLabelText: String {
             guard let cellViewData else { return "" }
             return cellViewData.titleLabelText
         }
 
         var isDeveloperModeEnabled: Bool {
-            @Dependency(\.build) var build: Build
-            return build.isDeveloperModeEnabled
+            Dependency(\.build.isDeveloperModeEnabled).wrappedValue
         }
 
+        @MainActor
         var mediaItemMetadata: [MediaItemView.Metadata] {
             conversation?
                 .withMessagesOffsetFromCurrentUserAdditionDate
                 .mediaItemMetadata ?? []
         }
 
+        @MainActor
         var segmentedControlMaxWidth: CGFloat {
             Dependency(\.uiApplication.mainScreen.bounds.width).wrappedValue * (2 / 3)
         }
@@ -145,8 +149,7 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var showsRemoveUserSwipeAction: Bool {
-            // TODO: Remove the dependency on isDeveloperModeEnabled.
-            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+            guard conversation?.metadata.isPenPalsConversation == false,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
                   visibleParticipants.count > 2 else { return false }
             return true
@@ -159,14 +162,14 @@ struct ChatInfoPageReducer: Reducer {
         }
 
         var visibleParticipantsIncrement: Int {
-            // TODO: Remove the dependency on isDeveloperModeEnabled.
-            guard conversation?.metadata.isPenPalsConversation == false || isDeveloperModeEnabled,
+            guard conversation?.metadata.isPenPalsConversation == false,
                   conversation?.metadata.requiresConsentFromInitiator == nil,
                   !visibleParticipants.isEmpty,
                   visibleParticipants.count < 10 else { return 0 }
             return 1
         }
 
+        @MainActor
         fileprivate var cellViewData: ConversationCellViewData? {
             guard let conversation else { return nil }
             return .init(conversation)
@@ -317,9 +320,23 @@ struct ChatInfoPageReducer: Reducer {
         case let .penPalsSharingDataConfirmationActionSheetDismissed(newMetadata):
             guard let conversation = state.conversation,
                   let newMetadata else { return .none }
-            return .task {
-                let result = await conversation.updateValue(newMetadata, forKey: .metadata)
-                return .updateMetadataReturned(result, togglePenPalsSharingDataSwitch: true)
+            return .task { // swiftformat:disable all
+                do throws(Exception) { // swiftformat:enable all
+                    return try await .updateMetadataReturned(
+                        .success(
+                            conversation.update(
+                                \.metadata,
+                                to: newMetadata
+                            )
+                        ),
+                        togglePenPalsSharingDataSwitch: true
+                    )
+                } catch {
+                    return .updateMetadataReturned(
+                        .failure(error),
+                        togglePenPalsSharingDataSwitch: true
+                    )
+                }
             }
 
         case let .penPalParticipantViewTapped(chatParticipant):
@@ -411,6 +428,7 @@ struct ChatInfoPageReducer: Reducer {
 
             conversationSession.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
+            Observables.currentConversationMetadataChanged.trigger()
 
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)
@@ -442,7 +460,7 @@ struct ChatInfoPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ChatInfoPageViewStringKey) -> String {
         (first(where: { $0.key == .chatInfoPageView(key) })?.value ?? key.rawValue).sanitized
     }

@@ -13,6 +13,7 @@ import SwiftUI
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 extension HeaderView.PeripheralButtonType {
     static func v26DoneButton(_ action: @escaping () -> Void) -> HeaderView.PeripheralButtonType {
         .image(
@@ -22,7 +23,7 @@ extension HeaderView.PeripheralButtonType {
                     image: .init(systemName: "checkmark"),
                     size: .init(width: 22, height: 22),
                     weight: .semibold
-                ),
+                )
             ) {
                 action()
             }

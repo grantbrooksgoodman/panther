@@ -18,33 +18,44 @@ import Networking
 /* 3rd-party */
 import FirebaseDatabase
 
-final class UserSessionService {
+final class UserSessionService: @unchecked Sendable {
     // MARK: - Types
 
-    private enum TaskID: Hashable {
+    private enum TaskID: String {
         case getDataUsage
     }
 
     // MARK: - Dependencies
 
-    @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
-    @Dependency(\.coreKit) private var core: CoreKit
+    @Dependency(\.coreKit.utils) private var coreUtilities: CoreKit.Utilities
+    @Dependency(\.build.isOnline) private var isOnline: Bool
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.clientSession.storage) private var storageSession: StorageSessionService
     @Dependency(\.timestampDateFormatter) private var timestampDateFormatter: DateFormatter
 
     // MARK: - Properties
 
-    // NIT: Should probably be actor-isolated.
-    private(set) var currentUser: User?
-
     @Persistent(.currentUserID) private var currentUserID: String?
+    @LockIsolated private var isUpdatePending = false
     @LockIsolated private var isUpdatingCurrentUser = false
+    private var _currentUser = LockIsolated<User?>(nil)
 
     // MARK: - Computed Properties
 
-    var offlineCurrentUser: User? {
+    private(set) var currentUser: User? {
+        get { _currentUser.wrappedValue }
+        set { _currentUser.wrappedValue = newValue }
+    }
+
+    private var currentUserDatabaseReference: DatabaseReference? {
+        guard let currentUser else { return nil }
+        return Database.database().reference().child(
+            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
+        )
+    }
+
+    private var offlineCurrentUser: User? {
         get {
             @Persistent(.offlineCurrentUser) var offlineCurrentUser: User?
 
@@ -67,13 +78,6 @@ final class UserSessionService {
         }
     }
 
-    private var currentUserDatabaseReference: DatabaseReference? {
-        guard let currentUser else { return nil }
-        return Database.database().reference().child(
-            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
-        )
-    }
-
     // MARK: - Object Lifecycle
 
     deinit {
@@ -87,7 +91,9 @@ final class UserSessionService {
 
     // MARK: - Resolve Current User
 
-    func resolveCurrentUser(_ cacheStrategy: CacheStrategy = .returnCacheOnFailure) async -> Callback<User, Exception> {
+    func resolveCurrentUser(
+        _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
+    ) async -> Callback<User, Exception> {
         guard let currentUserID else {
             return .failure(.init("Current user ID has not been set.", metadata: .init(sender: self)))
         }
@@ -98,23 +104,16 @@ final class UserSessionService {
             return .success(currentUser)
         }
 
-        isUpdatingCurrentUser = true
-
         let getUserResult = await networking.userService.getUser(id: currentUserID)
 
         switch getUserResult {
         case let .success(user):
-            // FIXME: Seeing data races occur here. Fixed using mainQueue.sync for now.
-            core.gcd.syncOnMain {
-                self.currentUser = user
-                self.currentUserID = user.id
-            }
-            isUpdatingCurrentUser = false
+            user.inheritLocalState(from: currentUser)
+            currentUser = user
+            await MainActor.run { self.currentUserID = user.id }
             return .success(user)
 
         case let .failure(exception):
-            isUpdatingCurrentUser = false
-
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
@@ -156,11 +155,11 @@ final class UserSessionService {
                 )
             }
 
-            core.gcd.syncOnMain { self.currentUser = user }
+            currentUser = user
             return nil
         }
 
-        core.gcd.syncOnMain { self.currentUser = user }
+        currentUser = user
         return nil
     }
 
@@ -172,7 +171,7 @@ final class UserSessionService {
 
     @discardableResult
     func setOfflineCurrentUser() -> Exception? {
-        guard !build.isOnline else {
+        guard !isOnline else {
             return .init(
                 "Internet connection is not offline.",
                 isReportable: false,
@@ -203,28 +202,27 @@ final class UserSessionService {
             )
         }
 
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKey.languageCode.rawValue)"
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let string = values as? String else {
-                return .Networking.typecastFailed("string", metadata: .init(sender: self))
-            }
+        do {
+            let languageCode: String = try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.languageCode.rawValue,
+                ].joined(separator: "/")
+            )
 
             Logger.log(
-                "Setting language code to \(string.englishLanguageName ?? string.uppercased()).",
+                "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
                 domain: .userSession,
                 sender: self
             )
 
-            core.utils.setLanguageCode(string)
-            return nil
-
-        case let .failure(exception):
-            return exception
+            coreUtilities.setLanguageCode(languageCode)
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Current User Observation
@@ -295,7 +293,7 @@ final class UserSessionService {
         let currentBlockedUserIDs = (currentUser?.blockedUserIDs ?? .bangQualifiedEmpty).sorted()
 
         guard let updatedBlockedUserIDs = (dictionary[
-            User.SerializationKeys.blockedUserIDs.rawValue
+            User.SerializableKey.blockedUserIDs.rawValue
         ] as? [String])?.sorted() else { return false }
 
         return currentBlockedUserIDs != updatedBlockedUserIDs
@@ -308,7 +306,7 @@ final class UserSessionService {
             .sorted() else { return true }
 
         guard let updatedConversationIDStrings = (dictionary[
-            User.SerializationKeys.conversationIDs.rawValue
+            User.SerializableKey.conversationIDs.rawValue
         ] as? [String])?.sorted() else { return false }
 
         // Remove deleted conversations.
@@ -327,7 +325,7 @@ final class UserSessionService {
     private func lastSignedInDateDidChange(_ dictionary: [String: Any]) -> Bool {
         let currentLastSignedInDate = currentUser?.lastSignedIn
         let updatedLastSignedInString = dictionary[
-            User.SerializationKeys.lastSignedIn.rawValue
+            User.SerializableKey.lastSignedIn.rawValue
         ] as? String
 
         guard let updatedLastSignedInString,
@@ -339,30 +337,39 @@ final class UserSessionService {
     }
 
     private func signOutToPreserveSingleActiveUser() {
-        Toast.show(
-            .init(
-                .banner(style: .info),
-                title: "You have been signed out.",
-                message: "A sign-in was detected from another device."
-            ),
-            translating: Toast.TranslationOptionKey.allCases
-        )
+        Task { @MainActor in
+            Toast.show(
+                .init(
+                    .banner(style: .info),
+                    title: "You have been signed out.",
+                    message: "A sign-in was detected from another device."
+                ),
+                translating: Toast.TranslationOptionKey.allCases
+            )
 
-        RuntimeStorage.store(false, as: .updatedLastSignInDate)
-        return Application.reset(onCompletion: .navigateToSplash)
+            Application.reset(
+                onCompletion: .navigateToSplash
+            )
+        }
     }
 
     private func updateCurrentUser() {
         Task {
+            var isUpdatingCurrentUser = false
+            $isUpdatingCurrentUser.withValue {
+                isUpdatingCurrentUser = $0
+                if !$0 { $0 = true }
+            }
+
             guard !isUpdatingCurrentUser else {
+                $isUpdatePending.withValue { $0 = true }
                 return Logger.log(
-                    "Skipping current user update because an update is already occurring.",
+                    "Queuing pending current user update because an update is already occurring.",
                     domain: .userSession,
                     sender: self
                 )
             }
 
-            isUpdatingCurrentUser = true
             let resolveCurrentUserResult = await resolveCurrentUser()
 
             switch resolveCurrentUserResult {
@@ -373,28 +380,45 @@ final class UserSessionService {
                     sender: self
                 )
 
+                if let exception = await currentUser?.setConversations() {
+                    Logger.log(exception, domain: .userSession)
+                }
+
                 Task.debounced(
-                    TaskID.getDataUsage,
+                    "\(String.fromCurrentEditorContext(sender: self))/\(TaskID.getDataUsage.rawValue)",
                     delay: .seconds(5),
                     priority: .utility
                 ) {
-                    self.core.utils.clearCaches([.user])
+                    self.coreUtilities.clearCaches([.user])
                     _ = await self.storageSession.getCurrentUserDataUsage()
                 }
 
                 Observables.updatedCurrentUser.trigger()
                 chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
 
-                isUpdatingCurrentUser = false
-
             case let .failure(exception):
                 Logger.log(
                     exception,
                     domain: .userSession
                 )
-
-                isUpdatingCurrentUser = false
             }
+
+            var shouldRetry = false
+            $isUpdatePending.withValue {
+                shouldRetry = $0
+                $0 = false
+            }
+
+            self.isUpdatingCurrentUser = false
+            guard shouldRetry else { return }
+
+            Logger.log(
+                "Retrying current user update from pending request.",
+                domain: .userSession,
+                sender: self
+            )
+
+            updateCurrentUser()
         }
     }
 }

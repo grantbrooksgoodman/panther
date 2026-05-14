@@ -68,10 +68,10 @@ struct ChangeLanguagePageViewService {
 
         defer { core.hud.hide() }
 
-        var loadedData = false
+        let loadedData = LockIsolated<Bool?>(nil)
         let timeout = Timeout(after: .seconds(1)) {
             Task { @MainActor in
-                guard !loadedData else { return }
+                guard loadedData.wrappedValue != true else { return }
                 core.ui.addOverlay(
                     alpha: 0.5,
                     activityIndicator: nil,
@@ -128,41 +128,46 @@ struct ChangeLanguagePageViewService {
         }
 
         newPreviousLanguageCodes = newPreviousLanguageCodes.unique.reversed()
-        let updateValueResult = await currentUser.updateValue(
-            newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes,
-            forKey: .previousLanguageCodes
-        )
 
-        loadedData = true
+        loadedData.wrappedValue = true
         timeout.cancel()
 
-        switch updateValueResult {
-        case let .success(user):
-            if let exception = userSession.setCurrentUser(user) {
+        do {
+            if let exception = try await userSession.setCurrentUser(
+                currentUser.update(
+                    \.previousLanguageCodes,
+                    to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
+                )
+            ) {
                 return exception
             }
 
             if let exception = await database.setValue(
                 languageCode,
-                forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)/\(User.SerializationKeys.languageCode.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.languageCode.rawValue,
+                ].joined(separator: "/")
             ) {
                 return exception
             }
 
-            Application.reset(
-                preserveCurrentUserID: true,
-                onCompletion: .exitGracefully
-            )
-
-        case let .failure(exception):
-            return exception
+            await MainActor.run {
+                Application.reset(
+                    preserveCurrentUserID: true,
+                    onCompletion: .exitGracefully
+                )
+            }
+        } catch {
+            return error
         }
 
         return nil
     }
 }
 
-private extension Array where Element == Conversation {
+private extension [Conversation] {
     func messageTranslations(
         fromCurrentUser: Bool
     ) -> [Translation] {

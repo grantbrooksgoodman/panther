@@ -13,6 +13,7 @@ import UIKit
 /* Proprietary */
 import AppSubsystem
 
+@MainActor
 final class RecipientBarTableViewService {
     // MARK: - Types
 
@@ -24,7 +25,6 @@ final class RecipientBarTableViewService {
     // MARK: - Dependencies
 
     @Dependency(\.clientSession.user.currentUser?.conversations) private var conversations: [Conversation]?
-    @Dependency(\.commonServices.penPals) private var penPalsService: PenPalsService
     @Dependency(\.chatPageViewService.recipientBar) private var service: RecipientBarService?
 
     // MARK: - Properties
@@ -37,7 +37,9 @@ final class RecipientBarTableViewService {
 
     // MARK: - Computed Properties
 
-    var sections: [TableViewSection] { getSections() }
+    var sections: [TableViewSection] {
+        getSections()
+    }
 
     // MARK: - Init
 
@@ -49,8 +51,8 @@ final class RecipientBarTableViewService {
 
     func reloadData() {
         guard contactPairs != nil else {
-            Task.background(delayedBy: .seconds(1)) { @MainActor in
-                resolveContactPairs()
+            Task {
+                await resolveContactPairs()
                 _reloadData()
             }
 
@@ -62,8 +64,52 @@ final class RecipientBarTableViewService {
 
     // MARK: - Resolve Contact Pairs
 
-    func resolveContactPairs() {
-        contactPairs = getContactPairs() ?? []
+    func resolveContactPairs() async {
+        @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
+        let conversations = conversations
+        let knownContactPairs = contactPairArchive ?? []
+
+        contactPairs = await Task.detached(priority: .utility) {
+            guard !knownContactPairs.isEmpty,
+                  let visibleConversations = conversations?.filter(\.isVisibleForCurrentUser) else {
+                return knownContactPairs.uniquedByPhoneNumber
+            }
+
+            let knownUserIDs = Set(knownContactPairs.users.map(\.id))
+
+            var obfuscatedUserIDs = Set<String>()
+            var seenUserIDs = Set<String>()
+            var unknownUsers = [User]()
+
+            for conversation in visibleConversations {
+                if conversation.metadata.isPenPalsConversation {
+                    let sharingIDs = Set(
+                        (conversation.participantsSharingPenPalsDataWithCurrentUser ?? []).map(\.userID)
+                    )
+
+                    obfuscatedUserIDs.formUnion(
+                        conversation
+                            .participants
+                            .lazy
+                            .map(\.userID)
+                            .filter { !sharingIDs.contains($0) }
+                    )
+                }
+
+                unknownUsers += conversation
+                    .users?
+                    .filter {
+                        !knownUserIDs.contains($0.id) &&
+                            seenUserIDs.insert($0.id).inserted
+                    } ?? []
+            }
+
+            let unknownContactPairs = unknownUsers
+                .filter { !obfuscatedUserIDs.contains($0.id) }
+                .map { ContactPair.withUser($0) }
+
+            return (knownContactPairs + unknownContactPairs).uniquedByPhoneNumber
+        }.value
     }
 
     // MARK: - Set Query
@@ -94,23 +140,6 @@ final class RecipientBarTableViewService {
 
     // MARK: - Auxiliary
 
-    private func getContactPairs() -> [ContactPair]? {
-        @Persistent(.contactPairArchive) var knownUsers: [ContactPair]?
-
-        if let knownUsers,
-           let unknownUsers = conversations?
-           .visibleForCurrentUser
-           .flatMap({ $0.users ?? [] })
-           .filter({
-               !knownUsers.users.contains($0) && !penPalsService.isObfuscatedPenPalWithCurrentUser($0)
-           })
-           .map({ ContactPair.withUser($0) }) {
-            return (knownUsers + unknownUsers).uniquedByPhoneNumber
-        }
-
-        return knownUsers
-    }
-
     private func getSections() -> [TableViewSection] {
         func sortedByLastName(_ contactPairs: [ContactPair]) -> [ContactPair] {
             contactPairs.unique.sorted(by: { $0.contact.absoluteLastName < $1.contact.absoluteLastName })
@@ -140,5 +169,7 @@ final class RecipientBarTableViewService {
 }
 
 private extension String {
-    var isZero: Bool { lowercasedTrimmingWhitespaceAndNewlines == "0" }
+    var isZero: Bool {
+        lowercasedTrimmingWhitespaceAndNewlines == "0"
+    }
 }

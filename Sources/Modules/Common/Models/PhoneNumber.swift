@@ -16,7 +16,7 @@ import AppSubsystem
 /* 3rd-party */
 import PhoneNumberKit
 
-final class PhoneNumber: Codable, EncodedHashable, Hashable {
+final class PhoneNumber: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
     let callingCode: String
@@ -30,7 +30,10 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable {
 
     // MARK: - Computed Properties
 
-    var compiledNumberString: String { callingCode + nationalNumberString }
+    var compiledNumberString: String {
+        callingCode + nationalNumberString
+    }
+
     var hashFactors: [String] {
         [
             callingCode,
@@ -212,7 +215,7 @@ final class PhoneNumber: Codable, EncodedHashable, Hashable {
         includeCallingCode: Bool,
         useFailsafe: Bool
     ) -> String {
-        @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit
+        @Dependency(\.phoneNumberKit) var phoneNumberKit: PhoneNumberKit.PhoneNumberUtility
 
         if callingCode == "1",
            let internalFormattedString,

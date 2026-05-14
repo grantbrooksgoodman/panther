@@ -10,6 +10,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 final class AttributeDetectionService {
     // MARK: - Properties
 
@@ -56,9 +57,11 @@ final class AttributeDetectionService {
         let characterIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
 
         let range = NSRange(location: 0, length: attributedText.length)
-        let dataDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue |
-            NSTextCheckingResult.CheckingType.link.rawValue |
-            NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
+        let dataDetector = try? NSDataDetector(
+            types: NSTextCheckingResult.CheckingType.date.rawValue |
+                NSTextCheckingResult.CheckingType.link.rawValue |
+                NSTextCheckingResult.CheckingType.phoneNumber.rawValue
+        )
         let matches = dataDetector?.matches(in: attributedText.string, options: [], range: range) ?? []
 
         for match in matches where match.range.contains(characterIndex) {

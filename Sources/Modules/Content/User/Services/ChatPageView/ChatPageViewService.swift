@@ -19,6 +19,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
+@MainActor
 final class ChatPageViewService {
     // MARK: - Constants Accessors
 
@@ -34,7 +35,6 @@ final class ChatPageViewService {
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.chatPageViewControllerFactory) private var chatPageViewControllerFactory: ChatPageViewControllerFactory
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -71,7 +71,10 @@ final class ChatPageViewService {
 
     // MARK: - Instantiate View Controller
 
-    func instantiateViewController(_ conversation: Conversation, configuration: ChatPageView.Configuration) -> MessagesViewController {
+    func instantiateViewController(
+        _ conversation: Conversation,
+        configuration: ChatPageView.Configuration
+    ) -> MessagesViewController {
         clientSession.conversation.resetMessageOffset()
         clientSession.conversation.setCurrentConversation(conversation)
 
@@ -137,24 +140,27 @@ final class ChatPageViewService {
 
     func onViewDidAppear() {
         guard shouldRespondToViewLifecycleEvent else { return }
-
-        Task { @MainActor in
-            typingIndicator?.startCheckingForTypingIndicatorChanges()
-        }
-
+        typingIndicator?.startCheckingForTypingIndicatorChanges()
         InteractivePopGestureRecognizer.setIsEnabled(true)
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            core.gcd.after(.milliseconds(Floats.scrollDelayMilliseconds)) { [weak self] in
+            Task.delayed(
+                by: .milliseconds(Floats.scrollDelayMilliseconds)
+            ) { @MainActor [weak self] in
+                guard let collectionView = self?.viewController?.messagesCollectionView else { return }
+
+                collectionView.contentInset.bottom = Floats.previewConfigBottomInset
+                collectionView.verticalScrollIndicatorInsets.bottom = Floats.previewConfigBottomInset
+
                 if let focusedMessageID = self?.configuration.focusedMessageID {
-                    self?.viewController?.messagesCollectionView.scrollTo(
+                    collectionView.scrollTo(
                         messageID: focusedMessageID,
                         at: .centeredVertically,
                         animated: false
                     )
                 } else {
-                    self?.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+                    collectionView.scrollToLastItem(animated: false)
                 }
             }
             return
@@ -191,13 +197,15 @@ final class ChatPageViewService {
             self?.inputBar?.configureInputBar(forceUpdate: true)
         }
 
-        Task {
-            if let exception = await readReceipts?.updateReadDateForUnreadMessages() {
-                Logger.log(exception, with: .toastInPrerelease)
-            }
+        if let readReceipts {
+            Task { @MainActor in
+                if let exception = await readReceipts.updateReadDateForUnreadMessages() {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
 
-            if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                Logger.log(exception, with: .toastInPrerelease)
+                if let exception = await typingIndicator?.textViewDidChange(to: "") {
+                    Logger.log(exception, with: .toastInPrerelease)
+                }
             }
         }
 
@@ -226,7 +234,7 @@ final class ChatPageViewService {
         chatPageState.setIsPresented(false)
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
-        Task.background {
+        Task.background { @MainActor in
             if let exception = await typingIndicator?.textViewDidChange(to: "") {
                 Logger.log(exception)
             }
@@ -257,7 +265,6 @@ final class ChatPageViewService {
         loadMoreMessages(fromScrollToTop: false)
     }
 
-    @MainActor
     func onScrollViewDidEndScrollingAnimation() {
         searchInteraction?.triggerFocusedMessageCellInteractionIfNeeded()
     }
@@ -276,35 +283,38 @@ final class ChatPageViewService {
     // MARK: - Auxiliary
 
     func redrawForAppearanceChange() {
-        Task { @MainActor in
-            inputBar?.configureInputBar(forceUpdate: true)
-            inputBar?.setAttachMediaButtonImage()
-            recipientBar?.layout.layoutSubviews()
-            recipientBar?.contactSelectionUI.unhighlightAllViews()
+        inputBar?.configureInputBar(forceUpdate: true)
+        inputBar?.setAttachMediaButtonImage()
+        recipientBar?.layout.layoutSubviews()
+        recipientBar?.contactSelectionUI.unhighlightAllViews()
 
-            if configuration == .newChat {
-                NavigationBar.setAppearance(.newChatPageView)
-            } else if !uiApplication.isPresentingSheet {
-                NavigationBar.setAppearance(.chatPageView)
-            }
+        if configuration == .newChat {
+            NavigationBar.setAppearance(.newChatPageView)
+        } else if !uiApplication.isPresentingSheet {
+            NavigationBar.setAppearance(.chatPageView)
+        }
 
-            StatusBar.overrideStyle(.appAware)
-            UIView.dismissCurrentContextMenu()
+        StatusBar.overrideStyle(.appAware)
+        UIView.dismissCurrentContextMenu()
+
+        if !UIApplication.isFullyV26Compatible {
             viewController?.navigationController?.isNavigationBarHidden = true
             viewController?.navigationController?.isNavigationBarHidden = false
-            updateCollectionViewBackgroundColor()
-            reloadCollectionView()
         }
+
+        updateCollectionViewBackgroundColor()
+        reloadCollectionView()
     }
 
     func reloadCollectionView() {
-        Task { @MainActor in
-            guard viewController?.currentConversation?.messages?.count == 1 else { return viewController?.messagesCollectionView.reloadDataAndKeepOffset() }
-            viewController?.messagesCollectionView.reloadData()
+        guard viewController?.currentConversation?.messages?.count == 1 else {
+            viewController?.messagesCollectionView.reloadDataAndKeepOffset()
+            return
         }
+
+        viewController?.messagesCollectionView.reloadData()
     }
 
-    @MainActor
     func reloadItemsWhenSafe(
         at indexPaths: [IndexPath],
         animated isAnimated: Bool = true
@@ -346,10 +356,8 @@ final class ChatPageViewService {
     }
 
     func setNavigationTitle(_ navigationTitle: String) {
-        Task { @MainActor in
-            guard let parent = viewController?.parent else { return }
-            parent.navigationItem.title = navigationTitle
-        }
+        guard let parent = viewController?.parent else { return }
+        parent.navigationItem.title = navigationTitle
     }
 
     private func loadMoreMessages(fromScrollToTop: Bool) {
@@ -361,7 +369,7 @@ final class ChatPageViewService {
         reloadCollectionView()
 
         guard fromScrollToTop else { return }
-        core.gcd.after(.milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) { [weak self] in
+        Task.delayed(by: .milliseconds(Floats.loadMoreMessagesDelayMilliseconds)) { @MainActor [weak self] in
             guard let viewController = self?.viewController,
                   viewController.messagesCollectionView.numberOfSections > 0 else { return }
             viewController.messagesCollectionView.scrollToItem(
@@ -387,7 +395,6 @@ final class ChatPageViewService {
         configuration = .preview
     }
 
-    @MainActor
     private func safelyReload(
         indexPaths: [IndexPath],
         conversationIDKey previousConversationIDKey: String?,
@@ -397,7 +404,6 @@ final class ChatPageViewService {
         guard let previousConversationIDKey,
               let previousStructure else { return }
 
-        @MainActor
         func reloadItem(
             collectionView: MessagesCollectionView,
             viewController: ChatPageViewController
@@ -448,27 +454,25 @@ final class ChatPageViewService {
     }
 
     private func startSettingNavigationBarButtonItemAppearance() {
-        Task { @MainActor in
-            guard !UIApplication.isFullyV26Compatible,
-                  chatPageState.isPresented else { return }
-            guard let leafViewController = uiApplication.keyViewController?.leafViewController,
-                  leafViewController.descriptor == Strings.leafViewControllerID else {
-                Task.delayed(by: .seconds(1)) { [weak self] in
-                    self?.startSettingNavigationBarButtonItemAppearance()
-                }
-                return
+        guard !UIApplication.isFullyV26Compatible,
+              chatPageState.isPresented else { return }
+        guard let leafViewController = uiApplication.keyViewController?.leafViewController,
+              leafViewController.descriptor == Strings.leafViewControllerID else {
+            Task.delayed(by: .seconds(1)) { @MainActor [weak self] in
+                self?.startSettingNavigationBarButtonItemAppearance()
             }
+            return
+        }
 
-            let misconfiguredBarButtonItemViews: [UIButton] = uiApplication
-                .presentedViews
-                .compactMap { $0 as? UIButton }
-                .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
-                .filter { $0.tintColor != (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) }
+        let misconfiguredBarButtonItemViews: [UIButton] = uiApplication
+            .presentedViews
+            .compactMap { $0 as? UIButton }
+            .filter { String(type(of: $0.self)) == Strings.barButtonItemViewID }
+            .filter { $0.tintColor != (Application.isInPrevaricationMode ? .navigationBarTitle : .accent) }
 
-            misconfiguredBarButtonItemViews.forEach { $0.tintColor = Application.isInPrevaricationMode ? .navigationBarTitle : .accent }
-            Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) {
-                startSettingNavigationBarButtonItemAppearance()
-            }
+        misconfiguredBarButtonItemViews.forEach { $0.tintColor = Application.isInPrevaricationMode ? .navigationBarTitle : .accent }
+        Task.delayed(by: .milliseconds(Floats.setNavigationBarButtonItemAppearanceDelayMilliseconds)) { @MainActor in
+            startSettingNavigationBarButtonItemAppearance()
         }
     }
 

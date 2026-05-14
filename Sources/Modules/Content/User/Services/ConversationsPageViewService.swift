@@ -17,6 +17,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+@MainActor
 final class ConversationsPageViewService {
     // MARK: - Types
 
@@ -65,7 +66,6 @@ final class ConversationsPageViewService {
     @Dependency(\.build) private var build: Build
     @Dependency(\.chatPageStateService) private var chatPageState: ChatPageStateService
     @Dependency(\.clientSession) private var clientSession: ClientSession
-    @Dependency(\.coreKit) private var core: CoreKit
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.commonServices) private var services: CommonServices
@@ -73,21 +73,25 @@ final class ConversationsPageViewService {
 
     // MARK: - Properties
 
+    private(set) var didShowSecondsToLoadToast = false
+
     private var currentReloadType: ReloadType = .full
 
     // MARK: - View Lifecycle
 
     func viewAppeared() {
+        didShowSecondsToLoadToast = false
         NavigationBar.setAppearance(.conversationsPageView)
         clientSession.user.startObservingCurrentUserChanges()
 
-        core.gcd.after(.milliseconds(500)) {
+        Task.delayed(by: .milliseconds(500)) { @MainActor [weak self] in
             StatusBar.overrideStyle(.appAware)
-            self.fixSearchBarAppearance()
+            self?.fixSearchBarAppearance()
         }
 
         Task {
-            if let exception = await services.pushToken.updatePushTokensForCurrentUser() {
+            @Dependency(\.commonServices.pushToken) var pushTokenService: PushTokenService
+            if let exception = await pushTokenService.updatePushTokensForCurrentUser() {
                 Logger.log(exception)
             }
         }
@@ -99,7 +103,6 @@ final class ConversationsPageViewService {
 
     /// `.resolveReturned`
     func viewLoaded() {
-        showSecondsToLoadToastIfNeeded()
         networking.database.clearTemporaryCaches()
         reloadIfNeeded()
 
@@ -176,7 +179,14 @@ final class ConversationsPageViewService {
                     }
                 }
 
-                array.forEach { markStale(conversation: $0) }
+                let staleConversations = Set(array.map {
+                    markStale(conversation: $0)
+                })
+
+                networking
+                    .conversationService
+                    .archive
+                    .addValues(staleConversations)
             }
 
             let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
@@ -192,7 +202,9 @@ final class ConversationsPageViewService {
                     return .failure(exception)
                 }
 
-                var randomBool: Bool { Int.random(in: 1 ... 1_000_000) % 3 == 0 }
+                var randomBool: Bool {
+                    Int.random(in: 1 ... 1_000_000) % 3 == 0
+                }
                 guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
                     return .success(user.conversations ?? [])
                 }
@@ -237,7 +249,10 @@ final class ConversationsPageViewService {
                 .compactMap(\.hash) ?? []
         )
 
-        guard !currentUserConversationHashes.isEmpty else { return }
+        guard !currentUserConversationHashes.isEmpty else {
+            return Observables.updateConversationsListSetToReliableDataSource.trigger()
+        }
+
         let dataSources: [ConversationSource] = [
             ConversationSource(
                 "provided conversations",
@@ -268,10 +283,38 @@ final class ConversationsPageViewService {
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
         ) else {
+            var currentState = state
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                // NIT: Ensure this is a good approach.
+                if let exception = await User.populateCurrentUserConversationsIfNeeded() {
+                    Logger.log(
+                        exception,
+                        domain: .conversation
+                    )
+                } else {
+                    let reloadDataResult = await reloadData()
+                    switch reloadDataResult {
+                    case let .success(conversations):
+                        updateConversationsList(
+                            with: conversations,
+                            state: &currentState
+                        )
+
+                    case let .failure(exception):
+                        Logger.log(
+                            exception,
+                            domain: .conversation,
+                            with: .toast
+                        )
+                    }
+                }
+            }
+
+            state = currentState
             return Logger.log(
                 .init(
                     "No conversation data source was well-formed.",
-                    metadata: .init(sender: self),
+                    metadata: .init(sender: self)
                 ),
                 domain: .conversation,
                 with: .toastInPrerelease
@@ -295,12 +338,74 @@ final class ConversationsPageViewService {
                 domain: .conversation,
                 sender: self
             )
+
+            Observables.updateConversationsListSetToReliableDataSource.trigger()
         }
 
         state.conversations = bestCandidate.conversations
     }
 
     // MARK: - Auxiliary
+
+    func showSecondsToLoadToastIfNeeded() {
+        guard !didShowSecondsToLoadToast else { return }
+        didShowSecondsToLoadToast = true
+
+        let currentUser = clientSession.user.currentUser
+        let numberOfConversations = currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .count ?? currentUser?
+            .conversationIDs?
+            .count ?? 1
+
+        let secondsToLoad = max(
+            abs(Application.loadStartDate.seconds(from: .now)) - 1,
+            0
+        )
+        let secondsPerConversation = String(
+            format: "%.2f",
+            Float(secondsToLoad) / Float(numberOfConversations)
+        )
+
+        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
+
+        @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
+        let allMessages = (currentUser?.conversations ?? conversationArchive)?
+            .visibleForCurrentUser
+            .compactMap(\.messages)
+            .flatMap(\.self) ?? []
+
+        let uniqueMessages = allMessages.uniquedByID
+        let audioMessageCount = uniqueMessages.filter(\.contentType.isAudio).count
+        let mediaMessageCount = uniqueMessages.filter(\.contentType.isMedia).count
+        let totalMessageCount = uniqueMessages.count
+        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
+
+        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
+        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
+        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
+        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
+
+        var addendum = ""
+        if totalMessageCount > 0 {
+            addendum = "\nUser has \(totalMessageCount) messages and \(numberOfConversations) conversations."
+            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
+        }
+
+        let seconds = "second\(secondsToLoad == 1 ? "" : "s")"
+        Logger.log(
+            "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+            domain: .conversation,
+            sender: self
+        )
+
+        guard build.milestone != .generalRelease else { return }
+        Toast.show(.init(
+            message: "Loaded content in \(secondsToLoad) \(seconds)\(suffix ?? "").\(addendum)",
+            perpetuation: .ephemeral(.seconds(10))
+        ))
+    }
 
     private func enableOfflineModeSideEffects() {
         func showOfflineModeToast() {
@@ -319,7 +424,7 @@ final class ConversationsPageViewService {
                 sender: self
             )
 
-            core.gcd.after(.milliseconds(500)) {
+            Task.delayed(by: .milliseconds(500)) { @MainActor in
                 Observables.traitCollectionChanged.trigger()
             }
         }
@@ -362,7 +467,7 @@ final class ConversationsPageViewService {
             .forEach { $0.backgroundColor = searchBarTextFieldBackgroundColor }
     }
 
-    private func markStale(conversation: Conversation) {
+    private func markStale(conversation: Conversation) -> Conversation {
         var newConversationMessageIDs = conversation.messageIDs
         var newConversationMessages = conversation.messages
 
@@ -372,7 +477,7 @@ final class ConversationsPageViewService {
             newConversationMessageIDs = (newConversationMessages ?? []).map(\.id)
         }
 
-        let newConversation: Conversation = .init(
+        return .init(
             .init(key: conversation.id.key, hash: .bangQualifiedEmpty),
             activities: conversation.activities,
             messageIDs: newConversationMessageIDs,
@@ -382,8 +487,6 @@ final class ConversationsPageViewService {
             reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
-
-        networking.conversationService.archive.addValue(newConversation)
     }
 
     /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.
@@ -423,7 +526,7 @@ final class ConversationsPageViewService {
             await clientSession.storage.presentStorageWarningAlert()
         } else if await services.permission.notificationPermissionStatus == .unknown {
             _ = await services.permission.requestPermission(for: .notifications)
-        } else if !(await services.invite.suggestInvitationIfNeeded()) {
+        } else if await !(services.invite.suggestInvitationIfNeeded()) {
             services.review.promptToReview()
         }
 
@@ -458,58 +561,6 @@ final class ConversationsPageViewService {
         }
     }
 
-    private func showSecondsToLoadToastIfNeeded() {
-        let currentUser = clientSession.user.currentUser
-        let numberOfConversations = currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .count ?? currentUser?
-            .conversationIDs?
-            .count ?? 1
-
-        let secondsToLoad = abs(Application.loadStartDate.seconds(from: .now))
-        let secondsPerConversation = String(
-            format: "%.2f",
-            Float(secondsToLoad) / Float(numberOfConversations)
-        )
-
-        let suffix = (Float(secondsPerConversation) ?? 0) <= 0.05 ? nil : " (\(secondsPerConversation)s/conversation)"
-
-        let allMessages = currentUser?
-            .conversations?
-            .visibleForCurrentUser
-            .compactMap(\.messages)
-            .flatMap(\.self) ?? []
-
-        let audioMessageCount = allMessages.filter(\.contentType.isAudio).uniquedByID.count
-        let mediaMessageCount = allMessages.filter(\.contentType.isMedia).uniquedByID.count
-        let totalMessageCount = allMessages.uniquedByID.count
-        let textMessageCount = totalMessageCount - (audioMessageCount + mediaMessageCount)
-
-        let safeMessageCount: Double = totalMessageCount == 0 ? 1 : Double(totalMessageCount)
-        let audioMessagePercent = (Double(audioMessageCount) / safeMessageCount).roundedString
-        let mediaMessagePercent = (Double(mediaMessageCount) / safeMessageCount).roundedString
-        let textMessagePercent = (Double(textMessageCount) / safeMessageCount).roundedString
-
-        var addendum = ""
-        if totalMessageCount > 0 {
-            addendum = "\nUser has \(totalMessageCount) total messages."
-            addendum += "\n\(textMessagePercent)% text, \(audioMessagePercent)% audio, \(mediaMessagePercent)% media."
-        }
-
-        Logger.log(
-            "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
-            domain: .conversation,
-            sender: self
-        )
-
-        guard build.milestone != .generalRelease else { return }
-        Toast.show(.init(
-            message: "Loaded content in \(secondsToLoad) seconds\(suffix ?? "").\(addendum)",
-            perpetuation: .ephemeral(.seconds(10))
-        ))
-    }
-
     private func startSettingSearchBarAppearance() {
         guard Application.isInPrevaricationMode,
               !UIApplication.isFullyV26Compatible else { return }
@@ -528,7 +579,9 @@ final class ConversationsPageViewService {
             misconfiguredSearchFieldBackgroundViews.forEach { $0.backgroundColor = .init(hex: 0xE7E7E9) }
         }
 
-        core.gcd.after(.milliseconds(10)) { self.startSettingSearchBarAppearance() }
+        Task.delayed(by: .milliseconds(10)) { @MainActor [weak self] in
+            self?.startSettingSearchBarAppearance()
+        }
     }
 }
 
@@ -549,7 +602,7 @@ extension Conversation: Validatable {
     }
 }
 
-private extension Array where Element == ConversationsPageViewService.ConversationSource {
+private extension [ConversationsPageViewService.ConversationSource] {
     func bestAligned(
         with canonicalHashes: Set<String>,
         andMatchingPredicate predicate: (Conversation) -> Bool
@@ -602,19 +655,20 @@ private extension Array where Element == ConversationsPageViewService.Conversati
     }
 }
 
+@MainActor
 private extension Conversation {
     var injectingCachedUsers: Conversation {
         guard isVisibleForCurrentUser,
               (users?.count ?? 0) == 0 else { return self }
 
-        let participantUserIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
+        let participantUserIDs = Set(participants.map(\.userID).filter { $0 != User.currentUserID })
         let resolvedUsers = UserCache
             .knownUsers
             .filter { participantUserIDs.contains($0.id) }
             .uniquedByID
 
-        guard resolvedUsers.map(\.id).containsAllStrings(
-            in: participantUserIDs
+        guard participantUserIDs.isSubset(
+            of: resolvedUsers.map(\.id)
         ) else { return self }
 
         return .init(

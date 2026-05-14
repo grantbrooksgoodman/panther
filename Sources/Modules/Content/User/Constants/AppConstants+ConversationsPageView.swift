@@ -29,30 +29,54 @@ extension AppConstants.CGFloats {
 
 extension AppConstants.Colors {
     enum ConversationsPageView {
-        static let composeToolbarButtonForeground: Color = .init(
-            uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
-        )
+        /* MARK: Properties */
 
         // swiftlint:disable identifier_name
         static let createRandomMessagesToolbarButtonForeground: Color = .purple
         static let deleteConversationsToolbarButtonForeground: Color = .red
         // swiftlint:enable identifier_name
 
-        static let settingsToolbarButtonForeground: Color = .init(
-            uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
-        )
         static let storageFullToolbarButtonForeground: Color = .red
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var composeToolbarButtonForeground: Color {
+            .init(
+                uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
+            )
+        }
+
+        @MainActor
+        static var settingsToolbarButtonForeground: Color {
+            .init(
+                uiColor: Application.isInPrevaricationMode ? .black : !ThemeService.isAppDefaultThemeApplied ? .white : .systemBlue
+            )
+        }
     }
 }
 
 // MARK: - String
 
 extension AppConstants.Strings {
-    enum ConversationsPageView { // swiftlint:disable identifier_name line_length
-        static let composeToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
+    enum ConversationsPageView { // swiftlint:disable identifier_name
+        /* MARK: Properties */
+
         static let createRandomMessagesToolbarButtonImageSystemName = "sparkles.2"
         static let deleteConversationsToolbarButtonImageSystemName = "trash"
-        static let settingsToolbarButtonImageSystemName = Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape" // swiftlint:enable identifier_name line_length
+
         static let storageFullToolbarButtonImageSystemName = "exclamationmark.triangle"
+
+        /* MARK: Computed Properties */
+
+        @MainActor
+        static var composeToolbarButtonImageSystemName: String {
+            Application.isInPrevaricationMode ? "plus\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "square.and.pencil"
+        }
+
+        @MainActor
+        static var settingsToolbarButtonImageSystemName: String {
+            Application.isInPrevaricationMode ? "gearshape\(UIApplication.isFullyV26Compatible ? "" : ".circle.fill")" : "gearshape"
+        } // swiftlint:enable identifier_name
     }
 }

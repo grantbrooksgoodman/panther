@@ -22,21 +22,23 @@ struct AudioMessageService {
 
     // MARK: - Get Audio Component
 
-    func getAudioComponent(for message: Message) async -> Callback<Message, Exception> {
-        switch cachedAudioMessageReference(for: message) {
+    func getAudioComponent(
+        messageID: String,
+        isFromCurrentUser: Bool,
+        localAudioFilePath: LocalAudioFilePath,
+        translation: Translation
+    ) async -> Callback<AudioMessageReference, Exception> {
+        switch cachedAudioMessageReference(for: localAudioFilePath, translation: translation) {
         case let .success(audioMessageReference):
-            return .success(appendAudioComponent(audioMessageReference, to: message))
+            .success(audioMessageReference)
 
         case .failure:
-            let downloadAudioMessageReferenceResult = await downloadAudioMessageReference(for: message)
-
-            switch downloadAudioMessageReferenceResult {
-            case let .success(audioMessageReference):
-                return .success(appendAudioComponent(audioMessageReference, to: message))
-
-            case let .failure(exception):
-                return .failure(exception.appending(userInfo: ["MessageID": message.id]))
-            }
+            await downloadAudioMessageReference(
+                messageID: messageID,
+                isFromCurrentUser: isFromCurrentUser,
+                localAudioFilePath: localAudioFilePath,
+                translation: translation
+            )
         }
     }
 
@@ -56,6 +58,7 @@ struct AudioMessageService {
 
     // MARK: - Upload Audio Components
 
+    // TODO: Can be parallelized with some rethinking.
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message
@@ -76,7 +79,7 @@ struct AudioMessageService {
                 return nil
             }
 
-            guard !(await preRecordedInputExists(for: audioFile)) else {
+            guard await !preRecordedInputExists(for: audioFile) else {
                 lastUploadedInput = audioFile
                 return nil
             }
@@ -128,7 +131,7 @@ struct AudioMessageService {
 
             guard !audioComponent.translation.languagePair.isIdempotent else { continue }
             defer { moveOutputFile() }
-            guard !(await preRecordedOutputExists(for: audioComponent.translation)) else { continue }
+            guard await !preRecordedOutputExists(for: audioComponent.translation) else { continue }
 
             if let exception = await upload(
                 audioFile: audioComponent.translated,
@@ -143,51 +146,25 @@ struct AudioMessageService {
 
     // MARK: - Auxiliary
 
-    private func appendAudioComponent(
-        _ audioComponent: AudioMessageReference,
-        to message: Message
-    ) -> Message {
-        var audioComponents = message.audioComponents ?? []
-        audioComponents.append(audioComponent)
-
-        let modifiedMessage: Message = .init(
-            message.id,
-            fromAccountID: message.fromAccountID,
-            contentType: .audio(.m4a),
-            richContent: .audio(audioComponents),
-            translationReferences: message.translationReferences,
-            translations: message.translations,
-            readReceipts: message.readReceipts,
-            sentDate: message.sentDate
-        )
-
-        return modifiedMessage
+    func preRecordedOutputExists(for translation: Translation) async -> Bool {
+        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
+        let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
+        return await (try? networking.storage.itemExists(
+            at: "\(outputDirectoryPath)/\(outputFileName)"
+        ).get()) == true
     }
 
-    private func cachedAudioMessageReference(for message: Message) -> Callback<AudioMessageReference, Exception> {
-        let userInfo = ["MessageID": message.id]
-
-        guard let localAudioFilePath = message.localAudioFilePath else {
-            return .failure(.init(
-                "Message does not have an audio component.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
-
+    private func cachedAudioMessageReference(
+        for localAudioFilePath: LocalAudioFilePath,
+        translation: Translation
+    ) -> Callback<AudioMessageReference, Exception> {
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
               let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
             return .failure(.init(
                 "Audio message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
-
-        guard let translation = message.translation else {
-            return .failure(.init(
-                "Message has no translation.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ))
         }
 
         return .success(.init(
@@ -198,21 +175,19 @@ struct AudioMessageService {
         ))
     }
 
-    private func downloadAudioMessageReference(for message: Message) async -> Callback<AudioMessageReference, Exception> {
-        let userInfo = ["MessageID": message.id]
+    private func downloadAudioMessageReference(
+        messageID: String,
+        isFromCurrentUser: Bool,
+        localAudioFilePath: LocalAudioFilePath,
+        translation: Translation
+    ) async -> Callback<AudioMessageReference, Exception> {
+        let userInfo = ["MessageID": messageID]
 
-        guard let localAudioFilePath = message.localAudioFilePath else {
-            return .failure(.init(
-                "Message does not have an audio component.",
-                metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
-        }
-
-        let sourceFileURL = message.isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
-        let destinationFileURL = message.isFromCurrentUser ? localAudioFilePath.outputFilePathURL : localAudioFilePath.inputFilePathURL
+        let sourceFileURL = isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
+        let destinationFileURL = isFromCurrentUser ? localAudioFilePath.outputFilePathURL : localAudioFilePath.inputFilePathURL
 
         if let exception = await networking.storage.downloadItem(
-            at: message.isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
+            at: isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
             to: sourceFileURL
         ) {
             return .failure(exception.appending(userInfo: userInfo))
@@ -234,10 +209,9 @@ struct AudioMessageService {
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
-              let outputFile = AudioFile(localAudioFilePath.outputFilePathURL),
-              let translation = message.translation else {
+              let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
             return .failure(.init(
-                "Failed to generate audio files or message has no translation.",
+                "Failed to generate audio files.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo))
         }
@@ -251,20 +225,15 @@ struct AudioMessageService {
     }
 
     private func preRecordedInputExists(for audioFile: AudioFile) async -> Bool {
-        (try? await networking.storage.itemExists(
+        await (try? networking.storage.itemExists(
             at: "\(NetworkPath.audioMessageInputs.rawValue)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
         ).get()) == true
     }
 
-    func preRecordedOutputExists(for translation: Translation) async -> Bool {
-        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)"
-        let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
-        return (try? await networking.storage.itemExists(
-            at: "\(outputDirectoryPath)/\(outputFileName)"
-        ).get()) == true
-    }
-
-    private func upload(audioFile: AudioFile, to path: String) async -> Exception? {
+    private func upload(
+        audioFile: AudioFile,
+        to path: String
+    ) async -> Exception? {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
         let dataFromURLResult = Data.fromURL(audioFile.url)
 

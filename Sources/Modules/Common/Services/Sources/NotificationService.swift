@@ -127,49 +127,40 @@ struct NotificationService {
         _ title: String,
         body: String
     ) async -> Exception? {
-        let getValuesResult = await networking.database.getValues(
-            at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)",
-            prependingEnvironment: false
-        )
-
-        switch getValuesResult {
-        case let .success(values):
-            guard let dictionary = values as? [String: Any] else {
-                return .Networking.typecastFailed(
-                    "dictionary",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            let pushTokens = dictionary.reduce(into: [String]()) { partialResult, keyPair in
-                if let userData = keyPair.value as? [String: Any],
-                   let pushTokens = userData[
-                       User.SerializationKeys.pushTokens.rawValue
-                   ] as? [String],
-                   !pushTokens.isBangQualifiedEmpty {
-                    partialResult.append(contentsOf: pushTokens)
-                }
-            }
-
-            var exceptions = [Exception]()
-            for pushToken in pushTokens.unique {
-                if let exception = await sendNotification(
-                    title: title,
-                    body: body,
-                    badgeNumber: 0,
-                    pushToken: pushToken,
-                    userInfo: [:],
-                    isReaction: false
-                ) {
-                    exceptions.append(exception)
-                }
-            }
-
-            return exceptions.compiledException
-
-        case let .failure(exception):
-            return exception
+        let userData: [String: Any]
+        do {
+            userData = try await networking.database.getValues(
+                at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
+            )
+        } catch {
+            return error
         }
+
+        let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
+            if let userData = keyPair.value as? [String: Any],
+               let pushTokens = userData[
+                   User.SerializableKey.pushTokens.rawValue
+               ] as? [String],
+               !pushTokens.isBangQualifiedEmpty {
+                partialResult.append(contentsOf: pushTokens)
+            }
+        }
+
+        var exceptions = [Exception]()
+        for pushToken in pushTokens.unique {
+            if let exception = await sendNotification(
+                title: title,
+                body: body,
+                badgeNumber: 0,
+                pushToken: pushToken,
+                userInfo: [:],
+                isReaction: false
+            ) {
+                exceptions.append(exception)
+            }
+        }
+
+        return exceptions.compiledException
     }
 
     // MARK: - Respond to In-app Notification
@@ -240,18 +231,23 @@ struct NotificationService {
         )
 
         Toast.show(toast) {
-            @Dependency(\.navigation) var navigation: Navigation
-            guard self.chatPageState.isPresented else {
-                return navigation.navigate(to: .userContent(.push(.chat(conversation))))
-            }
+            Task { @MainActor in
+                @Dependency(\.navigation) var navigation: Navigation
+                guard chatPageState.isPresented else {
+                    navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                    return
+                }
 
-            navigation.navigate(to: .userContent(.stack([])))
-            self.chatPageState.addEffectUponIsPresented(
-                changedTo: false,
-                id: .deeplinkToOtherChat
-            ) {
-                Application.dismissSheets()
-                navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                navigation.navigate(to: .userContent(.stack([])))
+                chatPageState.addEffectUponIsPresented(
+                    changedTo: false,
+                    id: .deeplinkToOtherChat
+                ) {
+                    Task { @MainActor in
+                        Application.dismissSheets()
+                        navigation.navigate(to: .userContent(.push(.chat(conversation))))
+                    }
+                }
             }
         }
 
@@ -326,12 +322,14 @@ struct NotificationService {
             }
 
             if let translations = message.translations {
-                body = (translations
-                    .first(where: { $0.languagePair.to == user.languageCode })?
-                    .output ?? translations
-                    .first(where: { $0.languagePair.from == user.languageCode })?
-                    .input
-                    .value)?.sanitized
+                body = (
+                    translations
+                        .first(where: { $0.languagePair.to == user.languageCode })?
+                        .output ?? translations
+                        .first(where: { $0.languagePair.from == user.languageCode })?
+                        .input
+                        .value
+                )?.sanitized
             }
         }
 
@@ -508,7 +506,11 @@ struct NotificationService {
 
             return await networking.database.setValue(
                 newBadgeNumber < 0 ? 0 : newBadgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
             )
 
         case false:
@@ -521,7 +523,11 @@ struct NotificationService {
 
             return await networking.database.setValue(
                 badgeNumber < 0 ? 0 : badgeNumber,
-                forKey: "\(NetworkPath.users.rawValue)/\(user.id)/\(User.SerializationKeys.badgeNumber.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
             )
         }
     }

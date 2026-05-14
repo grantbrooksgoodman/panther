@@ -15,7 +15,7 @@ import AppSubsystem
 /* 3rd-party */
 import MessageKit
 
-extension ChatPageViewController: MessagesLayoutDelegate {
+extension ChatPageViewController: @MainActor MessagesLayoutDelegate {
     // MARK: - Constants Accessors
 
     private typealias Floats = AppConstants.CGFloats.ChatPageView.MessagesLayoutDelegate

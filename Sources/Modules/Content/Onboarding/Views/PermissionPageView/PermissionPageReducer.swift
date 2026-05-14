@@ -19,7 +19,6 @@ struct PermissionPageReducer: Reducer {
 
     @Dependency(\.coreKit.ui) private var coreUI: CoreKit.UI
     @Dependency(\.navigation) private var navigation: Navigation
-    @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
     @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -71,7 +70,7 @@ struct PermissionPageReducer: Reducer {
 
         case .contactPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isNotificationPermissionGranted != nil
-            return .task {
+            return .task { @MainActor in
                 let result = await services.permission.requestPermission(for: .contacts)
                 return .requestContactPermissionReturned(result)
             }
@@ -97,6 +96,7 @@ struct PermissionPageReducer: Reducer {
             }
 
             return .task {
+                @Dependency(\.onboardingService) var onboardingService: OnboardingService
                 let result = await onboardingService.createUser()
                 return .createUserReturned(result)
             }
@@ -112,6 +112,7 @@ struct PermissionPageReducer: Reducer {
             )
 
             return .task {
+                @Dependency(\.onboardingService) var onboardingService: OnboardingService
                 let result = await onboardingService.presentEULAAlert()
                 return .eulaAlertDismissed(cancelled: result)
             }
@@ -119,6 +120,7 @@ struct PermissionPageReducer: Reducer {
         case .notificationPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isContactPermissionGranted != nil
             return .task {
+                @Dependency(\.commonServices) var services: CommonServices
                 let result = await services.permission.requestPermission(for: .notifications)
                 return .requestNotificationPermissionReturned(result)
             }
@@ -127,11 +129,13 @@ struct PermissionPageReducer: Reducer {
             state.isContactPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
+                    @Dependency(\.commonServices) var services: CommonServices
                     await services.permission.presentCTA(for: .contacts)
                     return .none
                 }
             } else {
                 return .task {
+                    @Dependency(\.commonServices) var services: CommonServices
                     if let exception = await services.contact.syncContactPairArchive() {
                         Logger.log(exception)
                     }
@@ -144,6 +148,7 @@ struct PermissionPageReducer: Reducer {
             guard !exception.isEqual(to: .contactAccessDenied) else {
                 state.isContactPermissionGranted = false
                 return .task(delay: .milliseconds(500)) {
+                    @Dependency(\.commonServices) var services: CommonServices
                     await services.permission.presentCTA(for: .contacts)
                     return .none
                 }
@@ -158,6 +163,7 @@ struct PermissionPageReducer: Reducer {
             state.isNotificationPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
+                    @Dependency(\.commonServices) var services: CommonServices
                     await services.permission.presentCTA(for: .notifications)
                     return .none
                 }
@@ -192,7 +198,7 @@ struct PermissionPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.PermissionPageViewStringKey) -> String {
         (first(where: { $0.key == .permissionPageView(key) })?.value ?? key.rawValue).sanitized
     }

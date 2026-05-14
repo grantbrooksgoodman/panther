@@ -15,7 +15,7 @@ import AppSubsystem
 /* 3rd-party */
 import InputBarAccessoryView
 
-extension ChatPageViewController: InputBarAccessoryViewDelegate {
+extension ChatPageViewController: @MainActor InputBarAccessoryViewDelegate {
     // MARK: - Did Press Send Button
 
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
@@ -31,7 +31,7 @@ extension ChatPageViewController: InputBarAccessoryViewDelegate {
 
     func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
         @Dependency(\.chatPageViewService.typingIndicator) var typingIndicatorService: TypingIndicatorService?
-        Task.background {
+        Task.background { @MainActor in
             if let exception = await typingIndicatorService?.textViewDidChange(to: text) {
                 Logger.log(exception)
             }

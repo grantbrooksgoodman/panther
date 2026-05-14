@@ -22,6 +22,10 @@ final class CameraPickerService: NSObject, UIImagePickerControllerDelegate, UINa
 
     private var _onDismiss: ((Callback<ContentPickerResult, Exception>?) -> Void)?
 
+    // MARK: - Init
+
+    override nonisolated init() {}
+
     // MARK: - Present
 
     func present() {

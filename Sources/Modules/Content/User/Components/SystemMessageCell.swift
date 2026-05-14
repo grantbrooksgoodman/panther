@@ -76,7 +76,7 @@ private extension NSAttributedString {
         minimumScaleFactor: CGFloat = AppConstants.CGFloats.SystemMessageCell.labelMinimumScaleFactor,
         maximumScaleFactor: CGFloat = 1,
         numberOfLines: Int = Int(AppConstants.CGFloats.SystemMessageCell.labelNumberOfLines),
-        width: CGFloat,
+        width: CGFloat
     ) -> NSAttributedString {
         guard numberOfLines > 0,
               width > 0 else { return self }

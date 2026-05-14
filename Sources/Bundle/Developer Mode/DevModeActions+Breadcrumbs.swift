@@ -20,6 +20,7 @@ extension DevModeAction.AppActions {
         // MARK: - Manage Breadcrumbs Capture Action
 
         static var manageBreadcrumbsCaptureAction: DevModeAction {
+            @Sendable
             func manageBreadcrumbsCapture() {
                 Task { @MainActor in
                     @Dependency(\.commonServices.metadata) var metadataService: MetadataService
@@ -84,7 +85,7 @@ extension DevModeAction.AppActions {
         private static func presentBreadcrumbsCaptureFrequencyTextInputAlert() {
             Task { @MainActor in
                 @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
-                @Dependency(\.coreKit) var core: CoreKit
+                @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
                 @Dependency(\.uiApplication) var uiApplication: UIApplication
 
                 func presentTryAgainAlert() async {
@@ -109,7 +110,7 @@ extension DevModeAction.AppActions {
                         keyboardType: .decimalPad,
                         placeholderText: String(breadcrumbsCaptureService.captureFrequency)
                             .removingOccurrences(of: [".0", "seconds"])
-                            .trimmingBorderedWhitespace,
+                            .trimmingBorderedWhitespace
                     )
                 )
 
@@ -124,7 +125,10 @@ extension DevModeAction.AppActions {
                 @MainActor
                 func disableAction() {
                     guard uiApplication.isPresentingAlertController else {
-                        return core.gcd.after(.milliseconds(100)) { disableAction() }
+                        Task.delayed(by: .milliseconds(100)) { @MainActor in
+                            disableAction()
+                        }
+                        return
                     }
 
                     textInputAlert.disableAction(at: 1)
@@ -135,23 +139,24 @@ extension DevModeAction.AppActions {
                 guard let double = Double(input) else { return await presentTryAgainAlert() }
 
                 breadcrumbsCaptureService.setCaptureFrequency(.seconds(double))
-                core.hud.showSuccess()
+                coreHUD.showSuccess()
             }
         }
 
         private static func presentClearBreadcrumbsCaptureHistoryActionSheet() {
             Task {
-                @Dependency(\.coreKit) var core: CoreKit
-                @Dependency(\.networking.storage) var storage: StorageDelegate
-
+                @Sendable
                 func clearRemoteCaptureHistory() {
-                    Task {
+                    Task { @MainActor in
+                        @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                        @Dependency(\.networking.storage) var storage: any StorageDelegate
+
                         let isCapturing = AppSubsystem.delegates.breadcrumbsCapture.isCapturing
                         AppSubsystem.delegates.breadcrumbsCapture.stopCapture()
 
-                        core.hud.showProgress(isModal: true)
+                        coreHUD.showProgress(isModal: true)
                         defer {
-                            core.hud.hide()
+                            coreHUD.hide()
                             if isCapturing { AppSubsystem.delegates.breadcrumbsCapture.startCapture() }
                         }
 
@@ -162,29 +167,32 @@ extension DevModeAction.AppActions {
                         ) {
                             Logger.log(exception, with: .toast)
                         } else {
-                            core.gcd.after(.seconds(1)) { core.hud.showSuccess() }
+                            Task.delayed(by: .seconds(1)) { @MainActor in
+                                coreHUD.showSuccess()
+                            }
                         }
                     }
                 }
 
-                @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
-
                 let hostedOnlyAction: AKAction = .init(
                     "Hosted Only",
-                    style: .destructive,
+                    style: .destructive
                 ) { clearRemoteCaptureHistory() }
 
                 let localAndHostedAction: AKAction = .init(
                     "Local and Hosted",
-                    style: .destructivePreferred,
+                    style: .destructivePreferred
                 ) {
+                    @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
                     breadcrumbsCaptureHistory = nil
                     clearRemoteCaptureHistory()
                 }
 
                 let localOnlyAction: AKAction = .init("Local Only") {
+                    @Dependency(\.coreKit.hud) var coreHUD: CoreKit.HUD
+                    @Persistent(.breadcrumbsCaptureHistory) var breadcrumbsCaptureHistory: Set<String>?
                     breadcrumbsCaptureHistory = nil
-                    core.hud.showSuccess()
+                    coreHUD.showSuccess()
                 }
 
                 await AKActionSheet(
@@ -194,7 +202,7 @@ extension DevModeAction.AppActions {
                         hostedOnlyAction,
                         localOnlyAction,
                         localAndHostedAction,
-                    ],
+                    ]
                 ).present(translating: [])
             }
         }

@@ -73,6 +73,7 @@ struct ContactSelectorPageReducer: Reducer {
             return Localized(.noResults).wrappedValue
         }
 
+        @MainActor
         var queriedContactPairs: [ContactPair] {
             guard let foundContactPair else { return contactPairs.queried(by: searchQuery) }
             return [foundContactPair]
@@ -82,6 +83,7 @@ struct ContactSelectorPageReducer: Reducer {
             entryPoint == .chatInfoPageView ? strings.value(for: .searchBarPlaceholderText) : Localized(.search).wrappedValue
         }
 
+        @MainActor
         var sections: [String: [ContactPair]] {
             .init(
                 grouping: queriedContactPairs,
@@ -200,7 +202,7 @@ struct ContactSelectorPageReducer: Reducer {
     }
 }
 
-private extension Array where Element == TranslationOutputMap {
+private extension [TranslationOutputMap] {
     func value(for key: TranslatedLabelStringCollection.ContactSelectorPageViewStringKey) -> String {
         (first(where: { $0.key == .contactSelectorPageView(key) })?.value ?? key.rawValue).sanitized
     }

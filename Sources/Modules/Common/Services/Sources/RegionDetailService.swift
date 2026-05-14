@@ -55,11 +55,21 @@ final class RegionDetailService {
 
     // MARK: - Computed Properties
 
-    var deviceRegionCode: String { currentLocale.region?.identifier ?? "US" }
+    var deviceRegionCode: String {
+        currentLocale.region?.identifier ?? "US"
+    }
 
-    private var callingCodes: [String: String] { commonPropertyLists.callingCodes }
-    private var regionTitlesForAllCallingCodes: [String] { getRegionTitlesForAllCallingCodes() }
-    private var systemLocalizedLocale: Locale { Locale(languageCode: .init(RuntimeStorage.languageCode)) }
+    private var callingCodes: [String: String] {
+        commonPropertyLists.callingCodes
+    }
+
+    private var regionTitlesForAllCallingCodes: [String] {
+        getRegionTitlesForAllCallingCodes()
+    }
+
+    private var systemLocalizedLocale: Locale {
+        Locale(languageCode: .init(RuntimeStorage.languageCode))
+    }
 
     // MARK: - Calling Codes
 
@@ -129,14 +139,14 @@ final class RegionDetailService {
     func regionCodes(by strategy: QueryStrategy) -> [String]? {
         switch strategy {
         case let .callingCode(callingCode):
-            return regionCodes(callingCode: callingCode)
+            regionCodes(callingCode: callingCode)
 
         case let .regionTitle(regionTitle):
-            return regionCodes(regionTitle: regionTitle)
+            regionCodes(regionTitle: regionTitle)
 
         case .regionCode,
              .searchTerm:
-            return nil
+            nil
         }
     }
 
@@ -263,13 +273,11 @@ final class RegionDetailService {
         guard let callingCode = callingCodes[regionCode] else { return "" }
 
         func title(for regionName: String) -> String {
-            let title: String
-
-            switch titleFormat {
+            let title = switch titleFormat {
             case .callingCodeFirst:
-                title = "+\(callingCode) (\(regionName))"
+                "+\(callingCode) (\(regionName))"
             case .regionNameFirst:
-                title = "\(regionName) (+\(callingCode))"
+                "\(regionName) (+\(callingCode))"
             }
 
             setCacheValue(regionCode, title)

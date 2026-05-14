@@ -59,7 +59,7 @@ struct ConversationCellViewData: Equatable {
         thumbnailImage = ConversationCellViewData.empty.thumbnailImage
     }
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    @MainActor // swiftlint:disable:next cyclomatic_complexity function_body_length
     init?(
         _ conversation: Conversation,
         searchQuery: String? = nil,
@@ -203,12 +203,14 @@ struct ConversationCellViewData: Equatable {
     }
 }
 
+@MainActor
 enum ConversationCellViewDataCache {
     static func clearCache() {
         _ConversationCellViewDataCache.clearCache()
     }
 }
 
+@MainActor
 private enum _ConversationCellViewDataCache {
     // MARK: - Types
 
