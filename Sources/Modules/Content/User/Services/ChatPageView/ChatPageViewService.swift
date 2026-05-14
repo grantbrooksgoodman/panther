@@ -145,15 +145,22 @@ final class ChatPageViewService {
 
         guard configuration != .preview else {
             viewController?.messageInputBar.isHidden = true
-            Task.delayed(by: .milliseconds(Floats.scrollDelayMilliseconds)) { @MainActor [weak self] in
+            Task.delayed(
+                by: .milliseconds(Floats.scrollDelayMilliseconds)
+            ) { @MainActor [weak self] in
+                guard let collectionView = self?.viewController?.messagesCollectionView else { return }
+
+                collectionView.contentInset.bottom = Floats.previewConfigBottomInset
+                collectionView.verticalScrollIndicatorInsets.bottom = Floats.previewConfigBottomInset
+
                 if let focusedMessageID = self?.configuration.focusedMessageID {
-                    self?.viewController?.messagesCollectionView.scrollTo(
+                    collectionView.scrollTo(
                         messageID: focusedMessageID,
                         at: .centeredVertically,
                         animated: false
                     )
                 } else {
-                    self?.viewController?.messagesCollectionView.scrollToLastItem(animated: false)
+                    collectionView.scrollToLastItem(animated: false)
                 }
             }
             return

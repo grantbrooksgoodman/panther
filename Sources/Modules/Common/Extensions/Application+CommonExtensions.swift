@@ -12,6 +12,7 @@ import UIKit
 
 /* Proprietary */
 import AppSubsystem
+import Networking
 
 extension Application {
     // MARK: - Types
@@ -19,6 +20,26 @@ extension Application {
     enum ResetCompletionProcedure {
         case exitGracefully
         case navigateToSplash
+    }
+
+    // MARK: - Properties
+
+    static var usesLegacyChatPageInterface: Bool {
+        @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
+        @Dependency(\.clientSession.user.currentUser) var currentUser: User?
+        guard UIApplication.isFullyV26Compatible else { return true }
+        guard let currentUser else { return Application.isInPrevaricationMode }
+
+        if [
+            "15555555555",
+            "18888888888",
+        ].contains(currentUser.phoneNumber.compiledNumberString),
+            buildMilestone == .generalRelease,
+            Networking.config.environment == .production {
+            return true
+        }
+
+        return Application.isInPrevaricationMode
     }
 
     // MARK: - Methods

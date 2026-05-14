@@ -428,6 +428,7 @@ struct ChatInfoPageReducer: Reducer {
 
             conversationSession.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView() // TODO: Audit why this didn't seem necessary before, but is now.
+            Observables.currentConversationMetadataChanged.trigger()
 
             if let titleLabelText = state.cellViewData?.titleLabelText {
                 chatPageViewService.setNavigationTitle(titleLabelText)

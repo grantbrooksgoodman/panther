@@ -41,8 +41,7 @@ struct InputBarConfigService {
     func attachMediaButtonImage(
         isHighlighted: Bool
     ) -> UIImage? {
-        if !Application.isInPrevaricationMode,
-           UIApplication.isFullyV26Compatible {
+        if !Application.usesLegacyChatPageInterface {
             return .init(
                 systemName: Strings.v26AttachMediaButtonImageSystemName,
                 withConfiguration: UIImage.SymbolConfiguration(weight: .medium)

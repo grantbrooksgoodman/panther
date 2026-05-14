@@ -425,7 +425,7 @@ final class SettingsPageViewService {
                 }
             }
 
-            let sourceItemString = RuntimeStorage.languageCode == "en" ? "Sign Out" : "Log Out"
+            let sourceItemString = RuntimeStorage.languageCode == "en" ? "Sign out" : "Log out"
             await AKActionSheet(
                 actions: [signOutAction],
                 cancelButtonTitle: Localized(.cancel).wrappedValue,

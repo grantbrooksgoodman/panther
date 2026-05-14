@@ -28,6 +28,7 @@ extension Conversation: RemotelyUpdatable {
         switch keyPath {
         case \.activities: .activities
         case \.messages: .messages
+        case \.metadata: .metadata
         case \.participants: .participants
         case \.reactionMetadata: .reactionMetadata
         default: nil

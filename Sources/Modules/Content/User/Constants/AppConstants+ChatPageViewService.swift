@@ -19,6 +19,7 @@ extension AppConstants.CGFloats {
     enum ChatPageViewService {
         static let inputBarAppearanceAnimationDuration: CGFloat = 0.2
         static let loadMoreMessagesDelayMilliseconds: CGFloat = 200
+        static let previewConfigBottomInset: CGFloat = 8
         static let scrollDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
         static let setNavigationBarButtonItemAppearanceDelayMilliseconds: CGFloat = 10 // swiftlint:disable:next identifier_name
         static let triggerFocusedMessageCellInteractionDelayMilliseconds: CGFloat = 500

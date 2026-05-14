@@ -284,7 +284,8 @@ final class ConversationsPageViewService {
             andMatchingPredicate: \.isWellFormed
         ) else {
             var currentState = state
-            Task { // NIT: Ensure this is a good approach.
+            Task.delayed(by: .seconds(1)) { @MainActor in
+                // NIT: Ensure this is a good approach.
                 if let exception = await User.populateCurrentUserConversationsIfNeeded() {
                     Logger.log(
                         exception,

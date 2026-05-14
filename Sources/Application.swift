@@ -100,6 +100,15 @@ enum Application {
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,
            hasRunOnce == nil {
+            @Persistent(.init("breadcrumbsCaptureEnabled")) var breadcrumbsCaptureEnabled: Bool?
+            @Persistent(.init(".breadcrumbsCaptureSavesToPhotos")) var breadcrumbsCaptureSavesToPhotos: Bool?
+
+            @Dependency(\.commonServices.breadcrumbsCapture) var breadcrumbsCaptureService: BreadcrumbsCaptureService
+
+            breadcrumbsCaptureEnabled = true
+            breadcrumbsCaptureSavesToPhotos = true
+            breadcrumbsCaptureService.startCapture()
+
             Networking.config.setEnvironment(.development)
             hasRunOnce = true
         } else if buildMilestone == .generalRelease {

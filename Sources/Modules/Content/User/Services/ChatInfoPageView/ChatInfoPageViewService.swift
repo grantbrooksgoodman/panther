@@ -310,17 +310,13 @@ final class ChatInfoPageViewService {
             ))
         }
 
-        do {
-            return try await .success(
-                conversation.updateValues(
-                    with: [
-                        \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
-                        \.metadata: newMetadata,
-                    ]
-                )
+        return await .asCallback { @Sendable in
+            try await conversation.updateValues(
+                with: [
+                    \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
+                    \.metadata: newMetadata,
+                ]
             )
-        } catch {
-            return .failure(error)
         }
     }
 

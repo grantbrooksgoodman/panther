@@ -162,18 +162,14 @@ struct ConversationService {
     }
 
     private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        do {
-            return try await .success(
-                networking.database.getValues(
-                    at: [
-                        NetworkPath.users.rawValue,
-                        userID,
-                        User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/")
-                )
+        await .asCallback {
+            try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
             )
-        } catch {
-            return .failure(error)
         }
     }
 

@@ -42,18 +42,53 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     static let shared = MetadataService()
 
-    private(set) var appShareLink: URL?
-    private(set) var appStoreBuildNumber: Int?
-    private(set) var geminiAPIKey: String?
-    private(set) var isPrevaricationModeEnabled: Bool?
-    private(set) var redirectionKey: String?
-    private(set) var shouldForceUpdate: Bool?
-    private(set) var storageReferenceURL: URL?
+    private let _appShareLink = LockIsolated<URL?>(nil)
+    private let _appStoreBuildNumber = LockIsolated<Int?>(nil)
+    private let _geminiAPIKey = LockIsolated<String?>(nil)
+    private let _isPrevaricationModeEnabled = LockIsolated<Bool?>(nil)
+    private let _redirectionKey = LockIsolated<String?>(nil)
+    private let _shouldForceUpdate = LockIsolated<Bool?>(nil)
+    private let _storageReferenceURL = LockIsolated<URL?>(nil)
 
     // MARK: - Computed Properties
 
     var apiKey: String {
         geminiAPIKey ?? ""
+    }
+
+    private(set) var appShareLink: URL? {
+        get { _appShareLink.wrappedValue }
+        set { _appShareLink.wrappedValue = newValue }
+    }
+
+    private(set) var appStoreBuildNumber: Int? {
+        get { _appStoreBuildNumber.wrappedValue }
+        set { _appStoreBuildNumber.wrappedValue = newValue }
+    }
+
+    private(set) var geminiAPIKey: String? {
+        get { _geminiAPIKey.wrappedValue }
+        set { _geminiAPIKey.wrappedValue = newValue }
+    }
+
+    private(set) var isPrevaricationModeEnabled: Bool? {
+        get { _isPrevaricationModeEnabled.wrappedValue }
+        set { _isPrevaricationModeEnabled.wrappedValue = newValue }
+    }
+
+    private(set) var redirectionKey: String? {
+        get { _redirectionKey.wrappedValue }
+        set { _redirectionKey.wrappedValue = newValue }
+    }
+
+    private(set) var shouldForceUpdate: Bool? {
+        get { _shouldForceUpdate.wrappedValue }
+        set { _shouldForceUpdate.wrappedValue = newValue }
+    }
+
+    private(set) var storageReferenceURL: URL? {
+        get { _storageReferenceURL.wrappedValue }
+        set { _storageReferenceURL.wrappedValue = newValue }
     }
 
     // MARK: - Init

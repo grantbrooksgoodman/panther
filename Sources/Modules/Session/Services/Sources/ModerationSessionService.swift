@@ -132,30 +132,22 @@ struct ModerationSessionService {
             ))
         }
 
-        do {
-            return try await .success(
-                networking.database.getValues(
-                    at: [
-                        NetworkPath.users.rawValue,
-                        currentUserID,
-                        User.SerializableKey.blockedUserIDs.rawValue,
-                    ].joined(separator: "/")
-                )
+        return await .asCallback {
+            try await networking.database.getValues(
+                at: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.blockedUserIDs.rawValue,
+                ].joined(separator: "/")
             )
-        } catch {
-            return .failure(error)
         }
     }
 
     private func getReportedUserIDs() async -> Callback<[String: Int], Exception> {
-        do {
-            return try await .success(
-                networking.database.getValues(
-                    at: NetworkPath.reportedUsers.rawValue
-                )
+        await .asCallback {
+            try await networking.database.getValues(
+                at: NetworkPath.reportedUsers.rawValue
             )
-        } catch {
-            return .failure(error)
         }
     }
 

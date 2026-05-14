@@ -20,7 +20,7 @@ extension [Conversation] {
         var withSentDate: [(Conversation, Date)] = []
         var withoutSentDate: [Conversation] = []
 
-        for conversation in self {
+        for conversation in self.map(\.filteringSystemMessages) {
             guard let messages = conversation.messages,
                   !messages.isEmpty,
                   let latestMessage = messages.max(by: { $0.sentDate < $1.sentDate }) else {

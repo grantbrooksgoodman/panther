@@ -148,7 +148,13 @@ struct ChatPageViewControllerFactory {
         typealias Floats = AppConstants.CGFloats.ChatPageViewService.DeliveryProgressIndicator
         typealias Strings = AppConstants.Strings.ChatPageViewService.DeliveryProgressIndicator
 
-        let yOrigin = UIApplication.isFullyV26Compatible ?
+        // NIT: Dependency injection here goes against factory pattern flow.
+        @Dependency(\.navigation.state.userContent.sheet) var currentSheet: UserContentNavigatorState.SheetPaths?
+        @Dependency(\.clientSession.conversation.currentConversation?.isEmpty) var isCurrentConversationEmpty: Bool?
+
+        let isNewChatPageContext = currentSheet == .newChat && isCurrentConversationEmpty == true
+        let shouldUseYOriginOffset = !Application.usesLegacyChatPageInterface && !isNewChatPageContext
+        let yOrigin = shouldUseYOriginOffset ?
             AppConstants.CGFloats.UserContentContainerView.chatPageHeaderContentHeight :
             0
 
@@ -283,12 +289,12 @@ struct ChatPageViewControllerFactory {
         consentButton.tag = coreUI.semTag(for: Strings.consentButtonSemanticTag)
         inputBar.addSubview(consentButton)
 
-        guard Application.isInPrevaricationMode else {
-            return configureV26InputBarAppearance(inputBar)
+        if !Application.usesLegacyChatPageInterface {
+            configureV26InputBarAppearance(inputBar)
+        } else if Application.isInPrevaricationMode {
+            inputBar.backgroundView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
+            inputBar.contentView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
         }
-
-        inputBar.backgroundView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
-        inputBar.contentView.backgroundColor = UIColor(Colors.prevaricationModeBackground)
     }
 
     private func configureV26InputBarAppearance(_ inputBar: InputBarAccessoryView) {

@@ -94,8 +94,8 @@ struct UserContentContainerView: View {
     ) -> some View {
         let cellViewData = ConversationCellViewData(conversation)
 
-        if !Application.isInPrevaricationMode,
-           UIApplication.isFullyV26Compatible {
+        if !Application.usesLegacyChatPageInterface,
+           !Application.isInPrevaricationMode {
             ChatPageView(
                 conversation,
                 configuration: .default(focusedMessageID: focusedMessageID),

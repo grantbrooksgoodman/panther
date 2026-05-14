@@ -84,6 +84,7 @@ final class RecordingUIService {
                     self.recordingView?.alpha = 0
 
                     if Application.isInPrevaricationMode ||
+                        Application.usesLegacyChatPageInterface ||
                         !UIApplication.isFullyV26Compatible {
                         self.inputBar.inputTextView.layer.borderWidth = Floats.layerBorderWidth
                     }
@@ -93,7 +94,7 @@ final class RecordingUIService {
                     self.inputBar.inputTextView.tintColor = UIColor(Colors.inputTextViewTint)
                     self.inputBar.leftStackView.attachMediaButton?.alpha = 1
                 } completion: { _ in
-                    if UIApplication.isFullyV26Compatible {
+                    if !Application.usesLegacyChatPageInterface {
                         let sendButtonFrameInInputTextView = self.inputBar.sendButton.convert(
                             self.inputBar.sendButton.bounds,
                             to: self.inputBar.inputTextView
@@ -131,7 +132,7 @@ final class RecordingUIService {
                 inputBar.contentView.addSubview(recordingView)
                 recordingView.tag = coreUI.semTag(for: Strings.recordingViewSemanticTag)
 
-                if UIApplication.isFullyV26Compatible {
+                if !Application.usesLegacyChatPageInterface {
                     recordingView.center.y = inputBar.inputTextView.center.y
                     let sendButtonFrameInRecordingView = inputBar.sendButton.convert(
                         inputBar.sendButton.bounds,
@@ -168,7 +169,7 @@ final class RecordingUIService {
 
                 let offset = cancelLabel.intrinsicContentSize.width + Floats.cancelLabelOffsetIncrement
                 let maxXToOffset = (
-                    UIApplication.isFullyV26Compatible ? sendButtonFrame.minX : recordingView.frame.maxX
+                    !Application.usesLegacyChatPageInterface ? sendButtonFrame.minX : recordingView.frame.maxX
                 ) - offset
 
                 UIView.animate(
@@ -319,8 +320,8 @@ final class RecordingUIService {
         recordingView.clipsToBounds = true
         recordingView.layer.cornerRadius = Floats.recordingViewLayerCornerRadius
 
-        if #available(iOS 26, *),
-           UIApplication.isFullyV26Compatible {
+        if !Application.usesLegacyChatPageInterface,
+           #available(iOS 26, *) {
             let sendButtonFrame = inputBar.sendButton.convert(
                 inputBar.sendButton.bounds,
                 to: inputBar.contentView

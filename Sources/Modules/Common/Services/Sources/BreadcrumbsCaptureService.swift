@@ -155,6 +155,8 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
     private func capture() {
         guard Int.random(in: 1 ... 1_000_000) % 3 == 0 else { return }
 
+        // TODO: Show build-info overlay here.
+
         // swiftformat:disable all
         var viewHierarchyID: String?
         switch captureGranularity {
@@ -282,8 +284,6 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         let filePath = [
             NetworkPath.breadcrumbs.rawValue,
             build.bundleVersion,
-            build.bundleRevision,
-            "\(build.buildNumber)\(build.milestone.shortString)",
             "\(keyDescriptor)\(keyDescriptor == leafDescriptor ? "" : " & \(leafDescriptor)")",
         ].joined(separator: "/") + "/\(fileName).\(ImageFileExtension.jpeg.rawValue)"
 

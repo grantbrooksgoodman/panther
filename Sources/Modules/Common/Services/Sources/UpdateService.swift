@@ -75,7 +75,6 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
                 firstPostponedUpdate = nil
                 relaunchesSinceLastPostponedUpdate = 0
                 buildNumberWhenLastForcedToUpdate = build.buildNumber
-
                 isForcedUpdateRequiredSubject.send(true)
                 return nil
 

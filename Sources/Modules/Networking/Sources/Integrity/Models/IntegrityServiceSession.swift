@@ -244,11 +244,9 @@ final class IntegrityServiceSession: @unchecked Sendable {
     // MARK: - Auxiliary
 
     private static func fetchDatabaseValues(at path: String) async -> Callback<Any, Exception> {
-        do {
+        await .asCallback {
             @Dependency(\.networking.database) var database: DatabaseDelegate
-            return try await .success(database.getValues(at: path))
-        } catch {
-            return .failure(error)
+            return try await database.getValues(at: path)
         }
     }
 
