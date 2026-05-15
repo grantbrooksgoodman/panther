@@ -49,8 +49,8 @@ extension Conversation: Serializable {
     // MARK: - Init
 
     convenience init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
 

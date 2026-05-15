@@ -47,8 +47,8 @@ extension Message: Serializable {
     // MARK: - Init
 
     init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
         @Dependency(\.networking.messageService) var messageService: MessageService
@@ -69,10 +69,8 @@ extension Message: Serializable {
 
         var readReceipts: [ReadReceipt]?
         if !encodedReadReceipts.isBangQualifiedEmpty {
-            readReceipts = .init()
-            for encodedReadReceipt in encodedReadReceipts {
-                let readReceipt = try await ReadReceipt(from: encodedReadReceipt)
-                readReceipts?.append(readReceipt)
+            readReceipts = try await encodedReadReceipts.parallelMap {
+                try await ReadReceipt(from: $0)
             }
         }
 
@@ -185,8 +183,8 @@ extension Message: Serializable {
     // MARK: - Auxiliary
 
     private static func getTranslation(
-        _ reference: TranslationReference // swiftformat:disable all
-    ) async throws(Exception) -> Translation { // swiftformat:enable all
+        _ reference: TranslationReference
+    ) async throws(Exception) -> Translation {
         let translation = try await Translation(from: reference)
 
         if let exception = TranslationValidator.validate(
@@ -202,8 +200,8 @@ extension Message: Serializable {
     private static func getTranslations(
         languageCode: String,
         referenceStrings: [String],
-        fromAccountID: String // swiftformat:disable all
-    ) async throws(Exception) -> [Translation] { // swiftformat:enable all
+        fromAccountID: String
+    ) async throws(Exception) -> [Translation] {
         let isFromCurrentUser = fromAccountID == User.currentUserID
         let translationReferences = referenceStrings.compactMap { TranslationReference($0) }
         var filteredReferences = translationReferences
@@ -252,8 +250,8 @@ extension Message: Serializable {
     }
 
     private static func getTranslations(
-        references: [TranslationReference] // swiftformat:disable all
-    ) async throws(Exception) -> [Translation] { // swiftformat:enable all
+        references: [TranslationReference]
+    ) async throws(Exception) -> [Translation] {
         guard !references.isEmpty else {
             throw Exception(
                 "No translation references provided.",

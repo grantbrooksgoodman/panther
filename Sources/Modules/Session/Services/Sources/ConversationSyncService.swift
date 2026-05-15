@@ -86,22 +86,13 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        var updatedActivities = [Activity]()
-
-        for activity in newActivities {
-            do {
-                try await updatedActivities.append(Activity(from: activity))
-            } catch {
-                return error
+        let updatedActivities: [Activity]
+        do {
+            updatedActivities = try await newActivities.parallelMap {
+                try await Activity(from: $0)
             }
-        }
-
-        guard !updatedActivities.isEmpty,
-              updatedActivities.count == newActivities.count else {
-            return .init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            )
+        } catch {
+            return error
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
@@ -279,22 +270,13 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        var updatedParticipants = [Participant]()
-
-        for participant in newParticipants {
-            do {
-                try await updatedParticipants.append(Participant(from: participant))
-            } catch {
-                return error
+        let updatedParticipants: [Participant]
+        do {
+            updatedParticipants = try await newParticipants.parallelMap {
+                try await Participant(from: $0)
             }
-        }
-
-        guard !updatedParticipants.isEmpty,
-              updatedParticipants.count == newParticipants.count else {
-            return .init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            )
+        } catch {
+            return error
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
@@ -322,22 +304,13 @@ final class ConversationSyncService: @unchecked Sendable {
             )
         }
 
-        var updatedReactionMetadata = [ReactionMetadata]()
-
-        for reactionMetadata in newReactionMetadata {
-            do {
-                try await updatedReactionMetadata.append(ReactionMetadata(from: reactionMetadata))
-            } catch {
-                return error
+        let updatedReactionMetadata: [ReactionMetadata]
+        do {
+            updatedReactionMetadata = try await newReactionMetadata.parallelMap {
+                try await ReactionMetadata(from: $0)
             }
-        }
-
-        guard !updatedReactionMetadata.isEmpty,
-              updatedReactionMetadata.count == newReactionMetadata.count else {
-            return .init(
-                "Mismatched ratio returned.",
-                metadata: .init(sender: self)
-            )
+        } catch {
+            return error
         }
 
         guard let conversation = syncData?.conversation.modifyKey(

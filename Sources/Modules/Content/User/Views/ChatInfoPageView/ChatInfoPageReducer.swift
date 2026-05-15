@@ -112,6 +112,11 @@ struct ChatInfoPageReducer: Reducer {
             return cellViewData.titleLabelText
         }
 
+        @MainActor
+        var isAddContactButtonEnabled: Bool {
+            !Dependency(\.messageDeliveryService.isSendingMessage).wrappedValue
+        }
+
         var isDeveloperModeEnabled: Bool {
             Dependency(\.build.isDeveloperModeEnabled).wrappedValue
         }
@@ -228,9 +233,7 @@ struct ChatInfoPageReducer: Reducer {
             }
 
             let name = newMetadata.name
-            let action: Activity.Action = name.isBangQualifiedEmpty ? .removedName : .renamedConversation(
-                name: name.removingOccurrences(of: [":"])
-            )
+            let action: Activity.Action = name.isBangQualifiedEmpty ? .removedName : .renamedConversation(name: name)
 
             return .task {
                 let result = await viewService.updateMetadata(
@@ -320,8 +323,8 @@ struct ChatInfoPageReducer: Reducer {
         case let .penPalsSharingDataConfirmationActionSheetDismissed(newMetadata):
             guard let conversation = state.conversation,
                   let newMetadata else { return .none }
-            return .task { // swiftformat:disable all
-                do throws(Exception) { // swiftformat:enable all
+            return .task {
+                do throws(Exception) {
                     return try await .updateMetadataReturned(
                         .success(
                             conversation.update(

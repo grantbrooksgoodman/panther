@@ -20,10 +20,13 @@ extension [Conversation] {
         var withSentDate: [(Conversation, Date)] = []
         var withoutSentDate: [Conversation] = []
 
-        for conversation in self.map(\.filteringSystemMessages) {
-            guard let messages = conversation.messages,
+        for conversation in self {
+            let filteringSystemMessages = conversation.filteringSystemMessages
+            guard let messages = filteringSystemMessages.messages,
                   !messages.isEmpty,
-                  let latestMessage = messages.max(by: { $0.sentDate < $1.sentDate }) else {
+                  let latestMessage = messages.max(by: {
+                      $0.sentDate < $1.sentDate
+                  }) else {
                 withoutSentDate.append(conversation)
                 continue
             }
@@ -51,40 +54,12 @@ extension [Conversation] {
 
     @discardableResult
     func setMessages() async -> Exception? {
-        await withTaskGroup(of: Exception?.self) { taskGroup in
-            for conversation in self {
-                taskGroup.addTask {
-                    await conversation.setMessages()
-                }
-            }
-
-            for await exception in taskGroup {
-                if let exception {
-                    return exception
-                }
-            }
-
-            return nil
-        }
+        await parallelMap { await $0.setMessages() }
     }
 
     @discardableResult
     func setUsers() async -> Exception? {
-        await withTaskGroup(of: Exception?.self) { taskGroup in
-            for conversation in self {
-                taskGroup.addTask {
-                    await conversation.setUsers()
-                }
-            }
-
-            for await exception in taskGroup {
-                if let exception {
-                    return exception
-                }
-            }
-
-            return nil
-        }
+        await parallelMap { await $0.setUsers() }
     }
 }
 

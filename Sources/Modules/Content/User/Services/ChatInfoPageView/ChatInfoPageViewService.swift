@@ -37,6 +37,7 @@ final class ChatInfoPageViewService {
     @Dependency(\.clientSession) private var clientSession: ClientSession
     @Dependency(\.commonServices.contact) private var contactService: ContactService
     @Dependency(\.networking.conversationService.archive) private var conversationArchive: ConversationArchiveService
+    @Dependency(\.messageDeliveryService) private var messageDeliveryService: MessageDeliveryService
     @Dependency(\.navigation) private var navigation: Navigation
     @Dependency(\.quickViewer) private var quickViewer: QuickViewer
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
@@ -70,8 +71,10 @@ final class ChatInfoPageViewService {
 
     // MARK: - Get Chat Participants
 
+    // swiftlint:disable function_body_length
     /// `.viewAppeared`
     func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
+        @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
         guard let conversation = clientSession.conversation.fullConversation else {
             return .failure(.init(
                 "No current conversation.",
@@ -89,84 +92,101 @@ final class ChatInfoPageViewService {
             return await getChatParticipants()
         }
 
+        let isPenPalsConversation = conversation.metadata.isPenPalsConversation
+
+        // Return cached participants immediately; collect the rest for parallel resolution.
         var chatParticipants = [ChatParticipant]()
+        var uncachedUsers = [User]()
 
         for user in users {
-            if !conversation.metadata.isPenPalsConversation,
-               let cachedChatParticipantsForUserIDs,
-               let cachedChatParticipant = cachedChatParticipantsForUserIDs[user.id] {
-                chatParticipants.append(cachedChatParticipant)
-                continue
+            if !isPenPalsConversation,
+               let cachedParticipant = cachedChatParticipantsForUserIDs?[user.id] {
+                chatParticipants.append(cachedParticipant)
+            } else {
+                uncachedUsers.append(user)
             }
+        }
 
-            var chatParticipant: ChatParticipant?
-            let currentUserSharesData = conversation.currentUserSharesPenPalsData(with: user)
-            // swiftlint:disable:next identifier_name
-            let currentUserDoesNotShareDataButOtherUserDoes = !currentUserSharesData && conversation.userSharesPenPalsDataWithCurrentUser(user)
+        // Resolve uncached users in parallel (the only async work is the CNContact lookup).
+        let resolvedResult = await uncachedUsers
+            .parallelMap { @Sendable user -> Callback<(String, ChatParticipant)?, Exception> in
+                let currentUserSharesData = conversation.currentUserSharesPenPalsData(with: user)
+                // swiftlint:disable:next identifier_name
+                let currentUserDoesNotShareDataButOtherUserDoes = !currentUserSharesData && conversation.userSharesPenPalsDataWithCurrentUser(user)
 
-            @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
-            if !conversation.metadata.isPenPalsConversation
-                || conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
-                || currentUserDoesNotShareDataButOtherUserDoes
-                || penPalsService.isKnownToCurrentUser(user.id) {
-                let isPenPal = !conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
-                    !penPalsService.isKnownToCurrentUser(user.id)
-                let firstCNContactResult = await contactService.firstCNContact(for: user.phoneNumber)
+                var chatParticipant: ChatParticipant?
 
-                switch firstCNContactResult {
-                case let .success(cnContact):
-                    let contactPair: ContactPair = .init(
-                        contact: .init(cnContact),
-                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
-                    )
+                if !isPenPalsConversation
+                    || conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user)
+                    || currentUserDoesNotShareDataButOtherUserDoes
+                    || penPalsService.isKnownToCurrentUser(user.id) {
+                    let isPenPal = !conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
+                        !penPalsService.isKnownToCurrentUser(user.id)
+                    let firstCNContactResult = await self.contactService.firstCNContact(for: user.phoneNumber)
 
-                    chatParticipant = .init(
-                        displayName: contactPair.contact.fullName,
-                        cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact.mutableCopy() as? CNMutableContact),
-                        contactPair: contactPair,
-                        penPalsStatus: isPenPal ? (currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData) : nil
-                    )
-
-                case .failure:
-                    let cnContact = CNMutableContact()
-                    cnContact.phoneNumbers.append(
-                        .init(
-                            label: nil,
-                            value: .init(stringValue: user.phoneNumber.formattedString())
+                    switch firstCNContactResult {
+                    case let .success(cnContact):
+                        let contactPair: ContactPair = .init(
+                            contact: .init(cnContact),
+                            numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
                         )
-                    )
 
-                    let contactPair: ContactPair = .init(
-                        contact: .init(cnContact),
-                        numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
-                    )
+                        chatParticipant = .init(
+                            displayName: contactPair.contact.fullName,
+                            cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact.mutableCopy() as? CNMutableContact),
+                            contactPair: contactPair,
+                            penPalsStatus: isPenPal ? (currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData) : nil
+                        )
 
+                    case .failure:
+                        let cnContact = CNMutableContact()
+                        cnContact.phoneNumbers.append(
+                            .init(
+                                label: nil,
+                                value: .init(stringValue: user.phoneNumber.formattedString())
+                            )
+                        )
+
+                        let contactPair: ContactPair = .init(
+                            contact: .init(cnContact),
+                            numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
+                        )
+
+                        chatParticipant = .init(
+                            displayName: contactPair.contact.fullName,
+                            cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact, isUnknown: true),
+                            contactPair: contactPair,
+                            penPalsStatus: isPenPal ? (currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData) : nil
+                        )
+                    }
+                } else {
                     chatParticipant = .init(
-                        displayName: contactPair.contact.fullName,
-                        cnContactContainer: currentUserDoesNotShareDataButOtherUserDoes ? nil : .init(cnContact, isUnknown: true),
-                        contactPair: contactPair,
-                        penPalsStatus: isPenPal ? (currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData) : nil
+                        displayName: user.penPalsName,
+                        cnContactContainer: nil,
+                        contactPair: .withUser(user, name: user.penPalsName),
+                        penPalsStatus: currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData
                     )
                 }
-            } else {
-                chatParticipant = .init(
-                    displayName: user.penPalsName,
-                    cnContactContainer: nil,
-                    contactPair: .withUser(user, name: user.penPalsName),
-                    penPalsStatus: currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData
-                )
+
+                guard let chatParticipant else { return .success(nil) }
+                return .success((user.id, chatParticipant))
             }
 
-            guard let chatParticipant else { continue }
-            chatParticipants.append(chatParticipant)
+        switch resolvedResult {
+        case let .success(resolved):
+            let resolvedPairs = resolved.compactMap(\.self)
+            chatParticipants.append(contentsOf: resolvedPairs.map(\.1))
 
-            guard !conversation.metadata.isPenPalsConversation else { continue }
-            if var cachedValue = cachedChatParticipantsForUserIDs {
-                cachedValue[user.id] = chatParticipant
-                cachedChatParticipantsForUserIDs = cachedValue
-            } else {
-                cachedChatParticipantsForUserIDs = [user.id: chatParticipant]
+            if !isPenPalsConversation {
+                var cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs ?? [:]
+                for (userID, participant) in resolvedPairs {
+                    cachedChatParticipantsForUserIDs[userID] = participant
+                }
+                self.cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs
             }
+
+        case let .failure(exception):
+            return .failure(exception)
         }
 
         var withAlphabeticalPrefix = [ChatParticipant]()
@@ -184,8 +204,11 @@ final class ChatInfoPageViewService {
         func sorted(_ participants: [ChatParticipant]) -> [ChatParticipant] {
             participants.sorted(by: { $0.displayName < $1.displayName })
         }
-        return .success(sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix))
-    }
+
+        return .success(
+            sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
+        )
+    } // swiftlint:enable function_body_length
 
     // MARK: - Reducer Action Handlers
 
@@ -323,6 +346,12 @@ final class ChatInfoPageViewService {
     func viewAppeared() {
         uiApplication.resignFirstResponders()
         UISegmentedControl.appearance().apportionsSegmentWidthsByContent = true
+        messageDeliveryService.addEffectUponIsSendingMessage(
+            changedTo: false,
+            id: .updateChatInfoPageView
+        ) {
+            Observables.currentConversationMetadataChanged.trigger()
+        }
     }
 
     /// `.getChatParticipantsReturned(.success)`

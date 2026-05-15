@@ -283,9 +283,7 @@ final class ConversationsPageViewService {
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
         ) else {
-            var currentState = state
             Task.delayed(by: .seconds(1)) { @MainActor in
-                // NIT: Ensure this is a good approach.
                 if let exception = await User.populateCurrentUserConversationsIfNeeded() {
                     Logger.log(
                         exception,
@@ -294,11 +292,8 @@ final class ConversationsPageViewService {
                 } else {
                     let reloadDataResult = await reloadData()
                     switch reloadDataResult {
-                    case let .success(conversations):
-                        updateConversationsList(
-                            with: conversations,
-                            state: &currentState
-                        )
+                    case .success:
+                        Observables.updatedCurrentUser.trigger()
 
                     case let .failure(exception):
                         Logger.log(
@@ -310,7 +305,6 @@ final class ConversationsPageViewService {
                 }
             }
 
-            state = currentState
             return Logger.log(
                 .init(
                     "No conversation data source was well-formed.",

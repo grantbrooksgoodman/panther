@@ -157,8 +157,8 @@ struct ConversationsPageObserver: Observer {
                         !$0.isFromCurrentUser &&
                         $0.currentUserReadReceipt == nil
                 }),
-                !missingMessages.isEmpty { // swiftformat:disable all
-                do throws(Exception) { // swiftformat:enable all
+                !missingMessages.isEmpty {
+                do throws(Exception) {
                     let conversation = try await updatedConversation.updateReadDate(
                         for: missingMessages
                     )

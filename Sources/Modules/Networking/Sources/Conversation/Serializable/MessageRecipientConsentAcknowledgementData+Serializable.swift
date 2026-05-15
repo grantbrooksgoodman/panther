@@ -23,8 +23,8 @@ extension MessageRecipientConsentAcknowledgementData: Serializable {
     // MARK: - Init
 
     init(
-        from data: String // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: String
+    ) async throws(Exception) {
         let components = data.components(separatedBy: ": ")
         guard components.count == 2 else {
             throw .Networking.decodingFailed(

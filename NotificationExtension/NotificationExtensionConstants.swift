@@ -15,5 +15,6 @@ enum NotificationExtensionConstants {
     static let conversationNameMapDefaultsKeyName = "notificationExtensionConversationNameMap"
     static let conversationIDKeyUserInfoKey = "conversationIDKey"
     static let isReactionUserInfoKey = "isReaction"
+    static let reactionSuffixUserInfoKey = "reactionSuffix"
     static let userNumberHashUserInfoKey = "userNumberHash"
 }

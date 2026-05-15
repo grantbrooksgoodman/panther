@@ -48,8 +48,8 @@ extension ConversationMetadata: Serializable {
     // MARK: - Init
 
     init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         // swiftlint:disable identifier_name

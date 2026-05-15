@@ -157,34 +157,35 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
         // TODO: Show build-info overlay here.
 
-        // swiftformat:disable all
-        var viewHierarchyID: String?
-        switch captureGranularity {
+        var viewHierarchyID: String? = switch captureGranularity {
         case .broad:
-            viewHierarchyID = (uiApplication
-                .presentedViews
-                .map(\.descriptor) + ["\(build.buildNumber)\(build.milestone.shortString)"])
-                .sorted()
-                .joined()
-                .encodedHash
-
-        case .narrow:
-            viewHierarchyID = (uiApplication
-                .presentedViews
-                .unique
-                .filter {
-                    $0.alpha > 0 &&
-                        $0.frame != .zero &&
-                        !$0.isHidden &&
-                        $0.isUserInteractionEnabled
-                }
-                .map(\.descriptor)
-                .filter { !recordedViews.contains($0) } + ["\(build.buildNumber)\(build.milestone.shortString)"]
+            (
+                uiApplication
+                    .presentedViews
+                    .map(\.descriptor) + ["\(build.buildNumber)\(build.milestone.shortString)"]
             )
             .sorted()
             .joined()
             .encodedHash
-        } // swiftformat:enable all
+
+        case .narrow:
+            (
+                uiApplication
+                    .presentedViews
+                    .unique
+                    .filter {
+                        $0.alpha > 0 &&
+                            $0.frame != .zero &&
+                            !$0.isHidden &&
+                            $0.isUserInteractionEnabled
+                    }
+                    .map(\.descriptor)
+                    .filter { !recordedViews.contains($0) } + ["\(build.buildNumber)\(build.milestone.shortString)"]
+            )
+            .sorted()
+            .joined()
+            .encodedHash
+        }
 
         var captureHistory = captureHistory
         guard let viewHierarchyID,

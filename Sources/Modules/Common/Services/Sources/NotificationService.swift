@@ -70,55 +70,54 @@ struct NotificationService {
 
         let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            for user in users {
-                let title = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
-                let body = notificationBody(for: message, user: user)
-                if let exception = await notify(
-                    user,
-                    title: title,
-                    body: body,
+            return await users.parallelMap {
+                guard let exception = await notify(
+                    $0,
+                    title: isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
+                    body: notificationBody(
+                        for: message,
+                        user: $0
+                    ),
                     conversationIDKey: conversationIDKey,
                     isReaction: false
-                ) {
-                    guard !exception.isEqual(
-                        to: .notRegisteredForPushNotifications
-                    ) else { continue }
-                    return exception
-                }
+                ) else { return nil }
+                return exception.isEqual(
+                    to: .notRegisteredForPushNotifications
+                ) ? nil : exception
             }
-
-            return nil
         }
 
-        for user in users {
+        return await users.parallelMap {
             let reactedString = Localized(
                 .reacted,
-                languageCode: user.languageCode
+                languageCode: $0.languageCode
             ).wrappedValue
-            let titlePrefix = isPenPalsConversation ? penPalsName(for: user) : currentUserFormattedPhoneNumberString
-            let title = "\(titlePrefix) \(reactedString) \(reaction.style.emojiValue)"
+            let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
 
-            var body = notificationBody(for: message, user: user)
+            let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
+            var body = notificationBody(
+                for: message,
+                user: $0
+            )
+
             if let resolvedBody = body,
                message.contentType == .text {
-                body = "“\(resolvedBody)”"
+                body = "”\(resolvedBody)”"
             }
 
-            if let exception = await notify(
-                user,
-                title: title,
+            guard let exception = await notify(
+                $0,
+                title: "\(titlePrefix) \(reactionSuffix)",
                 body: body,
                 conversationIDKey: conversationIDKey,
-                isReaction: true
-            ) {
-                guard !exception.isEqual(
-                    to: .notRegisteredForPushNotifications
-                ) else { continue }
-                return exception
-            }
-        }
+                isReaction: true,
+                reactionSuffix: reactionSuffix
+            ) else { return nil }
 
-        return nil
+            return exception.isEqual(
+                to: .notRegisteredForPushNotifications
+            ) ? nil : exception
+        }
     }
 
     // MARK: - Notify of Prevarication Mode Analytics Event
@@ -146,21 +145,18 @@ struct NotificationService {
             }
         }
 
-        var exceptions = [Exception]()
-        for pushToken in pushTokens.unique {
-            if let exception = await sendNotification(
+        return await pushTokens.unique.parallelMap(
+            failFast: false
+        ) {
+            await sendNotification(
                 title: title,
                 body: body,
                 badgeNumber: 0,
-                pushToken: pushToken,
+                pushToken: $0,
                 userInfo: [:],
                 isReaction: false
-            ) {
-                exceptions.append(exception)
-            }
+            )
         }
-
-        return exceptions.compiledException
     }
 
     // MARK: - Respond to In-app Notification
@@ -341,7 +337,8 @@ struct NotificationService {
         title: String,
         body: String?,
         conversationIDKey: String,
-        isReaction: Bool
+        isReaction: Bool,
+        reactionSuffix: String? = nil
     ) async -> Exception? {
         let userInfo = ["UserID": user.id]
 
@@ -368,6 +365,7 @@ struct NotificationService {
         }
 
         let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
+        var exceptions = [Exception]()
         for pushToken in pushTokens {
             if let exception = await sendNotification(
                 title: title,
@@ -377,16 +375,25 @@ struct NotificationService {
                 userInfo: [
                     "conversationIDKey": conversationIDKey,
                     "isReaction": isReaction ? "true" : "false",
+                    "reactionSuffix": reactionSuffix ?? "",
                     "recipientUserID": user.id,
                     "userNumberHash": userNumberHash,
                 ],
                 isReaction: isReaction
             ) {
-                return exception.appending(userInfo: userInfo)
+                if exception.isEqual(to: .stalePushToken) {
+                    do {
+                        try await services.pushToken.eraseStalePushToken(pushToken)
+                    } catch {
+                        exceptions.append(exception)
+                    }
+                } else {
+                    exceptions.append(exception)
+                }
             }
         }
 
-        return nil
+        return exceptions.compiledException?.appending(userInfo: userInfo)
     }
 
     private func penPalsName(for otherUser: User) -> String {
@@ -462,6 +469,17 @@ struct NotificationService {
                         encoding: .utf8
                     ) ?? "<non-utf8>"
                     let responseCode = (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1
+
+                    if responseBody.contains("UNREGISTERED"),
+                       responseCode == 404 {
+                        return .init(
+                            "The provided push token is stale.",
+                            isReportable: false,
+                            userInfo: ["PushToken": pushToken],
+                            metadata: .init(sender: self)
+                        )
+                    }
+
                     return .init(
                         "Failed to decode URL response or status did not indicate success.",
                         isReportable: !responseBody.contains("UNREGISTERED"),

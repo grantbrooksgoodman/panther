@@ -25,8 +25,8 @@ extension User: RemotelyUpdatable {
     func willWrite(
         _ value: Any,
         forKey key: SerializableKey,
-        updating updated: User // swiftformat:disable all
-    ) async throws(Exception) -> WriteAction<User> { // swiftformat:enable all
+        updating updated: User
+    ) async throws(Exception) -> WriteAction<User> {
         @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
         guard let date = value as? Date else { return .proceed }
         return .encoded(timestampDateFormatter.string(from: date))

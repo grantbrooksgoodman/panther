@@ -47,25 +47,28 @@ struct TranscriptionService {
             ))
         }
 
+        var didComplete = false
+        var canComplete: Bool {
+            guard !didComplete else { return false }
+            didComplete = true
+            return true
+        }
+
         return await withCheckedContinuation { continuation in
             recognizer.recognitionTask(with: request) { result, error in
                 guard let result else {
-                    continuation.resume(returning: .failure(.init(
+                    guard canComplete else { return }
+                    return continuation.resume(returning: .failure(.init(
                         error,
                         metadata: .init(sender: self)
                     )))
-                    return
                 }
 
-                guard result.isFinal else {
-                    continuation.resume(returning: .failure(.init(
-                        "Returned transcription wasn't final.",
-                        metadata: .init(sender: self)
-                    )))
-                    return
-                }
-
-                continuation.resume(returning: .success(result.bestTranscription.formattedString))
+                guard canComplete,
+                      result.isFinal else { return }
+                continuation.resume(returning: .success(
+                    result.bestTranscription.formattedString
+                ))
             }
         }
     }

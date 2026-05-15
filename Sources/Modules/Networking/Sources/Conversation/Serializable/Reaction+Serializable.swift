@@ -37,8 +37,8 @@ extension Reaction: Serializable {
     // MARK: - Init
 
     init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         guard let encodedStyle = data[Keys.style.rawValue] as? String,
               let style = Reaction.Style(encodedValue: encodedStyle),
               let userID = data[Keys.userID.rawValue] as? String else {

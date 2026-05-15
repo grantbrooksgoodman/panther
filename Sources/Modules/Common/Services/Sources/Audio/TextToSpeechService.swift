@@ -155,8 +155,16 @@ struct TextToSpeechService {
             return .failure(exception.appending(userInfo: userInfo))
         }
 
+        var didComplete = false
+        var canComplete: Bool {
+            guard !didComplete else { return false }
+            didComplete = true
+            return true
+        }
+
         return await withCheckedContinuation { continuation in
             let timeout = Timeout(after: .seconds(10)) {
+                guard canComplete else { return }
                 continuation.resume(
                     returning: .failure(
                         .timedOut(
@@ -167,6 +175,7 @@ struct TextToSpeechService {
             }
 
             exportSession.exportAsynchronously {
+                guard canComplete else { return }
                 timeout.cancel()
                 guard let error = exportSession.error else {
                     return continuation.resume(returning: .success(outputURL))

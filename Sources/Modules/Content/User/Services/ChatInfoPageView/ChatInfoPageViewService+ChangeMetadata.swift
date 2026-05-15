@@ -37,7 +37,7 @@ extension ChatInfoPageViewService {
                     conversationName = name
                 }
 
-                let input = await AKTextInputAlert(
+                let textInputAlert = await AKTextInputAlert(
                     message: "Choose a new name for this conversation:",
                     attributes: .init(
                         clearButtonMode: .always,
@@ -45,10 +45,19 @@ extension ChatInfoPageViewService {
                     ),
                     cancelButtonTitle: Localized(.cancel).wrappedValue,
                     confirmButtonTitle: Localized(.done).wrappedValue
-                ).present(translating: [.message])
+                )
+
+                await textInputAlert.onTextFieldChange { textField in
+                    guard let textField else { return }
+                    if textField.text?.containsAnyCharacter(in: "⌘:") == true {
+                        textInputAlert.disableAction(at: 1)
+                    } else {
+                        textInputAlert.enableAction(at: 1)
+                    }
+                }
 
                 guard let conversation,
-                      let name = input,
+                      let name = await textInputAlert.present(translating: [.message]),
                       name != conversation.metadata.name,
                       !(name.isBangQualifiedEmpty && conversation.metadata.name.isBangQualifiedEmpty) else { return nil }
 

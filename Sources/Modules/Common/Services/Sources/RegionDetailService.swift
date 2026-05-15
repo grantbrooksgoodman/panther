@@ -108,7 +108,7 @@ final class RegionDetailService {
                   let image = UIImage(named: "\(match.lowercased()).png") else { return nil }
 
             cachedValue[regionTitle] = image
-            cachedImagesForRegionCodes = cachedValue
+            cachedImagesForRegionTitles = cachedValue
 
             return image
 

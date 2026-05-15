@@ -351,7 +351,7 @@ final class StorageSessionService: @unchecked Sendable {
         let inputFilePaths = localAudioFilePaths?.map(\.inputFilePathString)
         let outputFilePaths = localAudioFilePaths?.map(\.outputFilePathString)
 
-        return (inputFilePaths ?? []) + (outputFilePaths ?? []).unique
+        return ((inputFilePaths ?? []) + (outputFilePaths ?? [])).unique
     }
 
     private func getMediaFilePaths() -> [String] {
@@ -442,27 +442,16 @@ final class StorageSessionService: @unchecked Sendable {
         }
     }
 
-    private func totalSizeInKilobytes(of items: [String]) async -> Callback<Int, Exception> {
-        await withTaskGroup(of: Callback<Int, Exception>.self) { taskGroup in
-            for filePath in items {
-                taskGroup.addTask {
-                    await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
-                }
-            }
+    private func totalSizeInKilobytes(
+        of items: [String]
+    ) async -> Callback<Int, Exception> {
+        let sizeInKilobytesResults = await items.parallelMap { filePath in
+            await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
+        }
 
-            var totalSizeInKilobytes = 0
-            while let result = await taskGroup.next() {
-                switch result {
-                case let .success(sizeInKilobytes):
-                    totalSizeInKilobytes += sizeInKilobytes
-
-                case let .failure(exception):
-                    taskGroup.cancelAll()
-                    return .failure(exception)
-                }
-            }
-
-            return .success(totalSizeInKilobytes)
+        switch sizeInKilobytesResults {
+        case let .success(sizesInKilobytes): return .success(sizesInKilobytes.reduce(0, +))
+        case let .failure(exception): return .failure(exception)
         }
     }
 }

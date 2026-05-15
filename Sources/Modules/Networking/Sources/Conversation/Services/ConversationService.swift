@@ -65,21 +65,29 @@ struct ConversationService {
             users: nil
         )
 
-        let data = mockConversation.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue }
+        let data = mockConversation.encoded.filter {
+            $0.key != Conversation.SerializableKey.id.rawValue
+        }
 
-        if let exception = await networking.database.updateChildValues(forKey: "\(path)/\(id)", with: data) {
+        if let exception = await networking.database.updateChildValues(
+            forKey: "\(path)/\(id)",
+            with: data
+        ) {
             return .failure(exception)
         }
 
-        let conversationID: ConversationID = .init(key: mockConversation.id.key, hash: mockConversation.encodedHash)
+        let conversationID: ConversationID = .init(
+            key: mockConversation.id.key,
+            hash: mockConversation.encodedHash
+        )
 
-        for participant in participants {
-            if let exception = await addConversationToUser(
-                userID: participant.userID,
+        if let exception = await participants.parallelMap(perform: {
+            await addConversationToUser(
+                userID: $0.userID,
                 conversationID: conversationID
-            ) {
-                return .failure(exception)
-            }
+            )
+        }) {
+            return .failure(exception)
         }
 
         mockConversation = .init(

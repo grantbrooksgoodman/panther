@@ -57,8 +57,8 @@ extension User: Serializable {
     // MARK: - Init
 
     convenience init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var timestampDateFormatter: DateFormatter
 
         guard let id = data[Keys.id.rawValue] as? String,
@@ -82,9 +82,7 @@ extension User: Serializable {
         let phoneNumber = try await PhoneNumber(from: encodedPhoneNumber)
         let conversationIDs = try await conversationIDStrings
             .filter { !$0.isBangQualifiedEmpty }
-            .parallelMap {
-                try await ConversationID(from: $0)
-            }
+            .parallelMap { try await ConversationID(from: $0) }
 
         self.init(
             id,

@@ -158,7 +158,7 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             "MessageID": id,
         ]
 
-        guard let messageIndex = messages?.firstIndex(where: { $0.id == id }) else {
+        guard messages?.contains(where: { $0.id == id }) == true else {
             return .init(
                 "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
                 userInfo: userInfo,
@@ -170,7 +170,8 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
 
         switch getMessagesResult {
         case let .success(message):
-            guard var messages else {
+            guard var messages,
+                  let messageIndex = messages.firstIndex(where: { $0.id == id }) else {
                 return .init(
                     "Failed to resolve messages.",
                     userInfo: userInfo,
@@ -261,8 +262,8 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
     // MARK: - Update Read Date
 
     func updateReadDate(
-        for messages: [Message] // swiftformat:disable all
-    ) async throws(Exception) -> Conversation { // swiftformat:enable all
+        for messages: [Message]
+    ) async throws(Exception) -> Conversation {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         guard !messages.isEmpty else {
