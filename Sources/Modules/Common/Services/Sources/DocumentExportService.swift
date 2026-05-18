@@ -71,8 +71,10 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
     ) {
-        controller.dismiss(animated: true)
-        onDismiss(cancelled: false)
+        controller.dismiss(animated: true) {
+            StatusBar.overrideStyle(.appAware)
+            self.onDismiss(cancelled: false)
+        }
     }
 
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {

@@ -9,6 +9,9 @@
 /* Native */
 import Foundation
 
+/* Proprietary */
+import AppSubsystem
+
 struct DataUsageCalculation: Hashable {
     // MARK: - Properties
 
@@ -25,7 +28,8 @@ struct DataUsageCalculation: Hashable {
     }
 
     var isExpired: Bool {
-        abs(date.seconds(from: .now)) > 10
+        @Dependency(\.clientSession.storage) var storageSession: StorageSessionService
+        return abs(date.seconds(from: .now)) > (storageSession.isApproachingDataUsageLimit ? 10 : 60)
     }
 
     // MARK: - Init

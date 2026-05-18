@@ -128,7 +128,12 @@ final class IntegrityServiceSession: @unchecked Sendable {
             getMessageValuesResult,
             getTranslationValuesResult,
             getUserValuesResult
-        ) = await (getConversationValues, getMessageValues, getTranslationValues, getUserValues)
+        ) = await (
+            getConversationValues,
+            getMessageValues,
+            getTranslationValues,
+            getUserValues
+        )
 
         // Process conversation values
 
@@ -230,7 +235,9 @@ final class IntegrityServiceSession: @unchecked Sendable {
               let messageData,
               let translationData,
               let userData else {
-            return .failure(.init(metadata: .init(sender: self)))
+            return .failure(.init(
+                metadata: .init(sender: self)
+            ))
         }
 
         return .success(.init(

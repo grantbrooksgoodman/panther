@@ -20,7 +20,10 @@ final class NotificationExtension: UNNotificationServiceExtension {
 
     // MARK: - Methods
 
-    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    override func didReceive(
+        _ request: UNNotificationRequest,
+        withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
+    ) {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
@@ -28,41 +31,52 @@ final class NotificationExtension: UNNotificationServiceExtension {
               let appGroupDefaults else { return contentHandler(request.content) }
 
         func setSubtitleAndComplete() { // swiftlint:disable:next line_length
-            guard let encodedConversationNameMapData = appGroupDefaults.value(forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName) as? Data,
-                  let conversationNameMapDictionary = try? jsonDecoder.decode([String: String].self, from: encodedConversationNameMapData),
-                  let conversationIDKey = bestAttemptContent.userInfo[NotificationExtensionConstants.conversationIDKeyUserInfoKey] as? String,
-                  let conversationName = conversationNameMapDictionary[conversationIDKey] else {
-                return contentHandler(bestAttemptContent)
-            }
+            guard let encodedConversationNameMapData = appGroupDefaults.value(
+                forKey: NotificationExtensionConstants.conversationNameMapDefaultsKeyName
+            ) as? Data,
+                let conversationNameMapDictionary = try? jsonDecoder.decode(
+                    [String: String].self,
+                    from: encodedConversationNameMapData
+                ),
+                let conversationIDKey = bestAttemptContent.userInfo[
+                    NotificationExtensionConstants.conversationIDKeyUserInfoKey
+                ] as? String,
+                let conversationName = conversationNameMapDictionary[
+                    conversationIDKey
+                ] else { return contentHandler(bestAttemptContent) }
 
             bestAttemptContent.subtitle = conversationName
             contentHandler(bestAttemptContent)
         }
 
-        guard let encodedContactArchiveData = appGroupDefaults.value(forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName) as? Data,
-              let contactArchiveDictionary = try? jsonDecoder.decode([[String]: String].self, from: encodedContactArchiveData),
-              let userNumberHash = bestAttemptContent.userInfo[NotificationExtensionConstants.userNumberHashUserInfoKey] as? String,
-              let matchingContactKey = contactArchiveDictionary.keys.first(where: { $0.contains(userNumberHash) }),
-              let fullName = contactArchiveDictionary[matchingContactKey] else { return setSubtitleAndComplete() }
+        defer { setSubtitleAndComplete() }
+        guard let encodedContactArchiveData = appGroupDefaults.value(
+            forKey: NotificationExtensionConstants.contactArchiveDefaultsKeyName
+        ) as? Data,
+            let contactArchiveDictionary = try? jsonDecoder.decode(
+                [[String]: String].self,
+                from: encodedContactArchiveData
+            ),
+            let userNumberHash = bestAttemptContent.userInfo[
+                NotificationExtensionConstants.userNumberHashUserInfoKey
+            ] as? String,
+            let matchingContactKey = contactArchiveDictionary.keys.first(where: {
+                $0.contains(userNumberHash)
+            }),
+            let fullName = contactArchiveDictionary[
+                matchingContactKey
+            ] else { return }
 
-        if let isReaction = bestAttemptContent.userInfo[NotificationExtensionConstants.isReactionUserInfoKey] as? String,
-           isReaction == "true" {
-            guard let lastNumber = bestAttemptContent.title.last(where: { $0.isNumber }),
-                  let suffix = bestAttemptContent
-                  .title
-                  .components(separatedBy: "\(lastNumber)")
-                  .last else {
-                guard let firstLetter = bestAttemptContent.title.first(where: { $0.isLetter }),
-                      let suffix = bestAttemptContent.title.components(separatedBy: " \(firstLetter)").last else { return setSubtitleAndComplete() }
-                bestAttemptContent.title = "\(fullName) \(firstLetter)\(suffix)"
-                return setSubtitleAndComplete()
+        if let isReaction = bestAttemptContent.userInfo[
+            NotificationExtensionConstants.isReactionUserInfoKey
+        ] as? String, isReaction == "true" {
+            if let reactionSuffix = bestAttemptContent.userInfo[
+                NotificationExtensionConstants.reactionSuffixUserInfoKey
+            ] as? String, !reactionSuffix.isEmpty {
+                bestAttemptContent.title = "\(fullName) \(reactionSuffix)"
             }
-
-            bestAttemptContent.title = "\(fullName)\(suffix)"
-            setSubtitleAndComplete()
         } else {
             bestAttemptContent.title = fullName
-            setSubtitleAndComplete()
         }
     }
 

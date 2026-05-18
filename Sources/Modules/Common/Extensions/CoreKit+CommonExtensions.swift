@@ -161,20 +161,24 @@ extension CoreKit.Utilities {
         }
 
         let userIDs = Array(userData.keys)
-        for userID in userIDs {
-            if let exception = await networking.database.setValue(
+        let database = LockIsolated(networking.database)
+        if let exception = await userIDs.parallelMap(perform: { @Sendable in
+            await database.wrappedValue.setValue(
                 [String.bangQualifiedEmpty],
                 forKey: [
                     NetworkPath.users.rawValue,
-                    userID,
+                    $0,
                     User.SerializableKey.conversationIDs.rawValue,
                 ].joined(separator: "/")
-            ) {
-                return exception
-            }
+            )
+        }) {
+            return exception
         }
 
-        for keyPath in [NetworkPath.conversations.rawValue, NetworkPath.messages.rawValue] {
+        for keyPath in [
+            NetworkPath.conversations.rawValue,
+            NetworkPath.messages.rawValue,
+        ] {
             if let exception = await networking.database.setValue(
                 NSNull(),
                 forKey: keyPath
@@ -223,19 +227,16 @@ extension CoreKit.Utilities {
         }
 
         let userIDs = Array(userData.keys)
-        for userID in userIDs {
-            if let exception = await networking.database.setValue(
+        let database = LockIsolated(networking.database)
+        return await userIDs.parallelMap(perform: { @Sendable in
+            await database.wrappedValue.setValue(
                 [String.bangQualifiedEmpty],
                 forKey: [
                     NetworkPath.users.rawValue,
-                    userID,
+                    $0,
                     User.SerializableKey.pushTokens.rawValue,
                 ].joined(separator: "/")
-            ) {
-                return exception
-            }
-        }
-
-        return nil
+            )
+        })
     }
 }

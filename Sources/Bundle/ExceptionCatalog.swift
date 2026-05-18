@@ -122,6 +122,7 @@ extension AppException {
     static let penPalResolutionFailed: AppException = .init("AD6B")
     static let readWriteAccessDisabled: AppException = .init("DF6E")
     static let sameTranslationInputOutput: AppException = .init("6CEB")
+    static let stalePushToken: AppException = .init("28D1")
     /// An exception representing a timed-out operation.
     static let timedOut: AppException = .init("801F")
     static let translationDerivationFailed: AppException = .init("43B4")

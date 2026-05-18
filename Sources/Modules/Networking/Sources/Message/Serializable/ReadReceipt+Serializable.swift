@@ -24,8 +24,8 @@ extension ReadReceipt: Serializable {
     // MARK: - Init
 
     init(
-        from data: String // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: String
+    ) async throws(Exception) {
         @Dependency(\.timestampDateFormatter) var dateFormatter: DateFormatter
 
         if let cachedValue = _ReadReceiptCache.cachedReadReceiptsForEncodedStrings?[data] {

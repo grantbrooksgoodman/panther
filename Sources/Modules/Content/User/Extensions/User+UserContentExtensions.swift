@@ -114,15 +114,10 @@ extension User {
             return exception
         }
 
-        for conversation in (currentUser.conversations ?? [])
+        return await (currentUser.conversations ?? [])
             .visibleForCurrentUser
-            .filter({ satisfiesConstraints($0) }) {
-            if let exception = await conversation.setMessages() {
-                return exception
-            }
-        }
-
-        return nil
+            .filter { satisfiesConstraints($0) }
+            .parallelMap { await $0.setMessages() }
     }
 
     /// - Note: Will set the current user to the result returned by `update`.

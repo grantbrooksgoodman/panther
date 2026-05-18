@@ -36,9 +36,9 @@ extension ReactionMetadata: Serializable {
 
     // MARK: - Init
 
-    init( // swiftformat:disable all
+    init(
         from data: [String: Any]
-    ) async throws(Exception) { // swiftformat:enable all
+    ) async throws(Exception) {
         guard let messageID = data[Keys.messageID.rawValue] as? String,
               let encodedReactions = data[Keys.reactions.rawValue] as? [[String: Any]] else {
             throw .Networking.decodingFailed(

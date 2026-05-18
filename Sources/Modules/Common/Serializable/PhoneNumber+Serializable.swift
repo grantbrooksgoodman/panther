@@ -40,8 +40,8 @@ extension PhoneNumber: Serializable {
     // MARK: - Init
 
     convenience init(
-        from data: [String: Any] // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: [String: Any]
+    ) async throws(Exception) {
         guard let callingCode = data[Keys.callingCode.rawValue] as? String,
               let nationalNumberString = data[Keys.nationalNumberString.rawValue] as? String,
               let regionCode = data[Keys.regionCode.rawValue] as? String else {

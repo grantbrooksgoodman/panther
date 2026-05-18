@@ -83,8 +83,8 @@ extension Conversation: RemotelyUpdatable {
     // MARK: - Updates Values
 
     func updateValues(
-        with data: [PartialKeyPath<Conversation>: Any] // swiftformat:disable all
-    ) async throws(Exception) -> Conversation { // swiftformat:enable all
+        with data: [PartialKeyPath<Conversation>: Any]
+    ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -139,8 +139,8 @@ extension Conversation: RemotelyUpdatable {
     func willWrite(
         _ value: Any,
         forKey key: SerializableKey,
-        updating updated: Conversation // swiftformat:disable all
-    ) async throws(Exception) -> WriteAction<Conversation> { // swiftformat:enable all
+        updating updated: Conversation
+    ) async throws(Exception) -> WriteAction<Conversation> {
         guard key == .messages,
               let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id),
               !messageIDs.isEmpty else { return .proceed }
@@ -156,8 +156,8 @@ extension Conversation: RemotelyUpdatable {
 
     func didWrite(
         _ updated: Conversation,
-        forKey key: SerializableKey // swiftformat:disable all
-    ) async throws(Exception) -> Conversation { // swiftformat:enable all
+        forKey key: SerializableKey
+    ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
 
         defer { networking.conversationService.archive.addValue(updated) }
@@ -242,41 +242,34 @@ extension Conversation: RemotelyUpdatable {
             users.append(currentUser)
         }
 
-        return await withTaskGroup(
-            of: Exception?.self,
-            returning: [Exception].self
-        ) { taskGroup in
-            for user in users {
+        let eligibleUsers: [(
+            user: User,
+            conversationIDs: [ConversationID]
+        )] = users
+            .compactMap { user in
                 guard var conversationIDs = user.conversationIDs,
                       let index = conversationIDs.firstIndex(where: {
                           $0.key == conversation.id.key
-                      }) else { continue }
+                      }) else { return nil }
 
                 conversationIDs.removeAll(where: { $0.key == conversation.id.key })
                 conversationIDs.insert(conversation.id, at: index)
-
-                taskGroup.addTask { // swiftformat:disable all
-                    do throws(Exception) { // swiftformat:enable all
-                        _ = try await user.update(
-                            \.conversationIDs,
-                            to: conversationIDs
-                        )
-                        return nil
-                    } catch {
-                        return error
-                    }
-                }
+                return (user, conversationIDs)
             }
 
-            var exceptions = [Exception]()
-            for await exception in taskGroup {
-                if let exception {
-                    exceptions.append(exception)
-                }
+        return await eligibleUsers.parallelMap(
+            failFast: false
+        ) {
+            do throws(Exception) {
+                _ = try await $0.user.update(
+                    \.conversationIDs,
+                    to: $0.conversationIDs
+                )
+                return nil
+            } catch {
+                return error
             }
-
-            return exceptions
-        }.compiledException
+        }
     }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
@@ -290,8 +283,8 @@ extension Conversation: RemotelyUpdatable {
 
     /// It's optimal to set `isTyping` to `false` in the same call as appending messages during a send operation so the conversation hash doesn't need to be recomputed twice.
     private func updateIsTyping(
-        _ conversation: Conversation // swiftformat:disable all
-    ) async throws(Exception) -> Conversation { // swiftformat:enable all
+        _ conversation: Conversation
+    ) async throws(Exception) -> Conversation {
         @Dependency(\.networking) var networking: NetworkServices
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {

@@ -31,8 +31,8 @@ extension PenPalsSharingData: Serializable {
     // MARK: - Init
 
     init(
-        from data: String // swiftformat:disable all
-    ) async throws(Exception) { // swiftformat:enable all
+        from data: String
+    ) async throws(Exception) {
         guard Self.canDecode(from: data) else {
             throw .Networking.decodingFailed(
                 data: data,

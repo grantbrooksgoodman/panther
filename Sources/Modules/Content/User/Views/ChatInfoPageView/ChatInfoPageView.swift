@@ -207,7 +207,7 @@ struct ChatInfoPageView: View {
                 HStack {
                     let imageView = Components.symbol(
                         Strings.addContactButtonImageSystemName,
-                        foregroundColor: Colors.addContactButtonSymbolForeground,
+                        foregroundColor: viewModel.isAddContactButtonEnabled ? Colors.addContactButtonSymbolForeground : .disabled,
                         usesIntrinsicSize: false
                     ).frame(
                         width: Floats.addContactButtonImageWidth,
@@ -227,11 +227,12 @@ struct ChatInfoPageView: View {
 
                     Components.text(
                         viewModel.strings.value(for: .addContactButtonText),
-                        foregroundColor: Colors.addContactButtonLabelForeground
+                        foregroundColor: viewModel.isAddContactButtonEnabled ? Colors.addContactButtonLabelForeground : .disabled
                     )
                 }
             }
         }
+        .disabled(!viewModel.isAddContactButtonEnabled)
     }
 
     // MARK: - Change Metadata Button

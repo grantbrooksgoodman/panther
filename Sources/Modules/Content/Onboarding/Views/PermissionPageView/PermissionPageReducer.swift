@@ -80,7 +80,7 @@ struct PermissionPageReducer: Reducer {
 
             if let exception {
                 state.isBackButtonEnabled = true
-                state.isFinishButtonEnabled = false
+                state.isFinishButtonEnabled = true
 
                 Logger.log(exception, with: .toast)
             } else {

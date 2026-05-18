@@ -99,9 +99,7 @@ struct ContactSelectorPageView: View {
             .init(
                 text: .init(
                     viewModel.inviteToolbarButtonText,
-                    foregroundColor: UIApplication.isGlassTintingEnabled && viewModel.entryPoint == .newChatPageView ?
-                        Colors.tintedGlassToolbarButtonForeground
-                        : .navigationBarButton
+                    foregroundColor: UIApplication.isGlassTintingEnabled ? Colors.tintedGlassToolbarButtonForeground : .navigationBarButton
                 )
             ) { viewModel.send(.inviteToolbarButtonTapped) }
         )

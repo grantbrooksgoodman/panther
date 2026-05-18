@@ -27,7 +27,10 @@ final class ContextMenuInteractor {
     static let kGesturePressDuration = TimeInterval(0.22)
     static let shared = ContextMenuInteractor()
 
-    let interactions = NSMapTable<UIView, Interaction>(keyOptions: .weakMemory, valueOptions: .strongMemory)
+    let interactions = NSMapTable<UIView, Interaction>(
+        keyOptions: .weakMemory,
+        valueOptions: .strongMemory
+    )
 
     var contextMenuViewController: ContextMenuViewController?
     weak var viewOriginalWindow: UIWindow?
@@ -44,7 +47,10 @@ final class ContextMenuInteractor {
 
     // MARK: - Dismiss Context Menu
 
-    func dismissContextMenu(view: UIView, completion: (() -> Void)?) {
+    func dismissContextMenu(
+        view: UIView,
+        completion: (() -> Void)?
+    ) {
         dismissContextMenu(
             interaction: interactions.object(forKey: view),
             completion: completion
@@ -81,7 +87,9 @@ final class ContextMenuInteractor {
     }
 
     @objc
-    func beginInteraction(_ sender: UIGestureRecognizer) {
+    func beginInteraction(
+        _ sender: UIGestureRecognizer
+    ) {
         guard ContextMenuInteraction.canBegin,
               sender.state == .began,
               let view = sender.view,
@@ -100,7 +108,9 @@ final class ContextMenuInteractor {
         showContextMenu(on: view, interaction: interaction)
     }
 
-    func removeInteraction(from view: UIView) {
+    func removeInteraction(
+        from view: UIView
+    ) {
         guard let interaction = interactions.object(forKey: view) else { return }
         view.removeGestureRecognizer(interaction.gesture)
         interactions.removeObject(forKey: view)
@@ -108,7 +118,10 @@ final class ContextMenuInteractor {
 
     // MARK: - Context Menu Handlers
 
-    func dismissContextMenu(interaction: Interaction?, completion: (() -> Void)?) {
+    func dismissContextMenu(
+        interaction: Interaction?,
+        completion: (() -> Void)?
+    ) {
         contextMenuViewController?.disappearAnimation { [weak self] in
             interaction?.gesture.isEnabled = true
             self?.restoreWindow()
@@ -118,14 +131,22 @@ final class ContextMenuInteractor {
         }
     }
 
-    func dismissCurrentContextMenu(completion: (() -> Void)? = nil) {
+    func dismissCurrentContextMenu(
+        completion: (() -> Void)? = nil
+    ) {
         if let contextMenuInteractionService = contextMenuService?.interaction {
             guard contextMenuInteractionService.isPresentingContextMenu else { return }
         }
 
-        defer { completion?() }
-        guard let contextMenuViewController else { return }
-        dismissContextMenu(interaction: contextMenuViewController.interaction, completion: completion)
+        guard let contextMenuViewController else {
+            completion?()
+            return
+        }
+
+        dismissContextMenu(
+            interaction: contextMenuViewController.interaction,
+            completion: completion
+        )
     }
 
     // MARK: - Auxiliary
@@ -151,7 +172,10 @@ final class ContextMenuInteractor {
         window.windowScene = nil
     }
 
-    private func showContextMenu(on view: UIView, interaction: Interaction) {
+    private func showContextMenu(
+        on view: UIView,
+        interaction: Interaction
+    ) {
         guard !isShowing else { return }
         isShowing = true
 
@@ -181,7 +205,8 @@ final class ContextMenuInteractor {
         contextMenuController.appearAnimation()
 
         Task.delayed(by: .milliseconds(
-            contextMenuController.style.appearAnimationParameters.duration + 50
+            (contextMenuController.style.appearAnimationParameters.duration * 1000)
+                + 50
         )) { @MainActor in
             self.isShowing = false
         }

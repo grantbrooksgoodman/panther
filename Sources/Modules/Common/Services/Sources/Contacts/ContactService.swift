@@ -53,11 +53,12 @@ final class ContactService: @unchecked Sendable {
             switch fetchContactPairsResult {
             case let .success(contactPairs):
                 coreUtilities.clearCaches([
-                    .contactPairArchive,
                     .conversationCellViewData,
                     .queriedContactPairs,
                     .user,
                 ])
+
+                services.contact.contactPairArchive.clearArchive()
 
                 @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
                 services.contact.contactPairArchive.addValues(contactPairs)

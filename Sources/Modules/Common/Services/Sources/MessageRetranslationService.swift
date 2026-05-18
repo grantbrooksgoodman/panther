@@ -304,6 +304,7 @@ private extension TranslationPlatform {
         switch self {
         case .deepL: "DeepL"
         case .google: "Google"
+        case .lara: "Lara"
         case .reverso: "Reverso"
         }
     }
@@ -311,7 +312,8 @@ private extension TranslationPlatform {
     var orderValue: Int {
         switch self {
         case .deepL: 0
-        case .google: 2
+        case .google: 3
+        case .lara: 2
         case .reverso: 1
         }
     }

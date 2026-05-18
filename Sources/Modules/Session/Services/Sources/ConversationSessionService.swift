@@ -107,12 +107,20 @@ final class ConversationSessionService {
               fullConversation.messageIDs.contains(messageID),
               fullConversation.messages?.map(\.id).contains(messageID) == true else { return }
 
-        while currentConversation?.messages?.map(\.id).contains(messageID) == false {
+        let offsetConversation = fullConversation.withMessagesOffsetFromCurrentUserAdditionDate
+        let offsetMessageCount = offsetConversation.messages?.count ?? 0
+        guard offsetConversation
+            .messages?
+            .map(\.id)
+            .contains(messageID) == true else { return }
+
+        while currentConversation?
+            .messages?
+            .map(\.id)
+            .contains(messageID) == false,
+            Int(messageOffset) < offsetMessageCount {
             messageOffset += 1
-            currentConversation = withMessagesOffset(
-                fullConversation
-                    .withMessagesOffsetFromCurrentUserAdditionDate
-            )
+            currentConversation = withMessagesOffset(offsetConversation)
         }
     }
 

@@ -74,36 +74,43 @@ struct PenPalsService {
                       .filter { $0 != currentUser.id }
                       .contains(where: { isKnownToCurrentUser($0) }) }) else { return nil }
 
-        for penPalsConversation in penPalsConversationsWithKnownUsers {
-            guard let currentUserPenPalsSharingData = penPalsConversation.currentUserPenPalsSharingData else { continue }
-            let knownToCurrentUser = penPalsConversation
-                .participants
-                .map(\.userID)
-                .filter { $0 != currentUser.id }
-                .reduce(into: [String]()) { partialResult, userID in
-                    if isKnownToCurrentUser(userID) { partialResult.append(userID) }
-                }
+        let conversationsAndNewMetadata: [(
+            Conversation,
+            ConversationMetadata
+        )] = penPalsConversationsWithKnownUsers
+            .compactMap { penPalsConversation in
+                guard let currentUserPenPalsSharingData = penPalsConversation.currentUserPenPalsSharingData else { return nil }
+                let knownToCurrentUser = penPalsConversation
+                    .participants
+                    .map(\.userID)
+                    .filter { $0 != currentUser.id }
+                    .reduce(into: [String]()) { partialResult, userID in
+                        if isKnownToCurrentUser(userID) { partialResult.append(userID) }
+                    }
 
-            let newCurrentUserSharesDataWithUserIDs = ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + knownToCurrentUser).unique
-            var newPenPalsSharingData = penPalsConversation.metadata.penPalsSharingData.filter { $0.userID != currentUser.id }
-            newPenPalsSharingData.append(
-                .init(
-                    userID: currentUser.id,
-                    sharesDataWithUserIDs: newCurrentUserSharesDataWithUserIDs.isEmpty ? nil : newCurrentUserSharesDataWithUserIDs
+                let newCurrentUserSharesDataWithUserIDs = ((currentUserPenPalsSharingData.sharesDataWithUserIDs ?? []) + knownToCurrentUser).unique
+                var newPenPalsSharingData = penPalsConversation.metadata.penPalsSharingData.filter { $0.userID != currentUser.id }
+                newPenPalsSharingData.append(
+                    .init(
+                        userID: currentUser.id,
+                        sharesDataWithUserIDs: newCurrentUserSharesDataWithUserIDs.isEmpty ? nil : newCurrentUserSharesDataWithUserIDs
+                    )
                 )
-            )
 
-            let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
-                isPenPalsConversation: false,
-                penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
-            ) : penPalsConversation.metadata.copyWith(
-                penPalsSharingData: newPenPalsSharingData
-            )
+                let newMetadata: ConversationMetadata = newPenPalsSharingData.allShareWithEachOther ? penPalsConversation.metadata.copyWith(
+                    isPenPalsConversation: false,
+                    penPalsSharingData: PenPalsSharingData.empty(userIDs: penPalsConversation.participants.map(\.userID))
+                ) : penPalsConversation.metadata.copyWith(
+                    penPalsSharingData: newPenPalsSharingData
+                )
 
-            guard penPalsConversation.metadata != newMetadata else { continue }
-            do {
-                // NIT: We don't care about the result because the update method adds the updated conversation to the archive for us.
-                _ = try await penPalsConversation.update(
+                guard penPalsConversation.metadata != newMetadata else { return nil }
+                return (penPalsConversation, newMetadata)
+            }
+
+        return await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
+            do throws(Exception) {
+                _ = try await conversation.update(
                     \.metadata,
                     to: newMetadata
                 )
@@ -112,17 +119,16 @@ struct PenPalsService {
                     .init(
                         "Updated PenPals sharing data.",
                         isReportable: false,
-                        userInfo: ["ConversationIDKey": penPalsConversation.id.key],
+                        userInfo: ["ConversationIDKey": conversation.id.key],
                         metadata: .init(sender: self)
                     ),
                     domain: .penPals
                 )
+                return nil
             } catch {
                 return error
             }
         }
-
-        return nil
     }
 
     // MARK: - Get Random PenPals Participant

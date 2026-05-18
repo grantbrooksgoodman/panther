@@ -55,17 +55,17 @@ final class PhoneNumberService {
     // MARK: - Calling Code Determination
 
     func possibleCallingCodes(for number: String) -> [String]? {
-        if let cachedPossibleHashesForNumbers,
-           let cachedValue = cachedPossibleHashesForNumbers[number] {
+        if let cachedPossibleCallingCodesForNumbers,
+           let cachedValue = cachedPossibleCallingCodesForNumbers[number] {
             return cachedValue
         }
 
         guard let countryCodes = matchingCountryCodes(for: number) ?? callingCodes(for: number.count),
               !countryCodes.isEmpty else { return nil }
 
-        var newCacheValue = cachedPossibleHashesForNumbers ?? [:]
+        var newCacheValue = cachedPossibleCallingCodesForNumbers ?? [:]
         newCacheValue[number] = countryCodes
-        cachedPossibleHashesForNumbers = newCacheValue
+        cachedPossibleCallingCodesForNumbers = newCacheValue
 
         return countryCodes
     }
@@ -122,8 +122,8 @@ final class PhoneNumberService {
     // MARK: - Hash Generation
 
     func possibleHashes(for number: String) -> [String]? {
-        if let cachedPossibleCallingCodesForNumbers,
-           let cachedValue = cachedPossibleCallingCodesForNumbers[number] {
+        if let cachedPossibleHashesForNumbers,
+           let cachedValue = cachedPossibleHashesForNumbers[number] {
             return cachedValue
         }
 
@@ -135,9 +135,9 @@ final class PhoneNumberService {
             }
         }
 
-        var newCacheValue = cachedPossibleCallingCodesForNumbers ?? [:]
+        var newCacheValue = cachedPossibleHashesForNumbers ?? [:]
         newCacheValue[number] = hashes
-        cachedPossibleCallingCodesForNumbers = newCacheValue
+        cachedPossibleHashesForNumbers = newCacheValue
 
         return hashes
     }

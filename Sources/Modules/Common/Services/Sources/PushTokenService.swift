@@ -29,6 +29,47 @@ final class PushTokenService {
         self.currentToken = currentToken
     }
 
+    // MARK: - Erase Stale Push Token
+
+    func eraseStalePushToken(
+        _ pushToken: String
+    ) async throws(Exception) {
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
+
+        let userIDsAndPrunedTokens: [(
+            userID: String,
+            prunedTokens: [String]
+        )] = userData
+            .compactMap { key, value in
+                guard let userData = value as? [String: Any],
+                      let pushTokens = userData[User.SerializableKey.pushTokens.rawValue] as? [String],
+                      !pushTokens.isBangQualifiedEmpty,
+                      pushTokens.contains(pushToken) else { return nil }
+                let prunedTokens = pushTokens.filter { $0 != pushToken }
+                return (
+                    key,
+                    prunedTokens.isBangQualifiedEmpty ? .bangQualifiedEmpty : prunedTokens
+                )
+            }
+
+        guard !userIDsAndPrunedTokens.isEmpty else { return }
+        if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
+            await self.networking.database.setValue(
+                $0.prunedTokens,
+                forKey: "\(NetworkPath.users.rawValue)/\($0.userID)/\(User.SerializableKey.pushTokens.rawValue)"
+            )
+        }) {
+            throw exception
+        }
+
+        Logger.log(
+            "Erased stale push token for \(userIDsAndPrunedTokens.count) users.",
+            sender: self
+        )
+    }
+
     // MARK: - Update Push Tokens for Current User
 
     func updatePushTokensForCurrentUser() async -> Exception? {
@@ -79,24 +120,33 @@ final class PushTokenService {
             return error
         }
 
-        var tookAction = false
-        for (key, value) in userData where key != currentUser.id {
-            guard let userData = value as? [String: Any],
-                  var pushTokens = userData[User.SerializableKey.pushTokens.rawValue] as? [String],
-                  !pushTokens.isBangQualifiedEmpty,
-                  pushTokens.containsAnyString(in: currentUserPushTokens) else { continue }
-
-            tookAction = true
-            pushTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
-            if let exception = await networking.database.setValue(
-                pushTokens.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : pushTokens,
-                forKey: "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializableKey.pushTokens.rawValue)"
-            ) {
-                return exception
+        let userIDsAndPrunedTokens: [(
+            userID: String,
+            prunedTokens: [String]
+        )] = userData
+            .filter { $0.key != currentUser.id }
+            .compactMap { key, value in
+                guard let userData = value as? [String: Any],
+                      let pushTokens = userData[User.SerializableKey.pushTokens.rawValue] as? [String],
+                      !pushTokens.isBangQualifiedEmpty,
+                      pushTokens.containsAnyString(in: currentUserPushTokens) else { return nil }
+                let prunedTokens = pushTokens.filter { !currentUserPushTokens.contains($0) }
+                return (
+                    key,
+                    prunedTokens.isBangQualifiedEmpty ? .bangQualifiedEmpty : prunedTokens
+                )
             }
+
+        guard !userIDsAndPrunedTokens.isEmpty else { return nil }
+        if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
+            await self.networking.database.setValue(
+                $0.prunedTokens,
+                forKey: "\(NetworkPath.users.rawValue)/\($0.userID)/\(User.SerializableKey.pushTokens.rawValue)"
+            )
+        }) {
+            return exception
         }
 
-        guard tookAction else { return nil }
         Logger.log(
             "Pruned push tokens for current user.",
             sender: self

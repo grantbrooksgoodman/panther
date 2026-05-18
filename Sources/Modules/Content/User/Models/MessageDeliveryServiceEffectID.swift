@@ -24,6 +24,7 @@ struct MessageDeliveryServiceEffectID: Hashable {
 extension MessageDeliveryServiceEffectID {
     static let configureInputBar: MessageDeliveryServiceEffectID = .init("configureInputBar")
     static let reloadCollectionView: MessageDeliveryServiceEffectID = .init("reloadCollectionView")
+    static let updateChatInfoPageView: MessageDeliveryServiceEffectID = .init("updateChatInfoPageView")
     static let updateConversations: MessageDeliveryServiceEffectID = .init("updateConversations")
     static let updateIsTypingForCurrentUser: MessageDeliveryServiceEffectID = .init("updateIsTypingForCurrentUser")
 }

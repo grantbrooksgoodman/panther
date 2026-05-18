@@ -105,8 +105,8 @@ final class AccountDeletionService: @unchecked Sendable {
                 }
             }
 
-            taskGroup.addTask { // swiftformat:disable all
-                do throws(Exception) { // swiftformat:enable all
+            taskGroup.addTask {
+                do throws(Exception) {
                     _ = try await self.clientSession.user.currentUser?.update(
                         \.conversationIDs,
                         to: []
