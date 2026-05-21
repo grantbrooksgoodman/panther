@@ -190,11 +190,9 @@ final class ConversationsPageViewService {
                     .addValues(staleConversations)
             }
 
-            let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
-            currentReloadType = currentReloadType.next
-
-            switch resolveCurrentUserResult {
-            case let .success(user):
+            defer { currentReloadType = currentReloadType.next }
+            do {
+                let user = try await clientSession.user.resolveCurrentUser()
                 if let exception = await user.setConversations() {
                     return .failure(exception)
                 }
@@ -216,9 +214,8 @@ final class ConversationsPageViewService {
                 }
 
                 return .success(user.conversations ?? [])
-
-            case let .failure(exception):
-                return .failure(exception)
+            } catch {
+                return .failure(error)
             }
         }
 
@@ -531,7 +528,7 @@ final class ConversationsPageViewService {
     /// If no pages are eligible, no sheet is presented.
     @MainActor
     private func showPromptsIfNeeded() async {
-        _ = await clientSession.storage.getCurrentUserDataUsage()
+        _ = try? await clientSession.storage.getCurrentUserDataUsage()
         if clientSession.storage.isApproachingDataUsageLimit {
             await clientSession.storage.presentStorageWarningAlert()
         } else if await services.permission.notificationPermissionStatus == .unknown {

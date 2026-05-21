@@ -97,20 +97,18 @@ final class UserSessionService: @unchecked Sendable {
 
     func resolveCurrentUser(
         _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
-    ) async -> Callback<User, Exception> {
+    ) async throws(Exception) -> User {
         guard let currentUserID else {
-            return .failure(
-                .init(
-                    "Current user ID has not been set.",
-                    metadata: .init(sender: self)
-                )
+            throw Exception(
+                "Current user ID has not been set.",
+                metadata: .init(sender: self)
             )
         }
 
         if cacheStrategy == .returnCacheFirst,
            let currentUser,
            currentUser.id == currentUserID {
-            return .success(currentUser)
+            return currentUser
         }
 
         do {
@@ -118,15 +116,15 @@ final class UserSessionService: @unchecked Sendable {
             user.inheritLocalState(from: currentUser)
             currentUser = user
             await MainActor.run { self.currentUserID = user.id }
-            return .success(user)
+            return user
         } catch {
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
-                return .success(currentUser)
+                return currentUser
             }
 
-            return .failure(error)
+            throw error
         }
     }
 
@@ -376,10 +374,8 @@ final class UserSessionService: @unchecked Sendable {
                 )
             }
 
-            let resolveCurrentUserResult = await resolveCurrentUser()
-
-            switch resolveCurrentUserResult {
-            case .success:
+            do throws(Exception) {
+                _ = try await resolveCurrentUser()
                 Logger.log(
                     "Updated current user.",
                     domain: .userSession,
@@ -396,15 +392,16 @@ final class UserSessionService: @unchecked Sendable {
                     priority: .utility
                 ) {
                     self.coreUtilities.clearCaches([.user])
-                    _ = await self.storageSession.getCurrentUserDataUsage()
+                    _ = try? await self.storageSession.getCurrentUserDataUsage()
                 }
 
                 Observables.updatedCurrentUser.trigger()
-                chatPageState.setIsWaitingToUpdateConversations(chatPageState.isPresented)
-
-            case let .failure(exception):
+                chatPageState.setIsWaitingToUpdateConversations(
+                    chatPageState.isPresented
+                )
+            } catch {
                 Logger.log(
-                    exception,
+                    error,
                     domain: .userSession
                 )
             }

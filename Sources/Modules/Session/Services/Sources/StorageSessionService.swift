@@ -29,7 +29,7 @@ final class StorageSessionService: @unchecked Sendable {
 
     static let storageLimitInKilobytes: Double = 10240
 
-    private static let coalescer = SingleSlotCoalescer<Callback<Int, Exception>>()
+    private static let coalescer = SingleSlotCoalescer<Int>()
 
     private let warningAlertRatio: Double = 0.6
 
@@ -52,21 +52,21 @@ final class StorageSessionService: @unchecked Sendable {
 
     // MARK: - Current User Data Usage
 
-    func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
-        await Self.coalescer { [weak self] in
+    func getCurrentUserDataUsage() async throws(Exception) -> Int {
+        try await Self.coalescer { [weak self] () async throws(Exception) -> Int in
             guard let self else {
-                return .failure(.init(
+                throw Exception(
                     "Service has been deallocated.",
                     metadata: .init(sender: Self.self)
-                ))
+                )
             }
 
-            return await _getCurrentUserDataUsage()
+            return try await _getCurrentUserDataUsage()
         }
     }
 
-    @MainActor // swiftlint:disable:next function_body_length
-    private func _getCurrentUserDataUsage() async -> Callback<Int, Exception> {
+    @MainActor
+    private func _getCurrentUserDataUsage() async throws(Exception) -> Int {
         let isDataUsageCalculationInvalid = $lastDataUsageCalculation.withValue { calculation -> Bool in
             calculation == DataUsageCalculation.empty || calculation.isExpired
         }
@@ -79,7 +79,7 @@ final class StorageSessionService: @unchecked Sendable {
                 sender: self
             )
 
-            return .success(lastDataUsageCalculation.dataUsageInKilobytes)
+            return lastDataUsageCalculation.dataUsageInKilobytes
         }
 
         isCalculatingDataUsage = true
@@ -87,17 +87,12 @@ final class StorageSessionService: @unchecked Sendable {
         var dataUsageInKilobytes = 0
 
         if let exception = await User.populateCurrentUserConversationsIfNeeded() {
-            return .failure(exception)
+            throw exception
         }
 
         // Size of user object
 
-        let getSizeOfUserObjectResult = getSizeOfUserObject()
-
-        switch getSizeOfUserObjectResult {
-        case let .success(sizeOfUserObject): dataUsageInKilobytes += sizeOfUserObject
-        case let .failure(exception): return .failure(exception)
-        }
+        dataUsageInKilobytes += try getSizeOfUserObject()
 
         defer { Logger.closeStream(domain: .storageSession) }
         Logger.openStream(
@@ -108,93 +103,53 @@ final class StorageSessionService: @unchecked Sendable {
 
         // Conversation data size
 
-        let getConversationDataSizeResult = getConversationDataSize()
-
-        switch getConversationDataSizeResult {
-        case let .success(conversationDataSize):
-            Logger.logToStream(
-                "Conversation data usage: \(conversationDataSize)kb",
-                domain: .storageSession,
-                line: #line
-            )
-
-            dataUsageInKilobytes += conversationDataSize
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let conversationDataSize = try getConversationDataSize()
+        dataUsageInKilobytes += conversationDataSize
+        Logger.logToStream(
+            "Conversation data usage: \(conversationDataSize)kb",
+            domain: .storageSession,
+            line: #line
+        )
 
         // Message data size
 
-        let getMessageDataSizeResult = getMessageDataSize()
-
-        switch getMessageDataSizeResult {
-        case let .success(messageDataSize):
-            Logger.logToStream(
-                "Message data usage: \(messageDataSize)kb",
-                domain: .storageSession,
-                line: #line
-            )
-
-            dataUsageInKilobytes += messageDataSize
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let messageDataSize = try getMessageDataSize()
+        dataUsageInKilobytes += messageDataSize
+        Logger.logToStream(
+            "Message data usage: \(messageDataSize)kb",
+            domain: .storageSession,
+            line: #line
+        )
 
         // Translation data size
 
-        let getTranslationDataSizeResult = getTranslationDataSize()
-
-        switch getTranslationDataSizeResult {
-        case let .success(translationDataSize):
-            Logger.logToStream(
-                "Translation data usage: \(translationDataSize)kb",
-                domain: .storageSession,
-                line: #line
-            )
-
-            dataUsageInKilobytes += translationDataSize
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let translationDataSize = try getTranslationDataSize()
+        dataUsageInKilobytes += translationDataSize
+        Logger.logToStream(
+            "Translation data usage: \(translationDataSize)kb",
+            domain: .storageSession,
+            line: #line
+        )
 
         // Combined audio size
 
-        let getCombinedAudioSizeResult = await getCombinedAudioSize()
-
-        switch getCombinedAudioSizeResult {
-        case let .success(combinedAudioSize):
-            Logger.logToStream(
-                "Audio data usage: \(combinedAudioSize)kb",
-                domain: .storageSession,
-                line: #line
-            )
-
-            dataUsageInKilobytes += combinedAudioSize
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let combinedAudioSize = try await getCombinedAudioSize()
+        dataUsageInKilobytes += combinedAudioSize
+        Logger.logToStream(
+            "Audio data usage: \(combinedAudioSize)kb",
+            domain: .storageSession,
+            line: #line
+        )
 
         // Combined media size
 
-        let getCombinedMediaSizeResult = await getCombinedMediaSize()
-
-        switch getCombinedMediaSizeResult {
-        case let .success(combinedMediaSize):
-            Logger.logToStream(
-                "Media data usage: \(combinedMediaSize)kb",
-                domain: .storageSession,
-                line: #line
-            )
-
-            dataUsageInKilobytes += combinedMediaSize
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let combinedMediaSize = try await getCombinedMediaSize()
+        dataUsageInKilobytes += combinedMediaSize
+        Logger.logToStream(
+            "Media data usage: \(combinedMediaSize)kb",
+            domain: .storageSession,
+            line: #line
+        )
 
         // Aggregate
 
@@ -217,7 +172,7 @@ final class StorageSessionService: @unchecked Sendable {
         defer { lastDataUsageCalculation = .init(dataUsage: dataUsageInKilobytes) }
         guard chatPageState.isPresented else {
             Observables.updatedContactPairArchive.trigger()
-            return .success(dataUsageInKilobytes)
+            return dataUsageInKilobytes
         }
 
         chatPageState.addEffectUponIsPresented(
@@ -227,26 +182,24 @@ final class StorageSessionService: @unchecked Sendable {
             Observables.updatedContactPairArchive.trigger()
         }
 
-        return .success(dataUsageInKilobytes)
+        return dataUsageInKilobytes
     }
 
     // MARK: - Present Storage Warning Alert
 
     func presentStorageWarningAlert() async {
-        guard await ((try? (getCurrentUserDataUsage()).get()) ?? 0) >= Int(
+        guard await ((try? (getCurrentUserDataUsage())) ?? 0) >= Int(
             StorageSessionService.storageLimitInKilobytes * warningAlertRatio
         ) else { return }
 
         if atOrAboveDataUsageLimit {
-            let getStorageFullAlertResult = await getStorageFullAlert()
-
-            switch getStorageFullAlertResult {
-            case let .success(storageFullAlert):
-                await storageFullAlert.present(translating: [.title])
-
-            case let .failure(exception):
+            do {
+                try await getStorageFullAlert().present(translating: [
+                    .title,
+                ])
+            } catch {
                 Logger.log(
-                    exception,
+                    error,
                     domain: .storageSession,
                     with: .toastInPrerelease
                 )
@@ -265,59 +218,61 @@ final class StorageSessionService: @unchecked Sendable {
 
     // MARK: - Data Size Calculation
 
-    private func getCombinedAudioSize() async -> Callback<Int, Exception> {
-        let audioFilePaths = getAudioFilePaths()
-        return await totalSizeInKilobytes(of: audioFilePaths)
+    private func getCombinedAudioSize() async throws(Exception) -> Int {
+        try await totalSizeInKilobytes(
+            of: getAudioFilePaths()
+        )
     }
 
-    private func getCombinedMediaSize() async -> Callback<Int, Exception> {
-        let mediaFilePaths = getMediaFilePaths()
-        return await totalSizeInKilobytes(of: mediaFilePaths)
+    private func getCombinedMediaSize() async throws(Exception) -> Int {
+        try await totalSizeInKilobytes(
+            of: getMediaFilePaths()
+        )
     }
 
-    private func getConversationDataSize() -> Callback<Int, Exception> {
+    private func getConversationDataSize() throws(Exception) -> Int {
         guard let encodedConversationData = currentUser?
             .conversations?
             .visibleForCurrentUser
             .map(\.encoded) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve encoded conversations.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return sizeInKilobytes(of: encodedConversationData)
+        return try sizeInKilobytes(of: encodedConversationData)
     }
 
-    private func getMessageDataSize() -> Callback<Int, Exception> {
+    private func getMessageDataSize() throws(Exception) -> Int {
         guard let encodedMessageData = currentUser?
             .conversations?
             .visibleForCurrentUser
             .flatMap({ $0.messages ?? [] })
             .filter({ $0.fromAccountID == User.currentUserID })
             .map(\.encoded) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve encoded messages.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return sizeInKilobytes(of: encodedMessageData)
+        return try sizeInKilobytes(of: encodedMessageData)
     }
 
-    private func getSizeOfUserObject() -> Callback<Int, Exception> {
+    private func getSizeOfUserObject() throws(Exception) -> Int {
         guard let encodedUserData = currentUser?.encoded else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve encoded user data.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return sizeInKilobytes(of: encodedUserData)
+        return try sizeInKilobytes(of: encodedUserData)
     }
 
-    private func getTranslationDataSize() -> Callback<Int, Exception> {
+    private func getTranslationDataSize() throws(Exception) -> Int {
         guard let encodedTranslationData = currentUser?
             .conversations?
             .visibleForCurrentUser
@@ -325,17 +280,17 @@ final class StorageSessionService: @unchecked Sendable {
             .filter({ $0.fromAccountID == User.currentUserID })
             .flatMap({ $0.translationReferences ?? [] })
             .compactMap(\.jsonData) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve encoded translations.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return .success(Int(
+        return Int(
             encodedTranslationData.reduce(into: Double()) { partialResult, datum in
                 partialResult += Double(datum.count) / 1024
             }
-        ))
+        )
     }
 
     // MARK: - Path Enumeration
@@ -367,7 +322,7 @@ final class StorageSessionService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     @MainActor
-    private func getStorageFullAlert() async -> Callback<AKAlert, Exception> {
+    private func getStorageFullAlert() async throws(Exception) -> AKAlert {
         let messagePrefixInput = TranslationInput("You can free up space by deleting conversations.")
         let messageSuffixInput = TranslationInput("Until then, you will not be able to send new messages.")
 
@@ -415,36 +370,38 @@ final class StorageSessionService: @unchecked Sendable {
                 )
             )
 
-            return .success(storageFullAlert)
+            return storageFullAlert
 
         case let .failure(exception):
-            return .failure(exception)
+            throw exception
         }
     }
 
-    private func sizeInKilobytes(of data: Any) -> Callback<Int, Exception> {
+    private func sizeInKilobytes(
+        of data: Any
+    ) throws(Exception) -> Int {
         guard JSONSerialization.isValidJSONObject(data) else {
-            return .failure(.init(
+            throw Exception(
                 "Invalid JSON object.",
                 userInfo: ["Data": data],
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: data)
-            return .success(Int(Double(jsonData.count) / 1024))
+            return Int(Double(jsonData.count) / 1024)
         } catch {
-            return .failure(.init(
+            throw Exception(
                 error,
                 metadata: .init(sender: self)
-            ))
+            )
         }
     }
 
     private func totalSizeInKilobytes(
         of items: [String]
-    ) async -> Callback<Int, Exception> {
+    ) async throws(Exception) -> Int {
         let sizeInKilobytesResults = await items.parallelMap(
             maxConcurrentOperations: 25
         ) { filePath in
@@ -452,8 +409,8 @@ final class StorageSessionService: @unchecked Sendable {
         }
 
         switch sizeInKilobytesResults {
-        case let .success(sizesInKilobytes): return .success(sizesInKilobytes.reduce(0, +))
-        case let .failure(exception): return .failure(exception)
+        case let .success(sizesInKilobytes): return sizesInKilobytes.reduce(0, +)
+        case let .failure(exception): throw exception
         }
     }
 }

@@ -172,10 +172,8 @@ struct UserTestingService {
 
         currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
-        let resolveCurrentUserResult = await clientSession.user.resolveCurrentUser()
-
-        switch resolveCurrentUserResult {
-        case let .success(currentUser):
+        do {
+            let currentUser = try await clientSession.user.resolveCurrentUser()
             if let exception = await clientSession.user.resolveAndSetLanguageCode() {
                 return exception
             }
@@ -257,9 +255,8 @@ struct UserTestingService {
                         filteredUsers.map(\.id).containsAllStrings(in: $0.participants.map(\.userID))
                     })
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -288,20 +285,21 @@ struct UserTestingService {
             return exception
         }
 
-        let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
-            .init(
-                relativePath,
-                name: AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName,
-                fileExtension: .image(.jpeg)
-            ),
-            toUsers: users,
-            inConversation: (conversation, false)
-        )
-
-        switch sendMediaMessageResult {
-        case .success: return nil
-        case let .failure(exception): return exception
+        do {
+            _ = try await clientSession.message.sendMediaMessage(
+                .init(
+                    relativePath,
+                    name: AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName,
+                    fileExtension: .image(.jpeg)
+                ),
+                toUsers: users,
+                inConversation: (conversation, false)
+            )
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     private func sendMessage(to users: [User], in conversation: Conversation?) async -> Exception? {
@@ -329,20 +327,21 @@ struct UserTestingService {
 
         switch translateResult {
         case let .success(translation):
-            let sendTextMessageResult = await clientSession.message.sendTextMessage(
-                translation.output.sanitized,
-                toUsers: users,
-                inConversation: (conversation, false)
-            )
-
-            switch sendTextMessageResult {
-            case .success: return nil
-            case let .failure(exception): return exception
+            do {
+                _ = try await clientSession.message.sendTextMessage(
+                    translation.output.sanitized,
+                    toUsers: users,
+                    inConversation: (conversation, false)
+                )
+            } catch {
+                return error
             }
 
         case let .failure(exception):
             return exception
         }
+
+        return nil
     }
 
     // MARK: - Computed Property Getters

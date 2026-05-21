@@ -104,20 +104,22 @@ struct ContactSelectorPageViewService {
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
                     clientSession.user.stopObservingCurrentUserChanges()
-                    let addToConversationResult = await clientSession.activity.addToConversation(
-                        user.id,
-                        conversation: conversation
-                    )
+                    defer { clientSession.user.startObservingCurrentUserChanges() }
 
-                    clientSession.user.startObservingCurrentUserChanges()
-                    switch addToConversationResult {
-                    case let .success(conversation):
-                        clientSession.conversation.setCurrentConversation(conversation)
+                    do throws(Exception) {
+                        try await clientSession.conversation.setCurrentConversation(
+                            clientSession.activity.addToConversation(
+                                user.id,
+                                conversation: conversation
+                            )
+                        )
                         chatPageViewService.reloadCollectionView()
                         Observables.currentConversationActivityChanged.trigger()
-
-                    case let .failure(exception):
-                        Logger.log(exception, with: .toast)
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
                 }
             }

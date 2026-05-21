@@ -38,12 +38,12 @@ struct MessageSessionService {
         _ inputFile: AudioFile,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var transcription: String!
@@ -54,7 +54,7 @@ struct MessageSessionService {
 
         switch transcribeResult { // swiftlint:disable:next identifier_name
         case let .success(_transcription): transcription = _transcription
-        case let .failure(exception): return .failure(exception)
+        case let .failure(exception): throw exception
         }
 
         notificationCenter.post(
@@ -192,13 +192,13 @@ struct MessageSessionService {
             let audioComponents = aggregatedAudioComponents.compactMap(\.self)
 
             guard translations.isWellFormed else {
-                return .failure(.init(
+                throw Exception(
                     "Translations fail validation.",
                     metadata: .init(sender: self)
-                ))
+                )
             }
 
-            return await createMessageAndAddToConversation(
+            return try await createMessageAndAddToConversation(
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
@@ -207,7 +207,7 @@ struct MessageSessionService {
             )
 
         case let .failure(exception):
-            return .failure(exception)
+            throw exception
         }
     }
 
@@ -217,15 +217,15 @@ struct MessageSessionService {
         _ mediaFile: MediaFile,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return await createMessageAndAddToConversation(
+        return try await createMessageAndAddToConversation(
             conversation: conversation,
             initiatingUser: currentUser,
             otherUsers: users,
@@ -240,12 +240,12 @@ struct MessageSessionService {
         _ text: String,
         toUsers users: [User],
         inConversation conversation: (value: Conversation?, isPenPalsConversation: Bool)
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var text = text
@@ -292,13 +292,13 @@ struct MessageSessionService {
         switch translateResults {
         case let .success(translations):
             guard translations.isWellFormed else {
-                return .failure(.init(
+                throw Exception(
                     "Translations fail validation.",
                     metadata: .init(sender: self)
-                ))
+                )
             }
 
-            return await createMessageAndAddToConversation(
+            return try await createMessageAndAddToConversation(
                 conversation: conversation,
                 initiatingUser: currentUser,
                 otherUsers: users,
@@ -307,7 +307,7 @@ struct MessageSessionService {
             )
 
         case let .failure(exception):
-            return .failure(exception)
+            throw exception
         }
     }
 
@@ -320,23 +320,21 @@ struct MessageSessionService {
         otherUsers: [User],
         richContent: RichMessageContent?,
         translations: [Translation]?
-    ) async -> Callback<Conversation, Exception> {
-        func addMessage(_ message: Message, to conversation: Conversation) async -> Callback<Conversation, Exception> {
-            let addMessagesResult = await clientSession.conversation.addMessages(
-                [message],
-                to: conversation
-            )
-
+    ) async throws(Exception) -> Conversation {
+        func addMessage(
+            _ message: Message,
+            to conversation: Conversation
+        ) async throws(Exception) -> Conversation {
             incrementDeliveryProgress(
                 in: conversation,
                 by: Floats.addMessageDeliveryProgressIncrement
             )
 
-            clientSession.user.startObservingCurrentUserChanges()
-            switch addMessagesResult {
-            case let .success(conversation): return .success(conversation)
-            case let .failure(exception): return .failure(exception)
-            }
+            defer { clientSession.user.startObservingCurrentUserChanges() }
+            return try await clientSession.conversation.addMessages(
+                [message],
+                to: conversation
+            )
         }
 
         func notifyUsers(
@@ -376,7 +374,7 @@ struct MessageSessionService {
             )
         } catch {
             clientSession.user.startObservingCurrentUserChanges()
-            return .failure(error)
+            throw error
         }
 
         if let conversation = conversation.value {
@@ -398,7 +396,7 @@ struct MessageSessionService {
                 .map(\.hasDeletedConversation) != conversation
                 .participants
                 .map(\.hasDeletedConversation) else {
-                return await addMessage(
+                return try await addMessage(
                     message,
                     to: conversation
                 )
@@ -419,7 +417,7 @@ struct MessageSessionService {
                 )
             } catch {
                 clientSession.user.startObservingCurrentUserChanges()
-                return .failure(error)
+                throw error
             }
         } else {
             var participantUsers = [initiatingUser]
@@ -432,16 +430,11 @@ struct MessageSessionService {
             )
             clientSession.user.startObservingCurrentUserChanges()
 
-            let createdConversation: Conversation
-            do {
-                createdConversation = try await networking.conversationService.createConversation(
-                    firstMessage: message,
-                    isPenPalsConversation: conversation.isPenPalsConversation,
-                    participants: participantUsers.map { Participant(userID: $0.id) }
-                )
-            } catch {
-                return .failure(error)
-            }
+            let createdConversation = try await networking.conversationService.createConversation(
+                firstMessage: message,
+                isPenPalsConversation: conversation.isPenPalsConversation,
+                participants: participantUsers.map { Participant(userID: $0.id) }
+            )
 
             notifyUsers(
                 of: message,
@@ -449,7 +442,7 @@ struct MessageSessionService {
                 isPenPalsConversation: createdConversation.metadata.isPenPalsConversation
             )
 
-            return .success(createdConversation)
+            return createdConversation
         }
     }
 

@@ -110,22 +110,25 @@ final class MessageDeliveryService {
             )
         }
 
-        let sendAudioMessageResult = await clientSession.message.sendAudioMessage(
-            inputFile,
-            toUsers: users,
-            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
-        )
+        defer {
+            isSendingMessage = false
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-        isSendingMessage = false
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
-
-        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
-            chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+                chatPageViewService
+                    .deliveryProgressIndicator?
+                    .stopAnimatingDeliveryProgress()
+            }
         }
 
-        switch sendAudioMessageResult {
-        case let .success(conversation):
+        do {
+            let conversation = try await clientSession.message.sendAudioMessage(
+                inputFile,
+                toUsers: users,
+                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+            )
+
             services.analytics.logEvent(.sendAudioMessage)
 
             if let currentConversation = clientSession.conversation.currentConversation,
@@ -135,15 +138,15 @@ final class MessageDeliveryService {
 
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
-            return nil
-
-        case let .failure(exception):
+        } catch {
             Task { @MainActor in
                 @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
                 recipientBarLayoutService?.setIsUserInteractionEnabled(true)
             }
-            return exception
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Send Media Message
@@ -167,22 +170,25 @@ final class MessageDeliveryService {
 
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        let sendMediaMessageResult = await clientSession.message.sendMediaMessage(
-            mediaFile,
-            toUsers: users,
-            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
-        )
+        defer {
+            isSendingMessage = false
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-        isSendingMessage = false
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
-
-        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
-            chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+                chatPageViewService
+                    .deliveryProgressIndicator?
+                    .stopAnimatingDeliveryProgress()
+            }
         }
 
-        switch sendMediaMessageResult {
-        case let .success(conversation):
+        do {
+            let conversation = try await clientSession.message.sendMediaMessage(
+                mediaFile,
+                toUsers: users,
+                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+            )
+
             services.analytics.logEvent(.sendMediaMessage)
 
             if let currentConversation = clientSession.conversation.currentConversation,
@@ -192,11 +198,11 @@ final class MessageDeliveryService {
 
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
-            return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Send Text Message
@@ -217,22 +223,25 @@ final class MessageDeliveryService {
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
         chatPageViewService.deliveryProgressIndicator?.startAnimatingDeliveryProgress()
 
-        let sendTextMessageResult = await clientSession.message.sendTextMessage(
-            text,
-            toUsers: users,
-            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
-        )
+        defer {
+            isSendingMessage = false
+            chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
+            chatPageViewService.inputBar?.toggleSendingUI(on: false)
 
-        isSendingMessage = false
-        chatPageViewService.inputBar?.configureInputBar(forceUpdate: true)
-        chatPageViewService.inputBar?.toggleSendingUI(on: false)
-
-        if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
-            chatPageViewService.deliveryProgressIndicator?.stopAnimatingDeliveryProgress()
+            if clientSession.conversation.currentConversation?.id.key == fullConversation?.id.key {
+                chatPageViewService
+                    .deliveryProgressIndicator?
+                    .stopAnimatingDeliveryProgress()
+            }
         }
 
-        switch sendTextMessageResult {
-        case let .success(conversation):
+        do {
+            let conversation = try await clientSession.message.sendTextMessage(
+                text,
+                toUsers: users,
+                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+            )
+
             services.analytics.logEvent(.sendTextMessage)
 
             if let currentConversation = clientSession.conversation.currentConversation,
@@ -242,11 +251,11 @@ final class MessageDeliveryService {
 
             clientSession.conversation.setCurrentConversation(conversation)
             chatPageViewService.reloadCollectionView()
-            return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Auxiliary

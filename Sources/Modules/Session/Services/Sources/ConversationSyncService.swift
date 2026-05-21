@@ -23,8 +23,8 @@ final class ConversationSyncService: @unchecked Sendable {
 
     // MARK: - Properties
 
-    private static let coalescer = KeyedCoalescer<String, Callback<Conversation, Exception>>()
-    private static let recentlyFailedSyncRecords = LockIsolated<Set<SynchronizationRecord>>([])
+    private static let coalescer = KeyedCoalescer<String, Conversation>()
+    private static let recentlyFailedSyncRecords = LockIsolated(Set<SynchronizationRecord>())
 
     private let _syncData = LockIsolated<ConversationSyncData?>(nil)
 
@@ -39,13 +39,13 @@ final class ConversationSyncService: @unchecked Sendable {
 
     func synchronizeConversation(
         _ conversation: Conversation
-    ) async -> Callback<Conversation, Exception> {
-        await Self.coalescer(conversation.id.key) { [weak self] in
+    ) async throws(Exception) -> Conversation {
+        try await Self.coalescer(conversation.id.key) { [weak self] () async throws(Exception) -> Conversation in
             guard let self else {
-                return .failure(.init(
+                throw Exception(
                     "Service has been deallocated.",
                     metadata: .init(sender: Self.self)
-                ))
+                )
             }
 
             guard !Self
@@ -67,10 +67,10 @@ final class ConversationSyncService: @unchecked Sendable {
                     domain: .conversationSync
                 )
 
-                return .success(conversation)
+                return conversation
             }
 
-            return await _synchronizeConversation(conversation)
+            return try await _synchronizeConversation(conversation)
         }
     }
 
@@ -354,23 +354,23 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func resolveConversation(
         _ userInfo: [String: Any]
-    ) -> Callback<Conversation, Exception> {
+    ) throws(Exception) -> Conversation {
         defer { syncData = nil }
         guard let conversation = syncData?.conversation else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve updated conversation.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
         networking.conversationService.archive.addValue(conversation)
-        return .success(conversation.withHydratedMessages)
+        return conversation.withHydratedMessages
     }
 
     // swiftlint:disable:next function_body_length
     private func _synchronizeConversation(
         _ conversation: Conversation
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         let userInfo: [String: Any] = [
             "ConversationIDHash": conversation.id.hash,
             "ConversationIDKey": conversation.id.key,
@@ -386,7 +386,7 @@ final class ConversationSyncService: @unchecked Sendable {
 
         if let exception = await getConversationData(conversation) {
             self.syncData = nil
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         // Skip message updates if current user isn't participating.
@@ -405,10 +405,10 @@ final class ConversationSyncService: @unchecked Sendable {
 
             if let exception = await synchronizeData() {
                 self.syncData = nil
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
-            return resolveConversation(userInfo)
+            return try resolveConversation(userInfo)
         }
 
         // Resolve values for message comparison.
@@ -419,28 +419,28 @@ final class ConversationSyncService: @unchecked Sendable {
             .uniquedByID else {
             if let exception = await conversation.setMessages() {
                 self.syncData = nil
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
-            return await _synchronizeConversation(conversation)
+            return try await _synchronizeConversation(conversation)
         }
 
         guard let syncData else {
             syncData = nil
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve current sync data.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
         guard let messageIDs = syncData.newData[
             Conversation.SerializableKey.messages.rawValue
         ] as? [String] else {
             self.syncData = nil
-            return .failure(.Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData.newData,
                 .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
         let currentMessageIDs = Set(currentMessages.map(\.id))
@@ -456,29 +456,29 @@ final class ConversationSyncService: @unchecked Sendable {
         guard filteredMessageIDs.isEmpty else {
             if let exception = await synchronizeMessages(filteredMessageIDs) {
                 self.syncData = nil
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
             if let exception = await synchronizeData() {
                 self.syncData = nil
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
-            return resolveConversation(userInfo)
+            return try resolveConversation(userInfo)
         }
 
         // If no messages to update, synchronize metadata until hashes are sufficiently mismatched.
 
         if let exception = await synchronizeData() {
             self.syncData = nil
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         guard self
             .syncData?
             .conversation
             .encodedHash == conversation
-            .encodedHash else { return resolveConversation(userInfo) }
+            .encodedHash else { return try resolveConversation(userInfo) }
 
         // If metadata ostensibly didn't need an update, reload select or all messages.
 
@@ -487,7 +487,7 @@ final class ConversationSyncService: @unchecked Sendable {
             lastTenOnly: true
         ) {
             self.syncData = nil
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         // If reloading last 10 messages didn't help, reload all messages.
@@ -510,11 +510,11 @@ final class ConversationSyncService: @unchecked Sendable {
 
             if let exception = await synchronizeMessages(messageIDs) {
                 self.syncData = nil
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
         }
 
-        return resolveConversation(userInfo)
+        return try resolveConversation(userInfo)
     }
 
     private func updateHash(

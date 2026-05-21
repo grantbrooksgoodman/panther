@@ -55,24 +55,24 @@ final class ConversationSessionService {
     func addMessages(
         _ messages: [Message],
         to conversation: Conversation
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard !messages.isEmpty else {
-            return .failure(.init(
+            throw Exception(
                 "No messages provided.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var appendedMessages = conversation.messages ?? []
         appendedMessages.append(contentsOf: messages)
-        appendedMessages = appendedMessages.filter { !$0.isMock }.sortedByAscendingSentDate
+        appendedMessages = appendedMessages.filter {
+            !$0.isMock
+        }.sortedByAscendingSentDate
 
-        return await .asCallback {
-            try await conversation.update(
-                \.messages,
-                to: appendedMessages
-            )
-        }
+        return try await conversation.update(
+            \.messages,
+            to: appendedMessages
+        )
     }
 
     // MARK: - Set Current Conversation

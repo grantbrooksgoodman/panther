@@ -33,14 +33,16 @@ struct ModerationSessionService {
     }
 
     func unblockUsers() async -> Exception? {
-        let getBlockedUsersResult = await getBlockedUsers()
-
-        switch getBlockedUsersResult {
-        case let .success(users):
-            return await moderate(.unblock, dataSource: (nil, users))
-
-        case let .failure(exception):
-            return exception
+        do {
+            return try await moderate(
+                .unblock,
+                dataSource: (
+                    nil,
+                    getBlockedUsers()
+                )
+            )
+        } catch {
+            return error
         }
     }
 
@@ -124,37 +126,29 @@ struct ModerationSessionService {
         ])
     }
 
-    private func getBlockedUsers() async -> Callback<[User], Exception> {
+    private func getBlockedUsers() async throws(Exception) -> [User] {
         guard let currentUserID = User.currentUserID else {
-            return .failure(.init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        do {
-            let userIDs: [String] = try await networking.database.getValues(
+        return try await networking.userService.getUsers(
+            ids: networking.database.getValues(
                 at: [
                     NetworkPath.users.rawValue,
                     currentUserID,
                     User.SerializableKey.blockedUserIDs.rawValue,
                 ].joined(separator: "/")
             )
-
-            return try await .success(
-                networking.userService.getUsers(ids: userIDs)
-            )
-        } catch {
-            return .failure(error)
-        }
+        )
     }
 
-    private func getReportedUserIDs() async -> Callback<[String: Int], Exception> {
-        await .asCallback {
-            try await networking.database.getValues(
-                at: NetworkPath.reportedUsers.rawValue
-            )
-        }
+    private func getReportedUserIDs() async throws(Exception) -> [String: Int] {
+        try await networking.database.getValues(
+            at: NetworkPath.reportedUsers.rawValue
+        )
     }
 
     @MainActor
@@ -247,11 +241,12 @@ struct ModerationSessionService {
         return exceptions.compiledException
     }
 
-    private func reportUsers(ids userIDs: [String]) async -> Exception? {
-        let getReportedUserIDsResult = await getReportedUserIDs()
+    private func reportUsers(
+        ids userIDs: [String]
+    ) async -> Exception? {
+        do {
+            var reportedUserIDs = try await getReportedUserIDs()
 
-        switch getReportedUserIDsResult {
-        case var .success(reportedUserIDs):
             for userID in userIDs {
                 if let value = reportedUserIDs[userID] {
                     reportedUserIDs[userID] = value + 1
@@ -266,9 +261,8 @@ struct ModerationSessionService {
             ) {
                 return exception
             }
-
-        case let .failure(exception):
-            Logger.log(exception)
+        } catch {
+            Logger.log(error)
 
             var reportedUserIDs = [String: Int]()
             userIDs.forEach { reportedUserIDs[$0] = 1 }

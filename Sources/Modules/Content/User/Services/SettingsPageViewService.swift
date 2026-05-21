@@ -544,7 +544,9 @@ final class SettingsPageViewService {
 
     /// `.viewAppeared`
     func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
-        await clientSession.storage.getCurrentUserDataUsage()
+        await .asCallback { @Sendable in
+            try await clientSession.storage.getCurrentUserDataUsage()
+        }
     }
 
     // MARK: - Clear Cache

@@ -249,18 +249,16 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
             return nil
         }
 
-        let synchronizeResult = await conversationsNeedingUpdate.parallelMap {
-            @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-            return await conversationSyncService.synchronizeConversation($0)
-        }
-
         guard !Task.isCancelled else { return nil }
-        switch synchronizeResult {
-        case let .success(synchronizedConversations):
-            decodedConversations.merge(with: synchronizedConversations)
-
-        case let .failure(exception):
-            return exception
+        do {
+            try await decodedConversations.merge(
+                with: conversationsNeedingUpdate.parallelMap {
+                    @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+                    return try await conversationSyncService.synchronizeConversation($0)
+                }
+            )
+        } catch {
+            return error
         }
 
         guard !conversationsNeedingFetch.isEmpty else {

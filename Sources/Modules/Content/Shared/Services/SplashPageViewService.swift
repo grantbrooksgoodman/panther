@@ -168,8 +168,8 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: UserSessionService Setup */
 
         // User resolution likely completed during the metadata + update + cache gates above.
-        switch await resolveCurrentUserResult {
-        case .success:
+        do {
+            _ = try await resolveCurrentUserResult
             initializationProgress += 0.2
 
             guard let currentUser = clientSession.user.currentUser else {
@@ -274,10 +274,14 @@ final class SplashPageViewService: ObservableObject {
                     )
                 }
             }
+        } catch {
+            guard let exception = error as? Exception else {
+                return .init(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
 
-            return nil
-
-        case let .failure(exception):
             guard !exception.isEqual(to: .currentUserIDNotSet) else {
                 initializationProgress = 1
                 return nil
@@ -285,6 +289,8 @@ final class SplashPageViewService: ObservableObject {
 
             return exception
         }
+
+        return nil
     }
 
     /// `.errorAlertDismissed`

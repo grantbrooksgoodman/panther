@@ -234,20 +234,22 @@ final class ChatInfoPageViewService {
 
             Observables.chatInfoPageLoadingStateUpdated.trigger()
             clientSession.user.stopObservingCurrentUserChanges()
-            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
-                currentUserID,
-                conversation: conversation
-            )
+            defer { clientSession.user.startObservingCurrentUserChanges() }
 
-            clientSession.user.startObservingCurrentUserChanges()
-            switch removeFromConversationResult {
-            case .success:
+            do throws(Exception) {
+                _ = try await clientSession.activity.removeFromConversation(
+                    currentUserID,
+                    conversation: conversation
+                )
+
                 Application.dismissSheets()
                 conversationArchive.removeValue(idKey: conversation.id.key)
                 navigation.navigate(to: .userContent(.stack([])))
-
-            case let .failure(exception):
-                Logger.log(exception, with: .toast)
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
@@ -293,19 +295,21 @@ final class ChatInfoPageViewService {
             navigation.navigate(to: .chat(.sheet(.none)))
             Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-            let removeFromConversationResult = await clientSession.activity.removeFromConversation(
-                user.id,
-                conversation: conversation
-            )
+            do throws(Exception) {
+                try await clientSession.conversation.setCurrentConversation(
+                    clientSession.activity.removeFromConversation(
+                        user.id,
+                        conversation: conversation
+                    )
+                )
 
-            switch removeFromConversationResult {
-            case let .success(conversation):
-                clientSession.conversation.setCurrentConversation(conversation)
                 chatPageViewService.reloadCollectionView()
                 Observables.currentConversationActivityChanged.trigger()
-
-            case let .failure(exception):
-                Logger.log(exception, with: .toast)
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }

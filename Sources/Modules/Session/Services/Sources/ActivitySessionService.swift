@@ -23,12 +23,12 @@ struct ActivitySessionService {
     func addToConversation(
         _ userID: String,
         conversation: Conversation
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let activity = Activity(.addedToConversation(userID: userID)) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to synthesize activity.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         // swiftlint:disable:next identifier_name
@@ -53,26 +53,22 @@ struct ActivitySessionService {
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
         let newParticipants = conversation.participants + [.init(userID: userID)]
 
-        do {
-            let updatedConversation = try await conversation.updateValues(
-                with: [
-                    \.activities: newActivities,
-                    \.metadata: newMetadata,
-                    \.participants: newParticipants,
-                ]
-            )
+        let updatedConversation = try await conversation.updateValues(
+            with: [
+                \.activities: newActivities,
+                \.metadata: newMetadata,
+                \.participants: newParticipants,
+            ]
+        )
 
-            if let exception = await addUserToConversation(
-                userID: userID,
-                conversationID: updatedConversation.id
-            ) {
-                return .failure(exception)
-            }
-
-            return .success(updatedConversation)
-        } catch {
-            return .failure(error)
+        if let exception = await addUserToConversation(
+            userID: userID,
+            conversationID: updatedConversation.id
+        ) {
+            throw exception
         }
+
+        return updatedConversation
     }
 
     private func addUserToConversation(
@@ -83,7 +79,9 @@ struct ActivitySessionService {
             let user = try await networking.userService.getUser(id: userID)
             _ = try await user.update(
                 \.conversationIDs,
-                to: ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique
+                to: ((user.conversationIDs ?? []).filter {
+                    $0.key != conversationID.key
+                } + [conversationID]).unique
             )
             return nil
         } catch {
@@ -97,14 +95,14 @@ struct ActivitySessionService {
         _ userID: String,
         conversation: Conversation,
         removeFromUser: Bool = true
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let activity = Activity(
             userID == User.currentUserID ? .leftConversation : .removedFromConversation(userID: userID)
         ) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to synthesize activity.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let newActivities = ((conversation.activities ?? []) + [activity]).filter { $0 != .empty }
@@ -123,27 +121,23 @@ struct ActivitySessionService {
                 .requiresConsentFromInitiator == userID
         )
 
-        do {
-            let updatedConversation = try await conversation.updateValues(
-                with: [
-                    \.activities: newActivities,
-                    \.metadata: newMetadata,
-                    \.participants: newParticipants,
-                ]
-            )
+        let updatedConversation = try await conversation.updateValues(
+            with: [
+                \.activities: newActivities,
+                \.metadata: newMetadata,
+                \.participants: newParticipants,
+            ]
+        )
 
-            if removeFromUser {
-                if let exception = await networking.conversationService.removeConversationFromUsers(
-                    userIDs: [userID],
-                    conversationIDKey: updatedConversation.id.key
-                ) {
-                    return .failure(exception)
-                }
+        if removeFromUser {
+            if let exception = await networking.conversationService.removeConversationFromUsers(
+                userIDs: [userID],
+                conversationIDKey: updatedConversation.id.key
+            ) {
+                throw exception
             }
-
-            return .success(updatedConversation)
-        } catch {
-            return .failure(error)
         }
+
+        return updatedConversation
     }
 }

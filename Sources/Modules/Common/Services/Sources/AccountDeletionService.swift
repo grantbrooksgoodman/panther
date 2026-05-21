@@ -30,6 +30,7 @@ final class AccountDeletionService: @unchecked Sendable {
 
     // MARK: - Delete Account
 
+    // swiftlint:disable:next function_body_length
     func deleteAccount() async -> Exception? {
         var exceptions = [Exception]()
 
@@ -80,15 +81,15 @@ final class AccountDeletionService: @unchecked Sendable {
         await withTaskGroup(of: (exception: Exception?, trackProgress: Bool).self) { taskGroup in
             for groupChat in groupChats {
                 taskGroup.addTask {
-                    let removeFromConversationResult = await self.clientSession.activity.removeFromConversation(
-                        currentUserID,
-                        conversation: groupChat,
-                        removeFromUser: false
-                    )
-
-                    switch removeFromConversationResult {
-                    case .success: return (nil, true)
-                    case let .failure(exception): return (exception, true)
+                    do throws(Exception) {
+                        _ = try await self.clientSession.activity.removeFromConversation(
+                            currentUserID,
+                            conversation: groupChat,
+                            removeFromUser: false
+                        )
+                        return (nil, true)
+                    } catch {
+                        return (error, true)
                     }
                 }
             }
