@@ -112,10 +112,12 @@ extension Conversation: RemotelyUpdatable {
         }
 
         // NIT: Can do updateChildValues with encoded filtering all not equal to keys in data.
-        let conversationKeyPath = "\(NetworkPath.conversations.rawValue)/\(updated.id.key)/"
         if let exception = await networking.database.setValue(
             updated.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue },
-            forKey: conversationKeyPath
+            forKey: [
+                NetworkPath.conversations.rawValue,
+                updated.id.key,
+            ].joined(separator: "/")
         ) {
             throw exception
         }
@@ -309,7 +311,11 @@ extension Conversation: RemotelyUpdatable {
 
         if let exception = await networking.database.setValue(
             updatedConversation.participants.map(\.encoded),
-            forKey: "\(NetworkPath.conversations.rawValue)/\(updatedConversation.id.key)/\(SerializableKey.participants.rawValue)"
+            forKey: [
+                NetworkPath.conversations.rawValue,
+                updatedConversation.id.key,
+                SerializableKey.participants.rawValue,
+            ].joined(separator: "/")
         ) {
             throw exception
         }

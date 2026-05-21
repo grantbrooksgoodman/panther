@@ -101,8 +101,6 @@ extension PersistentStorageKey {
     static func userSessionService(
         _ key: UserSessionServiceStorageKey
     ) -> PersistentStorageKey {
-        .init(
-            key.rawValue
-        )
+        .init(key.rawValue)
     }
 }

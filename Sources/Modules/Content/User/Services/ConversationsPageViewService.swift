@@ -76,6 +76,7 @@ final class ConversationsPageViewService {
     private(set) var didShowSecondsToLoadToast = false
 
     private var currentReloadType: ReloadType = .full
+    private var updateConversationsListRetryCount = 0
 
     // MARK: - View Lifecycle
 
@@ -231,6 +232,7 @@ final class ConversationsPageViewService {
         }
     }
 
+    // swiftlint:disable function_body_length
     /// `.reloadDataReturned(.success)`
     /// `.updatedCurrentUser`
     /// `.viewAppeared`
@@ -282,32 +284,45 @@ final class ConversationsPageViewService {
         guard let bestCandidate = dataSources.bestAligned(
             with: currentUserConversationHashes,
             andMatchingPredicate: \.isWellFormed
-        ) else { // NIT: Ensure this approach works.
-            Task.delayed(by: .seconds(3)) { @MainActor in
+        ) else {
+            guard updateConversationsListRetryCount < 3 else {
+                updateConversationsListRetryCount = 0
+                return Logger.log(
+                    .init(
+                        "No conversation data source was well-formed after 3 retries.",
+                        metadata: .init(sender: self)
+                    ),
+                    domain: .conversation,
+                    with: .toast
+                )
+            }
+
+            updateConversationsListRetryCount += 1
+            Task.delayed(
+                by: .seconds(
+                    Double(updateConversationsListRetryCount) * 3
+                )
+            ) { @MainActor in
                 if let exception = await User.populateCurrentUserConversationsIfNeeded() {
                     Logger.log(
                         exception,
                         domain: .conversation
                     )
-                } else {
-                    let reloadDataResult = await reloadData()
-                    switch reloadDataResult {
-                    case .success:
-                        Observables.updatedCurrentUser.trigger()
-
-                    case let .failure(exception):
-                        Logger.log(
-                            exception,
-                            domain: .conversation,
-                            with: .toast
-                        )
-                    }
                 }
+
+                if case let .failure(exception) = await reloadData() {
+                    Logger.log(
+                        exception,
+                        domain: .conversation
+                    )
+                }
+
+                Observables.updatedCurrentUser.trigger()
             }
 
             return Logger.log(
                 .init(
-                    "No conversation data source was well-formed.",
+                    "No conversation data source was well-formed (attempt \(updateConversationsListRetryCount) / 3).",
                     metadata: .init(sender: self)
                 ),
                 domain: .conversation,
@@ -315,6 +330,7 @@ final class ConversationsPageViewService {
             )
         }
 
+        updateConversationsListRetryCount = 0
         guard build.milestone != .generalRelease else {
             return state.conversations = bestCandidate.conversations
         }
@@ -337,7 +353,7 @@ final class ConversationsPageViewService {
         }
 
         state.conversations = bestCandidate.conversations
-    }
+    } // swiftlint:enable function_body_length
 
     // MARK: - Auxiliary
 

@@ -46,7 +46,11 @@ struct LocalAudioFilePath: Codable, Equatable {
         @Dependency(\.fileManager) var fileManager: FileManager
 
         let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
-        let outputDirectoryPath = "\(NetworkPath.audioTranslations.rawValue)/\(translation.reference.hostingKey)/"
+        let outputDirectoryPath = [
+            NetworkPath.audioTranslations.rawValue,
+            translation.reference.hostingKey,
+        ].joined(separator: "/")
+
         var outputFilePath = outputDirectoryPath + "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         if translation.languagePair.isIdempotent {
             outputFilePath = inputFilePath

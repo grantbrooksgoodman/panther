@@ -132,14 +132,20 @@ struct ModerationSessionService {
             ))
         }
 
-        return await .asCallback {
-            try await networking.database.getValues(
+        do {
+            let userIDs: [String] = try await networking.database.getValues(
                 at: [
                     NetworkPath.users.rawValue,
                     currentUserID,
                     User.SerializableKey.blockedUserIDs.rawValue,
                 ].joined(separator: "/")
             )
+
+            return try await .success(
+                networking.userService.getUsers(ids: userIDs).get()
+            )
+        } catch {
+            return .failure(error)
         }
     }
 

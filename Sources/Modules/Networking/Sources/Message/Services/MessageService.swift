@@ -185,7 +185,8 @@ struct MessageService {
         }
 
         let getMessageResults = await ids.parallelMap(
-            failForEmptyCollection: true
+            failForEmptyCollection: true,
+            maxConcurrentOperations: 50
         ) {
             await getMessage(id: $0)
         }

@@ -233,14 +233,20 @@ final class IntegrityService: @unchecked Sendable {
                 for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                     guard let dictionary = session.userData[userID] as? [String: Any],
                           var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
-                    conversationIDStrings = conversationIDStrings.filter { !$0.hasPrefix(conversationIDKey) }
-                    let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
-                    let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
+                    conversationIDStrings = conversationIDStrings.filter {
+                        !$0.hasPrefix(conversationIDKey)
+                    }
+
+                    let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
                     taskGroup.addTask {
                         await self.networking.database.setValue(
                             value,
-                            forKey: keyPath
+                            forKey: [
+                                NetworkPath.users.rawValue,
+                                userID,
+                                User.SerializableKey.conversationIDs.rawValue,
+                            ].joined(separator: "/")
                         )
                     }
 
@@ -315,7 +321,11 @@ final class IntegrityService: @unchecked Sendable {
 
                 if let exception = await networking.database.setValue(
                     messageIDs,
-                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.messages.rawValue)"
+                    forKey: [
+                        NetworkPath.conversations.rawValue,
+                        conversationIDKey,
+                        Conversation.SerializableKey.messages.rawValue,
+                    ].joined(separator: "/")
                 ) {
                     exceptions.append(exception)
                 }
@@ -413,7 +423,11 @@ final class IntegrityService: @unchecked Sendable {
 
                 let filteredValue = filteredConversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : filteredConversationIDStrings
                 return (
-                    "\(NetworkPath.users.rawValue)/\(key)/\(User.SerializableKey.conversationIDs.rawValue)",
+                    [
+                        NetworkPath.users.rawValue,
+                        key,
+                        User.SerializableKey.conversationIDs.rawValue,
+                    ].joined(separator: "/"),
                     filteredValue
                 )
             }
@@ -461,7 +475,11 @@ final class IntegrityService: @unchecked Sendable {
                 }
 
                 return (
-                    "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.messages.rawValue)",
+                    [
+                        NetworkPath.conversations.rawValue,
+                        conversationIDKey,
+                        Conversation.SerializableKey.messages.rawValue,
+                    ].joined(separator: "/"),
                     filteredMessageIDs
                 )
             }
@@ -531,7 +549,14 @@ final class IntegrityService: @unchecked Sendable {
                 conversationIDStrings.append(contentsOf: missingConversationIDs)
                 conversationIDStrings = conversationIDStrings.unique
                 let value = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
-                return ("\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)", value)
+                return (
+                    [
+                        NetworkPath.users.rawValue,
+                        userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                    ].joined(separator: "/"),
+                    value
+                )
             }
 
         if !pendingRepairs.isEmpty {
@@ -580,7 +605,11 @@ final class IntegrityService: @unchecked Sendable {
                     var taskTookAction = false
 
                     let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(key).\(MediaFileExtension.audio(.m4a).rawValue)"
-                    let contentTypeKeyPath = "\(NetworkPath.messages.rawValue)/\(key)/\(Message.SerializableKey.contentType.rawValue)"
+                    let contentTypeKeyPath = [
+                        NetworkPath.messages.rawValue,
+                        key,
+                        Message.SerializableKey.contentType.rawValue,
+                    ].joined(separator: "/")
 
                     switch await self.networking.storage.itemExists(at: inputFilePath) {
                     case let .success(itemExists):
@@ -950,13 +979,16 @@ final class IntegrityService: @unchecked Sendable {
                       var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
                 conversationIDStrings = conversationIDStrings.filter { !$0.hasPrefix(conversationIDKey) }
                 conversationIDStrings.append("\(conversationIDKey) | \(String.bangQualifiedEmpty)")
-                let keyPath = "\(NetworkPath.users.rawValue)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
                 let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
                 taskGroup.addTask {
                     await self.networking.database.setValue(
                         value,
-                        forKey: keyPath
+                        forKey: [
+                            NetworkPath.users.rawValue,
+                            userID,
+                            User.SerializableKey.conversationIDs.rawValue,
+                        ].joined(separator: "/")
                     )
                 }
 
@@ -971,7 +1003,11 @@ final class IntegrityService: @unchecked Sendable {
             taskGroup.addTask {
                 await self.networking.database.setValue(
                     String.bangQualifiedEmpty,
-                    forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)/\(Conversation.SerializableKey.encodedHash.rawValue)"
+                    forKey: [
+                        NetworkPath.conversations.rawValue,
+                        conversationIDKey,
+                        Conversation.SerializableKey.encodedHash.rawValue,
+                    ].joined(separator: "/")
                 )
             }
 

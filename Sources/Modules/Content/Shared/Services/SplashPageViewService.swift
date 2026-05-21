@@ -219,18 +219,23 @@ final class SplashPageViewService: ObservableObject {
                 return exception
             }
 
-            initializationProgress += 0.2
-
-            if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
-                return exception
-            }
-
             initializationProgress = 1
 
             /* MARK: Post-launch Maintenance */
 
             Task { [weak self] in
                 guard let self else { return }
+
+                // TODO: Audit this being post-launch.
+                if let exception = await currentUser
+                    .conversations?
+                    .visibleForCurrentUser
+                    .setUsers() {
+                    Logger.log(
+                        exception,
+                        with: .toastInPrerelease
+                    )
+                }
 
                 let pushTokenService = LockIsolated(services.pushToken)
                 if Networking.config.environment != .staging,

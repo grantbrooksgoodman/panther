@@ -115,7 +115,8 @@ struct ConversationService {
         }
 
         let getConversationResults = await idKeys.parallelMap(
-            failForEmptyCollection: true
+            failForEmptyCollection: true,
+            maxConcurrentOperations: 25
         ) {
             await getConversation(idKey: $0)
         }
@@ -207,7 +208,11 @@ struct ConversationService {
                 let path = NetworkPath.users.rawValue
                 if let exception = await networking.database.setValue(
                     conversationIDStrings,
-                    forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
+                    forKey: [
+                        path,
+                        userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                    ].joined(separator: "/")
                 ) {
                     return exception.appending(userInfo: userInfo)
                 }
@@ -244,7 +249,11 @@ struct ConversationService {
             let path = NetworkPath.users.rawValue
             if let exception = await networking.database.setValue(
                 conversationIDStrings,
-                forKey: "\(path)/\(userID)/\(User.SerializableKey.conversationIDs.rawValue)"
+                forKey: [
+                    path,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
             ) {
                 return exception.appending(userInfo: userInfo)
             }

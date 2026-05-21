@@ -33,13 +33,4 @@ extension String {
     var shortened: String {
         .init(prefix(32))
     }
-
-    // MARK: - Methods
-
-    static func fromCurrentEditorContext(
-        sender: Any,
-        function: String = #function
-    ) -> String {
-        "\(String(sender)).\(function)"
-    }
 }

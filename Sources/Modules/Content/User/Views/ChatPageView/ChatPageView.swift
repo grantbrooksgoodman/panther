@@ -98,5 +98,8 @@ struct ChatPageView: UIViewControllerRepresentable {
     func updateUIViewController(
         _ uiViewController: MessagesViewController,
         context: Context
-    ) {}
+    ) {
+        guard additionalTopInset > 0 else { return }
+        uiViewController.additionalSafeAreaInsets.top = additionalTopInset
+    }
 }

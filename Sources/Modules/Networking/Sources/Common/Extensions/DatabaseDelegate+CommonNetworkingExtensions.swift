@@ -46,34 +46,41 @@ extension DatabaseDelegate {
             messageData = try await getMessageValues
             userData = try await getUserValues
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            return .init(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        let environmentPrefix = Networking.config.environment.shortString
-        let conversationKeyPrefix = "\(environmentPrefix)/\(NetworkPath.conversations.rawValue)/"
-        let messageKeyPrefix = "\(environmentPrefix)/\(NetworkPath.messages.rawValue)/"
-        let userKeyPrefix = "\(environmentPrefix)/\(NetworkPath.users.rawValue)/"
 
         let expiryThreshold: Duration = .seconds(300)
 
         for (key, value) in conversationData {
             CoreDatabaseStore.addValue(
                 .init(data: value, expiresAfter: expiryThreshold),
-                forKey: conversationKeyPrefix + key
+                forKey: [
+                    Networking.config.environment.shortString,
+                    NetworkPath.conversations.rawValue,
+                ].joined(separator: "/") + key
             )
         }
 
         for (key, value) in messageData {
             CoreDatabaseStore.addValue(
                 .init(data: value, expiresAfter: expiryThreshold),
-                forKey: messageKeyPrefix + key
+                forKey: [
+                    Networking.config.environment.shortString,
+                    NetworkPath.messages.rawValue,
+                ].joined(separator: "/") + key
             )
         }
 
         for (key, value) in userData {
             CoreDatabaseStore.addValue(
                 .init(data: value, expiresAfter: expiryThreshold),
-                forKey: userKeyPrefix + key
+                forKey: [
+                    Networking.config.environment.shortString,
+                    NetworkPath.users.rawValue,
+                ].joined(separator: "/") + key
             )
         }
 

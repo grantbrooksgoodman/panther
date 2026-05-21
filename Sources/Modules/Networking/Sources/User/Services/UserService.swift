@@ -175,7 +175,8 @@ final class UserService: @unchecked Sendable {
         }
 
         let getUserResults = await ids.parallelMap(
-            failForEmptyCollection: true
+            failForEmptyCollection: true,
+            maxConcurrentOperations: 25
         ) {
             await self.getUser(id: $0)
         }

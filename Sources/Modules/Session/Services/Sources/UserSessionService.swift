@@ -51,7 +51,11 @@ final class UserSessionService: @unchecked Sendable {
     private var currentUserDatabaseReference: DatabaseReference? {
         guard let currentUser else { return nil }
         return Database.database().reference().child(
-            "\(Networking.config.environment.shortString)/\(NetworkPath.users.rawValue)/\(currentUser.id)"
+            [
+                Networking.config.environment.shortString,
+                NetworkPath.users.rawValue,
+                currentUser.id,
+            ].joined(separator: "/")
         )
     }
 

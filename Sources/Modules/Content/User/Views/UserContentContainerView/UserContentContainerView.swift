@@ -20,12 +20,34 @@ struct UserContentContainerView: View {
     private typealias Strings = AppConstants.Strings.UserContentContainerView
     private typealias Floats = AppConstants.CGFloats.UserContentContainerView
 
+    // MARK: - Types
+
+    @MainActor
+    private struct ChatPageHeaderHeightKey: @MainActor PreferenceKey {
+        /* MARK: Properties */
+
+        static var defaultValue: CGFloat = 0
+
+        /* MARK: Methods */
+
+        static func reduce(
+            value: inout CGFloat,
+            nextValue: () -> CGFloat
+        ) {
+            value = max(
+                value,
+                nextValue()
+            )
+        }
+    }
+
     // MARK: - Dependencies
 
     @ObservedDependency(\.navigation) private var navigation: Navigation
 
     // MARK: - Properties
 
+    @State private var chatPageHeaderHeight = Floats.chatPageHeaderContentHeight
     @StateObject private var observer: ViewObserver<UserContentContainerObserver>
     @StateObject private var viewModel: ViewModel<UserContentContainerReducer>
 
@@ -99,7 +121,7 @@ struct UserContentContainerView: View {
             ChatPageView(
                 conversation,
                 configuration: .default(focusedMessageID: focusedMessageID),
-                additionalTopInset: Floats.chatPageHeaderContentHeight
+                additionalTopInset: chatPageHeaderHeight
             )
             .ignoresSafeArea(.keyboard)
             .overlay(alignment: .top) {
@@ -107,6 +129,18 @@ struct UserContentContainerView: View {
                     backButtonAction: { navigation.navigate(to: .userContent(.pop)) },
                     chatInfoButtonAction: { viewModel.send(.chatInfoToolbarButtonTapped) }
                 )
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: ChatPageHeaderHeightKey.self,
+                            value: proxy.size.height
+                        )
+                    }
+                )
+            }
+            .onPreferenceChange(ChatPageHeaderHeightKey.self) { newHeight in
+                guard newHeight > 0 else { return }
+                chatPageHeaderHeight = newHeight
             }
             .toolbar(
                 .hidden,

@@ -445,7 +445,9 @@ final class StorageSessionService: @unchecked Sendable {
     private func totalSizeInKilobytes(
         of items: [String]
     ) async -> Callback<Int, Exception> {
-        let sizeInKilobytesResults = await items.parallelMap { filePath in
+        let sizeInKilobytesResults = await items.parallelMap(
+            maxConcurrentOperations: 25
+        ) { filePath in
             await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
         }
 

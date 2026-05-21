@@ -92,10 +92,19 @@ enum Application {
             loggingEnabled: buildMilestone != .generalRelease
         )
 
+        Logger.log(
+            "Application launched.",
+            sender: self
+        )
+
         /* MARK: Networking Setup */
 
         Networking.initialize()
         Networking.config.registerActivityIndicatorDelegate(NetworkActivityIndicatorService())
+
+        @Dependency(\.networking) var networking: NetworkServices
+        networking.database.prewarm()
+        networking.storage.prewarm()
 
         @Persistent(.hasRunOnce) var hasRunOnce: Bool?
         if UIDevice.isSimulator,

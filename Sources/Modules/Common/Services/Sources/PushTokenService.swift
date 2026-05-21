@@ -58,7 +58,11 @@ final class PushTokenService {
         if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
             await self.networking.database.setValue(
                 $0.prunedTokens,
-                forKey: "\(NetworkPath.users.rawValue)/\($0.userID)/\(User.SerializableKey.pushTokens.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    $0.userID,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
             )
         }) {
             throw exception
@@ -141,7 +145,11 @@ final class PushTokenService {
         if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
             await self.networking.database.setValue(
                 $0.prunedTokens,
-                forKey: "\(NetworkPath.users.rawValue)/\($0.userID)/\(User.SerializableKey.pushTokens.rawValue)"
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    $0.userID,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
             )
         }) {
             return exception
