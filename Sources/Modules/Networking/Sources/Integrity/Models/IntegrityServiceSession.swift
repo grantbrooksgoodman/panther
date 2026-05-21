@@ -91,7 +91,9 @@ final class IntegrityServiceSession: @unchecked Sendable {
     // MARK: - Resolve
 
     // swiftlint:disable:next function_body_length
-    static func resolve(_ failureStrategy: BatchFailureStrategy) async -> Callback<IntegrityServiceSession, Exception> {
+    static func resolve(
+        _ failureStrategy: BatchFailureStrategy
+    ) async throws(Exception) -> IntegrityServiceSession {
         var conversationData: [String: Any]?
         var messageData: [String: Any]?
         var translationData: [String: [String: Any]]?
@@ -143,7 +145,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
                 conversationData = dictionary
             } else {
                 guard failureStrategy == .continueOnFailure else {
-                    return .failure(typecastFailedException)
+                    throw typecastFailedException
                 }
 
                 Logger.log(typecastFailedException)
@@ -152,7 +154,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         case let .failure(exception):
             guard failureStrategy == .continueOnFailure else {
-                return .failure(exception)
+                throw exception
             }
 
             Logger.log(exception)
@@ -167,7 +169,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
                 messageData = dictionary
             } else {
                 guard failureStrategy == .continueOnFailure else {
-                    return .failure(typecastFailedException)
+                    throw typecastFailedException
                 }
 
                 Logger.log(typecastFailedException)
@@ -176,7 +178,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         case let .failure(exception):
             guard failureStrategy == .continueOnFailure else {
-                return .failure(exception)
+                throw exception
             }
 
             Logger.log(exception)
@@ -191,7 +193,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
                 translationData = dictionary
             } else {
                 guard failureStrategy == .continueOnFailure else {
-                    return .failure(typecastFailedException)
+                    throw typecastFailedException
                 }
 
                 Logger.log(typecastFailedException)
@@ -200,7 +202,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         case let .failure(exception):
             guard failureStrategy == .continueOnFailure else {
-                return .failure(exception)
+                throw exception
             }
 
             Logger.log(exception)
@@ -215,7 +217,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
                 userData = dictionary
             } else {
                 guard failureStrategy == .continueOnFailure else {
-                    return .failure(typecastFailedException)
+                    throw typecastFailedException
                 }
 
                 Logger.log(typecastFailedException)
@@ -224,7 +226,7 @@ final class IntegrityServiceSession: @unchecked Sendable {
 
         case let .failure(exception):
             guard failureStrategy == .continueOnFailure else {
-                return .failure(exception)
+                throw exception
             }
 
             Logger.log(exception)
@@ -235,22 +237,24 @@ final class IntegrityServiceSession: @unchecked Sendable {
               let messageData,
               let translationData,
               let userData else {
-            return .failure(.init(
+            throw Exception(
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return .success(.init(
+        return .init(
             conversationData: conversationData,
             messageData: messageData,
             translationData: translationData,
             userData: userData
-        ))
+        )
     }
 
     // MARK: - Auxiliary
 
-    private static func fetchDatabaseValues(at path: String) async -> Callback<Any, Exception> {
+    private static func fetchDatabaseValues(
+        at path: String
+    ) async -> Callback<Any, Exception> {
         await .asCallback {
             @Dependency(\.networking.database) var database: DatabaseDelegate
             return try await database.getValues(at: path)

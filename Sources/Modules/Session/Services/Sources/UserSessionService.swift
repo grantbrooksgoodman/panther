@@ -99,7 +99,12 @@ final class UserSessionService: @unchecked Sendable {
         _ cacheStrategy: CacheStrategy = .returnCacheOnFailure
     ) async -> Callback<User, Exception> {
         guard let currentUserID else {
-            return .failure(.init("Current user ID has not been set.", metadata: .init(sender: self)))
+            return .failure(
+                .init(
+                    "Current user ID has not been set.",
+                    metadata: .init(sender: self)
+                )
+            )
         }
 
         if cacheStrategy == .returnCacheFirst,
@@ -108,23 +113,20 @@ final class UserSessionService: @unchecked Sendable {
             return .success(currentUser)
         }
 
-        let getUserResult = await networking.userService.getUser(id: currentUserID)
-
-        switch getUserResult {
-        case let .success(user):
+        do {
+            let user = try await networking.userService.getUser(id: currentUserID)
             user.inheritLocalState(from: currentUser)
             currentUser = user
             await MainActor.run { self.currentUserID = user.id }
             return .success(user)
-
-        case let .failure(exception):
+        } catch {
             if cacheStrategy == .returnCacheOnFailure,
                let currentUser,
                currentUser.id == currentUserID {
                 return .success(currentUser)
             }
 
-            return .failure(exception)
+            return .failure(error)
         }
     }
 

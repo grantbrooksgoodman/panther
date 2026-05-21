@@ -85,6 +85,12 @@ struct SplashPageReducer: Reducer {
                 defer { Logger.log(exception) }
 
                 guard state.didAttemptAutomaticErrorRecovery else {
+                    Logger.log(
+                        "Attempting automatic error recovery.",
+                        sender: self
+                    )
+
+                    state.didAttemptAutomaticErrorRecovery = true
                     guard !exception.isEqual(
                         toAny: [
                             .failedToGenerateMediaFile,
@@ -97,7 +103,6 @@ struct SplashPageReducer: Reducer {
                         }
                     }
 
-                    state.didAttemptAutomaticErrorRecovery = true
                     return .task {
                         let result = await viewService.performRetryHandler()
                         return .performRetryHandlerReturned(result)

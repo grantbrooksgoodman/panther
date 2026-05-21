@@ -49,13 +49,13 @@ final class UserService: @unchecked Sendable {
         languageCode: String,
         phoneNumber: PhoneNumber,
         pushTokens: [String]?
-    ) async -> Callback<User, Exception> {
+    ) async throws(Exception) -> User {
         if await accountExists(for: phoneNumber) {
-            return .failure(.init(
+            throw Exception(
                 "User already exists for this phone number.",
                 userInfo: ["PhoneNumber": phoneNumber.encoded],
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let mockUser: User = .init(
@@ -79,44 +79,52 @@ final class UserService: @unchecked Sendable {
             data,
             forKey: "\(NetworkPath.users.rawValue)/\(id)"
         ) {
-            return .failure(exception)
+            throw exception
         }
 
-        return .success(mockUser)
+        return mockUser
     }
 
     // MARK: - Collision Detection
 
-    func accountExists(for phoneNumber: PhoneNumber) async -> Bool {
-        let getUserResult = await getUser(phoneNumber: phoneNumber)
-
-        switch getUserResult {
-        case .success: return true
-        case .failure: return false
+    func accountExists(
+        for phoneNumber: PhoneNumber
+    ) async -> Bool {
+        do {
+            _ = try await getUser(phoneNumber: phoneNumber)
+            return true
+        } catch {
+            return false
         }
     }
 
     // MARK: - Get All Users
 
-    func getAllUsers() async -> Callback<[User], Exception> {
+    func getAllUsers() async throws(Exception) -> [User] {
         do {
             let userData: [String: Any] = try await networking.database.getValues(
                 at: NetworkPath.users.rawValue
             )
-            return await getUsers(ids: Array(userData.keys))
+            return try await getUsers(
+                ids: Array(userData.keys)
+            )
         } catch {
-            return .failure(error)
+            throw error
         }
     }
 
     // MARK: - Retrieval by ID
 
-    func getUser(id: String) async -> Callback<User, Exception> {
+    func getUser(
+        id: String
+    ) async throws(Exception) -> User {
         let userInfo = ["UserID": id]
 
         guard !id.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: userInfo))
+            throw Exception(
+                "No ID provided.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
         typealias Keys = User.SerializableKey
@@ -134,9 +142,11 @@ final class UserService: @unchecked Sendable {
                 domain: .caches
             )
 
-            return await .asCallback(
-                userInfo: userInfo
-            ) { try await User(from: match.data) }
+            do {
+                return try await User(from: match.data)
+            } catch {
+                throw error.appending(userInfo: userInfo)
+            }
         }
 
         var data: [String: Any]
@@ -145,7 +155,7 @@ final class UserService: @unchecked Sendable {
                 at: "\(NetworkPath.users.rawValue)/\(id)"
             )
         } catch {
-            return .failure(error.appending(userInfo: userInfo))
+            throw error.appending(userInfo: userInfo)
         }
 
         data[Keys.id.rawValue] = id
@@ -159,70 +169,62 @@ final class UserService: @unchecked Sendable {
         )
         cachedUserDataSnapshots = cachedValues
 
-        return await .asCallback(
-            userInfo: userInfo
-        ) { try await User(from: data) }
+        do {
+            return try await User(from: data)
+        } catch {
+            throw error.appending(userInfo: userInfo)
+        }
     }
 
-    func getUsers(ids: [String]) async -> Callback<[User], Exception> {
+    func getUsers(
+        ids: [String]
+    ) async throws(Exception) -> [User] {
         let userInfo = ["UserIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
-            return .failure(.init(
+            throw Exception(
                 "No ID keys provided.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
-        let getUserResults = await ids.parallelMap(
-            failForEmptyCollection: true,
-            maxConcurrentOperations: 25
-        ) {
-            await self.getUser(id: $0)
-        }
-
-        switch getUserResults {
-        case let .success(users):
-            return .success(users)
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        do {
+            return try await ids.parallelMap(
+                failForEmptyCollection: true,
+                maxConcurrentOperations: 25
+            ) {
+                try await self.getUser(id: $0)
+            }
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
     }
 
     // MARK: - Retrieval by Phone Number
 
-    func getUser(phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
+    func getUser(
+        phoneNumber: PhoneNumber
+    ) async throws(Exception) -> User {
         let userInfo = ["PhoneNumber": phoneNumber.encoded]
-        let userData: [String: Any]
 
+        let users: [User]
         do {
-            userData = try await networking.database.getValues(
-                at: NetworkPath.users.rawValue
-            )
+            users = try await getAllUsers()
         } catch {
-            return .failure(error.appending(userInfo: userInfo))
+            throw error.appending(userInfo: userInfo)
         }
 
-        let getUsersResult = await networking.userService.getUsers(ids: Array(userData.keys))
-
-        switch getUsersResult {
-        case let .success(users):
-            guard let user = users.first(where: {
-                $0.phoneNumber.compiledNumberString == phoneNumber.compiledNumberString
-            }) else {
-                return .failure(.init(
-                    "No users with the provided phone number.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
-            }
-
-            return .success(user)
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        guard let user = users.first(where: {
+            $0.phoneNumber.compiledNumberString == phoneNumber.compiledNumberString
+        }) else {
+            throw Exception(
+                "No users with the provided phone number.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
+
+        return user
     }
 
     // MARK: - Clear Cache

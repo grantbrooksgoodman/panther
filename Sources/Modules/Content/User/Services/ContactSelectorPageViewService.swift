@@ -52,7 +52,15 @@ struct ContactSelectorPageViewService {
 
     /// `.searchQuerySubmitted`
     func findUser(with phoneNumber: PhoneNumber) async -> Callback<User, Exception> {
-        await networking.userService.getUser(phoneNumber: phoneNumber)
+        do {
+            return try await .success(
+                networking.userService.getUser(
+                    phoneNumber: phoneNumber
+                )
+            )
+        } catch {
+            return .failure(error)
+        }
     }
 
     func inviteToolbarButtonTapped() {

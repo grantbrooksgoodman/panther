@@ -51,7 +51,7 @@ struct LocalAudioFilePath: Codable, Equatable {
             translation.reference.hostingKey,
         ].joined(separator: "/")
 
-        var outputFilePath = outputDirectoryPath + "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
+        var outputFilePath = outputDirectoryPath + "/\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         if translation.languagePair.isIdempotent {
             outputFilePath = inputFilePath
         }

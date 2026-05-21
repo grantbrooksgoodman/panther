@@ -44,46 +44,45 @@ final class ContactService: @unchecked Sendable {
     // MARK: - Sync Contact Pair Archive
 
     func syncContactPairArchive() async -> Exception? {
-        let getAllUsersResult = await userService.getAllUsers()
+        let users: [User]
+        do {
+            users = try await userService.getAllUsers()
+        } catch {
+            return error
+        }
 
-        switch getAllUsersResult {
-        case let .success(users):
-            let fetchContactPairsResult = await fetchContactPairs(for: users)
+        let fetchContactPairsResult = await fetchContactPairs(for: users)
 
-            switch fetchContactPairsResult {
-            case let .success(contactPairs):
-                coreUtilities.clearCaches([
-                    .conversationCellViewData,
-                    .queriedContactPairs,
-                    .user,
-                ])
+        switch fetchContactPairsResult {
+        case let .success(contactPairs):
+            coreUtilities.clearCaches([
+                .conversationCellViewData,
+                .queriedContactPairs,
+                .user,
+            ])
 
-                services.contact.contactPairArchive.clearArchive()
+            services.contact.contactPairArchive.clearArchive()
 
-                @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
-                services.contact.contactPairArchive.addValues(contactPairs)
-                unknownContactPairArchive = (unknownContactPairArchive ?? []) + users
-                    .filter { !contactPairs.users.map(\.id).contains($0.id) }
-                    .map {
-                        ContactPair.withUser(
-                            $0,
-                            name: $0.displayName
-                        )
-                    }
+            @Persistent(.unknownContactPairArchive) var unknownContactPairArchive: [ContactPair]?
+            services.contact.contactPairArchive.addValues(contactPairs)
+            unknownContactPairArchive = (unknownContactPairArchive ?? []) + users
+                .filter { !contactPairs.users.map(\.id).contains($0.id) }
+                .map {
+                    ContactPair.withUser(
+                        $0,
+                        name: $0.displayName
+                    )
+                }
 
-                Logger.log(
-                    "Successfully updated contact pair archive.",
-                    domain: .contacts,
-                    sender: self
-                )
-                return nil
-
-            case let .failure(exception):
-                guard !exception.isEqual(to: .emptyContactList) else { return nil }
-                return exception
-            }
+            Logger.log(
+                "Successfully updated contact pair archive.",
+                domain: .contacts,
+                sender: self
+            )
+            return nil
 
         case let .failure(exception):
+            guard !exception.isEqual(to: .emptyContactList) else { return nil }
             return exception
         }
     }

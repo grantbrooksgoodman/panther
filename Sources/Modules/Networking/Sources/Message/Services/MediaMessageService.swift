@@ -24,13 +24,11 @@ struct MediaMessageService {
     func getMediaComponent(
         messageID: String,
         localMediaFilePath: LocalMediaFilePath
-    ) async -> Callback<MediaFile, Exception> {
-        switch cachedMediaFile(localPath: localMediaFilePath) {
-        case let .success(mediaFile):
-            .success(mediaFile)
-
-        case .failure:
-            await downloadMediaFile(
+    ) async throws(Exception) -> MediaFile {
+        do {
+            return try cachedMediaFile(localPath: localMediaFilePath)
+        } catch {
+            return try await downloadMediaFile(
                 messageID: messageID,
                 localPath: localMediaFilePath
             )
@@ -39,7 +37,9 @@ struct MediaMessageService {
 
     // MARK: - Delete Media Component
 
-    func deleteMediaComponent(for messageID: String) async -> Exception? {
+    func deleteMediaComponent(
+        for messageID: String
+    ) async -> Exception? {
         var exceptions = [Exception]()
 
         do {
@@ -66,7 +66,9 @@ struct MediaMessageService {
                 )
             }
 
-            guard await (try? (multipleMessagesReference(mediaFilePath)).get()) == false else { return nil }
+            guard await (try? multipleMessagesReference(mediaFilePath)) == false else {
+                return nil
+            }
 
             if let exception = await networking.storage.deleteItem(
                 at: "\(NetworkPath.media.rawValue)/\(mediaFilePath)"
@@ -89,7 +91,10 @@ struct MediaMessageService {
 
     // MARK: - Upload Media Component
 
-    func uploadMediaComponent(_ mediaComponent: MediaFile, for message: Message) async -> Exception? {
+    func uploadMediaComponent(
+        _ mediaComponent: MediaFile,
+        for message: Message
+    ) async -> Exception? {
         let pathPrefix = "\(NetworkPath.media.rawValue)/\(mediaComponent.encodedHash.shortened)"
         let relativePath = "\(pathPrefix).\(mediaComponent.fileExtension.rawValue)"
         let thumbnailRelativePath = "\(pathPrefix)\(MediaFile.thumbnailImageNameSuffix)"
@@ -170,29 +175,29 @@ struct MediaMessageService {
 
     private func cachedMediaFile(
         localPath: LocalMediaFilePath
-    ) -> Callback<MediaFile, Exception> {
+    ) throws(Exception) -> MediaFile {
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
-            return .failure(.init(
+            throw Exception(
                 "Media message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return .success(mediaFile)
+        return mediaFile
     }
 
     private func downloadMediaFile(
         messageID: String,
         localPath: LocalMediaFilePath
-    ) async -> Callback<MediaFile, Exception> {
+    ) async throws(Exception) -> MediaFile {
         let userInfo = ["MessageID": messageID]
 
         if let exception = await networking.storage.downloadItem(
             at: localPath.relativePathString,
             to: localPath.localPathURL
         ) {
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         if let thumbnailPathString = localPath.relativeThumbnailPathString,
@@ -201,43 +206,35 @@ struct MediaMessageService {
                at: thumbnailPathString,
                to: thumbnailPathURL
            ) {
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         guard let mediaFile = MediaFile(localPath.relativePathString) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to generate media file.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
-        return .success(mediaFile)
+        return mediaFile
     }
 
-    private func multipleMessagesReference(_ mediaFilePath: String) async -> Callback<Bool, Exception> {
-        let resolveResult = await IntegrityServiceSession.resolve(.returnOnFailure)
-
-        switch resolveResult {
-        case let .success(session):
-            return .success(
-                session
-                    .messageData
-                    .values
-                    .compactMap {
-                        HostedContentType(
-                            hostedValue: (($0 as? [String: Any])?[
-                                Message
-                                    .SerializableKey
-                                    .contentType
-                                    .rawValue
-                            ] as? String) ?? ""
-                        )?.mediaFilePath
-                    }
-                    .count(of: mediaFilePath) > 1
-            )
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+    private func multipleMessagesReference(
+        _ mediaFilePath: String
+    ) async throws(Exception) -> Bool {
+        try await IntegrityServiceSession.resolve(.returnOnFailure)
+            .messageData
+            .values
+            .compactMap {
+                HostedContentType(
+                    hostedValue: (($0 as? [String: Any])?[
+                        Message
+                            .SerializableKey
+                            .contentType
+                            .rawValue
+                    ] as? String) ?? ""
+                )?.mediaFilePath
+            }
+            .count(of: mediaFilePath) > 1
     }
 }

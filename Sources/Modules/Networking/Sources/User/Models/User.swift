@@ -276,26 +276,25 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         }
 
         guard !Task.isCancelled else { return nil }
-        let getConversationsResult = await conversationService.getConversations(
-            idKeys: conversationsNeedingFetch.map(\.key)
-        )
+        let conversations: [Conversation]
+        do {
+            conversations = try await conversationService.getConversations(
+                idKeys: conversationsNeedingFetch.map(\.key)
+            )
+        } catch {
+            return error
+        }
 
-        switch getConversationsResult {
-        case let .success(conversations):
-            decodedConversations.merge(with: conversations)
-            if let exception = validateRatio(
-                decodedConversations,
-                conversationIDs
-            ) {
-                return exception
-            }
-
-            await commitToMemory(decodedConversations)
-            return nil
-
-        case let .failure(exception):
+        decodedConversations.merge(with: conversations)
+        if let exception = validateRatio(
+            decodedConversations,
+            conversationIDs
+        ) {
             return exception
         }
+
+        await commitToMemory(decodedConversations)
+        return nil
     }
 
     // MARK: - Equatable Conformance

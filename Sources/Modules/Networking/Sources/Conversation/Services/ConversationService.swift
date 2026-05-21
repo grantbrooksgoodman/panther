@@ -35,20 +35,20 @@ struct ConversationService {
         firstMessage: Message,
         isPenPalsConversation: Bool,
         participants: [Participant]
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard participants.map(\.isWellFormed).allSatisfy({ $0 == true }) else {
-            return .failure(.init(
+            throw Exception(
                 "Passed arguments fail validation.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let path = NetworkPath.conversations.rawValue
         guard let id = networking.database.generateKey(for: path) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to generate key for new conversation.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var mockConversation: Conversation = .init(
@@ -73,7 +73,7 @@ struct ConversationService {
             forKey: "\(path)/\(id)",
             with: data
         ) {
-            return .failure(exception)
+            throw exception
         }
 
         let conversationID: ConversationID = .init(
@@ -87,7 +87,7 @@ struct ConversationService {
                 conversationID: conversationID
             )
         }) {
-            return .failure(exception)
+            throw exception
         }
 
         mockConversation = .init(
@@ -101,41 +101,45 @@ struct ConversationService {
             users: mockConversation.users
         )
 
-        return .success(mockConversation)
+        return mockConversation
     }
 
     // MARK: - Retrieval by ID
 
-    func getConversations(idKeys: [String]) async -> Callback<[Conversation], Exception> {
+    func getConversations(
+        idKeys: [String]
+    ) async throws(Exception) -> [Conversation] {
         let userInfo = ["ConversationIDs": idKeys]
 
         guard !idKeys.isBangQualifiedEmpty else {
-            let exception = Exception("No IDs provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: userInfo))
+            throw Exception(
+                "No IDs provided.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
-        let getConversationResults = await idKeys.parallelMap(
-            failForEmptyCollection: true,
-            maxConcurrentOperations: 25
-        ) {
-            await getConversation(idKey: $0)
-        }
-
-        switch getConversationResults {
-        case let .success(conversations):
-            return .success(conversations)
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        do {
+            return try await idKeys.parallelMap(
+                failForEmptyCollection: true,
+                maxConcurrentOperations: 25
+            ) {
+                try await getConversation(idKey: $0)
+            }
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
     }
 
-    private func getConversation(idKey: String) async -> Callback<Conversation, Exception> {
+    private func getConversation(
+        idKey: String
+    ) async throws(Exception) -> Conversation {
         let userInfo = ["ConversationIDKey": idKey]
 
         guard !idKey.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: userInfo))
+            throw Exception(
+                "No ID provided.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
         var data: [String: Any]
@@ -147,17 +151,15 @@ struct ConversationService {
                 ].joined(separator: "/")
             )
         } catch {
-            return .failure(error.appending(userInfo: userInfo))
+            throw error.appending(userInfo: userInfo)
         }
 
         typealias Keys = Conversation.SerializableKey
         guard let conversationIDHash = data[Keys.encodedHash.rawValue] as? String else {
-            let exception = Exception(
+            throw Exception(
                 "Failed to decode conversation ID.",
                 metadata: .init(sender: self)
-            )
-
-            return .failure(exception.appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
         data[Keys.id.rawValue] = ConversationID(
@@ -165,21 +167,23 @@ struct ConversationService {
             hash: conversationIDHash
         ).encoded
 
-        return await .asCallback(
-            userInfo: userInfo
-        ) { try await Conversation(from: data) }
+        do {
+            return try await Conversation(from: data)
+        } catch {
+            throw error.appending(userInfo: userInfo)
+        }
     }
 
-    private func getConversationIDStrings(for userID: String) async -> Callback<[String], Exception> {
-        await .asCallback {
-            try await networking.database.getValues(
-                at: [
-                    NetworkPath.users.rawValue,
-                    userID,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            )
-        }
+    private func getConversationIDStrings(
+        for userID: String
+    ) async throws(Exception) -> [String] {
+        try await networking.database.getValues(
+            at: [
+                NetworkPath.users.rawValue,
+                userID,
+                User.SerializableKey.conversationIDs.rawValue,
+            ].joined(separator: "/")
+        )
     }
 
     // MARK: - Deletion
@@ -194,30 +198,36 @@ struct ConversationService {
 
             guard !userID.isBangQualifiedEmpty,
                   !conversationIDKey.isBangQualifiedEmpty else {
-                let exception = Exception("Passed arguments fail validation.", metadata: .init(sender: self))
+                let exception = Exception(
+                    "Passed arguments fail validation.",
+                    metadata: .init(sender: self)
+                )
                 return exception.appending(userInfo: userInfo)
             }
 
-            let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
+            var conversationIDStrings: [String]
+            do {
+                conversationIDStrings = try await getConversationIDStrings(
+                    for: userID
+                )
+            } catch {
+                return error.appending(userInfo: userInfo)
+            }
 
-            switch getConversationIDStringsResult {
-            case var .success(conversationIDStrings):
-                conversationIDStrings.removeAll(where: { $0.hasPrefix(conversationIDKey) })
-                conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
+            conversationIDStrings.removeAll(where: {
+                $0.hasPrefix(conversationIDKey)
+            })
 
-                let path = NetworkPath.users.rawValue
-                if let exception = await networking.database.setValue(
-                    conversationIDStrings,
-                    forKey: [
-                        path,
-                        userID,
-                        User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/")
-                ) {
-                    return exception.appending(userInfo: userInfo)
-                }
+            conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
 
-            case let .failure(exception):
+            if let exception = await networking.database.setValue(
+                conversationIDStrings,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
+            ) {
                 return exception.appending(userInfo: userInfo)
             }
 
@@ -236,29 +246,34 @@ struct ConversationService {
 
     // MARK: - Auxiliary
 
-    private func addConversationToUser(userID: String, conversationID: ConversationID) async -> Exception? {
+    private func addConversationToUser(
+        userID: String,
+        conversationID: ConversationID
+    ) async -> Exception? {
         let userInfo = ["UserID": userID, "ConversationID": conversationID.encoded]
 
-        let getConversationIDStringsResult = await getConversationIDStrings(for: userID)
+        var conversationIDStrings: [String]
+        do {
+            conversationIDStrings = try await getConversationIDStrings(
+                for: userID
+            )
+        } catch {
+            return error.appending(userInfo: userInfo)
+        }
 
-        switch getConversationIDStringsResult {
-        case var .success(conversationIDStrings):
-            conversationIDStrings.append(conversationID.encoded)
-            conversationIDStrings = conversationIDStrings.filter { !$0.isBangQualifiedEmpty }.unique
+        conversationIDStrings.append(conversationID.encoded)
+        conversationIDStrings = conversationIDStrings.filter {
+            !$0.isBangQualifiedEmpty
+        }.unique
 
-            let path = NetworkPath.users.rawValue
-            if let exception = await networking.database.setValue(
-                conversationIDStrings,
-                forKey: [
-                    path,
-                    userID,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            ) {
-                return exception.appending(userInfo: userInfo)
-            }
-
-        case let .failure(exception):
+        if let exception = await networking.database.setValue(
+            conversationIDStrings,
+            forKey: [
+                NetworkPath.users.rawValue,
+                userID,
+                User.SerializableKey.conversationIDs.rawValue,
+            ].joined(separator: "/")
+        ) {
             return exception.appending(userInfo: userInfo)
         }
 

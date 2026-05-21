@@ -42,21 +42,21 @@ struct MessageService {
         fromAccountID: String,
         richContent: RichMessageContent?,
         translations: [Translation]?
-    ) async -> Callback<Message, Exception> {
+    ) async throws(Exception) -> Message {
         guard !fromAccountID.isBangQualifiedEmpty,
               !(richContent == nil && translations == nil),
               translations?.isWellFormed ?? true else {
-            return .failure(.init(
+            throw Exception(
                 "Passed arguments fail validation.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let id = networking.database.generateKey(for: NetworkPath.messages.rawValue) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to generate key for new message.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let sentDate = Date.now
@@ -84,23 +84,23 @@ struct MessageService {
             forKey: "\(NetworkPath.messages.rawValue)/\(id)",
             with: mockMessage.encoded.filter { $0.key != Message.SerializableKey.id.rawValue }
         ) {
-            return .failure(exception)
+            throw exception
         }
 
         switch mockMessage.contentType {
         case .audio:
             guard let audioComponents = mockMessage.audioComponents else {
-                return .failure(.init(
+                throw Exception(
                     "Failed to find audio components for audio message creation.",
                     metadata: .init(sender: self)
-                ))
+                )
             }
 
             if let exception = await audio.uploadAudioComponents(
                 audioComponents,
                 for: mockMessage
             ) {
-                return .failure(exception)
+                throw exception
             }
 
             // NIT: Can have uploadAudioComponents modify the message.
@@ -122,19 +122,22 @@ struct MessageService {
                 }
             ))
 
-            return .success(mockMessage)
+            return mockMessage
 
         case .media:
             guard let mediaComponent = richContent?.mediaComponent else {
-                return .failure(.init(
+                throw Exception(
                     "Failed to find media component for media message creation.",
                     metadata: .init(sender: self)
-                ))
+                )
             }
 
             let mediaFileID = mediaComponent.encodedHash.shortened
-            if let exception = await media.uploadMediaComponent(mediaComponent, for: mockMessage) {
-                return .failure(exception)
+            if let exception = await media.uploadMediaComponent(
+                mediaComponent,
+                for: mockMessage
+            ) {
+                throw exception
             }
 
             // NIT: Can have uploadMediaComponent modify the message.
@@ -144,21 +147,25 @@ struct MessageService {
                 fileExtension: mediaComponent.fileExtension
             )))
 
-            return .success(mockMessage)
+            return mockMessage
 
         case .text:
-            return .success(mockMessage)
+            return mockMessage
         }
     }
 
     // MARK: - Retrieval by ID
 
-    func getMessage(id: String) async -> Callback<Message, Exception> {
+    func getMessage(
+        id: String
+    ) async throws(Exception) -> Message {
         let userInfo = ["MessageID": id]
 
         guard !id.isBangQualifiedEmpty else {
-            let exception = Exception("No ID provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: userInfo))
+            throw Exception(
+                "No ID provided.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
         var data: [String: Any]
@@ -167,36 +174,38 @@ struct MessageService {
                 at: "\(NetworkPath.messages.rawValue)/\(id)"
             )
         } catch {
-            return .failure(error.appending(userInfo: userInfo))
+            throw error.appending(userInfo: userInfo)
         }
 
         data["id"] = id
-        return await .asCallback(
-            userInfo: userInfo
-        ) { try await Message(from: data) }
+        do {
+            return try await Message(from: data)
+        } catch {
+            throw error.appending(userInfo: userInfo)
+        }
     }
 
-    func getMessages(ids: [String]) async -> Callback<[Message], Exception> {
+    func getMessages(
+        ids: [String]
+    ) async throws(Exception) -> [Message] {
         let userInfo = ["MessageIDs": ids]
 
         guard !ids.isBangQualifiedEmpty else {
-            let exception = Exception("No IDs provided.", metadata: .init(sender: self))
-            return .failure(exception.appending(userInfo: userInfo))
+            throw Exception(
+                "No IDs provided.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
-        let getMessageResults = await ids.parallelMap(
-            failForEmptyCollection: true,
-            maxConcurrentOperations: 50
-        ) {
-            await getMessage(id: $0)
-        }
-
-        switch getMessageResults {
-        case let .success(messages):
-            return .success(messages)
-
-        case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+        do {
+            return try await ids.parallelMap(
+                failForEmptyCollection: true,
+                maxConcurrentOperations: 50
+            ) {
+                try await getMessage(id: $0)
+            }
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
     }
 

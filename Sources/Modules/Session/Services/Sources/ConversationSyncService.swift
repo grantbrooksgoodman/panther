@@ -188,38 +188,37 @@ final class ConversationSyncService: @unchecked Sendable {
             messageIDs = Array(messageIDs.reversed()[0 ... 9])
         }
 
-        let getMessagesResult = await networking.messageService.getMessages(
-            ids: messageIDs
-        )
+        let messages: [Message]
+        do {
+            messages = try await networking.messageService.getMessages(
+                ids: messageIDs
+            )
+        } catch {
+            return error
+        }
 
-        switch getMessagesResult {
-        case let .success(messages):
-            let updatedMessages = ((conversation.messages ?? []) + messages)
-                .filteringSystemMessages
-                .uniquedByID
-                .sortedByAscendingSentDate
+        let updatedMessages = ((conversation.messages ?? []) + messages)
+            .filteringSystemMessages
+            .uniquedByID
+            .sortedByAscendingSentDate
 
-            guard let conversation = conversation.modifyKey(
-                .messages,
-                withValue: updatedMessages
-            ) else {
-                return .Networking.typeMismatch(
-                    key: Conversation.SerializableKey.messages,
-                    type: type(of: updatedMessages),
-                    .init(sender: self)
-                )
-            }
+        guard let conversation = conversation.modifyKey(
+            .messages,
+            withValue: updatedMessages
+        ) else {
+            return .Networking.typeMismatch(
+                key: Conversation.SerializableKey.messages,
+                type: type(of: updatedMessages),
+                .init(sender: self)
+            )
+        }
 
-            if let exception = await updateHash(conversation) {
-                return exception
-            }
-
-            syncData = .init(conversation, newData: syncData?.newData ?? [:])
-            return synchronizeHash()
-
-        case let .failure(exception):
+        if let exception = await updateHash(conversation) {
             return exception
         }
+
+        syncData = .init(conversation, newData: syncData?.newData ?? [:])
+        return synchronizeHash()
     }
 
     private func synchronizeMetadata() async -> Exception? {

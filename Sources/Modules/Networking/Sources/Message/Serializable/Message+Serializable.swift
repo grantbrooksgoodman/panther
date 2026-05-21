@@ -105,7 +105,7 @@ extension Message: Serializable {
                             translation: translation
                         ),
                         translation: translation
-                    ).get(),
+                    ),
                 ]),
                 translationReferences: translationReferences,
                 translations: translations,
@@ -129,7 +129,7 @@ extension Message: Serializable {
                     messageService.media.getMediaComponent(
                         messageID: id,
                         localMediaFilePath: localMediaFilePath
-                    ).get()
+                    )
                 ),
                 translationReferences: translationReferences,
                 translations: nil,

@@ -232,32 +232,31 @@ struct UserTestingService {
                 )
             }
 
-            let getRandomUsersResult = await getRandomUsers(
-                randomBool ? Int.random(in: 1 ... userData.count) : 1,
-                userData: userData
-            )
-
-            switch getRandomUsersResult {
-            case let .success(randomUsers):
-                let filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
-                guard !filteredUsers.isEmpty else { return nil }
-                return await sendMessage(
-                    to: filteredUsers.sorted(by: { $0.id < $1.id }),
-                    in: filteredUsers.count == 1 ? currentUser
-                        .conversations?
-                        .first(where: {
-                            $0.participants.count == 2 &&
-                                $0.participants.map(\.userID).contains(filteredUsers.first!.id)
-                        }) : currentUser
-                        .conversations?
-                        .first(where: {
-                            filteredUsers.map(\.id).containsAllStrings(in: $0.participants.map(\.userID))
-                        })
+            let randomUsers: [User]
+            do {
+                randomUsers = try await getRandomUsers(
+                    randomBool ? Int.random(in: 1 ... userData.count) : 1,
+                    userData: userData
                 )
-
-            case let .failure(exception):
-                return exception
+            } catch {
+                return error
             }
+
+            let filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
+            guard !filteredUsers.isEmpty else { return nil }
+            return await sendMessage(
+                to: filteredUsers.sorted(by: { $0.id < $1.id }),
+                in: filteredUsers.count == 1 ? currentUser
+                    .conversations?
+                    .first(where: {
+                        $0.participants.count == 2 &&
+                            $0.participants.map(\.userID).contains(filteredUsers.first!.id)
+                    }) : currentUser
+                    .conversations?
+                    .first(where: {
+                        filteredUsers.map(\.id).containsAllStrings(in: $0.participants.map(\.userID))
+                    })
+            )
 
         case let .failure(exception):
             return exception
@@ -491,19 +490,19 @@ struct UserTestingService {
     private func getRandomUsers(
         _ count: Int,
         userData: [String: Any]
-    ) async -> Callback<[User], Exception> {
+    ) async throws(Exception) -> [User] {
         guard isOnProperEnvironment else {
-            return .failure(
-                .environmentIntrusionDetected(metadata: .init(sender: self))
+            throw .environmentIntrusionDetected(
+                metadata: .init(sender: self)
             )
         }
 
         guard count <= userData.count,
               count >= 1 else {
-            return .failure(.init(
+            throw Exception(
                 "Requested user count is invalid.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var userIDs = Set<String>()
@@ -512,7 +511,7 @@ struct UserTestingService {
             userIDs.insert(randomUserID)
         }
 
-        return await networking.userService.getUsers(ids: .init(userIDs))
+        return try await networking.userService.getUsers(ids: .init(userIDs))
     }
 
     private func setImage(for conversation: Conversation?) async {

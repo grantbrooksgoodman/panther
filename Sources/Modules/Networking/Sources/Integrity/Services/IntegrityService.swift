@@ -85,10 +85,8 @@ final class IntegrityService: @unchecked Sendable {
         completion: @escaping @Sendable (Exception?) -> Void
     ) {
         Task { @MainActor in
-            let resolveResult = await IntegrityServiceSession.resolve(failureStrategy)
-
-            switch resolveResult {
-            case let .success(session):
+            do throws(Exception) {
+                let session = try await IntegrityServiceSession.resolve(failureStrategy)
                 Logger.log(
                     "Resolved\(failureStrategy == .continueOnFailure ? " POTENTIALLY INCOMPLETE" : "") integrity service session.",
                     domain: .dataIntegrity,
@@ -96,11 +94,10 @@ final class IntegrityService: @unchecked Sendable {
                 )
                 _session.wrappedValue = session
                 completion(nil)
-
-            case let .failure(exception):
+            } catch {
                 guard failureStrategy == .returnOnFailure,
-                      !exception.isEqual(to: .readWriteAccessDisabled),
-                      isDeveloperModeEnabled else { return completion(exception) }
+                      !error.isEqual(to: .readWriteAccessDisabled),
+                      isDeveloperModeEnabled else { return completion(error) }
 
                 guard !didConfirmUnsafeSessionResolution else {
                     resolveSession(.continueOnFailure) { exception in
@@ -124,7 +121,7 @@ final class IntegrityService: @unchecked Sendable {
                 ]))
 
                 let confirmed = await confirmationAlert.present()
-                guard confirmed else { return completion(exception) }
+                guard confirmed else { return completion(error) }
 
                 let proceedAction: AKAction = .init(
                     "Proceed with Unsafe Resolution",
@@ -143,7 +140,7 @@ final class IntegrityService: @unchecked Sendable {
                     Localized(.cancel).wrappedValue,
                     style: .cancel
                 ) {
-                    completion(exception)
+                    completion(error)
                 }
 
                 let actionSheet = AKActionSheet(actions: [proceedAction, cancelAction])

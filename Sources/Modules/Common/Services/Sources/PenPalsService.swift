@@ -139,30 +139,30 @@ struct PenPalsService {
         }
 
         let selectContactPairUserIDs = await MainActor.run { self.selectContactPairUserIDs }
-        let getAllUsersResult = await userService.getAllUsers() // TODO: Will need to be a limited query once user numbers pick up.
-
-        switch getAllUsersResult {
-        case let .success(users):
-            guard let randomPenPalsParticipant = users
-                .filter(\.isPenPalsParticipant)
-                .filter({ $0.languageCode != userSession.currentUser?.languageCode })
-                .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
-                .filter({ !contactPairArchiveUserIDs.contains($0.id) })
-                .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
-                .filter({ !selectContactPairUserIDs.contains($0.id) })
-                .randomElement() else {
-                return .failure(.init(
-                    "Failed to resolve random PenPals participant.",
-                    isReportable: false,
-                    metadata: .init(sender: self)
-                ))
-            }
-
-            return .success(randomPenPalsParticipant)
-
-        case let .failure(exception):
-            return .failure(exception)
+        let users: [User]
+        do {
+            // TODO: Will need to be a limited query once user numbers pick up.
+            users = try await userService.getAllUsers()
+        } catch {
+            return .failure(error)
         }
+
+        guard let randomPenPalsParticipant = users
+            .filter(\.isPenPalsParticipant)
+            .filter({ $0.languageCode != userSession.currentUser?.languageCode })
+            .filter({ !(userSession.currentUser?.blockedUserIDs?.contains($0.id) ?? false) })
+            .filter({ !contactPairArchiveUserIDs.contains($0.id) })
+            .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
+            .filter({ !selectContactPairUserIDs.contains($0.id) })
+            .randomElement() else {
+            return .failure(.init(
+                "Failed to resolve random PenPals participant.",
+                isReportable: false,
+                metadata: .init(sender: self)
+            ))
+        }
+
+        return .success(randomPenPalsParticipant)
     }
 
     // MARK: - Set didGrantPenPalsPermission

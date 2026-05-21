@@ -362,97 +362,94 @@ struct MessageSessionService {
         }
 
         clientSession.user.stopObservingCurrentUserChanges()
-
-        let createMessageResult = await networking.messageService.createMessage(
-            fromAccountID: initiatingUser.id,
-            richContent: richContent,
-            translations: translations
-        )
-
         incrementDeliveryProgress(
             in: conversation.value,
             by: Floats.createMessageDeliveryProgressIncrement
         )
 
-        switch createMessageResult {
-        case let .success(message):
-            if let conversation = conversation.value {
-                notifyUsers(
-                    of: message,
-                    conversationIDKey: conversation.id.key,
-                    isPenPalsConversation: conversation.metadata.isPenPalsConversation
+        let message: Message
+        do {
+            message = try await networking.messageService.createMessage(
+                fromAccountID: initiatingUser.id,
+                richContent: richContent,
+                translations: translations
+            )
+        } catch {
+            clientSession.user.startObservingCurrentUserChanges()
+            return .failure(error)
+        }
+
+        if let conversation = conversation.value {
+            notifyUsers(
+                of: message,
+                conversationIDKey: conversation.id.key,
+                isPenPalsConversation: conversation.metadata.isPenPalsConversation
+            )
+
+            let newParticipants = conversation.participants.map {
+                Participant(
+                    userID: $0.userID,
+                    hasDeletedConversation: false,
+                    isTyping: $0.isTyping
                 )
+            }
 
-                let newParticipants = conversation.participants.map {
-                    Participant(
-                        userID: $0.userID,
-                        hasDeletedConversation: false,
-                        isTyping: $0.isTyping
-                    )
-                }
-
-                guard newParticipants
-                    .map(\.hasDeletedConversation) != conversation
-                    .participants
-                    .map(\.hasDeletedConversation) else {
-                    return await addMessage(
-                        message,
-                        to: conversation
-                    )
-                }
-
-                incrementDeliveryProgress(
-                    in: conversation,
-                    by: Floats.updateValueDeliveryProgressIncrement
+            guard newParticipants
+                .map(\.hasDeletedConversation) != conversation
+                .participants
+                .map(\.hasDeletedConversation) else {
+                return await addMessage(
+                    message,
+                    to: conversation
                 )
+            }
 
-                do {
-                    return try await addMessage(
-                        message,
-                        to: conversation.update(
-                            \.participants,
-                            to: newParticipants
-                        )
+            incrementDeliveryProgress(
+                in: conversation,
+                by: Floats.updateValueDeliveryProgressIncrement
+            )
+
+            do {
+                return try await addMessage(
+                    message,
+                    to: conversation.update(
+                        \.participants,
+                        to: newParticipants
                     )
-                } catch {
-                    clientSession.user.startObservingCurrentUserChanges()
-                    return .failure(error)
-                }
-            } else {
-                var participantUsers = [initiatingUser]
-                participantUsers.append(contentsOf: otherUsers)
+                )
+            } catch {
+                clientSession.user.startObservingCurrentUserChanges()
+                return .failure(error)
+            }
+        } else {
+            var participantUsers = [initiatingUser]
+            participantUsers.append(contentsOf: otherUsers)
 
-                let createConversationResult = await networking.conversationService.createConversation(
+            services.analytics.logEvent(.createNewConversation)
+            incrementDeliveryProgress(
+                in: conversation.value,
+                by: Floats.createConversationDeliveryProgressIncrement
+            )
+            clientSession.user.startObservingCurrentUserChanges()
+
+            let createdConversation: Conversation
+            do {
+                createdConversation = try await networking.conversationService.createConversation(
                     firstMessage: message,
                     isPenPalsConversation: conversation.isPenPalsConversation,
                     participants: participantUsers.map { Participant(userID: $0.id) }
                 )
-
-                services.analytics.logEvent(.createNewConversation)
-                incrementDeliveryProgress(
-                    in: conversation.value,
-                    by: Floats.createConversationDeliveryProgressIncrement
-                )
-                clientSession.user.startObservingCurrentUserChanges()
-
-                switch createConversationResult {
-                case let .success(conversation):
-                    notifyUsers(
-                        of: message,
-                        conversationIDKey: conversation.id.key,
-                        isPenPalsConversation: conversation.metadata.isPenPalsConversation
-                    )
-
-                    return .success(conversation)
-
-                case let .failure(exception):
-                    return .failure(exception)
-                }
+            } catch {
+                return .failure(error)
             }
 
-        case let .failure(exception):
-            clientSession.user.startObservingCurrentUserChanges()
-            return .failure(exception)
+            notifyUsers(
+                of: message,
+                conversationIDKey: createdConversation.id.key,
+                isPenPalsConversation: createdConversation.metadata.isPenPalsConversation
+            )
+
+            return .success(createdConversation)
         }
     }
 

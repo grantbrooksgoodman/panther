@@ -79,22 +79,15 @@ struct ActivitySessionService {
         userID: String,
         conversationID: ConversationID
     ) async -> Exception? {
-        let getUserResult = await networking.userService.getUser(id: userID)
-
-        switch getUserResult {
-        case let .success(user):
-            do {
-                _ = try await user.update(
-                    \.conversationIDs,
-                    to: ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique
-                )
-                return nil
-            } catch {
-                return error
-            }
-
-        case let .failure(exception):
-            return exception
+        do {
+            let user = try await networking.userService.getUser(id: userID)
+            _ = try await user.update(
+                \.conversationIDs,
+                to: ((user.conversationIDs ?? []).filter { $0.key != conversationID.key } + [conversationID]).unique
+            )
+            return nil
+        } catch {
+            return error
         }
     }
 

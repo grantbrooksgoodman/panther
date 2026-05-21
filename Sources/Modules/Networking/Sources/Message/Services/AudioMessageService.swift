@@ -27,13 +27,14 @@ struct AudioMessageService {
         isFromCurrentUser: Bool,
         localAudioFilePath: LocalAudioFilePath,
         translation: Translation
-    ) async -> Callback<AudioMessageReference, Exception> {
-        switch cachedAudioMessageReference(for: localAudioFilePath, translation: translation) {
-        case let .success(audioMessageReference):
-            .success(audioMessageReference)
-
-        case .failure:
-            await downloadAudioMessageReference(
+    ) async throws(Exception) -> AudioMessageReference {
+        do {
+            return try cachedAudioMessageReference(
+                for: localAudioFilePath,
+                translation: translation
+            )
+        } catch {
+            return try await downloadAudioMessageReference(
                 messageID: messageID,
                 isFromCurrentUser: isFromCurrentUser,
                 localAudioFilePath: localAudioFilePath,
@@ -157,22 +158,22 @@ struct AudioMessageService {
     private func cachedAudioMessageReference(
         for localAudioFilePath: LocalAudioFilePath,
         translation: Translation
-    ) -> Callback<AudioMessageReference, Exception> {
+    ) throws(Exception) -> AudioMessageReference {
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
               let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
-            return .failure(.init(
+            throw Exception(
                 "Audio message reference has no local copy.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return .success(.init(
+        return .init(
             translation: translation,
             original: inputFile,
             translated: outputFile,
             translatedDirectoryPath: localAudioFilePath.outputDirectoryPathString
-        ))
+        )
     }
 
     private func downloadAudioMessageReference(
@@ -180,7 +181,7 @@ struct AudioMessageService {
         isFromCurrentUser: Bool,
         localAudioFilePath: LocalAudioFilePath,
         translation: Translation
-    ) async -> Callback<AudioMessageReference, Exception> {
+    ) async throws(Exception) -> AudioMessageReference {
         let userInfo = ["MessageID": messageID]
 
         let sourceFileURL = isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
@@ -190,7 +191,7 @@ struct AudioMessageService {
             at: isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
             to: sourceFileURL
         ) {
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         let dataFromURLResult = Data.fromURL(sourceFileURL)
@@ -201,27 +202,27 @@ struct AudioMessageService {
                 atPath: destinationFileURL,
                 data: data
             ) {
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
         case let .failure(exception):
-            return .failure(exception.appending(userInfo: userInfo))
+            throw exception.appending(userInfo: userInfo)
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
               let outputFile = AudioFile(localAudioFilePath.outputFilePathURL) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to generate audio files.",
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
-        return .success(.init(
+        return .init(
             translation: translation,
             original: inputFile,
             translated: outputFile,
             translatedDirectoryPath: localAudioFilePath.outputDirectoryPathString
-        ))
+        )
     }
 
     private func preRecordedInputExists(for audioFile: AudioFile) async -> Bool {

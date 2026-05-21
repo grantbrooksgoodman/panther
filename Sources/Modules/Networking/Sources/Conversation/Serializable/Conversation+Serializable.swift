@@ -144,32 +144,28 @@ extension Conversation: Serializable {
             return
         }
 
-        let getMessagesResult = await messageService.getMessages(ids: messageIDs)
+        let messages = try await messageService.getMessages(
+            ids: messageIDs
+        )
 
-        switch getMessagesResult {
-        case let .success(messages):
-            guard !messages.isEmpty,
-                  messages.count == messageIDs.count else {
-                throw Exception(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: Self.self)
-                )
-            }
-
-            self.init(
-                conversationID,
-                activities: activities,
-                messageIDs: messageIDs,
-                messages: messages.hydrated(with: activities),
-                metadata: metadata,
-                participants: participants,
-                reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
-                users: nil
+        guard !messages.isEmpty,
+              messages.count == messageIDs.count else {
+            throw Exception(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: Self.self)
             )
-
-        case let .failure(exception):
-            throw exception
         }
+
+        self.init(
+            conversationID,
+            activities: activities,
+            messageIDs: messageIDs,
+            messages: messages.hydrated(with: activities),
+            metadata: metadata,
+            participants: participants,
+            reactionMetadata: reactionMetadata.allSatisfy { $0 == .empty } ? nil : reactionMetadata,
+            users: nil
+        )
     }
 
     // MARK: - Methods

@@ -173,18 +173,15 @@ final class RecipientBarActionHandlerService {
                 return
             }
 
-            let getUserResult = await userService.getUser(phoneNumber: phoneNumber)
-
-            switch getUserResult {
-            case let .success(user):
+            do {
+                let user = try await userService.getUser(phoneNumber: phoneNumber)
                 guard let contactPair = user.contactPair else {
                     contactSelectionUIService.selectContactPair(.withUser(user))
                     return
                 }
 
                 contactSelectionUIService.selectContactPair(contactPair)
-
-            case .failure:
+            } catch {
                 contactSelectionUIService.selectContactPair(.mock(withName: text))
             }
         }

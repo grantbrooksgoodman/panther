@@ -117,37 +117,38 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         }
 
         let messageIDs = filteringSystemMessages.messageIDs
-        let getMessagesResult = await messageService.getMessages(ids: messageIDs)
-
-        switch getMessagesResult {
-        case let .success(messages):
-            guard !messages.isEmpty,
-                  messages.count == messageIDs.count else {
-                return .init(
-                    "Mismatched ratio returned.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            await MainActor.run {
-                self.messages = messages.hydrated(with: self.activities)
-            }
-
-            Logger.log(
-                .init(
-                    "Set messages on conversation.",
-                    isReportable: false,
-                    userInfo: ["ConversationID": id.encoded],
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
+        let messages: [Message]
+        do {
+            messages = try await messageService.getMessages(
+                ids: messageIDs
             )
-
-            return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
+
+        guard !messages.isEmpty,
+              messages.count == messageIDs.count else {
+            return .init(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        await MainActor.run {
+            self.messages = messages.hydrated(with: self.activities)
+        }
+
+        Logger.log(
+            .init(
+                "Set messages on conversation.",
+                isReportable: false,
+                userInfo: ["ConversationID": id.encoded],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversation
+        )
+
+        return nil
     }
 
     private func updateMessage(id: String) async -> Exception? {
@@ -166,27 +167,26 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             )
         }
 
-        let getMessagesResult = await messageService.getMessage(id: id)
-
-        switch getMessagesResult {
-        case let .success(message):
-            guard var messages,
-                  let messageIndex = messages.firstIndex(where: { $0.id == id }) else {
-                return .init(
-                    "Failed to resolve messages.",
-                    userInfo: userInfo,
-                    metadata: .init(sender: self)
-                )
-            }
-
-            messages[messageIndex] = message // swiftlint:disable:next identifier_name
-            let _messages = messages
-            await MainActor.run { self.messages = _messages }
-            return nil
-
-        case let .failure(exception):
-            return exception.appending(userInfo: userInfo)
+        let message: Message
+        do {
+            message = try await messageService.getMessage(id: id)
+        } catch {
+            return error.appending(userInfo: userInfo)
         }
+
+        guard var messages,
+              let messageIndex = messages.firstIndex(where: { $0.id == id }) else {
+            return .init(
+                "Failed to resolve messages.",
+                userInfo: userInfo,
+                metadata: .init(sender: self)
+            )
+        }
+
+        messages[messageIndex] = message // swiftlint:disable:next identifier_name
+        let _messages = messages
+        await MainActor.run { self.messages = _messages }
+        return nil
     }
 
     // MARK: - Set Users
@@ -230,33 +230,33 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             return exception.appending(userInfo: userInfo)
         }
 
-        let getUsersResult = await networking.userService.getUsers(ids: userIDs)
-
-        switch getUsersResult {
-        case let .success(users):
-            guard !users.isEmpty,
-                  users.count == userIDs.count else {
-                let exception = Exception("Mismatched ratio returned.", metadata: .init(sender: self))
-                return exception.appending(userInfo: userInfo)
-            }
-
-            await MainActor.run { self.users = users }
-
-            Logger.log(
-                .init(
-                    "Set users on conversation.",
-                    isReportable: false,
-                    userInfo: ["ConversationID": id.encoded],
-                    metadata: .init(sender: self)
-                ),
-                domain: .conversation
+        let users: [User]
+        do {
+            users = try await networking.userService.getUsers(
+                ids: userIDs
             )
+        } catch {
+            return error.appending(userInfo: userInfo)
+        }
 
-            return nil
-
-        case let .failure(exception):
+        guard !users.isEmpty,
+              users.count == userIDs.count else {
+            let exception = Exception("Mismatched ratio returned.", metadata: .init(sender: self))
             return exception.appending(userInfo: userInfo)
         }
+
+        await MainActor.run { self.users = users }
+        Logger.log(
+            .init(
+                "Set users on conversation.",
+                isReportable: false,
+                userInfo: ["ConversationID": id.encoded],
+                metadata: .init(sender: self)
+            ),
+            domain: .conversation
+        )
+
+        return nil
     }
 
     // MARK: - Update Read Date

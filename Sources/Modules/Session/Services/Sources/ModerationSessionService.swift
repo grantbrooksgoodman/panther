@@ -142,7 +142,7 @@ struct ModerationSessionService {
             )
 
             return try await .success(
-                networking.userService.getUsers(ids: userIDs).get()
+                networking.userService.getUsers(ids: userIDs)
             )
         } catch {
             return .failure(error)

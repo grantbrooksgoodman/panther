@@ -62,24 +62,23 @@ final class OnboardingService {
             )
         }
 
-        let createUserResult = await userService.createUser(
-            id: userID,
-            languageCode: languageCode,
-            phoneNumber: phoneNumber,
-            pushTokens: services.pushToken.currentToken == nil ? nil : [services.pushToken.currentToken!]
-        )
-
-        switch createUserResult {
-        case let .success(user):
-            @Persistent(.currentUserID) var currentUserID: String?
-            currentUserID = user.id
-            createdUserInCurrentAppSession = true
-            services.analytics.logEvent(.signUp)
-            return nil
-
-        case let .failure(exception):
-            return exception
+        let user: User
+        do {
+            user = try await userService.createUser(
+                id: userID,
+                languageCode: languageCode,
+                phoneNumber: phoneNumber,
+                pushTokens: services.pushToken.currentToken == nil ? nil : [services.pushToken.currentToken!]
+            )
+        } catch {
+            return error
         }
+
+        @Persistent(.currentUserID) var currentUserID: String?
+        currentUserID = user.id
+        createdUserInCurrentAppSession = true
+        services.analytics.logEvent(.signUp)
+        return nil
     }
 
     // MARK: - Alert Presentation
