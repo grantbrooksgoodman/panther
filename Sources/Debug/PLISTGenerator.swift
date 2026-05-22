@@ -42,8 +42,8 @@ enum PLISTGenerator {
         processingConfig: Localization.ProcessingConfiguration? = nil,
         postProcess: ((String) -> String)? = nil,
         enhancementContext: String? = nil
-    ) async -> Callback<String, Exception> {
-        await Localization.createPLIST(
+    ) async throws(Exception) -> String {
+        try await Localization.createPLIST(
             translating: text,
             withKey: key,
             sourceLanguageCode: sourceLanguageCode,
@@ -71,16 +71,20 @@ enum PLISTGenerator {
     ) {
         let postProcess = LockIsolated<((String) -> String)?>(postProcess)
         Task {
-            await completion(
-                translate(
-                    text,
-                    forKey: key,
-                    plistName: plistName,
-                    processingConfig: processingConfig,
-                    postProcess: postProcess.wrappedValue,
-                    enhancementContext: enhancementContext
-                )
-            )
+            do throws(Exception) {
+                try await completion(.success(
+                    translate(
+                        text,
+                        forKey: key,
+                        plistName: plistName,
+                        processingConfig: processingConfig,
+                        postProcess: postProcess.wrappedValue,
+                        enhancementContext: enhancementContext
+                    )
+                ))
+            } catch {
+                completion(.failure(error))
+            }
         }
     }
 

@@ -106,10 +106,8 @@ final class MediaActionHandlerService {
         let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
         let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
 
-        let dataFromURLResult = Data.fromURL(url)
-
-        switch dataFromURLResult {
-        case let .success(data):
+        do {
+            let data = try Data.fromURL(url)
             guard !mediaFileExtension.isImage else {
                 if let image = UIImage(data: data) {
                     return await processAndSendImage(image)
@@ -128,39 +126,35 @@ final class MediaActionHandlerService {
                 return exception
             }
 
-            let getThumbnailImageResult = await getThumbnailImage(
+            let image = try await getThumbnailImage(
                 url,
                 contentType: mediaFileExtension
             )
 
-            switch getThumbnailImageResult {
-            case let .success(image):
-                guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
-                      let thumbnailPath = localPathURL.thumbnailPath else {
-                    return .init("Failed to process thumbnail data.", metadata: .init(sender: self))
-                }
+            guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
+                  let thumbnailPath = localPathURL.thumbnailPath else {
+                return .init(
+                    "Failed to process thumbnail data.",
+                    metadata: .init(sender: self)
+                )
+            }
 
-                if let exception = fileManager.createFile(
-                    atPath: thumbnailPath,
-                    data: imageData
-                ) {
-                    return exception
-                }
-
-                if let exception = await messageDeliveryService.sendMediaMessage(.init(
-                    relativePath,
-                    name: Strings.defaultDocumentName,
-                    fileExtension: mediaFileExtension
-                )) {
-                    return exception
-                }
-
-            case let .failure(exception):
+            if let exception = fileManager.createFile(
+                atPath: thumbnailPath,
+                data: imageData
+            ) {
                 return exception
             }
 
-        case let .failure(exception):
-            return exception
+            if let exception = await messageDeliveryService.sendMediaMessage(.init(
+                relativePath,
+                name: Strings.defaultDocumentName,
+                fileExtension: mediaFileExtension
+            )) {
+                return exception
+            }
+        } catch {
+            return error
         }
 
         return nil
@@ -202,13 +196,12 @@ final class MediaActionHandlerService {
             return exception
         }
 
-        let getThumbnailImageResult = await getThumbnailImage(
-            localPathURL,
-            contentType: .video(.mp4)
-        )
+        do {
+            let image = try await getThumbnailImage(
+                localPathURL,
+                contentType: .video(.mp4)
+            )
 
-        switch getThumbnailImageResult {
-        case let .success(image):
             guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
                   let thumbnailPath = localPathURL.thumbnailPath else {
                 return .init("Failed to process thumbnail data.", metadata: .init(sender: self))
@@ -228,9 +221,8 @@ final class MediaActionHandlerService {
             )) {
                 return exception
             }
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
 
         return nil
@@ -280,7 +272,7 @@ final class MediaActionHandlerService {
     private func getThumbnailImage(
         _ url: URL,
         contentType: MediaFileExtension
-    ) async -> Callback<UIImage, Exception> {
+    ) async throws(Exception) -> UIImage {
         switch contentType {
         case .document:
             let request: QLThumbnailGenerator.Request = .init(
@@ -294,10 +286,14 @@ final class MediaActionHandlerService {
             )
 
             do {
-                let image = try await qlThumbnailGenerator.generateBestRepresentation(for: request)
-                return .success(image.uiImage)
+                return try await qlThumbnailGenerator.generateBestRepresentation(
+                    for: request
+                ).uiImage
             } catch {
-                return .failure(.init(error, metadata: .init(sender: self)))
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
             }
 
         case .video:
@@ -312,22 +308,27 @@ final class MediaActionHandlerService {
                     ),
                     actualTime: nil
                 )
-                return .success(.init(cgImage: cgImage))
+                return .init(cgImage: cgImage)
             } catch {
-                return .failure(.init(error, metadata: .init(sender: self)))
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
             }
 
         default:
-            return .failure(.init(
+            throw Exception(
                 "Cannot generate thumbnail for specified media file extension.",
                 userInfo: ["MediaFileExtensionRawValue": contentType.rawValue],
                 metadata: .init(sender: self)
-            ))
+            )
         }
     }
 
     @MainActor
-    private func onContentPickerDismissed(_ callback: Callback<ContentPickerResult, Exception>?) async -> Exception? {
+    private func onContentPickerDismissed(
+        _ callback: Callback<ContentPickerResult, Exception>?
+    ) async -> Exception? {
         StatusBar.overrideStyle(.appAware)
         Task.delayed(by: .seconds(1)) { @MainActor in
             StatusBar.overrideStyle(.appAware)

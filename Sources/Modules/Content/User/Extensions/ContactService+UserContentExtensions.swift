@@ -28,25 +28,28 @@ extension ContactService {
     func firstCNContact(
         for phoneNumber: PhoneNumber,
         returnForEmptyCachedCNContacts: Bool = false
-    ) async -> Callback<CNContact, Exception> {
+    ) async throws(Exception) -> CNContact {
         @Dependency(\.commonServices.phoneNumber) var phoneNumberService: PhoneNumberService
         let userInfo = ["PhoneNumber": phoneNumber.encoded]
 
         guard let cachedCNContacts,
               !cachedCNContacts.isEmpty else {
             guard !returnForEmptyCachedCNContacts else {
-                return .failure(.init(
+                throw Exception(
                     "Empty contact list.",
                     isReportable: false,
                     metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
+                ).appending(userInfo: userInfo)
             }
 
             if let exception = await syncContactPairArchive() {
-                return .failure(exception.appending(userInfo: userInfo))
+                throw exception.appending(userInfo: userInfo)
             }
 
-            return await firstCNContact(for: phoneNumber, returnForEmptyCachedCNContacts: true)
+            return try await firstCNContact(
+                for: phoneNumber,
+                returnForEmptyCachedCNContacts: true
+            )
         }
 
         func satisfiesConstraints(_ contact: Contact) -> Bool {
@@ -58,15 +61,17 @@ extension ContactService {
             return true
         }
 
-        guard let match = cachedCNContacts.first(where: { satisfiesConstraints(.init($0)) }) else {
-            return .failure(.init(
+        guard let match = cachedCNContacts.first(where: {
+            satisfiesConstraints(.init($0))
+        }) else {
+            throw Exception(
                 "No contacts found for provided phone number.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ).appending(userInfo: userInfo))
+            ).appending(userInfo: userInfo)
         }
 
-        return .success(match)
+        return match
     }
 
     static func populateValuesIfNeeded() async -> Exception? {

@@ -25,10 +25,12 @@ struct MediaFile: Codable, EncodedHashable, Hashable {
     var hashFactors: [String] {
         var factors = [fileExtension.rawValue]
 
-        let dataFromURLResult = Data.fromURL(localPathURL)
-        switch dataFromURLResult {
-        case let .success(data): factors.append(data.hash)
-        case let .failure(exception): Logger.log(exception)
+        do {
+            try factors.append(
+                Data.fromURL(localPathURL).hash
+            )
+        } catch {
+            Logger.log(error)
         }
 
         return factors.sorted()

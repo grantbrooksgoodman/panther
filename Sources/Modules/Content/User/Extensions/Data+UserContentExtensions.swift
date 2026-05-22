@@ -13,26 +13,24 @@ import Foundation
 import AppSubsystem
 
 extension Data {
-    static func fromURL(_ url: URL) -> Callback<Data, Exception> {
+    static func fromURL(_ url: URL) throws(Exception) -> Data {
         let userInfo = ["URLPath": url.path()]
 
         do {
             let data = try Data(contentsOf: url)
             guard !data.isEmpty else {
-                return .failure(.init(
+                throw Exception(
                     "Found empty data at path.",
                     metadata: .init(sender: self)
-                ).appending(userInfo: userInfo))
+                ).appending(userInfo: userInfo)
             }
 
-            return .success(data)
+            return data
         } catch {
-            return .failure(
-                .init(
-                    error,
-                    metadata: .init(sender: self)
-                ).appending(userInfo: userInfo)
-            )
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
     }
 }

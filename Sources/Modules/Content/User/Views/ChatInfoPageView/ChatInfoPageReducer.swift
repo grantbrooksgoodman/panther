@@ -43,7 +43,8 @@ struct ChatInfoPageReducer: Reducer {
         case doneHeaderItemTapped
         case doneToolbarButtonTapped
 
-        case getChatParticipantsReturned(Callback<[ChatParticipant], Exception>)
+        case getChatParticipantsFailed(Exception)
+        case getChatParticipantsReturned([ChatParticipant])
 
         case leaveConversationButtonTapped
         case loadingStateUpdated
@@ -63,7 +64,8 @@ struct ChatInfoPageReducer: Reducer {
 
         case traitCollectionChanged
 
-        case updateMetadataReturned(Callback<Conversation, Exception>, togglePenPalsSharingDataSwitch: Bool = false)
+        case updateMetadataFailed(Exception)
+        case updateMetadataReturned(Conversation, togglePenPalsSharingDataSwitch: Bool = false)
         case userInfoBadgeTapped(User?)
     }
 
@@ -188,7 +190,7 @@ struct ChatInfoPageReducer: Reducer {
 
     // MARK: - Reduce
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
@@ -200,8 +202,13 @@ struct ChatInfoPageReducer: Reducer {
 
             viewService.viewAppeared()
             let getChatParticipantsTask: Effect<Action> = .task {
-                let result = await viewService.getChatParticipants()
-                return .getChatParticipantsReturned(result)
+                do throws(Exception) {
+                    return try await .getChatParticipantsReturned(
+                        viewService.getChatParticipants()
+                    )
+                } catch {
+                    return .getChatParticipantsFailed(error)
+                }
             }
 
             return .task {
@@ -236,12 +243,17 @@ struct ChatInfoPageReducer: Reducer {
             let action: Activity.Action = name.isBangQualifiedEmpty ? .removedName : .renamedConversation(name: name)
 
             return .task {
-                let result = await viewService.updateMetadata(
-                    conversation,
-                    action: action,
-                    newMetadata: newMetadata
-                )
-                return .updateMetadataReturned(result)
+                do throws(Exception) {
+                    return try await .updateMetadataReturned(
+                        viewService.updateMetadata(
+                            conversation,
+                            action: action,
+                            newMetadata: newMetadata
+                        )
+                    )
+                } catch {
+                    return .updateMetadataFailed(error)
+                }
             }
 
         case let .changeMetadataActionSheetDismissed(.removePhoto(newMetadata)):
@@ -251,12 +263,17 @@ struct ChatInfoPageReducer: Reducer {
             }
 
             return .task {
-                let result = await viewService.updateMetadata(
-                    conversation,
-                    action: .removedGroupPhoto,
-                    newMetadata: newMetadata
-                )
-                return .updateMetadataReturned(result)
+                do throws(Exception) {
+                    return try await .updateMetadataReturned(
+                        viewService.updateMetadata(
+                            conversation,
+                            action: .removedGroupPhoto,
+                            newMetadata: newMetadata
+                        )
+                    )
+                } catch {
+                    return .updateMetadataFailed(error)
+                }
             }
 
         case .changeMetadataActionSheetDismissed(.none):
@@ -289,7 +306,11 @@ struct ChatInfoPageReducer: Reducer {
             guard state.inputBarWasFirstResponder else { return .none }
             chatPageViewService.inputBar?.becomeFirstResponder()
 
-        case let .getChatParticipantsReturned(.success(chatParticipants)):
+        case let .getChatParticipantsFailed(exception):
+            Logger.log(exception)
+            state.viewState = .error(exception)
+
+        case let .getChatParticipantsReturned(chatParticipants):
             state.chatParticipants = chatParticipants
             state.visibleParticipants = chatParticipants
             state.isLeaveConversationButtonEnabled = chatParticipants.count > 2
@@ -302,10 +323,6 @@ struct ChatInfoPageReducer: Reducer {
 
             state.viewState = .loaded
             viewService.viewLoaded()
-
-        case let .getChatParticipantsReturned(.failure(exception)):
-            Logger.log(exception)
-            state.viewState = .error(exception)
 
         case .leaveConversationButtonTapped:
             viewService.leaveConversationButtonTapped(state.conversation)
@@ -326,19 +343,14 @@ struct ChatInfoPageReducer: Reducer {
             return .task {
                 do throws(Exception) {
                     return try await .updateMetadataReturned(
-                        .success(
-                            conversation.update(
-                                \.metadata,
-                                to: newMetadata
-                            )
+                        conversation.update(
+                            \.metadata,
+                            to: newMetadata
                         ),
                         togglePenPalsSharingDataSwitch: true
                     )
                 } catch {
-                    return .updateMetadataReturned(
-                        .failure(error),
-                        togglePenPalsSharingDataSwitch: true
-                    )
+                    return .updateMetadataFailed(error)
                 }
             }
 
@@ -415,18 +427,27 @@ struct ChatInfoPageReducer: Reducer {
             }
 
             return .task {
-                let result = await viewService.updateMetadata(
-                    conversation,
-                    action: .changedGroupPhoto,
-                    newMetadata: conversation.metadata.copyWith(imageData: imageData)
-                )
-                return .updateMetadataReturned(result)
+                do throws(Exception) {
+                    return try await .updateMetadataReturned(
+                        viewService.updateMetadata(
+                            conversation,
+                            action: .changedGroupPhoto,
+                            newMetadata: conversation.metadata.copyWith(imageData: imageData)
+                        )
+                    )
+                } catch {
+                    return .updateMetadataFailed(error)
+                }
             }
 
         case .traitCollectionChanged:
             viewService.traitCollectionChanged()
 
-        case let .updateMetadataReturned(.success(conversation), togglePenPalsDataSharingSwitch):
+        case let .updateMetadataFailed(exception):
+            Logger.log(exception, with: .toast)
+            state.isChangeMetadataButtonEnabled = true
+
+        case let .updateMetadataReturned(conversation, togglePenPalsDataSharingSwitch):
             let oldConversationIsPenPalsConversation = state.conversation?.metadata.isPenPalsConversation == true
 
             conversationSession.setCurrentConversation(conversation)
@@ -443,13 +464,14 @@ struct ChatInfoPageReducer: Reducer {
 
             guard oldConversationIsPenPalsConversation else { return .none }
             return .task {
-                let result = await viewService.getChatParticipants()
-                return .getChatParticipantsReturned(result)
+                do throws(Exception) {
+                    return try await .getChatParticipantsReturned(
+                        viewService.getChatParticipants()
+                    )
+                } catch {
+                    return .getChatParticipantsFailed(error)
+                }
             }
-
-        case let .updateMetadataReturned(.failure(exception), _):
-            Logger.log(exception, with: .toast)
-            state.isChangeMetadataButtonEnabled = true
 
         case let .userInfoBadgeTapped(user):
             guard let user else { return .none }

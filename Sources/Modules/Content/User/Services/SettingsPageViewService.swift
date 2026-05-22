@@ -516,37 +516,30 @@ final class SettingsPageViewService {
     // MARK: - Fetch CNContact for Current User
 
     /// `.viewAppeared`
-    func fetchCNContactForCurrentUser() async -> Callback<CNContact, Exception> {
+    func fetchCNContactForCurrentUser() async throws(Exception) -> CNContact {
         if let cachedCNContactForCurrentUser {
-            return .success(cachedCNContactForCurrentUser)
+            return cachedCNContactForCurrentUser
         }
 
         guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        let firstCNContactResult = await services.contact.firstCNContact(for: currentUser.phoneNumber)
-
-        switch firstCNContactResult {
-        case let .success(cnContact):
-            cachedCNContactForCurrentUser = cnContact
-            return .success(cnContact)
-
-        case let .failure(exception):
-            return .failure(exception)
-        }
+        let cnContact = try await services.contact.firstCNContact(
+            for: currentUser.phoneNumber
+        )
+        cachedCNContactForCurrentUser = cnContact
+        return cnContact
     }
 
     // MARK: - Get Current User Data Usage
 
     /// `.viewAppeared`
-    func getCurrentUserDataUsage() async -> Callback<Int, Exception> {
-        await .asCallback { @Sendable in
-            try await clientSession.storage.getCurrentUserDataUsage()
-        }
+    func getCurrentUserDataUsage() async throws(Exception) -> Int {
+        try await clientSession.storage.getCurrentUserDataUsage()
     }
 
     // MARK: - Clear Cache

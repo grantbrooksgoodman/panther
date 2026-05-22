@@ -17,17 +17,13 @@ extension FileManager {
         fileAt url: URL,
         toPath path: URL
     ) -> Exception? {
-        let dataFromURLResult = Data.fromURL(url)
-
-        switch dataFromURLResult {
-        case let .success(data):
-            return createFile(
+        do {
+            return try createFile(
                 atPath: path,
-                data: data
+                data: Data.fromURL(url)
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

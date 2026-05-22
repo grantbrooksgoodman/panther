@@ -73,23 +73,25 @@ final class ChatInfoPageViewService {
 
     // swiftlint:disable function_body_length
     /// `.viewAppeared`
-    func getChatParticipants() async -> Callback<[ChatParticipant], Exception> {
+    func getChatParticipants() async throws(Exception) -> [ChatParticipant] {
         @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
         guard let conversation = clientSession.conversation.fullConversation else {
-            return .failure(.init(
+            throw Exception(
                 "No current conversation.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let users = conversation.users,
               conversation.participants.count - 1 == users.count else {
-            if let exception = await conversation.setUsers(forceUpdate: true) {
-                return .failure(exception)
+            if let exception = await conversation.setUsers(
+                forceUpdate: true
+            ) {
+                throw exception
             }
 
             clientSession.conversation.setCurrentConversation(conversation)
-            return await getChatParticipants()
+            return try await getChatParticipants()
         }
 
         let isPenPalsConversation = conversation.metadata.isPenPalsConversation
@@ -122,10 +124,12 @@ final class ChatInfoPageViewService {
                     || penPalsService.isKnownToCurrentUser(user.id) {
                     let isPenPal = !conversation.mutuallySharedPenPalsDataBetweenCurrentUserAnd(user) &&
                         !penPalsService.isKnownToCurrentUser(user.id)
-                    let firstCNContactResult = await self.contactService.firstCNContact(for: user.phoneNumber)
 
-                    switch firstCNContactResult {
-                    case let .success(cnContact):
+                    do {
+                        let cnContact = try await self.contactService.firstCNContact(
+                            for: user.phoneNumber
+                        )
+
                         let contactPair: ContactPair = .init(
                             contact: .init(cnContact),
                             numberPairs: [.init(phoneNumber: user.phoneNumber, users: [user])]
@@ -137,8 +141,7 @@ final class ChatInfoPageViewService {
                             contactPair: contactPair,
                             penPalsStatus: isPenPal ? (currentUserSharesData ? .currentUserSharesData : .currentUserDoesNotShareData) : nil
                         )
-
-                    case .failure:
+                    } catch {
                         let cnContact = CNMutableContact()
                         cnContact.phoneNumbers.append(
                             .init(
@@ -186,7 +189,7 @@ final class ChatInfoPageViewService {
             }
 
         case let .failure(exception):
-            return .failure(exception)
+            throw exception
         }
 
         var withAlphabeticalPrefix = [ChatParticipant]()
@@ -205,9 +208,7 @@ final class ChatInfoPageViewService {
             participants.sorted(by: { $0.displayName < $1.displayName })
         }
 
-        return .success(
-            sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
-        )
+        return sorted(withAlphabeticalPrefix) + sorted(withoutAlphabeticalPrefix)
     } // swiftlint:enable function_body_length
 
     // MARK: - Reducer Action Handlers
@@ -329,22 +330,20 @@ final class ChatInfoPageViewService {
         _ conversation: Conversation,
         action: Activity.Action,
         newMetadata: ConversationMetadata
-    ) async -> Callback<Conversation, Exception> {
+    ) async throws(Exception) -> Conversation {
         guard let activity = Activity(action) else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to synthesize activity.",
                 metadata: .init(sender: self)
-            ))
-        }
-
-        return await .asCallback { @Sendable in
-            try await conversation.updateValues(
-                with: [
-                    \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
-                    \.metadata: newMetadata,
-                ]
             )
         }
+
+        return try await conversation.updateValues(
+            with: [
+                \.activities: ((conversation.activities ?? []) + [activity]).filter { $0 != .empty },
+                \.metadata: newMetadata,
+            ]
+        )
     }
 
     func viewAppeared() {

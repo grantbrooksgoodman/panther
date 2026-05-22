@@ -119,12 +119,9 @@ struct MediaMessageService {
             }
         }
 
-        let mediaDataFromURLResult = Data.fromURL(mediaComponent.localPathURL)
-
-        switch mediaDataFromURLResult {
-        case let .success(mediaData):
-            if let exception = await networking.storage.upload(
-                mediaData,
+        do {
+            if let exception = try await networking.storage.upload(
+                Data.fromURL(mediaComponent.localPathURL),
                 metadata: .init(
                     relativePath,
                     contentType: mediaComponent.fileExtension.contentTypeString
@@ -143,31 +140,22 @@ struct MediaMessageService {
             guard mediaComponent.hasThumbnail,
                   let thumbnailPath = mediaComponent.localPathURL.thumbnailPath else { return nil }
 
-            let thumbnailDataFromURLResult = Data.fromURL(thumbnailPath)
-
-            switch thumbnailDataFromURLResult {
-            case let .success(thumbnailData):
-                if let exception = await networking.storage.upload(
-                    thumbnailData,
-                    metadata: .init(
-                        thumbnailRelativePath,
-                        contentType: MediaFileExtension.image(.jpeg).contentTypeString
-                    )
-                ) {
-                    return exception
-                }
-
-                return fileManager.move(
-                    fileAt: thumbnailPath,
-                    toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
+            if let exception = try await networking.storage.upload(
+                Data.fromURL(thumbnailPath),
+                metadata: .init(
+                    thumbnailRelativePath,
+                    contentType: MediaFileExtension.image(.jpeg).contentTypeString
                 )
-
-            case let .failure(exception):
+            ) {
                 return exception
             }
 
-        case let .failure(exception):
-            return exception
+            return fileManager.move(
+                fileAt: thumbnailPath,
+                toPath: fileManager.documentsDirectoryURL.appending(path: thumbnailRelativePath)
+            )
+        } catch {
+            return error
         }
     }
 

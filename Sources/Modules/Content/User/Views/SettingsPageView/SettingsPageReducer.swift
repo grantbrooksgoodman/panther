@@ -7,7 +7,7 @@
 //
 
 /* Native */
-import Contacts
+@preconcurrency import Contacts
 import Foundation
 import UIKit
 
@@ -46,8 +46,10 @@ struct SettingsPageReducer: Reducer {
         case viewDisappeared
 
         case aiEnhancedTranslationsSwitchToggled(on: Bool, fromBinding: Bool = false)
-        case fetchCNContactForCurrentUserReturned(Callback<CNContact, Exception>)
-        case getCurrentUserDataUsageReturned(Callback<Int, Exception>)
+        case fetchCNContactForCurrentUserFailed(Exception)
+        case fetchCNContactForCurrentUserReturned(CNContact)
+        case getCurrentUserDataUsageFailed(Exception)
+        case getCurrentUserDataUsageReturned(Int)
         case messageRecipientConsentSwitchToggled(on: Bool)
         case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
@@ -118,6 +120,7 @@ struct SettingsPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    // swiftlint:disable:next function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
@@ -130,13 +133,23 @@ struct SettingsPageReducer: Reducer {
 
             NavigationBar.setAppearance(state.navigationBarAppearance)
             let fetchCNContactForCurrentUserTask: Effect<Action> = .task {
-                let result = await viewService.fetchCNContactForCurrentUser()
-                return .fetchCNContactForCurrentUserReturned(result)
+                do throws(Exception) {
+                    return try await .fetchCNContactForCurrentUserReturned(
+                        viewService.fetchCNContactForCurrentUser()
+                    )
+                } catch {
+                    return .fetchCNContactForCurrentUserFailed(error)
+                }
             }
 
             let getCurrentUserDataUsageTask: Effect<Action> = .task {
-                let result = await viewService.getCurrentUserDataUsage()
-                return .getCurrentUserDataUsageReturned(result)
+                do throws(Exception) {
+                    return try await .getCurrentUserDataUsageReturned(
+                        viewService.getCurrentUserDataUsage()
+                    )
+                } catch {
+                    return .getCurrentUserDataUsageFailed(error)
+                }
             }
 
             return .task {
@@ -170,7 +183,11 @@ struct SettingsPageReducer: Reducer {
         case .doneToolbarButtonTapped:
             navigation.navigate(to: .userContent(.sheet(.none)))
 
-        case let .fetchCNContactForCurrentUserReturned(.success(cnContact)):
+        case let .fetchCNContactForCurrentUserFailed(exception):
+            state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
+            Logger.log(exception)
+
+        case let .fetchCNContactForCurrentUserReturned(cnContact):
             state.cnContact = cnContact
 
             let contact = Contact(cnContact)
@@ -180,16 +197,12 @@ struct SettingsPageReducer: Reducer {
             state.contactDetailViewSubtitleLabelText = formattedPhoneNumberString == contact.fullName ? "" : formattedPhoneNumberString
             state.contactDetailViewTitleLabelText = contact.fullName
 
-        case let .fetchCNContactForCurrentUserReturned(.failure(exception)):
-            state.contactDetailViewTitleLabelText = userSession.currentUser?.phoneNumber.formattedString() ?? state.contactDetailViewTitleLabelText
+        case let .getCurrentUserDataUsageFailed(exception):
             Logger.log(exception)
 
-        case let .getCurrentUserDataUsageReturned(.success(dataUsageInKilobytes)):
+        case let .getCurrentUserDataUsageReturned(dataUsageInKilobytes):
             state.dataUsageInKilobytes = dataUsageInKilobytes
             state.dataUsageViewID = UUID()
-
-        case let .getCurrentUserDataUsageReturned(.failure(exception)):
-            Logger.log(exception)
 
         case .inviteFriendsButtonTapped:
             viewService.inviteFriendsButtonTapped()

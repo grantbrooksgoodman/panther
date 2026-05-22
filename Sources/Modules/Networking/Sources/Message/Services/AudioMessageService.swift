@@ -194,19 +194,15 @@ struct AudioMessageService {
             throw exception.appending(userInfo: userInfo)
         }
 
-        let dataFromURLResult = Data.fromURL(sourceFileURL)
-
-        switch dataFromURLResult {
-        case let .success(data):
-            if let exception = fileManager.createFile(
+        do throws(Exception) {
+            if let exception = try fileManager.createFile(
                 atPath: destinationFileURL,
-                data: data
+                data: Data.fromURL(sourceFileURL)
             ) {
                 throw exception.appending(userInfo: userInfo)
             }
-
-        case let .failure(exception):
-            throw exception.appending(userInfo: userInfo)
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
 
         guard let inputFile = AudioFile(localAudioFilePath.inputFilePathURL),
@@ -236,20 +232,17 @@ struct AudioMessageService {
         to path: String
     ) async -> Exception? {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
-        let dataFromURLResult = Data.fromURL(audioFile.url)
 
-        switch dataFromURLResult {
-        case let .success(data):
-            return await networking.storage.upload(
-                data,
+        do {
+            return try await networking.storage.upload(
+                Data.fromURL(audioFile.url),
                 metadata: .init(
                     fullPath,
                     contentType: audioFile.fileExtension.contentTypeString
                 )
             )
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 }

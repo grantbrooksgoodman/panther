@@ -31,7 +31,8 @@ struct ContactSelectorPageReducer: Reducer {
         case findUserButtonTapped
         case inviteToolbarButtonTapped
 
-        case findUserReturned(Callback<User, Exception>)
+        case findUserFailed(Exception)
+        case findUserReturned(User)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
@@ -142,18 +143,23 @@ struct ContactSelectorPageReducer: Reducer {
                   state.searchQuery == state.searchQuery.digits else { return .none }
             let phoneNumber = PhoneNumber(state.searchQuery.digits)
             return .task {
-                let result = await viewService.findUser(with: phoneNumber)
-                return .findUserReturned(result)
+                do throws(Exception) {
+                    return try await .findUserReturned(
+                        viewService.findUser(with: phoneNumber)
+                    )
+                } catch {
+                    return .findUserFailed(error)
+                }
             }
 
-        case let .findUserReturned(.success(user)):
+        case let .findUserReturned(user):
             guard !penPalsService.isObfuscatedPenPalWithCurrentUser(user) else { return .none }
             state.foundContactPair = user.contactPair ?? .withUser(
                 user,
                 name: user.displayName
             )
 
-        case let .findUserReturned(.failure(exception)):
+        case let .findUserFailed(exception):
             guard exception.isEqual(to: .noUsersWithPhoneNumber) else {
                 Logger.log(exception, with: .toast)
                 return .none

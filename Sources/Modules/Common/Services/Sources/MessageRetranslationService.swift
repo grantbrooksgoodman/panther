@@ -268,24 +268,18 @@ struct MessageRetranslationService {
             )
         )
 
-        var exceptions = [Exception]()
         do {
             _ = try await conversation.update(
                 \.metadata,
                 to: conversation.metadata.copyWith(lastModifiedDate: .now)
             )
+
+            _ = try await conversationsPageViewService.reloadData()
         } catch {
-            exceptions.append(error)
+            return error
         }
 
-        let reloadDataResult = await conversationsPageViewService.reloadData()
-
-        switch reloadDataResult {
-        case .success: ()
-        case let .failure(exception): exceptions.append(exception)
-        }
-
-        return exceptions.compiledException
+        return nil
     }
 }
 

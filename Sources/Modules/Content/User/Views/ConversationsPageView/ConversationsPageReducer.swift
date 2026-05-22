@@ -47,7 +47,8 @@ struct ConversationsPageReducer: Reducer {
         case searchQueryChanged(String)
 
         case composeToolbarButtonAnimationAmountSet(CGFloat)
-        case reloadDataReturned(Callback<[Conversation], Exception>)
+        case reloadDataFailed(Exception)
+        case reloadDataReturned([Conversation])
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -81,6 +82,7 @@ struct ConversationsPageReducer: Reducer {
 
     // MARK: - Reduce
 
+    // swiftlint:disable:next function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewAppeared:
@@ -123,20 +125,25 @@ struct ConversationsPageReducer: Reducer {
             guard !state.isSearching else { return .none }
             state.isRefreshing = true
             return .task {
-                let result = await viewService.reloadData()
-                return .reloadDataReturned(result)
+                do throws(Exception) {
+                    return try await .reloadDataReturned(
+                        viewService.reloadData()
+                    )
+                } catch {
+                    return .reloadDataFailed(error)
+                }
             }
 
-        case let .reloadDataReturned(.success(conversations)):
+        case let .reloadDataFailed(exception):
+            state.isRefreshing = false
+            Logger.log(exception, with: .toast)
+
+        case let .reloadDataReturned(conversations):
             state.isRefreshing = false
             viewService.updateConversationsList(
                 with: conversations,
                 state: &state
             )
-
-        case let .reloadDataReturned(.failure(exception)):
-            state.isRefreshing = false
-            Logger.log(exception, with: .toast)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

@@ -166,8 +166,8 @@ final class ConversationsPageViewService {
     }
 
     /// `.pulledToRefresh`
-    func reloadData() async -> Callback<[Conversation], Exception> {
-        func reloadData(type: ReloadType) async -> Callback<[Conversation], Exception> {
+    func reloadData() async throws(Exception) -> [Conversation] {
+        func reloadData(type: ReloadType) async throws(Exception) -> [Conversation] {
             if let conversations = clientSession
                 .user
                 .currentUser?
@@ -196,35 +196,35 @@ final class ConversationsPageViewService {
             }
 
             defer { currentReloadType = currentReloadType.next }
-            do {
+            do throws(Exception) {
                 let user = try await clientSession.user.resolveCurrentUser()
                 if let exception = await user.setConversations() {
-                    return .failure(exception)
+                    throw exception
                 }
 
                 if let exception = await user.conversations?.visibleForCurrentUser.setUsers() {
-                    return .failure(exception)
+                    throw exception
                 }
 
                 var randomBool: Bool {
                     Int.random(in: 1 ... 1_000_000) % 3 == 0
                 }
                 guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
-                    return .success(user.conversations ?? [])
+                    return user.conversations ?? []
                 }
 
                 if let exception = await services.contact.syncContactPairArchive(),
                    !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
-                    return .failure(exception)
+                    throw exception
                 }
 
-                return .success(user.conversations ?? [])
+                return user.conversations ?? []
             } catch {
-                return .failure(error)
+                throw error
             }
         }
 
-        return await reloadData(type: currentReloadType)
+        return try await reloadData(type: currentReloadType)
     }
 
     /// `.composeToolbarButtonTapped`
@@ -312,9 +312,11 @@ final class ConversationsPageViewService {
                     )
                 }
 
-                if case let .failure(exception) = await reloadData() {
+                do throws(Exception) {
+                    _ = try await reloadData()
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         domain: .conversation
                     )
                 }
