@@ -20,17 +20,23 @@ struct TranscriptionService {
 
     // MARK: - Transcribe Audio File
 
-    func transcribeAudioFile(at url: URL, languageCode: String) async -> Callback<String, Exception> {
+    func transcribeAudioFile(
+        at url: URL,
+        languageCode: String
+    ) async throws(Exception) -> String {
         guard permissionService.transcribePermissionStatus == .granted else {
-            return .failure(.init("Not authorized for transcription.", metadata: .init(sender: self)))
+            throw Exception(
+                "Not authorized for transcription.",
+                metadata: .init(sender: self)
+            )
         }
 
         guard isTranscriptionSupported(for: languageCode) else {
-            return .failure(.init(
+            throw Exception(
                 "Transcription is not supported for the specified language code.",
                 userInfo: ["LanguageCode": languageCode],
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         let locale = Locale(identifier: languageCode)
@@ -40,11 +46,11 @@ struct TranscriptionService {
         request.shouldReportPartialResults = false
 
         guard let recognizer = SFSpeechRecognizer(locale: locale) else {
-            return .failure(.init(
+            throw Exception(
                 "Unsupported locale for transcription.",
                 userInfo: ["LocaleIdentifier": locale.identifier],
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         var didComplete = false
@@ -54,22 +60,33 @@ struct TranscriptionService {
             return true
         }
 
-        return await withCheckedContinuation { continuation in
-            recognizer.recognitionTask(with: request) { result, error in
-                guard let result else {
-                    guard canComplete else { return }
-                    return continuation.resume(returning: .failure(.init(
-                        error,
-                        metadata: .init(sender: self)
-                    )))
-                }
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                recognizer.recognitionTask(with: request) { result, error in
+                    guard let result else {
+                        guard canComplete else { return }
+                        return continuation.resume(throwing: Exception(
+                            error,
+                            metadata: .init(sender: self)
+                        ))
+                    }
 
-                guard canComplete,
-                      result.isFinal else { return }
-                continuation.resume(returning: .success(
-                    result.bestTranscription.formattedString
-                ))
+                    guard canComplete,
+                          result.isFinal else { return }
+                    continuation.resume(
+                        returning: result.bestTranscription.formattedString
+                    )
+                }
             }
+        } catch {
+            guard let exception = error as? Exception else {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            throw exception
         }
     }
 

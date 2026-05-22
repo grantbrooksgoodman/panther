@@ -133,19 +133,14 @@ struct PenPalsService {
 
     // MARK: - Get Random PenPals Participant
 
-    func getRandomPenPalsParticipant() async -> Callback<User, Exception> {
+    func getRandomPenPalsParticipant() async throws(Exception) -> User {
         if let exception = await populateValuesIfNeeded() {
             Logger.log(exception, domain: .penPals)
         }
 
         let selectContactPairUserIDs = await MainActor.run { self.selectContactPairUserIDs }
-        let users: [User]
-        do {
-            // TODO: Will need to be a limited query once user numbers pick up.
-            users = try await userService.getAllUsers()
-        } catch {
-            return .failure(error)
-        }
+        // TODO: Will need to be a limited query once user numbers pick up.
+        let users = try await userService.getAllUsers()
 
         guard let randomPenPalsParticipant = users
             .filter(\.isPenPalsParticipant)
@@ -155,14 +150,14 @@ struct PenPalsService {
             .filter({ !currentUserConversationUserIDs(excludePenPalsConversations: false).contains($0.id) })
             .filter({ !selectContactPairUserIDs.contains($0.id) })
             .randomElement() else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve random PenPals participant.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
-        return .success(randomPenPalsParticipant)
+        return randomPenPalsParticipant
     }
 
     // MARK: - Set didGrantPenPalsPermission

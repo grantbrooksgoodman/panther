@@ -162,7 +162,9 @@ struct NotificationService {
     // MARK: - Respond to In-app Notification
 
     @MainActor
-    func respondToInAppNotification(_ notification: UNNotification) async -> Callback<UNNotificationPresentationOptions, Exception> {
+    func respondToInAppNotification(
+        _ notification: UNNotification
+    ) async throws(Exception) -> UNNotificationPresentationOptions {
         let notificationContent = notification.request.content
         Logger.log(
             "Received notification.\n\"\(notificationContent.body)\"",
@@ -171,28 +173,28 @@ struct NotificationService {
         )
 
         guard let currentUser = clientSession.user.currentUser else {
-            return .failure(.init(
+            throw Exception(
                 "No current user – will not respond to notification.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let conversationIDKey = notificationContent.userInfo["conversationIDKey"] as? String,
               let isReactionString = notificationContent.userInfo["isReaction"] as? String,
               let recipientUserID = notificationContent.userInfo["recipientUserID"] as? String else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard recipientUserID == currentUser.id else {
-            return .failure(.init(
+            throw Exception(
                 "Notification not intended for current user – ignoring.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard let conversation = networking
@@ -200,11 +202,11 @@ struct NotificationService {
             .archive
             .getValue(idKey: conversationIDKey),
             conversation.isVisibleForCurrentUser else {
-            return .failure(.init(
+            throw Exception(
                 "Conversation associated with this notification is not visible to the current user.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         guard !(
@@ -214,9 +216,9 @@ struct NotificationService {
                 .id
                 .key == conversationIDKey
         ) else {
-            guard isReactionString == "true" else { return .success([]) }
+            guard isReactionString == "true" else { return [] }
             services.haptics.generateFeedback(.medium)
-            return .success([])
+            return []
         }
 
         let toast: Toast = .init(
@@ -247,17 +249,17 @@ struct NotificationService {
             }
         }
 
-        return .success([.sound])
+        return [.sound]
     }
 
     // MARK: - Auxiliary
 
-    private func generateAccessToken() async -> Callback<String, Exception> {
+    private func generateAccessToken() async throws(Exception) -> String {
         guard let url = URL(string: "https://us-central1-jaguar-5d735.cloudfunctions.net/generateAccessToken") else {
-            return .failure(.init(
+            throw Exception(
                 "Failed to generate URL.",
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         do {
@@ -266,7 +268,7 @@ struct NotificationService {
             guard let accessToken = String(data: dataResult.0, encoding: .utf8),
                   let urlResponse = dataResult.1 as? HTTPURLResponse,
                   (200 ..< 300).contains(urlResponse.statusCode) else {
-                return .failure(.init(
+                throw Exception(
                     "Failed to decode URL response or status did not indicate success.",
                     userInfo: [
                         "ResponseBody": String(
@@ -276,15 +278,15 @@ struct NotificationService {
                         "URLResponseCode": (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1,
                     ],
                     metadata: .init(sender: self)
-                ))
+                )
             }
 
-            return .success(accessToken)
+            return accessToken
         } catch {
-            return .failure(.init(
+            throw Exception(
                 error,
                 metadata: .init(sender: self)
-            ))
+            )
         }
     }
 
@@ -414,10 +416,7 @@ struct NotificationService {
         userInfo: [String: String],
         isReaction: Bool
     ) async -> Exception? {
-        let generateAccessTokenResult = await generateAccessToken()
-
-        switch generateAccessTokenResult {
-        case let .success(accessToken):
+        do {
             guard let url = URL(string: "https://fcm.googleapis.com/v1/projects/jaguar-5d735/messages:send") else {
                 return .init(
                     "Failed to generate URL.",
@@ -433,8 +432,8 @@ struct NotificationService {
                 forHTTPHeaderField: "Content-Type"
             )
 
-            request.setValue(
-                "Bearer \(accessToken)",
+            try await request.setValue(
+                "Bearer \(generateAccessToken())",
                 forHTTPHeaderField: "Authorization"
             )
 
@@ -498,9 +497,8 @@ struct NotificationService {
                     metadata: .init(sender: self)
                 )
             }
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 

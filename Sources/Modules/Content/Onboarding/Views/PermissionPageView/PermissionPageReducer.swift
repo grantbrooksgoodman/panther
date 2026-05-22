@@ -35,8 +35,10 @@ struct PermissionPageReducer: Reducer {
 
         case createUserReturned(Exception?)
         case eulaAlertDismissed(cancelled: Bool)
-        case requestContactPermissionReturned(Callback<PermissionService.PermissionStatus, Exception>)
-        case requestNotificationPermissionReturned(Callback<PermissionService.PermissionStatus, Exception>)
+        case requestContactPermissionFailed(Exception)
+        case requestContactPermissionReturned(PermissionService.PermissionStatus)
+        case requestNotificationPermissionFailed(Exception)
+        case requestNotificationPermissionReturned(PermissionService.PermissionStatus)
         case resolveReturned(Callback<[TranslationOutputMap], Exception>)
     }
 
@@ -71,8 +73,13 @@ struct PermissionPageReducer: Reducer {
         case .contactPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isNotificationPermissionGranted != nil
             return .task { @MainActor in
-                let result = await services.permission.requestPermission(for: .contacts)
-                return .requestContactPermissionReturned(result)
+                do throws(Exception) {
+                    return try await .requestContactPermissionReturned(
+                        services.permission.requestPermission(for: .contacts)
+                    )
+                } catch {
+                    return .requestContactPermissionFailed(error)
+                }
             }
 
         case let .createUserReturned(exception):
@@ -119,13 +126,32 @@ struct PermissionPageReducer: Reducer {
 
         case .notificationPermissionCapsuleButtonTapped:
             state.isFinishButtonEnabled = state.isContactPermissionGranted != nil
-            return .task {
-                @Dependency(\.commonServices) var services: CommonServices
-                let result = await services.permission.requestPermission(for: .notifications)
-                return .requestNotificationPermissionReturned(result)
+            return .task { @MainActor in
+                do throws(Exception) {
+                    return try await .requestNotificationPermissionReturned(
+                        services.permission.requestPermission(for: .contacts)
+                    )
+                } catch {
+                    return .requestNotificationPermissionFailed(error)
+                }
             }
 
-        case let .requestContactPermissionReturned(.success(status)):
+        case let .requestContactPermissionFailed(exception):
+            guard !exception.isEqual(to: .contactAccessDenied) else {
+                state.isContactPermissionGranted = false
+                return .task(delay: .milliseconds(500)) {
+                    @Dependency(\.commonServices) var services: CommonServices
+                    await services.permission.presentCTA(for: .contacts)
+                    return .none
+                }
+            }
+
+            state.isBackButtonEnabled = true
+            state.isFinishButtonEnabled = false
+
+            Logger.log(exception, with: .toast)
+
+        case let .requestContactPermissionReturned(status):
             state.isContactPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
@@ -144,22 +170,13 @@ struct PermissionPageReducer: Reducer {
                 }
             }
 
-        case let .requestContactPermissionReturned(.failure(exception)):
-            guard !exception.isEqual(to: .contactAccessDenied) else {
-                state.isContactPermissionGranted = false
-                return .task(delay: .milliseconds(500)) {
-                    @Dependency(\.commonServices) var services: CommonServices
-                    await services.permission.presentCTA(for: .contacts)
-                    return .none
-                }
-            }
-
+        case let .requestNotificationPermissionFailed(exception):
             state.isBackButtonEnabled = true
             state.isFinishButtonEnabled = false
 
             Logger.log(exception, with: .toast)
 
-        case let .requestNotificationPermissionReturned(.success(status)):
+        case let .requestNotificationPermissionReturned(status):
             state.isNotificationPermissionGranted = status == .granted
             if status != .granted {
                 return .task(delay: .milliseconds(500)) {
@@ -170,12 +187,6 @@ struct PermissionPageReducer: Reducer {
             } else {
                 uiApplication.registerForRemoteNotifications()
             }
-
-        case let .requestNotificationPermissionReturned(.failure(exception)):
-            state.isBackButtonEnabled = true
-            state.isFinishButtonEnabled = false
-
-            Logger.log(exception, with: .toast)
 
         case let .resolveReturned(.success(strings)):
             state.strings = strings

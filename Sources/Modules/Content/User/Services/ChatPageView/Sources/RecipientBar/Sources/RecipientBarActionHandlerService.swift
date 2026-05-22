@@ -89,12 +89,11 @@ final class RecipientBarActionHandlerService {
             defer { coreHUD.hide(after: .seconds(1)) }
 
             if services.permission.contactPermissionStatus != .granted {
-                let requestPermissionResult = await services.permission.requestPermission(
-                    for: .contacts
-                )
+                do throws(Exception) {
+                    let status = try await services.permission.requestPermission(
+                        for: .contacts
+                    )
 
-                switch requestPermissionResult {
-                case let .success(status):
                     guard status == .granted else { return presentCTA() }
                     if let exception = await services.contact.syncContactPairArchive() {
                         Logger.log(
@@ -104,11 +103,13 @@ final class RecipientBarActionHandlerService {
                     }
 
                     return selectContactButtonTapped()
+                } catch {
+                    guard !error.isEqual(to: .contactAccessDenied) else {
+                        return presentCTA()
+                    }
 
-                case let .failure(exception):
-                    guard !exception.isEqual(to: .contactAccessDenied) else { return presentCTA() }
                     return Logger.log(
-                        exception,
+                        error,
                         with: .toast
                     )
                 }

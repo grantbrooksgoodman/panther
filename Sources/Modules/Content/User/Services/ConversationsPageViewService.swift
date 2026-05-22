@@ -108,7 +108,12 @@ final class ConversationsPageViewService {
         reloadIfNeeded()
 
         Task.delayed(by: .seconds(1)) { @MainActor in
-            await showPromptsIfNeeded()
+            do throws(Exception) {
+                try await showPromptsIfNeeded()
+            } catch {
+                Logger.log(error)
+            }
+
             startSettingSearchBarAppearance()
         }
 
@@ -527,12 +532,12 @@ final class ConversationsPageViewService {
     ///
     /// If no pages are eligible, no sheet is presented.
     @MainActor
-    private func showPromptsIfNeeded() async {
-        _ = try? await clientSession.storage.getCurrentUserDataUsage()
+    private func showPromptsIfNeeded() async throws(Exception) {
+        _ = try await clientSession.storage.getCurrentUserDataUsage()
         if clientSession.storage.isApproachingDataUsageLimit {
             await clientSession.storage.presentStorageWarningAlert()
         } else if await services.permission.notificationPermissionStatus == .unknown {
-            _ = await services.permission.requestPermission(for: .notifications)
+            _ = try await services.permission.requestPermission(for: .notifications)
         } else if await !(services.invite.suggestInvitationIfNeeded()) {
             services.review.promptToReview()
         }

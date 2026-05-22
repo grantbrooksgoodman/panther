@@ -20,15 +20,12 @@ struct RemoteCacheService {
 
     // MARK: - Remote Cache Status Configuration
 
-    func cacheStatus(userID: String) async -> Callback<RemoteCacheStatus, Exception> {
-        do {
-            let invalidatedCaches: [String] = try await networking.database.getValues(
-                at: NetworkPath.invalidatedCaches.rawValue
-            )
-            return .success(invalidatedCaches.contains(userID) ? .invalid : .valid)
-        } catch {
-            return .failure(error)
-        }
+    func cacheStatus(userID: String) async throws(Exception) -> RemoteCacheStatus {
+        let invalidatedCaches: [String] = try await networking.database.getValues(
+            at: NetworkPath.invalidatedCaches.rawValue
+        )
+
+        return invalidatedCaches.contains(userID) ? .invalid : .valid
     }
 
     // NIT: Can't I just call updateChildValues?

@@ -64,10 +64,8 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
 
     @discardableResult
     func promptToUpdateIfNeeded() async -> Exception? {
-        let checkForUpdatesResult = await checkForUpdates()
-
-        switch checkForUpdatesResult {
-        case let .success(updateType):
+        do {
+            let updateType = try await checkForUpdates()
             guard let updateType else { return nil }
 
             switch updateType {
@@ -81,35 +79,34 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
             case .normal:
                 return await presentUpdateCTA()
             }
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
-    private func checkForUpdates() async -> Callback<UpdateType?, Exception> {
+    private func checkForUpdates() async throws(Exception) -> UpdateType? {
         guard let appStoreBuildNumber = metadataService.appStoreBuildNumber,
               let overrideForceUpdate = metadataService.shouldForceUpdate else {
             if let exception = await metadataService.resolveValues() {
-                return .failure(exception)
+                throw exception
             }
 
-            return await checkForUpdates()
+            return try await checkForUpdates()
         }
 
         let isUpdateAvailable = appStoreBuildNumber > build.buildNumber
         let shouldPrompt = (relaunchesSinceLastPostponedUpdate ?? 0) >= 3
 
         guard !overrideForceUpdate else {
-            return .success(isUpdateAvailable ? .forced : nil)
+            return isUpdateAvailable ? .forced : nil
         }
 
         guard hasUpdatedSinceLastForced else {
-            return .success(isUpdateAvailable ? .forced : nil)
+            return isUpdateAvailable ? .forced : nil
         }
 
         guard let firstPostponedUpdate else {
-            return .success(isUpdateAvailable ? .normal : nil)
+            return isUpdateAvailable ? .normal : nil
         }
 
         let interval = calendar.dateComponents(
@@ -119,7 +116,7 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
         )
 
         guard let daysPassed = interval.day else {
-            return .success((isUpdateAvailable && shouldPrompt) ? .normal : nil)
+            return (isUpdateAvailable && shouldPrompt) ? .normal : nil
         }
 
         if daysPassed < 0 {
@@ -129,10 +126,10 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
         }
 
         guard daysPassed >= 10 else {
-            return .success((isUpdateAvailable && shouldPrompt) ? .normal : nil)
+            return (isUpdateAvailable && shouldPrompt) ? .normal : nil
         }
 
-        return .success(isUpdateAvailable ? .forced : nil)
+        return isUpdateAvailable ? .forced : nil
     }
 
     // MARK: - Increment Relaunch Count

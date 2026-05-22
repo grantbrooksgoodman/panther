@@ -31,6 +31,9 @@ struct NewChatPageReducer: Reducer {
         case firstMessageSent
         case penPalsToolbarButtonTapped
 
+        case getRandomPenPalsParticipantFailed(Exception)
+        case getRandomPenPalsParticipantReturned(User)
+
         case isDoneToolbarButtonEnabledChanged(Bool)
     }
 
@@ -96,32 +99,43 @@ struct NewChatPageReducer: Reducer {
             guard UIApplication.isFullyV26Compatible else { return .none }
             state.v26NavigationBarProxyViewID = UUID()
 
+        case let .getRandomPenPalsParticipantFailed(exception):
+            Logger.log(
+                exception,
+                with: .toast(
+                    style: exception.isEqual(to: .penPalResolutionFailed) ? .info : .error
+                )
+            )
+
+        case let .getRandomPenPalsParticipantReturned(user):
+            recipientBarService?.contactSelectionUI.selectContactPair(
+                .withUser(
+                    user,
+                    name: user.penPalsName
+                )
+            )
+
+            guard recipientBarService?
+                .layout
+                .textField?
+                .isFirstResponder == false else { return .none }
+
+            recipientBarService?
+                .layout
+                .textField?
+                .becomeFirstResponder()
+
         case let .isDoneToolbarButtonEnabledChanged(isDoneToolbarButtonEnabled):
             state.isDoneToolbarButtonEnabled = isDoneToolbarButtonEnabled
 
         case .penPalsToolbarButtonTapped:
-            Task { @MainActor in
-                let getRandomPenPalsParticipantResult = await services.penPals.getRandomPenPalsParticipant()
-
-                switch getRandomPenPalsParticipantResult {
-                case let .success(user):
-                    recipientBarService?.contactSelectionUI.selectContactPair(
-                        .withUser(
-                            user,
-                            name: user.penPalsName
-                        )
+            return .task { @MainActor in
+                do throws(Exception) {
+                    return try await .getRandomPenPalsParticipantReturned(
+                        services.penPals.getRandomPenPalsParticipant()
                     )
-
-                    guard recipientBarService?.layout.textField?.isFirstResponder == false else { return }
-                    recipientBarService?.layout.textField?.becomeFirstResponder()
-
-                case let .failure(exception):
-                    Logger.log(
-                        exception,
-                        with: .toast(
-                            style: exception.isEqual(to: .penPalResolutionFailed) ? .info : .error
-                        )
-                    )
+                } catch {
+                    return .getRandomPenPalsParticipantFailed(error)
                 }
             }
         }

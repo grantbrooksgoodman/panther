@@ -165,19 +165,21 @@ final class InputBarGestureRecognizerService {
     private func requestPermissions() {
         func requestPermission(for type: PermissionService.PermissionType) {
             Task { @MainActor in
-                let requestPermissionResult = await services.permission.requestPermission(for: type)
+                do throws(Exception) {
+                    let status = try await services.permission.requestPermission(
+                        for: type
+                    )
 
-                switch requestPermissionResult {
-                case let .success(status):
                     defer { configureGestureRecognizers() }
-
                     guard status == .granted else {
                         _ = await services.permission.presentCTA(for: type)
                         return
                     }
-
-                case let .failure(exception):
-                    Logger.log(exception, with: .toast)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }

@@ -46,16 +46,10 @@ struct MessageSessionService {
             )
         }
 
-        var transcription: String!
-        let transcribeResult = await services.audio.transcription.transcribeAudioFile(
+        let transcription = try await services.audio.transcription.transcribeAudioFile(
             at: inputFile.url,
             languageCode: currentUser.languageCode
         )
-
-        switch transcribeResult { // swiftlint:disable:next identifier_name
-        case let .success(_transcription): transcription = _transcription
-        case let .failure(exception): throw exception
-        }
 
         notificationCenter.post(
             name: .init(Strings.audioMessageTranscriptionSucceededNotificationName),
@@ -117,10 +111,12 @@ struct MessageSessionService {
 
                             return (index, .success((translation, audioComponent)))
                         } else {
-                            let readToFileResult = await services.audio.textToSpeech.readToFile(
-                                text: translation.output.sanitized,
-                                languageCode: languageCode
-                            )
+                            let readToFileResult = await Callback.asCallback {
+                                try await services.audio.textToSpeech.readToFile(
+                                    text: translation.output.sanitized,
+                                    languageCode: languageCode
+                                )
+                            }
 
                             switch readToFileResult {
                             case let .success(url):

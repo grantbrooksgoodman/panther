@@ -143,11 +143,13 @@ final class SplashPageViewService: ObservableObject {
 
         // Runs while resolveCurrentUser() continues in the background.
         if let currentUserID = User.currentUserID {
-            let cacheStatusResult = await services.remoteCache.cacheStatus(userID: currentUserID)
-            initializationProgress += 0.02
+            do {
+                let cacheStatus = try await services.remoteCache.cacheStatus(
+                    userID: currentUserID
+                )
 
-            switch cacheStatusResult {
-            case let .success(cacheStatus):
+                initializationProgress += 0.02
+
                 if cacheStatus == .invalid {
                     Application.reset(preserveCurrentUserID: true)
                     if let exception = await services.remoteCache.setCacheStatus(
@@ -157,10 +159,9 @@ final class SplashPageViewService: ObservableObject {
                         Logger.log(exception)
                     }
                 }
-
-            case let .failure(exception):
-                if !exception.isEqual(to: .Networking.Database.noValueExists) {
-                    Logger.log(exception)
+            } catch {
+                if !error.isEqual(to: .Networking.Database.noValueExists) {
+                    Logger.log(error)
                 }
             }
         }

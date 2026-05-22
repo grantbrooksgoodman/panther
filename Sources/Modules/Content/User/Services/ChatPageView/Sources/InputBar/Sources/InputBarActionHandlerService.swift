@@ -101,10 +101,9 @@ final class InputBarActionHandlerService {
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
-            let stopRecordingResult = services.audio.recording.stopRecording()
 
-            switch stopRecordingResult {
-            case let .success(url):
+            do {
+                let url = try services.audio.recording.stopRecording()
                 guard let inputFile = AudioFile(url) else {
                     return .init(
                         "Failed to generate input audio file.",
@@ -113,11 +112,13 @@ final class InputBarActionHandlerService {
                 }
 
                 return await messageDeliveryService.sendAudioMessage(inputFile)
-
-            case let .failure(exception):
-                guard !exception.isEqual(toAny: [.noAudioRecorderToStop, .transcribeNoSuchFileOrDirectory]) else { return nil }
+            } catch {
+                guard !error.isEqual(toAny: [
+                    .noAudioRecorderToStop,
+                    .transcribeNoSuchFileOrDirectory,
+                ]) else { return nil }
                 playRecordingCancellationVibration()
-                return exception
+                return error
             }
         }
     }

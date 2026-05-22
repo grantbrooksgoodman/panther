@@ -97,15 +97,17 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        let respondToInAppNotificationResult = await services.notification.respondToInAppNotification(notification)
-
-        switch respondToInAppNotificationResult {
-        case let .success(presentationOptions):
-            return presentationOptions
-
-        case let .failure(exception):
-            Logger.log(exception, domain: .notifications)
-            return []
+        do {
+            return try await services
+                .notification
+                .respondToInAppNotification(notification)
+        } catch {
+            Logger.log(
+                error,
+                domain: .notifications
+            )
         }
+
+        return []
     }
 }

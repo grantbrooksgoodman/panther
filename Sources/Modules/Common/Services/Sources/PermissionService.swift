@@ -65,67 +65,91 @@ struct PermissionService {
 
     // MARK: - Permissions Requesting
 
-    func requestPermission(for type: PermissionType) async -> Callback<PermissionStatus, Exception> {
+    func requestPermission(for type: PermissionType) async throws(Exception) -> PermissionStatus {
         switch type {
         case .contacts:
-            await requestContactPermission()
+            try await requestContactPermission()
 
         case .notifications:
-            await requestNotificationPermission()
+            try await requestNotificationPermission()
 
         case .recording:
-            await requestRecordPermission()
+            try await requestRecordPermission()
 
         case .transcription:
-            await requestTranscribePermission()
+            try await requestTranscribePermission()
         }
     }
 
-    private func requestContactPermission() async -> Callback<PermissionStatus, Exception> {
+    private func requestContactPermission() async throws(Exception) -> PermissionStatus {
         do {
             let requestAccessResult = try await contactStore.requestAccess(for: .contacts)
-            return .success(requestAccessResult ? .granted : .denied)
+            return requestAccessResult ? .granted : .denied
         } catch {
-            return .failure(.init(error, metadata: .init(sender: self)))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 
-    private func requestNotificationPermission() async -> Callback<PermissionStatus, Exception> {
+    private func requestNotificationPermission() async throws(Exception) -> PermissionStatus {
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         do {
-            let requestAuthorizationResult = try await userNotificationCenter.requestAuthorization(options: authOptions)
-            return .success(requestAuthorizationResult ? .granted : .denied)
+            let requestAuthorizationResult = try await userNotificationCenter.requestAuthorization(
+                options: authOptions
+            )
+            return requestAuthorizationResult ? .granted : .denied
         } catch {
-            return .failure(.init(error, metadata: .init(sender: self)))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 
-    private func requestRecordPermission() async -> Callback<PermissionStatus, Exception> {
+    private func requestRecordPermission() async throws(Exception) -> PermissionStatus {
         if let exception = audioService.activateAudioSession() {
-            return .failure(exception)
+            throw exception
         }
 
-        return await .success((AVAudioApplication.requestRecordPermission()) ? .granted : .denied)
+        return await AVAudioApplication.requestRecordPermission() ? .granted : .denied
     }
 
-    private func requestTranscribePermission() async -> Callback<PermissionStatus, Exception> {
-        await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                switch status {
-                case .authorized:
-                    continuation.resume(returning: .success(.granted))
+    private func requestTranscribePermission() async throws(Exception) -> PermissionStatus {
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                SFSpeechRecognizer.requestAuthorization { status in
+                    switch status {
+                    case .authorized:
+                        continuation.resume(returning: .granted)
 
-                case .denied,
-                     .restricted:
-                    continuation.resume(returning: .success(.denied))
+                    case .denied,
+                         .restricted:
+                        continuation.resume(returning: .denied)
 
-                case .notDetermined:
-                    continuation.resume(returning: .success(.unknown))
+                    case .notDetermined:
+                        continuation.resume(returning: .unknown)
 
-                @unknown default:
-                    continuation.resume(returning: .failure(.init("Failed to get transcription permission.", metadata: .init(sender: self))))
+                    @unknown default:
+                        continuation.resume(
+                            throwing: Exception(
+                                "Failed to get transcription permission.",
+                                metadata: .init(sender: self)
+                            )
+                        )
+                    }
                 }
             }
+        } catch {
+            guard let exception = error as? Exception else {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            throw exception
         }
     }
 

@@ -52,10 +52,8 @@ final class RecordingService: NSObject {
     // MARK: - Recording
 
     func cancelRecording() -> Exception? {
-        let stopRecordingResult = stopRecording()
-
-        switch stopRecordingResult {
-        case let .success(url):
+        do {
+            let url = try stopRecording()
             guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else { return nil }
 
             do {
@@ -65,9 +63,8 @@ final class RecordingService: NSObject {
             }
 
             return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
     }
 
@@ -98,22 +95,22 @@ final class RecordingService: NSObject {
         return nil
     }
 
-    func stopRecording() -> Callback<URL, Exception> {
+    func stopRecording() throws(Exception) -> URL {
         willStartRecording = false
         stopObservingInterruptions()
 
         guard let audioRecorder else {
-            return .failure(.init(
+            throw Exception(
                 "No audio recorder to stop.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            ))
+            )
         }
 
         audioRecorder.stop()
         let filePath = audioRecorder.url
         self.audioRecorder = nil
-        return .success(filePath)
+        return filePath
     }
 
     // MARK: - Interruptions
@@ -131,9 +128,10 @@ final class RecordingService: NSObject {
             switch type {
             case .began:
                 Task { @MainActor in
-                    switch self.stopRecording() {
-                    case let .failure(exception): Logger.log(exception)
-                    default: ()
+                    do throws(Exception) {
+                        _ = try self.stopRecording()
+                    } catch {
+                        Logger.log(error)
                     }
                 }
 
@@ -160,9 +158,10 @@ extension RecordingService: AVAudioRecorderDelegate {
     ) {
         Task { @MainActor in
             guard flag else {
-                switch stopRecording() {
-                case let .failure(exception): Logger.log(exception)
-                default: ()
+                do throws(Exception) {
+                    _ = try self.stopRecording()
+                } catch {
+                    Logger.log(error)
                 }
                 return
             }
@@ -174,15 +173,14 @@ extension RecordingService: AVAudioRecorderDelegate {
         error: Error?
     ) {
         Task { @MainActor in
-            switch stopRecording() {
-            case .success:
+            do throws(Exception) {
+                _ = try self.stopRecording()
                 Logger.log(.init(
                     error,
                     metadata: .init(sender: self)
                 ))
-
-            case let .failure(exception):
-                Logger.log(exception)
+            } catch {
+                Logger.log(error)
             }
         }
     }

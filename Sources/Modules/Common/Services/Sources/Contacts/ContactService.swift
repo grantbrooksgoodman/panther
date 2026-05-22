@@ -44,17 +44,11 @@ final class ContactService: @unchecked Sendable {
     // MARK: - Sync Contact Pair Archive
 
     func syncContactPairArchive() async -> Exception? {
-        let users: [User]
         do {
-            users = try await userService.getAllUsers()
-        } catch {
-            return error
-        }
-
-        let fetchContactPairsResult = await fetchContactPairs(for: users)
-
-        switch fetchContactPairsResult {
-        case let .success(contactPairs):
+            let users = try await userService.getAllUsers()
+            let contactPairs = try await fetchContactPairs(
+                for: users
+            )
             coreUtilities.clearCaches([
                 .conversationCellViewData,
                 .queriedContactPairs,
@@ -79,12 +73,12 @@ final class ContactService: @unchecked Sendable {
                 domain: .contacts,
                 sender: self
             )
-            return nil
-
-        case let .failure(exception):
-            guard !exception.isEqual(to: .emptyContactList) else { return nil }
-            return exception
+        } catch {
+            guard !error.isEqual(to: .emptyContactList) else { return nil }
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Clear Cache
@@ -96,11 +90,30 @@ final class ContactService: @unchecked Sendable {
     // MARK: - Auxiliary
 
     @MainActor
-    private func fetchContactPairs(for users: [User]) async -> Callback<[ContactPair], Exception> {
-        await withCheckedContinuation { continuation in
-            fetchContactPairsWithCompletion(for: users) { callback in
-                continuation.resume(returning: callback)
+    private func fetchContactPairs(
+        for users: [User]
+    ) async throws(Exception) -> [ContactPair] {
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                fetchContactPairsWithCompletion(for: users) { callback in
+                    switch callback {
+                    case let .success(contactPairs):
+                        continuation.resume(returning: contactPairs)
+
+                    case let .failure(exception):
+                        continuation.resume(throwing: exception)
+                    }
+                }
             }
+        } catch {
+            guard let exception = error as? Exception else {
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
+            }
+
+            throw exception
         }
     }
 
