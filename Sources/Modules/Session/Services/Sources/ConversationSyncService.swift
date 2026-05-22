@@ -520,15 +520,20 @@ final class ConversationSyncService: @unchecked Sendable {
     private func updateHash(
         _ conversation: Conversation
     ) async -> Exception? {
-        let hashPath = [
-            NetworkPath.conversations.rawValue,
-            conversation.id.key,
-            Conversation.SerializableKey.encodedHash.rawValue,
-        ].joined(separator: "/")
-        return await networking.database.setValue(
-            conversation.encodedHash,
-            forKey: hashPath
-        )
+        do {
+            try await networking.database.setValue(
+                conversation.encodedHash,
+                forKey: [
+                    NetworkPath.conversations.rawValue,
+                    conversation.id.key,
+                    Conversation.SerializableKey.encodedHash.rawValue,
+                ].joined(separator: "/")
+            )
+        } catch {
+            return error
+        }
+
+        return nil
     }
 }
 

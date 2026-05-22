@@ -33,8 +33,10 @@ struct AuthCodePageReducer: Reducer {
         case didSwipeDown
         case runContinueButtonEffect
 
-        case authenticateUserReturned(Callback<String, Exception>)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case authenticateUserFailed(Exception)
+        case authenticateUserReturned(String)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
         case verificationCodeChanged(String)
     }
 
@@ -57,20 +59,16 @@ struct AuthCodePageReducer: Reducer {
             state.viewState = .loading
 
             return .task { @MainActor in
-                let result = await translator.resolve(AuthCodePageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(AuthCodePageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
-        case let .authenticateUserReturned(.success(userID)):
-            coreUI.removeOverlay()
-
-            state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = true
-
-            onboardingService.setUserID(userID)
-            navigation.navigate(to: .onboarding(.push(.permission)))
-
-        case let .authenticateUserReturned(.failure(exception)):
+        case let .authenticateUserFailed(exception):
             coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -94,6 +92,15 @@ struct AuthCodePageReducer: Reducer {
 
             Logger.log(exception, with: .toast)
 
+        case let .authenticateUserReturned(userID):
+            coreUI.removeOverlay()
+
+            state.isBackButtonEnabled = true
+            state.isContinueButtonEnabled = true
+
+            onboardingService.setUserID(userID)
+            navigation.navigate(to: .onboarding(.push(.permission)))
+
         case .backButtonTapped:
             navigation.navigate(to: .onboarding(.pop))
 
@@ -111,19 +118,19 @@ struct AuthCodePageReducer: Reducer {
                 uiApplication.resignFirstResponders()
             }
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
+        case let .resolveFailed(exception):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
                 subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(strings):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
             )
             state.viewState = .loaded
 
@@ -137,11 +144,16 @@ struct AuthCodePageReducer: Reducer {
             return .task { @MainActor in
                 @Dependency(\.networking.auth) var auth: any AuthDelegate
                 @Dependency(\.onboardingService) var onboardingService: OnboardingService
-                let result = await auth.authenticateUser(
-                    authID: onboardingService.authID ?? .init(),
-                    verificationCode: verificationCode
-                )
-                return .authenticateUserReturned(result)
+                do throws(Exception) {
+                    return try await .authenticateUserReturned(
+                        auth.authenticateUser(
+                            authID: onboardingService.authID ?? .init(),
+                            verificationCode: verificationCode
+                        )
+                    )
+                } catch {
+                    return .authenticateUserFailed(error)
+                }
             }
 
         case let .verificationCodeChanged(verificationCode):

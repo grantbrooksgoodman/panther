@@ -168,11 +168,13 @@ final class IntegrityService: @unchecked Sendable {
 
         deletedUserIDs = deletedUserIDs.filter { !session.userData.keys.contains($0) }
 
-        if let exception = await networking.database.setValue(
-            deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
-            forKey: NetworkPath.deletedUsers.rawValue
-        ) {
-            return exception
+        do {
+            try await networking.database.setValue(
+                deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
+                forKey: NetworkPath.deletedUsers.rawValue
+            )
+        } catch {
+            return error
         }
 
         return nil
@@ -193,11 +195,13 @@ final class IntegrityService: @unchecked Sendable {
 
         invalidatedCahes = invalidatedCahes.filter { session.userData.keys.contains($0) }
 
-        if let exception = await networking.database.setValue(
-            invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
-            forKey: NetworkPath.invalidatedCaches.rawValue
-        ) {
-            return exception
+        do {
+            try await networking.database.setValue(
+                invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
+                forKey: NetworkPath.invalidatedCaches.rawValue
+            )
+        } catch {
+            return error
         }
 
         return nil
@@ -237,14 +241,20 @@ final class IntegrityService: @unchecked Sendable {
 
                     let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
                     taskGroup.addTask {
-                        await self.networking.database.setValue(
-                            value,
-                            forKey: [
-                                NetworkPath.users.rawValue,
-                                userID,
-                                User.SerializableKey.conversationIDs.rawValue,
-                            ].joined(separator: "/")
-                        )
+                        do throws(Exception) {
+                            try await self.networking.database.setValue(
+                                value,
+                                forKey: [
+                                    NetworkPath.users.rawValue,
+                                    userID,
+                                    User.SerializableKey.conversationIDs.rawValue,
+                                ].joined(separator: "/")
+                            )
+                        } catch {
+                            return error
+                        }
+
+                        return nil
                     }
 
                     taskGroup.addTask {
@@ -256,18 +266,30 @@ final class IntegrityService: @unchecked Sendable {
                 }
 
                 taskGroup.addTask {
-                    await self.networking.database.setValue(
-                        NSNull(),
-                        forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
-                    )
+                    do throws(Exception) {
+                        try await self.networking.database.setValue(
+                            NSNull(),
+                            forKey: "\(NetworkPath.conversations.rawValue)/\(conversationIDKey)"
+                        )
+                    } catch {
+                        return error
+                    }
+
+                    return nil
                 }
 
                 for messageID in conversationMessageIDs {
                     taskGroup.addTask {
-                        await self.networking.database.setValue(
-                            NSNull(),
-                            forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
-                        )
+                        do throws(Exception) {
+                            try await self.networking.database.setValue(
+                                NSNull(),
+                                forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
+                            )
+                        } catch {
+                            return error
+                        }
+
+                        return nil
                     }
                 }
 
@@ -316,15 +338,17 @@ final class IntegrityService: @unchecked Sendable {
                     continue
                 }
 
-                if let exception = await networking.database.setValue(
-                    messageIDs,
-                    forKey: [
-                        NetworkPath.conversations.rawValue,
-                        conversationIDKey,
-                        Conversation.SerializableKey.messages.rawValue,
-                    ].joined(separator: "/")
-                ) {
-                    exceptions.append(exception)
+                do {
+                    try await networking.database.setValue(
+                        messageIDs,
+                        forKey: [
+                            NetworkPath.conversations.rawValue,
+                            conversationIDKey,
+                            Conversation.SerializableKey.messages.rawValue,
+                        ].joined(separator: "/")
+                    )
+                } catch {
+                    exceptions.append(error)
                 }
             }
         }
@@ -362,11 +386,13 @@ final class IntegrityService: @unchecked Sendable {
             // FIXME: Audit this change.
             guard let dictionary = session.userData[userID] as? [String: Any],
                   var conversationIDKeys = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else {
-                if let exception = await networking.database.setValue(
-                    NSNull(),
-                    forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-                ) {
-                    exceptions.append(exception)
+                do {
+                    try await networking.database.setValue(
+                        NSNull(),
+                        forKey: "\(NetworkPath.users.rawValue)/\(userID)"
+                    )
+                } catch {
+                    exceptions.append(error)
                 }
                 continue
             }
@@ -377,11 +403,13 @@ final class IntegrityService: @unchecked Sendable {
                 exceptions.append(exception)
             }
 
-            if let exception = await networking.database.setValue(
-                NSNull(),
-                forKey: "\(NetworkPath.users.rawValue)/\(userID)"
-            ) {
-                exceptions.append(exception)
+            do {
+                try await networking.database.setValue(
+                    NSNull(),
+                    forKey: "\(NetworkPath.users.rawValue)/\(userID)"
+                )
+            } catch {
+                exceptions.append(error)
             }
         }
 
@@ -431,16 +459,17 @@ final class IntegrityService: @unchecked Sendable {
 
         if !pendingRepairs.isEmpty {
             tookAction = true
-            if let exception = await pendingRepairs.parallelMap(
-                failFast: false,
-                perform: {
-                    await self.networking.database.setValue(
+            do {
+                try await pendingRepairs.parallelMap(
+                    failFast: false
+                ) {
+                    try await self.networking.database.setValue(
                         $0.value,
                         forKey: $0.keyPath
                     )
                 }
-            ) {
-                exceptions.append(exception)
+            } catch {
+                exceptions.append(error)
             }
         }
 
@@ -482,16 +511,17 @@ final class IntegrityService: @unchecked Sendable {
             }
 
         let tookAction = !pendingRepairs.isEmpty || !conversationsToRepair.isEmpty
-        if let exception = await pendingRepairs.parallelMap(
-            failFast: false,
-            perform: {
-                await self.networking.database.setValue(
+        do {
+            try await pendingRepairs.parallelMap(
+                failFast: false
+            ) {
+                try await self.networking.database.setValue(
                     $0.filteredMessageIDs,
                     forKey: $0.keyPath
                 )
             }
-        ) {
-            exceptions.append(exception)
+        } catch {
+            exceptions.append(error)
         }
 
         for conversationIDKey in conversationsToRepair {
@@ -558,16 +588,17 @@ final class IntegrityService: @unchecked Sendable {
 
         if !pendingRepairs.isEmpty {
             tookAction = true
-            if let exception = await pendingRepairs.parallelMap(
-                failFast: false,
-                perform: {
-                    await self.networking.database.setValue(
+            do {
+                try await pendingRepairs.parallelMap(
+                    failFast: false
+                ) {
+                    try await self.networking.database.setValue(
                         $0.value,
                         forKey: $0.keyPath
                     )
                 }
-            ) {
-                exceptions.append(exception)
+            } catch {
+                exceptions.append(error)
             }
         }
 
@@ -608,20 +639,21 @@ final class IntegrityService: @unchecked Sendable {
                         Message.SerializableKey.contentType.rawValue,
                     ].joined(separator: "/")
 
-                    switch await self.networking.storage.itemExists(at: inputFilePath) {
-                    case let .success(itemExists):
+                    do throws(Exception) {
+                        let itemExists = try await self.networking.storage.itemExists(at: inputFilePath)
                         if !itemExists {
                             taskTookAction = true
-                            if let exception = await self.networking.database.setValue(
-                                HostedContentType.text.rawValue,
-                                forKey: contentTypeKeyPath
-                            ) {
-                                taskExceptions.append(exception)
+                            do throws(Exception) {
+                                try await self.networking.database.setValue(
+                                    HostedContentType.text.rawValue,
+                                    forKey: contentTypeKeyPath
+                                )
+                            } catch {
+                                taskExceptions.append(error)
                             }
                         }
-
-                    case let .failure(exception):
-                        taskExceptions.append(exception)
+                    } catch {
+                        taskExceptions.append(error)
                     }
 
                     for translationReferenceString in translationReferenceStrings {
@@ -634,20 +666,21 @@ final class IntegrityService: @unchecked Sendable {
                             "\(reference.languagePair.to)-\(AudioService.FileNames.outputM4A)",
                         ].joined(separator: "/")
 
-                        switch await self.networking.storage.itemExists(at: outputFilePath) {
-                        case let .success(itemExists):
+                        do throws(Exception) {
+                            let itemExists = try await self.networking.storage.itemExists(at: outputFilePath)
                             guard !itemExists else { continue }
                             taskTookAction = true
 
-                            if let exception = await self.networking.database.setValue(
-                                HostedContentType.text.rawValue,
-                                forKey: contentTypeKeyPath
-                            ) {
-                                taskExceptions.append(exception)
+                            do throws(Exception) {
+                                try await self.networking.database.setValue(
+                                    HostedContentType.text.rawValue,
+                                    forKey: contentTypeKeyPath
+                                )
+                            } catch {
+                                taskExceptions.append(error)
                             }
-
-                        case let .failure(exception):
-                            taskExceptions.append(exception)
+                        } catch {
+                            taskExceptions.append(error)
                         }
                     }
 
@@ -708,9 +741,11 @@ final class IntegrityService: @unchecked Sendable {
         ).self) { taskGroup in
             for path in uniquePaths {
                 taskGroup.addTask {
-                    switch await self.networking.storage.itemExists(at: path) {
-                    case let .success(itemExists): (path, itemExists, nil)
-                    case let .failure(exception): (path, false, exception)
+                    do throws(Exception) {
+                        let itemExists = try await self.networking.storage.itemExists(at: path)
+                        return (path, itemExists, nil)
+                    } catch {
+                        return (path, false, error)
                     }
                 }
             }
@@ -800,16 +835,17 @@ final class IntegrityService: @unchecked Sendable {
         guard !malformedMessageIDs.isEmpty else { return (false, nil) }
         var exceptions = [Exception]()
 
-        if let exception = await malformedTranslationPaths.parallelMap(
-            failFast: false,
-            perform: {
-                await self.networking.database.setValue(
+        do throws(Exception) {
+            try await malformedTranslationPaths.parallelMap(
+                failFast: false
+            ) {
+                try await self.networking.database.setValue(
                     NSNull(),
                     forKey: $0
                 )
             }
-        ) {
-            exceptions.append(exception)
+        } catch {
+            exceptions.append(error)
         }
 
         let repairMalformedMessagesResult = await repairMalformedMessages(malformedMessageIDs)
@@ -839,35 +875,35 @@ final class IntegrityService: @unchecked Sendable {
                 .compactMap(\.mediaFilePath)
         )
 
-        let getDirectoryListingResult = await networking.storage.getDirectoryListing(
-            at: NetworkPath.media.rawValue
-        )
-
-        switch getDirectoryListingResult {
-        case let .success(directoryListing):
-            let orphanedMediaFilePaths = Set(
-                directoryListing
-                    .filePaths
-                    .compactMap { $0.components(separatedBy: "/").last }
-            ).subtracting(referencedMediaFilePaths)
-            guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
-
-            if let exception = await Array(orphanedMediaFilePaths).parallelMap(
-                failFast: false,
-                perform: {
-                    await self.networking.storage.deleteItem(
-                        at: "\(NetworkPath.media.rawValue)/\($0)"
-                    )
-                }
-            ) {
-                exceptions.append(exception)
-            }
-
-            return (true, exceptions.compiledException)
-
-        case let .failure(exception):
-            return (false, exception)
+        let directoryListing: DirectoryListing
+        do {
+            directoryListing = try await networking.storage.getDirectoryListing(
+                at: NetworkPath.media.rawValue
+            )
+        } catch {
+            return (false, error)
         }
+
+        let orphanedMediaFilePaths = Set(
+            directoryListing
+                .filePaths
+                .compactMap { $0.components(separatedBy: "/").last }
+        ).subtracting(referencedMediaFilePaths)
+        guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
+
+        do throws(Exception) {
+            try await Array(orphanedMediaFilePaths).parallelMap(
+                failFast: false
+            ) {
+                try await self.networking.storage.deleteItem(
+                    at: "\(NetworkPath.media.rawValue)/\($0)"
+                )
+            }
+        } catch {
+            exceptions.append(error)
+        }
+
+        return (true, exceptions.compiledException)
     }
 
     func resolveOrphanedMessages() async -> (tookAction: Bool, exception: Exception?) {
@@ -979,14 +1015,20 @@ final class IntegrityService: @unchecked Sendable {
                 let value = conversationIDStrings.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : conversationIDStrings
 
                 taskGroup.addTask {
-                    await self.networking.database.setValue(
-                        value,
-                        forKey: [
-                            NetworkPath.users.rawValue,
-                            userID,
-                            User.SerializableKey.conversationIDs.rawValue,
-                        ].joined(separator: "/")
-                    )
+                    do throws(Exception) {
+                        try await self.networking.database.setValue(
+                            value,
+                            forKey: [
+                                NetworkPath.users.rawValue,
+                                userID,
+                                User.SerializableKey.conversationIDs.rawValue,
+                            ].joined(separator: "/")
+                        )
+                    } catch {
+                        return error
+                    }
+
+                    return nil
                 }
 
                 taskGroup.addTask {
@@ -998,14 +1040,20 @@ final class IntegrityService: @unchecked Sendable {
             }
 
             taskGroup.addTask {
-                await self.networking.database.setValue(
-                    String.bangQualifiedEmpty,
-                    forKey: [
-                        NetworkPath.conversations.rawValue,
-                        conversationIDKey,
-                        Conversation.SerializableKey.encodedHash.rawValue,
-                    ].joined(separator: "/")
-                )
+                do throws(Exception) {
+                    try await self.networking.database.setValue(
+                        String.bangQualifiedEmpty,
+                        forKey: [
+                            NetworkPath.conversations.rawValue,
+                            conversationIDKey,
+                            Conversation.SerializableKey.encodedHash.rawValue,
+                        ].joined(separator: "/")
+                    )
+                } catch {
+                    return error
+                }
+
+                return nil
             }
 
             for await exception in taskGroup {

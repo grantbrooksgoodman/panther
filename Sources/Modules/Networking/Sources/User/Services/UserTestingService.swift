@@ -320,25 +320,17 @@ struct UserTestingService {
             return await sendMediaMessage(to: users, in: conversation)
         }
 
-        let translateResult = await networking.hostedTranslation.translate(
-            .init(randomPhrase),
-            with: .init(from: "en", to: currentUser.languageCode)
-        )
-
-        switch translateResult {
-        case let .success(translation):
-            do {
-                _ = try await clientSession.message.sendTextMessage(
-                    translation.output.sanitized,
-                    toUsers: users,
-                    inConversation: (conversation, false)
-                )
-            } catch {
-                return error
-            }
-
-        case let .failure(exception):
-            return exception
+        do {
+            _ = try await clientSession.message.sendTextMessage(
+                networking.hostedTranslation.translate(
+                    .init(randomPhrase),
+                    with: .init(from: "en", to: currentUser.languageCode)
+                ).output.sanitized,
+                toUsers: users,
+                inConversation: (conversation, false)
+            )
+        } catch {
+            return error
         }
 
         return nil

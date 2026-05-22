@@ -88,17 +88,16 @@ struct MessageSessionService {
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
                 taskGroup.addTask { [self, transcription = transcription as String] in
-                    let translateResult = await networking.hostedTranslation.translate(
-                        .init(transcription),
-                        with: .init(
-                            from: currentUser.languageCode,
-                            to: languageCode
-                        ),
-                        enhance: enhancementConfig
-                    )
+                    do throws(Exception) {
+                        let translation = try await networking.hostedTranslation.translate(
+                            .init(transcription),
+                            with: .init(
+                                from: currentUser.languageCode,
+                                to: languageCode
+                            ),
+                            enhance: enhancementConfig
+                        )
 
-                    switch translateResult {
-                    case let .success(translation):
                         if await networking.messageService.audio.preRecordedOutputExists(
                             for: translation
                         ) {
@@ -140,9 +139,8 @@ struct MessageSessionService {
                                 return (index, .failure(exception))
                             }
                         }
-
-                    case let .failure(exception):
-                        return (index, .failure(exception))
+                    } catch {
+                        return (index, .failure(error))
                     }
                 }
             }
@@ -250,19 +248,18 @@ struct MessageSessionService {
                for: text,
                inLanguage: currentUser.languageCode
            ) < Floats.languageRecognitionServiceMatchConfidenceThreshold {
-            let translateResult = await networking.hostedTranslation.translate(
-                .init(text),
-                with: .init(from: "en", to: currentUser.languageCode),
-                enhance: getEnhancementConfiguration(
-                    for: conversation.value,
-                    isAudioMessage: false,
-                    userCount: users.count
-                )
-            )
-
-            switch translateResult {
-            case let .success(translation): text = translation.output.sanitized
-            case let .failure(exception): Logger.log(exception)
+            do {
+                text = try await networking.hostedTranslation.translate(
+                    .init(text),
+                    with: .init(from: "en", to: currentUser.languageCode),
+                    enhance: getEnhancementConfiguration(
+                        for: conversation.value,
+                        isAudioMessage: false,
+                        userCount: users.count
+                    )
+                ).output.sanitized
+            } catch {
+                Logger.log(error)
             }
         }
 
@@ -274,37 +271,31 @@ struct MessageSessionService {
             userCount: users.count
         )
 
-        let translateResults = await uniqueLanguageCodes.parallelMap {
-            await networking.hostedTranslation.translate(
+        let translations = try await uniqueLanguageCodes.parallelMap { languageCode in
+            try await networking.hostedTranslation.translate(
                 .init(text),
                 with: .init(
                     from: currentUser.languageCode,
-                    to: $0
+                    to: languageCode
                 ),
                 enhance: enhancementConfig
             )
         }
 
-        switch translateResults {
-        case let .success(translations):
-            guard translations.isWellFormed else {
-                throw Exception(
-                    "Translations fail validation.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            return try await createMessageAndAddToConversation(
-                conversation: conversation,
-                initiatingUser: currentUser,
-                otherUsers: users,
-                richContent: nil,
-                translations: translations
+        guard translations.isWellFormed else {
+            throw Exception(
+                "Translations fail validation.",
+                metadata: .init(sender: self)
             )
-
-        case let .failure(exception):
-            throw exception
         }
+
+        return try await createMessageAndAddToConversation(
+            conversation: conversation,
+            initiatingUser: currentUser,
+            otherUsers: users,
+            richContent: nil,
+            translations: translations
+        )
     }
 
     // MARK: - Auxiliary

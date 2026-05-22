@@ -52,7 +52,8 @@ struct SettingsPageReducer: Reducer {
         case getCurrentUserDataUsageReturned(Int)
         case messageRecipientConsentSwitchToggled(on: Bool)
         case penPalsParticipantSwitchToggled(on: Bool, fromBinding: Bool = false)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
     }
 
     // MARK: - State
@@ -153,8 +154,13 @@ struct SettingsPageReducer: Reducer {
             }
 
             return .task {
-                let result = await translator.resolve(SettingsPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(SettingsPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
             .merge(with: fetchCNContactForCurrentUserTask)
             .merge(with: getCurrentUserDataUsageTask)
@@ -227,12 +233,12 @@ struct SettingsPageReducer: Reducer {
             guard fromBinding else { return .none }
             viewService.penPalsParticipantSwitchToggled(on: on)
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception)
             state.viewState = .loaded
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
 
         case .sendFeedbackButtonTapped:

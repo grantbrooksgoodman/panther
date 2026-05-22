@@ -50,8 +50,8 @@ enum PLISTGenerator {
             plistConfig: .init(name: plistName),
             processingConfig: processingConfig,
             postProcessingTransformation: postProcess
-        ) { languageCode in
-            await _translate(
+        ) { languageCode throws(Exception) in
+            try await _translate(
                 text: text,
                 sourceLanguageCode: sourceLanguageCode,
                 targetLanguageCode: languageCode,
@@ -95,7 +95,7 @@ enum PLISTGenerator {
         sourceLanguageCode: String,
         targetLanguageCode: String,
         enhancementContext: String?
-    ) async -> Callback<Translation, Exception> {
+    ) async throws(Exception) -> Translation {
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.networking.hostedTranslation) var hostedTranslator: HostedTranslationDelegate
         @Dependency(\.translationArchiverDelegate) var translationArchiverDelegate: TranslationArchiverDelegate
@@ -107,39 +107,35 @@ enum PLISTGenerator {
             coreUtilities.clearCaches([.Networking.gemini])
         }
 
-        let translateResult = enhancementContext == nil ? await translator.translate(
-            .init(text),
-            languagePair: .init(
-                from: sourceLanguageCode,
-                to: targetLanguageCode
-            ),
-            hud: nil,
-            timeout: (.seconds(60), true)
-        ) : await hostedTranslator.translate(
-            .init(text),
-            with: .init(
-                from: sourceLanguageCode,
-                to: targetLanguageCode
-            ),
-            enhance: .init(
-                additionalContext: "\(enhancementContext!)\n\(additionalContext)"
+        do throws(Exception) {
+            return enhancementContext == nil ? try await translator.translate(
+                .init(text),
+                languagePair: .init(
+                    from: sourceLanguageCode,
+                    to: targetLanguageCode
+                ),
+                hud: nil,
+                timeout: (.seconds(60), true)
+            ) : try await hostedTranslator.translate(
+                .init(text),
+                with: .init(
+                    from: sourceLanguageCode,
+                    to: targetLanguageCode
+                ),
+                enhance: .init(
+                    additionalContext: "\(enhancementContext!)\n\(additionalContext)"
+                )
             )
-        )
-
-        switch translateResult {
-        case let .success(translation):
-            return .success(translation)
-
-        case let .failure(exception):
+        } catch {
             if useEnhancedTranslation {
                 Logger.log(.init(
                     "Enhanced translation failed – trying without enhancement.",
                     isReportable: false,
-                    userInfo: ["ExceptionDescriptor": exception.descriptor],
+                    userInfo: ["ExceptionDescriptor": error.descriptor],
                     metadata: .init(sender: self)
                 ))
 
-                return await _translate(
+                return try await _translate(
                     text: text,
                     sourceLanguageCode: sourceLanguageCode,
                     targetLanguageCode: targetLanguageCode,
@@ -147,15 +143,15 @@ enum PLISTGenerator {
                 )
             }
 
-            Logger.log(exception)
-            return .success(.init(
+            Logger.log(error)
+            return .init(
                 input: .init(text),
                 output: text,
                 languagePair: .init(
                     from: sourceLanguageCode,
                     to: targetLanguageCode
                 )
-            ))
+            )
         }
     }
 }

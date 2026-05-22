@@ -164,12 +164,16 @@ final class ConversationSessionService {
             return exception
         }
 
-        let path = NetworkPath.conversations.rawValue
-        if let exception = await networking.database.setValue(
-            NSNull(),
-            forKey: "\(path)/\(conversation.id.key)"
-        ) {
-            return exception
+        do {
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: [
+                    NetworkPath.conversations.rawValue,
+                    conversation.id.key,
+                ].joined(separator: "/")
+            )
+        } catch {
+            return error
         }
 
         return nil

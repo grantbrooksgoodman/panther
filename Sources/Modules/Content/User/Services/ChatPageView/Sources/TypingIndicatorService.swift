@@ -79,28 +79,29 @@ final class TypingIndicatorService {
             .conversations?
             .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return nil }
 
-        return await conversations.parallelMap(
-            failFast: false
-        ) {
-            guard let currentUserParticipant = $0.currentUserParticipant else { return nil }
+        do {
+            try await conversations.parallelMap(
+                failFast: false
+            ) {
+                guard let currentUserParticipant = $0.currentUserParticipant else { return }
 
-            var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
-            newParticipants.append(.init(
-                userID: currentUserParticipant.userID,
-                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                isTyping: false
-            ))
+                var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
+                newParticipants.append(.init(
+                    userID: currentUserParticipant.userID,
+                    hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+                    isTyping: false
+                ))
 
-            do throws(Exception) {
                 _ = try await $0.update(
                     \.participants,
                     to: newParticipants
                 )
-                return nil
-            } catch {
-                return error
             }
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Text View Did Change

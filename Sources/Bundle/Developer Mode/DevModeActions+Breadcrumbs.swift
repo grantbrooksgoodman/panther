@@ -160,16 +160,21 @@ extension DevModeAction.AppActions {
                             if isCapturing { AppSubsystem.delegates.breadcrumbsCapture.startCapture() }
                         }
 
-                        if let exception = await storage.deleteAllItems(
-                            at: NetworkPath.breadcrumbs.rawValue,
-                            includeItemsInSubdirectories: true,
-                            timeout: .seconds(300)
-                        ) {
-                            Logger.log(exception, with: .toast)
-                        } else {
+                        do throws(Exception) {
+                            try await storage.deleteAllItems(
+                                at: NetworkPath.breadcrumbs.rawValue,
+                                includeItemsInSubdirectories: true,
+                                timeout: .seconds(300)
+                            )
+
                             Task.delayed(by: .seconds(1)) { @MainActor in
                                 coreHUD.showSuccess()
                             }
+                        } catch {
+                            Logger.log(
+                                error,
+                                with: .toast
+                            )
                         }
                     }
                 }

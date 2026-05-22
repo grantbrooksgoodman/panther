@@ -187,12 +187,10 @@ extension Message: Serializable {
     ) async throws(Exception) -> Translation {
         let translation = try await Translation(from: reference)
 
-        if let exception = TranslationValidator.validate(
+        try TranslationValidator.validate(
             translation: translation,
             metadata: .init(sender: Self.self)
-        ) {
-            throw exception
-        }
+        )
 
         return translation
     }

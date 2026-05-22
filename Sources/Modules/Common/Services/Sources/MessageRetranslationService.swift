@@ -85,22 +85,23 @@ struct MessageRetranslationService {
                 languagePair: translation.languagePair
             )
 
-            let translateResult = await translator.translate(
-                translation.input,
-                languagePair: translation.languagePair,
-                platform: platform
-            )
-
-            attemptedPlatforms.insert(platform)
-            if var retranslatedMessageIDs {
-                retranslatedMessageIDs[message.id] = attemptedPlatforms
-                self.retranslatedMessageIDs = retranslatedMessageIDs
-            } else {
-                retranslatedMessageIDs = [message.id: [platform]]
+            defer {
+                attemptedPlatforms.insert(platform)
+                if var retranslatedMessageIDs {
+                    retranslatedMessageIDs[message.id] = attemptedPlatforms
+                    self.retranslatedMessageIDs = retranslatedMessageIDs
+                } else {
+                    retranslatedMessageIDs = [message.id: [platform]]
+                }
             }
 
-            switch translateResult {
-            case let .success(newTranslation):
+            do {
+                let newTranslation = try await translator.translate(
+                    translation.input,
+                    languagePair: translation.languagePair,
+                    platform: platform
+                )
+
                 guard await !isLowQualityTranslationResult(
                     old: translation,
                     new: newTranslation,
@@ -108,16 +109,16 @@ struct MessageRetranslationService {
                 ) else { continue }
 
                 @Dependency(\.networking.database) var database: DatabaseDelegate
-                if let exception = await database.updateChildValues(
+                try await database.updateChildValues(
                     forKey: "\(NetworkPath.translations.rawValue)/\(translation.languagePair.string)",
                     with: [
                         translation.reference.type.key: "\(translation.input.value.alphaEncoded)–\(newTranslation.output.alphaEncoded)",
                     ]
-                ) {
-                    return exception
-                }
+                )
 
-                if let exception = await conversation.setMessages(ids: [message.id]) {
+                if let exception = await conversation.setMessages(
+                    ids: [message.id]
+                ) {
                     return exception
                 }
 
@@ -145,12 +146,15 @@ struct MessageRetranslationService {
                     translationReferenceHostingKey: translation.reference.hostingKey,
                     sameRetranslationResult: false
                 )
+            } catch {
+                let exception = Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
 
-                return nil
-
-            case let .failure(error):
-                let exception = Exception(error, metadata: .init(sender: self))
-                guard !exception.isEqual(to: .translationPlatformNotSupported) else { continue }
+                guard !exception.isEqual(
+                    to: .translationPlatformNotSupported
+                ) else { continue }
                 return exception
             }
         }

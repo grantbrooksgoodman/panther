@@ -22,6 +22,7 @@ struct VerifyNumberPageReducer: Reducer {
     @Dependency(\.networking) private var networking: NetworkServices
     @Dependency(\.onboardingService) private var onboardingService: OnboardingService
     @Dependency(\.commonServices) private var services: CommonServices
+    @Dependency(\.networking.hostedTranslation) private var translator: HostedTranslationDelegate
     @Dependency(\.uiApplication) private var uiApplication: UIApplication
 
     // MARK: - Actions
@@ -38,9 +39,11 @@ struct VerifyNumberPageReducer: Reducer {
         case accountExistsAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
         case phoneNumberStringChanged(String)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
         case selectedRegionCodeChanged(String)
-        case verifyPhoneNumberReturned(Callback<String, Exception>)
+        case verifyPhoneNumberFailed(Exception)
+        case verifyPhoneNumberReturned(String)
     }
 
     // MARK: - State
@@ -91,8 +94,13 @@ struct VerifyNumberPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             return .task { @MainActor in
-                let result = await networking.hostedTranslation.resolve(VerifyNumberPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(VerifyNumberPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case let .accountExistsAlertDismissed(cancelled: cancelled):
@@ -115,12 +123,17 @@ struct VerifyNumberPageReducer: Reducer {
                 }
             } else {
                 let phoneNumber = state.phoneNumber
-                return .task {
+                return .task { @MainActor in
                     @Dependency(\.networking.auth) var auth: any AuthDelegate
-                    let result = await auth.verifyPhoneNumber(
-                        internationalNumber: phoneNumber.compiledNumberString
-                    )
-                    return .verifyPhoneNumberReturned(result)
+                    do throws(Exception) {
+                        return try await .verifyPhoneNumberReturned(
+                            auth.verifyPhoneNumber(
+                                internationalNumber: phoneNumber.compiledNumberString
+                            )
+                        )
+                    } catch {
+                        return .verifyPhoneNumberFailed(error)
+                    }
                 }
             }
 
@@ -145,19 +158,19 @@ struct VerifyNumberPageReducer: Reducer {
             state.phoneNumberString = phoneNumberString
             state.isContinueButtonEnabled = state.numberIsValidLength
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
+        case let .resolveFailed(exception):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
                 subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(strings):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
             )
             state.viewState = .loaded
 
@@ -183,19 +196,7 @@ struct VerifyNumberPageReducer: Reducer {
         case .updateRegionMenuViewID:
             state.regionMenuViewID = UUID()
 
-        case let .verifyPhoneNumberReturned(.success(authID)):
-            coreUI.removeOverlay()
-
-            state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = true
-
-            onboardingService.setAuthID(authID)
-            onboardingService.setPhoneNumber(state.phoneNumber)
-            onboardingService.setRegionCode(state.selectedRegionCode)
-
-            navigation.navigate(to: .onboarding(.push(.authCode)))
-
-        case let .verifyPhoneNumberReturned(.failure(exception)):
+        case let .verifyPhoneNumberFailed(exception):
             coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -218,6 +219,18 @@ struct VerifyNumberPageReducer: Reducer {
             }
 
             Logger.log(exception, with: .toast)
+
+        case let .verifyPhoneNumberReturned(authID):
+            coreUI.removeOverlay()
+
+            state.isBackButtonEnabled = true
+            state.isContinueButtonEnabled = true
+
+            onboardingService.setAuthID(authID)
+            onboardingService.setPhoneNumber(state.phoneNumber)
+            onboardingService.setRegionCode(state.selectedRegionCode)
+
+            navigation.navigate(to: .onboarding(.push(.authCode)))
         }
 
         return .none

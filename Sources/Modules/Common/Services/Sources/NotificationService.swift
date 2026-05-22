@@ -70,54 +70,63 @@ struct NotificationService {
 
         let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            return await users.parallelMap {
-                guard let exception = await notify(
+            do {
+                try await users.parallelMap {
+                    if let exception = await notify(
+                        $0,
+                        title: isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
+                        body: notificationBody(
+                            for: message,
+                            user: $0
+                        ),
+                        conversationIDKey: conversationIDKey,
+                        isReaction: false
+                    ), !exception.isEqual(to: .notRegisteredForPushNotifications) {
+                        throw exception
+                    }
+                }
+            } catch {
+                return error
+            }
+
+            return nil
+        }
+
+        do {
+            try await users.parallelMap {
+                let reactedString = Localized(
+                    .reacted,
+                    languageCode: $0.languageCode
+                ).wrappedValue
+                let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
+
+                let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
+                var body = notificationBody(
+                    for: message,
+                    user: $0
+                )
+
+                if let resolvedBody = body,
+                   message.contentType == .text {
+                    body = "“\(resolvedBody)”"
+                }
+
+                if let exception = await notify(
                     $0,
-                    title: isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
-                    body: notificationBody(
-                        for: message,
-                        user: $0
-                    ),
+                    title: "\(titlePrefix) \(reactionSuffix)",
+                    body: body,
                     conversationIDKey: conversationIDKey,
-                    isReaction: false
-                ) else { return nil }
-                return exception.isEqual(
-                    to: .notRegisteredForPushNotifications
-                ) ? nil : exception
+                    isReaction: true,
+                    reactionSuffix: reactionSuffix
+                ), !exception.isEqual(to: .notRegisteredForPushNotifications) {
+                    throw exception
+                }
             }
+        } catch {
+            return error
         }
 
-        return await users.parallelMap {
-            let reactedString = Localized(
-                .reacted,
-                languageCode: $0.languageCode
-            ).wrappedValue
-            let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
-
-            let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
-            var body = notificationBody(
-                for: message,
-                user: $0
-            )
-
-            if let resolvedBody = body,
-               message.contentType == .text {
-                body = "”\(resolvedBody)”"
-            }
-
-            guard let exception = await notify(
-                $0,
-                title: "\(titlePrefix) \(reactionSuffix)",
-                body: body,
-                conversationIDKey: conversationIDKey,
-                isReaction: true,
-                reactionSuffix: reactionSuffix
-            ) else { return nil }
-
-            return exception.isEqual(
-                to: .notRegisteredForPushNotifications
-            ) ? nil : exception
-        }
+        return nil
     }
 
     // MARK: - Notify of Prevarication Mode Analytics Event
@@ -145,18 +154,26 @@ struct NotificationService {
             }
         }
 
-        return await pushTokens.unique.parallelMap(
-            failFast: false
-        ) {
-            await sendNotification(
-                title: title,
-                body: body,
-                badgeNumber: 0,
-                pushToken: $0,
-                userInfo: [:],
-                isReaction: false
-            )
+        do {
+            try await pushTokens.unique.parallelMap(
+                failFast: false
+            ) {
+                if let exception = await sendNotification(
+                    title: title,
+                    body: body,
+                    badgeNumber: 0,
+                    pushToken: $0,
+                    userInfo: [:],
+                    isReaction: false
+                ) {
+                    throw exception
+                }
+            }
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Respond to In-app Notification
@@ -520,14 +537,18 @@ struct NotificationService {
                 )
             }
 
-            return await networking.database.setValue(
-                newBadgeNumber < 0 ? 0 : newBadgeNumber,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    user.id,
-                    User.SerializableKey.badgeNumber.rawValue,
-                ].joined(separator: "/")
-            )
+            do {
+                try await networking.database.setValue(
+                    newBadgeNumber < 0 ? 0 : newBadgeNumber,
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        user.id,
+                        User.SerializableKey.badgeNumber.rawValue,
+                    ].joined(separator: "/")
+                )
+            } catch {
+                return error
+            }
 
         case false:
             guard let badgeNumber else {
@@ -537,15 +558,21 @@ struct NotificationService {
                 )
             }
 
-            return await networking.database.setValue(
-                badgeNumber < 0 ? 0 : badgeNumber,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    user.id,
-                    User.SerializableKey.badgeNumber.rawValue,
-                ].joined(separator: "/")
-            )
+            do {
+                try await networking.database.setValue(
+                    badgeNumber < 0 ? 0 : badgeNumber,
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        user.id,
+                        User.SerializableKey.badgeNumber.rawValue,
+                    ].joined(separator: "/")
+                )
+            } catch {
+                return error
+            }
         }
+
+        return nil
     }
 }
 

@@ -39,7 +39,8 @@ struct PermissionPageReducer: Reducer {
         case requestContactPermissionReturned(PermissionService.PermissionStatus)
         case requestNotificationPermissionFailed(Exception)
         case requestNotificationPermissionReturned(PermissionService.PermissionStatus)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
     }
 
     // MARK: - State
@@ -63,8 +64,13 @@ struct PermissionPageReducer: Reducer {
             state.viewState = .loading
 
             return .task {
-                let result = await translator.resolve(PermissionPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(PermissionPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case .backButtonTapped:
@@ -188,19 +194,19 @@ struct PermissionPageReducer: Reducer {
                 uiApplication.registerForRemoteNotifications()
             }
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
+        case let .resolveFailed(exception):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
                 subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(strings):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
             )
             state.viewState = .loaded
         }

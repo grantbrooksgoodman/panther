@@ -108,8 +108,8 @@ struct PenPalsService {
                 return (penPalsConversation, newMetadata)
             }
 
-        return await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
-            do throws(Exception) {
+        do throws(Exception) {
+            try await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
                 _ = try await conversation.update(
                     \.metadata,
                     to: newMetadata
@@ -124,11 +124,12 @@ struct PenPalsService {
                     ),
                     domain: .penPals
                 )
-                return nil
-            } catch {
-                return error
             }
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Get Random PenPals Participant

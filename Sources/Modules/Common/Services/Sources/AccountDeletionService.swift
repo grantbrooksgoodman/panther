@@ -146,11 +146,13 @@ final class AccountDeletionService: @unchecked Sendable {
         persistedCurrentUserID = nil
         _ = clientSession.user.setCurrentUser(nil)
 
-        if let exception = await networking.database.setValue(
-            NSNull(),
-            forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)"
-        ) {
-            exceptions.append(exception)
+        do {
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: "\(NetworkPath.users.rawValue)/\(currentUserID)"
+            )
+        } catch {
+            exceptions.append(error)
         }
 
         // If we encountered errors, validate database integrity again.
@@ -177,20 +179,26 @@ final class AccountDeletionService: @unchecked Sendable {
             deletedUserIDs.append(userID)
             deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-            if let exception = await networking.database.setValue(
-                deletedUserIDs,
-                forKey: NetworkPath.deletedUsers.rawValue
-            ) {
-                return exception
+            do {
+                try await networking.database.setValue(
+                    deletedUserIDs,
+                    forKey: NetworkPath.deletedUsers.rawValue
+                )
+            } catch {
+                return error
             }
         } catch {
-            guard error.isEqual(to: .Networking.Database.noValueExists) else { return error }
+            guard error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) else { return error }
 
-            if let exception = await networking.database.setValue(
-                [userID],
-                forKey: NetworkPath.deletedUsers.rawValue
-            ) {
-                return exception
+            do {
+                try await networking.database.setValue(
+                    [userID],
+                    forKey: NetworkPath.deletedUsers.rawValue
+                )
+            } catch {
+                return error
             }
         }
 

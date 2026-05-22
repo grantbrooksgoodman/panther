@@ -39,12 +39,15 @@ struct SignInPageReducer: Reducer {
 
         case accountDoesNotExistAlertDismissed(cancelled: Bool)
         case accountExistsReturned(Bool)
-        case authenticateUserReturned(Callback<String, Exception>)
+        case authenticateUserFailed(Exception)
+        case authenticateUserReturned(String)
         case phoneNumberStringChanged(String)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
         case selectedRegionCodeChanged(String)
         case verificationCodeChanged(String)
-        case verifyPhoneNumberReturned(Callback<String, Exception>)
+        case verifyPhoneNumberFailed(Exception)
+        case verifyPhoneNumberReturned(String)
     }
 
     // MARK: - State
@@ -115,19 +118,29 @@ struct SignInPageReducer: Reducer {
             state.isContinueButtonEnabled = state.numberIsValidLength
 
             return .task {
-                let result = await translator.resolve(SignInPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(SignInPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case let .accountExistsReturned(accountExists):
             if accountExists {
                 let phoneNumber = state.phoneNumber
-                let verifyPhoneNumberTask: Effect<Action> = .task {
+                let verifyPhoneNumberTask: Effect<Action> = .task { @MainActor in
                     @Dependency(\.networking.auth) var auth: any AuthDelegate
-                    let result = await auth.verifyPhoneNumber(
-                        internationalNumber: phoneNumber.compiledNumberString
-                    )
-                    return .verifyPhoneNumberReturned(result)
+                    do throws(Exception) {
+                        return try await .verifyPhoneNumberReturned(
+                            auth.verifyPhoneNumber(
+                                internationalNumber: phoneNumber.compiledNumberString
+                            )
+                        )
+                    } catch {
+                        return .verifyPhoneNumberFailed(error)
+                    }
                 }.cancellable(id: State.TaskID.verifyPhoneNumber)
 
                 return .cancel(id: State.TaskID.authenticateUser)
@@ -152,15 +165,7 @@ struct SignInPageReducer: Reducer {
             onboardingService.setRegionCode(state.selectedRegionCode)
             navigation.navigate(to: .onboarding(.stack([.selectLanguage])))
 
-        case let .authenticateUserReturned(.success(userID)):
-            coreUI.removeOverlay()
-
-            @Persistent(.currentUserID) var currentUserID: String?
-            currentUserID = userID
-            services.analytics.logEvent(.logIn)
-            navigation.navigate(to: .root(.modal(.splash)))
-
-        case let .authenticateUserReturned(.failure(exception)):
+        case let .authenticateUserFailed(exception):
             coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -183,6 +188,14 @@ struct SignInPageReducer: Reducer {
             }
 
             Logger.log(exception, with: .toast)
+
+        case let .authenticateUserReturned(userID):
+            coreUI.removeOverlay()
+
+            @Persistent(.currentUserID) var currentUserID: String?
+            currentUserID = userID
+            services.analytics.logEvent(.logIn)
+            navigation.navigate(to: .root(.modal(.splash)))
 
         case .backButtonTapped:
             switch state.configuration {
@@ -212,12 +225,12 @@ struct SignInPageReducer: Reducer {
             state.phoneNumberString = phoneNumberString
             state.isContinueButtonEnabled = state.numberIsValidLength
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception)
             state.viewState = .loaded
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
 
         case .runContinueButtonEffect:
@@ -237,15 +250,22 @@ struct SignInPageReducer: Reducer {
             case .verificationCode:
                 let authID = state.authID
                 let verificationCode = state.verificationCode
-                let authenticateUserTask: Effect<Action> = .task {
+                let authenticateUserTask: Effect<Action> = .task { @MainActor in
                     @Dependency(\.networking.auth) var auth: any AuthDelegate
-                    let result = await auth.authenticateUser(
-                        authID: authID,
-                        verificationCode: verificationCode
-                    )
-                    return .authenticateUserReturned(result)
+                    do throws(Exception) {
+                        return try await .authenticateUserReturned(
+                            auth.authenticateUser(
+                                authID: authID,
+                                verificationCode: verificationCode
+                            )
+                        )
+                    } catch {
+                        return .authenticateUserFailed(error)
+                    }
                 }.cancellable(id: State.TaskID.authenticateUser)
-                return .cancel(id: State.TaskID.verifyPhoneNumber).merge(with: authenticateUserTask)
+
+                return .cancel(id: State.TaskID.verifyPhoneNumber)
+                    .merge(with: authenticateUserTask)
             }
 
         case let .selectedRegionCodeChanged(selectedRegionCode):
@@ -261,16 +281,7 @@ struct SignInPageReducer: Reducer {
             state.verificationCode = verificationCode
             state.isContinueButtonEnabled = verificationCode.count == 6
 
-        case let .verifyPhoneNumberReturned(.success(authID)):
-            coreUI.removeOverlay()
-
-            state.isBackButtonEnabled = true
-            state.isContinueButtonEnabled = false
-
-            state.authID = authID
-            state.configuration = .verificationCode
-
-        case let .verifyPhoneNumberReturned(.failure(exception)):
+        case let .verifyPhoneNumberFailed(exception):
             coreUI.removeOverlay()
 
             state.isBackButtonEnabled = true
@@ -293,6 +304,15 @@ struct SignInPageReducer: Reducer {
             }
 
             Logger.log(exception, with: .toast)
+
+        case let .verifyPhoneNumberReturned(authID):
+            coreUI.removeOverlay()
+
+            state.isBackButtonEnabled = true
+            state.isContinueButtonEnabled = false
+
+            state.authID = authID
+            state.configuration = .verificationCode
 
         case .viewDisappeared:
             InteractivePopGestureRecognizer.setIsEnabled(true)

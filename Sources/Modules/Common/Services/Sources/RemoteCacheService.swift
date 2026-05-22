@@ -39,12 +39,17 @@ struct RemoteCacheService {
                 at: NetworkPath.invalidatedCaches.rawValue
             )
         } catch {
-            var exceptions = error.isEqual(to: .Networking.Database.noValueExists) ? [] : [error]
-            if let exception = await networking.database.setValue(
-                [userID],
-                forKey: NetworkPath.invalidatedCaches.rawValue
-            ) {
-                exceptions.append(exception)
+            var exceptions = error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) ? [] : [error]
+
+            do {
+                try await networking.database.setValue(
+                    [userID],
+                    forKey: NetworkPath.invalidatedCaches.rawValue
+                )
+            } catch {
+                exceptions.append(error)
             }
 
             return exceptions.compiledException
@@ -56,9 +61,15 @@ struct RemoteCacheService {
         }
 
         invalidatedCaches = invalidatedCaches.unique
-        return await networking.database.setValue(
-            invalidatedCaches,
-            forKey: NetworkPath.invalidatedCaches.rawValue
-        )
+        do {
+            try await networking.database.setValue(
+                invalidatedCaches,
+                forKey: NetworkPath.invalidatedCaches.rawValue
+            )
+        } catch {
+            return error
+        }
+
+        return nil
     }
 }

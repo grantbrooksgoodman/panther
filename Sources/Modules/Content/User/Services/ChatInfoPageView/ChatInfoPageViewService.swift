@@ -110,8 +110,8 @@ final class ChatInfoPageViewService {
         }
 
         // Resolve uncached users in parallel (the only async work is the CNContact lookup).
-        let resolvedResult = await uncachedUsers
-            .parallelMap { @Sendable user -> Callback<(String, ChatParticipant)?, Exception> in
+        let participants = try await uncachedUsers
+            .parallelMap { @Sendable user -> (String, ChatParticipant)? in
                 let currentUserSharesData = conversation.currentUserSharesPenPalsData(with: user)
                 // swiftlint:disable:next identifier_name
                 let currentUserDoesNotShareDataButOtherUserDoes = !currentUserSharesData && conversation.userSharesPenPalsDataWithCurrentUser(user)
@@ -171,25 +171,20 @@ final class ChatInfoPageViewService {
                     )
                 }
 
-                guard let chatParticipant else { return .success(nil) }
-                return .success((user.id, chatParticipant))
+                guard let chatParticipant else { return nil }
+                return (user.id, chatParticipant)
             }
 
-        switch resolvedResult {
-        case let .success(resolved):
-            let resolvedPairs = resolved.compactMap(\.self)
-            chatParticipants.append(contentsOf: resolvedPairs.map(\.1))
+        let resolvedPairs = participants.compactMap(\.self)
+        chatParticipants.append(contentsOf: resolvedPairs.map(\.1))
 
-            if !isPenPalsConversation {
-                var cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs ?? [:]
-                for (userID, participant) in resolvedPairs {
-                    cachedChatParticipantsForUserIDs[userID] = participant
-                }
-                self.cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs
+        if !isPenPalsConversation {
+            var cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs ?? [:]
+            for (userID, participant) in resolvedPairs {
+                cachedChatParticipantsForUserIDs[userID] = participant
             }
 
-        case let .failure(exception):
-            throw exception
+            self.cachedChatParticipantsForUserIDs = cachedChatParticipantsForUserIDs
         }
 
         var withAlphabeticalPrefix = [ChatParticipant]()

@@ -62,34 +62,38 @@ struct LegacyUserService {
             "regionCode": regionCode,
         ]
 
-        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)") {
-            return exception.appending(userInfo: userInfo)
-        }
+        do {
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)"
+            )
 
-        if let exception = await networking.database.setValue(newDictionary, forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)") {
-            return exception.appending(userInfo: userInfo)
-        }
+            try await networking.database.setValue(
+                newDictionary,
+                forKey: "\(userPath)/\(User.SerializableKey.phoneNumber.rawValue)"
+            )
 
-        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/callingCode") {
-            return exception.appending(userInfo: userInfo)
-        }
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: "\(userPath)/callingCode"
+            )
 
-        if let exception = await networking.database.setValue(NSNull(), forKey: "\(userPath)/region") {
-            return exception.appending(userInfo: userInfo)
-        }
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: "\(userPath)/region"
+            )
 
-        if let exception = await networking.database.setValue(
-            Array.bangQualifiedEmpty,
-            forKey: "\(userPath)/\(User.SerializableKey.blockedUserIDs.rawValue)"
-        ) {
-            return exception.appending(userInfo: userInfo)
-        }
+            try await networking.database.setValue(
+                Array.bangQualifiedEmpty,
+                forKey: "\(userPath)/\(User.SerializableKey.blockedUserIDs.rawValue)"
+            )
 
-        if let exception = await networking.database.setValue(
-            Array.bangQualifiedEmpty,
-            forKey: "\(userPath)/\(User.SerializableKey.conversationIDs.rawValue)"
-        ) {
-            return exception.appending(userInfo: userInfo)
+            try await networking.database.setValue(
+                Array.bangQualifiedEmpty,
+                forKey: "\(userPath)/\(User.SerializableKey.conversationIDs.rawValue)"
+            )
+        } catch {
+            return error.appending(userInfo: userInfo)
         }
 
         Logger.log(

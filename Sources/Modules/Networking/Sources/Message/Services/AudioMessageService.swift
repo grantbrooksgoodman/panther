@@ -47,11 +47,18 @@ struct AudioMessageService {
 
     // TODO: This is inefficient. Rewrite with Message as the argument.
     func deleteInputAudioComponent(for messageID: String) async -> Exception? {
-        if let exception = await networking.storage.deleteItem(
-            at: "\(NetworkPath.audioMessageInputs.rawValue)/\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)"
-        ) {
-            guard !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) else { return nil }
-            return exception
+        do {
+            try await networking.storage.deleteItem(
+                at: [
+                    NetworkPath.audioMessageInputs.rawValue,
+                    "\(messageID).\(MediaFileExtension.audio(.m4a).rawValue)",
+                ].joined(separator: "/")
+            )
+        } catch {
+            guard !error.isEqual(
+                to: .Networking.Storage.storageItemDoesNotExist
+            ) else { return nil }
+            return error
         }
 
         return nil
@@ -152,7 +159,7 @@ struct AudioMessageService {
         let outputFileName = "\(translation.languagePair.to)-\(AudioService.FileNames.outputM4A)"
         return await (try? networking.storage.itemExists(
             at: "\(outputDirectoryPath)/\(outputFileName)"
-        ).get()) == true
+        )) == true
     }
 
     private func cachedAudioMessageReference(
@@ -187,11 +194,13 @@ struct AudioMessageService {
         let sourceFileURL = isFromCurrentUser ? localAudioFilePath.inputFilePathURL : localAudioFilePath.outputFilePathURL
         let destinationFileURL = isFromCurrentUser ? localAudioFilePath.outputFilePathURL : localAudioFilePath.inputFilePathURL
 
-        if let exception = await networking.storage.downloadItem(
-            at: isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
-            to: sourceFileURL
-        ) {
-            throw exception.appending(userInfo: userInfo)
+        do {
+            try await networking.storage.downloadItem(
+                at: isFromCurrentUser ? localAudioFilePath.inputFilePathString : localAudioFilePath.outputFilePathString,
+                to: sourceFileURL
+            )
+        } catch {
+            throw error.appending(userInfo: userInfo)
         }
 
         do throws(Exception) {
@@ -224,7 +233,7 @@ struct AudioMessageService {
     private func preRecordedInputExists(for audioFile: AudioFile) async -> Bool {
         await (try? networking.storage.itemExists(
             at: "\(NetworkPath.audioMessageInputs.rawValue)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
-        ).get()) == true
+        )) == true
     }
 
     private func upload(
@@ -234,7 +243,7 @@ struct AudioMessageService {
         let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
 
         do {
-            return try await networking.storage.upload(
+            try await networking.storage.upload(
                 Data.fromURL(audioFile.url),
                 metadata: .init(
                     fullPath,
@@ -244,5 +253,7 @@ struct AudioMessageService {
         } catch {
             return error
         }
+
+        return nil
     }
 }

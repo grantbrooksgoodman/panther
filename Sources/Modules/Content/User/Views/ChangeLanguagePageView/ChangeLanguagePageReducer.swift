@@ -29,7 +29,8 @@ struct ChangeLanguagePageReducer: Reducer {
         case viewDisappeared
 
         case confirmButtonTapped
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
         case selectedLanguageNameChanged(String)
     }
 
@@ -69,26 +70,31 @@ struct ChangeLanguagePageReducer: Reducer {
             state.selectedLanguageName = languageCodeDictionary[RuntimeStorage.languageCode] ?? languageCodeDictionary.values.first ?? ""
 
             return .task {
-                let result = await translator.resolve(ChangeLanguagePageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(ChangeLanguagePageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case .confirmButtonTapped:
             viewService.confirmButtonTapped(state.selectedLanguageCode)
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
-            state.instructionViewStrings = .init(
-                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
-                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
-            )
-            state.viewState = .loaded
-
-        case let .resolveReturned(.failure(exception)):
+        case let .resolveFailed(exception):
             Logger.log(exception)
             state.instructionViewStrings = .init(
                 titleLabelText: state.strings.value(for: .instructionViewTitleLabelText),
                 subtitleLabelText: state.strings.value(for: .instructionViewSubtitleLabelText)
+            )
+            state.viewState = .loaded
+
+        case let .resolveReturned(strings):
+            state.strings = strings
+            state.instructionViewStrings = .init(
+                titleLabelText: strings.value(for: .instructionViewTitleLabelText),
+                subtitleLabelText: strings.value(for: .instructionViewSubtitleLabelText)
             )
             state.viewState = .loaded
 

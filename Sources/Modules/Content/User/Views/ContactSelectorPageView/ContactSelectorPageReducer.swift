@@ -33,7 +33,8 @@ struct ContactSelectorPageReducer: Reducer {
 
         case findUserFailed(Exception)
         case findUserReturned(User)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
         case searchQueryChanged(String)
         case selectedContactPairChanged(ContactPair)
     }
@@ -130,8 +131,13 @@ struct ContactSelectorPageReducer: Reducer {
 
             state.viewState = .loading
             return .task {
-                let result = await translator.resolve(ContactSelectorPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(ContactSelectorPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case .cancelToolbarButtonTapped:
@@ -173,12 +179,12 @@ struct ContactSelectorPageReducer: Reducer {
         case .inviteToolbarButtonTapped:
             viewService.inviteToolbarButtonTapped()
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception, with: .toast)
             state.viewState = .loaded
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception, with: .toast)
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
 
         case let .searchQueryChanged(searchQuery):

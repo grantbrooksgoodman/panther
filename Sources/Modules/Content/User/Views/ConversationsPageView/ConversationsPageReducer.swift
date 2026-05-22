@@ -49,7 +49,8 @@ struct ConversationsPageReducer: Reducer {
         case composeToolbarButtonAnimationAmountSet(CGFloat)
         case reloadDataFailed(Exception)
         case reloadDataReturned([Conversation])
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
     }
 
     // MARK: - State
@@ -92,8 +93,13 @@ struct ConversationsPageReducer: Reducer {
             viewService.viewAppeared()
 
             return .task {
-                let result = await translator.resolve(ConversationsPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(ConversationsPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case .animatedComposeToolbarButtonAppeared:
@@ -145,14 +151,14 @@ struct ConversationsPageReducer: Reducer {
                 state: &state
             )
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception)
+
             state.viewState = .loaded
             viewService.viewLoaded()
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
-
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
             viewService.viewLoaded()
 

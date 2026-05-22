@@ -55,8 +55,9 @@ final class PushTokenService {
             }
 
         guard !userIDsAndPrunedTokens.isEmpty else { return }
-        if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
-            await self.networking.database.setValue(
+        // TODO: Audit to make sure we're using the throwing method.
+        try await userIDsAndPrunedTokens.parallelMap {
+            try await self.networking.database.setValue(
                 $0.prunedTokens,
                 forKey: [
                     NetworkPath.users.rawValue,
@@ -64,8 +65,6 @@ final class PushTokenService {
                     User.SerializableKey.pushTokens.rawValue,
                 ].joined(separator: "/")
             )
-        }) {
-            throw exception
         }
 
         Logger.log(
@@ -142,17 +141,19 @@ final class PushTokenService {
             }
 
         guard !userIDsAndPrunedTokens.isEmpty else { return nil }
-        if let exception = await userIDsAndPrunedTokens.parallelMap(perform: {
-            await self.networking.database.setValue(
-                $0.prunedTokens,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    $0.userID,
-                    User.SerializableKey.pushTokens.rawValue,
-                ].joined(separator: "/")
-            )
-        }) {
-            return exception
+        do {
+            try await userIDsAndPrunedTokens.parallelMap {
+                try await self.networking.database.setValue(
+                    $0.prunedTokens,
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        $0.userID,
+                        User.SerializableKey.pushTokens.rawValue,
+                    ].joined(separator: "/")
+                )
+            }
+        } catch {
+            return error
         }
 
         Logger.log(

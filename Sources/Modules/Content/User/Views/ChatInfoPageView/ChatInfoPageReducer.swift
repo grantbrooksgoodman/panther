@@ -57,7 +57,8 @@ struct ChatInfoPageReducer: Reducer {
         case photoPickerDismissed(Exception?)
 
         case removeUserButtonTapped(ChatParticipant)
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
 
         case segmentedControlSelectionIndexChanged(Int)
         case selectedImageChanged(UIImage)
@@ -212,8 +213,13 @@ struct ChatInfoPageReducer: Reducer {
             }
 
             return .task {
-                let result = await translator.resolve(ChatInfoPageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(ChatInfoPageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }.merge(with: getChatParticipantsTask)
 
         case .addContactButtonTapped:
@@ -405,12 +411,12 @@ struct ChatInfoPageReducer: Reducer {
                 conversation: state.conversation
             )
 
-        case let .resolveReturned(.success(strings)):
+        case let .resolveFailed(exception):
+            Logger.log(exception)
+
+        case let .resolveReturned(strings):
             state.strings = strings
             state.segmentedControlViewID = UUID()
-
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
 
         case let .segmentedControlSelectionIndexChanged(segmentedControlSelectionIndex):
             state.segmentedControlSelectionIndex = segmentedControlSelectionIndex

@@ -36,14 +36,20 @@ extension CoreKit.Utilities {
             )
         }
 
-        return await database.setValue(
-            Array.bangQualifiedEmpty,
-            forKey: [
-                NetworkPath.users.rawValue,
-                currentUserID,
-                User.SerializableKey.previousLanguageCodes.rawValue,
-            ].joined(separator: "/")
-        )
+        do {
+            try await database.setValue(
+                Array.bangQualifiedEmpty,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    currentUserID,
+                    User.SerializableKey.previousLanguageCodes.rawValue,
+                ].joined(separator: "/")
+            )
+        } catch {
+            return error
+        }
+
+        return nil
     }
 
     @MainActor
@@ -162,53 +168,63 @@ extension CoreKit.Utilities {
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        if let exception = await userIDs.parallelMap(perform: { @Sendable in
-            await database.wrappedValue.setValue(
-                [String.bangQualifiedEmpty],
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    $0,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            )
-        }) {
-            return exception
+        do throws(Exception) {
+            try await userIDs.parallelMap { @Sendable in
+                try await database.wrappedValue.setValue(
+                    [String.bangQualifiedEmpty],
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        $0,
+                        User.SerializableKey.conversationIDs.rawValue,
+                    ].joined(separator: "/")
+                )
+            }
+        } catch {
+            return error
         }
 
         for keyPath in [
             NetworkPath.conversations.rawValue,
             NetworkPath.messages.rawValue,
         ] {
-            if let exception = await networking.database.setValue(
-                NSNull(),
-                forKey: keyPath
-            ) {
-                return exception
+            do {
+                try await networking.database.setValue(
+                    NSNull(),
+                    forKey: keyPath
+                )
+            } catch {
+                return error
             }
         }
 
         if await (try? networking.storage.itemExists(
             as: .directory,
             at: NetworkPath.audioMessageInputs.rawValue
-        ).get()) == true,
-            let exception = await networking.storage.deleteAllItems(
-                at: NetworkPath.audioMessageInputs.rawValue,
-                includeItemsInSubdirectories: true,
-                timeout: .seconds(600)
-            ) {
-            return exception
+        )) == true {
+            do {
+                try await networking.storage.deleteAllItems(
+                    at: NetworkPath.audioMessageInputs.rawValue,
+                    includeItemsInSubdirectories: true,
+                    timeout: .seconds(600)
+                )
+            } catch {
+                return error
+            }
         }
 
         if await (try? networking.storage.itemExists(
             as: .directory,
             at: NetworkPath.media.rawValue
-        ).get()) == true,
-            let exception = await networking.storage.deleteAllItems(
-                at: NetworkPath.media.rawValue,
-                includeItemsInSubdirectories: true,
-                timeout: .seconds(600)
-            ) {
-            return exception
+        )) == true {
+            do {
+                try await networking.storage.deleteAllItems(
+                    at: NetworkPath.media.rawValue,
+                    includeItemsInSubdirectories: true,
+                    timeout: .seconds(600)
+                )
+            } catch {
+                return error
+            }
         }
 
         return nil
@@ -228,15 +244,21 @@ extension CoreKit.Utilities {
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        return await userIDs.parallelMap(perform: { @Sendable in
-            await database.wrappedValue.setValue(
-                [String.bangQualifiedEmpty],
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    $0,
-                    User.SerializableKey.pushTokens.rawValue,
-                ].joined(separator: "/")
-            )
-        })
+        do throws(Exception) {
+            try await userIDs.parallelMap { @Sendable in
+                try await database.wrappedValue.setValue(
+                    [String.bangQualifiedEmpty],
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        $0,
+                        User.SerializableKey.pushTokens.rawValue,
+                    ].joined(separator: "/")
+                )
+            }
+        } catch {
+            return error
+        }
+
+        return nil
     }
 }

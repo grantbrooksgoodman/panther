@@ -69,25 +69,23 @@ struct ConversationService {
             $0.key != Conversation.SerializableKey.id.rawValue
         }
 
-        if let exception = await networking.database.updateChildValues(
+        try await networking.database.updateChildValues(
             forKey: "\(path)/\(id)",
             with: data
-        ) {
-            throw exception
-        }
+        )
 
         let conversationID: ConversationID = .init(
             key: mockConversation.id.key,
             hash: mockConversation.encodedHash
         )
 
-        if let exception = await participants.parallelMap(perform: {
-            await addConversationToUser(
+        try await participants.parallelMap {
+            if let exception = await addConversationToUser(
                 userID: $0.userID,
                 conversationID: conversationID
-            )
-        }) {
-            throw exception
+            ) {
+                throw exception
+            }
         }
 
         mockConversation = .init(
@@ -120,8 +118,7 @@ struct ConversationService {
 
         do {
             return try await idKeys.parallelMap(
-                failForEmptyCollection: true,
-                maxConcurrentOperations: 25
+                failForEmptyCollection: true
             ) {
                 try await getConversation(idKey: $0)
             }
@@ -193,7 +190,10 @@ struct ConversationService {
         conversationIDKey: String,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async -> Exception? {
-        func removeConversationFromUser(userID: String, conversationIDKey: String) async -> Exception? {
+        func removeConversationFromUser(
+            userID: String,
+            conversationIDKey: String
+        ) async -> Exception? {
             let userInfo = ["UserID": userID, "ConversationIDKey": conversationIDKey]
 
             guard !userID.isBangQualifiedEmpty,
@@ -220,28 +220,38 @@ struct ConversationService {
 
             conversationIDStrings = conversationIDStrings.isBangQualifiedEmpty ? .bangQualifiedEmpty : conversationIDStrings
 
-            if let exception = await networking.database.setValue(
-                conversationIDStrings,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    userID,
-                    User.SerializableKey.conversationIDs.rawValue,
-                ].joined(separator: "/")
-            ) {
-                return exception.appending(userInfo: userInfo)
+            do {
+                try await networking.database.setValue(
+                    conversationIDStrings,
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        userID,
+                        User.SerializableKey.conversationIDs.rawValue,
+                    ].joined(separator: "/")
+                )
+            } catch {
+                return error.appending(userInfo: userInfo)
             }
 
             return nil
         }
 
-        return await userIDs.parallelMap(
-            failFast: failureStrategy == .returnOnFailure
-        ) {
-            await removeConversationFromUser(
-                userID: $0,
-                conversationIDKey: conversationIDKey
-            )
+        do {
+            try await userIDs.parallelMap(
+                failFast: failureStrategy == .returnOnFailure
+            ) {
+                if let exception = await removeConversationFromUser(
+                    userID: $0,
+                    conversationIDKey: conversationIDKey
+                ) {
+                    throw exception
+                }
+            }
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Auxiliary
@@ -266,15 +276,17 @@ struct ConversationService {
             !$0.isBangQualifiedEmpty
         }.unique
 
-        if let exception = await networking.database.setValue(
-            conversationIDStrings,
-            forKey: [
-                NetworkPath.users.rawValue,
-                userID,
-                User.SerializableKey.conversationIDs.rawValue,
-            ].joined(separator: "/")
-        ) {
-            return exception.appending(userInfo: userInfo)
+        do {
+            try await networking.database.setValue(
+                conversationIDStrings,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    userID,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
+            )
+        } catch {
+            return error.appending(userInfo: userInfo)
         }
 
         return nil

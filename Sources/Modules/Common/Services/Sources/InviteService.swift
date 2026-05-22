@@ -68,27 +68,23 @@ struct InviteService {
             return nil
         }
 
-        let translateResult = await translator.translate(
-            .init(promptMessage),
-            with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
-            hud: (.zero, true),
-            enhance: .init(
-                additionalContext: "You are translating an invitation message."
-            )
-        )
-
-        switch translateResult {
-        case let .success(translation):
-            presentActivityViewController(
+        do {
+            try await presentActivityViewController(
                 appShareLink: appShareLink,
-                text: translation.output.sanitized
+                text: translator.translate(
+                    .init(promptMessage),
+                    with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
+                    hud: (.zero, true),
+                    enhance: .init(
+                        additionalContext: "You are translating an invitation message."
+                    )
+                ).output.sanitized
             )
-
-            return nil
-
-        case let .failure(exception):
-            return exception
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     // MARK: - Present Invitation Prompt

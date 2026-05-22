@@ -326,7 +326,7 @@ final class StorageSessionService: @unchecked Sendable {
         let messagePrefixInput = TranslationInput("You can free up space by deleting conversations.")
         let messageSuffixInput = TranslationInput("Until then, you will not be able to send new messages.")
 
-        let getTranslationsResult = await networking.hostedTranslation.getTranslations(
+        let translations = try await networking.hostedTranslation.getTranslations(
             for: [
                 messagePrefixInput,
                 messageSuffixInput,
@@ -338,43 +338,37 @@ final class StorageSessionService: @unchecked Sendable {
             ) : nil
         )
 
-        switch getTranslationsResult {
-        case let .success(translations):
-            let prefixOutput = (translations.first(where: {
-                $0.input.value == messagePrefixInput.value
-            })?.output ?? messagePrefixInput.value).sanitized
+        let prefixOutput = (translations.first(where: {
+            $0.input.value == messagePrefixInput.value
+        })?.output ?? messagePrefixInput.value).sanitized
 
-            let suffixOutput = (translations.first(where: {
-                $0.input.value == messageSuffixInput.value
-            })?.output ?? messageSuffixInput.value).sanitized
+        let suffixOutput = (translations.first(where: {
+            $0.input.value == messageSuffixInput.value
+        })?.output ?? messageSuffixInput.value).sanitized
 
-            let storageFullAlert = AKAlert(
-                title: "Storage Full",
-                message: "\(prefixOutput)\n\n\(suffixOutput)",
-                actions: [.cancelAction(title: "OK")]
+        let storageFullAlert = AKAlert(
+            title: "Storage Full",
+            message: "\(prefixOutput)\n\n\(suffixOutput)",
+            actions: [.cancelAction(title: "OK")]
+        )
+
+        let fontSize: CGFloat = UIApplication.isFullyV26Compatible ? 15 : 13
+        let attributedMessageFont: UIFont = .systemFont(ofSize: fontSize)
+
+        storageFullAlert.setMessageAttributes(
+            .init(
+                [.font: attributedMessageFont],
+                secondaryAttributes: [.init(
+                    [
+                        .font: attributedMessageFont,
+                        .foregroundColor: UIColor.red,
+                    ],
+                    stringRanges: [suffixOutput]
+                )]
             )
+        )
 
-            let fontSize: CGFloat = UIApplication.isFullyV26Compatible ? 15 : 13
-            let attributedMessageFont: UIFont = .systemFont(ofSize: fontSize)
-
-            storageFullAlert.setMessageAttributes(
-                .init(
-                    [.font: attributedMessageFont],
-                    secondaryAttributes: [.init(
-                        [
-                            .font: attributedMessageFont,
-                            .foregroundColor: UIColor.red,
-                        ],
-                        stringRanges: [suffixOutput]
-                    )]
-                )
-            )
-
-            return storageFullAlert
-
-        case let .failure(exception):
-            throw exception
-        }
+        return storageFullAlert
     }
 
     private func sizeInKilobytes(
@@ -402,16 +396,11 @@ final class StorageSessionService: @unchecked Sendable {
     private func totalSizeInKilobytes(
         of items: [String]
     ) async throws(Exception) -> Int {
-        let sizeInKilobytesResults = await items.parallelMap(
-            maxConcurrentOperations: 25
-        ) { filePath in
-            await self.networking.storage.sizeInKilobytes(ofItemAt: filePath)
-        }
-
-        switch sizeInKilobytesResults {
-        case let .success(sizesInKilobytes): return sizesInKilobytes.reduce(0, +)
-        case let .failure(exception): throw exception
-        }
+        try await items.parallelMap { filePath in
+            try await self.networking.storage.sizeInKilobytes(
+                ofItemAt: filePath
+            )
+        }.reduce(0, +)
     }
 }
 

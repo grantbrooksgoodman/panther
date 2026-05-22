@@ -255,11 +255,13 @@ struct ModerationSessionService {
                 }
             }
 
-            if let exception = await networking.database.setValue(
-                reportedUserIDs,
-                forKey: NetworkPath.reportedUsers.rawValue
-            ) {
-                return exception
+            do {
+                try await networking.database.setValue(
+                    reportedUserIDs,
+                    forKey: NetworkPath.reportedUsers.rawValue
+                )
+            } catch {
+                return error
             }
         } catch {
             Logger.log(error)
@@ -267,11 +269,13 @@ struct ModerationSessionService {
             var reportedUserIDs = [String: Int]()
             userIDs.forEach { reportedUserIDs[$0] = 1 }
 
-            if let exception = await networking.database.setValue(
-                reportedUserIDs,
-                forKey: NetworkPath.reportedUsers.rawValue
-            ) {
-                return exception
+            do {
+                try await networking.database.setValue(
+                    reportedUserIDs,
+                    forKey: NetworkPath.reportedUsers.rawValue
+                )
+            } catch {
+                return error
             }
         }
 

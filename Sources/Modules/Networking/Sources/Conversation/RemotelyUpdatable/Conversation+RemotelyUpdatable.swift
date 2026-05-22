@@ -112,15 +112,13 @@ extension Conversation: RemotelyUpdatable {
         }
 
         // NIT: Can do updateChildValues with encoded filtering all not equal to keys in data.
-        if let exception = await networking.database.setValue(
+        try await networking.database.setValue(
             updated.encoded.filter { $0.key != Conversation.SerializableKey.id.rawValue },
             forKey: [
                 NetworkPath.conversations.rawValue,
                 updated.id.key,
             ].joined(separator: "/")
-        ) {
-            throw exception
-        }
+        )
 
         if let exception = await propagateUpdatesToUsers(in: updated) {
             throw exception
@@ -165,16 +163,14 @@ extension Conversation: RemotelyUpdatable {
         defer { networking.conversationService.archive.addValue(updated) }
         guard updated.id.hash != id.hash else { return updated }
 
-        if let exception = await networking.database.setValue(
+        try await networking.database.setValue(
             updated.id.hash,
             forKey: [
                 networkPath.rawValue,
                 identifier,
                 SerializableKey.encodedHash.rawValue,
             ].joined(separator: "/")
-        ) {
-            throw exception
-        }
+        )
 
         if let exception = await propagateUpdatesToUsers(in: updated) {
             throw exception
@@ -214,11 +210,13 @@ extension Conversation: RemotelyUpdatable {
         }
 
         newMessageIDs += currentMessageIDs
-        if let exception = await networking.database.setValue(
-            newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
-            forKey: messagesKeyPath
-        ) {
-            return exception
+        do {
+            try await networking.database.setValue(
+                newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
+                forKey: messagesKeyPath
+            )
+        } catch {
+            return error
         }
 
         return nil
@@ -259,19 +257,20 @@ extension Conversation: RemotelyUpdatable {
                 return (user, conversationIDs)
             }
 
-        return await eligibleUsers.parallelMap(
-            failFast: false
-        ) {
-            do throws(Exception) {
+        do {
+            try await eligibleUsers.parallelMap(
+                failFast: false
+            ) {
                 _ = try await $0.user.update(
                     \.conversationIDs,
                     to: $0.conversationIDs
                 )
-                return nil
-            } catch {
-                return error
             }
+        } catch {
+            return error
         }
+
+        return nil
     }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {
@@ -309,16 +308,14 @@ extension Conversation: RemotelyUpdatable {
             conversation.copying(participants: newParticipants)
         )
 
-        if let exception = await networking.database.setValue(
+        try await networking.database.setValue(
             updatedConversation.participants.map(\.encoded),
             forKey: [
                 NetworkPath.conversations.rawValue,
                 updatedConversation.id.key,
                 SerializableKey.participants.rawValue,
             ].joined(separator: "/")
-        ) {
-            throw exception
-        }
+        )
 
         return updatedConversation
     }

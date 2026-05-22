@@ -92,16 +92,22 @@ struct ChangeLanguagePageViewService {
             return exception
         }
 
-        if let exception = await (currentUser.conversations ?? [])
-            .visibleForCurrentUser
-            .map(\.filteringSystemMessages)
-            .filter({
-                !$0.messageIDs.isBangQualifiedEmpty &&
-                    ($0.messages == nil || $0.messages?.isEmpty == true) ||
-                    $0.messageIDs.count != $0.messages?.count
-            })
-            .parallelMap(perform: { await $0.setMessages() }) {
-            return exception
+        do throws(Exception) {
+            try await (currentUser.conversations ?? [])
+                .visibleForCurrentUser
+                .map(\.filteringSystemMessages)
+                .filter {
+                    !$0.messageIDs.isBangQualifiedEmpty &&
+                        ($0.messages == nil || $0.messages?.isEmpty == true) ||
+                        $0.messageIDs.count != $0.messages?.count
+                }
+                .parallelMap {
+                    if let exception = await $0.setMessages() {
+                        throw exception
+                    }
+                }
+        } catch {
+            return error
         }
 
         if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
@@ -141,15 +147,17 @@ struct ChangeLanguagePageViewService {
                 return exception
             }
 
-            if let exception = await database.setValue(
-                languageCode,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    currentUserID,
-                    User.SerializableKey.languageCode.rawValue,
-                ].joined(separator: "/")
-            ) {
-                return exception
+            do {
+                try await database.setValue(
+                    languageCode,
+                    forKey: [
+                        NetworkPath.users.rawValue,
+                        currentUserID,
+                        User.SerializableKey.languageCode.rawValue,
+                    ].joined(separator: "/")
+                )
+            } catch {
+                return error
             }
 
             await MainActor.run {

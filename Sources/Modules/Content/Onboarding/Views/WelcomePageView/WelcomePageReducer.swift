@@ -33,7 +33,8 @@ struct WelcomePageReducer: Reducer {
         case welcomeLabelTapped
 
         case cycleWelcomeLabelText
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
     }
 
     // MARK: - State
@@ -89,8 +90,13 @@ struct WelcomePageReducer: Reducer {
             }
 
             return .task {
-                let result = await translator.resolve(WelcomePageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(WelcomePageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }.merge(
                 with: resetBadgeNumberEffect
             )
@@ -127,12 +133,12 @@ struct WelcomePageReducer: Reducer {
 
             return cycleWelcomeLabelTextEffect(delay: .seconds(3))
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception)
             state.viewState = .loaded
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
 
         case .signInButtonTapped:

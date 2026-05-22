@@ -35,7 +35,8 @@ struct FeaturePermissionPageReducer: Reducer {
         case currentIndexChanged(Int)
         case declineButtonTapped
         case enableButtonTapped
-        case getTranslationsReturned(Callback<[Translation], Exception>)
+        case getTranslationsFailed(Exception)
+        case getTranslationsReturned([Translation])
         case pageIndicatorTapped
     }
 
@@ -110,15 +111,20 @@ struct FeaturePermissionPageReducer: Reducer {
                 .configurations
                 .map { TranslationInput($0.subtitleText) }
 
-            return .task {
-                let result = await translator.getTranslations(
-                    for: titleTextInputs + subtitleTextInputs,
-                    languagePair: .system,
-                    enhance: Networking.config.isEnhancedDialogTranslationEnabled ? .init(
-                        additionalContext: nil
-                    ) : nil
-                )
-                return .getTranslationsReturned(result)
+            return .task { @MainActor in
+                do throws(Exception) {
+                    return try await .getTranslationsReturned(
+                        translator.getTranslations(
+                            for: titleTextInputs + subtitleTextInputs,
+                            languagePair: .system,
+                            enhance: Networking.config.isEnhancedDialogTranslationEnabled ? .init(
+                                additionalContext: nil
+                            ) : nil
+                        )
+                    )
+                } catch {
+                    return .getTranslationsFailed(error)
+                }
             }
 
         case let .currentIndexChanged(currentIndex):
@@ -134,7 +140,14 @@ struct FeaturePermissionPageReducer: Reducer {
             state.currentConfig.enableButtonAction()
             navigate(.forward, with: &state)
 
-        case let .getTranslationsReturned(.success(translations)):
+        case let .getTranslationsFailed(exception):
+            Logger.log(exception)
+
+            state.resolvedTitleText = state.configurations.map(\.titleText)
+            state.resolvedSubtitleText = state.configurations.map(\.subtitleText)
+            state.viewState = .loaded
+
+        case let .getTranslationsReturned(translations):
             guard translations.count == state.configurations.count * 2 else {
                 let exception = Exception(
                     "Mismatched ratio returned.",
@@ -153,13 +166,6 @@ struct FeaturePermissionPageReducer: Reducer {
             state.resolvedTitleText = titleText
             state.resolvedSubtitleText = subtitleText
 
-            state.viewState = .loaded
-
-        case let .getTranslationsReturned(.failure(exception)):
-            Logger.log(exception)
-
-            state.resolvedTitleText = state.configurations.map(\.titleText)
-            state.resolvedSubtitleText = state.configurations.map(\.subtitleText)
             state.viewState = .loaded
 
         case .pageIndicatorTapped:

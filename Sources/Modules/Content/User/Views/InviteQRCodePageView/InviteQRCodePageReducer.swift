@@ -26,7 +26,8 @@ struct InviteQRCodePageReducer: Reducer {
         case viewAppeared
         case doneButtonTapped
 
-        case resolveReturned(Callback<[TranslationOutputMap], Exception>)
+        case resolveFailed(Exception)
+        case resolveReturned([TranslationOutputMap])
     }
 
     // MARK: - State
@@ -53,8 +54,13 @@ struct InviteQRCodePageReducer: Reducer {
         case .viewAppeared:
             state.viewState = .loading
             return .task {
-                let result = await translator.resolve(InviteQRCodePageViewStrings.self)
-                return .resolveReturned(result)
+                do throws(Exception) {
+                    return try await .resolveReturned(
+                        translator.resolve(InviteQRCodePageViewStrings.self)
+                    )
+                } catch {
+                    return .resolveFailed(error)
+                }
             }
 
         case .doneButtonTapped:
@@ -65,12 +71,12 @@ struct InviteQRCodePageReducer: Reducer {
                 StatusBar.overrideStyle(.darkContent)
             }
 
-        case let .resolveReturned(.success(strings)):
-            state.strings = strings
+        case let .resolveFailed(exception):
+            Logger.log(exception)
             state.viewState = .loaded
 
-        case let .resolveReturned(.failure(exception)):
-            Logger.log(exception)
+        case let .resolveReturned(strings):
+            state.strings = strings
             state.viewState = .loaded
         }
 

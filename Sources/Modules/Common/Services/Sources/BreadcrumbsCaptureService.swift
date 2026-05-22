@@ -291,17 +291,18 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
         Task.detached(priority: .background) {
             // NIT: Using local dependency because I *think* a class-scoped property would be on the main actor.
             @Dependency(\.networking.storage) var storage: StorageDelegate
-
-            if let exception = await storage.upload(
-                imageData,
-                metadata: .init(
-                    filePath,
-                    contentType: ImageFileExtension.jpeg.contentTypeString,
-                    customValues: additionalMetadata.isEmpty ? nil : additionalMetadata
+            do throws(Exception) {
+                try await storage.upload(
+                    imageData,
+                    metadata: .init(
+                        filePath,
+                        contentType: ImageFileExtension.jpeg.contentTypeString,
+                        customValues: additionalMetadata.isEmpty ? nil : additionalMetadata
+                    )
                 )
-            ) {
+            } catch {
                 Logger.log(
-                    exception,
+                    error,
                     with: .toastInPrerelease
                 )
             }

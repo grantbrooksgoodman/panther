@@ -75,12 +75,10 @@ final class UserService: @unchecked Sendable {
         var data = mockUser.encoded.filter { $0.key != User.SerializableKey.id.rawValue }
         data[User.SerializableKey.badgeNumber.rawValue] = 0
 
-        if let exception = await networking.database.setValue(
+        try await networking.database.setValue(
             data,
             forKey: "\(NetworkPath.users.rawValue)/\(id)"
-        ) {
-            throw exception
-        }
+        )
 
         return mockUser
     }
@@ -190,8 +188,7 @@ final class UserService: @unchecked Sendable {
 
         do {
             return try await ids.parallelMap(
-                failForEmptyCollection: true,
-                maxConcurrentOperations: 25
+                failForEmptyCollection: true
             ) {
                 try await self.getUser(id: $0)
             }

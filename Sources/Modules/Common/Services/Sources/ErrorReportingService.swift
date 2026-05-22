@@ -118,22 +118,27 @@ final class ErrorReportingService: AlertKit.ReportDelegate {
                 }
 
             @Dependency(\.networking.storage) var storage: StorageDelegate
-            if let exception = await storage.upload(
-                loggerSessionRecordData,
-                metadata: .init(
-                    filePath,
-                    contentType: "text/plain",
-                    customValues: userInfo.plus(keys: [
-                        "Error Description": exceptionDescriptor ?? error.description,
-                    ]).plus(keys: self.userInfo)
+            do throws(Exception) {
+                try await storage.upload(
+                    loggerSessionRecordData,
+                    metadata: .init(
+                        filePath,
+                        contentType: "text/plain",
+                        customValues: userInfo.plus(keys: [
+                            "Error Description": exceptionDescriptor ?? error.description,
+                        ]).plus(keys: self.userInfo)
+                    )
                 )
-            ) {
+            } catch {
                 guard Logger.reportsErrorsAutomatically else {
-                    return Logger.log(exception, with: .toast)
+                    return Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
 
                 Logger.setReportsErrorsAutomatically(false)
-                Logger.log(exception, with: .toast)
+                Logger.log(error, with: .toast)
                 Logger.setReportsErrorsAutomatically(true)
 
                 return

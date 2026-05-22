@@ -80,12 +80,12 @@ struct MessageService {
             sentDate: sentDate
         )
 
-        if let exception = await networking.database.updateChildValues(
+        try await networking.database.updateChildValues(
             forKey: "\(NetworkPath.messages.rawValue)/\(id)",
-            with: mockMessage.encoded.filter { $0.key != Message.SerializableKey.id.rawValue }
-        ) {
-            throw exception
-        }
+            with: mockMessage.encoded.filter {
+                $0.key != Message.SerializableKey.id.rawValue
+            }
+        )
 
         switch mockMessage.contentType {
         case .audio:
@@ -199,8 +199,7 @@ struct MessageService {
 
         do {
             return try await ids.parallelMap(
-                failForEmptyCollection: true,
-                maxConcurrentOperations: 50
+                failForEmptyCollection: true
             ) {
                 try await getMessage(id: $0)
             }
@@ -229,11 +228,13 @@ struct MessageService {
                 exceptions.append(exception)
             }
 
-            if let exception = await networking.database.setValue(
-                NSNull(),
-                forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
-            ) {
-                exceptions.append(exception)
+            do {
+                try await networking.database.setValue(
+                    NSNull(),
+                    forKey: "\(NetworkPath.messages.rawValue)/\(messageID)"
+                )
+            } catch {
+                exceptions.append(error)
             }
 
             return exceptions.compiledException
@@ -263,11 +264,13 @@ struct MessageService {
         messageIDs.removeAll(where: { $0 == messageID })
         messageIDs = messageIDs.unique
 
-        if let exception = await networking.database.setValue(
-            messageIDs,
-            forKey: path
-        ) {
-            return exception
+        do {
+            try await networking.database.setValue(
+                messageIDs,
+                forKey: path
+            )
+        } catch {
+            return error
         }
 
         guard updateConversationHash else { return nil }
@@ -292,15 +295,23 @@ struct MessageService {
         updateConversationHash: Bool = true,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
     ) async -> Exception? {
-        await messageIDs.parallelMap(
-            failFast: failureStrategy == .returnOnFailure
-        ) {
-            await deleteMessage(
-                id: $0,
-                in: conversation,
-                updateConversationHash: updateConversationHash
-            )
+        do {
+            try await messageIDs.parallelMap(
+                failFast: failureStrategy == .returnOnFailure
+            ) {
+                if let exception = await deleteMessage(
+                    id: $0,
+                    in: conversation,
+                    updateConversationHash: updateConversationHash
+                ) {
+                    throw exception
+                }
+            }
+        } catch {
+            return error
         }
+
+        return nil
     }
 }
 
