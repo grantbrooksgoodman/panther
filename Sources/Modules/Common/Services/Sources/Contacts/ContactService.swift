@@ -43,7 +43,7 @@ final class ContactService: @unchecked Sendable {
 
     // MARK: - Sync Contact Pair Archive
 
-    func syncContactPairArchive() async -> Exception? {
+    func syncContactPairArchive() async throws(Exception) {
         do {
             let users = try await userService.getAllUsers()
             let contactPairs = try await fetchContactPairs(
@@ -74,11 +74,11 @@ final class ContactService: @unchecked Sendable {
                 sender: self
             )
         } catch {
-            guard !error.isEqual(to: .emptyContactList) else { return nil }
-            return error
+            guard !error.isEqual(
+                to: .emptyContactList
+            ) else { return }
+            throw error
         }
-
-        return nil
     }
 
     // MARK: - Clear Cache

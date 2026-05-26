@@ -42,13 +42,13 @@ struct MessageRetranslationService {
     func retranslateMessageInCurrentConversation(
         _ message: Message,
         indexPath: IndexPath
-    ) async -> Exception? {
+    ) async throws(Exception) {
         guard chatPageState.isPresented,
               let translation = message.translation,
               let conversation = clientSession.conversation.fullConversation,
               conversation.messageIDs.contains(message.id),
               conversation.messages?.compactMap(\.id).contains(message.id) == true else {
-            return .init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
             )
@@ -62,7 +62,7 @@ struct MessageRetranslationService {
             guard await confirmRetranslation(
                 targetLanguageCode: targetLanguageCode,
                 messageIsFromCurrentUser: message.isFromCurrentUser
-            ) else { return nil }
+            ) else { return }
         }
 
         coreHUD.showProgress(isModal: true)
@@ -116,11 +116,9 @@ struct MessageRetranslationService {
                     ]
                 )
 
-                if let exception = await conversation.setMessages(
+                try await conversation.setMessages(
                     ids: [message.id]
-                ) {
-                    return exception
-                }
+                )
 
                 clientSession.conversation.setCurrentConversation(conversation)
                 chatPageViewService.reloadItemsWhenSafe(
@@ -133,11 +131,16 @@ struct MessageRetranslationService {
                     id: .markConversationStale
                 ) {
                     Task { @MainActor in
-                        if let exception = await markStale(
-                            conversation,
-                            messageID: message.id
-                        ) {
-                            Logger.log(exception, with: .toast)
+                        do throws(Exception) {
+                            try await markStale(
+                                conversation,
+                                messageID: message.id
+                            )
+                        } catch {
+                            Logger.log(
+                                error,
+                                with: .toast
+                            )
                         }
                     }
                 }
@@ -155,7 +158,7 @@ struct MessageRetranslationService {
                 guard !exception.isEqual(
                     to: .translationPlatformNotSupported
                 ) else { continue }
-                return exception
+                throw exception
             }
         }
 
@@ -164,8 +167,6 @@ struct MessageRetranslationService {
             translationReferenceHostingKey: translation.reference.hostingKey,
             sameRetranslationResult: true
         )
-
-        return nil
     }
 
     // MARK: - Auxiliary
@@ -255,7 +256,7 @@ struct MessageRetranslationService {
     private func markStale(
         _ conversation: Conversation,
         messageID: String
-    ) async -> Exception? {
+    ) async throws(Exception) {
         conversationArchive.addValue(
             .init(
                 .init(
@@ -272,18 +273,12 @@ struct MessageRetranslationService {
             )
         )
 
-        do {
-            _ = try await conversation.update(
-                \.metadata,
-                to: conversation.metadata.copyWith(lastModifiedDate: .now)
-            )
+        _ = try await conversation.update(
+            \.metadata,
+            to: conversation.metadata.copyWith(lastModifiedDate: .now)
+        )
 
-            _ = try await conversationsPageViewService.reloadData()
-        } catch {
-            return error
-        }
-
-        return nil
+        _ = try await conversationsPageViewService.reloadData()
     }
 }
 

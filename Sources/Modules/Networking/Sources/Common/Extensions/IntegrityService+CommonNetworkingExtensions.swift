@@ -21,7 +21,7 @@ extension IntegrityService {
         _ exceptions: [Exception]? = nil,
         _ methodsUsedForRepair: [String]? = nil,
         isFirstRun: Bool = true
-    ) async -> Exception? {
+    ) async throws(Exception) {
         @Dependency(\.alertKitConfig) var alertKitConfig: AlertKit.Config
         @Dependency(\.coreKit.utils) var coreUtilities: CoreKit.Utilities
         @Dependency(\.build) var build: Build
@@ -29,17 +29,17 @@ extension IntegrityService {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        if isFirstRun,
-           let exception = coreUtilities.eraseTemporaryDirectory() {
-            Logger.log(exception)
+        if isFirstRun {
+            do {
+                try coreUtilities.eraseTemporaryDirectory()
+            } catch {
+                Logger.log(error)
+            }
         }
 
         guard let hostedAppStoreBuildNumber = metadataService.appStoreBuildNumber else {
-            if let exception = await metadataService.resolveValues() {
-                return exception
-            }
-
-            return await repairDatabase(
+            try await metadataService.resolveValues()
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -47,13 +47,13 @@ extension IntegrityService {
         }
 
         guard hostedAppStoreBuildNumber <= build.buildNumber else {
-            return .init(
+            throw Exception(
                 "Build must be updated before attempting database repair.",
                 metadata: .init(sender: self)
             )
         }
 
-        userSession.stopObservingCurrentUserChanges()
+        try userSession.stopObservingCurrentUserChanges()
 
         CoreDatabaseStore.clearStore()
         networking.storage.clearStore()
@@ -66,23 +66,17 @@ extension IntegrityService {
 
         // Resolve Integrity Service Session
 
-        if let exception = await resolveSession() {
+        do {
+            try await resolveSession()
+        } catch {
             userSession.startObservingCurrentUserChanges()
-            return exception
+            throw error
         }
 
         // Prune Deleted Users & Invalidated Caches
 
-        async let pruneDeletedUsersException = pruneDeletedUsers()
-        async let pruneInvalidatedCachesException = pruneInvalidatedCaches()
-
-        if let exception = await pruneDeletedUsersException {
-            exceptions.append(exception)
-        }
-
-        if let exception = await pruneInvalidatedCachesException {
-            exceptions.append(exception)
-        }
+        do { try await pruneDeletedUsers() } catch { exceptions.append(error) }
+        do { try await pruneInvalidatedCaches() } catch { exceptions.append(error) }
 
         // Repair Malformed Data
 
@@ -90,7 +84,7 @@ extension IntegrityService {
         if let exception = repairMalformedMessagesResult.exception { exceptions.append(exception) }
         if repairMalformedMessagesResult.tookAction {
             methodsUsedForRepair.append("repairMalformedMessages")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -101,7 +95,7 @@ extension IntegrityService {
         if let exception = repairMalformedConversationsResult.exception { exceptions.append(exception) }
         if repairMalformedConversationsResult.tookAction {
             methodsUsedForRepair.append("repairMalformedConversations")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -112,7 +106,7 @@ extension IntegrityService {
         if let exception = repairMalformedUsersResult.exception { exceptions.append(exception) }
         if repairMalformedUsersResult.tookAction {
             methodsUsedForRepair.append("repairMalformedUsers")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -125,7 +119,7 @@ extension IntegrityService {
         if let exception = resolveBrokenConversationChainResult.exception { exceptions.append(exception) }
         if resolveBrokenConversationChainResult.tookAction {
             methodsUsedForRepair.append("resolveBrokenConversationChain")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -136,7 +130,7 @@ extension IntegrityService {
         if let exception = resolveBrokenMessageChainResult.exception { exceptions.append(exception) }
         if resolveBrokenMessageChainResult.tookAction {
             methodsUsedForRepair.append("resolveBrokenMessageChain")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -147,7 +141,7 @@ extension IntegrityService {
         if let exception = resolveMismatchedParticipantsResult.exception { exceptions.append(exception) }
         if resolveMismatchedParticipantsResult.tookAction {
             methodsUsedForRepair.append("resolveMismatchedParticipants")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -158,7 +152,7 @@ extension IntegrityService {
         if let exception = resolveNoAudioComponentMessagesResult.exception { exceptions.append(exception) }
         if resolveNoAudioComponentMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveNoAudioComponentMessages")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -169,7 +163,7 @@ extension IntegrityService {
         if let exception = resolveNoMediaComponentMessagesResult.exception { exceptions.append(exception) }
         if resolveNoMediaComponentMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveNoMediaComponentMessages")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -180,7 +174,7 @@ extension IntegrityService {
         if let exception = resolveNonExistentParticipantsResult.exception { exceptions.append(exception) }
         if resolveNonExistentParticipantsResult.tookAction {
             methodsUsedForRepair.append("resolveNonExistentParticipants")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -191,7 +185,7 @@ extension IntegrityService {
         if let exception = resolveNonExistentTranslationsResult.exception { exceptions.append(exception) }
         if resolveNonExistentTranslationsResult.tookAction {
             methodsUsedForRepair.append("resolveNonExistentTranslations")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -202,7 +196,7 @@ extension IntegrityService {
         if let exception = resolveOrphanedMediaResult.exception { exceptions.append(exception) }
         if resolveOrphanedMediaResult.tookAction {
             methodsUsedForRepair.append("resolveOrphanedMedia")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -213,7 +207,7 @@ extension IntegrityService {
         if let exception = resolveOrphanedMessagesResult.exception { exceptions.append(exception) }
         if resolveOrphanedMessagesResult.tookAction {
             methodsUsedForRepair.append("resolveOrphanedMessages")
-            return await repairDatabase(
+            return try await repairDatabase(
                 exceptions,
                 methodsUsedForRepair,
                 isFirstRun: false
@@ -276,7 +270,9 @@ extension IntegrityService {
             }
         }
 
-        return exceptions.compiledException
+        if let exception = exceptions.compiledException {
+            throw exception
+        }
     }
 }
 

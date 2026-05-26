@@ -118,14 +118,16 @@ struct ConversationsPageObserver: Observer {
             networking.database.setGlobalCacheStrategy(.returnCacheOnFailure)
             networking.storage.setGlobalCacheStrategy(.returnCacheOnFailure)
 
-            if let exception = await clientSession
-                .user
-                .currentUser?
-                .conversations?
-                .visibleForCurrentUser
-                .setUsers() {
+            do throws(Exception) {
+                try await clientSession
+                    .user
+                    .currentUser?
+                    .conversations?
+                    .visibleForCurrentUser
+                    .setUsers()
+            } catch {
                 Logger.log(
-                    exception,
+                    error,
                     domain: .conversation,
                     with: .toastInPrerelease
                 )
@@ -163,12 +165,20 @@ struct ConversationsPageObserver: Observer {
                         for: missingMessages
                     )
 
-                    if let badgeNumber = await clientSession.user.currentUser?.calculateBadgeNumber(),
-                       let exception = await notificationService.setBadgeNumber(badgeNumber) {
-                        Logger.log(
-                            exception,
-                            domain: .conversation
-                        )
+                    if let badgeNumber = await clientSession
+                        .user
+                        .currentUser?
+                        .calculateBadgeNumber() {
+                        do throws(Exception) {
+                            try await notificationService.setBadgeNumber(
+                                badgeNumber
+                            )
+                        } catch {
+                            Logger.log(
+                                error,
+                                domain: .conversation
+                            )
+                        }
                     }
 
                     guard matchesCurrentConversation(conversation.id.key) else { return }
@@ -186,13 +196,18 @@ struct ConversationsPageObserver: Observer {
             guard matchesCurrentConversation(updatedConversation.id.key) else { return }
 
             // If a user was added/removed, resolve the users again.
-            if currentConversation.participants.count != updatedConversation.participants.count,
-               let exception = await updatedConversation.setUsers(forceUpdate: true) {
-                Logger.log(
-                    exception,
-                    domain: .conversation,
-                    with: .toastInPrerelease
-                )
+            if currentConversation.participants.count != updatedConversation.participants.count {
+                do throws(Exception) {
+                    try await updatedConversation.setUsers(
+                        forceUpdate: true
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .conversation,
+                        with: .toastInPrerelease
+                    )
+                }
             }
 
             clientSession.conversation.setCurrentConversation(updatedConversation)

@@ -86,9 +86,7 @@ final class StorageSessionService: @unchecked Sendable {
         defer { isCalculatingDataUsage = false }
         var dataUsageInKilobytes = 0
 
-        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
-            throw exception
-        }
+        try await User.populateCurrentUserConversationsIfNeeded()
 
         // Size of user object
 

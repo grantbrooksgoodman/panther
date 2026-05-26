@@ -69,54 +69,60 @@ final class TypingIndicatorService {
 
     // MARK: - Reset Typing Indicator Status for Current User
 
-    static func resetTypingIndicatorStatusForCurrentUser() async -> Exception? {
+    static func resetTypingIndicatorStatusForCurrentUser() async throws(Exception) {
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else {
-            return .init("Current user has not been set.", metadata: .init(sender: self))
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
         }
 
         guard let conversations = currentUser
             .conversations?
-            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return nil }
+            .filter({ $0.currentUserParticipant?.isTyping ?? false }) else { return }
 
-        do {
-            try await conversations.parallelMap(
-                failFast: false
-            ) {
-                guard let currentUserParticipant = $0.currentUserParticipant else { return }
+        try await conversations.parallelMap(
+            failFast: false
+        ) {
+            guard let currentUserParticipant = $0.currentUserParticipant else { return }
 
-                var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
-                newParticipants.append(.init(
-                    userID: currentUserParticipant.userID,
-                    hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
-                    isTyping: false
-                ))
+            var newParticipants = $0.participants.filter { $0 != currentUserParticipant }
+            newParticipants.append(.init(
+                userID: currentUserParticipant.userID,
+                hasDeletedConversation: currentUserParticipant.hasDeletedConversation,
+                isTyping: false
+            ))
 
-                _ = try await $0.update(
-                    \.participants,
-                    to: newParticipants
-                )
-            }
-        } catch {
-            return error
+            _ = try await $0.update(
+                \.participants,
+                to: newParticipants
+            )
         }
-
-        return nil
     }
 
     // MARK: - Text View Did Change
 
     @MainActor
-    func textViewDidChange(to text: String) async -> Exception? {
-        await withUnsafeContinuation { continuation in
+    func textViewDidChange(
+        to text: String
+    ) async throws(Exception) {
+        let exception: Exception? = await withUnsafeContinuation { continuation in
             _textViewDidChange(to: text) { exception in
                 continuation.resume(returning: exception)
             }
         }
+
+        if let exception {
+            throw exception
+        }
     }
 
     @MainActor
-    private func _textViewDidChange(to text: String, completion: @escaping (Exception?) -> Void) {
+    private func _textViewDidChange(
+        to text: String,
+        completion: @escaping (Exception?) -> Void
+    ) {
         Task.background { @MainActor in
             guard !isUpdatingIsTypingForCurrentUser else { return completion(nil) }
             isUpdatingIsTypingForCurrentUser = true
@@ -138,10 +144,16 @@ final class TypingIndicatorService {
                 return
             }
 
-            let exception = await self.updateIsTypingForCurrentUser(!text.isBlank)
-            self.isUpdatingIsTypingForCurrentUser = false
-            guard canComplete else { return }
-            completion(exception)
+            do throws(Exception) {
+                try await self.updateIsTypingForCurrentUser(!text.isBlank)
+                self.isUpdatingIsTypingForCurrentUser = false
+                guard canComplete else { return }
+                completion(nil)
+            } catch {
+                self.isUpdatingIsTypingForCurrentUser = false
+                guard canComplete else { return }
+                completion(error)
+            }
         }
     }
 
@@ -190,18 +202,20 @@ final class TypingIndicatorService {
     }
 
     @MainActor
-    private func updateIsTypingForCurrentUser(_ isTyping: Bool) async -> Exception? {
+    private func updateIsTypingForCurrentUser(
+        _ isTyping: Bool
+    ) async throws(Exception) {
         guard let conversation = clientSession.conversation.fullConversation,
-              conversation.participants.count == 2 else { return nil }
+              conversation.participants.count == 2 else { return }
 
         guard let currentUserParticipant = conversation.currentUserParticipant else {
-            return .init(
+            throw Exception(
                 "Failed to resolve current user participant.",
                 metadata: .init(sender: self)
             )
         }
 
-        guard isTyping != currentUserParticipant.isTyping else { return nil }
+        guard isTyping != currentUserParticipant.isTyping else { return }
 
         var newParticipants = conversation.participants.filter { $0 != currentUserParticipant }
         newParticipants.append(.init(
@@ -210,7 +224,7 @@ final class TypingIndicatorService {
             isTyping: isTyping
         ))
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try clientSession.user.stopObservingCurrentUserChanges()
         do {
             let updatedConversation = try await conversation.update(
                 \.participants,
@@ -218,13 +232,12 @@ final class TypingIndicatorService {
             )
 
             clientSession.user.startObservingCurrentUserChanges()
-            guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return nil }
+            guard clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key else { return }
 
             clientSession.conversation.setCurrentConversation(updatedConversation)
-            return nil
         } catch {
             clientSession.user.startObservingCurrentUserChanges()
-            return error
+            throw error
         }
     }
 }

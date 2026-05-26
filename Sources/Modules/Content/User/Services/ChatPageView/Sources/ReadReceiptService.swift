@@ -31,34 +31,33 @@ final class ReadReceiptService {
 
     // MARK: - Update Read Date for Unread Messages
 
-    func updateReadDateForUnreadMessages() async -> Exception? {
+    func updateReadDateForUnreadMessages() async throws(Exception) {
         guard let conversation = clientSession.conversation.fullConversation,
               let messages = conversation.messages?.filteringSystemMessages.filter({ !$0.isFromCurrentUser }),
-              messages.last?.currentUserReadReceipt == nil else { return nil }
+              messages.last?.currentUserReadReceipt == nil else { return }
 
         let unreadMessages = messages.filter { $0.currentUserReadReceipt == nil }
-        guard !unreadMessages.isEmpty else { return nil }
+        guard !unreadMessages.isEmpty else { return }
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try clientSession.user.stopObservingCurrentUserChanges()
         do {
-            let updatedConversation = try await conversation.updateReadDate(for: unreadMessages)
-            clientSession.user.startObservingCurrentUserChanges()
+            let updatedConversation = try await conversation.updateReadDate(
+                for: unreadMessages
+            )
 
-            if let currentUser = clientSession.user.currentUser,
-               let exception = await notificationService.setBadgeNumber(
-                   currentUser.calculateBadgeNumber() - unreadMessages.count
-               ) {
-                return exception
+            clientSession.user.startObservingCurrentUserChanges()
+            if let currentUser = clientSession.user.currentUser {
+                try await notificationService.setBadgeNumber(
+                    currentUser.calculateBadgeNumber() - unreadMessages.count
+                )
             }
 
             if clientSession.conversation.currentConversation?.id.key == updatedConversation.id.key {
                 clientSession.conversation.setCurrentConversation(updatedConversation)
             }
-
-            return nil
         } catch {
             clientSession.user.startObservingCurrentUserChanges()
-            return error
+            throw error
         }
     }
 }

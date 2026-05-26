@@ -48,12 +48,15 @@ final class ReactionSessionService {
     // MARK: - React to Message
 
     @MainActor
-    func react(_ reaction: Reaction, to message: Message) async -> Exception? {
-        guard !message.isMock else { return nil }
+    func react(
+        _ reaction: Reaction,
+        to message: Message
+    ) async throws(Exception) {
+        guard !message.isMock else { return }
         guard let conversation = conversationSession.fullConversation,
               let currentUserID = User.currentUserID,
               let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }) else {
-            return .init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
             )
@@ -69,7 +72,7 @@ final class ReactionSessionService {
             .filter({ $0.userID == currentUserID })
             .contains(where: { $0.style == reaction.style }) else {
             chatPageViewService.contextMenu?.dismissMenu()
-            return await removeReaction(from: message)
+            return try await removeReaction(from: message)
         }
 
         // Filter metadata to remove previous reactions to current message
@@ -102,11 +105,13 @@ final class ReactionSessionService {
         // Notify users of reaction to message
 
         Task(priority: .utility) { @MainActor in
-            if let exception = await notifyUsers(
-                ofReaction: reaction,
-                to: message
-            ) {
-                Logger.log(exception)
+            do throws(Exception) {
+                try await notifyUsers(
+                    ofReaction: reaction,
+                    to: message
+                )
+            } catch {
+                Logger.log(error)
             }
         }
 
@@ -117,7 +122,7 @@ final class ReactionSessionService {
             .filter { $0 != .empty }
             .filter { !$0.reactions.isEmpty }
 
-        return await updateConversation(
+        try await updateConversation(
             conversation,
             messageData: (messageIndex, message),
             reactionMetadata: reactionMetadata
@@ -179,8 +184,8 @@ final class ReactionSessionService {
     private func notifyUsers(
         ofReaction reaction: Reaction,
         to message: Message
-    ) async -> Exception? {
-        guard message.fromAccountID != User.currentUserID else { return nil }
+    ) async throws(Exception) {
+        guard message.fromAccountID != User.currentUserID else { return }
         guard let conversation = conversationSession.currentConversation,
               let currentUserID = User.currentUserID,
               let user = conversation
@@ -188,39 +193,37 @@ final class ReactionSessionService {
               .filter({ !($0.blockedUserIDs ?? []).contains(currentUserID) })
               .first(where: { message.fromAccountID == $0.id }),
               !message.isMock else {
-            return .init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
             )
         }
 
-        if let exception = await notificationService.notify(
+        try await notificationService.notify(
             [user],
             ofReaction: reaction,
             message: message,
             conversationIDKey: conversation.id.key,
             isPenPalsConversation: conversation.metadata.isPenPalsConversation
-        ) {
-            return exception
-        }
-
-        return nil
+        )
     }
 
     @MainActor
-    private func removeReaction(from message: Message) async -> Exception? {
+    private func removeReaction(
+        from message: Message
+    ) async throws(Exception) {
         guard let conversation = conversationSession.fullConversation,
               let messageIndex = conversationSession.currentConversation?.messages?.firstIndex(where: { $0.id == message.id }),
               !message.isMock,
               let reactionMetadata = conversation.reactionMetadata?.filteringCurrentUserReactions(to: message.id) else {
-            return .init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
             )
         }
 
         isReactingToMessage = true
-        return await updateConversation(
+        try await updateConversation(
             conversation,
             messageData: (messageIndex, message),
             reactionMetadata: reactionMetadata
@@ -236,7 +239,7 @@ final class ReactionSessionService {
         _ conversation: Conversation,
         messageData: (index: Int, message: Message),
         reactionMetadata: [ReactionMetadata]
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let updatedConversation: Conversation
         do {
             updatedConversation = try await conversation.update(
@@ -245,22 +248,20 @@ final class ReactionSessionService {
             )
         } catch {
             isReactingToMessage = false
-            return error
+            throw error
         }
 
         isReactingToMessage = false
 
-        if let exception = await updatedConversation.setMessages(ids: [
+        try await updatedConversation.setMessages(ids: [
             messageData.message.id,
-        ]) {
-            return exception
-        }
+        ])
 
         guard chatPageState.isPresented,
               conversationSession
               .currentConversation?
               .id
-              .key == conversation.id.key else { return nil }
+              .key == conversation.id.key else { return }
 
         conversationSession.setCurrentConversation(updatedConversation)
         chatPageViewService.reloadItemsWhenSafe(at: [.init(
@@ -276,12 +277,10 @@ final class ReactionSessionService {
         guard messageData
             .message
             .contentType
-            .isAudio else { return nil }
+            .isAudio else { return }
 
         chatPageViewService
             .audioMessagePlayback?
             .updateDurationLabelIfNeeded(forMessage: messageData.message)
-
-        return nil
     }
 }

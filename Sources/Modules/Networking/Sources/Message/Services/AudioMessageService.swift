@@ -46,7 +46,9 @@ struct AudioMessageService {
     // MARK: - Delete Input Audio Component
 
     // TODO: This is inefficient. Rewrite with Message as the argument.
-    func deleteInputAudioComponent(for messageID: String) async -> Exception? {
+    func deleteInputAudioComponent(
+        for messageID: String
+    ) async throws(Exception) {
         do {
             try await networking.storage.deleteItem(
                 at: [
@@ -57,11 +59,9 @@ struct AudioMessageService {
         } catch {
             guard !error.isEqual(
                 to: .Networking.Storage.storageItemDoesNotExist
-            ) else { return nil }
-            return error
+            ) else { return }
+            throw error
         }
-
-        return nil
     }
 
     // MARK: - Upload Audio Components
@@ -70,11 +70,13 @@ struct AudioMessageService {
     func uploadAudioComponents(
         _ audioComponents: [AudioMessageReference],
         for message: Message
-    ) async -> Exception? {
+    ) async throws(Exception) {
         var didMoveInputFile = false
         var lastUploadedInput: AudioFile?
 
-        func uploadInput(_ audioFile: AudioFile) async -> Exception? {
+        func uploadInput(
+            _ audioFile: AudioFile
+        ) async throws(Exception) {
             let audioFile: AudioFile = .init(
                 audioFile.url,
                 name: message.id,
@@ -84,56 +86,62 @@ struct AudioMessageService {
 
             if let lastUploadedInput,
                lastUploadedInput == audioFile {
-                return nil
+                return
             }
 
             guard await !preRecordedInputExists(for: audioFile) else {
-                lastUploadedInput = audioFile
-                return nil
+                return lastUploadedInput = audioFile
             }
 
-            if let exception = await upload(
+            try await upload(
                 audioFile: audioFile,
                 to: NetworkPath.audioMessageInputs.rawValue
-            ) {
-                return exception
-            }
+            )
 
             lastUploadedInput = audioFile
-            return nil
         }
 
         for audioComponent in audioComponents {
             func moveOutputFile() {
                 // swiftlint:disable:next line_length
                 let outputFilePath = "\(audioComponent.translatedDirectoryPath)/\(audioComponent.translated.name).\(audioComponent.translated.fileExtension.rawValue)"
-                if let exception = fileManager.move(
-                    fileAt: audioComponent.translated.url,
-                    toPath: fileManager.documentsDirectoryURL.appending(path: outputFilePath)
-                ) {
-                    Logger.log(exception)
-                }
-
-                do { // swiftlint:disable:next line_length
-                    try fileManager.removeItem(at: fileManager.documentsDirectoryURL.appending(path: "\(audioComponent.translated.name).\(AudioFileExtension.caf.rawValue)"))
+                do {
+                    try fileManager.move(
+                        fileAt: audioComponent.translated.url,
+                        toPath: fileManager.documentsDirectoryURL.appending(
+                            path: outputFilePath
+                        )
+                    )
                 } catch {
-                    Logger.log(.init(error, metadata: .init(sender: self)))
+                    Logger.log(error)
+                }
+
+                do {
+                    try fileManager.removeItem(
+                        at: fileManager.documentsDirectoryURL.appending(
+                            path: "\(audioComponent.translated.name).\(AudioFileExtension.caf.rawValue)"
+                        )
+                    )
+                } catch {
+                    Logger.log(.init(
+                        error,
+                        metadata: .init(sender: self)
+                    ))
                 }
             }
 
-            if let exception = await uploadInput(audioComponent.original) {
-                return exception
-            }
+            try await uploadInput(audioComponent.original)
 
             if !didMoveInputFile {
                 let inputFilePath = "\(NetworkPath.audioMessageInputs.rawValue)/\(message.id).\(audioComponent.original.fileExtension.rawValue)"
-                if let exception = fileManager.move(
-                    fileAt: audioComponent.original.url,
-                    toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
-                ) {
-                    Logger.log(exception)
-                } else {
+                do {
+                    try fileManager.move(
+                        fileAt: audioComponent.original.url,
+                        toPath: fileManager.documentsDirectoryURL.appending(path: inputFilePath)
+                    )
                     didMoveInputFile = true
+                } catch {
+                    Logger.log(error)
                 }
             }
 
@@ -141,15 +149,11 @@ struct AudioMessageService {
             defer { moveOutputFile() }
             guard await !preRecordedOutputExists(for: audioComponent.translation) else { continue }
 
-            if let exception = await upload(
+            try await upload(
                 audioFile: audioComponent.translated,
                 to: audioComponent.translatedDirectoryPath
-            ) {
-                return exception
-            }
+            )
         }
-
-        return nil
     }
 
     // MARK: - Auxiliary
@@ -203,13 +207,11 @@ struct AudioMessageService {
             throw error.appending(userInfo: userInfo)
         }
 
-        do throws(Exception) {
-            if let exception = try fileManager.createFile(
+        do {
+            try fileManager.createFile(
                 atPath: destinationFileURL,
                 data: Data.fromURL(sourceFileURL)
-            ) {
-                throw exception.appending(userInfo: userInfo)
-            }
+            )
         } catch {
             throw error.appending(userInfo: userInfo)
         }
@@ -239,21 +241,16 @@ struct AudioMessageService {
     private func upload(
         audioFile: AudioFile,
         to path: String
-    ) async -> Exception? {
-        let fullPath = "\(path)/\(audioFile.name).\(audioFile.fileExtension.rawValue)"
-
-        do {
-            try await networking.storage.upload(
-                Data.fromURL(audioFile.url),
-                metadata: .init(
-                    fullPath,
-                    contentType: audioFile.fileExtension.contentTypeString
-                )
+    ) async throws(Exception) {
+        try await networking.storage.upload(
+            Data.fromURL(audioFile.url),
+            metadata: .init(
+                [
+                    path,
+                    "\(audioFile.name).\(audioFile.fileExtension.rawValue)",
+                ].joined(separator: "/"),
+                contentType: audioFile.fileExtension.contentTypeString
             )
-        } catch {
-            return error
-        }
-
-        return nil
+        )
     }
 }

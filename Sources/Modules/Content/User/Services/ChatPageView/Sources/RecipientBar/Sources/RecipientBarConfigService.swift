@@ -79,7 +79,7 @@ final class RecipientBarConfigService {
                 chatPageViewService.audioMessagePlayback?.stopPlayback()
 
                 await chatPageViewService.recordingUI?.hideRecordingUI()
-                _ = recordingService.cancelRecording()
+                try? recordingService.cancelRecording()
 
                 viewController.messagesCollectionView.isHidden = false
 
@@ -104,7 +104,9 @@ final class RecipientBarConfigService {
         // NIT: Observed bugs with this disabled, but iMessage does it this way.
 //            viewController.messageInputBar.inputTextView.text = ""
         Task.background { @MainActor in
-            _ = await chatPageViewService.typingIndicator?.textViewDidChange(to: "")
+            try? await chatPageViewService
+                .typingIndicator?
+                .textViewDidChange(to: "")
         }
 
         defer { setInsetsAndReload() }

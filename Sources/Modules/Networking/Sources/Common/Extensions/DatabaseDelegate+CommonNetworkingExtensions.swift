@@ -18,10 +18,10 @@ extension DatabaseDelegate {
         CoreDatabaseStore.filter { $0.value.expiryThreshold != .seconds(300) }
     }
 
-    func populateTemporaryCaches() async -> Exception? {
+    func populateTemporaryCaches() async throws(Exception) {
         @Dependency(\.build.milestone) var buildMilestone: Build.Milestone
 
-        guard !RuntimeStorage.populatedTemporaryCaches else { return nil }
+        guard !RuntimeStorage.populatedTemporaryCaches else { return }
         let database = LockIsolated(
             Dependency(\.networking.database).wrappedValue
         )
@@ -45,8 +45,10 @@ extension DatabaseDelegate {
             conversationData = try await getConversationValues
             messageData = try await getMessageValues
             userData = try await getUserValues
+        } catch let error as Exception {
+            throw error
         } catch {
-            return .init(
+            throw Exception(
                 error,
                 metadata: .init(sender: self)
             )
@@ -100,7 +102,9 @@ extension DatabaseDelegate {
             sender: self
         )
 
-        RuntimeStorage.store(true, as: .populatedTemporaryCaches)
-        return nil
+        RuntimeStorage.store(
+            true,
+            as: .populatedTemporaryCaches
+        )
     }
 }

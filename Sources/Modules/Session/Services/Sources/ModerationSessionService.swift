@@ -14,6 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
+// swiftlint:disable:next type_body_length
 struct ModerationSessionService {
     // MARK: - Dependencies
 
@@ -24,26 +25,32 @@ struct ModerationSessionService {
 
     // MARK: - Content Moderation
 
-    func blockUsers(inConversation conversation: Conversation) async -> Exception? {
-        await moderate(.block, dataSource: (conversation, nil))
+    func blockUsers(
+        inConversation conversation: Conversation
+    ) async throws(Exception) {
+        try await moderate(
+            .block,
+            dataSource: (conversation, nil)
+        )
     }
 
-    func reportUsers(inConversation conversation: Conversation) async -> Exception? {
-        await moderate(.report, dataSource: (conversation, nil))
+    func reportUsers(
+        inConversation conversation: Conversation
+    ) async throws(Exception) {
+        try await moderate(
+            .report,
+            dataSource: (conversation, nil)
+        )
     }
 
-    func unblockUsers() async -> Exception? {
-        do {
-            return try await moderate(
-                .unblock,
-                dataSource: (
-                    nil,
-                    getBlockedUsers()
-                )
+    func unblockUsers() async throws(Exception) {
+        try await moderate(
+            .unblock,
+            dataSource: (
+                nil,
+                getBlockedUsers()
             )
-        } catch {
-            return error
-        }
+        )
     }
 
     // MARK: - Auxiliary
@@ -60,9 +67,23 @@ struct ModerationSessionService {
             actions.append(
                 .init(contactPair.contact.fullName) {
                     Task {
-                        guard await confirmModeration(type, title: "⌘\(contactPair.contact.fullName)⌘") else { return }
-                        guard let exception = await performModeration(type, userIDs: contactPair.users.map(\.id)) else { return showSuccess(type) }
-                        Logger.log(exception, with: .toast)
+                        guard await confirmModeration(
+                            type,
+                            title: "⌘\(contactPair.contact.fullName)⌘"
+                        ) else { return }
+                        do throws(Exception) {
+                            try await performModeration(
+                                type,
+                                userIDs: contactPair.users.map(\.id)
+                            )
+
+                            showSuccess(type)
+                        } catch {
+                            Logger.log(
+                                error,
+                                with: .toast
+                            )
+                        }
                     }
                 }
             )
@@ -74,36 +95,57 @@ struct ModerationSessionService {
         ) {
             Task {
                 guard await confirmModeration(type, title: "All Users") else { return }
-                guard let exception = await performModeration(type, userIDs: contactPairs.users.map(\.id)) else { return showSuccess(type) }
-                Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await performModeration(
+                        type,
+                        userIDs: contactPairs.users.map(\.id)
+                    )
+
+                    showSuccess(type)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
+                }
             }
         }
 
-        guard actions.count > 1 else { return (actions, [.actions([allUsersAction]), .message, .title]) }
+        guard actions.count > 1 else {
+            return (
+                actions,
+                [.actions([allUsersAction]), .message, .title]
+            )
+        }
+
         actions.append(allUsersAction)
-        return (actions, [.actions([allUsersAction]), .message, .title])
+        return (
+            actions,
+            [.actions([allUsersAction]), .message, .title]
+        )
     }
 
-    private func blockUsers(ids userIDs: [String]) async -> Exception? {
+    private func blockUsers(
+        ids userIDs: [String]
+    ) async throws(Exception) {
         guard let currentUser = userSession.currentUser else {
-            return .init("Current user has not been set.", metadata: .init(sender: self))
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
         blockedUserIDs.append(contentsOf: userIDs)
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        do {
-            return try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.blockedUserIDs,
-                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.blockedUserIDs,
+                to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 
     private func confirmModeration(
@@ -155,17 +197,19 @@ struct ModerationSessionService {
     private func moderate(
         _ type: ModerationType,
         dataSource: (conversation: Conversation?, users: [User]?)
-    ) async -> Exception? {
+    ) async throws(Exception) {
         guard dataSource.conversation != nil || dataSource.users != nil,
               let users = dataSource.conversation?.users ?? dataSource.users else {
-            return .init(
+            throw Exception(
                 "No data source provided.",
                 metadata: .init(sender: self)
             )
         }
 
-        if let exception = await populateValuesIfNeeded() {
-            Logger.log(exception)
+        do {
+            try await populateValuesIfNeeded()
+        } catch {
+            Logger.log(error)
         }
 
         var contactPairs = users.map { $0.contactPair ?? .withUser($0) }
@@ -179,17 +223,23 @@ struct ModerationSessionService {
             }
         }
 
-        contactPairs = contactPairs.sorted(by: { $0.contact.fullName < $1.contact.fullName }).unique
+        contactPairs = contactPairs.sorted(by: {
+            $0.contact.fullName < $1.contact.fullName
+        }).unique
+
         guard contactPairs.count > 1 || type == .unblock else {
             guard let contactPair = contactPairs.first,
-                  await confirmModeration(type, title: "⌘\(contactPair.contact.fullName)⌘") else { return nil }
+                  await confirmModeration(
+                      type,
+                      title: "⌘\(contactPair.contact.fullName)⌘"
+                  ) else { return }
 
-            guard let exception = await performModeration(type, userIDs: contactPair.users.map(\.id)) else {
-                showSuccess(type)
-                return nil
-            }
+            try await performModeration(
+                type,
+                userIDs: contactPair.users.map(\.id)
+            )
 
-            return exception
+            return showSuccess(type)
         }
 
         let alertData = alertData(type, contactPairs: contactPairs)
@@ -198,13 +248,15 @@ struct ModerationSessionService {
             actions: alertData.actions,
             cancelButtonTitle: Localized(.cancel).wrappedValue
         ).present(translating: alertData.translationOptionKeys)
-        return nil
     }
 
-    private func performModeration(_ type: ModerationType, userIDs: [String]) async -> Exception? {
+    private func performModeration(
+        _ type: ModerationType,
+        userIDs: [String]
+    ) async throws(Exception) {
         let userIDs = userIDs.filter { !$0.isBangQualifiedEmpty }
         guard !userIDs.isBangQualifiedEmpty else {
-            return .init(
+            throw Exception(
                 "No user IDs provided.",
                 metadata: .init(sender: self)
             )
@@ -214,36 +266,39 @@ struct ModerationSessionService {
 
         switch type {
         case .block:
-            guard let exception = await blockUsers(ids: userIDs) else { return nil }
-            return exception
+            try await blockUsers(ids: userIDs)
 
         case .report:
-            guard let exception = await reportUsers(ids: userIDs) else { return nil }
-            return exception
+            try await reportUsers(ids: userIDs)
 
         case .unblock:
-            guard let exception = await unblockUsers(ids: userIDs) else { return nil }
-            return exception
+            try await unblockUsers(ids: userIDs)
         }
     }
 
-    private func populateValuesIfNeeded() async -> Exception? {
+    private func populateValuesIfNeeded() async throws(Exception) {
         var exceptions = [Exception]()
 
-        if let exception = await ContactService.populateValuesIfNeeded() {
-            exceptions.append(exception)
+        do {
+            try await ContactService.populateValuesIfNeeded()
+        } catch {
+            exceptions.append(error)
         }
 
-        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
-            exceptions.append(exception)
+        do {
+            try await User.populateCurrentUserConversationsIfNeeded()
+        } catch {
+            exceptions.append(error)
         }
 
-        return exceptions.compiledException
+        if let compiledException = exceptions.compiledException {
+            throw compiledException
+        }
     }
 
     private func reportUsers(
         ids userIDs: [String]
-    ) async -> Exception? {
+    ) async throws(Exception) {
         do {
             var reportedUserIDs = try await getReportedUserIDs()
 
@@ -255,31 +310,21 @@ struct ModerationSessionService {
                 }
             }
 
-            do {
-                try await networking.database.setValue(
-                    reportedUserIDs,
-                    forKey: NetworkPath.reportedUsers.rawValue
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                reportedUserIDs,
+                forKey: NetworkPath.reportedUsers.rawValue
+            )
         } catch {
             Logger.log(error)
 
             var reportedUserIDs = [String: Int]()
             userIDs.forEach { reportedUserIDs[$0] = 1 }
 
-            do {
-                try await networking.database.setValue(
-                    reportedUserIDs,
-                    forKey: NetworkPath.reportedUsers.rawValue
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                reportedUserIDs,
+                forKey: NetworkPath.reportedUsers.rawValue
+            )
         }
-
-        return nil
     }
 
     private func showSuccess(_ type: ModerationType) {
@@ -288,25 +333,26 @@ struct ModerationSessionService {
         Observables.updatedCurrentUser.trigger()
     }
 
-    private func unblockUsers(ids userIDs: [String]) async -> Exception? {
+    private func unblockUsers(
+        ids userIDs: [String]
+    ) async throws(Exception) {
         guard let currentUser = userSession.currentUser else {
-            return .init("Current user has not been set.", metadata: .init(sender: self))
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
         }
 
         var blockedUserIDs = currentUser.blockedUserIDs ?? .init()
         blockedUserIDs = blockedUserIDs.filter { !userIDs.contains($0) }
         blockedUserIDs = blockedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-        do {
-            return try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.blockedUserIDs,
-                    to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.blockedUserIDs,
+                to: blockedUserIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : blockedUserIDs
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 }

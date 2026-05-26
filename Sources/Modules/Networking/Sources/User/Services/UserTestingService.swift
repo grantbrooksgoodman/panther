@@ -107,9 +107,11 @@ struct UserTestingService {
     // MARK: - Create Random Messages
 
     @MainActor
-    func createRandomMessages(count: Int = 1) async -> Exception? {
+    func createRandomMessages(
+        count: Int = 1
+    ) async throws(Exception) {
         guard isOnProperEnvironment else {
-            return .environmentIntrusionDetected(
+            throw Exception.environmentIntrusionDetected(
                 metadata: .init(sender: self)
             )
         }
@@ -122,9 +124,11 @@ struct UserTestingService {
         let originalCount = count
         var count = count
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try clientSession.user.stopObservingCurrentUserChanges()
         while count > 0 {
-            if let exception = await createRandomMessage() {
+            do {
+                try await createRandomMessage()
+            } catch {
                 core.ui.removeOverlay()
                 let amountCreated = originalCount - count
                 Logger.log(
@@ -135,7 +139,8 @@ struct UserTestingService {
                     ),
                     sender: self
                 )
-                return exception
+
+                throw error
             }
 
             count -= 1
@@ -155,13 +160,11 @@ struct UserTestingService {
                 sender: self
             )
         }
-
-        return nil
     }
 
-    private func createRandomMessage() async -> Exception? {
+    private func createRandomMessage() async throws(Exception) {
         guard isOnProperEnvironment else {
-            return .environmentIntrusionDetected(
+            throw Exception.environmentIntrusionDetected(
                 metadata: .init(sender: self)
             )
         }
@@ -172,103 +175,88 @@ struct UserTestingService {
 
         currentUserID = await (randomBool && randomBool && randomBool) ? randomUserID : currentUserID
 
-        do {
-            let currentUser = try await clientSession.user.resolveCurrentUser()
-            if let exception = await clientSession.user.resolveAndSetLanguageCode() {
-                return exception
+        let currentUser = try await clientSession.user.resolveCurrentUser()
+        try await clientSession.user.resolveAndSetLanguageCode()
+
+        guard randomBool else {
+            if currentUserID != originalCurrentUserID {
+                await MainActor.run { Application.reset(preserveCurrentUserID: true) }
+                try await networking.database.populateTemporaryCaches()
             }
 
-            guard randomBool else {
-                if currentUserID != originalCurrentUserID {
-                    await MainActor.run { Application.reset(preserveCurrentUserID: true) }
-                    if let exception = await networking.database.populateTemporaryCaches() {
-                        return exception
-                    }
-                }
+            try? await Task.sleep(for: .seconds(1))
+            try await currentUser.setConversations()
+            try await currentUser.conversations?.setUsers()
 
-                try? await Task.sleep(for: .seconds(1))
-                if let exception = await currentUser.setConversations() {
-                    return exception
-                }
+            guard let conversation = randomBool && randomBool ?
+                currentUser
+                .conversations?
+                .randomElement() :
+                currentUser
+                .conversations?
+                .filter({
+                    $0.messages?
+                        .sortedByDescendingSentDate
+                        .first?
+                        .fromAccountID != User.currentUserID
+                })
+                .randomElement(),
+                let users = conversation.users else { return try await createRandomMessage() }
 
-                if let exception = await currentUser.conversations?.setUsers() {
-                    return exception
-                }
-
-                guard let conversation = randomBool && randomBool ?
-                    currentUser
-                    .conversations?
-                    .randomElement() :
-                    currentUser
-                    .conversations?
-                    .filter({
-                        $0.messages?
-                            .sortedByDescendingSentDate
-                            .first?
-                            .fromAccountID != User.currentUserID
-                    })
-                    .randomElement(),
-                    let users = conversation.users else { return await createRandomMessage() }
-
-                if randomBool {
-                    await setImage(for: conversation)
-                } else {
-                    await setRandomTitle(for: conversation)
-                }
-
-                return await sendMessage(
-                    to: users.sorted(by: { $0.id < $1.id }),
-                    in: conversation
-                )
+            if randomBool {
+                await setImage(for: conversation)
+            } else {
+                await setRandomTitle(for: conversation)
             }
 
-            guard let userData = await userData,
-                  userData.count > 1 else {
-                return .init(
-                    "Failed to resolve user data or not enough users on server.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            let randomUsers: [User]
-            do {
-                randomUsers = try await getRandomUsers(
-                    randomBool ? Int.random(in: 1 ... userData.count) : 1,
-                    userData: userData
-                )
-            } catch {
-                return error
-            }
-
-            let filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
-            guard !filteredUsers.isEmpty else { return nil }
-            return await sendMessage(
-                to: filteredUsers.sorted(by: { $0.id < $1.id }),
-                in: filteredUsers.count == 1 ? currentUser
-                    .conversations?
-                    .first(where: {
-                        $0.participants.count == 2 &&
-                            $0.participants.map(\.userID).contains(filteredUsers.first!.id)
-                    }) : currentUser
-                    .conversations?
-                    .first(where: {
-                        filteredUsers.map(\.id).containsAllStrings(in: $0.participants.map(\.userID))
-                    })
+            return try await sendMessage(
+                to: users.sorted(by: { $0.id < $1.id }),
+                in: conversation
             )
-        } catch {
-            return error
         }
+
+        guard let userData = await userData,
+              userData.count > 1 else {
+            throw Exception(
+                "Failed to resolve user data or not enough users on server.",
+                metadata: .init(sender: self)
+            )
+        }
+
+        let randomUsers = try await getRandomUsers(
+            randomBool ? Int.random(in: 1 ... userData.count) : 1,
+            userData: userData
+        )
+
+        let filteredUsers = randomUsers.filter { $0.id != currentUser.id }.unique
+        guard !filteredUsers.isEmpty else { return }
+        try await sendMessage(
+            to: filteredUsers.sorted(by: { $0.id < $1.id }),
+            in: filteredUsers.count == 1 ? currentUser
+                .conversations?
+                .first(where: {
+                    $0.participants.count == 2 &&
+                        $0.participants.map(\.userID).contains(filteredUsers.first!.id)
+                }) : currentUser
+                .conversations?
+                .first(where: {
+                    filteredUsers.map(\.id).containsAllStrings(in: $0.participants.map(\.userID))
+                })
+        )
     }
 
-    private func sendMediaMessage(to users: [User], in conversation: Conversation?) async -> Exception? {
+    private func sendMediaMessage(
+        to users: [User],
+        in conversation: Conversation?
+    ) async throws(Exception) {
         guard isOnProperEnvironment else {
-            return .environmentIntrusionDetected(
+            throw Exception.environmentIntrusionDetected(
                 metadata: .init(sender: self)
             )
         }
 
         guard let imageData = await randomImageData else {
-            return .init(
+            throw Exception(
                 "Failed to compress image.",
                 metadata: .init(sender: self)
             )
@@ -278,62 +266,54 @@ struct UserTestingService {
         let relativePath = "\(NetworkPath.media.rawValue)/\(AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
         let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
 
-        if let exception = fileManager.createFile(
+        try fileManager.createFile(
             atPath: localPathURL,
             data: imageData
-        ) {
-            return exception
-        }
+        )
 
-        do {
-            _ = try await clientSession.message.sendMediaMessage(
-                .init(
-                    relativePath,
-                    name: AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName,
-                    fileExtension: .image(.jpeg)
-                ),
-                toUsers: users,
-                inConversation: (conversation, false)
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        _ = try await clientSession.message.sendMediaMessage(
+            .init(
+                relativePath,
+                name: AppConstants.Strings.ChatPageViewService.MediaActionHandler.defaultImageName,
+                fileExtension: .image(.jpeg)
+            ),
+            toUsers: users,
+            inConversation: (conversation, false)
+        )
     }
 
-    private func sendMessage(to users: [User], in conversation: Conversation?) async -> Exception? {
+    private func sendMessage(
+        to users: [User],
+        in conversation: Conversation?
+    ) async throws(Exception) {
         guard isOnProperEnvironment else {
-            return .environmentIntrusionDetected(
+            throw Exception.environmentIntrusionDetected(
                 metadata: .init(sender: self)
             )
         }
 
         guard let currentUser = clientSession.user.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
         if randomBool, randomBool {
-            return await sendMediaMessage(to: users, in: conversation)
-        }
-
-        do {
-            _ = try await clientSession.message.sendTextMessage(
-                networking.hostedTranslation.translate(
-                    .init(randomPhrase),
-                    with: .init(from: "en", to: currentUser.languageCode)
-                ).output.sanitized,
-                toUsers: users,
-                inConversation: (conversation, false)
+            return try await sendMediaMessage(
+                to: users,
+                in: conversation
             )
-        } catch {
-            return error
         }
 
-        return nil
+        _ = try await clientSession.message.sendTextMessage(
+            networking.hostedTranslation.translate(
+                .init(randomPhrase),
+                with: .init(from: "en", to: currentUser.languageCode)
+            ).output.sanitized,
+            toUsers: users,
+            inConversation: (conversation, false)
+        )
     }
 
     // MARK: - Computed Property Getters

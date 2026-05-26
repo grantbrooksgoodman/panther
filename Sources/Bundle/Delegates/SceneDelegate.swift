@@ -93,9 +93,12 @@ final class SceneDelegate: UIResponder, UIGestureRecognizerDelegate, UIWindowSce
         Task.background {
             @Dependency(\.clientSession.user.currentUser) var currentUser: User?
             @Dependency(\.commonServices.notification) var notificationService: NotificationService
-            if let badgeNumber = await currentUser?.calculateBadgeNumber(),
-               let exception = await notificationService.setBadgeNumber(badgeNumber) {
-                Logger.log(exception)
+            if let badgeNumber = await currentUser?.calculateBadgeNumber() {
+                do throws(Exception) {
+                    try await notificationService.setBadgeNumber(badgeNumber)
+                } catch {
+                    Logger.log(error)
+                }
             }
         }
     }

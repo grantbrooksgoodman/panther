@@ -81,14 +81,16 @@ final class MediaMessagePreviewService {
         let inputBarWasFirstResponder = chatPageViewService.inputBar?.isFirstResponder ?? false
         let recipientBarWasFirstResponder = chatPageViewService.recipientBar?.layout.textField?.isFirstResponder ?? false
         uiApplication.resignFirstResponders()
-
         InteractivePopGestureRecognizer.setIsEnabled(false)
-        if let exception = quickViewer.preview(
-            filesAtPaths: mediaPaths,
-            startingIndex: mediaPaths.firstIndex(of: filePath) ?? 0,
-            title: Localized(.attachment).wrappedValue.lowercased()
-        ) {
-            return Logger.log(exception)
+
+        do {
+            try quickViewer.preview(
+                filesAtPaths: mediaPaths,
+                startingIndex: mediaPaths.firstIndex(of: filePath) ?? 0,
+                title: Localized(.attachment).wrappedValue.lowercased()
+            )
+        } catch {
+            return Logger.log(error)
         }
 
         quickViewer.onDismiss {

@@ -42,8 +42,10 @@ extension ContactService {
                 ).appending(userInfo: userInfo)
             }
 
-            if let exception = await syncContactPairArchive() {
-                throw exception.appending(userInfo: userInfo)
+            do {
+                try await syncContactPairArchive()
+            } catch {
+                throw error.appending(userInfo: userInfo)
             }
 
             return try await firstCNContact(
@@ -74,7 +76,7 @@ extension ContactService {
         return match
     }
 
-    static func populateValuesIfNeeded() async -> Exception? {
+    static func populateValuesIfNeeded() async throws(Exception) {
         @Dependency(\.commonServices) var services: CommonServices
 
         @Persistent(.contactPairArchive) var contactPairArchive: [ContactPair]?
@@ -83,11 +85,8 @@ extension ContactService {
             !services.contact.hasContactsBesidesCurrentUser
 
         if isArchiveEmpty,
-           services.permission.contactPermissionStatus == .granted,
-           let exception = await services.contact.syncContactPairArchive() {
-            return exception
+           services.permission.contactPermissionStatus == .granted {
+            try await services.contact.syncContactPairArchive()
         }
-
-        return nil
     }
 }

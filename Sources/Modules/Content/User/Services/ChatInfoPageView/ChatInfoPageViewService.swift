@@ -84,11 +84,9 @@ final class ChatInfoPageViewService {
 
         guard let users = conversation.users,
               conversation.participants.count - 1 == users.count else {
-            if let exception = await conversation.setUsers(
+            try await conversation.setUsers(
                 forceUpdate: true
-            ) {
-                throw exception
-            }
+            )
 
             clientSession.conversation.setCurrentConversation(conversation)
             return try await getChatParticipants()
@@ -229,7 +227,7 @@ final class ChatInfoPageViewService {
                   ]) else { return }
 
             Observables.chatInfoPageLoadingStateUpdated.trigger()
-            clientSession.user.stopObservingCurrentUserChanges()
+            try? clientSession.user.stopObservingCurrentUserChanges()
             defer { clientSession.user.startObservingCurrentUserChanges() }
 
             do throws(Exception) {
@@ -256,7 +254,7 @@ final class ChatInfoPageViewService {
         startingIndex: Int
     ) {
         isPreviewingMedia = true
-        quickViewer.preview(
+        try? quickViewer.preview(
             filesAtPaths: filePaths,
             startingIndex: startingIndex,
             title: Localized(.attachment).wrappedValue,

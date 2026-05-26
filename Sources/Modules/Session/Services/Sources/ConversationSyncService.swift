@@ -76,30 +76,25 @@ final class ConversationSyncService: @unchecked Sendable {
 
     // MARK: - Synchronization
 
-    private func synchronizeActivities() async -> Exception? {
+    private func synchronizeActivities() async throws(Exception) {
         guard let newActivities = syncData?.newData[
             Conversation.SerializableKey.activities.rawValue
         ] as? [[String: Any]] else {
-            return .Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
         }
 
-        let updatedActivities: [Activity]
-        do {
-            updatedActivities = try await newActivities.parallelMap {
-                try await Activity(from: $0)
-            }
-        } catch {
-            return error
+        let updatedActivities = try await newActivities.parallelMap {
+            try await Activity(from: $0)
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
             .activities,
             withValue: updatedActivities
         ) else {
-            return .Networking.typeMismatch(
+            throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.activities.rawValue,
                 type: type(of: updatedActivities),
                 .init(sender: self)
@@ -110,33 +105,19 @@ final class ConversationSyncService: @unchecked Sendable {
             conversation,
             newData: syncData?.newData ?? [:]
         )
-
-        return nil
     }
 
-    private func synchronizeData() async -> Exception? {
-        if let exception = await synchronizeActivities() {
-            return exception
-        }
-
-        if let exception = await synchronizeParticipants() {
-            return exception
-        }
-
-        if let exception = await synchronizeMetadata() {
-            return exception
-        }
-
-        if let exception = await synchronizeReactionMetadata() {
-            return exception
-        }
-
-        return synchronizeHash()
+    private func synchronizeData() async throws(Exception) {
+        try await synchronizeActivities()
+        try await synchronizeParticipants()
+        try await synchronizeMetadata()
+        try await synchronizeReactionMetadata()
+        try synchronizeHash()
     }
 
-    private func synchronizeHash() -> Exception? {
+    private func synchronizeHash() throws(Exception) {
         guard let syncData else {
-            return .Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
@@ -167,16 +148,14 @@ final class ConversationSyncService: @unchecked Sendable {
             ),
             newData: syncData.newData
         )
-
-        return nil
     }
 
     private func synchronizeMessages(
         _ messageIDs: [String],
         lastTenOnly: Bool = false
-    ) async -> Exception? {
+    ) async throws(Exception) {
         guard let conversation = syncData?.conversation else {
-            return .init(
+            throw Exception(
                 "Failed to resolve conversation in sync data.",
                 metadata: .init(sender: self)
             )
@@ -188,14 +167,9 @@ final class ConversationSyncService: @unchecked Sendable {
             messageIDs = Array(messageIDs.reversed()[0 ... 9])
         }
 
-        let messages: [Message]
-        do {
-            messages = try await networking.messageService.getMessages(
-                ids: messageIDs
-            )
-        } catch {
-            return error
-        }
+        let messages = try await networking.messageService.getMessages(
+            ids: messageIDs
+        )
 
         let updatedMessages = ((conversation.messages ?? []) + messages)
             .filteringSystemMessages
@@ -206,45 +180,37 @@ final class ConversationSyncService: @unchecked Sendable {
             .messages,
             withValue: updatedMessages
         ) else {
-            return .Networking.typeMismatch(
+            throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.messages,
                 type: type(of: updatedMessages),
                 .init(sender: self)
             )
         }
 
-        if let exception = await updateHash(conversation) {
-            return exception
-        }
-
+        try await updateHash(conversation)
         syncData = .init(conversation, newData: syncData?.newData ?? [:])
-        return synchronizeHash()
+        try synchronizeHash()
     }
 
-    private func synchronizeMetadata() async -> Exception? {
+    private func synchronizeMetadata() async throws(Exception) {
         guard let newMetadata = syncData?.newData[
             Conversation.SerializableKey.metadata.rawValue
         ] as? [String: Any] else {
-            return .Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
         }
 
-        let decodedMetadata: ConversationMetadata
-        do {
-            decodedMetadata = try await ConversationMetadata(
-                from: newMetadata
-            )
-        } catch {
-            return error
-        }
+        let decodedMetadata = try await ConversationMetadata(
+            from: newMetadata
+        )
 
         guard let conversation = syncData?.conversation.modifyKey(
             .metadata,
             withValue: decodedMetadata
         ) else {
-            return .Networking.typeMismatch(
+            throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.metadata.rawValue,
                 type: type(of: decodedMetadata),
                 .init(sender: self)
@@ -255,34 +221,27 @@ final class ConversationSyncService: @unchecked Sendable {
             conversation,
             newData: syncData?.newData ?? [:]
         )
-
-        return nil
     }
 
-    private func synchronizeParticipants() async -> Exception? {
+    private func synchronizeParticipants() async throws(Exception) {
         guard let newParticipants = syncData?.newData[
             Conversation.SerializableKey.participants.rawValue
         ] as? [String] else {
-            return .Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
         }
 
-        let updatedParticipants: [Participant]
-        do {
-            updatedParticipants = try await newParticipants.parallelMap {
-                try await Participant(from: $0)
-            }
-        } catch {
-            return error
+        let updatedParticipants = try await newParticipants.parallelMap {
+            try await Participant(from: $0)
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
             .participants,
             withValue: updatedParticipants
         ) else {
-            return .Networking.typeMismatch(
+            throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.participants.rawValue,
                 type: type(of: updatedParticipants),
                 .init(sender: self)
@@ -290,33 +249,27 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         syncData = .init(conversation, newData: syncData?.newData ?? [:])
-        return nil
     }
 
-    private func synchronizeReactionMetadata() async -> Exception? {
+    private func synchronizeReactionMetadata() async throws(Exception) {
         guard let newReactionMetadata = syncData?.newData[
             Conversation.SerializableKey.reactionMetadata.rawValue
         ] as? [[String: Any]] else {
-            return .Networking.decodingFailed(
+            throw .Networking.decodingFailed(
                 data: syncData?.newData ?? [:],
                 .init(sender: self)
             )
         }
 
-        let updatedReactionMetadata: [ReactionMetadata]
-        do {
-            updatedReactionMetadata = try await newReactionMetadata.parallelMap {
-                try await ReactionMetadata(from: $0)
-            }
-        } catch {
-            return error
+        let updatedReactionMetadata = try await newReactionMetadata.parallelMap {
+            try await ReactionMetadata(from: $0)
         }
 
         guard let conversation = syncData?.conversation.modifyKey(
             .reactionMetadata,
             withValue: updatedReactionMetadata
         ) else {
-            return .Networking.typeMismatch(
+            throw .Networking.typeMismatch(
                 key: Conversation.SerializableKey.reactionMetadata.rawValue,
                 type: type(of: updatedReactionMetadata),
                 .init(sender: self)
@@ -324,14 +277,13 @@ final class ConversationSyncService: @unchecked Sendable {
         }
 
         syncData = .init(conversation, newData: syncData?.newData ?? [:])
-        return nil
     }
 
     // MARK: - Auxiliary
 
     private func getConversationData(
         _ conversation: Conversation
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let userInfo: [String: Any] = [
             "ConversationIDHash": conversation.id.hash,
             "ConversationIDKey": conversation.id.key,
@@ -346,10 +298,8 @@ final class ConversationSyncService: @unchecked Sendable {
                 )
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
-
-        return nil
     }
 
     private func resolveConversation(
@@ -384,9 +334,11 @@ final class ConversationSyncService: @unchecked Sendable {
 
         // Resolve sync data.
 
-        if let exception = await getConversationData(conversation) {
+        do {
+            try await getConversationData(conversation)
+        } catch {
             self.syncData = nil
-            throw exception.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         // Skip message updates if current user isn't participating.
@@ -403,9 +355,11 @@ final class ConversationSyncService: @unchecked Sendable {
                 domain: .conversationSync
             )
 
-            if let exception = await synchronizeData() {
+            do {
+                try await synchronizeData()
+            } catch {
                 self.syncData = nil
-                throw exception.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
 
             return try resolveConversation(userInfo)
@@ -417,9 +371,11 @@ final class ConversationSyncService: @unchecked Sendable {
             .messages?
             .filteringSystemMessages
             .uniquedByID else {
-            if let exception = await conversation.setMessages() {
+            do {
+                try await conversation.setMessages()
+            } catch {
                 self.syncData = nil
-                throw exception.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
 
             return try await _synchronizeConversation(conversation)
@@ -454,14 +410,12 @@ final class ConversationSyncService: @unchecked Sendable {
 
         filteredMessageIDs = filteredMessageIDs.unique
         guard filteredMessageIDs.isEmpty else {
-            if let exception = await synchronizeMessages(filteredMessageIDs) {
+            do {
+                try await synchronizeMessages(filteredMessageIDs)
+                try await synchronizeData()
+            } catch {
                 self.syncData = nil
-                throw exception.appending(userInfo: userInfo)
-            }
-
-            if let exception = await synchronizeData() {
-                self.syncData = nil
-                throw exception.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
 
             return try resolveConversation(userInfo)
@@ -469,9 +423,11 @@ final class ConversationSyncService: @unchecked Sendable {
 
         // If no messages to update, synchronize metadata until hashes are sufficiently mismatched.
 
-        if let exception = await synchronizeData() {
+        do {
+            try await synchronizeData()
+        } catch {
             self.syncData = nil
-            throw exception.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         guard self
@@ -482,12 +438,14 @@ final class ConversationSyncService: @unchecked Sendable {
 
         // If metadata ostensibly didn't need an update, reload select or all messages.
 
-        if let exception = await synchronizeMessages(
-            messageIDs,
-            lastTenOnly: true
-        ) {
+        do {
+            try await synchronizeMessages(
+                messageIDs,
+                lastTenOnly: true
+            )
+        } catch {
             self.syncData = nil
-            throw exception.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         // If reloading last 10 messages didn't help, reload all messages.
@@ -508,9 +466,11 @@ final class ConversationSyncService: @unchecked Sendable {
                 $0.insert(.init(conversation.id))
             }
 
-            if let exception = await synchronizeMessages(messageIDs) {
+            do {
+                try await synchronizeMessages(messageIDs)
+            } catch {
                 self.syncData = nil
-                throw exception.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
         }
 
@@ -519,21 +479,15 @@ final class ConversationSyncService: @unchecked Sendable {
 
     private func updateHash(
         _ conversation: Conversation
-    ) async -> Exception? {
-        do {
-            try await networking.database.setValue(
-                conversation.encodedHash,
-                forKey: [
-                    NetworkPath.conversations.rawValue,
-                    conversation.id.key,
-                    Conversation.SerializableKey.encodedHash.rawValue,
-                ].joined(separator: "/")
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+    ) async throws(Exception) {
+        try await networking.database.setValue(
+            conversation.encodedHash,
+            forKey: [
+                NetworkPath.conversations.rawValue,
+                conversation.id.key,
+                Conversation.SerializableKey.encodedHash.rawValue,
+            ].joined(separator: "/")
+        )
     }
 }
 

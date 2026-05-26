@@ -14,7 +14,7 @@ import AlertKit
 import AppSubsystem
 import Networking
 
-extension DevModeAction.AppActions {
+extension DevModeAction.AppActions { // swiftlint:disable:next type_body_length
     enum DangerZone {
         private enum Action {
             /* MARK: Cases */
@@ -188,6 +188,7 @@ extension DevModeAction.AppActions {
 
         // MARK: - Auxiliary
 
+        // swiftlint:disable:next function_body_length
         private static func performAction(_ action: Action) {
             Task { @MainActor in
                 @Dependency(\.coreKit) var core: CoreKit
@@ -211,67 +212,101 @@ extension DevModeAction.AppActions {
 
                 switch action {
                 case .clearPreviousLanguageCodes:
-                    if let exception = await core.utils.clearPreviousLanguageCodes() {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    do throws(Exception) {
+                        try await core.utils.clearPreviousLanguageCodes()
                         core.hud.flash(
                             "Cleared Previous Language Codes",
                             image: .success
                         )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deleteConversationsInvisibleToCurrentUser:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.notVisibleForCurrentUser) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .notVisibleForCurrentUser
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deleteCurrentUserConversations:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.allForCurrentUser) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .allForCurrentUser
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deleteGroupChatsWithoutNameOrPhoto:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.groupChatsWithoutNameOrPhoto) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .groupChatsWithoutNameOrPhoto
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deleteMRCConversations:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.messageRecipientConsentEnabled) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .messageRecipientConsentEnabled
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deleteOneToOneConversationsWithFewerThanFiveMessages:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.oneToOneAndFewerThanFiveMessages) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .oneToOneAndFewerThanFiveMessages
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .deletePenPalsConversations:
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.deleteConversations(.penPals) {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.deleteConversations(
+                            .penPals
+                        )
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .destroyConversationDatabase:
@@ -281,21 +316,28 @@ extension DevModeAction.AppActions {
                         confirmButtonStyle: .destructivePreferred
                     ).present(translating: []) else { return }
 
-                    userSession.stopObservingCurrentUserChanges()
-
-                    if let exception = await core.utils.destroyConversationDatabase() {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    try? userSession.stopObservingCurrentUserChanges()
+                    do throws(Exception) {
+                        try await core.utils.destroyConversationDatabase()
                         showSuccessAndReset()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
 
                 case .resetPushTokens:
-                    if let exception = await core.utils.resetPushTokens() {
-                        Logger.log(exception, with: .toast)
-                    } else {
+                    do throws(Exception) {
+                        try await core.utils.resetPushTokens()
                         core.hud.flash(
                             "Reset Push Tokens",
                             image: .success
+                        )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
                         )
                     }
                 }

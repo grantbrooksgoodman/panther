@@ -32,7 +32,7 @@ struct RemoteCacheService {
     func setCacheStatus(
         _ cacheStatus: RemoteCacheStatus,
         userID: String
-    ) async -> Exception? {
+    ) async throws(Exception) {
         var invalidatedCaches: [String]
         do {
             invalidatedCaches = try await networking.database.getValues(
@@ -52,7 +52,11 @@ struct RemoteCacheService {
                 exceptions.append(error)
             }
 
-            return exceptions.compiledException
+            if let exception = exceptions.compiledException {
+                throw exception
+            }
+
+            return
         }
 
         switch cacheStatus {
@@ -60,16 +64,9 @@ struct RemoteCacheService {
         case .valid: invalidatedCaches.removeAll(where: { $0 == userID })
         }
 
-        invalidatedCaches = invalidatedCaches.unique
-        do {
-            try await networking.database.setValue(
-                invalidatedCaches,
-                forKey: NetworkPath.invalidatedCaches.rawValue
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await networking.database.setValue(
+            invalidatedCaches.unique,
+            forKey: NetworkPath.invalidatedCaches.rawValue
+        )
     }
 }

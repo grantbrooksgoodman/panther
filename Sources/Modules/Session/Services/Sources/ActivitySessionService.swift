@@ -61,12 +61,10 @@ struct ActivitySessionService {
             ]
         )
 
-        if let exception = await addUserToConversation(
+        try await addUserToConversation(
             userID: userID,
             conversationID: updatedConversation.id
-        ) {
-            throw exception
-        }
+        )
 
         return updatedConversation
     }
@@ -74,19 +72,14 @@ struct ActivitySessionService {
     private func addUserToConversation(
         userID: String,
         conversationID: ConversationID
-    ) async -> Exception? {
-        do {
-            let user = try await networking.userService.getUser(id: userID)
-            _ = try await user.update(
-                \.conversationIDs,
-                to: ((user.conversationIDs ?? []).filter {
-                    $0.key != conversationID.key
-                } + [conversationID]).unique
-            )
-            return nil
-        } catch {
-            return error
-        }
+    ) async throws(Exception) {
+        let user = try await networking.userService.getUser(id: userID)
+        _ = try await user.update(
+            \.conversationIDs,
+            to: ((user.conversationIDs ?? []).filter {
+                $0.key != conversationID.key
+            } + [conversationID]).unique
+        )
     }
 
     // MARK: - Remove User from Conversation
@@ -130,12 +123,10 @@ struct ActivitySessionService {
         )
 
         if removeFromUser {
-            if let exception = await networking.conversationService.removeConversationFromUsers(
+            try await networking.conversationService.removeConversationFromUsers(
                 userIDs: [userID],
                 conversationIDKey: updatedConversation.id.key
-            ) {
-                throw exception
-            }
+            )
         }
 
         return updatedConversation

@@ -45,13 +45,12 @@ struct InviteService {
 
     // MARK: - Compose Invitation
 
-    func composeInvitation(languageCode: String?) async -> Exception? {
+    func composeInvitation(languageCode: String?) async throws(Exception) {
         guard let appShareLink = services.metadata.appShareLink else {
-            if let exception = await services.metadata.resolveValues() {
-                return exception
-            }
-
-            return await composeInvitation(languageCode: languageCode)
+            try await services.metadata.resolveValues()
+            return try await composeInvitation(
+                languageCode: languageCode
+            )
         }
 
         // swiftlint:disable:next line_length
@@ -60,51 +59,42 @@ struct InviteService {
         services.analytics.logEvent(.invite)
 
         guard languageCode != "en" else {
-            presentActivityViewController(
+            return presentActivityViewController(
                 appShareLink: appShareLink,
                 text: promptMessage.sanitized
             )
-
-            return nil
         }
 
-        do {
-            try await presentActivityViewController(
-                appShareLink: appShareLink,
-                text: translator.translate(
-                    .init(promptMessage),
-                    with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
-                    hud: (.zero, true),
-                    enhance: .init(
-                        additionalContext: "You are translating an invitation message."
-                    )
-                ).output.sanitized
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await presentActivityViewController(
+            appShareLink: appShareLink,
+            text: translator.translate(
+                .init(promptMessage),
+                with: .init(from: "en", to: languageCode ?? RuntimeStorage.languageCode),
+                hud: (.zero, true),
+                enhance: .init(
+                    additionalContext: "You are translating an invitation message."
+                )
+            ).output.sanitized
+        )
     }
 
     // MARK: - Present Invitation Prompt
 
-    func presentInvitationPrompt() async -> Exception? {
-        guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else { return nil }
-        guard shouldPresentInviteLanguagePicker else {
-            if let exception = await composeInvitation(languageCode: nil) {
-                return exception
-            }
+    func presentInvitationPrompt() async throws(Exception) {
+        guard let shouldPresentInviteLanguagePicker = await presentTranslationAlert() else {
+            return
+        }
 
-            return nil
+        guard shouldPresentInviteLanguagePicker else {
+            return try await composeInvitation(
+                languageCode: nil
+            )
         }
 
         Application.dismissSheets()
         Task.delayed(by: .seconds(2)) { @MainActor in
             RootSheets.present(.inviteLanguagePicker)
         }
-
-        return nil
     }
 
     // MARK: - Present Invitation Suggestion Prompt
@@ -115,8 +105,13 @@ struct InviteService {
             style: .preferred
         ) {
             Task { @MainActor in
-                if let exception = await presentInvitationPrompt() {
-                    Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await presentInvitationPrompt()
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }
@@ -133,8 +128,14 @@ struct InviteService {
     func suggestInvitationIfNeeded() async -> Bool {
         guard canSuggestInvitation else { return false }
 
-        if let exception = await services.contact.syncContactPairArchive() {
-            Logger.log(exception, with: .toast)
+        do {
+            try await services.contact.syncContactPairArchive()
+        } catch {
+            Logger.log(
+                error,
+                with: .toast
+            )
+
             return false
         }
 

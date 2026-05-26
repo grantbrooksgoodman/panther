@@ -81,11 +81,13 @@ struct WelcomePageReducer: Reducer {
             ThemeService.setTheme(UITheme.appDefault, checkStyle: false)
 
             let resetBadgeNumberEffect: Effect<Action> = .fireAndForget {
-                if let exception = await notificationService.setBadgeNumber(
-                    0,
-                    updateHostedValue: false
-                ) {
-                    Logger.log(exception)
+                do throws(Exception) {
+                    try await notificationService.setBadgeNumber(
+                        0,
+                        updateHostedValue: false
+                    )
+                } catch {
+                    Logger.log(error)
                 }
             }
 

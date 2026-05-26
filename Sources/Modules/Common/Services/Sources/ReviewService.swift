@@ -52,7 +52,7 @@ struct ReviewService {
     func promptToReview() {
         guard canPromptToReview,
               let windowScene = uiApplication.mainWindow?.windowScene else { return }
-        SKStoreReviewController.requestReview(in: windowScene)
+        AppStore.requestReview(in: windowScene)
 
         @Persistent(.lastRequestedReviewForBuildNumber) var lastRequestedReviewForBuildNumber: Int?
         lastRequestedReviewForBuildNumber = build.buildNumber

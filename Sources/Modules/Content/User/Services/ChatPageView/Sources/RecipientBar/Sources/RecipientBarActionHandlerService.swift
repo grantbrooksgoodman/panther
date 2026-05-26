@@ -95,9 +95,11 @@ final class RecipientBarActionHandlerService {
                     )
 
                     guard status == .granted else { return presentCTA() }
-                    if let exception = await services.contact.syncContactPairArchive() {
+                    do throws(Exception) {
+                        try await services.contact.syncContactPairArchive()
+                    } catch {
                         Logger.log(
-                            exception,
+                            error,
                             with: .toast
                         )
                     }
@@ -117,8 +119,17 @@ final class RecipientBarActionHandlerService {
                 selectContactButton?.isEnabled = false
                 coreHUD.showProgress(isModal: true)
 
-                if let exception = await services.contact.syncContactPairArchive(),
-                   !exception.isEqual(to: .mismatchedHashAndCallingCode) {
+                var exception: Exception?
+                do throws(Exception) {
+                    try await services.contact.syncContactPairArchive()
+                } catch {
+                    exception = error
+                }
+
+                if let exception,
+                   !exception.isEqual(
+                       to: .mismatchedHashAndCallingCode
+                   ) {
                     Logger.log(
                         exception,
                         with: .toast

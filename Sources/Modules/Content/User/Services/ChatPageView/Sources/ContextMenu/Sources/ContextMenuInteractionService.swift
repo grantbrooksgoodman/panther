@@ -176,12 +176,14 @@ final class ContextMenuInteractionService {
             hapticsService.generateFeedback(.medium)
 
             Task { @MainActor in
-                if let exception = await clientSession.reaction.react(
-                    reaction,
-                    to: message
-                ) {
+                do throws(Exception) {
+                    try await clientSession.reaction.react(
+                        reaction,
+                        to: message
+                    )
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         with: .toast
                     )
                 }
@@ -215,15 +217,18 @@ final class ContextMenuInteractionService {
                     .contains(convertedTouchPoint) else { return }
 
                 hapticsService.generateFeedback(.medium)
-                if let reaction = Reaction(.love),
-                   let exception = await self.clientSession.reaction.react(
-                       reaction,
-                       to: message
-                   ) {
-                    Logger.log(
-                        exception,
-                        with: .toast
-                    )
+                if let reaction = Reaction(.love) {
+                    do throws(Exception) {
+                        try await self.clientSession.reaction.react(
+                            reaction,
+                            to: message
+                        )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
+                    }
                 }
 
                 scrollToLastItemIfNeeded(message)

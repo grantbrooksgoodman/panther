@@ -33,7 +33,7 @@ struct PermissionPageReducer: Reducer {
         case finishButtonTapped // swiftlint:disable:next identifier_name
         case notificationPermissionCapsuleButtonTapped
 
-        case createUserReturned(Exception?)
+        case createUserFailed(Exception)
         case eulaAlertDismissed(cancelled: Bool)
         case requestContactPermissionFailed(Exception)
         case requestContactPermissionReturned(PermissionService.PermissionStatus)
@@ -88,17 +88,15 @@ struct PermissionPageReducer: Reducer {
                 }
             }
 
-        case let .createUserReturned(exception):
+        case let .createUserFailed(exception):
             coreUI.removeOverlay()
+            state.isBackButtonEnabled = true
+            state.isFinishButtonEnabled = true
 
-            if let exception {
-                state.isBackButtonEnabled = true
-                state.isFinishButtonEnabled = true
-
-                Logger.log(exception, with: .toast)
-            } else {
-                navigation.navigate(to: .root(.modal(.splash)))
-            }
+            Logger.log(
+                exception,
+                with: .toast
+            )
 
         case let .eulaAlertDismissed(cancelled: cancelled):
             guard !cancelled else {
@@ -110,8 +108,13 @@ struct PermissionPageReducer: Reducer {
 
             return .task {
                 @Dependency(\.onboardingService) var onboardingService: OnboardingService
-                let result = await onboardingService.createUser()
-                return .createUserReturned(result)
+                do throws(Exception) {
+                    try await onboardingService.createUser()
+                } catch {
+                    return .createUserFailed(error)
+                }
+
+                return .none
             }
 
         case .finishButtonTapped:
@@ -168,8 +171,10 @@ struct PermissionPageReducer: Reducer {
             } else {
                 return .task {
                     @Dependency(\.commonServices) var services: CommonServices
-                    if let exception = await services.contact.syncContactPairArchive() {
-                        Logger.log(exception)
+                    do throws(Exception) {
+                        try await services.contact.syncContactPairArchive()
+                    } catch {
+                        Logger.log(error)
                     }
 
                     return .none

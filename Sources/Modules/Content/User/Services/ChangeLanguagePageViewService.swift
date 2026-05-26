@@ -31,8 +31,15 @@ struct ChangeLanguagePageViewService {
                 style: .destructivePreferred
             ) {
                 Task {
-                    if let exception = await changeLanguage(to: selectedLanguageCode) {
-                        Logger.log(exception, with: .toast)
+                    do throws(Exception) {
+                        try await changeLanguage(
+                            to: selectedLanguageCode
+                        )
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
                 }
             }
@@ -57,10 +64,12 @@ struct ChangeLanguagePageViewService {
 
     // MARK: - Auxiliary
 
-    private func changeLanguage(to languageCode: String) async -> Exception? {
+    private func changeLanguage(
+        to languageCode: String
+    ) async throws(Exception) {
         guard let currentUserID = User.currentUserID,
               let currentUser = userSession.currentUser else {
-            return .init(
+            throw Exception(
                 "Failed to resolve required values.",
                 metadata: .init(sender: self)
             )
@@ -88,32 +97,18 @@ struct ChangeLanguagePageViewService {
             }
         }
 
-        if let exception = await currentUser.setConversations() {
-            return exception
-        }
+        try await currentUser.setConversations()
+        try await (currentUser.conversations ?? [])
+            .visibleForCurrentUser
+            .map(\.filteringSystemMessages)
+            .filter {
+                !$0.messageIDs.isBangQualifiedEmpty &&
+                    ($0.messages == nil || $0.messages?.isEmpty == true) ||
+                    $0.messageIDs.count != $0.messages?.count
+            }
+            .parallelMap { try await $0.setMessages() }
 
-        do throws(Exception) {
-            try await (currentUser.conversations ?? [])
-                .visibleForCurrentUser
-                .map(\.filteringSystemMessages)
-                .filter {
-                    !$0.messageIDs.isBangQualifiedEmpty &&
-                        ($0.messages == nil || $0.messages?.isEmpty == true) ||
-                        $0.messageIDs.count != $0.messages?.count
-                }
-                .parallelMap {
-                    if let exception = await $0.setMessages() {
-                        throw exception
-                    }
-                }
-        } catch {
-            return error
-        }
-
-        if let exception = await currentUser.conversations?.visibleForCurrentUser.setUsers() {
-            return exception
-        }
-
+        try await currentUser.conversations?.visibleForCurrentUser.setUsers()
         let conversations = (currentUser.conversations?.visibleForCurrentUser ?? [])
 
         let hasIncomingMessagesInCurrentLanguage = conversations
@@ -137,40 +132,28 @@ struct ChangeLanguagePageViewService {
         loadedData.wrappedValue = true
         timeout.cancel()
 
-        do {
-            if let exception = try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.previousLanguageCodes,
-                    to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
-                )
-            ) {
-                return exception
-            }
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.previousLanguageCodes,
+                to: newPreviousLanguageCodes.isEmpty ? Array.bangQualifiedEmpty : newPreviousLanguageCodes
+            )
+        )
 
-            do {
-                try await database.setValue(
-                    languageCode,
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        currentUserID,
-                        User.SerializableKey.languageCode.rawValue,
-                    ].joined(separator: "/")
-                )
-            } catch {
-                return error
-            }
+        try await database.setValue(
+            languageCode,
+            forKey: [
+                NetworkPath.users.rawValue,
+                currentUserID,
+                User.SerializableKey.languageCode.rawValue,
+            ].joined(separator: "/")
+        )
 
-            await MainActor.run {
-                Application.reset(
-                    preserveCurrentUserID: true,
-                    onCompletion: .exitGracefully
-                )
-            }
-        } catch {
-            return error
+        await MainActor.run {
+            Application.reset(
+                preserveCurrentUserID: true,
+                onCompletion: .exitGracefully
+            )
         }
-
-        return nil
     }
 }
 

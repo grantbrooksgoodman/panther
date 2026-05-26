@@ -58,67 +58,80 @@ final class InputBarActionHandlerService {
     @objc
     func didPressConsentButton() {
         Task {
-            if let exception = await services.messageRecipientConsent.sendConsentMessageInCurrentConversation() {
-                Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await services
+                    .messageRecipientConsent
+                    .sendConsentMessageInCurrentConversation()
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
 
     // MARK: - Did Press Record Button
 
-    func didPressRecordButton(with command: RecordButtonCommand) async -> Exception? {
+    func didPressRecordButton(
+        with command: RecordButtonCommand
+    ) async throws(Exception) {
         switch command {
         case .cancelRecording:
             guard !isStoppingRecording,
-                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+                  services.audio.recording.isInOrWillTransitionToRecordingState else { return }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
-            if let exception = services.audio.recording.cancelRecording() {
-                guard !exception.isEqual(toAny: [.couldntRemoveInput, .noAudioRecorderToStop]) else { return nil }
-                return exception
+            do {
+                try services.audio.recording.cancelRecording()
+            } catch {
+                guard !error.isEqual(toAny: [
+                    .couldntRemoveInput,
+                    .noAudioRecorderToStop,
+                ]) else { return }
+                throw error
             }
 
             playRecordingCancellationVibration()
-            return nil
 
         case .startRecording:
-            guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+            guard !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
             avSpeechSynthesizer.stopSpeaking(at: .immediate)
             chatPageViewService.audioMessagePlayback?.stopPlayback()
             await chatPageViewService.recordingUI?.showRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(false)
             services.haptics.generateFeedback(.medium)
-            return services.audio.recording.startRecording()
+            try services.audio.recording.startRecording()
 
         case .stopRecording:
             guard !isStoppingRecording,
-                  services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+                  services.audio.recording.isInOrWillTransitionToRecordingState else { return }
             isStoppingRecording = true
 
             defer { isStoppingRecording = false }
             await chatPageViewService.recordingUI?.hideRecordingUI()
             chatPageViewService.recipientBar?.layout.setIsUserInteractionEnabled(true)
 
-            do {
+            do throws(Exception) {
                 let url = try services.audio.recording.stopRecording()
                 guard let inputFile = AudioFile(url) else {
-                    return .init(
+                    throw Exception(
                         "Failed to generate input audio file.",
                         metadata: .init(sender: self)
                     )
                 }
 
-                return await messageDeliveryService.sendAudioMessage(inputFile)
+                try await messageDeliveryService.sendAudioMessage(inputFile)
             } catch {
                 guard !error.isEqual(toAny: [
                     .noAudioRecorderToStop,
                     .transcribeNoSuchFileOrDirectory,
-                ]) else { return nil }
+                ]) else { return }
                 playRecordingCancellationVibration()
-                return error
+                throw error
             }
         }
     }
@@ -126,7 +139,7 @@ final class InputBarActionHandlerService {
     // MARK: - Did Press Send Button
 
     @MainActor
-    func didPressSendButton(with text: String) async -> Exception? {
+    func didPressSendButton(with text: String) async throws(Exception) {
         // - NOTE: Fixes a bug in which rapid typing would cause the send button to mistakenly become enabled.
         var isConversationEmpty: Bool {
             if let currentConversation = viewController.currentConversation,
@@ -143,9 +156,9 @@ final class InputBarActionHandlerService {
             return false
         }
 
-        guard !isConversationEmpty else { return nil }
+        guard !isConversationEmpty else { return }
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
-        return await messageDeliveryService.sendTextMessage(text)
+        try await messageDeliveryService.sendTextMessage(text)
     }
 
     // MARK: - Auxiliary

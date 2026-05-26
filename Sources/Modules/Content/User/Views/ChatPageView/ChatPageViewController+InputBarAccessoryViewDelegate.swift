@@ -21,8 +21,15 @@ extension ChatPageViewController: @MainActor InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         @Dependency(\.chatPageViewService.inputBar) var inputBarService: InputBarService?
         Task {
-            if let exception = await inputBarService?.actionHandler.didPressSendButton(with: text) {
-                Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await inputBarService?.actionHandler.didPressSendButton(
+                    with: text
+                )
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
@@ -32,8 +39,12 @@ extension ChatPageViewController: @MainActor InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
         @Dependency(\.chatPageViewService.typingIndicator) var typingIndicatorService: TypingIndicatorService?
         Task.background { @MainActor in
-            if let exception = await typingIndicatorService?.textViewDidChange(to: text) {
-                Logger.log(exception)
+            do throws(Exception) {
+                try await typingIndicatorService?.textViewDidChange(
+                    to: text
+                )
+            } catch {
+                Logger.log(error)
             }
         }
     }

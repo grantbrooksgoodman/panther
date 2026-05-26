@@ -96,12 +96,10 @@ struct MessageService {
                 )
             }
 
-            if let exception = await audio.uploadAudioComponents(
+            try await audio.uploadAudioComponents(
                 audioComponents,
                 for: mockMessage
-            ) {
-                throw exception
-            }
+            )
 
             // NIT: Can have uploadAudioComponents modify the message.
             mockMessage = mockMessage.replacingRichContent(.audio(
@@ -133,12 +131,10 @@ struct MessageService {
             }
 
             let mediaFileID = mediaComponent.encodedHash.shortened
-            if let exception = await media.uploadMediaComponent(
+            try await media.uploadMediaComponent(
                 mediaComponent,
                 for: mockMessage
-            ) {
-                throw exception
-            }
+            )
 
             // NIT: Can have uploadMediaComponent modify the message.
             mockMessage = mockMessage.replacingRichContent(.media(.init(
@@ -215,17 +211,26 @@ struct MessageService {
         id messageID: String,
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true
-    ) async -> Exception? {
-        func deleteMessage() async -> Exception? {
+    ) async throws(Exception) {
+        func deleteMessage() async throws(Exception) {
             var exceptions = [Exception]()
 
-            if let exception = await networking.messageService.audio.deleteInputAudioComponent(for: messageID) {
-                exceptions.append(exception)
+            do {
+                try await networking.messageService.audio.deleteInputAudioComponent(
+                    for: messageID
+                )
+            } catch {
+                exceptions.append(error)
             }
 
-            if let exception = await networking.messageService.media.deleteMediaComponent(for: messageID),
-               !exception.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
-                exceptions.append(exception)
+            do {
+                try await networking.messageService.media.deleteMediaComponent(
+                    for: messageID
+                )
+            } catch {
+                if !error.isEqual(to: .Networking.Storage.storageItemDoesNotExist) {
+                    exceptions.append(error)
+                }
             }
 
             do {
@@ -237,16 +242,13 @@ struct MessageService {
                 exceptions.append(error)
             }
 
-            return exceptions.compiledException
+            if let exception = exceptions.compiledException {
+                throw exception
+            }
         }
 
-        guard let conversation else {
-            return await deleteMessage()
-        }
-
-        if let exception = await deleteMessage() {
-            return exception
-        }
+        guard let conversation else { return try await deleteMessage() }
+        try await deleteMessage()
 
         let path = [
             NetworkPath.conversations.rawValue,
@@ -254,38 +256,22 @@ struct MessageService {
             Conversation.SerializableKey.messages.rawValue,
         ].joined(separator: "/")
 
-        var messageIDs: [String]
-        do {
-            messageIDs = try await networking.database.getValues(at: path)
-        } catch {
-            return error
-        }
-
+        var messageIDs: [String] = try await networking.database.getValues(at: path)
         messageIDs.removeAll(where: { $0 == messageID })
         messageIDs = messageIDs.unique
 
-        do {
-            try await networking.database.setValue(
-                messageIDs,
-                forKey: path
-            )
-        } catch {
-            return error
-        }
+        try await networking.database.setValue(
+            messageIDs,
+            forKey: path
+        )
 
-        guard updateConversationHash else { return nil }
-
-        do {
-            _ = try await conversation.update(
-                \.metadata,
-                to: conversation.metadata.copyWith(
-                    lastModifiedDate: .now
-                )
+        guard updateConversationHash else { return }
+        _ = try await conversation.update(
+            \.metadata,
+            to: conversation.metadata.copyWith(
+                lastModifiedDate: .now
             )
-            return nil
-        } catch {
-            return error
-        }
+        )
     }
 
     // TODO: Rewrite with Message as the argument for greater efficiency.
@@ -294,24 +280,16 @@ struct MessageService {
         in conversation: Conversation? = nil,
         updateConversationHash: Bool = true,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
-    ) async -> Exception? {
-        do {
-            try await messageIDs.parallelMap(
-                failFast: failureStrategy == .returnOnFailure
-            ) {
-                if let exception = await deleteMessage(
-                    id: $0,
-                    in: conversation,
-                    updateConversationHash: updateConversationHash
-                ) {
-                    throw exception
-                }
-            }
-        } catch {
-            return error
+    ) async throws(Exception) {
+        try await messageIDs.parallelMap(
+            failFast: failureStrategy == .returnOnFailure
+        ) {
+            try await deleteMessage(
+                id: $0,
+                in: conversation,
+                updateConversationHash: updateConversationHash
+            )
         }
-
-        return nil
     }
 }
 

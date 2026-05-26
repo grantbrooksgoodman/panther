@@ -72,11 +72,15 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Resolve Session
 
-    func resolveSession() async -> Exception? {
-        await withCheckedContinuation { continuation in
+    func resolveSession() async throws(Exception) {
+        let exception: Exception? = await withCheckedContinuation { continuation in
             resolveSession { exception in
                 continuation.resume(returning: exception)
             }
+        }
+
+        if let exception {
+            throw exception
         }
     }
 
@@ -155,56 +159,46 @@ final class IntegrityService: @unchecked Sendable {
 
     // MARK: - Prune Deleted Users
 
-    func pruneDeletedUsers() async -> Exception? {
+    func pruneDeletedUsers() async throws(Exception) {
         var deletedUserIDs: [String]
         do {
             deletedUserIDs = try await networking.database.getValues(
                 at: NetworkPath.deletedUsers.rawValue
             )
         } catch {
-            guard !error.isEqual(to: .Networking.Database.noValueExists) else { return nil }
-            return error
+            guard !error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) else { return }
+            throw error
         }
 
         deletedUserIDs = deletedUserIDs.filter { !session.userData.keys.contains($0) }
-
-        do {
-            try await networking.database.setValue(
-                deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
-                forKey: NetworkPath.deletedUsers.rawValue
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await networking.database.setValue(
+            deletedUserIDs.isBangQualifiedEmpty ? NSNull() : deletedUserIDs,
+            forKey: NetworkPath.deletedUsers.rawValue
+        )
     }
 
     // MARK: - Prune Invalidated Caches
 
-    func pruneInvalidatedCaches() async -> Exception? {
+    func pruneInvalidatedCaches() async throws(Exception) {
         var invalidatedCahes: [String]
         do {
             invalidatedCahes = try await networking.database.getValues(
                 at: NetworkPath.invalidatedCaches.rawValue
             )
         } catch {
-            guard !error.isEqual(to: .Networking.Database.noValueExists) else { return nil }
-            return error
+            guard !error.isEqual(
+                to: .Networking.Database.noValueExists
+            ) else { return }
+            throw error
         }
 
         invalidatedCahes = invalidatedCahes.filter { session.userData.keys.contains($0) }
-
-        do {
-            try await networking.database.setValue(
-                invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
-                forKey: NetworkPath.invalidatedCaches.rawValue
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await networking.database.setValue(
+            invalidatedCahes.isBangQualifiedEmpty ? NSNull() : invalidatedCahes,
+            forKey: NetworkPath.invalidatedCaches.rawValue
+        )
     }
 
     // MARK: - Malformed Data
@@ -213,7 +207,9 @@ final class IntegrityService: @unchecked Sendable {
         var exceptions = [Exception]()
         var tookAction = false
 
-        for conversationIDKey in (idKeys ?? malformedConversationIDKeys).filter({ $0 != .bangQualifiedEmpty }) {
+        for conversationIDKey in (
+            idKeys ?? malformedConversationIDKeys
+        ).filter({ $0 != .bangQualifiedEmpty }) {
             if idKeys != nil {
                 do {
                     let _: [String: Any] = try await networking.database.getValues(
@@ -230,7 +226,9 @@ final class IntegrityService: @unchecked Sendable {
             let conversationMessageIDs = (session.conversationData[conversationIDKey] as? [String: Any])
                 .flatMap { $0[Conversation.SerializableKey.messages.rawValue] as? [String] } ?? []
 
-            await withTaskGroup(of: Exception?.self) { taskGroup in
+            await withTaskGroup(
+                of: Exception?.self
+            ) { taskGroup in
                 for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                     guard let dictionary = session.userData[userID] as? [String: Any],
                           var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
@@ -258,10 +256,16 @@ final class IntegrityService: @unchecked Sendable {
                     }
 
                     taskGroup.addTask {
-                        await self.remoteCacheService.setCacheStatus(
-                            .invalid,
-                            userID: userID
-                        )
+                        do throws(Exception) {
+                            try await self.remoteCacheService.setCacheStatus(
+                                .invalid,
+                                userID: userID
+                            )
+                        } catch {
+                            return error
+                        }
+
+                        return nil
                     }
                 }
 
@@ -322,8 +326,12 @@ final class IntegrityService: @unchecked Sendable {
 
             tookAction = true
             for conversationIDKey in conversationsReferencing(messageID: messageID) {
-                if let exception = await resetHash(conversationIDKey: conversationIDKey) {
-                    exceptions.append(exception)
+                do throws(Exception) {
+                    try await resetHash(
+                        conversationIDKey: conversationIDKey
+                    )
+                } catch {
+                    exceptions.append(error)
                 }
 
                 guard let dictionary = session.conversationData[conversationIDKey] as? [String: Any],
@@ -353,12 +361,15 @@ final class IntegrityService: @unchecked Sendable {
             }
         }
 
-        if tookAction,
-           let exception = await networking.messageService.deleteMessages(
-               ids: messageIDs ?? malformedMessageIDs,
-               failureStrategy: .continueOnFailure
-           ) {
-            exceptions.append(exception)
+        if tookAction {
+            do {
+                try await networking.messageService.deleteMessages(
+                    ids: messageIDs ?? malformedMessageIDs,
+                    failureStrategy: .continueOnFailure
+                )
+            } catch {
+                exceptions.append(error)
+            }
         }
 
         return (tookAction, exceptions.compiledException)
@@ -370,7 +381,14 @@ final class IntegrityService: @unchecked Sendable {
 
         for userID in (userIDs ?? malformedUserIDs).filter({ $0 != .bangQualifiedEmpty }) {
             tookAction = true
-            guard await networking.userService.legacy.convertUser(id: userID) != nil else { continue }
+
+            do {
+                try await networking
+                    .userService
+                    .legacy
+                    .convertUser(id: userID)
+                continue
+            } catch {}
 
             if userIDs != nil {
                 do {
@@ -626,7 +644,12 @@ final class IntegrityService: @unchecked Sendable {
         var exceptions = [Exception]()
         var tookAction = false
 
-        await withTaskGroup(of: (tookAction: Bool, exceptions: [Exception]).self) { taskGroup in
+        await withTaskGroup(
+            of: (
+                tookAction: Bool,
+                exceptions: [Exception]
+            ).self
+        ) { taskGroup in
             for (key, translationReferenceStrings) in audioMessages {
                 taskGroup.addTask {
                     var taskExceptions = [Exception]()
@@ -734,11 +757,13 @@ final class IntegrityService: @unchecked Sendable {
         var exceptions = [Exception]()
         var existingPaths = Set<String>()
 
-        await withTaskGroup(of: (
-            filePath: String,
-            itemExists: Bool,
-            exception: Exception?
-        ).self) { taskGroup in
+        await withTaskGroup(
+            of: (
+                filePath: String,
+                itemExists: Bool,
+                exception: Exception?
+            ).self
+        ) { taskGroup in
             for path in uniquePaths {
                 taskGroup.addTask {
                     do throws(Exception) {
@@ -835,7 +860,7 @@ final class IntegrityService: @unchecked Sendable {
         guard !malformedMessageIDs.isEmpty else { return (false, nil) }
         var exceptions = [Exception]()
 
-        do throws(Exception) {
+        do {
             try await malformedTranslationPaths.parallelMap(
                 failFast: false
             ) {
@@ -891,7 +916,7 @@ final class IntegrityService: @unchecked Sendable {
         ).subtracting(referencedMediaFilePaths)
         guard !orphanedMediaFilePaths.isEmpty else { return (false, nil) }
 
-        do throws(Exception) {
+        do {
             try await Array(orphanedMediaFilePaths).parallelMap(
                 failFast: false
             ) {
@@ -917,11 +942,13 @@ final class IntegrityService: @unchecked Sendable {
         guard !orphanedMessageIDs.isEmpty else { return (false, nil) }
         tookAction = true
 
-        if let exception = await networking.messageService.deleteMessages(
-            ids: orphanedMessageIDs,
-            failureStrategy: .continueOnFailure
-        ) {
-            return (tookAction, exception)
+        do {
+            try await networking.messageService.deleteMessages(
+                ids: orphanedMessageIDs,
+                failureStrategy: .continueOnFailure
+            )
+        } catch {
+            return (tookAction, error)
         }
 
         return (tookAction, nil)
@@ -1003,10 +1030,14 @@ final class IntegrityService: @unchecked Sendable {
         session.indices.conversationsByMessageID[messageID] ?? []
     }
 
-    private func resetHash(conversationIDKey: String) async -> Exception? {
+    private func resetHash(
+        conversationIDKey: String
+    ) async throws(Exception) {
         var exceptions = [Exception]()
 
-        await withTaskGroup(of: Exception?.self) { taskGroup in
+        await withTaskGroup(
+            of: Exception?.self
+        ) { taskGroup in
             for userID in usersReferencing(conversationIDKey: conversationIDKey) {
                 guard let dictionary = session.userData[userID] as? [String: Any],
                       var conversationIDStrings = dictionary[User.SerializableKey.conversationIDs.rawValue] as? [String] else { continue }
@@ -1032,10 +1063,16 @@ final class IntegrityService: @unchecked Sendable {
                 }
 
                 taskGroup.addTask {
-                    await self.remoteCacheService.setCacheStatus(
-                        .invalid,
-                        userID: userID
-                    )
+                    do throws(Exception) {
+                        try await self.remoteCacheService.setCacheStatus(
+                            .invalid,
+                            userID: userID
+                        )
+                    } catch {
+                        return error
+                    }
+
+                    return nil
                 }
             }
 
@@ -1063,7 +1100,9 @@ final class IntegrityService: @unchecked Sendable {
             }
         }
 
-        return exceptions.compiledException
+        if let exception = exceptions.compiledException {
+            throw exception
+        }
     }
 
     private func usersReferencing(conversationIDKey: String) -> Set<String> {

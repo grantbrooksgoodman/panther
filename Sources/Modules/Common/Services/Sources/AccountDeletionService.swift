@@ -31,17 +31,17 @@ final class AccountDeletionService: @unchecked Sendable {
     // MARK: - Delete Account
 
     // swiftlint:disable:next function_body_length
-    func deleteAccount() async -> Exception? {
+    func deleteAccount() async throws(Exception) {
         var exceptions = [Exception]()
 
         guard let currentUserID = User.currentUserID else {
-            return .init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try clientSession.user.stopObservingCurrentUserChanges()
         defer { core.hud.hide() }
 
         await MainActor.run {
@@ -59,9 +59,26 @@ final class AccountDeletionService: @unchecked Sendable {
 
         // Add to deleted users + synchronize conversations.
 
-        await withTaskGroup(of: Exception?.self) { taskGroup in
-            taskGroup.addTask { await self.addToDeletedUsers(currentUserID) }
-            taskGroup.addTask { await self.clientSession.user.currentUser?.setConversations() ?? nil }
+        await withTaskGroup(
+            of: Exception?.self
+        ) { taskGroup in
+            taskGroup.addTask {
+                do throws(Exception) {
+                    try await self.addToDeletedUsers(currentUserID)
+                    return nil
+                } catch {
+                    return error
+                }
+            }
+
+            taskGroup.addTask {
+                do throws(Exception) { try await
+                    self.clientSession.user.currentUser?.setConversations()
+                    return nil
+                } catch {
+                    return error
+                }
+            }
 
             for await exception in taskGroup {
                 if let exception {
@@ -78,7 +95,12 @@ final class AccountDeletionService: @unchecked Sendable {
 
         // Remove from group chats, delete 1:1 chats, and zero-out conversation IDs.
 
-        await withTaskGroup(of: (exception: Exception?, trackProgress: Bool).self) { taskGroup in
+        await withTaskGroup(
+            of: (
+                exception: Exception?,
+                trackProgress: Bool
+            ).self
+        ) { taskGroup in
             for groupChat in groupChats {
                 taskGroup.addTask {
                     do throws(Exception) {
@@ -96,13 +118,15 @@ final class AccountDeletionService: @unchecked Sendable {
 
             for oneToOneChat in oneToOneChats {
                 taskGroup.addTask {
-                    await (
-                        self.clientSession.conversation.deleteConversation(
+                    do throws(Exception) {
+                        try await self.clientSession.conversation.deleteConversation(
                             oneToOneChat,
                             forced: true
-                        ),
-                        true
-                    )
+                        )
+                        return (nil, true)
+                    } catch {
+                        return (error, true)
+                    }
                 }
             }
 
@@ -133,18 +157,20 @@ final class AccountDeletionService: @unchecked Sendable {
 
         try? await Task.sleep(for: .seconds(1))
 
-        if let exception = await networking.integrityService.repairDatabase() {
-            exceptions.append(exception)
+        do {
+            try await networking.integrityService.repairDatabase()
+        } catch {
+            exceptions.append(error)
         }
 
         // Delete user reference locally and on server.
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try? clientSession.user.stopObservingCurrentUserChanges()
         completionPercent = 1
 
         @Persistent(.currentUserID) var persistedCurrentUserID: String?
         persistedCurrentUserID = nil
-        _ = clientSession.user.setCurrentUser(nil)
+        try? clientSession.user.setCurrentUser(nil)
 
         do {
             try await networking.database.setValue(
@@ -158,19 +184,23 @@ final class AccountDeletionService: @unchecked Sendable {
         // If we encountered errors, validate database integrity again.
 
         if !exceptions.isEmpty {
-            if let exception = await networking.integrityService.repairDatabase() {
-                exceptions.append(exception)
+            do {
+                try await networking.integrityService.repairDatabase()
+            } catch {
+                exceptions.append(error)
             }
 
-            clientSession.user.stopObservingCurrentUserChanges()
+            try? clientSession.user.stopObservingCurrentUserChanges()
         }
 
-        return exceptions.compiledException
+        if let exception = exceptions.compiledException {
+            throw exception
+        }
     }
 
     // MARK: - Auxiliary
 
-    private func addToDeletedUsers(_ userID: String) async -> Exception? {
+    private func addToDeletedUsers(_ userID: String) async throws(Exception) {
         do {
             var deletedUserIDs: [String] = try await networking.database.getValues(
                 at: NetworkPath.deletedUsers.rawValue
@@ -179,30 +209,20 @@ final class AccountDeletionService: @unchecked Sendable {
             deletedUserIDs.append(userID)
             deletedUserIDs = deletedUserIDs.filter { $0 != .bangQualifiedEmpty }.unique
 
-            do {
-                try await networking.database.setValue(
-                    deletedUserIDs,
-                    forKey: NetworkPath.deletedUsers.rawValue
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                deletedUserIDs,
+                forKey: NetworkPath.deletedUsers.rawValue
+            )
         } catch {
             guard error.isEqual(
                 to: .Networking.Database.noValueExists
-            ) else { return error }
+            ) else { throw error }
 
-            do {
-                try await networking.database.setValue(
-                    [userID],
-                    forKey: NetworkPath.deletedUsers.rawValue
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                [userID],
+                forKey: NetworkPath.deletedUsers.rawValue
+            )
         }
-
-        return nil
     }
 
     private func incrementProgress(forTotal total: Double) {

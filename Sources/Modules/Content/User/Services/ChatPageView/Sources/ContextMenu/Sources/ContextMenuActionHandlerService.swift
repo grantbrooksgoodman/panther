@@ -167,11 +167,18 @@ final class ContextMenuActionHandlerService {
               let selectedMessage else { return }
 
         Task { @MainActor in
-            if let exception = await services.messageRetranslation.retranslateMessageInCurrentConversation(
-                selectedMessage,
-                indexPath: selectedCellIndexPath
-            ) {
-                Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await services
+                    .messageRetranslation
+                    .retranslateMessageInCurrentConversation(
+                        selectedMessage,
+                        indexPath: selectedCellIndexPath
+                    )
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
@@ -184,17 +191,26 @@ final class ContextMenuActionHandlerService {
             UISaveVideoAtPathToSavedPhotosAlbum(videoPathString, nil, nil, nil)
             coreHUD.showSuccess()
         } else if let documentPathURL = selectedMessage?.documentComponent?.localPathURL {
-            let exception = services.documentExport.presentExportController(forFileAt: documentPathURL)
-            services.documentExport.onDismiss { cancelled in
-                guard !cancelled else { return }
-                guard let exception else { return self.coreHUD.showSuccess() }
-                Logger.log(exception, with: .toast)
+            do {
+                try services.documentExport.presentExportController(
+                    forFileAt: documentPathURL
+                )
+
+                services.documentExport.onDismiss { cancelled in
+                    guard !cancelled else { return }
+                    self.coreHUD.showSuccess()
+                }
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
 
     private func handleSpeakAction() {
-        services.audio.activateAudioSession()
+        try? services.audio.activateAudioSession()
         chatPageViewService.contextMenu?.dismissMenu()
         Task { @MainActor in
             func processed(_ string: String?) -> String {

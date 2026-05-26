@@ -55,7 +55,6 @@ final class PushTokenService {
             }
 
         guard !userIDsAndPrunedTokens.isEmpty else { return }
-        // TODO: Audit to make sure we're using the throwing method.
         try await userIDsAndPrunedTokens.parallelMap {
             try await self.networking.database.setValue(
                 $0.prunedTokens,
@@ -75,10 +74,10 @@ final class PushTokenService {
 
     // MARK: - Update Push Tokens for Current User
 
-    func updatePushTokensForCurrentUser() async -> Exception? {
+    func updatePushTokensForCurrentUser() async throws(Exception) {
         guard let currentUser = userSession.currentUser,
               let currentToken else {
-            return .init(
+            throw Exception(
                 "Either current user or push token has not been set.",
                 isReportable: false,
                 metadata: .init(sender: self)
@@ -87,7 +86,7 @@ final class PushTokenService {
 
         var pushTokens = currentUser.pushTokens ?? []
         guard !pushTokens.contains(currentToken) else {
-            return .init(
+            throw Exception(
                 "Push tokens already up to date.",
                 isReportable: false,
                 metadata: .init(sender: self)
@@ -95,33 +94,24 @@ final class PushTokenService {
         }
 
         pushTokens.append(currentToken)
-        do {
-            return try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.pushTokens,
-                    to: pushTokens.unique
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.pushTokens,
+                to: pushTokens.unique
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 
     // MARK: - Prune Push Tokens for Current User
 
-    func prunePushTokensForCurrentUser() async -> Exception? {
+    func prunePushTokensForCurrentUser() async throws(Exception) {
         guard let currentUser = userSession.currentUser,
-              let currentUserPushTokens = currentUser.pushTokens else { return nil }
+              let currentUserPushTokens = currentUser.pushTokens else { return }
 
-        let userData: [String: Any]
-        do {
-            userData = try await networking.database.getValues(
-                at: NetworkPath.users.rawValue
-            )
-        } catch {
-            return error
-        }
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
 
         let userIDsAndPrunedTokens: [(
             userID: String,
@@ -140,26 +130,21 @@ final class PushTokenService {
                 )
             }
 
-        guard !userIDsAndPrunedTokens.isEmpty else { return nil }
-        do {
-            try await userIDsAndPrunedTokens.parallelMap {
-                try await self.networking.database.setValue(
-                    $0.prunedTokens,
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        $0.userID,
-                        User.SerializableKey.pushTokens.rawValue,
-                    ].joined(separator: "/")
-                )
-            }
-        } catch {
-            return error
+        guard !userIDsAndPrunedTokens.isEmpty else { return }
+        try await userIDsAndPrunedTokens.parallelMap {
+            try await self.networking.database.setValue(
+                $0.prunedTokens,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    $0.userID,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
+            )
         }
 
         Logger.log(
             "Pruned push tokens for current user.",
             sender: self
         )
-        return nil
     }
 }

@@ -152,12 +152,14 @@ extension DevModeAction.AppActions {
                         @Dependency(\.networking.storage) var storage: any StorageDelegate
 
                         let isCapturing = AppSubsystem.delegates.breadcrumbsCapture.isCapturing
-                        AppSubsystem.delegates.breadcrumbsCapture.stopCapture()
+                        try? AppSubsystem.delegates.breadcrumbsCapture.stopCapture()
 
                         coreHUD.showProgress(isModal: true)
                         defer {
                             coreHUD.hide()
-                            if isCapturing { AppSubsystem.delegates.breadcrumbsCapture.startCapture() }
+                            if isCapturing {
+                                try? AppSubsystem.delegates.breadcrumbsCapture.startCapture()
+                            }
                         }
 
                         do throws(Exception) {

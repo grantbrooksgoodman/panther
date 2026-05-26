@@ -68,16 +68,21 @@ final class AudioMessagePlaybackService {
             return
         }
 
-        if let exception = didTapPlayButton(in: cell) {
-            Logger.log(exception, with: .toast)
+        do {
+            try didTapPlayButton(in: cell)
+        } catch {
+            Logger.log(
+                error,
+                with: .toast
+            )
         }
     }
 
-    private func didTapPlayButton(in cell: AudioMessageCell) -> Exception? {
-        guard let message = message(for: cell) else { return nil }
+    private func didTapPlayButton(in cell: AudioMessageCell) throws(Exception) {
+        guard let message = message(for: cell) else { return }
         let fallbackAudioFile = message.isFromCurrentUser ? message.audioComponent?.original : message.audioComponent?.translated
         guard let audioFile = audioFile(for: message) ?? fallbackAudioFile,
-              !services.audio.recording.isInOrWillTransitionToRecordingState else { return nil }
+              !services.audio.recording.isInOrWillTransitionToRecordingState else { return }
 
         services.haptics.generateFeedback(.medium)
 
@@ -92,14 +97,24 @@ final class AudioMessagePlaybackService {
 
             guard playNextMessage,
                   let nextAudioCell = nextAudioMessageCell(after: cell) else { return }
-            Task.delayed(by: .milliseconds(Floats.playNextMessageDelayMilliseconds)) { @MainActor in
-                _ = self.didTapPlayButton(in: nextAudioCell)
+            Task.delayed(
+                by: .milliseconds(Floats.playNextMessageDelayMilliseconds)
+            ) { @MainActor in
+                do throws(Exception) {
+                    try self.didTapPlayButton(
+                        in: nextAudioCell
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
+                }
             }
         }
 
         guard !cell.playButton.isSelected else {
-            stopPlayback()
-            return nil
+            return stopPlayback()
         }
 
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
@@ -115,7 +130,9 @@ final class AudioMessagePlaybackService {
         services.audio.playback.onFailedToFinishPlaying { deselectCellAndStopPlaybackTimer(playNextMessage: false) }
         services.audio.playback.onFinishedPlaying { deselectCellAndStopPlaybackTimer(playNextMessage: true) }
 
-        return services.audio.playback.playAudio(url: audioFile.url)
+        try services.audio.playback.playAudio(
+            url: audioFile.url
+        )
     }
 
     // MARK: - Set Playing Cell

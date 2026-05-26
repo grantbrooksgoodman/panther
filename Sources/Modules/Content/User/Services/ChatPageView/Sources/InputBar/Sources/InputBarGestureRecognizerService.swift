@@ -92,8 +92,14 @@ final class InputBarGestureRecognizerService {
         switch recognizer.state {
         case .began:
             Task { @MainActor in
-                guard let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .startRecording) else { return }
-                showError(exception)
+                do throws(Exception) {
+                    try await chatPageViewService
+                        .inputBar?
+                        .actionHandler
+                        .didPressRecordButton(with: .startRecording)
+                } catch {
+                    showError(error)
+                }
             }
 
         case .changed:
@@ -104,30 +110,55 @@ final class InputBarGestureRecognizerService {
 
             Task { @MainActor in
                 guard !inputBar.sendButton.bounds.contains(convertedPoint),
-                      services.audio.recording.isInOrWillTransitionToRecordingState,
-                      let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .cancelRecording) else { return }
-                showError(exception)
+                      services.audio.recording.isInOrWillTransitionToRecordingState else { return }
+                do throws(Exception) {
+                    try await chatPageViewService
+                        .inputBar?
+                        .actionHandler
+                        .didPressRecordButton(with: .cancelRecording)
+                } catch {
+                    showError(error)
+                }
             }
 
         case .ended:
             /// - NOTE: Fixes a bug in which an immediate release of the button would fail to stop recording.
             func doubleCheckState() {
-                Task.delayed(by: .milliseconds(Floats.millisecondsDelay)) { @MainActor in
-                    guard self.services.audio.recording.isInOrWillTransitionToRecordingState else { return }
+                Task.delayed(
+                    by: .milliseconds(Floats.millisecondsDelay)
+                ) { @MainActor in
+                    guard self
+                        .services
+                        .audio
+                        .recording
+                        .isInOrWillTransitionToRecordingState else { return }
+
                     Logger.log(
                         "Intercepted failure to stop recording bug.",
                         domain: .bugPrevention,
                         sender: self
                     )
 
-                    guard let exception = await self.chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) else { return }
-                    self.showError(exception)
+                    do throws(Exception) {
+                        try await self
+                            .chatPageViewService
+                            .inputBar?
+                            .actionHandler
+                            .didPressRecordButton(with: .stopRecording)
+                    } catch {
+                        self.showError(error)
+                    }
                 }
             }
 
             Task { @MainActor in
-                if let exception = await chatPageViewService.inputBar?.actionHandler.didPressRecordButton(with: .stopRecording) {
-                    showError(exception)
+                do throws(Exception) {
+                    try await chatPageViewService
+                        .inputBar?
+                        .actionHandler
+                        .didPressRecordButton(with: .stopRecording)
+                } catch {
+                    showError(error)
                 }
 
                 doubleCheckState()

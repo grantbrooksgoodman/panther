@@ -52,34 +52,16 @@ extension [Conversation] {
 
     // MARK: - Methods
 
-    @discardableResult
-    func setMessages() async -> Exception? {
-        do {
-            try await parallelMap {
-                if let exception = await $0.setMessages() {
-                    throw exception
-                }
-            }
-        } catch {
-            return error
+    func setMessages() async throws(Exception) {
+        try await parallelMap {
+            try await $0.setMessages()
         }
-
-        return nil
     }
 
-    @discardableResult
-    func setUsers() async -> Exception? {
-        do {
-            try await parallelMap {
-                if let exception = await $0.setUsers() {
-                    throw exception
-                }
-            }
-        } catch {
-            return error
+    func setUsers() async throws(Exception) {
+        try await parallelMap {
+            try await $0.setUsers()
         }
-
-        return nil
     }
 }
 

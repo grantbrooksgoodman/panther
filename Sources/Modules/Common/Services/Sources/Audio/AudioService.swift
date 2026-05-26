@@ -51,8 +51,7 @@ struct AudioService {
 
     // MARK: - Methods
 
-    @discardableResult
-    func activateAudioSession() -> Exception? {
+    func activateAudioSession() throws(Exception) {
         do {
             try avAudioSession.setCategory(
                 .playAndRecord,
@@ -66,9 +65,10 @@ struct AudioService {
 
             try avAudioSession.setActive(true)
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        return nil
     }
 }

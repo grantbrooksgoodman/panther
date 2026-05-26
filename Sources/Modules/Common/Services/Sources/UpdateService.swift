@@ -62,35 +62,26 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
 
     // MARK: - Check for Updates
 
-    @discardableResult
-    func promptToUpdateIfNeeded() async -> Exception? {
-        do {
-            let updateType = try await checkForUpdates()
-            guard let updateType else { return nil }
+    func promptToUpdateIfNeeded() async throws(Exception) {
+        let updateType = try await checkForUpdates()
+        guard let updateType else { return }
 
-            switch updateType {
-            case .forced:
-                firstPostponedUpdate = nil
-                relaunchesSinceLastPostponedUpdate = 0
-                buildNumberWhenLastForcedToUpdate = build.buildNumber
-                isForcedUpdateRequiredSubject.send(true)
-                return nil
+        switch updateType {
+        case .forced:
+            firstPostponedUpdate = nil
+            relaunchesSinceLastPostponedUpdate = 0
+            buildNumberWhenLastForcedToUpdate = build.buildNumber
+            isForcedUpdateRequiredSubject.send(true)
 
-            case .normal:
-                return await presentUpdateCTA()
-            }
-        } catch {
-            return error
+        case .normal:
+            try await presentUpdateCTA()
         }
     }
 
     private func checkForUpdates() async throws(Exception) -> UpdateType? {
         guard let appStoreBuildNumber = metadataService.appStoreBuildNumber,
               let overrideForceUpdate = metadataService.shouldForceUpdate else {
-            if let exception = await metadataService.resolveValues() {
-                throw exception
-            }
-
+            try await metadataService.resolveValues()
             return try await checkForUpdates()
         }
 
@@ -141,13 +132,10 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
 
     // MARK: - Call to Action
 
-    private func presentUpdateCTA() async -> Exception? {
+    private func presentUpdateCTA() async throws(Exception) {
         guard let appShareLink = metadataService.appShareLink else {
-            if let exception = await metadataService.resolveValues() {
-                return exception
-            }
-
-            return await presentUpdateCTA()
+            try await metadataService.resolveValues()
+            return try await presentUpdateCTA()
         }
 
         let updateAction: AKAction = .init("Update", style: .preferred) {
@@ -175,7 +163,5 @@ final class UpdateService: AppSubsystem.Delegates.ForcedUpdateModalDelegate, @un
             message: "A new version of ⌘\(build.finalName)⌘ is available in the ⌘App Store⌘. Would you like to update now?",
             actions: [updateAction, cancelAction]
         ).present(translating: [.actions([updateAction]), .message, .title])
-
-        return nil
     }
 }

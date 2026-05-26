@@ -84,7 +84,10 @@ struct MessageSessionService {
         )
 
         let taskGroupResult: Callback<Void, Exception> = await withTaskGroup(
-            of: (Int, Callback<(Translation, AudioMessageReference), Exception>).self
+            of: (
+                Int,
+                Callback<(Translation, AudioMessageReference), Exception>
+            ).self
         ) { taskGroup in
             for (index, languageCode) in uniqueLanguageCodes.enumerated() {
                 taskGroup.addTask { [self, transcription = transcription as String] in
@@ -330,13 +333,20 @@ struct MessageSessionService {
             isPenPalsConversation: Bool
         ) {
             Task.background {
-                if let exception = await services.notification.notify(
-                    otherUsers.filter { !($0.blockedUserIDs ?? []).contains(initiatingUser.id) },
-                    message: message,
-                    conversationIDKey: conversationIDKey,
-                    isPenPalsConversation: isPenPalsConversation
-                ) {
-                    Logger.log(exception, domain: .notifications)
+                do throws(Exception) {
+                    try await services.notification.notify(
+                        otherUsers.filter {
+                            !($0.blockedUserIDs ?? []).contains(initiatingUser.id)
+                        },
+                        message: message,
+                        conversationIDKey: conversationIDKey,
+                        isPenPalsConversation: isPenPalsConversation
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .notifications
+                    )
                 }
 
                 incrementDeliveryProgress(
@@ -346,7 +356,7 @@ struct MessageSessionService {
             }
         }
 
-        clientSession.user.stopObservingCurrentUserChanges()
+        try clientSession.user.stopObservingCurrentUserChanges()
         incrementDeliveryProgress(
             in: conversation.value,
             by: Floats.createMessageDeliveryProgressIncrement

@@ -116,7 +116,7 @@ enum Application {
 
             breadcrumbsCaptureEnabled = true
             breadcrumbsCaptureSavesToPhotos = true
-            breadcrumbsCaptureService.startCapture()
+            try? breadcrumbsCaptureService.startCapture()
 
             Networking.config.setEnvironment(.development)
             hasRunOnce = true

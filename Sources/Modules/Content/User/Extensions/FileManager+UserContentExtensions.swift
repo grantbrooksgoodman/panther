@@ -16,35 +16,37 @@ extension FileManager {
     func copy(
         fileAt url: URL,
         toPath path: URL
-    ) -> Exception? {
+    ) throws(Exception) {
         do {
-            return try createFile(
+            try createFile(
                 atPath: path,
                 data: Data.fromURL(url)
             )
         } catch {
-            return error
+            throw error
         }
     }
 
     func createFile(
         atPath path: URL,
         data: Data
-    ) -> Exception? {
-        func createDirectoryIfNeeded(_ name: String) -> Exception? {
+    ) throws(Exception) {
+        func createDirectoryIfNeeded(_ name: String) throws(Exception) {
             let directory = documentsDirectoryURL.appending(path: "\(name.removingPercentEncoding ?? name)/")
             do {
                 try createDirectory(at: directory, withIntermediateDirectories: true)
             } catch {
-                return .init(error, metadata: .init(sender: self))
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
             }
-            return nil
         }
 
         let pathComponents = path.absoluteString.components(separatedBy: "/")
         guard let lastComponent = pathComponents.last,
               lastComponent.contains(".") else {
-            return .init(
+            throw Exception(
                 "Cannot create file with no extension.",
                 metadata: .init(sender: self)
             )
@@ -57,41 +59,50 @@ extension FileManager {
            (documentsIndex + 1) < (pathComponents.count - 2) {
             let directoryComponents = pathComponents[documentsIndex + 1 ... pathComponents.count - 2]
             let newDirectories = directoryComponents.joined(separator: "/")
-            if let exception = createDirectoryIfNeeded(newDirectories.removingPercentEncoding ?? newDirectories) {
-                Logger.log(exception)
+            do {
+                try createDirectoryIfNeeded(
+                    newDirectories.removingPercentEncoding ?? newDirectories
+                )
+            } catch {
+                Logger.log(error)
             }
         } else if pathComponents.count > 1,
                   let parentDirectory = pathComponents.itemAt(pathComponents.count - 2) {
-            if let exception = createDirectoryIfNeeded(parentDirectory.removingPercentEncoding ?? parentDirectory) {
-                Logger.log(exception)
+            do {
+                try createDirectoryIfNeeded(
+                    parentDirectory.removingPercentEncoding ?? parentDirectory
+                )
+            } catch {
+                Logger.log(error)
             }
         }
 
         do {
             try data.write(to: path)
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        return nil
     }
 
     func move(
         fileAt url: URL,
         toPath path: URL
-    ) -> Exception? {
-        if let exception = copy(
+    ) throws(Exception) {
+        try copy(
             fileAt: url,
             toPath: path
-        ) {
-            return exception
-        }
+        )
 
         do {
             try removeItem(at: url)
-            return nil
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 }

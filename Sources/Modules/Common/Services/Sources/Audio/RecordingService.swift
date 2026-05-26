@@ -51,28 +51,29 @@ final class RecordingService: NSObject {
 
     // MARK: - Recording
 
-    func cancelRecording() -> Exception? {
+    func cancelRecording() throws(Exception) {
+        let url = try stopRecording()
+        guard fileManager.fileExists(atPath: url.path()) ||
+            fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
+            return
+        }
+
         do {
-            let url = try stopRecording()
-            guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else { return nil }
-
-            do {
-                try fileManager.removeItem(at: url)
-            } catch {
-                return .init(error, metadata: .init(sender: self))
-            }
-
-            return nil
+            try fileManager.removeItem(at: url)
+        } catch let error as Exception {
+            throw error
         } catch {
-            return error
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 
-    func startRecording() -> Exception? {
+    func startRecording() throws(Exception) {
         willStartRecording = true
 
-        audioService.activateAudioSession()
-
+        try audioService.activateAudioSession()
         let filePath = fileManager.documentsDirectoryURL.appending(path: FileNames.inputM4A)
 
         let audioSettings = [
@@ -86,13 +87,18 @@ final class RecordingService: NSObject {
             audioRecorder = try AVAudioRecorder(url: filePath, settings: audioSettings)
             audioRecorder?.delegate = self
             audioRecorder?.record()
+        } catch let error as Exception {
+            audioRecorder?.stop()
+            throw error
         } catch {
             audioRecorder?.stop()
-            return .init(error, metadata: .init(sender: self))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
 
         startObservingInterruptions()
-        return nil
     }
 
     func stopRecording() throws(Exception) -> URL {

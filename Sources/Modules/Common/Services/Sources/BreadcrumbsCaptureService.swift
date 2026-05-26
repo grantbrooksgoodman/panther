@@ -98,10 +98,9 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
     // MARK: - Capture
 
-    @discardableResult
-    func startCapture() -> Exception? {
+    func startCapture() throws(Exception) {
         guard !isCapturing else {
-            return .init(
+            throw Exception(
                 "Breadcrumbs capture is already running.",
                 metadata: .init(sender: self)
             )
@@ -114,14 +113,11 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
                 try? await Task.sleep(for: captureFrequency)
             }
         }
-
-        return nil
     }
 
-    @discardableResult
-    func stopCapture() -> Exception? {
+    func stopCapture() throws(Exception) {
         guard isCapturing else {
-            return .init(
+            throw Exception(
                 "Breadcrumbs capture is not running.",
                 metadata: .init(sender: self)
             )
@@ -129,7 +125,6 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
 
         captureTask?.cancel()
         captureTask = nil
-        return nil
     }
 
     // MARK: - Set Capture Frequency
@@ -286,7 +281,8 @@ final class BreadcrumbsCaptureService: AppSubsystem.Delegates.BreadcrumbsCapture
             NetworkPath.breadcrumbs.rawValue,
             build.bundleVersion,
             "\(keyDescriptor)\(keyDescriptor == leafDescriptor ? "" : " & \(leafDescriptor)")",
-        ].joined(separator: "/") + "/\(fileName).\(ImageFileExtension.jpeg.rawValue)"
+            "\(fileName).\(ImageFileExtension.jpeg.rawValue)",
+        ].joined(separator: "/")
 
         Task.detached(priority: .background) {
             // NIT: Using local dependency because I *think* a class-scoped property would be on the main actor.

@@ -199,12 +199,14 @@ final class ChatPageViewService {
 
         if let readReceipts {
             Task { @MainActor in
-                if let exception = await readReceipts.updateReadDateForUnreadMessages() {
-                    Logger.log(exception, with: .toastInPrerelease)
-                }
-
-                if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                    Logger.log(exception, with: .toastInPrerelease)
+                do throws(Exception) {
+                    try await readReceipts.updateReadDateForUnreadMessages()
+                    try await typingIndicator?.textViewDidChange(to: "")
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toastInPrerelease
+                    )
                 }
             }
         }
@@ -235,8 +237,10 @@ final class ChatPageViewService {
         contextMenu?.interaction.removeKeyboardWillShowObserver()
 
         Task.background { @MainActor in
-            if let exception = await typingIndicator?.textViewDidChange(to: "") {
-                Logger.log(exception)
+            do throws(Exception) {
+                try await typingIndicator?.textViewDidChange(to: "")
+            } catch {
+                Logger.log(error)
             }
 
             // TODO: Audit this.
@@ -252,9 +256,15 @@ final class ChatPageViewService {
 
         avSpeechSynthesizer.stopSpeaking(at: .immediate)
         audioMessagePlayback?.stopPlayback()
-        if let exception = services.audio.recording.cancelRecording() {
-            guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
-            Logger.log(exception, with: .toastInPrerelease)
+
+        do {
+            try services.audio.recording.cancelRecording()
+        } catch {
+            guard !error.isEqual(to: .noAudioRecorderToStop) else { return }
+            Logger.log(
+                error,
+                with: .toastInPrerelease
+            )
         }
     }
 

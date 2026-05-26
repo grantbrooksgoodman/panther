@@ -23,8 +23,12 @@ struct ConversationCellViewService {
 
     // MARK: - Methods
 
-    func blockUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
-        await moderationSession.blockUsers(inConversation: conversation)
+    func blockUsersButtonTapped(
+        _ conversation: Conversation
+    ) async throws(Exception) {
+        try await moderationSession.blockUsers(
+            inConversation: conversation
+        )
     }
 
     /// `.deleteConversationButtonTapped`
@@ -84,7 +88,11 @@ struct ConversationCellViewService {
         }
     }
 
-    func reportUsersButtonTapped(_ conversation: Conversation) async -> Exception? {
-        await moderationSession.reportUsers(inConversation: conversation)
+    func reportUsersButtonTapped(
+        _ conversation: Conversation
+    ) async throws(Exception) {
+        try await moderationSession.reportUsers(
+            inConversation: conversation
+        )
     }
 }

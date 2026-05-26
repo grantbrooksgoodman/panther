@@ -20,6 +20,28 @@ struct SplashPageReducer: Reducer {
     @Dependency(\.clientSession.user) private var userSession: UserSessionService
     @Dependency(\.splashPageViewService) private var viewService: SplashPageViewService
 
+    // MARK: - Properties
+
+    static let initializeBundleTask: Effect<Action> = .task {
+        @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
+        do throws(Exception) {
+            try await viewService.initializeBundle()
+            return .initializedBundle(nil)
+        } catch {
+            return .initializedBundle(error)
+        }
+    }
+
+    static let performRetryHandlerTask: Effect<Action> = .task {
+        @Dependency(\.splashPageViewService) var viewService: SplashPageViewService
+        do throws(Exception) {
+            try await viewService.performRetryHandler()
+            return .performRetryHandlerReturned(nil)
+        } catch {
+            return .performRetryHandlerReturned(error)
+        }
+    }
+
     // MARK: - Actions
 
     enum Action {
@@ -52,10 +74,7 @@ struct SplashPageReducer: Reducer {
         switch action {
         case .viewAppeared:
             state.didAttemptAutomaticErrorRecovery = false
-            return .task {
-                let result = await viewService.initializeBundle()
-                return .initializedBundle(result)
-            }
+            return Self.initializeBundleTask
 
         case .bundleInitializationProgressOccurred:
             guard viewService.initializationProgress < 0.8 else { return .none }
@@ -66,17 +85,9 @@ struct SplashPageReducer: Reducer {
                   !exception.isEqual(toAny: [
                       .failedToGenerateMediaFile,
                       .timedOut,
-                  ]) else {
-                return .task {
-                    let result = await viewService.initializeBundle()
-                    return .initializedBundle(result)
-                }
-            }
+                  ]) else { return Self.initializeBundleTask }
 
-            return .task {
-                let result = await viewService.performRetryHandler()
-                return .performRetryHandlerReturned(result)
-            }
+            return Self.performRetryHandlerTask
 
         case let .initializedBundle(exception):
             state.exception = exception
@@ -97,16 +108,10 @@ struct SplashPageReducer: Reducer {
                             .timedOut,
                         ]
                     ) else {
-                        return .task {
-                            let result = await viewService.initializeBundle()
-                            return .initializedBundle(result)
-                        }
+                        return Self.initializeBundleTask
                     }
 
-                    return .task {
-                        let result = await viewService.performRetryHandler()
-                        return .performRetryHandlerReturned(result)
-                    }
+                    return Self.performRetryHandlerTask
                 }
 
                 return .task {
@@ -126,10 +131,7 @@ struct SplashPageReducer: Reducer {
                 Logger.log(exception)
             }
 
-            return .task {
-                let result = await viewService.initializeBundle()
-                return .initializedBundle(result)
-            }
+            return Self.initializeBundleTask
         }
 
         return .none

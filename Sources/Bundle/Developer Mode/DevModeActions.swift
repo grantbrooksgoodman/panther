@@ -72,9 +72,13 @@ extension DevModeAction {
                     guard let messageCount,
                           let integer = Int(messageCount) else { return }
 
-                    if let exception = await userTestingService.createRandomMessages(count: integer) {
+                    do throws(Exception) {
+                        try await userTestingService.createRandomMessages(
+                            count: integer
+                        )
+                    } catch {
                         Logger.log(
-                            exception,
+                            error,
                             with: .errorAlert
                         )
 
@@ -176,12 +180,21 @@ extension DevModeAction {
 
                     coreHUD.showProgress(isModal: true)
                     defer { coreHUD.hide() }
-                    guard let exception = await integrityService.repairDatabase() else { return }
-                    Logger.log(exception, with: .toast)
+                    do throws(Exception) {
+                        try await integrityService.repairDatabase()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
+                    }
                 }
             }
 
-            return .init(title: "Validate Database Integrity", perform: validateDatabaseIntegrity)
+            return .init(
+                title: "Validate Database Integrity",
+                perform: validateDatabaseIntegrity
+            )
         }
     }
 }

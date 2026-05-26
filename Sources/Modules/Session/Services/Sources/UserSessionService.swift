@@ -85,9 +85,11 @@ final class UserSessionService: @unchecked Sendable {
     // MARK: - Object Lifecycle
 
     deinit {
-        if let exception = stopObservingCurrentUserChanges() {
+        do {
+            try stopObservingCurrentUserChanges()
+        } catch {
             Logger.log(
-                exception,
+                error,
                 domain: .userSession
             )
         }
@@ -133,16 +135,18 @@ final class UserSessionService: @unchecked Sendable {
     func setCurrentUser(
         _ user: User?,
         repopulateValuesIfNeeded: Bool = false
-    ) -> Exception? {
+    ) throws(Exception) {
         defer { // NIT: This seems fishy/unsafe.
             Task {
                 guard repopulateValuesIfNeeded,
                       currentUser != nil,
                       user?.id == currentUserID else { return }
 
-                if let exception = await User.populateCurrentUserConversationsIfNeeded() {
+                do throws(Exception) {
+                    try await User.populateCurrentUserConversationsIfNeeded()
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         domain: .userSession,
                         with: .toast
                     )
@@ -153,18 +157,17 @@ final class UserSessionService: @unchecked Sendable {
         if let user {
             guard let currentUserID,
                   user.id == currentUserID else {
-                return .init(
+                throw Exception(
                     "Either current user ID has not been set, or provided user's ID does not match its value.",
                     metadata: .init(sender: self)
                 )
             }
 
             currentUser = user
-            return nil
+            return
         }
 
         currentUser = user
-        return nil
     }
 
     // MARK: - Offline Current User
@@ -173,10 +176,9 @@ final class UserSessionService: @unchecked Sendable {
         offlineCurrentUser = currentUser
     }
 
-    @discardableResult
-    func setOfflineCurrentUser() -> Exception? {
+    func setOfflineCurrentUser() throws(Exception) {
         guard !isOnline else {
-            return .init(
+            throw Exception(
                 "Internet connection is not offline.",
                 isReportable: false,
                 metadata: .init(sender: self)
@@ -184,7 +186,7 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         guard let offlineCurrentUser else {
-            return .init(
+            throw Exception(
                 "No persisted user exists.",
                 isReportable: false,
                 metadata: .init(sender: self)
@@ -192,41 +194,33 @@ final class UserSessionService: @unchecked Sendable {
         }
 
         currentUser = offlineCurrentUser
-        return nil
     }
 
     // MARK: - Resolve & Set Language Code
 
-    @discardableResult
-    func resolveAndSetLanguageCode() async -> Exception? {
+    func resolveAndSetLanguageCode() async throws(Exception) {
         guard let currentUserID else {
-            return .init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        do {
-            let languageCode: String = try await networking.database.getValues(
-                at: [
-                    NetworkPath.users.rawValue,
-                    currentUserID,
-                    User.SerializableKey.languageCode.rawValue,
-                ].joined(separator: "/")
-            )
+        let languageCode: String = try await networking.database.getValues(
+            at: [
+                NetworkPath.users.rawValue,
+                currentUserID,
+                User.SerializableKey.languageCode.rawValue,
+            ].joined(separator: "/")
+        )
 
-            Logger.log(
-                "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
-                domain: .userSession,
-                sender: self
-            )
+        Logger.log(
+            "Setting language code to \(languageCode.englishLanguageName ?? languageCode.uppercased()).",
+            domain: .userSession,
+            sender: self
+        )
 
-            coreUtilities.setLanguageCode(languageCode)
-        } catch {
-            return error
-        }
-
-        return nil
+        coreUtilities.setLanguageCode(languageCode)
     }
 
     // MARK: - Current User Observation
@@ -275,10 +269,12 @@ final class UserSessionService: @unchecked Sendable {
         }
     }
 
-    @discardableResult
-    func stopObservingCurrentUserChanges() -> Exception? {
+    func stopObservingCurrentUserChanges() throws(Exception) {
         guard let currentUserDatabaseReference else {
-            return .init("Current user has not been set.", metadata: .init(sender: self))
+            throw Exception(
+                "Current user has not been set.",
+                metadata: .init(sender: self)
+            )
         }
 
         Logger.log(
@@ -288,7 +284,6 @@ final class UserSessionService: @unchecked Sendable {
         )
 
         currentUserDatabaseReference.removeAllObservers()
-        return nil
     }
 
     // MARK: - Auxiliary
@@ -382,8 +377,13 @@ final class UserSessionService: @unchecked Sendable {
                     sender: self
                 )
 
-                if let exception = await currentUser?.setConversations() {
-                    Logger.log(exception, domain: .userSession)
+                do throws(Exception) {
+                    try await currentUser?.setConversations()
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .userSession
+                    )
                 }
 
                 Task.debounced(

@@ -78,7 +78,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, @preconcurrency Mes
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {
-        coreUtilities.eraseTemporaryDirectory()
+        try? coreUtilities.eraseTemporaryDirectory()
     }
 
     // MARK: - MessagingDelegate Conformance

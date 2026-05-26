@@ -79,8 +79,10 @@ final class MessageDeliveryService {
 
     // MARK: - Send Audio Message
 
-    func sendAudioMessage(_ inputFile: AudioFile) async -> Exception? {
-        guard !users.isEmpty else { return nil }
+    func sendAudioMessage(
+        _ inputFile: AudioFile
+    ) async throws(Exception) {
+        guard !users.isEmpty else { return }
 
         isSendingMessage = true
         chatPageViewService.inputBar?.toggleSendingUI(on: true)
@@ -133,7 +135,7 @@ final class MessageDeliveryService {
 
             if let currentConversation = clientSession.conversation.currentConversation,
                !currentConversation.isMock {
-                guard currentConversation.id.key == conversation.id.key else { return nil }
+                guard currentConversation.id.key == conversation.id.key else { return }
             }
 
             clientSession.conversation.setCurrentConversation(conversation)
@@ -143,16 +145,17 @@ final class MessageDeliveryService {
                 @Dependency(\.chatPageViewService.recipientBar?.layout) var recipientBarLayoutService: RecipientBarLayoutService?
                 recipientBarLayoutService?.setIsUserInteractionEnabled(true)
             }
-            return error
-        }
 
-        return nil
+            throw error
+        }
     }
 
     // MARK: - Send Media Message
 
-    func sendMediaMessage(_ mediaFile: MediaFile) async -> Exception? {
-        guard !users.isEmpty else { return nil }
+    func sendMediaMessage(
+        _ mediaFile: MediaFile
+    ) async throws(Exception) {
+        guard !users.isEmpty else { return }
 
         services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(
@@ -182,34 +185,29 @@ final class MessageDeliveryService {
             }
         }
 
-        do {
-            let conversation = try await clientSession.message.sendMediaMessage(
-                mediaFile,
-                toUsers: users,
-                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
-            )
+        let conversation = try await clientSession.message.sendMediaMessage(
+            mediaFile,
+            toUsers: users,
+            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+        )
 
-            services.analytics.logEvent(.sendMediaMessage)
-
-            if let currentConversation = clientSession.conversation.currentConversation,
-               !currentConversation.isMock {
-                guard currentConversation.id.key == conversation.id.key else { return nil }
-            }
-
-            clientSession.conversation.setCurrentConversation(conversation)
-            chatPageViewService.reloadCollectionView()
-        } catch {
-            return error
+        services.analytics.logEvent(.sendMediaMessage)
+        if let currentConversation = clientSession.conversation.currentConversation,
+           !currentConversation.isMock {
+            guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        return nil
+        clientSession.conversation.setCurrentConversation(conversation)
+        chatPageViewService.reloadCollectionView()
     }
 
     // MARK: - Send Text Message
 
-    func sendTextMessage(_ text: String) async -> Exception? {
+    func sendTextMessage(
+        _ text: String
+    ) async throws(Exception) {
         guard !users.isEmpty,
-              !text.isBlank else { return nil }
+              !text.isBlank else { return }
 
         services.haptics.generateFeedback(.medium)
         addMockMessageToCurrentConversation(
@@ -235,27 +233,20 @@ final class MessageDeliveryService {
             }
         }
 
-        do {
-            let conversation = try await clientSession.message.sendTextMessage(
-                text,
-                toUsers: users,
-                inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
-            )
+        let conversation = try await clientSession.message.sendTextMessage(
+            text,
+            toUsers: users,
+            inConversation: ((fullConversation?.isMock ?? true) ? nil : fullConversation, isPenPalsConversation)
+        )
 
-            services.analytics.logEvent(.sendTextMessage)
-
-            if let currentConversation = clientSession.conversation.currentConversation,
-               !currentConversation.isMock {
-                guard currentConversation.id.key == conversation.id.key else { return nil }
-            }
-
-            clientSession.conversation.setCurrentConversation(conversation)
-            chatPageViewService.reloadCollectionView()
-        } catch {
-            return error
+        services.analytics.logEvent(.sendTextMessage)
+        if let currentConversation = clientSession.conversation.currentConversation,
+           !currentConversation.isMock {
+            guard currentConversation.id.key == conversation.id.key else { return }
         }
 
-        return nil
+        clientSession.conversation.setCurrentConversation(conversation)
+        chatPageViewService.reloadCollectionView()
     }
 
     // MARK: - Auxiliary

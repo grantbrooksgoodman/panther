@@ -23,9 +23,10 @@ struct LegacyUserService {
 
     /// Converts the user with the given `id` to the Panther database schema and removes references to old conversations.
     /// - Parameter id: The identifier of the user to be converted.
-    /// - Returns: An optional `Exception` describing the error encountered.
     /// - Warning: This method will clear all open conversations for the legacy user associated with the provided ID.
-    func convertUser(id: String) async -> Exception? {
+    func convertUser(
+        id: String
+    ) async throws(Exception) {
         let userInfo = ["UserID": id]
         let userPath = "\(NetworkPath.users.rawValue)/\(id)"
         var userData: [String: Any]
@@ -35,25 +36,26 @@ struct LegacyUserService {
                 at: userPath
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         userData[User.SerializableKey.id.rawValue] = id
 
         guard !User.canDecode(from: userData) else {
-            let exception = Exception(
+            throw Exception(
                 "User does not need conversion to new schema.",
                 isReportable: false,
                 metadata: .init(sender: self)
-            )
-            return exception.appending(userInfo: userInfo)
+            ).appending(userInfo: userInfo)
         }
 
         guard let callingCode = userData["callingCode"] as? String,
               let nationalNumberString = userData["phoneNumber"] as? String,
               let regionCode = userData["region"] as? String else {
-            let exception = Exception("Failed to decode number information.", metadata: .init(sender: self))
-            return exception.appending(userInfo: userInfo)
+            throw Exception(
+                "Failed to decode number information.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
         let newDictionary = [
@@ -93,7 +95,7 @@ struct LegacyUserService {
                 forKey: "\(userPath)/\(User.SerializableKey.conversationIDs.rawValue)"
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         Logger.log(
@@ -101,8 +103,6 @@ struct LegacyUserService {
             domain: .user,
             sender: self
         )
-
-        return nil
     }
 }
 

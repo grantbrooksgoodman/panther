@@ -52,33 +52,25 @@ final class OnboardingService {
 
     // MARK: - Create User
 
-    func createUser() async -> Exception? {
+    func createUser() async throws(Exception) {
         guard let languageCode,
               let phoneNumber,
               let userID else {
-            return .init(
+            throw Exception(
                 "Insufficient data to create user.",
                 metadata: .init(sender: self)
             )
         }
 
-        let user: User
-        do {
-            user = try await userService.createUser(
-                id: userID,
-                languageCode: languageCode,
-                phoneNumber: phoneNumber,
-                pushTokens: services.pushToken.currentToken == nil ? nil : [services.pushToken.currentToken!]
-            )
-        } catch {
-            return error
-        }
-
         @Persistent(.currentUserID) var currentUserID: String?
-        currentUserID = user.id
+        currentUserID = try await userService.createUser(
+            id: userID,
+            languageCode: languageCode,
+            phoneNumber: phoneNumber,
+            pushTokens: services.pushToken.currentToken == nil ? nil : [services.pushToken.currentToken!]
+        ).id
         createdUserInCurrentAppSession = true
         services.analytics.logEvent(.signUp)
-        return nil
     }
 
     // MARK: - Alert Presentation

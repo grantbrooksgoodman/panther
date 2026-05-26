@@ -30,9 +30,11 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Present Export Controller
 
-    func presentExportController(forFileAt url: URL) -> Exception? {
+    func presentExportController(
+        forFileAt url: URL
+    ) throws(Exception) {
         guard let fileExtension = url.path().components(separatedBy: "/").last?.components(separatedBy: ".").last else {
-            return .init(
+            throw Exception(
                 "Failed to determine file type.",
                 metadata: .init(sender: self)
             )
@@ -42,12 +44,10 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
             .temporaryDirectory
             .appending(path: "\(Localized(.document).wrappedValue.lowercased()).\(fileExtension)")
 
-        if let exception = fileManager.copy(
+        try fileManager.copy(
             fileAt: url,
             toPath: temporaryFilePath
-        ) {
-            return exception
-        }
+        )
 
         let viewController = UIDocumentPickerViewController(forExporting: [temporaryFilePath], asCopy: true)
 
@@ -56,12 +56,13 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
         StatusBar.overrideStyle(.conditionalLightContent)
         coreUI.present(viewController)
-        return nil
     }
 
     // MARK: - On Dismiss
 
-    func onDismiss(_ perform: @escaping (Bool) -> Void) {
+    func onDismiss(
+        _ perform: @escaping (Bool) -> Void
+    ) {
         _onDismiss = perform
     }
 
@@ -77,7 +78,9 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
         }
     }
 
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    func documentPickerWasCancelled(
+        _ controller: UIDocumentPickerViewController
+    ) {
         controller.dismiss(animated: true) {
             StatusBar.overrideStyle(.appAware)
             self.onDismiss(cancelled: true)
@@ -86,7 +89,9 @@ final class DocumentExportService: NSObject, UIDocumentPickerDelegate {
 
     // MARK: - Auxiliary
 
-    private func onDismiss(cancelled: Bool) {
+    private func onDismiss(
+        cancelled: Bool
+    ) {
         defer {
             _onDismiss?(cancelled)
             _onDismiss = nil

@@ -133,58 +133,53 @@ final class ConversationSessionService {
     func deleteConversation(
         _ conversation: Conversation,
         forced: Bool = false
-    ) async -> Exception? {
+    ) async throws(Exception) {
         if !forced {
             guard conversation.participants
                 .filter({ $0.userID != User.currentUserID })
                 .allSatisfy(\.hasDeletedConversation) else {
                 guard let currentUserID = User.currentUserID else {
-                    return .init(
+                    throw Exception(
                         "Current user ID has not been set.",
                         metadata: .init(sender: self)
                     )
                 }
 
-                return await hideConversation(conversation, forUser: currentUserID)
+                return try await hideConversation(
+                    conversation,
+                    forUser: currentUserID
+                )
             }
         }
 
-        if let exception = await networking.conversationService.removeConversationFromUsers(
+        try await networking.conversationService.removeConversationFromUsers(
             userIDs: conversation.participants.map(\.userID),
             conversationIDKey: conversation.id.key
-        ) {
-            return exception
-        }
+        )
 
-        if let exception = await networking.messageService.deleteMessages(
+        try await networking.messageService.deleteMessages(
             ids: conversation.messageIDs,
             in: conversation,
             updateConversationHash: false
-        ) {
-            return exception
-        }
+        )
 
-        do {
-            try await networking.database.setValue(
-                NSNull(),
-                forKey: [
-                    NetworkPath.conversations.rawValue,
-                    conversation.id.key,
-                ].joined(separator: "/")
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await networking.database.setValue(
+            NSNull(),
+            forKey: [
+                NetworkPath.conversations.rawValue,
+                conversation.id.key,
+            ].joined(separator: "/")
+        )
     }
 
     private func hideConversation(
         _ conversation: Conversation,
         forUser userID: String
-    ) async -> Exception? {
-        guard let currentParticipant = conversation.participants.first(where: { $0.userID == userID }) else {
-            return .init(
+    ) async throws(Exception) {
+        guard let currentParticipant = conversation
+            .participants
+            .first(where: { $0.userID == userID }) else {
+            throw Exception(
                 "This conversation does not contain the specified participant.",
                 userInfo: ["UserID": userID],
                 metadata: .init(sender: self)
@@ -201,16 +196,11 @@ final class ConversationSessionService {
         newParticipants.append(newParticipant)
         newParticipants = newParticipants.unique
 
-        do {
-            // NIT: We don't care about the result because update adds the updated conversation to the archive for us.
-            _ = try await conversation.update(
-                \.participants,
-                to: newParticipants
-            )
-            return nil
-        } catch {
-            return error
-        }
+        // NIT: We don't care about the result because update adds the updated conversation to the archive for us.
+        _ = try await conversation.update(
+            \.participants,
+            to: newParticipants
+        )
     }
 
     private func withMessagesOffset(_ conversation: Conversation?) -> Conversation? {

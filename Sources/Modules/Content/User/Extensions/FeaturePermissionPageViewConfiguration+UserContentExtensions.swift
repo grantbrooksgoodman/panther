@@ -22,9 +22,11 @@ extension FeaturePermissionPageView.Configuration {
             enableButtonAction: {
                 Task {
                     @Dependency(\.commonServices.aiEnhancedTranslation) var aiEnhancedTranslationService: AIEnhancedTranslationService
-                    if let exception = await aiEnhancedTranslationService.setDidGrantAIEnhancedTranslationPermission(true) {
+                    do throws(Exception) {
+                        try await aiEnhancedTranslationService.setDidGrantAIEnhancedTranslationPermission(true)
+                    } catch {
                         Logger.log(
-                            exception,
+                            error,
                             with: .toastInPrerelease
                         )
                     }
@@ -45,9 +47,11 @@ extension FeaturePermissionPageView.Configuration {
             enableButtonAction: {
                 Task {
                     @Dependency(\.commonServices.penPals) var penPalsService: PenPalsService
-                    if let exception = await penPalsService.setDidGrantPenPalsPermission(true) {
+                    do throws(Exception) {
+                        try await penPalsService.setDidGrantPenPalsPermission(true)
+                    } catch {
                         Logger.log(
-                            exception,
+                            error,
                             domain: .penPals,
                             with: .toastInPrerelease
                         )

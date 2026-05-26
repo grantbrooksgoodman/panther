@@ -110,7 +110,7 @@ struct TextToSpeechService {
         let fileName = "\(languageCode)-\(FileNames.outputM4A)"
         let outputURL = fileManager.documentsDirectoryURL.appending(path: fileName)
 
-        let asset = AVAsset(url: url)
+        let asset = AVURLAsset(url: url)
         guard let exportSession = AVAssetExportSession(
             asset: asset,
             presetName: AVAssetExportPresetAppleM4A

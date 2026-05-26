@@ -92,8 +92,10 @@ final class ConversationsPageViewService {
 
         Task {
             @Dependency(\.commonServices.pushToken) var pushTokenService: PushTokenService
-            if let exception = await pushTokenService.updatePushTokensForCurrentUser() {
-                Logger.log(exception)
+            do throws(Exception) {
+                try await pushTokenService.updatePushTokensForCurrentUser()
+            } catch {
+                Logger.log(error)
             }
         }
     }
@@ -142,89 +144,35 @@ final class ConversationsPageViewService {
     // MARK: - Reducer Action Handlers
 
     func deleteConversationsToolbarButtonTapped() {
-        func populateValuesIfNeeded() async -> Exception? {
+        func populateValuesIfNeeded() async throws(Exception) {
             guard let currentUser = clientSession.user.currentUser,
                   currentUser.conversations == nil ||
-                  currentUser.conversations?.isEmpty == true else { return nil }
-            return await currentUser.setConversations()
+                  currentUser.conversations?.isEmpty == true else { return }
+            try await currentUser.setConversations()
         }
 
         Task { @MainActor in
-            if let exception = await populateValuesIfNeeded() {
-                Logger.log(
-                    exception,
-                    with: .toast
-                )
-            } else {
+            do throws(Exception) {
+                try await populateValuesIfNeeded()
                 DevModeAction
                     .AppActions
                     .DangerZone
                     .deleteConversationsAction
                     .perform()
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
 
     /// `.pulledToRefresh`
     func reloadData() async throws(Exception) -> [Conversation] {
-        func reloadData(type: ReloadType) async throws(Exception) -> [Conversation] {
-            if let conversations = clientSession
-                .user
-                .currentUser?
-                .conversations?
-                .visibleForCurrentUser
-                .sortedByLatestMessageSentDate,
-                let firstConversation = conversations.first,
-                type == .full || type == .partial {
-                var array = [firstConversation]
-                if type == .full {
-                    if conversations.count > 5 {
-                        array = Array(conversations[0 ... conversations.count / 3])
-                    } else {
-                        array = conversations
-                    }
-                }
-
-                let staleConversations = Set(array.map {
-                    markStale(conversation: $0)
-                })
-
-                networking
-                    .conversationService
-                    .archive
-                    .addValues(staleConversations)
-            }
-
-            defer { currentReloadType = currentReloadType.next }
-            do throws(Exception) {
-                let user = try await clientSession.user.resolveCurrentUser()
-                if let exception = await user.setConversations() {
-                    throw exception
-                }
-
-                if let exception = await user.conversations?.visibleForCurrentUser.setUsers() {
-                    throw exception
-                }
-
-                var randomBool: Bool {
-                    Int.random(in: 1 ... 1_000_000) % 3 == 0
-                }
-                guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
-                    return user.conversations ?? []
-                }
-
-                if let exception = await services.contact.syncContactPairArchive(),
-                   !exception.isEqual(toAny: [.mismatchedHashAndCallingCode, .notAuthorizedForContacts]) {
-                    throw exception
-                }
-
-                return user.conversations ?? []
-            } catch {
-                throw error
-            }
-        }
-
-        return try await reloadData(type: currentReloadType)
+        try await reloadData(
+            type: currentReloadType
+        )
     }
 
     /// `.composeToolbarButtonTapped`
@@ -305,9 +253,11 @@ final class ConversationsPageViewService {
                     Double(updateConversationsListRetryCount) * 3
                 )
             ) { @MainActor in
-                if let exception = await User.populateCurrentUserConversationsIfNeeded() {
+                do throws(Exception) {
+                    try await User.populateCurrentUserConversationsIfNeeded()
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         domain: .conversation
                     )
                 }
@@ -446,8 +396,16 @@ final class ConversationsPageViewService {
         services.connectionStatus.addEffectUponConnectionChanged(id: .checkForUpdates) {
             guard self.build.isOnline else { return }
             Task {
-                if let exception = await self.services.update.promptToUpdateIfNeeded() {
-                    Logger.log(exception, with: .toastInPrerelease)
+                do throws(Exception) {
+                    try await self
+                        .services
+                        .update
+                        .promptToUpdateIfNeeded()
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toastInPrerelease
+                    )
                 }
             }
         }
@@ -501,6 +459,66 @@ final class ConversationsPageViewService {
             reactionMetadata: conversation.reactionMetadata,
             users: conversation.users
         )
+    }
+
+    private func reloadData(
+        type: ReloadType
+    ) async throws(Exception) -> [Conversation] {
+        if let conversations = clientSession
+            .user
+            .currentUser?
+            .conversations?
+            .visibleForCurrentUser
+            .sortedByLatestMessageSentDate,
+            let firstConversation = conversations.first,
+            type == .full || type == .partial {
+            var array = [firstConversation]
+            if type == .full {
+                if conversations.count > 5 {
+                    array = Array(conversations[0 ... conversations.count / 3])
+                } else {
+                    array = conversations
+                }
+            }
+
+            let staleConversations = Set(array.map {
+                markStale(conversation: $0)
+            })
+
+            networking
+                .conversationService
+                .archive
+                .addValues(staleConversations)
+        }
+
+        defer { currentReloadType = currentReloadType.next }
+        do throws(Exception) {
+            let user = try await clientSession.user.resolveCurrentUser()
+            try await user.setConversations()
+            try await user.conversations?.visibleForCurrentUser.setUsers()
+            var randomBool: Bool {
+                Int.random(in: 1 ... 1_000_000) % 3 == 0
+            }
+
+            guard !services.contact.hasContactsBesidesCurrentUser || randomBool else {
+                return user.conversations ?? []
+            }
+
+            do {
+                try await services.contact.syncContactPairArchive()
+            } catch {
+                if !error.isEqual(toAny: [
+                    .mismatchedHashAndCallingCode,
+                    .notAuthorizedForContacts,
+                ]) {
+                    throw error
+                }
+            }
+
+            return user.conversations ?? []
+        } catch {
+            throw error
+        }
     }
 
     /// - NOTE: Fixes a bug in which the list of conversations would not be populated upon the view's first appearance.

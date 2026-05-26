@@ -99,35 +99,31 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
     // MARK: - Resolve All Values
 
-    func resolveValues() async -> Exception? {
+    func resolveValues() async throws(Exception) {
         guard appShareLink == nil
             || appStoreBuildNumber == nil
             || geminiAPIKey == nil
             || isPrevaricationModeEnabled == nil
             || redirectionKey == nil
             || shouldForceUpdate == nil
-            || storageReferenceURL == nil else { return nil }
+            || storageReferenceURL == nil else { return }
 
-        do {
-            let sharedData: [String: Any] = try await database.getValues(
+        try await assignValues(
+            from: database.getValues(
                 at: NetworkPath.shared.rawValue,
                 prependingEnvironment: false
             )
-            return assignValues(from: sharedData)
-        } catch {
-            return error
-        }
+        )
     }
 
     // MARK: - Auxiliary
 
-    private func assignValues(from dictionary: [String: Any]) -> Exception? {
+    private func assignValues(from dictionary: [String: Any]) throws(Exception) {
         if appShareLink == nil {
             guard let urlString = dictionary[
                 MetadataServiceKey.appShareLink.rawValue
-            ] as? String,
-                let url = URL(string: urlString) else {
-                return .Networking.typecastFailed(
+            ] as? String, let url = URL(string: urlString) else {
+                throw Exception.Networking.typecastFailed(
                     "URL",
                     metadata: .init(sender: self)
                 )
@@ -140,7 +136,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             guard let value = dictionary[
                 MetadataServiceKey.appStoreBuildNumber.rawValue
             ] as? Int else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "integer",
                     metadata: .init(sender: self)
                 )
@@ -153,7 +149,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             guard let value = dictionary[
                 MetadataServiceKey.geminiAPIKey.rawValue
             ] as? String else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "string",
                     metadata: .init(sender: self)
                 )
@@ -166,7 +162,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             guard let value = dictionary[
                 MetadataServiceKey.isPrevaricationModeEnabled.rawValue
             ] as? Bool else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "Bool",
                     metadata: .init(sender: self)
                 )
@@ -179,7 +175,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             guard let value = dictionary[
                 MetadataServiceKey.redirectionKey.rawValue
             ] as? String else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "string",
                     metadata: .init(sender: self)
                 )
@@ -192,7 +188,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
             guard let value = dictionary[
                 MetadataServiceKey.shouldForceUpdate.rawValue
             ] as? Bool else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "Bool",
                     metadata: .init(sender: self)
                 )
@@ -206,7 +202,7 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
                 MetadataServiceKey.storageReferenceURL.rawValue
             ] as? String,
                 let url = URL(string: value) else {
-                return .Networking.typecastFailed(
+                throw Exception.Networking.typecastFailed(
                     "URL",
                     metadata: .init(sender: self)
                 )
@@ -214,7 +210,5 @@ final class MetadataService: GeminiAPIKeyDelegate, @unchecked Sendable {
 
             storageReferenceURL = url
         }
-
-        return nil
     }
 }

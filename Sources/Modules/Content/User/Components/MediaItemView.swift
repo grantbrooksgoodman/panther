@@ -136,11 +136,20 @@ struct MediaItemView: View {
             UISaveVideoAtPathToSavedPhotosAlbum(metadata.file.localPathURL.path(), nil, nil, nil)
             coreHUD.showSuccess()
         } else {
-            let exception = documentExportService.presentExportController(forFileAt: metadata.file.localPathURL)
-            documentExportService.onDismiss { cancelled in
-                guard !cancelled else { return }
-                guard let exception else { return coreHUD.showSuccess() }
-                Logger.log(exception, with: .toast)
+            do {
+                try documentExportService.presentExportController(
+                    forFileAt: metadata.file.localPathURL
+                )
+
+                documentExportService.onDismiss { cancelled in
+                    guard !cancelled else { return }
+                    coreHUD.showSuccess()
+                }
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }

@@ -59,16 +59,16 @@ final class SettingsPageViewService {
     func aiEnhancedTranslationsSwitchToggled(on: Bool) {
         Task { @MainActor in
             guard on else {
-                if let exception = await services
-                    .aiEnhancedTranslation
-                    .setDidGrantAIEnhancedTranslationPermission(false) {
-                    Logger.log(
-                        exception,
+                do throws(Exception) {
+                    return try await services
+                        .aiEnhancedTranslation
+                        .setDidGrantAIEnhancedTranslationPermission(false)
+                } catch {
+                    return Logger.log(
+                        error,
                         with: .toast
                     )
                 }
-
-                return
             }
 
             RootSheets.present(
@@ -79,8 +79,14 @@ final class SettingsPageViewService {
 
     func blockedUsersButtonTapped() {
         Task {
-            guard let exception = await moderationSession.unblockUsers() else { return }
-            Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await moderationSession.unblockUsers()
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
+            }
         }
     }
 
@@ -131,9 +137,11 @@ final class SettingsPageViewService {
         func clearCaches() async {
             @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-            if let exception = userSession.stopObservingCurrentUserChanges() {
+            do throws(Exception) {
+                try userSession.stopObservingCurrentUserChanges()
+            } catch {
                 Logger.log(
-                    exception,
+                    error,
                     domain: .userSession
                 )
             }
@@ -188,8 +196,15 @@ final class SettingsPageViewService {
             @MainActor
             @Sendable
             func clearCachesAndExit() async {
-                if let exception = await services.notification.setBadgeNumber(0, updateHostedValue: false) {
-                    Logger.log(exception)
+                do throws(Exception) {
+                    try await services
+                        .notification
+                        .setBadgeNumber(
+                            0,
+                            updateHostedValue: false
+                        )
+                } catch {
+                    Logger.log(error)
                 }
 
                 services.analytics.logEvent(.deleteAccount)
@@ -209,8 +224,10 @@ final class SettingsPageViewService {
             guard confirmed else { return }
             let deleteAccountAction: AKAction = .init("Delete Account", style: .destructivePreferred) {
                 Task { @MainActor in
-                    if let exception = await self.services.accountDeletion.deleteAccount() {
-                        Logger.log(exception)
+                    do throws(Exception) {
+                        try await self.services.accountDeletion.deleteAccount()
+                    } catch {
+                        Logger.log(error)
                     }
 
                     let exitAction: AKAction = .init("Exit", style: .destructivePreferred) {
@@ -235,8 +252,13 @@ final class SettingsPageViewService {
         Task {
             let shareToOtherAppAction: AKAction = .init("Share to Another App") {
                 Task { @MainActor in
-                    if let exception = await self.services.invite.presentInvitationPrompt() {
-                        Logger.log(exception, with: .toast)
+                    do throws(Exception) {
+                        try await self.services.invite.presentInvitationPrompt()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toast
+                        )
                     }
                 }
             }
@@ -265,8 +287,15 @@ final class SettingsPageViewService {
 
     func messageRecipientConsentSwitchToggled(on: Bool) {
         Task {
-            if let exception = await services.messageRecipientConsent.setMessageRecipientConsentRequired(on) {
-                Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await services
+                    .messageRecipientConsent
+                    .setMessageRecipientConsentRequired(on)
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
@@ -279,8 +308,16 @@ final class SettingsPageViewService {
                     style: .destructive
                 ) {
                     Task { @MainActor in
-                        if let exception = await self.services.penPals.setDidGrantPenPalsPermission(false) {
-                            Logger.log(exception, with: .toastInPrerelease)
+                        do throws(Exception) {
+                            try await self
+                                .services
+                                .penPals
+                                .setDidGrantPenPalsPermission(false)
+                        } catch {
+                            Logger.log(
+                                error,
+                                with: .toastInPrerelease
+                            )
                         }
                     }
                 }
@@ -389,11 +426,16 @@ final class SettingsPageViewService {
         Task { @MainActor in
             let signOutAction: AKAction = .init("Sign Out", style: .destructivePreferred) {
                 Task { @MainActor in
-                    if let exception = await self.services.notification.setBadgeNumber(
-                        0,
-                        updateHostedValue: false
-                    ) {
-                        Logger.log(exception)
+                    do throws(Exception) {
+                        try await self
+                            .services
+                            .notification
+                            .setBadgeNumber(
+                                0,
+                                updateHostedValue: false
+                            )
+                    } catch {
+                        Logger.log(error)
                     }
 
                     defer {
@@ -409,18 +451,18 @@ final class SettingsPageViewService {
 
                     guard let currentUser = self.clientSession.user.currentUser else { return }
 
-                    if let exception = self.clientSession.user.stopObservingCurrentUserChanges() {
-                        Logger.log(exception)
-                    }
+                    do throws(Exception) {
+                        try self
+                            .clientSession
+                            .user
+                            .stopObservingCurrentUserChanges()
 
-                    if let exception = await currentUser.removeCurrentPushToken() {
-                        Logger.log(exception)
-                    }
-
-                    if let exception = await currentUser.updateLastSignedInDate(
-                        to: .init(timeIntervalSince1970: 0)
-                    ) {
-                        Logger.log(exception)
+                        try await currentUser.removeCurrentPushToken()
+                        try await currentUser.updateLastSignedInDate(
+                            to: .init(timeIntervalSince1970: 0)
+                        )
+                    } catch {
+                        Logger.log(error)
                     }
                 }
             }
@@ -452,8 +494,7 @@ final class SettingsPageViewService {
                 alertKitConfig.overrideTargetLanguageCode(currentUser.languageCode)
                 RuntimeStorage.remove(.overriddenLanguageCode)
                 core.hud.showSuccess(text: "Set to \(languageName)")
-                Application.dismissSheets()
-                return
+                return Application.dismissSheets()
             }
 
             alertKitConfig.overrideTargetLanguageCode("en")

@@ -109,10 +109,7 @@ struct PermissionService {
     }
 
     private func requestRecordPermission() async throws(Exception) -> PermissionStatus {
-        if let exception = audioService.activateAudioSession() {
-            throw exception
-        }
-
+        try audioService.activateAudioSession()
         return await AVAudioApplication.requestRecordPermission() ? .granted : .denied
     }
 
@@ -157,32 +154,33 @@ struct PermissionService {
 
     /// - Returns: A `Bool` describing whether or not the user cancelled the operation.
     @discardableResult
-    func presentCTA(for type: PermissionType) async -> Bool {
+    func presentCTA(
+        for type: PermissionType
+    ) async -> Bool {
         switch type {
-        case .contacts:
-            await presentContactCTA()
-
-        case .notifications:
-            await presentNotificationCTA()
-
-        case .recording:
-            await presentRecordingCTA()
-
-        case .transcription:
-            await presentTranscriptionCTA()
+        case .contacts: await presentContactCTA()
+        case .notifications: await presentNotificationCTA()
+        case .recording: await presentRecordingCTA()
+        case .transcription: await presentTranscriptionCTA()
         }
     }
 
     private func presentContactCTA() async -> Bool {
-        await presentCTA(with: "⌘\(build.finalName)⌘ has not been granted permission to access your contact list.\n\nYou can change this in Settings.")
+        await presentCTA(
+            with: "⌘\(build.finalName)⌘ has not been granted permission to access your contact list.\n\nYou can change this in Settings."
+        )
     }
 
     private func presentNotificationCTA() async -> Bool {
-        await presentCTA(with: "⌘\(build.finalName)⌘ has not been granted permission to send and receive notifications.\n\nYou can change this in Settings.")
+        await presentCTA(
+            with: "⌘\(build.finalName)⌘ has not been granted permission to send and receive notifications.\n\nYou can change this in Settings."
+        )
     }
 
     private func presentRecordingCTA() async -> Bool {
-        await presentCTA(with: "⌘\(build.finalName)⌘ needs access to your microphone to record audio messages.\n\nYou can grant this permission in Settings.")
+        await presentCTA(
+            with: "⌘\(build.finalName)⌘ needs access to your microphone to record audio messages.\n\nYou can grant this permission in Settings."
+        )
     }
 
     private func presentTranscriptionCTA() async -> Bool {
@@ -192,7 +190,9 @@ struct PermissionService {
     }
 
     @MainActor
-    private func presentCTA(with message: String) async -> Bool {
+    private func presentCTA(
+        with message: String
+    ) async -> Bool {
         let cancelled = LockIsolated(wrappedValue: true)
 
         @Localized(.settings) var settingsString: String

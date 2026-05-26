@@ -40,7 +40,7 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
     /// When set, contains all users participating in this conversation, other than the current user.
     private(set) var users: [User]?
 
-    private static let coalescer = KeyedCoalescer<String, Exception?>()
+    private static let coalescer = KeyedCoalescer<String, Void>()
 
     // MARK: - Computed Properties
 
@@ -90,45 +90,45 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
     // MARK: - Set Messages
 
     /// - Note: Conventionally, this method need only be called for conversations in which the current user is not participating.
-    func setMessages(ids: Set<String>? = nil) async -> Exception? {
-        await Self.coalescer("\(id.key)_MESSAGES") { [weak self] in
-            guard let self else {
-                return .init(
-                    "Conversation has been deallocated.",
-                    metadata: .init(sender: Self.self)
-                )
-            }
-
-            return await _setMessages(ids: ids)
+    func setMessages(ids: Set<String>? = nil) async throws(Exception) {
+        let setMessages: @Sendable () async throws(Exception) -> Void = {
+            try await self._setMessages(ids: ids)
         }
+
+        return try await Self.coalescer(
+            "\(id.key)_MESSAGES",
+            setMessages
+        )
     }
 
-    private func _setMessages(ids: Set<String>?) async -> Exception? {
+    private func _setMessages(ids: Set<String>?) async throws(Exception) {
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         if let ids {
             var exceptions = [Exception]()
             for id in ids {
-                if let exception = await updateMessage(id: id) {
-                    exceptions.append(exception)
+                do {
+                    try await updateMessage(id: id)
+                } catch {
+                    exceptions.append(error)
                 }
             }
-            return exceptions.compiledException
+
+            if let exception = exceptions.compiledException {
+                throw exception
+            }
+
+            return
         }
 
         let messageIDs = filteringSystemMessages.messageIDs
-        let messages: [Message]
-        do {
-            messages = try await messageService.getMessages(
-                ids: messageIDs
-            )
-        } catch {
-            return error
-        }
+        let messages = try await messageService.getMessages(
+            ids: messageIDs
+        )
 
         guard !messages.isEmpty,
               messages.count == messageIDs.count else {
-            return .init(
+            throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
             )
@@ -147,11 +147,9 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             ),
             domain: .conversation
         )
-
-        return nil
     }
 
-    private func updateMessage(id: String) async -> Exception? {
+    private func updateMessage(id: String) async throws(Exception) {
         @Dependency(\.networking.messageService) var messageService: MessageService
 
         let userInfo: [String: Any] = [
@@ -160,7 +158,7 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         ]
 
         guard messages?.contains(where: { $0.id == id }) == true else {
-            return .init(
+            throw Exception(
                 "Failed to resolve messages, or no message with the provided ID exists in this conversation.",
                 userInfo: userInfo,
                 metadata: .init(sender: self)
@@ -171,12 +169,12 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         do {
             message = try await messageService.getMessage(id: id)
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         guard var messages,
               let messageIndex = messages.firstIndex(where: { $0.id == id }) else {
-            return .init(
+            throw Exception(
                 "Failed to resolve messages.",
                 userInfo: userInfo,
                 metadata: .init(sender: self)
@@ -186,25 +184,22 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         messages[messageIndex] = message // swiftlint:disable:next identifier_name
         let _messages = messages
         await MainActor.run { self.messages = _messages }
-        return nil
     }
 
     // MARK: - Set Users
 
-    func setUsers(forceUpdate: Bool = false) async -> Exception? {
-        await Self.coalescer("\(id.key)_USERS") { [weak self] in
-            guard let self else {
-                return .init(
-                    "Conversation has been deallocated.",
-                    metadata: .init(sender: Self.self)
-                )
-            }
-
-            return await _setUsers(forceUpdate: forceUpdate)
+    func setUsers(forceUpdate: Bool = false) async throws(Exception) {
+        let setUsers: @Sendable () async throws(Exception) -> Void = {
+            try await self._setUsers(forceUpdate: forceUpdate)
         }
+
+        try await Self.coalescer(
+            "\(id.key)_USERS",
+            setUsers
+        )
     }
 
-    private func _setUsers(forceUpdate: Bool) async -> Exception? {
+    private func _setUsers(forceUpdate: Bool) async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
@@ -212,7 +207,7 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
         if forceUpdate {
             networking.database.setGlobalCacheStrategy(.disregardCache)
         } else {
-            guard users == nil else { return nil }
+            guard users == nil else { return }
         }
 
         defer {
@@ -223,11 +218,10 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
 
         let userIDs = participants.map(\.userID).filter { $0 != User.currentUserID }
         guard !userIDs.isBangQualifiedEmpty else {
-            let exception = Exception(
+            throw Exception(
                 "No participants for this conversation.",
                 metadata: .init(sender: self)
-            )
-            return exception.appending(userInfo: userInfo)
+            ).appending(userInfo: userInfo)
         }
 
         let users: [User]
@@ -236,13 +230,15 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
                 ids: userIDs
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         guard !users.isEmpty,
               users.count == userIDs.count else {
-            let exception = Exception("Mismatched ratio returned.", metadata: .init(sender: self))
-            return exception.appending(userInfo: userInfo)
+            throw Exception(
+                "Mismatched ratio returned.",
+                metadata: .init(sender: self)
+            ).appending(userInfo: userInfo)
         }
 
         await MainActor.run { self.users = users }
@@ -255,8 +251,6 @@ final class Conversation: Codable, EncodedHashable, Hashable, @unchecked Sendabl
             ),
             domain: .conversation
         )
-
-        return nil
     }
 
     // MARK: - Update Read Date

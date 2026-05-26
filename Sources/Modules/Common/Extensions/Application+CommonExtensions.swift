@@ -68,14 +68,14 @@ extension Application {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
         if !preserveCurrentUserID {
-            userSession.stopObservingCurrentUserChanges()
-            _ = userSession.setCurrentUser(nil)
+            try? userSession.stopObservingCurrentUserChanges()
+            try? userSession.setCurrentUser(nil)
         }
 
         core.utils.clearCaches()
-        core.utils.eraseApplicationSupportDirectory()
-        core.utils.eraseDocumentsDirectory()
-        core.utils.eraseTemporaryDirectory()
+        try? core.utils.eraseApplicationSupportDirectory()
+        try? core.utils.eraseDocumentsDirectory()
+        try? core.utils.eraseTemporaryDirectory()
 
         defaults.reset(preserving: .permanentAndSubsystemKeys(
             plus: preserveCurrentUserID ? [.userSessionService(.currentUserID)] : nil

@@ -22,30 +22,26 @@ struct AIEnhancedTranslationService {
 
     func setDidGrantAIEnhancedTranslationPermission(
         _ didGrantAIEnhancedTranslationPermission: Bool
-    ) async -> Exception? {
+    ) async throws(Exception) {
         guard let currentUser = userSession.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        do {
-            Observables.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
+        Observables.didGrantAIEnhancedTranslationPermission.value = didGrantAIEnhancedTranslationPermission
 
-            Networking.config.setIsEnhancedDialogTranslationEnabled(
-                didGrantAIEnhancedTranslationPermission
-            )
+        Networking.config.setIsEnhancedDialogTranslationEnabled(
+            didGrantAIEnhancedTranslationPermission
+        )
 
-            return try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.aiEnhancedTranslationsEnabled,
-                    to: didGrantAIEnhancedTranslationPermission
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.aiEnhancedTranslationsEnabled,
+                to: didGrantAIEnhancedTranslationPermission
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 }

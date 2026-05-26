@@ -79,10 +79,15 @@ struct InviteLanguagePickerReducer: Reducer {
 
             let languageCode = state.selectedLanguageCode
             Task.delayed(by: .seconds(2)) { @MainActor in
-                if let exception = await inviteService.composeInvitation(
-                    languageCode: languageCode
-                ) {
-                    Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await inviteService.composeInvitation(
+                        languageCode: languageCode
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
 

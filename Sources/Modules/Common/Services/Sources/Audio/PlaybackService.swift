@@ -53,10 +53,10 @@ final class PlaybackService {
 
     // MARK: - Playback
 
-    @discardableResult
-    func playAudio(url: URL) -> Exception? {
-        guard fileManager.fileExists(atPath: url.path()) || fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
-            return .init(
+    func playAudio(url: URL) throws(Exception) {
+        guard fileManager.fileExists(atPath: url.path()) ||
+            fileManager.fileExists(atPath: url.path(percentEncoded: false)) else {
+            throw Exception(
                 "File does not exist.",
                 userInfo: ["FilePath": url.path()],
                 metadata: .init(sender: self)
@@ -67,13 +67,11 @@ final class PlaybackService {
         currentPlayerItem = playerItem
 
         startObservingPlayerState()
-        audioService.activateAudioSession()
+        try audioService.activateAudioSession()
 
         avQueuePlayer.removeAllItems()
         avQueuePlayer.insert(playerItem, after: nil)
         avQueuePlayer.play()
-
-        return nil
     }
 
     func stopPlaying() {

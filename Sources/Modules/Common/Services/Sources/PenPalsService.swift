@@ -58,9 +58,14 @@ struct PenPalsService {
     // MARK: - Update Sharing Data for Known Users
 
     /// - Note: Will populate the contact pair archive and the current user's conversations if either are `nil` or empty.
-    func updateSharingDataForKnownUsers() async -> Exception? {
-        if let exception = await populateValuesIfNeeded() {
-            Logger.log(exception, domain: .penPals)
+    func updateSharingDataForKnownUsers() async throws(Exception) {
+        do {
+            try await populateValuesIfNeeded()
+        } catch {
+            Logger.log(
+                error,
+                domain: .penPals
+            )
         }
 
         guard let currentUser = userSession.currentUser,
@@ -72,7 +77,7 @@ struct PenPalsService {
                       .isPenPalsConversation && $0.participants
                       .map(\.userID)
                       .filter { $0 != currentUser.id }
-                      .contains(where: { isKnownToCurrentUser($0) }) }) else { return nil }
+                      .contains(where: { isKnownToCurrentUser($0) }) }) else { return }
 
         let conversationsAndNewMetadata: [(
             Conversation,
@@ -108,35 +113,34 @@ struct PenPalsService {
                 return (penPalsConversation, newMetadata)
             }
 
-        do throws(Exception) {
-            try await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
-                _ = try await conversation.update(
-                    \.metadata,
-                    to: newMetadata
-                )
+        try await conversationsAndNewMetadata.parallelMap { conversation, newMetadata in
+            _ = try await conversation.update(
+                \.metadata,
+                to: newMetadata
+            )
 
-                Logger.log(
-                    .init(
-                        "Updated PenPals sharing data.",
-                        isReportable: false,
-                        userInfo: ["ConversationIDKey": conversation.id.key],
-                        metadata: .init(sender: self)
-                    ),
-                    domain: .penPals
-                )
-            }
-        } catch {
-            return error
+            Logger.log(
+                .init(
+                    "Updated PenPals sharing data.",
+                    isReportable: false,
+                    userInfo: ["ConversationIDKey": conversation.id.key],
+                    metadata: .init(sender: self)
+                ),
+                domain: .penPals
+            )
         }
-
-        return nil
     }
 
     // MARK: - Get Random PenPals Participant
 
     func getRandomPenPalsParticipant() async throws(Exception) -> User {
-        if let exception = await populateValuesIfNeeded() {
-            Logger.log(exception, domain: .penPals)
+        do {
+            try await populateValuesIfNeeded()
+        } catch {
+            Logger.log(
+                error,
+                domain: .penPals
+            )
         }
 
         let selectContactPairUserIDs = await MainActor.run { self.selectContactPairUserIDs }
@@ -163,26 +167,24 @@ struct PenPalsService {
 
     // MARK: - Set didGrantPenPalsPermission
 
-    func setDidGrantPenPalsPermission(_ didGrantPenPalsPermission: Bool) async -> Exception? {
+    func setDidGrantPenPalsPermission(
+        _ didGrantPenPalsPermission: Bool
+    ) async throws(Exception) {
         guard let currentUser = userSession.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        do {
-            Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
-            return try await userSession.setCurrentUser(
-                currentUser.update(
-                    \.isPenPalsParticipant,
-                    to: didGrantPenPalsPermission
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        Observables.didGrantPenPalsPermission.value = didGrantPenPalsPermission
+        try await userSession.setCurrentUser(
+            currentUser.update(
+                \.isPenPalsParticipant,
+                to: didGrantPenPalsPermission
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 
     // MARK: - Auxiliary
@@ -204,17 +206,23 @@ struct PenPalsService {
             .unique ?? []
     }
 
-    private func populateValuesIfNeeded() async -> Exception? {
+    private func populateValuesIfNeeded() async throws(Exception) {
         var exceptions = [Exception]()
 
-        if let exception = await ContactService.populateValuesIfNeeded() {
-            exceptions.append(exception)
+        do {
+            try await ContactService.populateValuesIfNeeded()
+        } catch {
+            exceptions.append(error)
         }
 
-        if let exception = await User.populateCurrentUserConversationsIfNeeded() {
-            exceptions.append(exception)
+        do {
+            try await User.populateCurrentUserConversationsIfNeeded()
+        } catch {
+            exceptions.append(error)
         }
 
-        return exceptions.compiledException
+        if let exception = exceptions.compiledException {
+            throw exception
+        }
     }
 }

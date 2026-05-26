@@ -249,9 +249,14 @@ final class RecordingUIService {
             await hideRecordingUI()
         }
 
-        if let exception = recordingService.cancelRecording() {
-            guard !exception.isEqual(to: .noAudioRecorderToStop) else { return }
-            Logger.log(exception, with: .toast)
+        do {
+            try recordingService.cancelRecording()
+        } catch {
+            guard !error.isEqual(to: .noAudioRecorderToStop) else { return }
+            Logger.log(
+                error,
+                with: .toast
+            )
         }
     }
 

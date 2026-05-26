@@ -32,21 +32,23 @@ struct NotificationService {
     func setBadgeNumber(
         _ badgeNumber: Int,
         updateHostedValue: Bool = true
-    ) async -> Exception? {
+    ) async throws(Exception) {
         do {
             try await userNotificationCenter.setBadgeCount(
                 badgeNumber < 0 ? 0 : badgeNumber
             )
+        } catch let error as Exception {
+            throw error
         } catch {
-            return .init(
+            throw Exception(
                 error,
                 metadata: .init(sender: self)
             )
         }
 
         guard updateHostedValue,
-              let currentUser = clientSession.user.currentUser else { return nil }
-        return await updateHostedBadgeNumber(
+              let currentUser = clientSession.user.currentUser else { return }
+        try await updateHostedBadgeNumber(
             badgeNumber < 0 ? 0 : badgeNumber,
             user: currentUser
         )
@@ -60,9 +62,9 @@ struct NotificationService {
         message: Message,
         conversationIDKey: String,
         isPenPalsConversation: Bool
-    ) async -> Exception? {
+    ) async throws(Exception) {
         guard let currentUser = clientSession.user.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
@@ -70,63 +72,62 @@ struct NotificationService {
 
         let currentUserFormattedPhoneNumberString = currentUser.phoneNumber.formattedString()
         guard let reaction else {
-            do {
-                try await users.parallelMap {
-                    if let exception = await notify(
+            try await users.parallelMap {
+                do throws(Exception) {
+                    try await self.notify(
                         $0,
-                        title: isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
-                        body: notificationBody(
+                        title: isPenPalsConversation ? self.penPalsName(for: $0) : currentUserFormattedPhoneNumberString,
+                        body: self.notificationBody(
                             for: message,
                             user: $0
                         ),
                         conversationIDKey: conversationIDKey,
                         isReaction: false
-                    ), !exception.isEqual(to: .notRegisteredForPushNotifications) {
-                        throw exception
-                    }
+                    )
+                } catch {
+                    guard !error.isEqual(
+                        to: .notRegisteredForPushNotifications
+                    ) else { return }
+                    throw error
                 }
-            } catch {
-                return error
             }
-
-            return nil
+            return
         }
 
-        do {
-            try await users.parallelMap {
-                let reactedString = Localized(
-                    .reacted,
-                    languageCode: $0.languageCode
-                ).wrappedValue
-                let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
+        try await users.parallelMap {
+            let reactedString = Localized(
+                .reacted,
+                languageCode: $0.languageCode
+            ).wrappedValue
+            let reactionSuffix = "\(reactedString) \(reaction.style.emojiValue)"
 
-                let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
-                var body = notificationBody(
-                    for: message,
-                    user: $0
-                )
+            let titlePrefix = isPenPalsConversation ? penPalsName(for: $0) : currentUserFormattedPhoneNumberString
+            var body = notificationBody(
+                for: message,
+                user: $0
+            )
 
-                if let resolvedBody = body,
-                   message.contentType == .text {
-                    body = "“\(resolvedBody)”"
-                }
+            if let resolvedBody = body,
+               message.contentType == .text {
+                body = "“\(resolvedBody)”"
+            }
 
-                if let exception = await notify(
+            do throws(Exception) {
+                try await self.notify(
                     $0,
                     title: "\(titlePrefix) \(reactionSuffix)",
                     body: body,
                     conversationIDKey: conversationIDKey,
                     isReaction: true,
                     reactionSuffix: reactionSuffix
-                ), !exception.isEqual(to: .notRegisteredForPushNotifications) {
-                    throw exception
-                }
+                )
+            } catch {
+                guard !error.isEqual(
+                    to: .notRegisteredForPushNotifications
+                ) else { return }
+                throw error
             }
-        } catch {
-            return error
         }
-
-        return nil
     }
 
     // MARK: - Notify of Prevarication Mode Analytics Event
@@ -134,15 +135,10 @@ struct NotificationService {
     func notifyOfPrevaricationModeAnalyticsEvent(
         _ title: String,
         body: String
-    ) async -> Exception? {
-        let userData: [String: Any]
-        do {
-            userData = try await networking.database.getValues(
-                at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
-            )
-        } catch {
-            return error
-        }
+    ) async throws(Exception) {
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: "\(NetworkEnvironment.staging.shortString)/\(NetworkPath.users.rawValue)"
+        )
 
         let pushTokens = userData.reduce(into: [String]()) { partialResult, keyPair in
             if let userData = keyPair.value as? [String: Any],
@@ -154,26 +150,18 @@ struct NotificationService {
             }
         }
 
-        do {
-            try await pushTokens.unique.parallelMap(
-                failFast: false
-            ) {
-                if let exception = await sendNotification(
-                    title: title,
-                    body: body,
-                    badgeNumber: 0,
-                    pushToken: $0,
-                    userInfo: [:],
-                    isReaction: false
-                ) {
-                    throw exception
-                }
-            }
-        } catch {
-            return error
+        try await pushTokens.unique.parallelMap(
+            failFast: false
+        ) {
+            try await sendNotification(
+                title: title,
+                body: body,
+                badgeNumber: 0,
+                pushToken: $0,
+                userInfo: [:],
+                isReaction: false
+            )
         }
-
-        return nil
     }
 
     // MARK: - Respond to In-app Notification
@@ -358,26 +346,24 @@ struct NotificationService {
         conversationIDKey: String,
         isReaction: Bool,
         reactionSuffix: String? = nil
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let userInfo = ["UserID": user.id]
 
         guard let currentUser = clientSession.user.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
         }
 
         let newBadgeNumber = await user.hostedBadgeNumber + 1
-        if let exception = await updateHostedBadgeNumber(
+        try await updateHostedBadgeNumber(
             newBadgeNumber,
             user: user
-        ) {
-            return exception
-        }
+        )
 
         guard let pushTokens = user.pushTokens else {
-            return .init(
+            throw Exception(
                 "The specified user has not registered for push notifications.",
                 metadata: .init(sender: self)
             ).appending(userInfo: userInfo)
@@ -386,33 +372,41 @@ struct NotificationService {
         let userNumberHash = currentUser.phoneNumber.nationalNumberString.digits.encodedHash
         var exceptions = [Exception]()
         for pushToken in pushTokens {
-            if let exception = await sendNotification(
-                title: title,
-                body: body ?? .bangQualifiedEmpty,
-                badgeNumber: newBadgeNumber,
-                pushToken: pushToken,
-                userInfo: [
-                    "conversationIDKey": conversationIDKey,
-                    "isReaction": isReaction ? "true" : "false",
-                    "reactionSuffix": reactionSuffix ?? "",
-                    "recipientUserID": user.id,
-                    "userNumberHash": userNumberHash,
-                ],
-                isReaction: isReaction
-            ) {
-                if exception.isEqual(to: .stalePushToken) {
+            do {
+                try await sendNotification(
+                    title: title,
+                    body: body ?? .bangQualifiedEmpty,
+                    badgeNumber: newBadgeNumber,
+                    pushToken: pushToken,
+                    userInfo: [
+                        "conversationIDKey": conversationIDKey,
+                        "isReaction": isReaction ? "true" : "false",
+                        "reactionSuffix": reactionSuffix ?? "",
+                        "recipientUserID": user.id,
+                        "userNumberHash": userNumberHash,
+                    ],
+                    isReaction: isReaction
+                )
+            } catch {
+                if error.isEqual(to: .stalePushToken) {
                     do {
-                        try await services.pushToken.eraseStalePushToken(pushToken)
+                        try await services
+                            .pushToken
+                            .eraseStalePushToken(pushToken)
                     } catch {
-                        exceptions.append(exception)
+                        exceptions.append(error)
                     }
                 } else {
-                    exceptions.append(exception)
+                    exceptions.append(error)
                 }
             }
         }
 
-        return exceptions.compiledException?.appending(userInfo: userInfo)
+        if let exception = exceptions
+            .compiledException?
+            .appending(userInfo: userInfo) {
+            throw exception
+        }
     }
 
     private func penPalsName(for otherUser: User) -> String {
@@ -432,97 +426,95 @@ struct NotificationService {
         pushToken: String,
         userInfo: [String: String],
         isReaction: Bool
-    ) async -> Exception? {
-        do {
-            guard let url = URL(string: "https://fcm.googleapis.com/v1/projects/jaguar-5d735/messages:send") else {
-                return .init(
-                    "Failed to generate URL.",
-                    metadata: .init(sender: self)
-                )
-            }
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-
-            request.setValue(
-                "application/json",
-                forHTTPHeaderField: "Content-Type"
+    ) async throws(Exception) {
+        guard let url = URL(
+            string: "https://fcm.googleapis.com/v1/projects/jaguar-5d735/messages:send"
+        ) else {
+            throw Exception(
+                "Failed to generate URL.",
+                metadata: .init(sender: self)
             )
+        }
 
-            try await request.setValue(
-                "Bearer \(generateAccessToken())",
-                forHTTPHeaderField: "Authorization"
-            )
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
 
-            var notificationParameters = ["title": title]
-            if !body.isBangQualifiedEmpty { notificationParameters["body"] = body }
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Content-Type"
+        )
 
-            let payload: [String: Any] = [
-                "message": [
-                    "apns": [
-                        "payload": [
-                            "aps": [
-                                "badge": badgeNumber,
-                                "mutable-content": 1,
-                                "sound": isReaction ? "Reaction.caf" : "default",
-                            ],
+        try await request.setValue(
+            "Bearer \(generateAccessToken())",
+            forHTTPHeaderField: "Authorization"
+        )
+
+        var notificationParameters = ["title": title]
+        if !body.isBangQualifiedEmpty { notificationParameters["body"] = body }
+
+        let payload: [String: Any] = [
+            "message": [
+                "apns": [
+                    "payload": [
+                        "aps": [
+                            "badge": badgeNumber,
+                            "mutable-content": 1,
+                            "sound": isReaction ? "Reaction.caf" : "default",
                         ],
                     ],
-                    "data": userInfo,
-                    "notification": notificationParameters,
-                    "token": pushToken,
                 ],
-            ]
+                "data": userInfo,
+                "notification": notificationParameters,
+                "token": pushToken,
+            ],
+        ]
 
-            do {
-                try request.httpBody = JSONSerialization.data(withJSONObject: payload)
-                let dataResult = try await urlSession.data(for: request)
+        do {
+            try request.httpBody = JSONSerialization.data(withJSONObject: payload)
+            let dataResult = try await urlSession.data(for: request)
 
-                guard let urlResponse = dataResult.1 as? HTTPURLResponse,
-                      (200 ..< 300).contains(urlResponse.statusCode) else {
-                    let responseBody = String(
-                        data: dataResult.0,
-                        encoding: .utf8
-                    ) ?? "<non-utf8>"
-                    let responseCode = (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1
+            guard let urlResponse = dataResult.1 as? HTTPURLResponse,
+                  (200 ..< 300).contains(urlResponse.statusCode) else {
+                let responseBody = String(
+                    data: dataResult.0,
+                    encoding: .utf8
+                ) ?? "<non-utf8>"
+                let responseCode = (dataResult.1 as? HTTPURLResponse)?.statusCode ?? -1
 
-                    if responseBody.contains("UNREGISTERED"),
-                       responseCode == 404 {
-                        return .init(
-                            "The provided push token is stale.",
-                            isReportable: false,
-                            userInfo: ["PushToken": pushToken],
-                            metadata: .init(sender: self)
-                        )
-                    }
-
-                    return .init(
-                        "Failed to decode URL response or status did not indicate success.",
-                        isReportable: !responseBody.contains("UNREGISTERED"),
-                        userInfo: [
-                            "ResponseBody": responseBody,
-                            "URLResponseCode": responseCode,
-                        ],
+                if responseBody.contains("UNREGISTERED"),
+                   responseCode == 404 {
+                    throw Exception(
+                        "The provided push token is stale.",
+                        isReportable: false,
+                        userInfo: ["PushToken": pushToken],
                         metadata: .init(sender: self)
                     )
                 }
 
-                return nil
-            } catch {
-                return .init(
-                    error,
+                throw Exception(
+                    "Failed to decode URL response or status did not indicate success.",
+                    isReportable: !responseBody.contains("UNREGISTERED"),
+                    userInfo: [
+                        "ResponseBody": responseBody,
+                        "URLResponseCode": responseCode,
+                    ],
                     metadata: .init(sender: self)
                 )
             }
+        } catch let error as Exception {
+            throw error
         } catch {
-            return error
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 
     private func updateHostedBadgeNumber(
         _ badgeNumber: Int? = nil,
         user: User
-    ) async -> Exception? {
+    ) async throws(Exception) {
         switch user.id == User.currentUserID {
         case true:
             var newBadgeNumber = badgeNumber
@@ -531,48 +523,38 @@ struct NotificationService {
             }
 
             guard let newBadgeNumber else {
-                return .init(
+                throw Exception(
                     "Failed to resolve badge number.",
                     metadata: .init(sender: self)
                 )
             }
 
-            do {
-                try await networking.database.setValue(
-                    newBadgeNumber < 0 ? 0 : newBadgeNumber,
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        user.id,
-                        User.SerializableKey.badgeNumber.rawValue,
-                    ].joined(separator: "/")
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                newBadgeNumber < 0 ? 0 : newBadgeNumber,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
+            )
 
         case false:
             guard let badgeNumber else {
-                return .init(
+                throw Exception(
                     "Must supply badge number for users other than current user.",
                     metadata: .init(sender: self)
                 )
             }
 
-            do {
-                try await networking.database.setValue(
-                    badgeNumber < 0 ? 0 : badgeNumber,
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        user.id,
-                        User.SerializableKey.badgeNumber.rawValue,
-                    ].joined(separator: "/")
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                badgeNumber < 0 ? 0 : badgeNumber,
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    user.id,
+                    User.SerializableKey.badgeNumber.rawValue,
+                ].joined(separator: "/")
+            )
         }
-
-        return nil
     }
 }
 

@@ -27,40 +27,34 @@ extension CoreKit.Utilities {
 
     // MARK: - Methods
 
-    func clearPreviousLanguageCodes() async -> Exception? {
+    func clearPreviousLanguageCodes() async throws(Exception) {
         @Dependency(\.networking.database) var database: DatabaseDelegate
         guard let currentUserID = User.currentUserID else {
-            return .init(
+            throw Exception(
                 "Current user ID has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        do {
-            try await database.setValue(
-                Array.bangQualifiedEmpty,
-                forKey: [
-                    NetworkPath.users.rawValue,
-                    currentUserID,
-                    User.SerializableKey.previousLanguageCodes.rawValue,
-                ].joined(separator: "/")
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await database.setValue(
+            Array.bangQualifiedEmpty,
+            forKey: [
+                NetworkPath.users.rawValue,
+                currentUserID,
+                User.SerializableKey.previousLanguageCodes.rawValue,
+            ].joined(separator: "/")
+        )
     }
 
     @MainActor
-    func deleteConversations(_ granularity: ConversationDeletionGranularity) async -> Exception? {
+    func deleteConversations(
+        _ granularity: ConversationDeletionGranularity
+    ) async throws(Exception) {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         @Dependency(\.networking) var networking: NetworkServices
 
-        if let exception = await currentUser?.setConversations() {
-            return exception
-        }
+        try await currentUser?.setConversations()
 
         var conversationIDKeys: [String]?
 
@@ -87,7 +81,7 @@ extension CoreKit.Utilities {
             guard let invisibleConversationIDKeys = currentUser?
                 .conversations?
                 .filter({ !$0.isVisibleForCurrentUser })
-                .map(\.id.key) else { return nil }
+                .map(\.id.key) else { return }
 
             conversationIDKeys = invisibleConversationIDKeys
 
@@ -104,7 +98,7 @@ extension CoreKit.Utilities {
         }
 
         guard let conversationIDKeys else {
-            return .init(
+            throw Exception(
                 "Failed to resolve conversation ID keys.",
                 metadata: .init(sender: self)
             )
@@ -126,20 +120,19 @@ extension CoreKit.Utilities {
 
         for conversationIDKey in conversationIDKeys {
             CoreDatabaseStore.clearStore()
-            if let exception = await networking.integrityService.resolveSession() {
-                return exception
-            }
+            try await networking.integrityService.resolveSession()
 
-            if let exception = await networking.integrityService.repairMalformedConversations([conversationIDKey]).exception {
-                return exception
+            if let exception = await networking
+                .integrityService
+                .repairMalformedConversations([conversationIDKey])
+                .exception {
+                throw exception
             }
         }
-
-        return nil
     }
 
     @MainActor
-    func destroyConversationDatabase() async -> Exception? {
+    func destroyConversationDatabase() async throws(Exception) {
         @Dependency(\.coreKit.ui) var coreUI: CoreKit.UI
         @Dependency(\.networking) var networking: NetworkServices
 
@@ -157,108 +150,74 @@ extension CoreKit.Utilities {
         networking.database.setGlobalCacheStrategy(.disregardCache)
         networking.storage.setGlobalCacheStrategy(.disregardCache)
 
-        let userData: [String: Any]
-        do {
-            userData = try await networking.database.getValues(
-                at: NetworkPath.users.rawValue
-            )
-        } catch {
-            return error
-        }
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        do throws(Exception) {
-            try await userIDs.parallelMap { @Sendable in
-                try await database.wrappedValue.setValue(
-                    [String.bangQualifiedEmpty],
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        $0,
-                        User.SerializableKey.conversationIDs.rawValue,
-                    ].joined(separator: "/")
-                )
-            }
-        } catch {
-            return error
+        try await userIDs.parallelMap { @Sendable in
+            try await database.wrappedValue.setValue(
+                [String.bangQualifiedEmpty],
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    $0,
+                    User.SerializableKey.conversationIDs.rawValue,
+                ].joined(separator: "/")
+            )
         }
 
         for keyPath in [
             NetworkPath.conversations.rawValue,
             NetworkPath.messages.rawValue,
         ] {
-            do {
-                try await networking.database.setValue(
-                    NSNull(),
-                    forKey: keyPath
-                )
-            } catch {
-                return error
-            }
+            try await networking.database.setValue(
+                NSNull(),
+                forKey: keyPath
+            )
         }
 
         if await (try? networking.storage.itemExists(
             as: .directory,
             at: NetworkPath.audioMessageInputs.rawValue
         )) == true {
-            do {
-                try await networking.storage.deleteAllItems(
-                    at: NetworkPath.audioMessageInputs.rawValue,
-                    includeItemsInSubdirectories: true,
-                    timeout: .seconds(600)
-                )
-            } catch {
-                return error
-            }
+            try await networking.storage.deleteAllItems(
+                at: NetworkPath.audioMessageInputs.rawValue,
+                includeItemsInSubdirectories: true,
+                timeout: .seconds(600)
+            )
         }
 
         if await (try? networking.storage.itemExists(
             as: .directory,
             at: NetworkPath.media.rawValue
         )) == true {
-            do {
-                try await networking.storage.deleteAllItems(
-                    at: NetworkPath.media.rawValue,
-                    includeItemsInSubdirectories: true,
-                    timeout: .seconds(600)
-                )
-            } catch {
-                return error
-            }
+            try await networking.storage.deleteAllItems(
+                at: NetworkPath.media.rawValue,
+                includeItemsInSubdirectories: true,
+                timeout: .seconds(600)
+            )
         }
-
-        return nil
     }
 
-    func resetPushTokens() async -> Exception? {
+    func resetPushTokens() async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
 
-        let userData: [String: Any]
-        do {
-            userData = try await networking.database.getValues(
-                at: NetworkPath.users.rawValue
-            )
-        } catch {
-            return error
-        }
+        let userData: [String: Any] = try await networking.database.getValues(
+            at: NetworkPath.users.rawValue
+        )
 
         let userIDs = Array(userData.keys)
         let database = LockIsolated(networking.database)
-        do throws(Exception) {
-            try await userIDs.parallelMap { @Sendable in
-                try await database.wrappedValue.setValue(
-                    [String.bangQualifiedEmpty],
-                    forKey: [
-                        NetworkPath.users.rawValue,
-                        $0,
-                        User.SerializableKey.pushTokens.rawValue,
-                    ].joined(separator: "/")
-                )
-            }
-        } catch {
-            return error
+        try await userIDs.parallelMap { @Sendable in
+            try await database.wrappedValue.setValue(
+                [String.bangQualifiedEmpty],
+                forKey: [
+                    NetworkPath.users.rawValue,
+                    $0,
+                    User.SerializableKey.pushTokens.rawValue,
+                ].joined(separator: "/")
+            )
         }
-
-        return nil
     }
 }

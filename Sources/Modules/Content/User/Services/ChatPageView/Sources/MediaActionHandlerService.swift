@@ -89,7 +89,7 @@ final class MediaActionHandlerService {
 
     // MARK: - Process & Send Document
 
-    private func processAndSendDocument(_ url: URL) async -> Exception? {
+    private func processAndSendDocument(_ url: URL) async throws(Exception) {
         guard let fileExtension = url
             .path()
             .components(separatedBy: "/")
@@ -97,34 +97,40 @@ final class MediaActionHandlerService {
             .components(separatedBy: ".")
             .last,
             let mediaFileExtension = MediaFileExtension(fileExtension) else {
-            return .init(
+            throw Exception(
                 "Failed to determine file type.",
                 metadata: .init(sender: self)
             )
         }
 
-        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)"
-        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
+        let relativePath = [
+            NetworkPath.media.rawValue,
+            "\(Strings.defaultDocumentName).\(mediaFileExtension.rawValue)",
+        ].joined(separator: "/")
+
+        let localPathURL = fileManager
+            .documentsDirectoryURL
+            .appending(path: relativePath)
 
         do {
             let data = try Data.fromURL(url)
             guard !mediaFileExtension.isImage else {
                 if let image = UIImage(data: data) {
-                    return await processAndSendImage(image)
+                    return try await processAndSendImage(
+                        image
+                    )
                 }
 
-                return .init(
+                throw Exception(
                     "Failed to process image data.",
                     metadata: .init(sender: self)
                 )
             }
 
-            if let exception = fileManager.createFile(
+            try fileManager.createFile(
                 atPath: localPathURL,
                 data: data
-            ) {
-                return exception
-            }
+            )
 
             let image = try await getThumbnailImage(
                 url,
@@ -133,99 +139,109 @@ final class MediaActionHandlerService {
 
             guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
                   let thumbnailPath = localPathURL.thumbnailPath else {
-                return .init(
+                throw Exception(
                     "Failed to process thumbnail data.",
                     metadata: .init(sender: self)
                 )
             }
 
-            if let exception = fileManager.createFile(
+            try fileManager.createFile(
                 atPath: thumbnailPath,
                 data: imageData
-            ) {
-                return exception
-            }
+            )
 
-            if let exception = await messageDeliveryService.sendMediaMessage(.init(
+            try await messageDeliveryService.sendMediaMessage(.init(
                 relativePath,
                 name: Strings.defaultDocumentName,
                 fileExtension: mediaFileExtension
-            )) {
-                return exception
-            }
+            ))
+        } catch let error as Exception {
+            throw error
         } catch {
-            return error
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        return nil
     }
 
     // MARK: - Process & Send Image
 
-    private func processAndSendImage(_ image: UIImage) async -> Exception? {
-        guard let data = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)) else {
-            return .init("Failed to compress image.", metadata: .init(sender: self))
+    private func processAndSendImage(
+        _ image: UIImage
+    ) async throws(Exception) {
+        guard let data = image.dataCompressed(
+            toKB: Int(Floats.imageCompressionSizeKB)
+        ) else {
+            throw Exception(
+                "Failed to compress image.",
+                metadata: .init(sender: self)
+            )
         }
 
-        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)"
-        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
+        let relativePath = [
+            NetworkPath.media.rawValue,
+            "\(Strings.defaultImageName).\(MediaFileExtension.image(.jpeg).rawValue)",
+        ].joined(separator: "/")
 
-        if let exception = fileManager.createFile(
+        let localPathURL = fileManager
+            .documentsDirectoryURL
+            .appending(path: relativePath)
+
+        try fileManager.createFile(
             atPath: localPathURL,
             data: data
-        ) {
-            return exception
-        } else if let exception = await messageDeliveryService.sendMediaMessage(.init(
+        )
+
+        try await messageDeliveryService.sendMediaMessage(.init(
             relativePath,
             name: Strings.defaultImageName,
             fileExtension: .image(.jpeg)
-        )) {
-            return exception
-        }
-
-        return nil
+        ))
     }
 
     // MARK: - Process & Send Video
 
-    private func processAndSendVideo(_ url: URL) async -> Exception? {
-        let relativePath = "\(NetworkPath.media.rawValue)/\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)"
-        let localPathURL = fileManager.documentsDirectoryURL.appending(path: relativePath)
+    private func processAndSendVideo(
+        _ url: URL
+    ) async throws(Exception) {
+        let relativePath = [
+            NetworkPath.media.rawValue,
+            "\(Strings.defaultVideoName).\(MediaFileExtension.video(.mp4).rawValue)",
+        ].joined(separator: "/")
 
-        if let exception = await compressVideo(at: url, outputURL: localPathURL) {
-            return exception
-        }
+        let localPathURL = fileManager
+            .documentsDirectoryURL
+            .appending(path: relativePath)
 
-        do {
-            let image = try await getThumbnailImage(
-                localPathURL,
-                contentType: .video(.mp4)
+        try await compressVideo(
+            at: url,
+            outputURL: localPathURL
+        )
+
+        let image = try await getThumbnailImage(
+            localPathURL,
+            contentType: .video(.mp4)
+        )
+
+        guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
+              let thumbnailPath = localPathURL.thumbnailPath else {
+            throw Exception(
+                "Failed to process thumbnail data.",
+                metadata: .init(sender: self)
             )
-
-            guard let imageData = image.dataCompressed(toKB: Int(Floats.imageCompressionSizeKB)),
-                  let thumbnailPath = localPathURL.thumbnailPath else {
-                return .init("Failed to process thumbnail data.", metadata: .init(sender: self))
-            }
-
-            if let exception = fileManager.createFile(
-                atPath: thumbnailPath,
-                data: imageData
-            ) {
-                return exception
-            }
-
-            if let exception = await messageDeliveryService.sendMediaMessage(.init(
-                relativePath,
-                name: Strings.defaultVideoName,
-                fileExtension: .video(.mp4)
-            )) {
-                return exception
-            }
-        } catch {
-            return error
         }
 
-        return nil
+        try fileManager.createFile(
+            atPath: thumbnailPath,
+            data: imageData
+        )
+
+        try await messageDeliveryService.sendMediaMessage(.init(
+            relativePath,
+            name: Strings.defaultVideoName,
+            fileExtension: .video(.mp4)
+        ))
     }
 
     // MARK: - Auxiliary
@@ -233,14 +249,14 @@ final class MediaActionHandlerService {
     private func compressVideo(
         at urlPath: URL,
         outputURL: URL
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let urlAsset = AVURLAsset(url: urlPath, options: nil)
 
         guard let exportSession = AVAssetExportSession(
             asset: urlAsset,
             presetName: AVAssetExportPresetMediumQuality
         ) else {
-            return .init(
+            throw Exception(
                 "Failed to create export session.",
                 metadata: .init(sender: self)
             )
@@ -250,22 +266,27 @@ final class MediaActionHandlerService {
             do {
                 try fileManager.removeItem(at: outputURL)
             } catch {
-                return .init(error, metadata: .init(sender: self))
+                throw Exception(
+                    error,
+                    metadata: .init(sender: self)
+                )
             }
         }
 
         exportSession.outputFileType = .mp4
         exportSession.outputURL = outputURL
 
-        return await withCheckedContinuation { continuation in
+        let error: Error? = await withCheckedContinuation { continuation in
             exportSession.exportAsynchronously {
-                guard let error = exportSession.error else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-
-                continuation.resume(returning: .init(error, metadata: .init(sender: self)))
+                continuation.resume(returning: exportSession.error)
             }
+        }
+
+        if let error {
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
     }
 
@@ -297,14 +318,16 @@ final class MediaActionHandlerService {
             }
 
         case .video:
-            let assetImageGenerator = AVAssetImageGenerator(asset: .init(url: url))
+            let assetImageGenerator = AVAssetImageGenerator(asset: AVURLAsset(url: url))
             assetImageGenerator.appliesPreferredTrackTransform = true
 
             do {
                 let cgImage = try assetImageGenerator.copyCGImage(
                     at: .init(
                         seconds: 1,
-                        preferredTimescale: .init(Floats.avAssetImageGeneratorPreferredTimescale)
+                        preferredTimescale: .init(
+                            Floats.avAssetImageGeneratorPreferredTimescale
+                        )
                     ),
                     actualTime: nil
                 )
@@ -328,29 +351,29 @@ final class MediaActionHandlerService {
     @MainActor
     private func onContentPickerDismissed(
         _ callback: Callback<ContentPickerResult, Exception>?
-    ) async -> Exception? {
+    ) async throws(Exception) {
         StatusBar.overrideStyle(.appAware)
         Task.delayed(by: .seconds(1)) { @MainActor in
             StatusBar.overrideStyle(.appAware)
         }
 
-        guard let callback else { return nil }
+        guard let callback else { return }
 
         switch callback {
         case let .success(result):
             switch result {
             case let .document(url):
-                return await processAndSendDocument(url)
+                try await processAndSendDocument(url)
 
             case let .image(image):
-                return await processAndSendImage(image)
+                try await processAndSendImage(image)
 
             case let .video(url):
-                return await processAndSendVideo(url)
+                try await processAndSendVideo(url)
             }
 
         case let .failure(exception):
-            return exception
+            throw exception
         }
     }
 
@@ -363,8 +386,13 @@ final class MediaActionHandlerService {
             Task {
                 // FIXME: Should delay this to allow ChatPageViewController.viewWillAppear(_:) to fire.
                 self.isPresentingPickerController = false
-                if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await self.onContentPickerDismissed(result)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }
@@ -378,8 +406,13 @@ final class MediaActionHandlerService {
         services.contentPicker.document.onDismiss { result in
             Task {
                 self.isPresentingPickerController = false
-                if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await self.onContentPickerDismissed(result)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }
@@ -393,8 +426,13 @@ final class MediaActionHandlerService {
         services.contentPicker.media.onDismiss { result in
             Task {
                 self.isPresentingPickerController = false
-                if let exception = await self.onContentPickerDismissed(result) {
-                    Logger.log(exception, with: .toast)
+                do throws(Exception) {
+                    try await self.onContentPickerDismissed(result)
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }

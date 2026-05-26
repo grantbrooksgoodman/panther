@@ -152,12 +152,15 @@ struct AnalyticsService {
             }
 
             if let deviceModel = parameters["device_model"],
-               let osVersion = parameters["os_version"],
-               let exception = await notificationService.notifyOfPrevaricationModeAnalyticsEvent(
-                   "ASR [\(deviceModel)/\(osVersion)]",
-                   body: body
-               ) {
-                Logger.log(exception)
+               let osVersion = parameters["os_version"] {
+                do throws(Exception) {
+                    try await notificationService.notifyOfPrevaricationModeAnalyticsEvent(
+                        "ASR [\(deviceModel)/\(osVersion)]",
+                        body: body
+                    )
+                } catch {
+                    Logger.log(error)
+                }
             }
         }
     }

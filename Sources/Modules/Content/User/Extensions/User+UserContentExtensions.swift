@@ -77,7 +77,7 @@ extension User {
     // MARK: - Methods
 
     // NIT: I don't like the fact that this method is needed/useful. Seems like code smell.
-    static func populateCurrentUserConversationsIfNeeded() async -> Exception? {
+    static func populateCurrentUserConversationsIfNeeded() async throws(Exception) {
         func satisfiesConstraints(_ conversation: Conversation) -> Bool {
             let filteringSystemMessages = conversation.filteringSystemMessages
             if !filteringSystemMessages.messageIDs.isBangQualifiedEmpty,
@@ -94,7 +94,7 @@ extension User {
 
         @Dependency(\.clientSession.user.currentUser) var currentUser: User?
         guard let currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
@@ -106,69 +106,46 @@ extension User {
               currentUser
               .conversations?
               .visibleForCurrentUser
-              .contains(where: { satisfiesConstraints($0) }) == true else {
-            return nil
-        }
+              .contains(where: { satisfiesConstraints($0) }) == true else { return }
 
-        if let exception = await currentUser.setConversations() {
-            return exception
-        }
-
-        do {
-            try await (currentUser.conversations ?? [])
-                .visibleForCurrentUser
-                .filter { satisfiesConstraints($0) }
-                .parallelMap {
-                    if let exception = await $0.setMessages() {
-                        throw exception
-                    }
-                }
-        } catch {
-            return error
-        }
-
-        return nil
+        try await currentUser.setConversations()
+        try await (currentUser.conversations ?? [])
+            .visibleForCurrentUser
+            .filter { satisfiesConstraints($0) }
+            .parallelMap { try await $0.setMessages() }
     }
 
     /// - Note: Will set the current user to the result returned by `update`.
-    func removeCurrentPushToken() async -> Exception? {
+    func removeCurrentPushToken() async throws(Exception) {
         @Dependency(\.commonServices.pushToken.currentToken) var currentPushToken: String?
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        guard let currentPushToken else { return nil }
+        guard let currentPushToken else { return }
 
         var filteredPushTokens = (pushTokens ?? []).filter { $0 != currentPushToken }
         if filteredPushTokens.isBangQualifiedEmpty {
             filteredPushTokens = .bangQualifiedEmpty
         }
 
-        do {
-            return try await userSession.setCurrentUser(
-                update(
-                    \.pushTokens,
-                    to: filteredPushTokens
-                )
+        try await userSession.setCurrentUser(
+            update(
+                \.pushTokens,
+                to: filteredPushTokens
             )
-        } catch {
-            return error
-        }
+        )
     }
 
     /// - Note: Will set the current user to the result returned by `update`.
     func updateLastSignedInDate(
         to date: Date = .now
-    ) async -> Exception? {
+    ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
-        do {
-            return try await userSession.setCurrentUser(
-                update(
-                    \.lastSignedIn,
-                    to: date
-                )
+        try await userSession.setCurrentUser(
+            update(
+                \.lastSignedIn,
+                to: date
             )
-        } catch {
-            return error
-        }
+        )
     }
 }
 

@@ -120,14 +120,11 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         )
 
-        if let exception = await propagateUpdatesToUsers(in: updated) {
-            throw exception
-        }
-
+        try await propagateUpdatesToUsers(in: updated)
         if data.keys.contains(\.activities) {
-            if let exception = await updated.setUsers(forceUpdate: true) {
-                throw exception
-            }
+            try await updated.setUsers(
+                forceUpdate: true
+            )
         }
 
         networking.conversationService.archive.addValue(updated)
@@ -145,10 +142,7 @@ extension Conversation: RemotelyUpdatable {
               let messageIDs = (value as? [Message])?.filteringSystemMessages.map(\.id),
               !messageIDs.isEmpty else { return .proceed }
 
-        if let exception = await addMessageIDs(messageIDs) {
-            throw exception
-        }
-
+        try await addMessageIDs(messageIDs)
         return try await .handled(updateIsTyping(updated))
     }
 
@@ -172,15 +166,9 @@ extension Conversation: RemotelyUpdatable {
             ].joined(separator: "/")
         )
 
-        if let exception = await propagateUpdatesToUsers(in: updated) {
-            throw exception
-        }
-
+        try await propagateUpdatesToUsers(in: updated)
         guard key == .activities else { return updated }
-        if let exception = await updated.setUsers(forceUpdate: true) {
-            throw exception
-        }
-
+        try await updated.setUsers(forceUpdate: true)
         return updated
     }
 
@@ -188,7 +176,9 @@ extension Conversation: RemotelyUpdatable {
 
     /// Ensures updates take into account any messages sent during execution of `update` logic.
     /// We disregard modification of the local value, since this scenario should trigger a latent call to `ConversationsPageViewObserver.updateConversations()`.
-    private func addMessageIDs(_ messageIDs: [String]) async -> Exception? {
+    private func addMessageIDs(
+        _ messageIDs: [String]
+    ) async throws(Exception) {
         @Dependency(\.networking) var networking: NetworkServices
 
         let messagesKeyPath = [
@@ -197,42 +187,27 @@ extension Conversation: RemotelyUpdatable {
             Conversation.SerializableKey.messages.rawValue,
         ].joined(separator: "/")
 
-        let currentMessageIDs: [String]
         var newMessageIDs = messageIDs
-
-        do {
-            currentMessageIDs = try await networking.database.getValues(
-                at: messagesKeyPath,
-                cacheStrategy: .disregardCache
-            )
-        } catch {
-            return error
-        }
+        let currentMessageIDs: [String] = try await networking.database.getValues(
+            at: messagesKeyPath,
+            cacheStrategy: .disregardCache
+        )
 
         newMessageIDs += currentMessageIDs
-        do {
-            try await networking.database.setValue(
-                newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
-                forKey: messagesKeyPath
-            )
-        } catch {
-            return error
-        }
-
-        return nil
+        try await networking.database.setValue(
+            newMessageIDs.isBangQualifiedEmpty ? Array.bangQualifiedEmpty : newMessageIDs.unique,
+            forKey: messagesKeyPath
+        )
     }
 
     private func propagateUpdatesToUsers(
         in conversation: Conversation
-    ) async -> Exception? {
+    ) async throws(Exception) {
         @Dependency(\.clientSession.user) var userSession: UserSessionService
 
-        if let exception = await conversation.setUsers(forceUpdate: true) {
-            return exception
-        }
-
+        try await conversation.setUsers(forceUpdate: true)
         guard var users = conversation.users else {
-            return .init(
+            throw Exception(
                 "Failed to set users on conversation.",
                 metadata: .init(sender: self)
             )
@@ -257,20 +232,14 @@ extension Conversation: RemotelyUpdatable {
                 return (user, conversationIDs)
             }
 
-        do {
-            try await eligibleUsers.parallelMap(
-                failFast: false
-            ) {
-                _ = try await $0.user.update(
-                    \.conversationIDs,
-                    to: $0.conversationIDs
-                )
-            }
-        } catch {
-            return error
+        try await eligibleUsers.parallelMap(
+            failFast: false
+        ) {
+            _ = try await $0.user.update(
+                \.conversationIDs,
+                to: $0.conversationIDs
+            )
         }
-
-        return nil
     }
 
     private func updateIDHash(_ conversation: Conversation) -> Conversation {

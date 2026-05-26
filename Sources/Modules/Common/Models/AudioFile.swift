@@ -80,8 +80,10 @@ final class AudioFile: Codable, Equatable, Sendable {
         }
 
         Task {
-            if let exception = await setDuration() {
-                Logger.log(exception)
+            do throws(Exception) {
+                try await setDuration()
+            } catch {
+                Logger.log(error)
             }
         }
     }
@@ -139,22 +141,25 @@ final class AudioFile: Codable, Equatable, Sendable {
         )
     }
 
-    private func setDuration() async -> Exception? {
+    private func setDuration() async throws(Exception) {
         do {
-            let assetReader = try AVAssetReader(asset: .init(url: url))
+            let assetReader = try AVAssetReader(asset: AVURLAsset(url: url))
             let duration: Float = try await .init(assetReader.asset.load(.duration).seconds)
-            guard duration > 0 else { return nil }
+            guard duration > 0 else { return }
 
             var cachedDurationsForLocalPaths = _AudioFileDurationCache.cachedDurationsForLocalPaths ?? [:]
             cachedDurationsForLocalPaths[url] = duration
             _AudioFileDurationCache.cachedDurationsForLocalPaths = cachedDurationsForLocalPaths
 
             contentDuration = duration
+        } catch let error as Exception {
+            throw error
         } catch {
-            return .init(error, metadata: .init(sender: self))
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        return nil
     }
 }
 

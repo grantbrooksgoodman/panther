@@ -59,8 +59,13 @@ struct ContactSelectorPageViewService {
 
     func inviteToolbarButtonTapped() {
         Task { @MainActor in
-            if let exception = await inviteService.presentInvitationPrompt() {
-                Logger.log(exception, with: .toast)
+            do throws(Exception) {
+                try await inviteService.presentInvitationPrompt()
+            } catch {
+                Logger.log(
+                    error,
+                    with: .toast
+                )
             }
         }
     }
@@ -97,7 +102,7 @@ struct ContactSelectorPageViewService {
                     navigation.navigate(to: .chat(.sheet(.none)))
                     Observables.chatInfoPageLoadingStateUpdated.trigger()
 
-                    clientSession.user.stopObservingCurrentUserChanges()
+                    try clientSession.user.stopObservingCurrentUserChanges()
                     defer { clientSession.user.startObservingCurrentUserChanges() }
 
                     do throws(Exception) {

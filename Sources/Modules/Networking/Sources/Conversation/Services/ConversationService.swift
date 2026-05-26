@@ -80,12 +80,10 @@ struct ConversationService {
         )
 
         try await participants.parallelMap {
-            if let exception = await addConversationToUser(
+            try await addConversationToUser(
                 userID: $0.userID,
                 conversationID: conversationID
-            ) {
-                throw exception
-            }
+            )
         }
 
         mockConversation = .init(
@@ -189,20 +187,19 @@ struct ConversationService {
         userIDs: [String],
         conversationIDKey: String,
         failureStrategy: BatchFailureStrategy = .returnOnFailure
-    ) async -> Exception? {
+    ) async throws(Exception) {
         func removeConversationFromUser(
             userID: String,
             conversationIDKey: String
-        ) async -> Exception? {
+        ) async throws(Exception) {
             let userInfo = ["UserID": userID, "ConversationIDKey": conversationIDKey]
 
             guard !userID.isBangQualifiedEmpty,
                   !conversationIDKey.isBangQualifiedEmpty else {
-                let exception = Exception(
+                throw Exception(
                     "Passed arguments fail validation.",
                     metadata: .init(sender: self)
-                )
-                return exception.appending(userInfo: userInfo)
+                ).appending(userInfo: userInfo)
             }
 
             var conversationIDStrings: [String]
@@ -211,7 +208,7 @@ struct ConversationService {
                     for: userID
                 )
             } catch {
-                return error.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
 
             conversationIDStrings.removeAll(where: {
@@ -230,28 +227,18 @@ struct ConversationService {
                     ].joined(separator: "/")
                 )
             } catch {
-                return error.appending(userInfo: userInfo)
+                throw error.appending(userInfo: userInfo)
             }
-
-            return nil
         }
 
-        do {
-            try await userIDs.parallelMap(
-                failFast: failureStrategy == .returnOnFailure
-            ) {
-                if let exception = await removeConversationFromUser(
-                    userID: $0,
-                    conversationIDKey: conversationIDKey
-                ) {
-                    throw exception
-                }
-            }
-        } catch {
-            return error
+        try await userIDs.parallelMap(
+            failFast: failureStrategy == .returnOnFailure
+        ) {
+            try await removeConversationFromUser(
+                userID: $0,
+                conversationIDKey: conversationIDKey
+            )
         }
-
-        return nil
     }
 
     // MARK: - Auxiliary
@@ -259,7 +246,7 @@ struct ConversationService {
     private func addConversationToUser(
         userID: String,
         conversationID: ConversationID
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let userInfo = ["UserID": userID, "ConversationID": conversationID.encoded]
 
         var conversationIDStrings: [String]
@@ -268,7 +255,7 @@ struct ConversationService {
                 for: userID
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
 
         conversationIDStrings.append(conversationID.encoded)
@@ -286,9 +273,7 @@ struct ConversationService {
                 ].joined(separator: "/")
             )
         } catch {
-            return error.appending(userInfo: userInfo)
+            throw error.appending(userInfo: userInfo)
         }
-
-        return nil
     }
 }

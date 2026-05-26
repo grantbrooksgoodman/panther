@@ -27,10 +27,10 @@ final class MessageRecipientConsentService {
 
     // MARK: - Send Consent Message in Current Conversation
 
-    func sendConsentMessageInCurrentConversation() async -> Exception? {
+    func sendConsentMessageInCurrentConversation() async throws(Exception) {
         guard let conversation = clientSession.conversation.fullConversation,
               let currentUser = clientSession.user.currentUser else {
-            return .init(
+            throw Exception(
                 "Failed to resolve either conversation or current user.",
                 metadata: .init(sender: self)
             )
@@ -48,16 +48,28 @@ final class MessageRecipientConsentService {
             messageDeliveryService.addEffectUponIsSendingMessage(changedTo: true, id: .configureInputBar) { self.isSendingMessageTrueEffect() }
         }
 
-        guard !conversation.currentUserInitiatorRequiresMessageReceiptConsent else { return await messageDeliveryService.sendTextMessage(consentMessage) }
+        guard !conversation.currentUserInitiatorRequiresMessageReceiptConsent else {
+            return try await messageDeliveryService.sendTextMessage(
+                consentMessage
+            )
+        }
 
         let acknowledgeAction: AKAction = .init(Localized(.acknowledgeConsent).wrappedValue) {
             Task { @MainActor in
-                if let exception = await self.acknowledgeConsent(forUser: currentUser, inConversation: conversation) {
-                    Logger.log(exception, with: .toast)
-                }
+                do throws(Exception) {
+                    try await self.acknowledgeConsent(
+                        forUser: currentUser,
+                        inConversation: conversation
+                    )
 
-                if let exception = await self.messageDeliveryService.sendTextMessage(consentMessage) {
-                    Logger.log(exception, with: .toast)
+                    try await self.messageDeliveryService.sendTextMessage(
+                        consentMessage
+                    )
+                } catch {
+                    Logger.log(
+                        error,
+                        with: .toast
+                    )
                 }
             }
         }
@@ -82,30 +94,27 @@ final class MessageRecipientConsentService {
                 })
             ))
         ).present(translating: [])
-        return nil
     }
 
     // MARK: - Set Message Recipient Consent Required
 
-    func setMessageRecipientConsentRequired(_ messageRecipientConsentRequired: Bool) async -> Exception? {
+    func setMessageRecipientConsentRequired(
+        _ messageRecipientConsentRequired: Bool
+    ) async throws(Exception) {
         guard let currentUser = clientSession.user.currentUser else {
-            return .init(
+            throw Exception(
                 "Current user has not been set.",
                 metadata: .init(sender: self)
             )
         }
 
-        do {
-            return try await clientSession.user.setCurrentUser(
-                currentUser.update(
-                    \.messageRecipientConsentRequired,
-                    to: messageRecipientConsentRequired
-                ),
-                repopulateValuesIfNeeded: true
-            )
-        } catch {
-            return error
-        }
+        try await clientSession.user.setCurrentUser(
+            currentUser.update(
+                \.messageRecipientConsentRequired,
+                to: messageRecipientConsentRequired
+            ),
+            repopulateValuesIfNeeded: true
+        )
     }
 
     // MARK: - Auxiliary
@@ -113,7 +122,7 @@ final class MessageRecipientConsentService {
     private func acknowledgeConsent(
         forUser user: User,
         inConversation conversation: Conversation
-    ) async -> Exception? {
+    ) async throws(Exception) {
         let newUserAcknowledgementData: MessageRecipientConsentAcknowledgementData = .init(
             userID: user.id,
             consentAcknowledged: true
@@ -129,20 +138,15 @@ final class MessageRecipientConsentService {
             newAcknowledgementData = emptyAcknowledgementData
         }
 
-        do {
-            try await clientSession.conversation.setCurrentConversation(
-                conversation.update(
-                    \.metadata,
-                    to: conversation.metadata.copyWith(
-                        messageRecipientConsentAcknowledgementData: newAcknowledgementData,
-                        nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
-                    )
+        try await clientSession.conversation.setCurrentConversation(
+            conversation.update(
+                \.metadata,
+                to: conversation.metadata.copyWith(
+                    messageRecipientConsentAcknowledgementData: newAcknowledgementData,
+                    nilRequiresConsentFromInitiator: newAcknowledgementData == emptyAcknowledgementData
                 )
             )
-            return nil
-        } catch {
-            return error
-        }
+        )
     }
 
     private func isSendingMessageFalseEffect() {

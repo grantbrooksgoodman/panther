@@ -19,6 +19,7 @@ import Networking
 import Translator
 
 @MainActor
+// swiftlint:disable:next type_body_length
 final class SplashPageViewService: ObservableObject {
     // MARK: - Dependencies
 
@@ -60,7 +61,7 @@ final class SplashPageViewService: ObservableObject {
 
     /// `.viewAppeared`,
     /// `.errorAlertDismissed`
-    func initializeBundle() async -> Exception? {
+    func initializeBundle() async throws(Exception) {
         /* MARK: Service Setup */
 
         Toast.hide()
@@ -90,15 +91,18 @@ final class SplashPageViewService: ObservableObject {
         /* MARK: Offline User Setup */
 
         guard build.isOnline else {
-            if let exception = clientSession.user.setOfflineCurrentUser() {
-                Logger.log(exception)
+            do {
+                try clientSession.user.setOfflineCurrentUser()
+            } catch {
+                Logger.log(error)
             }
 
             initializationProgress = 1
 
-            guard let currentUser = clientSession.user.currentUser else { return nil }
-            core.utils.setLanguageCode(currentUser.languageCode)
-            return nil
+            guard let currentUser = clientSession.user.currentUser else { return }
+            return core.utils.setLanguageCode(
+                currentUser.languageCode
+            )
         }
 
         /* MARK: Pre-flight Configuration */
@@ -114,28 +118,22 @@ final class SplashPageViewService: ObservableObject {
 
         /* MARK: Parallel Initialization */
 
-        // Launch the heaviest independent network calls concurrently.
-        async let resolveAndSetLanguageCodeException = clientSession.user.resolveAndSetLanguageCode()
+        // TODO: Make this completely parallel again.
+        // Launch the heaviest independent network call concurrently.
         async let resolveCurrentUserResult = clientSession.user.resolveCurrentUser()
-        async let resolveValuesException = services.metadata.resolveValues()
 
-        if User.currentUserID != nil,
-           let exception = await resolveAndSetLanguageCodeException {
-            return exception
+        if User.currentUserID != nil {
+            try await clientSession.user.resolveAndSetLanguageCode()
         }
 
-        if let exception = await resolveValuesException {
-            return exception
-        }
+        try await services.metadata.resolveValues()
 
         initializationProgress += 0.02
 
         /* MARK: UpdateService Setup */
 
         services.update.incrementRelaunchCountIfNeeded()
-        if let exception = await services.update.promptToUpdateIfNeeded() {
-            return exception
-        }
+        try await services.update.promptToUpdateIfNeeded()
 
         initializationProgress += 0.01
 
@@ -152,11 +150,13 @@ final class SplashPageViewService: ObservableObject {
 
                 if cacheStatus == .invalid {
                     Application.reset(preserveCurrentUserID: true)
-                    if let exception = await services.remoteCache.setCacheStatus(
-                        .valid,
-                        userID: currentUserID
-                    ) {
-                        Logger.log(exception)
+                    do {
+                        try await services.remoteCache.setCacheStatus(
+                            .valid,
+                            userID: currentUserID
+                        )
+                    } catch {
+                        Logger.log(error)
                     }
                 }
             } catch {
@@ -174,7 +174,7 @@ final class SplashPageViewService: ObservableObject {
             initializationProgress += 0.2
 
             guard let currentUser = clientSession.user.currentUser else {
-                return .init(
+                throw Exception(
                     "Failed to resolve current user.",
                     metadata: .init(sender: self)
                 )
@@ -185,11 +185,11 @@ final class SplashPageViewService: ObservableObject {
             // Must complete before the Firebase observer starts (post-splash),
             // otherwise the observer sees the timestamp change and triggers sign-out.
             if !RuntimeStorage.updatedLastSignInDate {
-                if let exception = await currentUser.updateLastSignedInDate() {
-                    return exception
-                } else {
-                    RuntimeStorage.store(true, as: .updatedLastSignInDate)
-                }
+                try await currentUser.updateLastSignedInDate()
+                RuntimeStorage.store(
+                    true,
+                    as: .updatedLastSignInDate
+                )
             }
 
             Networking.config.setIsEnhancedDialogTranslationEnabled(
@@ -201,24 +201,26 @@ final class SplashPageViewService: ObservableObject {
 
             /* MARK: Contact Pair Archive + Temporary Cache Population */
 
-            if let exception = await ContactService.populateValuesIfNeeded() {
-                Logger.log(exception)
+            do {
+                try await ContactService.populateValuesIfNeeded()
+            } catch {
+                Logger.log(error)
             }
 
             @Persistent(.conversationArchive) var conversationArchive: [Conversation]?
             if (currentUser.conversationIDs ?? []).count > 20,
                (conversationArchive ?? []).isEmpty {
                 let database = LockIsolated(networking.database)
-                if let exception = await database.wrappedValue.populateTemporaryCaches() {
-                    Logger.log(exception)
+                do {
+                    try await database.wrappedValue.populateTemporaryCaches()
+                } catch {
+                    Logger.log(error)
                 }
             }
 
             /* MARK: Conversation Resolution */
 
-            if let exception = await currentUser.setConversations() {
-                return exception
-            }
+            try await currentUser.setConversations()
 
             initializationProgress = 1
 
@@ -228,102 +230,111 @@ final class SplashPageViewService: ObservableObject {
                 guard let self else { return }
 
                 // TODO: Audit this being post-launch.
-                if let exception = await currentUser
-                    .conversations?
-                    .visibleForCurrentUser
-                    .setUsers() {
+                do throws(Exception) {
+                    try await currentUser
+                        .conversations?
+                        .visibleForCurrentUser
+                        .setUsers()
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         with: .toastInPrerelease
                     )
                 }
 
                 let pushTokenService = LockIsolated(services.pushToken)
-                if Networking.config.environment != .staging,
-                   let exception = await pushTokenService
-                   .wrappedValue
-                   .prunePushTokensForCurrentUser() {
+                if Networking.config.environment != .staging {
+                    do throws(Exception) {
+                        try await pushTokenService
+                            .wrappedValue
+                            .prunePushTokensForCurrentUser()
+                    } catch {
+                        Logger.log(
+                            error,
+                            with: .toastInPrerelease
+                        )
+                    }
+                }
+
+                do throws(Exception) {
+                    try await TypingIndicatorService
+                        .resetTypingIndicatorStatusForCurrentUser()
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         with: .toastInPrerelease
                     )
                 }
 
-                if let exception = await TypingIndicatorService
-                    .resetTypingIndicatorStatusForCurrentUser() {
+                do throws(Exception) {
+                    try await services
+                        .notification
+                        .setBadgeNumber(currentUser.calculateBadgeNumber())
+                } catch {
                     Logger.log(
-                        exception,
+                        error,
                         with: .toastInPrerelease
                     )
                 }
 
-                if let exception = await services
-                    .notification
-                    .setBadgeNumber(currentUser.calculateBadgeNumber()) {
+                do throws(Exception) {
+                    try await services
+                        .penPals
+                        .updateSharingDataForKnownUsers()
+                } catch {
                     Logger.log(
-                        exception,
-                        with: .toastInPrerelease
-                    )
-                }
-
-                if let exception = await services
-                    .penPals
-                    .updateSharingDataForKnownUsers() {
-                    Logger.log(
-                        exception,
+                        error,
                         with: .toastInPrerelease
                     )
                 }
             }
+        } catch let error as Exception {
+            guard !error.isEqual(to: .currentUserIDNotSet) else {
+                return initializationProgress = 1
+            }
+
+            throw error
         } catch {
-            guard let exception = error as? Exception else {
-                return .init(
-                    error,
-                    metadata: .init(sender: self)
-                )
-            }
-
-            guard !exception.isEqual(to: .currentUserIDNotSet) else {
-                initializationProgress = 1
-                return nil
-            }
-
-            return exception
+            throw Exception(
+                error,
+                metadata: .init(sender: self)
+            )
         }
-
-        return nil
     }
 
     /// `.errorAlertDismissed`
-    func performRetryHandler() async -> Exception? {
-        func attemptDatabaseRepair() async -> Exception? {
+    func performRetryHandler() async throws(Exception) {
+        func attemptDatabaseRepair() async throws(Exception) {
             didAttemptDatabaseRepair = true
             loadingLabelText = "\(Localized(.repairingData).wrappedValue)..."
 
-            guard let exception = await networking.integrityService.repairDatabase() else { return nil }
-            if exception.isEqual(to: .updateRequired) {
-                services.update.isForcedUpdateRequiredSubject.send(true)
-                return nil
-            }
+            do {
+                try await networking.integrityService.repairDatabase()
+            } catch {
+                if error.isEqual(to: .updateRequired) {
+                    services.update.isForcedUpdateRequiredSubject.send(true)
+                    return
+                }
 
-            return exception
+                throw error
+            }
         }
 
         if let currentUserID = User.currentUserID,
            !didAttemptUserConversion {
             didAttemptUserConversion = true
-            if let exception = await networking.userService.legacy.convertUser(id: currentUserID) {
-                Logger.log(exception)
-                return await attemptDatabaseRepair()
+            do {
+                try await networking.userService.legacy.convertUser(id: currentUserID)
+            } catch {
+                Logger.log(error)
+                try await attemptDatabaseRepair()
             }
         } else if !didAttemptDatabaseRepair {
-            return await attemptDatabaseRepair()
+            try await attemptDatabaseRepair()
         } else {
             Application.reset()
             didAttemptDatabaseRepair = false
         }
-
-        return nil
     }
 
     /// `.initializedBundle`

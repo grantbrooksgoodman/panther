@@ -14,7 +14,6 @@ import AppSubsystem
 import Networking
 
 @RemotelyUpdatable
-// swiftlint:disable:next type_body_length
 final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Properties
 
@@ -33,7 +32,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     @Updatable private(set) var conversationIDs: [ConversationID]?
     private(set) var conversations: [Conversation]?
 
-    private static let coalescer = SingleSlotCoalescer<Exception?>()
+    private static let coalescer = SingleSlotCoalescer<Void>()
 
     // MARK: - Computed Properties
 
@@ -113,14 +112,21 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     // MARK: - Badge Number Calculation
 
     /// - Note: Will return `0` for users other than the current user.
-    func calculateBadgeNumber(_ returnZeroIfFailedOnce: Bool = false) async -> Int {
+    func calculateBadgeNumber(
+        _ returnZeroIfFailedOnce: Bool = false
+    ) async -> Int {
         guard id == User.currentUserID else { return 0 }
 
         if conversationIDs?.isEmpty == false,
            conversations == nil || conversations?.isEmpty == true {
             guard !returnZeroIfFailedOnce else { return 0 }
-            if let exception = await setConversations() {
-                Logger.log(exception, domain: .user)
+            do {
+                try await setConversations()
+            } catch {
+                Logger.log(
+                    error,
+                    domain: .user
+                )
                 return 0
             }
 
@@ -134,8 +140,13 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
                         $0.messages?.isEmpty == true ||
                         $0.filteringSystemMessages.messages?.count != $0.filteringSystemMessages.messageIDs.count
                 }) {
-                if let exception = await conversation.setMessages() {
-                    Logger.log(exception, domain: .user)
+                do {
+                    try await conversation.setMessages()
+                } catch {
+                    Logger.log(
+                        error,
+                        domain: .user
+                    )
                 }
             }
 
@@ -184,28 +195,24 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
 
     // MARK: - Set Conversations
 
-    /// - Note: Returns `nil` if called on a user other than the current user.
-    func setConversations() async -> Exception? {
-        await Self.coalescer(
-            mode: .lastCallerWins
-        ) { [weak self] in
-            guard let self else {
-                return .init(
-                    "User has been deallocated.",
-                    metadata: .init(sender: User.self)
-                )
-            }
-
-            return await _setConversations()
+    /// - Note: Does nothing if called on a user other than the current user.
+    func setConversations() async throws(Exception) {
+        let setConversations: @Sendable () async throws(Exception) -> Void = {
+            try await self._setConversations()
         }
+
+        try await Self.coalescer(
+            mode: .lastCallerWins,
+            setConversations
+        )
     }
 
-    private func _setConversations() async -> Exception? {
+    private func _setConversations() async throws(Exception) {
         @Dependency(\.networking.conversationService) var conversationService: ConversationService
 
         guard !Task.isCancelled,
               id == User.currentUserID,
-              var conversationIDs else { return nil }
+              var conversationIDs else { return }
 
         var conversationsNeedingFetch = Set<ConversationID>()
         var conversationsNeedingUpdate = Set<Conversation>()
@@ -218,7 +225,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
         conversationIDs = conversationIDs.filter { !ignoredConversations.contains($0.key) }
 
         for conversationID in conversationIDs {
-            guard !Task.isCancelled else { return nil }
+            guard !Task.isCancelled else { return }
             if let value = conversationService.archive.getValue(id: conversationID) {
                 decodedConversations.merge(with: [value])
             } else if let value = conversationService.archive.getValue(idKey: conversationID.key) {
@@ -228,7 +235,7 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
             }
         }
 
-        guard !Task.isCancelled else { return nil }
+        guard !Task.isCancelled else { return }
         Logger.log(
             // swiftlint:disable:next line_length
             "Conversations needing update: \(conversationsNeedingUpdate.count)\nConversations needing fetch: \(conversationsNeedingFetch.count)\nIgnored conversations: \(ignoredConversations.count)\nDecoded conversations: \(decodedConversations.count)",
@@ -242,57 +249,43 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
                !existingConversations.isEmpty,
                Set(existingConversations) == decodedConversations {
                 // Exit early to avoid recommitting the same conversations.
-                return nil
+                return
             }
 
-            await commitToMemory(decodedConversations)
-            return nil
+            return await commitToMemory(decodedConversations)
         }
 
-        guard !Task.isCancelled else { return nil }
-        do {
-            try await decodedConversations.merge(
-                with: conversationsNeedingUpdate.parallelMap {
-                    @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
-                    return try await conversationSyncService.synchronizeConversation($0)
-                }
-            )
-        } catch {
-            return error
-        }
+        guard !Task.isCancelled else { return }
+        try await decodedConversations.merge(
+            with: conversationsNeedingUpdate.parallelMap {
+                @Dependency(\.clientSession.conversation.sync) var conversationSyncService: ConversationSyncService
+                return try await conversationSyncService.synchronizeConversation(
+                    $0
+                )
+            }
+        )
 
         guard !conversationsNeedingFetch.isEmpty else {
-            if let exception = validateRatio(
+            try validateRatio(
                 decodedConversations,
                 conversationIDs
-            ) {
-                return exception
-            }
-
-            await commitToMemory(decodedConversations)
-            return nil
-        }
-
-        guard !Task.isCancelled else { return nil }
-        let conversations: [Conversation]
-        do {
-            conversations = try await conversationService.getConversations(
-                idKeys: conversationsNeedingFetch.map(\.key)
             )
-        } catch {
-            return error
+
+            return await commitToMemory(decodedConversations)
         }
+
+        guard !Task.isCancelled else { return }
+        let conversations = try await conversationService.getConversations(
+            idKeys: conversationsNeedingFetch.map(\.key)
+        )
 
         decodedConversations.merge(with: conversations)
-        if let exception = validateRatio(
+        try validateRatio(
             decodedConversations,
             conversationIDs
-        ) {
-            return exception
-        }
+        )
 
         await commitToMemory(decodedConversations)
-        return nil
     }
 
     // MARK: - Equatable Conformance
@@ -333,15 +326,13 @@ final class User: Codable, EncodedHashable, Hashable, @unchecked Sendable {
     private func validateRatio(
         _ firstComparator: any Collection,
         _ secondComparator: any Collection
-    ) -> Exception? {
+    ) throws(Exception) {
         guard firstComparator.count == secondComparator.count else {
-            return .init(
+            throw Exception(
                 "Mismatched ratio returned.",
                 metadata: .init(sender: self)
             )
         }
-
-        return nil
     }
 }
 

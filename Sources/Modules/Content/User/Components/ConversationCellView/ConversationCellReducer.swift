@@ -104,8 +104,11 @@ struct ConversationCellReducer: Reducer {
         case .blockUsersButtonTapped:
             let conversation = state.conversation
             return .fireAndForget {
-                guard let exception = await viewService.blockUsersButtonTapped(conversation) else { return }
-                Logger.log(exception)
+                do throws(Exception) {
+                    try await viewService.blockUsersButtonTapped(conversation)
+                } catch {
+                    Logger.log(error)
+                }
             }
 
         case .cellTapped:
@@ -140,19 +143,26 @@ struct ConversationCellReducer: Reducer {
         case let .deletionActionSheetDismissed(cancelled: cancelled):
             guard !cancelled else { return .none }
 
-            userSession.stopObservingCurrentUserChanges()
+            try? userSession.stopObservingCurrentUserChanges()
             let conversation = state.conversation
             return .task {
                 @Dependency(\.clientSession.conversation) var conversationSession: ConversationSessionService
-                let result = await conversationSession.deleteConversation(conversation)
-                return .deleteConversationReturned(result)
+                do throws(Exception) {
+                    try await conversationSession.deleteConversation(conversation)
+                    return .deleteConversationReturned(nil)
+                } catch {
+                    return .deleteConversationReturned(error)
+                }
             }
 
         case .reportUsersButtonTapped:
             let conversation = state.conversation
             return .fireAndForget {
-                guard let exception = await viewService.reportUsersButtonTapped(conversation) else { return }
-                Logger.log(exception)
+                do throws(Exception) {
+                    try await viewService.reportUsersButtonTapped(conversation)
+                } catch {
+                    Logger.log(error)
+                }
             }
 
         case .userInfoBadgeTapped:
